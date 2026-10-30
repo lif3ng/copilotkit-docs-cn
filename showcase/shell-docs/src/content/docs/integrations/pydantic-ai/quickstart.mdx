@@ -1,40 +1,40 @@
 ---
-title: Quickstart
-description: Turn your Pydantic AI agent into an agent-native application in 10 minutes.
+title: 快速开始
+description: 用 10 分钟把你的 Pydantic AI 智能体变成智能体原生应用。
 icon: "lucide/Play"
 hideTOC: true
 ---
 
 import OpenInspectorStep from "@/snippets/shared/inspector/open-inspector-step.mdx";
 
-## Start with your coding agent
+## 从你的编码智能体开始
 
-Use this prompt to connect your Pydantic AI agent to CopilotKit and verify a working conversation. Your coding agent will follow this guide in your project, or you can work through the manual steps below.
+使用此提示词将你的 Pydantic AI 智能体连接到 CopilotKit，并验证对话正常工作。你的编码智能体会在你的项目中按照本指南操作，你也可以跟着下面的手动步骤一步步来。
 
 <PageAgentPrompt />
 
-## Prerequisites
+## 前置条件
 
-Before you begin, you'll need the following:
+开始之前，你需要准备以下内容：
 
-- An OpenAI API key
+- OpenAI API 密钥
 - Node.js 20+
 - Python 3.9+
-- Your favorite package manager
+- 你喜欢的包管理器
 
-## Getting started
+## 开始使用
 
 <Steps>
     <Step>
-        ### Set up CopilotKit Intelligence
+        ### 设置 CopilotKit Intelligence
 
-        <SignupLink surface="docs_pydantic_ai_quickstart_step1">Sign in to cloud-hosted Intelligence</SignupLink>. Cloud-hosted setup uses a server-side project API key and does not issue `COPILOTKIT_LICENSE_TOKEN`. You will connect the app after you create it below.
+        <SignupLink surface="docs_pydantic_ai_quickstart_step1">登录到云端托管的 Intelligence</SignupLink>。云端托管配置使用服务端项目 API 密钥，不会签发 `COPILOTKIT_LICENSE_TOKEN`。你将在下文创建应用之后把它连接上。
     </Step>
 
     <Step>
-        ### Choose your starting point
+        ### 选择你的起点
 
-        You can either start fresh with our starter template or integrate CopilotKit into your existing Pydantic AI agent.
+        你可以使用我们的起步模板从零开始，也可以将 CopilotKit 集成到你现有的 Pydantic AI 智能体中。
 
         <TailoredContent
             className="step"
@@ -42,44 +42,44 @@ Before you begin, you'll need the following:
         >
         <TailoredContentOption
             id="starter"
-            title="Start from scratch"
-            description="Get started quickly with our ready-to-go starter application."
+            title="从零开始"
+            description="使用我们开箱即用的起步应用快速上手。"
         >
             <Step>
-                ### Run our CLI
+                ### 运行我们的 CLI
 
                 ```bash
                 npx copilotkit@latest create
                 ```
 
-                The CLI walks you through:
+                CLI 会引导你完成：
 
-                - **Project name**
-                - **CopilotKit Intelligence** — persistent threads and the inspector. Choose **Yes** to scaffold a project pre-wired for the platform (the CLI walks you through sign-up, or you can [create an account](https://dashboard.operations.copilotkit.ai/?utm_source=docs&utm_medium=cta&utm_campaign=intelligence&utm_content=docs_cli_prompt) first), or **No** for a standard Pydantic AI setup.
-                - **Framework** — pick **Pydantic AI** when prompted.
+                - **项目名称**
+                - **CopilotKit Intelligence** —— 持久化线程与检查器。选择 **Yes** 可生成一个为该平台预先接线的项目（CLI 会引导你完成注册，你也可以先[创建账号](https://dashboard.operations.copilotkit.ai/?utm_source=docs&utm_medium=cta&utm_campaign=intelligence&utm_content=docs_cli_prompt)），选择 **No** 则使用标准 Pydantic AI 配置。
+                - **框架** —— 出现提示时选择 **Pydantic AI**。
             </Step>
             <Step>
-                ### Install dependencies
+                ### 安装依赖
 
                 ```npm
                 npm install
                 ```
             </Step>
             <Step>
-                ### Configure your environment
+                ### 配置你的环境
 
-                Create a `.env` file in your agent directory and add your OpenAI API key:
+                在智能体目录中创建一个 `.env` 文件，并添加你的 OpenAI API 密钥：
 
                 ```plaintext title="agent/.env"
                 OPENAI_API_KEY=your_openai_api_key
                 ```
 
-                <Callout type="info" title="What about other models?">
-                  The starter template is configured to use OpenAI's GPT-4o by default, but you can modify it to use any language model supported by Pydantic AI.
+                <Callout type="info" title="想使用其他模型提供方？">
+                  起步模板默认配置为使用 OpenAI 的 GPT-4o，但你可以修改它，改用 Pydantic AI 支持的任何语言模型。
                 </Callout>
             </Step>
             <Step>
-                ### Start the development server
+                ### 启动开发服务器
 
                 <Tabs groupId="package-manager" items={['npm', 'pnpm', 'yarn', 'bun']}>
                     <Tab value="npm">
@@ -104,18 +104,18 @@ Before you begin, you'll need the following:
                     </Tab>
                 </Tabs>
 
-                This will start both the UI and agent servers concurrently.
+                这会同时启动 UI 服务端和智能体服务端。
             </Step>
         </TailoredContentOption>
         <TailoredContentOption
             id="bring-your-own"
-            title="Use an existing agent"
-            description="I already have a Pydantic AI agent and want to add CopilotKit."
+            title="使用现有智能体"
+            description="我已经有一个 Pydantic AI 智能体，想添加 CopilotKit。"
         >
             <Step>
-                ### Initialize your agent project
+                ### 初始化你的智能体项目
 
-                If you don't already have a Python project set up, create one using `uv`:
+                如果你还没有设置 Python 项目，使用 `uv` 创建一个：
 
                 ```bash
                 uv init my-agent
@@ -123,31 +123,31 @@ Before you begin, you'll need the following:
                 ```
             </Step>
             <Step>
-                ### Install Pydantic AI with AG-UI
+                ### 安装带 AG-UI 的 Pydantic AI
 
-                Add Pydantic AI with AG-UI support and uvicorn to your project:
+                为你的项目添加带 AG-UI 支持的 Pydantic AI 以及 uvicorn：
 
                 ```bash
                 uv add 'pydantic-ai-slim[ag-ui,openai]>=2,<3' 'starlette>=0.46.2' uvicorn
                 ```
             </Step>
             <Step>
-                ### Configure your environment
+                ### 配置你的环境
 
-                Set your OpenAI API key as an environment variable:
+                将你的 OpenAI API 密钥设置为环境变量：
 
                 ```bash
                 export OPENAI_API_KEY=your_openai_api_key
                 ```
 
-                <Callout type="info" title="What about other models?">
-                  This example uses OpenAI's GPT-4.1-mini, but you can modify it to use any language model supported by Pydantic AI.
+                <Callout type="info" title="想使用其他模型提供方？">
+                  本例使用 OpenAI 的 GPT-4.1-mini，但你可以修改它，改用 Pydantic AI 支持的任何语言模型。
                 </Callout>
             </Step>
             <Step>
-                ### Expose your agent via AG-UI
+                ### 通过 AG-UI 暴露你的智能体
 
-                Update your agent file to expose it as an AG-UI ASGI application:
+                更新你的智能体文件，将其暴露为 AG-UI ASGI 应用：
 
                 ```python title="main.py"
                 from pydantic_ai import Agent
@@ -172,14 +172,14 @@ Before you begin, you'll need the following:
                     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
                 ```
 
-                <Callout type="info" title="What is AG-UI?">
-                  AG-UI is the protocol that lets Copilot Runtime communicate with your Pydantic AI agent.
+                <Callout type="info" title="AG-UI 是什么？">
+                  AG-UI 是让 Copilot Runtime 与你的 Pydantic AI 智能体通信的协议。
                 </Callout>
             </Step>
             <Step>
-                ### Create your frontend
+                ### 创建你的前端
 
-                CopilotKit works with any React-based frontend. We'll use Next.js for this example.
+                CopilotKit 适用于任何基于 React 的前端。本例中我们使用 Next.js。
 
                 ```bash
                 cd ..
@@ -188,17 +188,17 @@ Before you begin, you'll need the following:
                 ```
             </Step>
             <Step>
-                ### Install CopilotKit packages
+                ### 安装 CopilotKit 软件包
 
                 ```npm
                 npm install @copilotkit/react-ui @copilotkit/react-core @copilotkit/runtime @ag-ui/client@1.0.2
                 ```
             </Step>
             <Step>
-                ### Setup Copilot Runtime
+                ### 设置 Copilot Runtime
 
-                Create an API route that connects CopilotKit to the Pydantic AI
-                AG-UI endpoint:
+                创建一个 API 路由，将 CopilotKit 连接到 Pydantic AI
+                的 AG-UI 端点：
 
                 ```tsx title="app/api/copilotkit/[[...slug]]/route.ts" doctest="component"
                 import {
@@ -232,30 +232,28 @@ Before you begin, you'll need the following:
                 export const POST = handler;
                 ```
 
-                From this frontend app directory, connect the runtime to an Intelligence project:
+                在这个前端应用目录下，将运行时连接到一个 Intelligence 项目：
 
                 ```bash title="Terminal"
                 npx copilotkit@latest project select
                 ```
 
-                The command writes the server-side project API key to `.env`. The runtime reads it here:
+                该命令会把服务端项目 API 密钥写入 `.env`。运行时在此处读取它：
 
                 ```plaintext title=".env"
                 CPK_INTELLIGENCE_API_KEY=cpk-...
                 ```
 
-                <Callout type="info" title="Running without the Intelligence Platform?">
-                  Drop the `intelligence` and `identifyUser` options and the runtime falls back
-                  to SSE mode with an in-memory runner. Chat still works, but Threads and the
-                  Inspector stay locked and the key is never read. See
-                  [Connect your runtime to Intelligence](/intelligence/quickstart) for the
-                  full constructor and how to confirm the key is in use.
+                <Callout type="info" title="不使用 Intelligence 平台运行？">
+                  去掉 `intelligence` 与 `identifyUser` 选项，运行时就会回退到使用内存运行器的 SSE 模式。聊天仍可工作，但 Threads 与
+                  Inspector 将保持锁定，密钥也永远不会被读取。完整构造参数以及如何确认密钥已生效，请参阅
+                  [将你的运行时连接到 Intelligence](/intelligence/quickstart)。
                 </Callout>
             </Step>
             <Step>
-                ### Configure CopilotKit Provider
+                ### 配置 CopilotKit Provider
 
-                Wrap your application with the CopilotKit provider:
+                用 CopilotKit provider 包裹你的应用：
 
                 ```tsx title="app/providers.tsx"
                 "use client";
@@ -271,9 +269,8 @@ Before you begin, you'll need the following:
                 }
                 ```
 
-                `app/layout.tsx` is a server component and cannot import the provider
-                directly, so it renders your client file instead. Keep the scaffold's
-                `globals.css` import and add the CopilotKit stylesheet once:
+                `app/layout.tsx` 是服务端组件，无法直接导入 provider，因此它改为渲染你的客户端文件。保留脚手架的
+                `globals.css` 导入，并添加一次 CopilotKit 样式表：
 
                 ```tsx title="app/layout.tsx"
                 import { Providers } from "./providers";
@@ -293,18 +290,17 @@ Before you begin, you'll need the following:
                 }
                 ```
 
-                <Callout type="info" title="This relative runtimeUrl assumes Next.js serves the runtime">
-                  `/api/copilotkit` resolves only because Next.js serves your app and the runtime from the
-                  same origin. A client-only frontend has no shared origin, so it needs a standalone runtime
-                  server of its own and an absolute `runtimeUrl` such as
-                  `http://localhost:8200/api/copilotkit`. The per-frontend guides at `/react-spa`, `/vue`,
-                  `/angular` and `/react-native` each show that setup.
+                <Callout type="info" title="此相对 runtimeUrl 假定由 Next.js 提供运行时服务">
+                  `/api/copilotkit` 之所以能解析，是因为 Next.js 从同一源同时提供你的应用与运行时。纯客户端前端没有共享源，因此它需要
+                  一个自己独立的运行时服务端，以及一个绝对的 `runtimeUrl`，例如
+                  `http://localhost:8200/api/copilotkit`。`/react-spa`、`/vue`、
+                  `/angular` 和 `/react-native` 的各前端指南都展示了这种配置。
                 </Callout>
             </Step>
             <Step>
-              ### Add the chat interface
+              ### 添加聊天界面
 
-              Add the CopilotSidebar component to your page:
+              将 CopilotSidebar 组件添加到你的页面：
 
               ```tsx title="app/page.tsx"
               "use client"; // [!code highlight]
@@ -323,22 +319,22 @@ Before you begin, you'll need the following:
               ```
             </Step>
             <Step>
-                ### Start your agent
+                ### 启动你的智能体
 
-                From the frontend directory created above, start the agent
-                server:
+                在上面创建的前端目录下，启动智能体
+                服务端：
 
                 ```bash
                 cd ../my-agent
                 uv run main.py
                 ```
 
-                Your agent will be available at `http://localhost:8000`.
+                你的智能体将可在 `http://localhost:8000` 访问。
             </Step>
             <Step>
-                ### Start your UI
+                ### 启动你的 UI
 
-                In a separate terminal, navigate to your frontend directory and start the development server:
+                在单独的终端中，进入你的前端目录并启动开发服务器：
 
                 <Tabs groupId="package-manager" items={['npm', 'pnpm', 'yarn', 'bun']}>
                     <Tab value="npm">
@@ -371,9 +367,9 @@ Before you begin, you'll need the following:
     </TailoredContent>
     </Step>
     <Step>
-        ### 🎉 Start chatting!
+        ### 🎉 开始聊天！
 
-        Your AI agent is now ready to use! Navigate to `localhost:3000` and try asking it some questions:
+        你的 AI 智能体现在已经可以使用了！前往 `localhost:3000`，试着问它几个问题：
 
         ```
         Can you tell me a joke?
@@ -388,11 +384,11 @@ Before you begin, you'll need the following:
         ```
 
         <Accordions className="mb-4">
-            <Accordion title="Troubleshooting">
-                - If you're having connection issues, try using `0.0.0.0` or `127.0.0.1` instead of `localhost`
-                - Make sure your agent is running on port 8000
-                - Check that your OpenAI API key is correctly set
-                - Verify that the `@ag-ui/client` package is installed in your frontend
+            <Accordion title="故障排查">
+                - 如果遇到连接问题，尝试用 `0.0.0.0` 或 `127.0.0.1` 代替 `localhost`
+                - 确保你的智能体运行在端口 8000 上
+                - 检查你的 OpenAI API 密钥是否已正确设置
+                - 确认前端中已安装 `@ag-ui/client` 软件包
             </Accordion>
         </Accordions>
 
@@ -404,32 +400,32 @@ Before you begin, you'll need the following:
 
 </Steps>
 
-## What's next?
+## 接下来做什么？
 
-Now that you have your basic agent setup, explore these advanced features:
+现在你已经完成了基础的智能体设置，来探索这些进阶特性：
 
 <Cards>
   <Card
-    title="Implement Human in the Loop"
-    description="Allow your users and agents to collaborate together on tasks."
+    title="实现人机协同"
+    description="让你的用户与智能体在任务上协同合作。"
     href="/pydantic-ai/human-in-the-loop"
     icon={<UserIcon />}
   />
   <Card
-    title="Utilize the Shared State"
-    description="Learn how to synchronize your agent's state with your UI's state, and vice versa."
+    title="利用共享状态"
+    description="了解如何将智能体状态与 UI 状态相互同步。"
     href="/pydantic-ai/shared-state"
     icon={<RepeatIcon />}
   />
   <Card
-    title="Add some generative UI"
-    description="Render your agent's progress and output in the UI."
+    title="添加一些生成式 UI"
+    description="在 UI 中渲染智能体的进度与输出。"
     href="/pydantic-ai/generative-ui/tool-rendering"
     icon={<PaintbrushIcon />}
   />
   <Card
-    title="Setup frontend actions"
-    description="Give your agent the ability to call frontend tools, directly updating your application."
+    title="设置前端操作"
+    description="让你的智能体能够调用前端工具，直接更新你的应用。"
     href="/pydantic-ai/frontend-tools"
     icon={<WrenchIcon />}
   />

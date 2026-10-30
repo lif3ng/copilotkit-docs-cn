@@ -1,6 +1,6 @@
 ---
-title: Sub-Agents
-description: Decompose work across multiple specialized agents with a visible delegation log.
+title: 子智能体
+description: 将工作分解给多个专门化的智能体，并提供可见的委派日志。
 icon: "lucide/Users"
 hideTOC: true
 snippet_cell: subagents
@@ -8,91 +8,60 @@ snippet_cell: subagents
 
 <InlineDemo demo="subagents" llmRegion="subagent-state-from-result" />
 
-## What is this?
+## 这是什么？
 
-Sub-agents are the canonical multi-agent pattern: a top-level
-**supervisor** LLM orchestrates one or more specialized **sub-agents**
-by exposing each of them as a tool. The supervisor decides what to
-delegate, the sub-agents do their narrow job, and their results flow
-back up to the supervisor's next step.
+子智能体是多智能体的经典模式：顶层的 **监督者**（supervisor）LLM 将一个或多个专门化的 **子智能体**（sub-agent）各自暴露为一个工具并加以编排。监督者决定委派什么，子智能体完成各自范围内的任务，其结果再回流到监督者的下一步。
 
-This is fundamentally the same shape as tool-calling, but each "tool"
-is itself a full-blown agent with its own system prompt and (often) its
-own tools, memory, and model.
+这在结构上与工具调用本质相同，只是每个“工具”本身就是一个完整的智能体，拥有自己的系统提示词，通常还拥有自己的工具、记忆和模型。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Reach for sub-agents when a task has distinct specialized sub-tasks
-that each benefit from their own focus:
+当一项任务包含多个界限清晰、各有所长的子任务，且每个子任务都能受益于独立的专注点时，就适合使用子智能体：
 
-- **Research → Write → Critique** pipelines, where each stage needs a
-  different system prompt and temperature.
-- **Router + specialists**, where one agent classifies the request and
-  dispatches to the right expert.
-- **Divide-and-conquer** — any problem that fits cleanly into parallel
-  or sequential sub-problems.
+- **研究 → 写作 → 评审**管线：每个阶段需要不同的系统提示词和 temperature。
+- **路由 + 专家**：由一个智能体对请求进行分类，并分派给合适的专家。
+- **分而治之**：任何能干净地拆分为并行或串行子问题的问题。
 
-The example below uses the Research → Write → Critique shape as the
-canonical example.
+下面的示例使用“研究 → 写作 → 评审”形态作为标准示例。
 
-## Setting up sub-agents
+## 配置子智能体
 
 <FrameworkSetup concept="subagents-setup" />
 
-Each sub-agent is an isolated agent call with its own model, system
-prompt, and optional tools. They don't share memory or tools with the
-supervisor; the supervisor only ever sees what the sub-agent returns.
+每个子智能体都是一次隔离的智能体调用，拥有自己的模型、系统提示词和可选工具。它们不与监督者共享记忆或工具；监督者只会看到子智能体返回的内容。
 
-<Snippet region="subagent-setup" title="backend/agent.py — three sub-agents" />
+<Snippet region="subagent-setup" title="backend/agent.py —— 三个子智能体" />
 
-Keep sub-agent system prompts narrow and focused. The point of this pattern
-is that each one does one thing well. If a sub-agent needs to know
-the whole user context to do its job, that's a signal the boundary is
-wrong.
+子智能体的系统提示词要保持狭窄而专注。这一模式的核心在于每个子智能体只把一件事做好。如果一个子智能体需要了解完整的用户上下文才能完成工作，那就说明边界划分有问题。
 
-## Exposing sub-agents as tools
+## 将子智能体暴露为工具
 
-The supervisor delegates by calling tools. Each delegation tool is a thin
-wrapper around a specialized agent call that:
+监督者通过调用工具来委派。每个委派工具都是对专门化智能体调用的一层轻量包装，它会：
 
-1. Runs the sub-agent on the supplied `task` string.
-2. Records the delegation into a `delegations` slot in shared agent
-   state (so the UI can render a live log).
-3. Returns the sub-agent's final message as the tool result, which the
-   supervisor sees on its next turn.
+1. 使用传入的 `task` 字符串运行子智能体。
+2. 将这次委派记录到共享智能体状态的 `delegations` 插槽中（以便 UI 能渲染实时日志）。
+3. 将子智能体的最终消息作为工具结果返回，监督者会在它的下一轮看到该结果。
 
-<Snippet region="supervisor-delegation-tools" title="backend/agent.py — supervisor tools" />
+<Snippet region="supervisor-delegation-tools" title="backend/agent.py —— 监督者工具" />
 
-This is where CopilotKit's shared-state channel earns its keep: the
-supervisor's tool calls mutate `delegations` as they happen, and the
-frontend renders every new entry live.
+这正是 CopilotKit 共享状态通道大显身手的地方：监督者的工具调用在发生时会即时修改 `delegations`，前端则实时渲染每一条新记录。
 
 <Callout type="warn">
-  Give every delegation a stable `id` and merge new entries by that `id`. The
-  client sends its copy of shared state back as run input on every run, so a
-  slot that blindly appends whatever it receives — a LangGraph
-  `Annotated[list, operator.add]` reducer, for example — concatenates the
-  entries the client just echoed onto the ones the agent already has, and the
-  log doubles when a thread is continued.
+  为每次委派分配一个稳定的 `id`，并按该 `id` 合并新记录。客户端在每次运行时都会把它持有的共享状态副本作为运行输入发回，因此一个盲目追加所收到内容的插槽——例如 LangGraph 的 `Annotated[list, operator.add]` reducer——会把客户端刚回传的记录拼接到智能体已有的记录之后，线程继续时日志就会翻倍。
 </Callout>
 
-## Rendering a live delegation log
+## 渲染实时委派日志
 
-On the frontend, the delegation log is a reactive render of the
-`delegations` slot.
+在前端，委派日志就是对 `delegations` 插槽的响应式渲染。
 
 <FrontendOnly frontend="react">
-Subscribe with `useAgent({ updates:
-[UseAgentUpdate.OnStateChanged, UseAgentUpdate.OnRunStatusChanged] })`,
-read `agent.state.delegations`, and render one card per entry.
+通过 `useAgent({ updates: [UseAgentUpdate.OnStateChanged, UseAgentUpdate.OnRunStatusChanged] })` 订阅更新，读取 `agent.state.delegations`，并为每条记录渲染一张卡片。
 
-<Snippet region="delegation-log-frontend" title="frontend/src/app/delegation-log.tsx — live log component" />
+<Snippet region="delegation-log-frontend" title="frontend/src/app/delegation-log.tsx —— 实时日志组件" />
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
-Read the selected agent's state through `injectAgentStore`, derive the
-delegations with `computed`, and register one typed renderer for each sub-agent
-tool. The Angular Showcase uses this source:
+通过 `injectAgentStore` 读取所选智能体的状态，用 `computed` 派生出委派数据，并为每个子智能体工具注册一个类型化渲染器。Angular Showcase 使用以下源码：
 
 <AngularSnippet
   region="subagent-delegation-state"
@@ -100,13 +69,9 @@ tool. The Angular Showcase uses this source:
 />
 </FrontendOnly>
 
-The result: as the supervisor fans work out to its sub-agents, the log
-grows in real time, giving the user visibility into a process that
-would otherwise be a long opaque spinner.
+最终效果：当监督者把工作分派给各个子智能体时，日志会实时增长，让用户能看到整个过程，而不再只是一段漫长且不透明的加载动画。
 
-## Related
+## 相关内容
 
-- **[Shared State](/shared-state)** — the channel that makes the
-  delegation log live.
-- **[State streaming](/shared-state/streaming)** — stream
-  *individual* sub-agent outputs token-by-token inside each log entry.
+- **[共享状态](/shared-state)** —— 让委派日志实时呈现的通道。
+- **[状态流式传输](/shared-state/streaming)** —— 在每条日志记录内逐 token 流式传输*单个*子智能体的输出。

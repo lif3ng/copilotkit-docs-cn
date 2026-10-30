@@ -1,170 +1,130 @@
 ---
-title: "User Memories"
-description: "Give your agents long-term memory across conversations."
+title: "用户记忆"
+description: "赋予你的智能体跨对话的长期记忆。"
 icon: "lucide/Brain"
 doc_type: explanation
 ---
 
 import { MemorySetupPrompt } from "@/components/memory-setup-prompt";
 
-## Overview
+## 概览
 
-AG-UI Streams remember a conversation. User Memory remembers a person. This page explains
-what a memory is, how recall selects them, and what has to be true of your
-deployment before the memory surfaces exist at all.
+AG-UI Streams 记住的是一段对话，用户记忆记住的是一个人。本页解释记忆是什么、召回如何筛选记忆，以及在你的部署中要满足哪些前提条件，记忆相关界面才会存在。
 
-If you are looking for the persistence architecture beneath a single
-conversation, read [AG-UI Streams & Framework Threads](/intelligence/threads-explained)
-instead.
+如果你想了解单次对话底层的持久化架构，请阅读 [AG-UI Streams 与框架线程](/intelligence/threads-explained)。
 
-## Start with your coding agent
+## 从你的编码智能体开始
 
-Copy this prompt into your coding agent to inspect your existing CopilotKit app and configure long-term memory for your users. Prefer to work through the setup yourself? Follow the manual steps below.
+将以下提示复制到你的编码智能体中，让它检查你现有的 CopilotKit 应用并为你的用户配置长期记忆。更愿意自己完成配置？请按照下方的手动步骤操作。
 
 <MemorySetupPrompt />
 
-## What is a memory?
+## 什么是记忆？
 
-A memory is a short, durable statement about a user or a project, stored outside
-any single thread. "Prefers concise status updates" is a memory. The forty
-messages that revealed the preference are a thread.
+记忆是关于某个用户或项目的简短而持久的一条陈述，存储在任何单个线程之外。“偏好简洁的状态更新”是一条记忆。揭示这一偏好的四十条消息则是一个线程。
 
-The distinction matters because the two have different lifetimes. A thread is
-finished when the conversation is. A memory is meant to outlive it, and to be
-recalled into a conversation that has not happened yet.
+这一区分很重要，因为两者的生命周期不同。对话结束，线程也就结束了；而记忆则被设计为比线程更长久，并被召回到尚未发生的对话中。
 
-Memories are stored as text plus a vector embedding, so recall is semantic
-rather than a keyword match. Asking for "how does this user like updates" can
-surface "prefers concise status updates" without sharing a word with it.
+记忆以文本加向量嵌入的形式存储，因此召回是语义层面的，而不是关键词匹配。查询“这位用户喜欢怎样的更新”可以召回“偏好简洁的状态更新”，两者可以没有一个共同词。
 
-## Set up User Memories
+## 设置用户记忆
 
-When you are done, your app will be able to save a memory for a signed-in user and recall it in a later conversation.
+完成之后，你的应用将能够为已登录用户保存记忆，并在之后的对话中召回它。
 
 <Steps>
   <Step>
-    ### Connect CopilotKit Intelligence
+    ### 连接 CopilotKit Intelligence
 
-    Complete the [Intelligence quickstart](/intelligence/quickstart#set-it-up-manually). That page signs you in with the CLI, selects the project, and configures server-side user identity. Your existing app and agent stay in place.
+    完成 [Intelligence 快速开始](/intelligence/quickstart#set-it-up-manually)。该页面会引导你用 CLI 登录、选择项目，并配置服务端用户身份。你现有的应用和智能体保持不变。
   </Step>
 
   <Step>
-    ### Confirm memory access
+    ### 确认记忆访问权限
 
-    Check your deployment's memory entitlement and embedding configuration using [Activating memory](#activating-memory) below. Cloud-hosted deployments require no embedder configuration on your side. Self-hosted deployments need both a memory-enabled license and a configured embedder.
+    按照下方的[激活记忆](#激活记忆)检查你部署的记忆权益与嵌入配置。云托管部署无需你做任何嵌入器配置。自托管部署则既需要启用记忆的许可证，也需要配置好嵌入器。
   </Step>
 
   <Step>
-    ### Save and recall a memory
+    ### 保存并召回记忆
 
-    Choose the appropriate [reading and writing interface](#reading-and-writing-memories) for your app. Save a memory for the signed-in user, then recall it with a related query in a new conversation. Confirm the saved memory is returned.
+    为你的应用选择合适的[读取与写入接口](#读取与写入记忆)。为已登录用户保存一条记忆，然后在新对话中用相关查询召回它。确认保存的记忆被返回。
   </Step>
 </Steps>
 
-## Key concepts
+## 核心概念
 
-### The three kinds
+### 三种类型
 
-Every memory is one of three kinds. The kind is supplied by whoever saves it and
-is never inferred.
+每条记忆都属于三种类型之一。类型由保存者提供，绝不会被推断。
 
-| Kind | What it holds |
-|------|---------------|
-| `topical` | A durable fact about the subject matter, independent of when it was learned. |
-| `episodic` | Something that happened, anchored to an occasion. |
-| `operational` | A preference or working instruction about how to behave. |
+| 类型 | 内容 |
+|------|------|
+| `topical` | 关于主题的持久事实，与它被习得的时间无关。 |
+| `episodic` | 发生过的某件事，锚定于某个场合。 |
+| `operational` | 关于如何表现的偏好或工作指令。 |
 
-The kind is not cosmetic. Deduplication and supersession are same-kind
-operations, so a `topical` fact and an `operational` preference with identical
-text are two memories, not one.
+类型不只是装饰。去重和取代都是同类型操作，因此文本完全相同的一条 `topical` 事实和一条 `operational` 偏好是两条记忆，而不是一条。
 
-### User and project scope
+### 用户与项目范围
 
-A memory is scoped to a single user or shared across a project.
+记忆可以限定于单个用户，也可以在整个项目内共享。
 
-- **`user`** is the platform default. Omit `scope` and you get it. This is the
-  only scope delivered over realtime today.
-- **`project`** is shared, and must be requested explicitly.
+- **`user`** 是平台默认值。省略 `scope` 即为该值。这是目前唯一通过实时通道分发的范围。
+- **`project`** 是共享的，必须显式请求。
 
-Scope is enforced per request against the caller's grant, so a client holding
-read-only access to project scope cannot write to it.
+范围在每个请求中都会根据调用方的授权强制执行，因此只拥有项目范围只读权限的客户端无法对其进行写入。
 
-### Saving a near-duplicate absorbs it
+### 保存近似重复项会被吸收
 
-If you save content that closely matches a live memory in the same tenant,
-scope, and kind, the platform does not create a second row. It absorbs the new
-content into the existing memory, unions the source threads, and refreshes
-recency.
+如果你保存的内容与同一租户、同一范围、同一类型下某条活跃记忆高度相近，平台不会创建第二行，而是把新内容吸收进现有记忆、合并来源线程，并刷新新近度。
 
-The save still succeeds, and the result tells you which happened, so a UI or an
-agent can say "absorbed into an existing memory" rather than implying something
-new was written.
+保存操作仍然成功，且结果会告诉你发生了哪种情况，因此 UI 或智能体可以明确表示“已吸收进现有记忆”，而不是暗示写入了新内容。
 
-### Updating is a full replacement, not a patch
+### 更新是整体替换，而非补丁
 
-Updating a memory supersedes it: the old memory is retired and a new one is
-created with a new `id`. The change set you supply is the complete definition of
-the new memory.
+更新记忆会取代它：旧记忆被退役，并创建一条带新 `id` 的新记忆。你提交的变更集就是新记忆的完整定义。
 
 <Callout type="warn">
-Omitting `sourceThreadIds` on an update does not preserve the previous value, it
-resets the new memory's source threads to empty. Re-send `content`, `kind`, and
-any `sourceThreadIds` you want to keep.
+在更新时省略 `sourceThreadIds` 并不会保留原值，而是会把新记忆的来源线程重置为空。请重新提交 `content`、`kind` 以及所有你想保留的 `sourceThreadIds`。
 </Callout>
 
-### Removing is a retirement, not a delete
+### 移除是退役，而非删除
 
-Removing a memory retires it rather than erasing it. Retired memories are
-excluded from recall and from the default list, and can be surfaced again by
-asking for invalidated rows explicitly.
+移除记忆会让它退役，而不是彻底抹除。已退役的记忆不会出现在召回结果和默认列表中，但可以通过显式请求已失效的行来再次查看。
 
-## Activating memory
+## 激活记忆
 
 <Callout type="info">
-Memory is not a feature flag. There is no `MEMORY_ENABLED` environment variable
-and no `memory.enabled` Helm value. Access is granted by entitlement, and the
-embedder is configured separately at startup.
+记忆不是一个功能开关。不存在 `MEMORY_ENABLED` 环境变量，也不存在 `memory.enabled` Helm 配置值。访问由权益授予，嵌入器则在启动时单独配置。
 </Callout>
 
-Two independent things must be true before a caller can use memory:
+在调用方能够使用记忆之前，必须同时满足两个相互独立的条件：
 
-1. The deployment or organization is **entitled** to memory.
-2. app-api has valid **embedder configuration**.
+1. 该部署或组织拥有记忆的**权益**。
+2. app-api 具有有效的**嵌入器配置**。
 
-Entitlement resolution fails closed. An unresolved entitlement, an inactive one,
-or a dependency outage all deny memory rather than allowing it.
+权益解析采用默认拒绝策略。未能解析的权益、处于非激活状态的权益或依赖服务故障，都会拒绝记忆访问，而不是放行。
 
-### Self-hosted
+### 自托管
 
-The signed deployment license is the authority. Memory is available when that
-license carries the `memory` feature, which today ships in the enterprise plan.
-If your license does not include it, no amount of configuration will mount the
-surfaces, and the correct next step is to talk to us about the license rather
-than to keep editing values files.
+已签名的部署许可证是唯一依据。当许可证包含 `memory` 特性时记忆才可用，该特性目前随 enterprise 计划提供。如果你的许可证不包含它，再多配置也无法挂载这些界面，正确的下一步是与我们沟通许可证问题，而不是继续修改 values 文件。
 
-The embedder is configured through these variables, which the chart templates
-for you:
+嵌入器通过以下变量配置，chart 会为你在模板中生成它们：
 
-| Variable | Purpose |
-|----------|---------|
-| `MEMORY_EMBEDDINGS_URL` | Base URL of an OpenAI-compatible embeddings endpoint. Required. |
-| `MEMORY_EMBEDDING_MODEL` | Embedding model id sent to that endpoint. Required. |
-| `MEMORY_EMBEDDINGS_API_KEY` | Optional bearer token. Leave unset for the bundled in-cluster embedder. |
-| `MEMORY_EMBEDDINGS_DIMENSIONS` | Optional. Must be `1024`, because storage is a 1024-dimension half-precision vector. |
+| 变量 | 用途 |
+|------|------|
+| `MEMORY_EMBEDDINGS_URL` | OpenAI 兼容嵌入端点的基础 URL。必填。 |
+| `MEMORY_EMBEDDING_MODEL` | 发送给该端点的嵌入模型 id。必填。 |
+| `MEMORY_EMBEDDINGS_API_KEY` | 可选的 Bearer 令牌。使用内置集群内嵌入器时请留空。 |
+| `MEMORY_EMBEDDINGS_DIMENSIONS` | 可选。必须为 `1024`，因为存储的是 1024 维半精度向量。 |
 
-Two consequences worth knowing before you deploy:
+部署之前值得了解的两个后果：
 
-- **app-api refuses to start** if a required variable is missing or invalid.
-  This is deliberate. Entitlements can change while the process is running, so
-  it must never come up with memory routes and no embedder behind them.
-- **pgvector must be installed on the database server.** The migration that
-  creates the memory table also creates the extension, and the migration job
-  fails without it.
+- 如果必需变量缺失或无效，**app-api 会拒绝启动**。
+  这是有意为之。权益可能在进程运行期间发生变化，因此绝不能出现记忆路由存在而背后却没有嵌入器的情况。
+- **数据库服务器上必须安装 pgvector**。创建记忆表的迁移同时会创建该扩展，缺少它时迁移任务会失败。
 
-By default the chart deploys an in-cluster text-embeddings-inference workload
-and points app-api at it. To use a hosted provider instead, set an external
-embeddings URL and model, at which point the in-cluster workload is not
-rendered:
+默认情况下，chart 会部署一个集群内的 text-embeddings-inference 工作负载，并让 app-api 指向它。若要改用托管提供方，请设置外部的嵌入 URL 和模型，此时集群内工作负载将不再被渲染：
 
 ```yaml title="values.yaml"
 embeddings:
@@ -178,40 +138,26 @@ embeddings:
 ```
 
 <Callout type="warn">
-Changing the embedding model or provider changes the vector space. Existing
-memories were embedded in the old space and are not comparable in the new one,
-so recall quality degrades until they are re-embedded. Treat a model change as a
-migration, not a config tweak.
+更改嵌入模型或提供方会改变向量空间。现有记忆是在旧空间中嵌入的，在新空间中无法比较，因此在重新嵌入之前召回质量会下降。请把模型变更当作一次迁移，而不是调整配置。
 </Callout>
 
-### Cloud-hosted
+### 云托管
 
-On cloud-hosted Intelligence, memory is resolved per organization from that
-organization's effective entitlement, combining its plan features with any
-enterprise override. Nothing needs configuring on your side.
+在云托管 Intelligence 上，记忆按组织解析，依据是该组织的有效权益，即其计划特性与任何企业级覆盖的组合。你这边无需任何配置。
 
-## Limiting access per request
+## 按请求限制访问
 
-The runtime configuration in this section uses the TypeScript API. Python, Go, Ruby, and C#/.NET have different policy callbacks; see [Memory policies in other runtime languages](#memory-policies-in-other-runtime-languages).
+本节的运行时配置使用 TypeScript API。Python、Go、Ruby 和 C#/.NET 有不同的策略回调；参见[其他运行时语言中的记忆策略](#其他运行时语言中的记忆策略)。
 
-Entitlement decides whether memory exists for a deployment. `memory.access`
-decides what one request may do with it. It is a single policy on the
-Intelligence runtime, and it governs **both** memory surfaces: the tools an
-agent gets during a run, and the browser routes behind `useMemories()`.
+权益决定一个部署是否拥有记忆，`memory.access` 决定单个请求可以用它做什么。它是 Intelligence 运行时上的单一策略，同时约束**两个**记忆界面：智能体在运行期间获得的工具，以及 `useMemories()` 背后的浏览器路由。
 
 <Callout type="warn">
-Omitting the `memory` option does not switch memory off — it removes the limit.
-On its own it leaves both surfaces off, but either can still be turned on without
-a policy, and then it runs with `read-write` on both scopes for every
-authenticated request:
+省略 `memory` 选项并不会关闭记忆——而是移除了限制。仅省略该选项时两个界面都处于关闭状态，但任何一个仍可以在没有策略的情况下被开启，届时对每个已通过身份验证的请求，它都会以两个范围均为 `read-write` 的方式运行：
 
-- With `enableEnterpriseLearning` on, agent runs get all three memory tools,
-  subject only to your organization's entitlement.
-- The deprecated `exposeMemoryRoutes: true` flag mounts the browser routes with
-  no policy behind them.
+- 启用 `enableEnterpriseLearning` 后，智能体运行会获得全部三个记忆工具，仅受你所在组织权益的限制。
+- 已弃用的 `exposeMemoryRoutes: true` 标志会挂载浏览器路由，且背后没有任何策略。
 
-This is the opposite of Channels, where a run gets no memory unless it asks.
-Configure `memory.access` whenever either surface is on.
+这与 Channels 正好相反：在 Channels 中，运行若不主动请求就没有记忆。只要任一界面开启，就请配置 `memory.access`。
 </Callout>
 
 ```ts title="runtime.ts"
@@ -232,90 +178,66 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-The callback runs once per request, after `identifyUser` has resolved, and
-receives:
+该回调在每个请求中运行一次，在 `identifyUser` 解析完成之后执行，并接收：
 
-| Field | Meaning |
-|-------|---------|
-| `request` | The incoming `Request`, if the decision needs a header, cookie, or path. |
-| `user` | The application user `identifyUser` returned. |
-| `consumer` | `"agent"` for an agent run, `"client"` for the browser memory routes. |
+| 字段 | 含义 |
+|------|------|
+| `request` | 传入的 `Request`，当决策需要请求头、Cookie 或路径时使用。 |
+| `user` | `identifyUser` 返回的应用用户。 |
+| `consumer` | 智能体运行为 `"agent"`，浏览器记忆路由为 `"client"`。 |
 
-Return a grant naming both scopes, or `null`. Each scope takes `"none"`,
-`"read"`, or `"read-write"`. The policy may be async.
+返回一个同时指定两个范围的授权（grant），或返回 `null`。每个范围可取 `"none"`、`"read"` 或 `"read-write"`。该策略可以是异步的。
 
-### What each outcome does
+### 每种结果的行为
 
-`null` and a grant with every scope at `"none"` are one outcome, not two — both
-mean "this request gets no memory". What that costs depends on what the caller
-asked for:
+`null` 与所有范围均为 `"none"` 的授权是同一种结果，而非两种——都表示“此请求无法使用记忆”。代价取决于调用方请求的是什么：
 
-| The policy returns | Agent run | Browser `/memories/*` |
-|--------------------|-----------|------------------------|
-| A grant with any scope above `"none"` | Memory tools attach, filtered to the granted scopes | The request proceeds |
-| `null`, or every scope `"none"` | **The run proceeds with no memory tools** | **403** |
-| Nothing (`undefined`), or an access level outside the three | 500 | 500 |
-| A thrown error | 500 | 500 |
+| 策略返回 | 智能体运行 | 浏览器 `/memories/*` |
+|----------|-----------|----------------------|
+| 任一范围高于 `"none"` 的授权 | 挂载记忆工具，按授权范围过滤 | 请求正常进行 |
+| `null`，或所有范围均为 `"none"` | **运行继续进行，但没有记忆工具** | **403** |
+| 无返回（`undefined`），或访问级别不在三者之内 | 500 | 500 |
+| 抛出错误 | 500 | 500 |
 
-The asymmetry is deliberate. A conversation asked for something other than
-memories, so switching memory off must not cost the user their assistant. The
-browser routes exist only to serve memories, so "you may not have them" answers
-the question actually asked — and an empty list would falsely imply none exist.
+这种不对称是有意为之。对话请求的是记忆之外的东西，因此关闭记忆不能让用户失去助手。浏览器路由的存在只是为了提供记忆，因此“你不能访问记忆”直接回答了实际提出的问题——而返回空列表会错误地暗示记忆不存在。
 
-A missing return is treated as a broken policy rather than a restrictive one,
-so a branch that forgets to `return` fails loudly instead of quietly switching
-memory off.
+缺少返回值会被视为策略损坏，而不是限制性策略，因此忘记 `return` 的分支会大声报错，而不是悄悄关闭记忆。
 
-A grant that allows one scope and not the other is honoured exactly: a
-`{ user: "read", project: "none" }` grant registers `recall_memory` alone,
-scoped to user memory, and leaves `save_memory` and `forget_memory` unregistered
-so the agent never sees a tool it may not call.
+只允许一个范围而不允许另一个范围的授权会被严格执行：`{ user: "read", project: "none" }` 的授权只注册 `recall_memory`（限定于用户记忆），而不注册 `save_memory` 和 `forget_memory`，这样智能体永远不会看到自己无权调用的工具。
 
 <Callout type="info">
-`memory.access` is a memory policy, not an authorization gate on the request.
-To reject a request outright, use `beforeRequestMiddleware`, which can refuse
-before any of this runs.
+`memory.access` 是记忆策略，不是针对请求的授权闸门。要直接拒绝请求，请使用 `beforeRequestMiddleware`，它可以在这一切运行之前就予以拒绝。
 </Callout>
 
-### It also mounts the browser routes
+### 它同时会挂载浏览器路由
 
-Configuring `memory` turns on `/memories`, `/memories/recall`,
-`/memories/subscribe`, and `/memories/:id`. Without it those routes 404 as if
-they did not exist, so an un-opted-in deployment reveals nothing about memory
-even when Intelligence is configured.
+配置 `memory` 会开启 `/memories`、`/memories/recall`、`/memories/subscribe` 和 `/memories/:id`。不配置时，这些路由会返回 404，就像不存在一样，因此未选择启用的部署即使配置了 Intelligence，也不会暴露任何记忆相关信息。
 
-The older `exposeMemoryRoutes: true` flag did the mounting without the policy
-and is deprecated. `memory.access` replaces it: one option that both exposes
-the surfaces and bounds what they may do.
+较早的 `exposeMemoryRoutes: true` 标志只做挂载而不带策略，现已被弃用。`memory.access` 取代了它：一个选项既暴露界面，又约束它们能做什么。
 
-### Channels grant memory per run instead
+### Channels 改为按运行授予记忆
 
-A Channel run carries its own grant on `runAgent`, using the same three access
-levels, rather than consulting `memory.access`. See
-[Identity and Memory](/channels/identity-and-memory) for that path, including
-how to choose the memory subject in a group conversation.
+Channel 运行会在 `runAgent` 上携带自己的授权，使用同样的三个访问级别，而不查询 `memory.access`。该路径请参见[身份与记忆](/channels/identity-and-memory)，其中包括如何在群聊对话中选择记忆主体。
 
-### Memory policies in other runtime languages
+### 其他运行时语言中的记忆策略
 
-After [connecting your runtime](/intelligence/quickstart#connect-your-runtime), configure its callback from trusted application policy:
+在[连接你的运行时](/intelligence/quickstart#connect-your-runtime)之后，基于可信的应用策略配置其回调：
 
-| Runtime | Configuration | Callback inputs |
-| --- | --- | --- |
-| Python | `IntelligenceRuntime(memory_policy=...)` | User, then Starlette request |
-| Go | `Config.MemoryAccess` | HTTP request, then user |
-| Ruby | `Runtime.new(memory_access: ...)` | User, then Rack environment |
-| C#/.NET | `RuntimeOptions.MemoryGrant` | HTTP context, user, cancellation token |
+| 运行时 | 配置 | 回调入参 |
+| ------ | ---- | -------- |
+| Python | `IntelligenceRuntime(memory_policy=...)` | 用户，然后是 Starlette 请求 |
+| Go | `Config.MemoryAccess` | HTTP 请求，然后是用户 |
+| Ruby | `Runtime.new(memory_access: ...)` | 用户，然后是 Rack 环境 |
+| C#/.NET | `RuntimeOptions.MemoryGrant` | HTTP 上下文、用户、取消令牌 |
 
-These callbacks govern the native runtime's Memory routes. They do not implement the TypeScript `consumer` callback or its automatic agent-tool registration described above. Each grant names `user` and `project`, using `none`, `read`, or `read-write`. Without a callback, the native runtimes delegate to Intelligence's Memory policy; omitting it does not disable access.
+这些回调约束原生运行时的记忆路由。它们并不实现上文描述的 TypeScript `consumer` 回调或其自动的智能体工具注册。每个授权都指定 `user` 和 `project`，取值为 `none`、`read` 或 `read-write`。没有回调时，原生运行时会委托给 Intelligence 的记忆策略；省略它并不会禁用访问。
 
-## Reading and writing memories
+## 读取与写入记忆
 
 <FrontendOnly frontend="react">
 ### React
 
-`useMemories()` returns the server-authoritative list for the current
-runtime-authenticated user. It hydrates from a REST snapshot and then stays
-current from realtime deltas.
+`useMemories()` 返回当前经运行时身份验证用户的、以服务器为准的列表。它先从 REST 快照填充，然后通过实时增量保持最新。
 
 ```tsx title="components/memory-list.tsx"
 import { useMemories } from "@copilotkit/react-core/v2";
@@ -341,51 +263,40 @@ export function MemoryList() {
 }
 ```
 
-Check `isAvailable` before rendering memory controls. It becomes `false` when
-the runtime does not expose the memory routes, which is what an unentitled
-deployment looks like from the client.
+在渲染记忆控件之前请检查 `isAvailable`。当运行时未暴露记忆路由时它会变为 `false`，这正是无权益部署在客户端看起来的样子。
 
-`realtimeStatus` is separate from `isAvailable`, and reports the health of the
-live connection: `connecting` while the socket joins, `connected` once deltas
-are flowing, and `unavailable` once it has permanently given up. In that last
-state the list is a frozen snapshot, so use it to decide whether to show a live
-indicator rather than displaying one over stale data.
+`realtimeStatus` 与 `isAvailable` 相互独立，报告实时连接的健康状况：套接字加入时为 `connecting`，增量开始流动后为 `connected`，彻底放弃后为 `unavailable`。在最后这种状态下，列表是一份冻结的快照，因此应据此决定是否显示实时指示器，而不是在陈旧数据上显示实时标识。
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
 ### Angular
 
-`injectMemories()` exposes the same surface as signals. See
-<a href="/angular/guides/threads-memory-attachments-headless">Threads, memory, attachments, and headless UI</a>
-for a worked component, and the
-<a href="/reference/angular/public-api">Angular public API</a>
-for the exported surface.
+`injectMemories()` 以信号（signals）的形式暴露同样的界面。完整组件示例参见
+<a href="/angular/guides/threads-memory-attachments-headless">线程、记忆、附件与无头 UI</a>，
+导出的接口参见
+<a href="/reference/angular/public-api">Angular 公共 API</a>。
 </FrontendOnly>
 
 <FrontendOnly frontend="vue">
 ### Vue
 
-`@copilotkit/vue/v2` does not yet export a reactive memory controller equivalent
-to React's `useMemories()`. Use the REST routes below from a trusted backend, or
-let an agent use the MCP tools; do not put a project API key in the browser.
+`@copilotkit/vue/v2` 尚未导出与 React `useMemories()` 等价的响应式记忆控制器。可在可信后端使用下方的 REST 路由，或让智能体使用 MCP 工具；不要把项目 API 密钥放进浏览器。
 </FrontendOnly>
 
 ### REST
 
-The memory routes are available to any backend or script holding a runtime
-credential. Authentication is the runtime tuple: a project API key as a bearer
-token, plus the app user's id in a header.
+记忆路由对任何持有运行时凭据的后端或脚本开放。身份验证使用运行时二元组：作为 Bearer 令牌的项目 API 密钥，加上请求头中的应用用户 id。
 
-| Route | Purpose |
-|-------|---------|
-| `GET /api/memories` | List the caller's memories. Pass `includeInvalidated=true` to include retired ones. |
-| `POST /api/memories` | Save a memory. |
-| `POST /api/memories/recall` | Semantic recall against a query. |
-| `PATCH /api/memories/:id` | Supersede a memory with a full replacement. |
-| `DELETE /api/memories/:id` | Retire a memory. |
-| `POST /api/memories/subscribe` | Mint a realtime subscription for memory metadata. |
+| 路由 | 用途 |
+|------|------|
+| `GET /api/memories` | 列出调用方的记忆。传入 `includeInvalidated=true` 可包含已退役的。 |
+| `POST /api/memories` | 保存一条记忆。 |
+| `POST /api/memories/recall` | 针对查询进行语义召回。 |
+| `PATCH /api/memories/:id` | 用整体替换的方式取代一条记忆。 |
+| `DELETE /api/memories/:id` | 退役一条记忆。 |
+| `POST /api/memories/subscribe` | 为记忆元数据创建实时订阅。 |
 
-A save takes the content, the kind, an optional scope, and optional provenance:
+保存时需要提供内容、类型、可选的范围和可选的来源信息：
 
 ```bash
 curl -X POST https://your-deployment/api/memories \
@@ -399,12 +310,9 @@ curl -X POST https://your-deployment/api/memories \
   }'
 ```
 
-`content` is capped at 8192 characters and `sourceThreadIds` at 100 entries.
-Unknown fields are rejected rather than ignored, so a typo in a key is an error
-instead of a silent no-op.
+`content` 上限为 8192 个字符，`sourceThreadIds` 上限为 100 条。未知字段会被拒绝而不是忽略，因此键名拼写错误会得到一个错误，而不是静默的空操作。
 
-Recall takes a query and an optional result limit, which defaults to 5 and is
-capped at 20:
+召回接受一个查询和一个可选的结果上限，默认为 5，最大为 20：
 
 ```bash
 curl -X POST https://your-deployment/api/memories/recall \
@@ -414,43 +322,24 @@ curl -X POST https://your-deployment/api/memories/recall \
   -d '{ "query": "how does this user like updates", "limit": 5 }'
 ```
 
-Every route returns memories in the same shape: `id`, `kind`, `scope`,
-`content`, and `sourceThreadIds`. Recall results additionally carry a `score`,
-and the list route carries `invalidatedAt` when retired rows are requested.
+每个路由返回的记忆结构相同：`id`、`kind`、`scope`、`content` 和 `sourceThreadIds`。召回结果还额外携带 `score`；当请求已退役的行时，列表路由会携带 `invalidatedAt`。
 
-### Agent tools over MCP
+### 基于 MCP 的智能体工具
 
-Three tools let an agent manage its own memory: `save_memory`, `recall_memory`,
-and `forget_memory`.
+三个工具让智能体管理自己的记忆：`save_memory`、`recall_memory` 和 `forget_memory`。
 
-They register on the MCP server only when that surface is mounted, which is a
-prerequisite for MCP generally rather than a memory setting. Registration is
-still checked per request against the caller organization's memory entitlement,
-so mounting MCP does not grant memory.
+只有在 MCP 服务端挂载后它们才会注册，这是 MCP 的通用前提条件，而非记忆设置。注册仍会在每个请求中对照调用方组织的记忆权益进行检查，因此挂载 MCP 并不会授予记忆。
 
-Registration is then narrowed again by the run's grant, so an agent is only ever
-offered tools it may actually call: a readable scope registers `recall_memory`,
-a writable one adds `save_memory` and `forget_memory`, and a grant of nothing
-registers none of them. See
-[Limiting access per request](#limiting-access-per-request) for where that grant
-comes from.
+注册还会按该运行的授权进一步收窄，因此智能体只会被提供它真正可调用的工具：可读的范围注册 `recall_memory`，可写的范围额外注册 `save_memory` 和 `forget_memory`，而无任何授权则一个也不注册。该授权来自哪里，请参见[按请求限制访问](#按请求限制访问)。
 
-## How recall works
+## 召回的工作原理
 
-Recall is hybrid. A query is embedded and compared against stored vectors, and
-the result is fused with other signals into a single score, which is what the
-`score` field on a recall result reports. Retired and superseded memories are
-excluded.
+召回是混合式的。查询会被嵌入并与存储的向量比较，结果再与其他信号融合为单一分数，即召回结果中的 `score` 字段所报告的值。已退役和已被取代的记忆会被排除。
 
-This is why the embedding space matters so much. Comparability is a property of
-the space, not of the text, so memories written under one model cannot be
-meaningfully ranked against a query embedded under another.
+这正是嵌入空间如此重要的原因。可比性是空间的属性，而不是文本的属性，因此在一个模型下写入的记忆，无法与在另一个模型下嵌入的查询进行有意义的排序。
 
-## Next steps
+## 后续步骤
 
-- **Threads:** [AG-UI Streams & Framework Threads](/intelligence/threads-explained), the
-  persistence model for a single conversation
-- **Platform:** [CopilotKit Intelligence](/intelligence/overview), where
-  memory sits among the other pillars
-- **Self-hosting:** [Self-hosting Intelligence](/intelligence/self-hosting),
-  chart values, dependencies, and deployment modes
+- **线程**：[AG-UI Streams 与框架线程](/intelligence/threads-explained)，单次对话的持久化模型
+- **平台**：[CopilotKit Intelligence](/intelligence/overview)，记忆与其他支柱并列之处
+- **自托管**：[自托管 Intelligence](/intelligence/self-hosting)，chart 配置值、依赖与部署模式

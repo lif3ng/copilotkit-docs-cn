@@ -1,92 +1,92 @@
 ---
-title: Self-host Intelligence on AWS ECS/Fargate
+title: 在 AWS ECS/Fargate 上自托管 Intelligence
 nav_title: Self-host on AWS ECS
-description: Deploy the versioned CopilotKit Intelligence ECS bundle with CloudFormation, your own AWS services, and OIDC. Configure, deploy, verify, upgrade, and roll back.
+description: 使用 CloudFormation、你自己的 AWS 服务和 OIDC 部署版本化的 CopilotKit Intelligence ECS 包，并完成配置、部署、验证、升级与回滚。
 icon: "lucide/Server"
 doc_type: how-to
 ---
 
-## Overview
+## 概览
 
-Deploy CopilotKit Intelligence in your AWS account with the versioned ECS/Fargate bundle and its `cpki-ecs` command. You start with your own network, databases, secrets, and OIDC provider. You finish with the Intelligence dashboard behind HTTPS, an authenticated session, and a runtime connected to your deployment.
+使用版本化的 ECS/Fargate 部署包及其 `cpki-ecs` 命令，在你自己的 AWS 账户中部署 CopilotKit Intelligence。你从自己的网络、数据库、机密和 OIDC 提供方开始，最终得到 HTTPS 之后的 Intelligence 仪表盘、经过身份验证的会话，以及连接到你部署的运行时。
 
-<Callout type="info" title="Choose your deployment path">
-  This page covers ECS/Fargate. For a Kubernetes deployment, use the [Helm guide](/intelligence/self-hosting). To evaluate ECS before preparing production resources, use the [reference environment](#evaluate-with-the-reference-environment).
+<Callout type="info" title="选择你的部署路径">
+  本页介绍 ECS/Fargate。若要在 Kubernetes 上部署，请使用 [Helm 指南](/intelligence/self-hosting)。如果想在准备好生产资源之前先评估 ECS，请使用[参考环境](#使用参考环境进行评估)。
 </Callout>
 
-## What the bundle deploys
+## 部署包会部署什么
 
-The bundle uses the same released Intelligence service images as the Helm chart. It pins each first-party task image to a digest from `release-manifest.json`.
+部署包使用与 Helm chart 相同的已发布 Intelligence 服务镜像。它将每个第一方任务镜像固定到 `release-manifest.json` 中的摘要（digest）。
 
-| Stack | Resources |
+| 堆栈 | 资源 |
 | --- | --- |
-| `<deploymentName>-foundation` | ECS cluster, HTTPS Application Load Balancer, security groups, private Cloud Map discovery, KMS-encrypted CloudWatch log groups, IAM roles, and scheduler dead-letter queue. |
-| `<deploymentName>-release` | Task definitions for app API, frontend, realtime gateway, embeddings, migrations, bootstrap, and thread culling. |
-| `<deploymentName>-services` | Four running services, ALB routing, CPU autoscaling, and a disabled thread-culler schedule. |
+| `<deploymentName>-foundation` | ECS 集群、HTTPS Application Load Balancer、安全组、私有 Cloud Map 服务发现、KMS 加密的 CloudWatch 日志组、IAM 角色，以及调度器死信队列。 |
+| `<deploymentName>-release` | app API、前端、实时网关、嵌入、迁移、引导（bootstrap）和线程清理的任务定义。 |
+| `<deploymentName>-services` | 四个运行中的服务、ALB 路由、CPU 自动伸缩，以及一个已禁用的线程清理计划任务。 |
 
-| Service | Container port | Public route |
+| 服务 | 容器端口 | 公开路由 |
 | --- | --- | --- |
-| `app-api` | 4201 | `/api`, `/api/*`, `/auth`, and `/auth/*` on the UI host. |
-| `app-frontend` | 8080 | Remaining paths on the UI host, including `/healthz`. |
-| `realtime-gateway` | 4401 | All paths on the realtime host, including WebSocket routes and `/health`. |
-| `embeddings` | 8080 | Private Cloud Map endpoint; no public route. |
+| `app-api` | 4201 | UI 主机上的 `/api`、`/api/*`、`/auth` 和 `/auth/*`。 |
+| `app-frontend` | 8080 | UI 主机上的其余路径，包括 `/healthz`。 |
+| `realtime-gateway` | 4401 | 实时主机上的所有路径，包括 WebSocket 路由和 `/health`。 |
+| `embeddings` | 8080 | 私有 Cloud Map 端点；无公开路由。 |
 
-All four services run in private subnets with public IP assignment disabled. The embeddings service runs even when the deployment has no Memory entitlement; app API requires its provider configuration at startup. The composite image is not an ECS task in this bundle.
+全部四个服务都运行在禁用公网 IP 分配的私有子网中。即使部署没有记忆（Memory）权益，embeddings 服务也会运行；app API 在启动时则需要其提供方配置。在此部署包中，组合镜像不是一个 ECS 任务。
 
-The three stacks do not create your VPC, PostgreSQL, Redis, OIDC provider, certificate, KMS keys, secret values, or application DNS records.
+这三个堆栈不会创建你的 VPC、PostgreSQL、Redis、OIDC 提供方、证书、KMS 密钥、机密值或应用 DNS 记录。
 
-## Before you start
+## 开始之前
 
-### Release access and tools
+### 发行包访问权限与工具
 
-Obtain `copilot-intelligence-ecs-<version>.tar.gz` and `release-manifest.json` from the **same release**. The [Intelligence GitHub releases](https://github.com/CopilotKit/Intelligence/releases) require repository access. If you do not have access, [contact your CopilotKit account team](https://copilotkit.ai/talk-to-an-engineer) for the release bundle.
+从**同一个发行版本**获取 `copilot-intelligence-ecs-<version>.tar.gz` 和 `release-manifest.json`。[Intelligence GitHub releases](https://github.com/CopilotKit/Intelligence/releases) 需要仓库访问权限。如果你没有访问权限，请联系 [CopilotKit 客户团队](https://copilotkit.ai/talk-to-an-engineer)获取发行包。
 
-Install AWS CLI v2, Bash, `jq`, `curl`, `tar`, and Python 3 on the deployment machine. Use AWS credentials that can create CloudFormation stacks and their IAM roles, pass the generated task roles, and add ingress rules to the database and Redis security groups. Configuration validation uses read-only AWS APIs; deployment requires write access.
+在部署机器上安装 AWS CLI v2、Bash、`jq`、`curl`、`tar` 和 Python 3。使用的 AWS 凭据需要能够创建 CloudFormation 堆栈及其 IAM 角色、传递生成的任务角色，并向数据库和 Redis 安全组添加入站规则。配置校验使用只读的 AWS API；部署则需要写入权限。
 
-### AWS resources
+### AWS 资源
 
-| Resource | Required configuration |
+| 资源 | 所需配置 |
 | --- | --- |
-| Network | One VPC with at least two public subnets and two private subnets. Each subnet set must span at least two Availability Zones. Public subnets need an active `0.0.0.0/0` route to an internet gateway; private subnets need an active `0.0.0.0/0` route to a NAT gateway. The configurator rejects endpoint-only private networking. |
-| Databases | PostgreSQL with pgvector, reachable on port 5432, and Redis on port 6379. Supply their security group IDs and the PostgreSQL server's actual connection limit. The foundation stack adds ingress from its runtime security group. |
-| HTTPS and DNS | An issued ACM certificate covering both `uiHostName` and `realtimeHostName`. After deployment, point both names at the foundation ALB. |
-| Identity | An HTTPS OIDC issuer and client. Register `https://<uiHostName>/auth/callback/<authProviderId>` as the callback. The default provider ID is `enterprise-sso`. |
-| Encryption | Two distinct, enabled, customer-managed symmetric KMS keys in the deployment account and region: `kmsKeyArn` for logs and `secretKmsKeyArn` for secrets. Supply full key ARNs, not aliases. |
+| 网络 | 一个 VPC，其中至少包含两个公有子网和两个私有子网。每组子网必须跨越至少两个可用区。公有子网需要一条指向互联网网关的有效 `0.0.0.0/0` 路由；私有子网需要一条指向 NAT 网关的有效 `0.0.0.0/0` 路由。配置器会拒绝仅使用端点的私有网络。 |
+| 数据库 | 带有 pgvector 的 PostgreSQL，可在 5432 端口访问；Redis 可在 6379 端口访问。请提供它们的安全组 ID 以及 PostgreSQL 服务器的实际连接数上限。foundation 堆栈会添加来自其运行时安全组的入站规则。 |
+| HTTPS 与 DNS | 一张已签发、同时覆盖 `uiHostName` 和 `realtimeHostName` 的 ACM 证书。部署完成后，将这两个域名指向 foundation ALB。 |
+| 身份 | 一个 HTTPS OIDC 签发方和客户端。将 `https://<uiHostName>/auth/callback/<authProviderId>` 注册为回调地址。默认提供方 ID 为 `enterprise-sso`。 |
+| 加密 | 部署账户和区域中两个不同且已启用的客户托管对称 KMS 密钥：`kmsKeyArn` 用于日志，`secretKmsKeyArn` 用于机密。请提供完整的密钥 ARN，而不是别名。 |
 
-The log key policy must allow the regional CloudWatch Logs service (`logs.<region>.amazonaws.com`) to use `kms:Encrypt`, `kms:Decrypt`, `kms:ReEncrypt*`, `kms:GenerateDataKey*`, and `kms:Describe*`, scoped to the encryption context for `/ecs/<deploymentName>/*`. The secret key policy must allow account IAM permissions so the task execution roles' `kms:Decrypt` grants take effect. The [reference environment](#evaluate-with-the-reference-environment)'s `substrate.yaml` contains both policies.
+日志密钥策略必须允许区域级 CloudWatch Logs 服务（`logs.<region>.amazonaws.com`）使用 `kms:Encrypt`、`kms:Decrypt`、`kms:ReEncrypt*`、`kms:GenerateDataKey*` 和 `kms:Describe*`，并限定在 `/ecs/<deploymentName>/*` 的加密上下文内。机密密钥策略必须允许账户级 IAM 权限，使任务执行角色的 `kms:Decrypt` 授权生效。[参考环境](#使用参考环境进行评估)的 `substrate.yaml` 中包含这两个策略。
 
-The configurator calls `sts:GetCallerIdentity`, EC2 describe APIs for the supplied VPC, subnets, routes, and security groups, `acm:DescribeCertificate`, `kms:DescribeKey`, and `secretsmanager:DescribeSecret`. If you configure object storage, it also needs `s3:GetBucketLocation`. It checks the OIDC discovery document over HTTPS. It does not read secret values or test database credentials.
+配置器会调用 `sts:GetCallerIdentity`、针对所提供 VPC、子网、路由和安全组的 EC2 describe API、`acm:DescribeCertificate`、`kms:DescribeKey` 和 `secretsmanager:DescribeSecret`。如果你配置了对象存储，它还需要 `s3:GetBucketLocation`。它会通过 HTTPS 检查 OIDC 发现文档。它不会读取机密值，也不会测试数据库凭据。
 
-### Secrets
+### 机密
 
-Create a separate Secrets Manager secret for each required field below. Encrypt every secret with the exact `secretKmsKeyArn` you will supply to the configurator. Configuration files contain ARNs; the tasks receive the secret values when they start.
+为下方的每个必填字段创建一个单独的 Secrets Manager 机密。使用你将提供给配置器的确切 `secretKmsKeyArn` 加密每个机密。配置文件中只包含 ARN；任务在启动时才会接收机密值。
 
-| Configuration field | Secret value |
+| 配置字段 | 机密值 |
 | --- | --- |
-| `databaseUrlSecretArn` | PostgreSQL connection URL (`DATABASE_URL`). |
-| `redisUrlSecretArn` | Redis connection URL (`REDIS_URL`). |
-| `authSecretArn` | Session secret (`AUTH_SECRET`), at least 32 characters. |
-| `authClientIdSecretArn` | OIDC client ID (`AUTH_CLIENT_ID`). |
-| `authClientSecretSecretArn` | OIDC client secret (`AUTH_CLIENT_SECRET`). |
-| `runnerAuthSecretArn` | Realtime runner authentication secret (`RUNNER_AUTH_SECRET`). |
-| `secretKeyBaseSecretArn` | Phoenix secret key base (`SECRET_KEY_BASE`). |
-| `releaseCookieSecretArn` | Shared realtime cluster cookie (`RELEASE_COOKIE`). |
-| `providerCredentialEncryptionKeySecretArn` | 64-character hex AES-256 key (`APP_HOSTED_BOTS_CREDENTIAL_ENCRYPTION_KEY`). |
+| `databaseUrlSecretArn` | PostgreSQL 连接 URL（`DATABASE_URL`）。 |
+| `redisUrlSecretArn` | Redis 连接 URL（`REDIS_URL`）。 |
+| `authSecretArn` | 会话机密（`AUTH_SECRET`），至少 32 个字符。 |
+| `authClientIdSecretArn` | OIDC 客户端 ID（`AUTH_CLIENT_ID`）。 |
+| `authClientSecretSecretArn` | OIDC 客户端机密（`AUTH_CLIENT_SECRET`）。 |
+| `runnerAuthSecretArn` | 实时 runner 身份验证机密（`RUNNER_AUTH_SECRET`）。 |
+| `secretKeyBaseSecretArn` | Phoenix 机密密钥基（`SECRET_KEY_BASE`）。 |
+| `releaseCookieSecretArn` | 共享的实时集群 cookie（`RELEASE_COOKIE`）。 |
+| `providerCredentialEncryptionKeySecretArn` | 64 位十六进制字符的 AES-256 密钥（`APP_HOSTED_BOTS_CREDENTIAL_ENCRYPTION_KEY`）。 |
 
-For RDS, the service images include the CA bundle at `/etc/cpki/rds-ca/global-bundle.pem`. The bundle README documents `sslmode=verify-full` with that CA path. Match the Redis URL's TLS settings to your Redis service.
+对于 RDS，服务镜像在 `/etc/cpki/rds-ca/global-bundle.pem` 中包含 CA 证书包。部署包 README 记录了使用该 CA 路径的 `sslmode=verify-full`。Redis URL 的 TLS 设置需与你的 Redis 服务相匹配。
 
-| Optional field | When to supply it |
+| 可选字段 | 何时提供 |
 | --- | --- |
-| `licenseTokenSecretArn` | Your signed deployment license (`COPILOTKIT_LICENSE_TOKEN`) for licensed capabilities. A project API key is a separate runtime credential. |
-| `bootstrapConfigSecretArn` | Base64-encoded bootstrap JSON (`BOOTSTRAP_CONFIG_B64`). Supply this on a first install to create organization access mappings. Existing deployments can keep their mappings. |
-| `timescaleUrlSecretArn` | Restricted runtime TimescaleDB URL for analytics. |
-| `timescaleMigratorUrlSecretArn` | Schema-owner TimescaleDB URL for analytics migrations. |
+| `licenseTokenSecretArn` | 用于授权能力的已签名部署许可证（`COPILOTKIT_LICENSE_TOKEN`）。项目 API 密钥是另一个运行时凭据。 |
+| `bootstrapConfigSecretArn` | Base64 编码的引导 JSON（`BOOTSTRAP_CONFIG_B64`）。首次安装时提供此项以创建组织访问映射。现有部署可以保留其映射。 |
+| `timescaleUrlSecretArn` | 用于分析的受限权限运行时 TimescaleDB URL。 |
+| `timescaleMigratorUrlSecretArn` | 用于分析迁移的 schema 所有者 TimescaleDB URL。 |
 
-Analytics defaults to disabled. To enable it, set `analyticsEnabled` to `true` and supply **both** Timescale secret ARNs. The migration task receives the owner URL and the runtime URL; app API and realtime receive only the runtime URL. Both runtime services and the migration task must reach TimescaleDB.
+分析功能默认禁用。要启用它，请将 `analyticsEnabled` 设为 `true`，并提供**两个** Timescale 机密 ARN。迁移任务会接收所有者 URL 和运行时 URL；app API 和实时服务只接收运行时 URL。两个运行时服务和迁移任务都必须能够访问 TimescaleDB。
 
-### First-install organization access
+### 首次安装的组织访问
 
-An OIDC login does not grant organization access. Prepare a bootstrap file using the bundle's `config/bootstrap.example.json`. The following example creates one organization and grants membership to users whose OIDC `groups` claim contains the exact, case-sensitive value `intelligence-users`:
+OIDC 登录本身不会授予组织访问权限。请使用部署包中的 `config/bootstrap.example.json` 准备一个引导文件。下面的示例创建一个组织，并向 OIDC `groups` 声明中包含精确且区分大小写值 `intelligence-users` 的用户授予成员资格：
 
 ```json title="bootstrap.json"
 {
@@ -108,27 +108,27 @@ An OIDC login does not grant organization access. Prepare a bootstrap file using
 }
 ```
 
-Replace the organization and claim values with yours. Your IdP must emit the matching claim. The supported claim names are `groups`, `roles`, `department`, and `entitlements`; an email domain does not grant membership. Use the example file's `platformAdminMappings` shape if you also need to grant platform administration to a specific IdP group.
+将组织和声明值替换为你自己的。你的 IdP 必须发出匹配的声明。支持的声明名称为 `groups`、`roles`、`department` 和 `entitlements`；电子邮件域名不会授予成员资格。如果你还需要向特定的 IdP 组授予平台管理权限，请使用示例文件中 `platformAdminMappings` 的结构。
 
-Base64-encode your file and store the resulting text as a Secrets Manager secret under the same secret KMS key:
+对你的文件进行 Base64 编码，并将得到的文本存储为使用同一机密 KMS 密钥的 Secrets Manager 机密：
 
-```bash title="Terminal"
+```bash title="终端"
 base64 < bootstrap.json | tr -d '\n' > bootstrap.b64
 ```
 
-Supply that secret's ARN as `bootstrapConfigSecretArn`. Deployment runs bootstrap after migrations. If no organization or access mapping exists, the UI reports that the deployment has not been bootstrapped. If the signed-in user matches no mapping, it reports that the user is not assigned to an organization.
+将该机密的 ARN 作为 `bootstrapConfigSecretArn` 提供。部署会在迁移之后运行引导。如果不存在任何组织或访问映射，UI 会报告该部署尚未完成引导。如果登录用户不匹配任何映射，UI 会报告该用户未被分配到组织。
 
-## Deploy and verify
+## 部署与验证
 
-Run the following commands in Bash. Keep the same shell open so the paths set in the first step remain available.
+请在 Bash 中运行以下命令。保持同一个 shell 打开，以便第一步中设置的路径保持可用。
 
 <Steps>
   <Step>
-    ### Unpack one release
+    ### 解压发行包
 
-    Put the two release assets in an empty working directory. Set `CPKI_VERSION` to the version you obtained; `0.12.9` is an example published release.
+    将两个发行资产放入一个空的工作目录。将 `CPKI_VERSION` 设置为你获取到的版本；`0.12.9` 是一个已发布版本的示例。
 
-    ```bash title="Terminal"
+    ```bash title="终端"
     export CPKI_VERSION=0.12.9
     export CPKI_DEPLOY_DIR="$PWD"
 
@@ -141,67 +141,67 @@ Run the following commands in Bash. Keep the same shell open so the paths set in
     ./bin/cpki-ecs validate --offline
     ```
 
-    `cmp` must report no difference between the bundled manifest and the downloaded manifest. Offline validation checks required bundle files and the manifest contract. It does not contact AWS or validate your account resources.
+    `cmp` 必须报告内置清单与下载的清单之间没有差异。离线校验会检查部署包所需的文件以及清单契约。它不会连接 AWS，也不会校验你的账户资源。
   </Step>
 
   <Step>
-    ### Generate your configuration
+    ### 生成你的配置
 
-    Run the guided configurator with the IDs, ARNs, host names, and issuer prepared above:
+    使用上文准备好的 ID、ARN、主机名和签发方运行引导式配置器：
 
-    ```bash title="Terminal"
+    ```bash title="终端"
     ./bin/cpki-ecs configure --interactive --output "$CPKI_CONFIG"
     ```
 
-    The command asks one question at a time, checks local constraints and AWS metadata, and writes the file only after validation passes. It creates no AWS resources. Existing output is not overwritten unless you pass `--force`.
+    该命令一次只问一个问题，检查本地约束和 AWS 元数据，并且只有在校验通过后才写入文件。它不会创建任何 AWS 资源。除非传入 `--force`，否则不会覆盖已有的输出文件。
 
-    If you use a named AWS profile, select it for the entire shell with `AWS_PROFILE` before configuring or deploying. The configurator's `--profile` option applies only to that invocation and is not saved in the file.
+    如果你使用命名的 AWS profile，请在配置或部署之前用 `AWS_PROFILE` 为整个 shell 选中它。配置器的 `--profile` 选项只作用于该次调用，不会保存进文件。
 
-    For a prepared JSON file, copy the supplied example outside the bundle, replace its placeholders, and validate it:
+    对于预置的 JSON 文件，请把随附的示例复制到部署包之外，替换其中的占位符并进行校验：
 
-    ```bash title="Alternative: prepared JSON"
+    ```bash title="备选：预置 JSON"
     cp ./config/example.parameters.json "$CPKI_DEPLOY_DIR/draft.parameters.json"
-    # Edit draft.parameters.json with your resource IDs, ARNs, and settings.
+    # 用你的资源 ID、ARN 和设置编辑 draft.parameters.json。
     ./bin/cpki-ecs configure \
       --from-json "$CPKI_DEPLOY_DIR/draft.parameters.json" \
       --output "$CPKI_CONFIG"
     ```
 
-    Choose either the guided or JSON path. For automation, `./bin/cpki-ecs configure --help` lists every flag for `--non-interactive` mode.
+    引导式或 JSON 两种方式任选其一。对于自动化场景，`./bin/cpki-ecs configure --help` 列出了 `--non-interactive` 模式的所有标志。
 
-    Before deploying, check these settings:
+    部署之前，请检查以下设置：
 
-    | Setting | Contract |
+    | 设置 | 契约 |
     | --- | --- |
-    | App API and frontend counts | Desired, minimum, and maximum counts must be at least 2. Realtime desired/minimum can be 1; its maximum must be at least 2. |
-    | Database pools | The configurator budgets the maximum API and realtime counts at 200% rollout capacity. Their combined pools must fit within 70% of `databaseMaxConnections`. |
-    | Embeddings | Keep the supplied digest-pinned `embeddingsImage` and `embeddingsModel` unless you have selected another compatible provider image and model. |
-    | Optional S3 | Set `objectStorageBucket` and its actual `objectStorageRegion` for channel files and realtime archives. The templates grant scoped task-role access. |
-    | Thread culling | Keep `threadCullerState` set to `DISABLED`. This task deletes data. |
+    | App API 与前端数量 | 期望、最小和最大数量必须至少为 2。realtime 的期望/最小值可以为 1；其最大值必须至少为 2。 |
+    | 数据库连接池 | 配置器按 200% 滚动更新容量为 API 和 realtime 的最大数量做预算。两者连接池的总和必须不超过 `databaseMaxConnections` 的 70%。 |
+    | 嵌入 | 除非你已选择其他兼容的提供方镜像与模型，否则请保留随附的按摘要固定的 `embeddingsImage` 和 `embeddingsModel`。 |
+    | 可选 S3 | 为频道文件和实时归档设置 `objectStorageBucket` 及其对应的 `objectStorageRegion`。模板会授予作用域受限的任务角色访问权限。 |
+    | 线程清理 | 保持 `threadCullerState` 为 `DISABLED`。该任务会删除数据。 |
 
-    With the example's API and realtime maximum counts of 10 and pool sizes of 10, the rollout budget is `20 × 10 + 20 × 10 = 400` connections. Set `databaseMaxConnections` to your server's limit; adjust counts and pools if 400 exceeds 70% of that limit.
+    以示例中 API 和 realtime 最大数量为 10、连接池大小为 10 计算，滚动更新预算为 `20 × 10 + 20 × 10 = 400` 个连接。请将 `databaseMaxConnections` 设置为你服务器的上限；如果 400 超过该上限的 70%，请调整数量和连接池。
   </Step>
 
   <Step>
-    ### Deploy the stacks and migrations
+    ### 部署堆栈与迁移
 
-    ```bash title="Terminal"
+    ```bash title="终端"
     ./bin/cpki-ecs deploy \
       --config "$CPKI_CONFIG" \
       --manifest "$CPKI_MANIFEST"
     ```
 
-    The command applies foundation and release, runs product migrations, runs analytics migrations when enabled, and runs bootstrap when configured. Each one-shot task must exit with code zero before services update. The command then verifies the deployed services against the requested release.
+    该命令会应用 foundation 和 release 堆栈，运行产品迁移，在启用时运行分析迁移，并在已配置时运行引导。每个一次性任务都必须以退出码 0 结束，服务才会更新。随后命令会对照请求的发行版本验证已部署的服务。
 
-    A failed migration or bootstrap stops the deployment before the service update. Read the task diagnostics and the component's CloudWatch logs before trying again.
+    迁移或引导失败会在服务更新之前停止部署。重试之前，请阅读任务诊断信息和对应组件的 CloudWatch 日志。
   </Step>
 
   <Step>
-    ### Set DNS and check health
+    ### 设置 DNS 并检查健康状态
 
-    Read the foundation outputs:
+    读取 foundation 堆栈的输出：
 
-    ```bash title="Terminal"
+    ```bash title="终端"
     export AWS_REGION="$(jq -r '.region' "$CPKI_CONFIG")"
     export CPKI_DEPLOYMENT_NAME="$(jq -r '.deploymentName' "$CPKI_CONFIG")"
     export CPKI_UI_HOST="$(jq -r '.uiHostName' "$CPKI_CONFIG")"
@@ -213,11 +213,11 @@ Run the following commands in Bash. Keep the same shell open so the paths set in
       --query 'Stacks[0].Outputs' --output table
     ```
 
-    Create DNS records for both hosts using `LoadBalancerDnsName` and, for Route53 aliases, `LoadBalancerCanonicalHostedZoneId`. The source release's `deploy/ecs/examples/reference-environment/app-dns.yaml` provides a Route53 example; see [how to obtain the reference templates](#evaluate-with-the-reference-environment).
+    使用 `LoadBalancerDnsName`（对于 Route53 别名还有 `LoadBalancerCanonicalHostedZoneId`）为两个主机创建 DNS 记录。源码发行版中的 `deploy/ecs/examples/reference-environment/app-dns.yaml` 提供了一个 Route53 示例；参见[如何获取参考模板](#使用参考环境进行评估)。
 
-    Once both names resolve to the ALB, verify the release and health routes:
+    两个域名都解析到 ALB 后，验证发行版本和健康路由：
 
-    ```bash title="Terminal"
+    ```bash title="终端"
     ./bin/cpki-ecs verify \
       --config "$CPKI_CONFIG" \
       --manifest "$CPKI_MANIFEST"
@@ -227,15 +227,15 @@ Run the following commands in Bash. Keep the same shell open so the paths set in
     curl --fail "https://${CPKI_REALTIME_HOST}/health"
     ```
 
-    `verify` checks stack state, stable service counts, completed rollouts, and the requested task definitions and image digests. It does not perform an OIDC login or prove that a browser can open a WebSocket.
+    `verify` 会检查堆栈状态、稳定的服务数量、已完成的滚动更新，以及所请求的任务定义和镜像摘要。它不会执行 OIDC 登录，也不能证明浏览器可以打开 WebSocket。
   </Step>
 
   <Step>
-    ### Sign in and connect your runtime
+    ### 登录并连接你的运行时
 
-    Open the UI host in a browser and sign in through your OIDC provider with a user who matches your bootstrap access mapping. Select the organization, select or create a project, and create a project API key in that deployment.
+    在浏览器中打开 UI 主机，使用符合你引导访问映射的用户通过 OIDC 提供方登录。选择组织，选择或创建项目，并在该部署中创建一个项目 API 密钥。
 
-    Follow [Connect your runtime](/intelligence/quickstart#self-hosted-deployments), using both of your deployment's base URLs:
+    按照[连接你的运行时](/intelligence/quickstart#self-hosted-deployments)操作，并使用你部署的两个基础 URL：
 
     ```ts title="Intelligence client in your server-side runtime"
     import { CopilotKitIntelligence } from "@copilotkit/runtime/v2";
@@ -247,27 +247,27 @@ Run the following commands in Bash. Keep the same shell open so the paths set in
     });
     ```
 
-    Replace the hosts with `uiHostName` and `realtimeHostName`, and set the server-side key to the project key you just created. Pass `intelligence` to your existing `CopilotRuntime` as shown in the runtime guide. Do not append `/api`, `/runner`, or `/client` to these base URLs; the client adds the paths.
+    将主机替换为 `uiHostName` 和 `realtimeHostName`，并将服务端密钥设置为你刚创建的项目密钥。按照运行时指南所示，将 `intelligence` 传给你现有的 `CopilotRuntime`。不要在这些基础 URL 后追加 `/api`、`/runner` 或 `/client`；路径由客户端添加。
 
-    <Callout type="info" title="Check your application's browser origin">
-      The `0.12.9` release template sets realtime `CHECK_ORIGIN` to `https://<uiHostName>`. The configurator has no additional browser-origin field. If your app runs on another origin, review the gateway origin configuration with your deployment team before testing its browser connection; changing the runtime's URLs alone does not change that setting.
+    <Callout type="info" title="检查你应用的浏览器来源">
+      `0.12.9` 发行模板将实时服务的 `CHECK_ORIGIN` 设置为 `https://<uiHostName>`。配置器没有额外的浏览器来源字段。如果你的应用运行在另一个来源上，请在测试其浏览器连接之前与你的部署团队一起检查网关的来源配置；仅更改运行时的 URL 不会改变该设置。
     </Callout>
 
-    Send a message from your app. Confirm the realtime connection upgrades to a WebSocket, the response streams, and the thread appears in your self-hosted project. Reload the app and reopen that thread to check persistence. These checks exercise the user path beyond the three HTTP health probes.
+    从你的应用发送一条消息。确认实时连接升级为 WebSocket、响应以流式返回，并且线程出现在你的自托管项目中。重新加载应用并重新打开该线程以检查持久化。这些检查在三个 HTTP 健康探测之外覆盖了用户路径。
   </Step>
 </Steps>
 
-## Evaluate with the reference environment
+## 使用参考环境进行评估
 
-The Intelligence source repository provides an AWS evaluation environment under `deploy/ecs/examples/reference-environment/`. The bundle root's `README.md` contains the full **Quickstart: reference environment** commands, including output-to-parameter wiring.
+Intelligence 源码仓库在 `deploy/ecs/examples/reference-environment/` 下提供了一个 AWS 评估环境。部署包根目录的 `README.md` 包含完整的**快速开始：参考环境**命令，包括输出到参数的衔接。
 
-<Callout type="info" title="Obtain the reference templates separately">
-  The published `0.12.9` ECS archive does not contain `examples/reference-environment/`, even though its README refers to that directory. Obtain it from the matching source release or your CopilotKit account team before following the quickstart. The three production templates are already in the ECS archive.
+<Callout type="info" title="单独获取参考模板">
+  已发布的 `0.12.9` ECS 归档中不包含 `examples/reference-environment/`，尽管其 README 提到了该目录。请先从对应的源码发行版或你的 CopilotKit 客户团队处获取它，再按快速开始操作。三个生产模板已经包含在 ECS 归档中。
 </Callout>
 
-After the unpack step above, you can retrieve the source with the GitHub CLI authenticated to an account that has Intelligence repository access:
+完成上文的解压步骤后，你可以使用已登录具备 Intelligence 仓库访问权限账户的 GitHub CLI 获取源码：
 
-```bash title="Terminal"
+```bash title="终端"
 gh release download "v${CPKI_VERSION}" \
   --repo CopilotKit/Intelligence \
   --archive tar.gz \
@@ -281,45 +281,45 @@ cd "$CPKI_DEPLOY_DIR/copilot-intelligence-ecs-${CPKI_VERSION}"
 cp -R "$CPKI_DEPLOY_DIR/reference-source/deploy/ecs/examples" ./examples
 ```
 
-Now follow **Quickstart: reference environment** in `README.md` from the extracted ECS bundle directory. Use your downloaded release manifest; you do not need to construct one from image tags.
+然后从解压出的 ECS 部署包目录开始，按照 `README.md` 中的**快速开始：参考环境**操作。使用你下载的发行清单即可；无需从镜像标签构造清单。
 
-| Order | Template or command | Purpose |
+| 顺序 | 模板或命令 | 用途 |
 | --- | --- | --- |
-| 1 | `substrate.yaml` | VPC, public/private subnets, NAT, RDS PostgreSQL, ElastiCache Redis, KMS keys, ACM certificate, and database password secret. |
-| 2 | `secrets.yaml` | Runtime secrets and connection URLs derived from the substrate outputs. |
-| 3 | `keycloak.yaml` with `realm-cpki.json` | Evaluation OIDC issuer, application client, and demo user. |
-| 4 | `cpki-ecs configure`, then `cpki-ecs deploy` | The same three Intelligence stacks used in production. |
-| 5 | `app-dns.yaml`, then health/login checks | UI and realtime Route53 aliases, followed by verification. |
+| 1 | `substrate.yaml` | VPC、公有/私有子网、NAT、RDS PostgreSQL、ElastiCache Redis、KMS 密钥、ACM 证书，以及数据库密码机密。 |
+| 2 | `secrets.yaml` | 由 substrate 输出派生的运行时机密和连接 URL。 |
+| 3 | `keycloak.yaml` 与 `realm-cpki.json` | 评估用 OIDC 签发方、应用客户端和演示用户。 |
+| 4 | `cpki-ecs configure`，然后 `cpki-ecs deploy` | 与生产环境相同的三个 Intelligence 堆栈。 |
+| 5 | `app-dns.yaml`，然后健康/登录检查 | UI 与 realtime 的 Route53 别名，随后进行验证。 |
 
-<Callout type="warn" title="Use your own domain and evaluation-only credentials">
-  Supply your own Route53 hosted zone and host names. Override the substrate's `WildcardDomain` parameter: its default is a CopilotKit domain. The certificate must cover the UI, realtime, and Keycloak hosts. The imported realm includes `demo` / `Passw0rd!`; use the reference environment for evaluation only. Production uses your own identity provider and managed resources.
+<Callout type="warn" title="使用你自己的域名和仅用于评估的凭据">
+  请提供你自己的 Route53 托管区域和主机名。覆盖 substrate 的 `WildcardDomain` 参数：其默认值是一个 CopilotKit 域名。证书必须覆盖 UI、realtime 和 Keycloak 主机。导入的 realm 包含 `demo` / `Passw0rd!`；参考环境仅用于评估。生产环境请使用你自己的身份提供方和托管资源。
 </Callout>
 
-The reference environment does not add a TimescaleDB instance. Leave analytics disabled unless you supply one and both analytics secret ARNs.
+参考环境不会添加 TimescaleDB 实例。除非你自己提供实例和两个分析机密 ARN，否则请保持分析功能禁用。
 
-The reference realm also does not define organization claim mappings. Its demo login can verify OIDC, but project access still needs a supported claim from the IdP and the [bootstrap mapping](#first-install-organization-access) above.
+参考 realm 也没有定义组织声明映射。其演示登录可以验证 OIDC，但项目访问仍需要来自 IdP 的受支持声明以及上文的[引导映射](#首次安装的组织访问)。
 
-## Operate the deployment
+## 运维部署
 
-### Upgrade or roll back
+### 升级或回滚
 
-Keep the previous bundle, manifest, and configuration. Back up the database under your recovery policy and check migration compatibility before upgrading. Obtain the new bundle and matching manifest, unpack them in a new directory, and run its `deploy` command with your configuration. Repeat the health, sign-in, and runtime checks above.
+保留之前的部署包、清单和配置。升级前，按照你的恢复策略备份数据库并检查迁移兼容性。获取新的部署包和匹配的清单，在一个新目录中解压，然后用你的配置运行其 `deploy` 命令。重复上文的健康检查、登录检查和运行时检查。
 
-To roll application tasks back, run from the retained prior bundle with its manifest:
+要回滚应用任务，请从保留的先前部署包及其清单运行：
 
-```bash title="Terminal"
+```bash title="终端"
 ./bin/cpki-ecs rollback \
   --config "$CPKI_CONFIG" \
   --manifest ./release-manifest.json
 ```
 
-Rollback registers the prior task definitions, updates services, and verifies their release. **It does not reverse database migrations.** The ECS deployment circuit breaker also rolls back failed service deployments; it does not reverse migrations or foundation changes.
+回滚会注册先前的任务定义、更新服务并验证其发行版本。**它不会回滚数据库迁移**。ECS 部署熔断器也会回滚失败的服务部署；它不会回滚迁移或 foundation 堆栈的变更。
 
-### Rotate secrets or change capacity
+### 轮换机密或更改容量
 
-After changing a secret value, start a new deployment for every service that consumes it. For example, after rotating an app API secret:
+更改某个机密值后，需要为每个使用它的服务启动一次新部署。例如，轮换某个 app API 机密后：
 
-```bash title="Terminal"
+```bash title="终端"
 aws ecs update-service \
   --region "$AWS_REGION" \
   --cluster "$CPKI_DEPLOYMENT_NAME" \
@@ -327,34 +327,34 @@ aws ecs update-service \
   --force-new-deployment
 ```
 
-Running tasks do not receive new environment-secret values until they restart. To change service counts, validate an updated configuration and run `deploy` with the same manifest. API, frontend, and realtime use CPU target tracking through `targetCpuUtilization`.
+运行中的任务在重启之前不会收到新的环境机密值。要更改服务数量，请校验更新后的配置并使用同一清单运行 `deploy`。API、前端和 realtime 通过 `targetCpuUtilization` 使用 CPU 目标跟踪。
 
-### Inspect a failed rollout
+### 排查失败的发布
 
-Use ECS service events, stopped-task reasons, and `/ecs/<deploymentName>/...` CloudWatch log groups. Container Insights defaults to enabled. Set `otlpEndpoint` to the base URL of your OTLP collector to receive traces. The bundle does not install an observability backend. See [Monitor with OpenTelemetry](/intelligence/self-hosting-observability).
+使用 ECS 服务事件、已停止任务的原因以及 `/ecs/<deploymentName>/...` CloudWatch 日志组。Container Insights 默认启用。将 `otlpEndpoint` 设置为你的 OTLP 收集器基础 URL 以接收追踪。部署包不安装可观测性后端。参见[使用 OpenTelemetry 监控](/intelligence/self-hosting-observability)。
 
-| Failure | Check |
+| 故障 | 检查项 |
 | --- | --- |
-| Configuration is rejected | The named resource, account/region, NAT route, certificate host coverage, exact secret KMS key, and OIDC discovery response. |
-| Migration or bootstrap fails | The stopped task and its component log group. Services do not update until each required task exits zero. |
-| ALB health fails | `/api/health`, `/healthz`, or `/health` on the correct host; task access to PostgreSQL and Redis. |
-| OIDC redirect is rejected | The exact `https://<uiHostName>/auth/callback/<authProviderId>` registered at your IdP. |
-| Realtime discovery fails | Cloud Map records and runtime security-group rules for EPMD 4369 and BEAM distribution 9000–9010. |
+| 配置被拒绝 | 所指名的资源、账户/区域、NAT 路由、证书覆盖的主机、确切的机密 KMS 密钥，以及 OIDC 发现响应。 |
+| 迁移或引导失败 | 已停止的任务及其组件日志组。每个必需任务以零退出之前，服务不会更新。 |
+| ALB 健康检查失败 | 正确主机上的 `/api/health`、`/healthz` 或 `/health`；任务对 PostgreSQL 和 Redis 的访问。 |
+| OIDC 重定向被拒绝 | 在你的 IdP 注册的精确 `https://<uiHostName>/auth/callback/<authProviderId>`。 |
+| 实时服务发现失败 | Cloud Map 记录，以及运行时安全组中针对 EPMD 4369 和 BEAM distribution 9000–9010 的规则。 |
 
-### Remove the deployment
+### 移除部署
 
-Remove application DNS records first. From the bundle directory, delete the three Intelligence stacks:
+先移除应用 DNS 记录。然后从部署包目录删除三个 Intelligence 堆栈：
 
-```bash title="Terminal — removes the deployment"
+```bash title="终端 —— 移除部署"
 ./bin/cpki-ecs teardown \
   --config "$CPKI_CONFIG" \
   --confirm "$CPKI_DEPLOYMENT_NAME"
 ```
 
-The confirmation must exactly match `deploymentName`. This disables ALB deletion protection and deletes services, release, and foundation in that order. CloudWatch log groups remain. Customer-managed databases, Redis, VPC, IdP, secrets, certificate, and KMS keys remain.
+确认值必须与 `deploymentName` 完全一致。该操作会禁用 ALB 删除保护，并按此顺序删除 services、release 和 foundation。CloudWatch 日志组会保留。客户托管的数据库、Redis、VPC、IdP、机密、证书和 KMS 密钥都会保留。
 
-For the reference environment, follow the bundle README's full teardown order: application DNS, bundle stacks, Keycloak, secrets, then substrate. `cpki-ecs teardown` alone does not remove those additional stacks.
+对于参考环境，请按照部署包 README 中的完整拆除顺序操作：应用 DNS、部署包堆栈、Keycloak、机密，然后是 substrate。仅运行 `cpki-ecs teardown` 不会移除那些额外的堆栈。
 
-## Implementation references
+## 实现参考
 
-The release bundle's `README.md`, `config/example.parameters.json`, and `bin/cpki-ecs configure --help` travel with the version you deploy. For source review, the [CLI and configuration validators](https://github.com/CopilotKit/Intelligence/tree/main/deploy/ecs/bin) and [CloudFormation templates](https://github.com/CopilotKit/Intelligence/tree/main/deploy/ecs/cloudformation) require Intelligence repository access.
+发行包中的 `README.md`、`config/example.parameters.json` 和 `bin/cpki-ecs configure --help` 会随你部署的版本一同分发。如需审阅源码，[CLI 与配置校验器](https://github.com/CopilotKit/Intelligence/tree/main/deploy/ecs/bin)和 [CloudFormation 模板](https://github.com/CopilotKit/Intelligence/tree/main/deploy/ecs/cloudformation)需要 Intelligence 仓库访问权限。

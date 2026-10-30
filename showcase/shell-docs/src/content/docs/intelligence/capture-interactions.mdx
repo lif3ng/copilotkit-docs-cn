@@ -1,6 +1,6 @@
 ---
-title: Capture interactions
-description: Send browser interactions to CopilotKit Intelligence as Trajectories with the learning provider prop.
+title: 捕获交互
+description: 使用 learning provider 属性将浏览器交互以 Trajectory 形式发送到 CopilotKit Intelligence。
 icon: "lucide/MousePointer"
 frontend:
   kind: frontend-variant
@@ -10,31 +10,31 @@ earlyAccess: trajectories
 search: false
 ---
 
-## Overview
+## 概览
 
-Trajectories capture browser interactions as AG-UI `CUSTOM` events in CopilotKit Intelligence. This feature is in early access.
+Trajectory（轨迹）将浏览器交互捕获为 CopilotKit Intelligence 中的 AG-UI `CUSTOM` 事件。该特性目前处于抢先体验阶段。
 
-This guide connects an existing React app to Intelligence. To start the local environment, use the [Trajectories quickstart](/intelligence/trajectories-quickstart).
+本指南将一个现有的 React 应用连接到 Intelligence。若要搭建本地环境，请使用 [Trajectories 快速开始](/intelligence/trajectories-quickstart)。
 
-Capture includes URLs, page titles, referrers, element text, attributes, form values, browser-visible headers, and bounded body snapshots. Recognized credential fields are redacted in the browser. Redaction has limits. Read [Captured data](/intelligence/captured-data) before you enable capture.
+捕获的内容包括 URL、页面标题、referrer、元素文本、属性、表单值、浏览器可见的请求头，以及有大小上限的 body 快照。可识别的凭据字段会在浏览器中脱敏。脱敏存在局限。开启捕获之前，请先阅读[捕获的数据](/intelligence/captured-data)。
 
-## Turn on capture
+## 开启捕获
 
 <Steps>
   <Step>
-    ### Connect your Runtime to Intelligence
+    ### 将 Runtime 连接到 Intelligence
 
-    Complete the [Trajectories quickstart](/intelligence/trajectories-quickstart) or the [Intelligence quickstart](/intelligence/quickstart).
+    完成 [Trajectories 快速开始](/intelligence/trajectories-quickstart)或 [Intelligence 快速开始](/intelligence/quickstart)。
 
-    The TypeScript Runtime needs `intelligence` and `identifyUser`, with Trajectories enabled for its project. `identifyUser` must return the user from your verified application session. Keep the project API key on the server.
+    TypeScript Runtime 需要 `intelligence` 和 `identifyUser`，并且其项目已启用 Trajectories。`identifyUser` 必须从你经过验证的应用会话中返回用户。项目 API 密钥请保存在服务端。
 
-    During early access, our engineering team enables Trajectories for your project. If you are unsure whether access is ready, [book time with our engineers](https://www.copilotkit.ai/talk-to-an-engineer) before you continue.
+    在抢先体验期间，我们的工程团队会为你的项目启用 Trajectories。如果你不确定访问权限是否已就绪，请先[预约我们的工程师](https://www.copilotkit.ai/talk-to-an-engineer)再继续。
 
   </Step>
   <Step>
-    ### Pass `learning` to the provider
+    ### 向 provider 传递 `learning`
 
-    Add `learning` to your existing provider:
+    在你现有的 provider 中添加 `learning`：
 
     ```tsx title="app/providers.tsx"
     "use client";
@@ -50,33 +50,33 @@ Capture includes URLs, page titles, referrers, element text, attributes, form va
     }
     ```
 
-    Keep your existing Runtime URL and application authentication configuration. Capture starts after the provider mounts. A chat is not required.
+    保留你现有的 Runtime URL 和应用身份验证配置。provider 挂载后捕获即开始，无需打开聊天。
 
   </Step>
   <Step>
-    ### Open the saved Trajectory
+    ### 打开已保存的 Trajectory
 
-    Click a control in your app. Wait at least two seconds for the next batch.
+    在你的应用中点击一个控件，然后等待至少两秒，让下一批数据发出。
 
-    Open **Trajectories** in the same Intelligence project. Open the newest Trajectory. On its **Timeline**, expand **Product trajectory** and find the click. Refresh the page and check that the event remains.
+    在同一个 Intelligence 项目中打开 **Trajectories**，打开最新的那条 Trajectory。在其 **Timeline** 中展开 **Product trajectory**，找到那次点击。刷新页面，确认事件仍然存在。
 
-    To link a Thread, start an agent conversation while capture is active.
+    若要关联 Thread，请在捕获处于活动状态时发起一次智能体对话。
 
   </Step>
 </Steps>
 
-Capture is on. The rest of this guide is optional.
+捕获已开启。本指南的其余部分为可选内容。
 
-## Collect reply ratings
+## 收集回复评分
 
-Once a Trajectory has started while a chat is open, each finished reply with text in `CopilotChat`, `CopilotPopup`, and `CopilotSidebar` gets a **Good response** and a **Bad response** button. You do not need to pass `onThumbsUp` or `onThumbsDown`. The buttons stay while capture reconnects or is stopped. A custom chat gets them when it renders its messages with `CopilotChatMessageView` inside a `CopilotChatConfigurationProvider`. To keep the thumbs to your own handlers, pass `messageFeedback: false` to the message view, for example `<CopilotChat messageView={{ messageFeedback: false }} />`.
+只要 Trajectory 在聊天打开期间启动，`CopilotChat`、`CopilotPopup` 和 `CopilotSidebar` 中每条带文本的已完成回复都会出现 **Good response** 和 **Bad response** 按钮。你无需传入 `onThumbsUp` 或 `onThumbsDown`。在捕获重连或停止期间，这些按钮依然保留。自定义聊天只要在 `CopilotChatConfigurationProvider` 内用 `CopilotChatMessageView` 渲染消息，也会获得这些按钮。如果想把点赞/点踩交给你自己的处理器，请向 message view 传入 `messageFeedback: false`，例如 `<CopilotChat messageView={{ messageFeedback: false }} />`。
 
-- Clicking a thumb rates the reply. A field for an optional comment opens next to it. Enter or leaving the field saves the comment. Escape, or a click on either thumb, discards an unsaved change. Switching to the other thumb starts the new rating without a comment.
-- Pointing at or keyboard-focusing the chosen thumb again opens its comment, so the user can add or change it later. On a touch screen, tapping the chosen thumb removes the rating instead.
-- Clicking the chosen thumb again removes the rating.
-- The chosen thumb and its comment stay while the page is open. After a reload the thumbs start unrated; a new rating replaces the earlier one in Intelligence.
+- 点击拇指即为回复评分，旁边会打开一个可选的评论输入框。按回车或让输入框失焦即可保存评论。按 Esc 或点击任一拇指会丢弃未保存的修改。切换到另一个拇指则会开始新的评分，且不带评论。
+- 再次指向或用键盘聚焦已选中的拇指，会打开它的评论，用户之后可以添加或修改评论。在触摸屏上，点按已选中的拇指则会移除评分。
+- 再次点击已选中的拇指会移除评分。
+- 页面保持打开期间，已选中的拇指及其评论会一直保留。刷新后拇指恢复为未评分状态；新的评分会在 Intelligence 中替换先前的那次。
 
-Each change sends a `message.feedback` event to the active Trajectory. The newest event for a `feedbackId` is the current rating, and `rating: null` means the user removed it:
+每次变更都会向当前活动的 Trajectory 发送一个 `message.feedback` 事件。同一个 `feedbackId` 的最新事件即当前评分，`rating: null` 表示用户已移除评分：
 
 ```json
 {
@@ -97,17 +97,17 @@ Each change sends a `message.feedback` event to the active Trajectory. The newes
 }
 ```
 
-Like any Trajectory event, a rating given while capture reconnects or is stopped is not sent, and a failed send is not retried; the chat still shows it. A rating belongs to its Thread, so a later Trajectory can carry a change to it. Intelligence shows the rating next to the reply in the Trajectory, and Automatic Learning reads it with the session.
+与任何 Trajectory 事件一样，在捕获重连或停止期间给出的评分不会被发送，发送失败也不会重试，但聊天界面仍会显示它。评分归属于其所在的 Thread，因此后续的 Trajectory 可以携带对它的变更。Intelligence 会在 Trajectory 中把评分显示在回复旁边，自动学习（Automatic Learning）会在读取会话时一并读取它。
 
-Your own `onThumbsUp` and `onThumbsDown` handlers still run when the user gives a rating, but not when the user removes one. To change the thumbs' tooltips, the comment placeholder, or the send button label, set the [chat labels](/reference/hooks/useCopilotChatConfiguration#copilotchatlabels). To restyle or replace the comment field, use the assistant message's `feedbackComment` slot. The comment popover is marked `data-copilotkit-ignore`, so capture records the saved comment, not each keystroke. Clicks on the thumbs are still captured as `click` events.
+当用户给出评分时，你自己的 `onThumbsUp` 和 `onThumbsDown` 处理器仍会执行，但用户移除评分时不会。要修改拇指的工具提示、评论占位文案或发送按钮的标签，请设置[聊天标签](/reference/hooks/useCopilotChatConfiguration#copilotchatlabels)。要重新设计或替换评论输入框，请使用助手消息的 `feedbackComment` 插槽。评论弹层带有 `data-copilotkit-ignore` 标记，因此捕获记录的是保存后的评论，而不是每一次按键。点击拇指仍会作为 `click` 事件被捕获。
 
-## Control capture programmatically
+## 以编程方式控制捕获
 
-The sections below change when capture runs and what it records. For every option and method, see the [API reference](/intelligence/trajectories-reference).
+下面的几节用于控制捕获何时运行以及记录哪些内容。所有选项和方法参见 [API 参考](/intelligence/trajectories-reference)。
 
-### Capture only after consent
+### 获得同意后才捕获
 
-Pass a boolean to tie capture to your application's consent control:
+传入一个布尔值，把捕获与你应用的同意控制绑定：
 
 ```tsx
 <CopilotKitProvider runtimeUrl="/api/copilotkit" learning={hasConsent}>
@@ -115,11 +115,11 @@ Pass a boolean to tie capture to your application's consent control:
 </CopilotKitProvider>
 ```
 
-The provider generates a Trajectory UUID. It stays the same across rerenders and reconnects while capture is on. When `hasConsent` becomes `false`, capture stops. Turning capture on again generates a new ID. Unmounting the provider also stops capture. Read the active ID from `copilotkit.trajectoryId`.
+provider 会生成一个 Trajectory UUID。只要捕获处于开启状态，它在重渲染和重连期间保持不变。当 `hasConsent` 变为 `false` 时，捕获停止。重新开启捕获会生成新的 ID。卸载 provider 也会停止捕获。可以通过 `copilotkit.trajectoryId` 读取当前活动的 ID。
 
-### Start and stop a Trajectory yourself
+### 自行启动和停止 Trajectory
 
-Set `autoStart: false`. The provider then waits for your app to start capture:
+设置 `autoStart: false`。此后 provider 会等待你的应用来启动捕获：
 
 ```tsx
 <CopilotKitProvider
@@ -130,7 +130,7 @@ Set `autoStart: false`. The provider then waits for your app to start capture:
 </CopilotKitProvider>
 ```
 
-Call Core when your app decides a session starts:
+当你的应用判定会话开始时，调用 Core：
 
 ```tsx
 import { useCopilotKit } from "@copilotkit/react-core/v2";
@@ -151,11 +151,11 @@ function StartCaptureButton() {
 }
 ```
 
-One Trajectory runs at a time. `copilotkit.stopTrajectory()` ends it and attempts a final batch. It does not wait for delivery or guarantee that the last events are saved.
+同一时刻只有一个 Trajectory 在运行。`copilotkit.stopTrajectory()` 会结束它并尝试发送最后一批数据，但不会等待投递完成，也不保证最后的事件一定被保存。
 
-### Record outcomes
+### 记录业务结果
 
-A click shows what a person did. It does not show whether the work succeeded. After your application operation succeeds, emit the outcome:
+点击记录的是用户做了什么，并不能说明操作是否成功。在你的应用操作成功后，发出结果事件：
 
 ```tsx
 import { useCopilotKit } from "@copilotkit/react-core/v2";
@@ -182,13 +182,13 @@ function ApproveButton({
 }
 ```
 
-The event belongs to the active Trajectory. Built-in names such as `click` are reserved. Your application controls the event payload. Automatic credential redaction does not inspect developer events.
+事件归属于当前活动的 Trajectory。`click` 等内置名称是保留名。事件负载由你的应用控制。自动凭据脱敏不会检查开发者发出的事件。
 
-### Name the actions that matter
+### 为关键操作命名
 
-Click events include a short control name in `target.label`, such as `Approve`. See [Click labels](/intelligence/captured-data#click-labels) for the sources and redaction rules.
+点击事件会在 `target.label` 中包含一个简短的控件名称，例如 `Approve`。来源与脱敏规则参见[点击标签](/intelligence/captured-data#click-labels)。
 
-Add `data-copilotkit-action` for a stable, explicit action name:
+添加 `data-copilotkit-action` 可以获得一个稳定、明确的操作名称：
 
 ```tsx
 <button data-copilotkit-action="deal.approve" onClick={approve}>
@@ -196,9 +196,9 @@ Add `data-copilotkit-action` for a stable, explicit action name:
 </button>
 ```
 
-### Handle capture errors
+### 处理捕获错误
 
-By default, Core logs setup errors with a code and a configuration hint. Pass `onError` to handle them in your app:
+默认情况下，Core 会记录配置错误，附上错误码和配置提示。传入 `onError` 可以在你的应用中自行处理：
 
 ```tsx
 <CopilotKitProvider
@@ -211,4 +211,4 @@ By default, Core logs setup errors with a code and a configuration hint. Pass `o
 </CopilotKitProvider>
 ```
 
-Capture pauses during a connection loss and reconnects with fresh credentials. It does not buffer developer events during recovery or resend failed batches. See [Batches](/intelligence/captured-data#batches) for delivery limits and [Error codes](/intelligence/trajectories-reference#error-codes) for each code.
+连接中断期间捕获会暂停，并使用新的凭据重新连接。恢复期间它不会缓冲开发者事件，也不会重发失败的批次。投递限制参见[批次](/intelligence/captured-data#batches)，各错误码参见[错误码](/intelligence/trajectories-reference#error-codes)。

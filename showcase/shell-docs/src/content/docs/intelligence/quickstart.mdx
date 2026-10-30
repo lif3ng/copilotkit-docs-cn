@@ -1,7 +1,7 @@
 ---
-title: Connect Intelligence in 5 minutes
+title: 5 分钟接入 Intelligence
 nav_title: Quickstart
-description: Connect an existing CopilotKit app to Intelligence and store persistent threads in a cloud-hosted project.
+description: 将现有的 CopilotKit 应用连接到 Intelligence，并在云托管项目中存储持久化线程。
 icon: "lucide/Play"
 doc_type: how-to
 ---
@@ -11,63 +11,63 @@ import GoRuntime from "@/snippets/intelligence/runtime-go.mdx";
 import RubyRuntime from "@/snippets/intelligence/runtime-ruby.mdx";
 import DotnetRuntime from "@/snippets/intelligence/runtime-dotnet.mdx";
 
-## Overview
+## 概览
 
-You want AG-UI Streams, User Memory, Automatic Learning, Channels, and Product Analytics on the app you already have. Intelligence adds that layer. Your frontend and your agent stay where they are.
+你想在已有的应用上获得 AG-UI Streams、用户记忆、自动学习、渠道和产品分析。Intelligence 负责加上这一层。你的前端和智能体都保持原位。
 
-Keep your existing thread storage and native persistence configured. Intelligence automatically records its own copy of supported AG-UI interaction history as conversations run through the connected runtime. See [what Intelligence records](/intelligence/bring-your-own-thread-system#how-recording-works) and the [existing LangGraph app example](/intelligence/bring-your-own-thread-system#example-keep-an-existing-langgraph-conversation).
+你现有的线程存储和原生持久化保持配置不变。当对话经过所连接的运行时流动时，Intelligence 会自动记录一份自己受支持的 AG-UI 交互历史副本。参见 [Intelligence 记录了什么](/intelligence/bring-your-own-thread-system#how-recording-works)以及[保留现有 LangGraph 应用的示例](/intelligence/bring-your-own-thread-system#example-keep-an-existing-langgraph-conversation)。
 
-You are done when Inspector shows that Intelligence is connected and shows your first saved thread. A React Native app has no Inspector. Confirm the thread in the cloud-hosted project instead.
+当 Inspector 显示 Intelligence 已连接并展示你第一条已保存的线程时，配置就完成了。React Native 应用没有 Inspector，请改为在云托管项目中确认线程。
 
-TypeScript is the default and most fully featured runtime. It can run with or without Intelligence. Python, Go, Ruby, and C#/.NET runtimes require Intelligence, either cloud-hosted or self-hosted. Pick the language of your **runtime server** below; your agent framework and frontend stay the same.
+TypeScript 是默认且功能最完整的运行时，可以在有或没有 Intelligence 的情况下运行。Python、Go、Ruby 和 C#/.NET 运行时则需要 Intelligence（云托管或自托管）。请在下方选择你的**运行时服务器**所用的语言；你的智能体框架和前端保持不变。
 
-## Start with your coding agent
+## 从你的编码智能体开始
 
-Use this prompt to set up Intelligence in a new or existing app. Tell your coding agent which runtime language, agent framework, and frontend you want to use.
+使用以下提示在新应用或现有应用中配置 Intelligence。告诉你的编码智能体你想使用哪种运行时语言、智能体框架和前端。
 
 <RichThreadsSetupPrompt />
 
-## Set it up manually
+## 手动配置
 
-Before you start, have a working CopilotKit frontend and agent. The TypeScript tab connects your existing runtime; the other tabs mount a native runtime in front of an agent that already serves AG-UI over HTTP. Use your agent's AG-UI URL, not the CopilotKit runtime URL.
+开始之前，请准备好一个可正常工作的 CopilotKit 前端和智能体。TypeScript 标签页连接你现有的运行时；其他标签页则在一个已通过 HTTP 提供 AG-UI 的智能体前面挂载一个原生运行时。请使用你智能体的 AG-UI URL，而不是 CopilotKit 运行时 URL。
 
 <Steps>
   <Step>
-    ### Select an Intelligence project
+    ### 选择 Intelligence 项目
 
-    Sign in from your app directory. Then select the project that will store your threads.
+    在你的应用目录中登录，然后选择将存储你的线程的项目。
 
-    ```bash title="Terminal"
+    ```bash title="终端"
     npx copilotkit@latest login
     npx copilotkit@latest project select
     ```
 
-    `project select` creates a project API key and writes it to `.env` as `CPK_INTELLIGENCE_API_KEY`. Put that key in the environment of the process that runs your CopilotKit runtime. The command output does not print the key. Read it from `.env`.
+    `project select` 会创建一个项目 API 密钥，并将其作为 `CPK_INTELLIGENCE_API_KEY` 写入 `.env`。请将该密钥放入运行 CopilotKit 运行时的进程环境中。命令输出不会打印该密钥，请从 `.env` 中读取。
 
     ```bash title=".env"
     CPK_INTELLIGENCE_API_KEY=cpk-...
     ```
 
-    The CLI writes `.env` in the directory where you run the command. If your runtime process loads a different file, copy the key into that file. A value that the host already sets stays as it is.
+    CLI 会在你运行命令的目录写入 `.env`。如果你的运行时进程加载的是另一个文件，请把该密钥复制进去。宿主环境已设置的值保持原样。
 
-    Keep the key on the server. Do not put it in a variable that the frontend build sends to the browser.
+    请把密钥保存在服务器端。不要把它放进前端构建会发送到浏览器的变量中。
   </Step>
 
   <Step>
-    ### Connect your runtime
+    ### 连接你的运行时
 
-    Choose your runtime language. The selection also applies to the self-hosted settings below. These examples use multi-route HTTP endpoints in every language.
+    选择你的运行时语言。该选择同样适用于下方的自托管设置。这些示例在每种语言中都使用多路由 HTTP 端点。
 
     <Tabs groupId="runtime_language" persist default="TypeScript" items={["TypeScript", "Python", "Go", "Ruby", "C#/.NET"]}>
     <Tab value="TypeScript">
 
-    Keep your existing TypeScript runtime and agent registration. Install the current package if you have not already:
+    保留你现有的 TypeScript 运行时和智能体注册。如果尚未安装，请安装当前包：
 
     ```bash
     npm install @copilotkit/runtime
     ```
 
-    Add an Intelligence client. The client is the same for every agent framework.
+    添加一个 Intelligence 客户端。该客户端对所有智能体框架都相同。
 
     ```ts title="Your CopilotKit runtime"
     import {
@@ -93,23 +93,23 @@ Before you start, have a working CopilotKit frontend and agent. The TypeScript t
     });
     ```
 
-    <Callout type="info" title="Use your existing authentication">
-      `authenticateApplicationUser` represents your server-side authentication function. It must return the user from a verified session or token. The Runtime requires `identifyUser` to associate web threads with that user.
+    <Callout type="info" title="使用你现有的身份验证">
+      `authenticateApplicationUser` 代表你的服务端身份验证函数。它必须从经过验证的会话或令牌中返回用户。Runtime 需要 `identifyUser` 来将网页线程与该用户关联。
     </Callout>
 
-    If no trusted user identity exists, add authentication before you continue. A fixed identity is suitable only for a local, single-user demo.
+    如果不存在可信的用户身份，请在继续之前先添加身份验证。固定身份只适用于本地的单用户演示。
 
-    <Callout type="warn" title="Protect every Runtime route before production">
-      `identifyUser` names the caller, but it is not an authentication gate. Use the handler's `onRequest` hook to reject unauthenticated requests. You must also enforce thread ownership for `threads/events`, `threads/state`, and `agent/stop`. Follow the [thread authorization guide](/auth#thread-authorization) for the complete pattern.
+    <Callout type="warn" title="生产环境前保护好每条 Runtime 路由">
+      `identifyUser` 标识调用者，但它不是身份验证闸门。请使用处理器的 `onRequest` 钩子拒绝未经身份验证的请求。你还必须对 `threads/events`、`threads/state` 和 `agent/stop` 强制执行线程所有权。完整模式请遵循[线程授权指南](/auth#thread-authorization)。
     </Callout>
 
-    A web runtime requires `identifyUser`. A Channels-only runtime has no web surface. Pass a non-empty `channels` array instead.
+    网页运行时需要 `identifyUser`。仅 Channels 的运行时没有网页界面，请改为传入非空的 `channels` 数组。
 
-    The runtime reads the key from the client you pass. It does not read the key from the environment on its own. `apiKey` is the only required field. You do not pass an organization id or a project id.
+    运行时会从你传入的客户端读取密钥，它不会自行从环境中读取。`apiKey` 是唯一必填字段。你不需要传入组织 id 或项目 id。
 
-    #### An existing runtime that already has a runner
+    #### 已有 runner 的现有运行时
 
-    An open-source runtime often passes `runner`. That option chooses where runs are stored. Intelligence stores the runs itself. Remove `runner` when you add `intelligence`.
+    开源运行时常会传入 `runner`。该选项决定运行记录存储在哪里。Intelligence 会自行存储运行记录。添加 `intelligence` 时请移除 `runner`。
 
     ```ts
     const runtime = new CopilotRuntime({
@@ -120,20 +120,20 @@ Before you start, have a working CopilotKit frontend and agent. The TypeScript t
     });
     ```
 
-    TypeScript rejects both options together. A JavaScript runtime throws this error:
+    TypeScript 不允许同时使用这两个选项。JavaScript 运行时会抛出以下错误：
 
     ```text
     Intelligence Runtime auto-wires its own `runner`; passing `runner` alongside
     `intelligence` is not supported.
     ```
 
-    You can keep `runner` and omit `intelligence`. The runtime then stays in SSE mode, and Threads in Inspector stay locked. See [AgentRunner and persistence](/backend/agent-runner).
+    你也可以保留 `runner` 并省略 `intelligence`。此时运行时保持在 SSE 模式，Inspector 中的线程仍处于锁定状态。参见 [AgentRunner 与持久化](/backend/agent-runner)。
 
-    Keep the other runtime options that you already pass, such as `mcpApps`, `a2ui`, and `openGenerativeUI`. They apply to the agent on each run, and they work the same way with `intelligence`. For an app that uses MCP Apps, see [MCP Apps with Intelligence](/generative-ui/mcp-apps#mcp-apps-with-intelligence).
+    保留你已传入的其他运行时选项，例如 `mcpApps`、`a2ui` 和 `openGenerativeUI`。它们作用于每次运行中的智能体，与 `intelligence` 一起使用时方式相同。使用 MCP Apps 的应用请参见 [MCP Apps 与 Intelligence](/generative-ui/mcp-apps#mcp-apps-with-intelligence)。
 
-    #### Mount the TypeScript handler
+    #### 挂载 TypeScript 处理器
 
-    Create one handler and mount it for all runtime subpaths and HTTP methods in the server you already use. For Next.js, use a catch-all route:
+    创建一个处理器，并在你已使用的服务器中为所有运行时子路径和 HTTP 方法挂载它。对于 Next.js，请使用 catch-all 路由：
 
     ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
     import { createCopilotRuntimeHandler } from "@copilotkit/runtime/v2";
@@ -149,9 +149,9 @@ Before you start, have a working CopilotKit frontend and agent. The TypeScript t
     export const DELETE = handler;
     ```
 
-    Use this handler in the same module as the configured `runtime` above. It accepts a Web `Request` and returns a Web `Response`. For Express, Hono, and other hosts, use the [TypeScript server adapter guide](/runtime-server-adapter).
+    请在与上文配置好的 `runtime` 相同的模块中使用该处理器。它接受 Web `Request` 并返回 Web `Response`。对于 Express、Hono 及其他宿主，请使用 [TypeScript 服务器适配器指南](/runtime-server-adapter)。
 
-    TypeScript also supports `mode: "single-route"`. If your existing app uses that mode, keep its single POST route and matching frontend transport. That option does not apply to the other runtime languages.
+    TypeScript 还支持 `mode: "single-route"`。如果你现有的应用使用该模式，请保留其单一 POST 路由和匹配的前端传输方式。该选项不适用于其他运行时语言。
 
     </Tab>
     <Tab value="Python">
@@ -170,14 +170,14 @@ Before you start, have a working CopilotKit frontend and agent. The TypeScript t
   </Step>
 
   <Step>
-    ### Connect your frontend
+    ### 连接你的前端
 
-    Point your frontend provider at the runtime base path. Use `/api/copilotkit` if your frontend proxies that path to the runtime. For a separate local server, use `http://localhost:8200/api/copilotkit` and allow your frontend's exact origin in the runtime's CORS configuration.
+    将前端 provider 指向运行时的基础路径。如果你的前端把该路径代理到运行时，请使用 `/api/copilotkit`。对于独立的本地服务器，请使用 `http://localhost:8200/api/copilotkit`，并在运行时的 CORS 配置中允许你前端的精确来源（origin）。
 
-    Keep your existing application authentication headers or session. The examples below connect to a TypeScript runtime. For a Python, Go, Ruby, or C#/.NET runtime from the tabs above, use `http://localhost:8200/api/copilotkit` and uncomment the `headers` line. Those native examples use a local application token: `Authorization: Bearer <APP_AUTH_TOKEN>`. This is a development token you set yourself, **not** `CPK_INTELLIGENCE_API_KEY`. Replace `<APP_AUTH_TOKEN>` with the same local token you configured on the server, and replace the local scheme with your application's authentication before deployment.
+    保留你现有的应用身份验证请求头或会话。下面的示例连接的是 TypeScript 运行时。对于上方标签页中的 Python、Go、Ruby 或 C#/.NET 运行时，请使用 `http://localhost:8200/api/copilotkit` 并取消注释 `headers` 行。那些原生示例使用本地应用令牌：`Authorization: Bearer <APP_AUTH_TOKEN>`。这是你自己设置的开发令牌，**不是** `CPK_INTELLIGENCE_API_KEY`。请将 `<APP_AUTH_TOKEN>` 替换为你在服务器上配置的同一本地令牌，并在部署前把本地方案替换为你应用的身份验证。
 
     <FrontendOnly frontend="react">
-      Set `useSingleEndpoint={false}` for the multi-route servers above. If you kept an existing TypeScript single-route server, keep `useSingleEndpoint={true}` instead.
+      对于上述多路由服务器，请设置 `useSingleEndpoint={false}`。如果你保留的是现有的 TypeScript 单路由服务器，则改为保持 `useSingleEndpoint={true}`。
 
       ```tsx title="Your CopilotKit provider"
       import { CopilotKitProvider } from "@copilotkit/react-core/v2";
@@ -198,7 +198,7 @@ Before you start, have a working CopilotKit frontend and agent. The TypeScript t
     </FrontendOnly>
 
     <FrontendOnly frontend="angular">
-      Point `provideCopilotKit` at the runtime base path.
+      将 `provideCopilotKit` 指向运行时的基础路径。
 
       ```ts title="src/app/app.config.ts"
       import { ApplicationConfig } from "@angular/core";
@@ -216,7 +216,7 @@ Before you start, have a working CopilotKit frontend and agent. The TypeScript t
     </FrontendOnly>
 
     <FrontendOnly frontend="vue">
-      Point `CopilotKitProvider` at the runtime base path and wrap your existing app.
+      将 `CopilotKitProvider` 指向运行时的基础路径，并包裹你现有的应用。
 
       ```vue title="src/App.vue"
       <script setup lang="ts">
@@ -234,7 +234,7 @@ Before you start, have a working CopilotKit frontend and agent. The TypeScript t
     </FrontendOnly>
 
     <FrontendOnly frontend="react-native">
-      Point `CopilotKitProvider` at a runtime URL that the simulator or device can reach.
+      将 `CopilotKitProvider` 指向模拟器或设备可以访问的运行时 URL。
 
       ```tsx title="App.tsx"
       import { CopilotKitProvider } from "@copilotkit/react-native/headless";
@@ -258,72 +258,72 @@ Before you start, have a working CopilotKit frontend and agent. The TypeScript t
       }
       ```
 
-      The native server examples bind to loopback for local development. For an Android emulator or a physical device that cannot reach that listener, also bind the runtime server to your development machine's LAN interface (or `0.0.0.0`). On a physical device, replace the frontend URL's host with the machine's LAN IP address. Keep authentication enabled and restrict access to your development network.
+      原生服务器示例为了本地开发绑定在回环地址上。对于无法访问该监听地址的 Android 模拟器或物理设备，请将运行时服务器也绑定到你开发机的局域网接口（或 `0.0.0.0`）。在物理设备上，请将前端 URL 的主机替换为开发机的局域网 IP 地址。保持身份验证开启，并将访问限制在你的开发网络内。
     </FrontendOnly>
   </Step>
 
   <Step>
-    ### Confirm the connection
+    ### 确认连接
 
-    Start the runtime and check discovery at `{runtimeUrl}/info`. For a Next.js TypeScript handler on port 3000:
+    启动运行时，并在 `{runtimeUrl}/info` 检查发现信息。对于运行在 3000 端口的 Next.js TypeScript 处理器：
 
     ```bash
     curl --fail http://localhost:3000/api/copilotkit/info
     ```
 
-    For the native examples, use `http://localhost:8200/api/copilotkit/info`.
+    对于原生示例，请使用 `http://localhost:8200/api/copilotkit/info`。
 
-    The response should report `mode: "intelligence"` and your registered agent. Discovery alone does not prove persistence; create and inspect a thread next.
+    响应应报告 `mode: "intelligence"` 以及你注册的智能体。仅凭发现信息不能证明持久化已生效；接下来请创建并检查一个线程。
 
     <FrontendOnly frontend="react">
-      Start your app and open it on localhost. Click the Inspector button (Kite icon) in the corner of the app.
+      启动你的应用并在 localhost 上打开它。点击应用角落的 Inspector 按钮（Kite 图标）。
 
-      1. Open **Home**. Make sure that **Intelligence connected** appears beside **What's going on**.
-      2. Return to your app and send one message to create a thread.
-      3. Open **Rich Threads** in Inspector. Your new thread must appear in the list.
-      4. Open the thread. Make sure that **Messages** contains the message that you sent.
+      1. 打开 **Home**，确认 **What's going on** 旁边显示 **Intelligence connected**。
+      2. 回到你的应用，发送一条消息以创建线程。
+      3. 在 Inspector 中打开 **Rich Threads**，你的新线程必须出现在列表中。
+      4. 打开该线程，确认 **Messages** 中包含你发送的消息。
 
-      If Home does not show **Intelligence connected**, or Threads is locked, the setup is incomplete. Follow the action shown in Inspector or review the [Inspector setup states](/inspector#project-context-and-usage).
+      如果 **Home** 未显示 **Intelligence connected**，或线程处于锁定状态，说明配置未完成。请按 Inspector 中显示的操作执行，或查阅 [Inspector 配置状态](/inspector#project-context-and-usage)。
     </FrontendOnly>
 
     <FrontendOnly frontend="vue">
-      Start your app and open it on localhost. Click the Inspector button (Kite icon) in the corner of the app.
+      启动你的应用并在 localhost 上打开它。点击应用角落的 Inspector 按钮（Kite 图标）。
 
-      1. Open **Home**. Make sure that **Intelligence connected** appears beside **What's going on**.
-      2. Return to your app and send one message to create a thread.
-      3. Open **Rich Threads** in Inspector. Your new thread must appear in the list.
-      4. Open the thread. Make sure that **Messages** contains the message that you sent.
+      1. 打开 **Home**，确认 **What's going on** 旁边显示 **Intelligence connected**。
+      2. 回到你的应用，发送一条消息以创建线程。
+      3. 在 Inspector 中打开 **Rich Threads**，你的新线程必须出现在列表中。
+      4. 打开该线程，确认 **Messages** 中包含你发送的消息。
 
-      If Home does not show **Intelligence connected**, or Threads is locked, the setup is incomplete. Follow the action shown in Inspector or review the [Inspector setup states](/inspector#project-context-and-usage).
+      如果 **Home** 未显示 **Intelligence connected**，或线程处于锁定状态，说明配置未完成。请按 Inspector 中显示的操作执行，或查阅 [Inspector 配置状态](/inspector#project-context-and-usage)。
     </FrontendOnly>
 
     <FrontendOnly frontend="angular">
-      Start your app and open it on localhost. Click the Inspector button (Kite icon) in the corner of the app.
+      启动你的应用并在 localhost 上打开它。点击应用角落的 Inspector 按钮（Kite 图标）。
 
-      1. Open **Home**. Make sure that **Intelligence connected** appears beside **What's going on**.
-      2. Return to your app and send one message to create a thread.
-      3. Open **Rich Threads** in Inspector. Your new thread must appear in the list.
-      4. Open the thread. Make sure that **Messages** contains the message that you sent.
+      1. 打开 **Home**，确认 **What's going on** 旁边显示 **Intelligence connected**。
+      2. 回到你的应用，发送一条消息以创建线程。
+      3. 在 Inspector 中打开 **Rich Threads**，你的新线程必须出现在列表中。
+      4. 打开该线程，确认 **Messages** 中包含你发送的消息。
 
-      If Home does not show **Intelligence connected**, or Threads is locked, the setup is incomplete. Follow the action shown in Inspector or review the [Inspector setup states](/inspector#project-context-and-usage).
+      如果 **Home** 未显示 **Intelligence connected**，或线程处于锁定状态，说明配置未完成。请按 Inspector 中显示的操作执行，或查阅 [Inspector 配置状态](/inspector#project-context-and-usage)。
     </FrontendOnly>
 
     <FrontendOnly frontend="react-native">
-      React Native does not include the browser Inspector. Start your app and send one message to create a thread. Then open the selected project in [CopilotKit Intelligence](https://dashboard.operations.copilotkit.ai/), open the new thread, and confirm that its message history contains your message.
+      React Native 不包含浏览器版 Inspector。请启动你的应用并发送一条消息来创建线程，然后在 [CopilotKit Intelligence](https://dashboard.operations.copilotkit.ai/) 中打开所选项目，打开新线程，确认其消息历史包含你发送的消息。
     </FrontendOnly>
   </Step>
 </Steps>
 
-A chat reply does not prove that the key is in use. An SSE runtime replies with the key unread. Use the Inspector check above, or open the thread in the [cloud-hosted project](/intelligence/managed-intelligence-platform).
+对话有回复并不能证明密钥正在被使用。SSE 运行时会在未读取密钥的情况下照常回复。请使用上方的 Inspector 检查，或在[云托管项目](/intelligence/managed-intelligence-platform)中打开该线程。
 
-## Self-hosted deployments
+## 自托管部署
 
-All runtimes default to cloud-hosted Intelligence. For self-hosting, replace the endpoint settings in your selected runtime's configuration. Keep the project key and authentication from the setup above. Use the public addresses that your runtime and browser can reach.
+所有运行时默认使用云托管 Intelligence。若要自托管，请在所选运行时的配置中替换端点设置。保留上文配置中的项目密钥和身份验证。使用你的运行时和浏览器都能访问的公共地址。
 
 <Tabs groupId="runtime_language" persist default="TypeScript" items={["TypeScript", "Python", "Go", "Ruby", "C#/.NET"]}>
 <Tab value="TypeScript">
 
-Set both `apiUrl` and `wsUrl` on `CopilotKitIntelligence`. Pass a bare WebSocket base; the client appends `/runner` and `/client`.
+在 `CopilotKitIntelligence` 上同时设置 `apiUrl` 和 `wsUrl`。传入裸的 WebSocket 基础地址即可；客户端会自动追加 `/runner` 和 `/client`。
 
 ```ts
 const intelligence = new CopilotKitIntelligence({
@@ -336,7 +336,7 @@ const intelligence = new CopilotKitIntelligence({
 </Tab>
 <Tab value="Python">
 
-Set all three URLs on `RuntimeConfig`. The runner and browser URLs include different suffixes:
+在 `RuntimeConfig` 上设置全部三个 URL。runner 与浏览器 URL 包含不同的后缀：
 
 ```python
 config = RuntimeConfig(
@@ -349,12 +349,12 @@ config = RuntimeConfig(
 )
 ```
 
-Pass `config` to `IntelligenceRuntime` in place of the cloud-hosted configuration.
+将 `config` 传给 `IntelligenceRuntime`，以替代云托管配置。
 
 </Tab>
 <Tab value="Go">
 
-Add these fields to the existing `copilotkit.Config`:
+在现有的 `copilotkit.Config` 中添加这些字段：
 
 ```go
 APIURL:    "https://api.intelligence.internal",
@@ -365,7 +365,7 @@ ClientURL: "wss://realtime.intelligence.internal/client",
 </Tab>
 <Tab value="Ruby">
 
-Add these keyword arguments to `CopilotKit::Runtime.new`:
+在 `CopilotKit::Runtime.new` 中添加这些关键字参数：
 
 ```ruby
 api_url: 'https://api.intelligence.internal',
@@ -376,7 +376,7 @@ client_url: 'wss://realtime.intelligence.internal/client',
 </Tab>
 <Tab value="C#/.NET">
 
-Add these properties to the existing `RuntimeOptions`:
+在现有的 `RuntimeOptions` 中添加这些属性：
 
 ```csharp
 ApiUrl = new Uri("https://api.intelligence.internal"),
@@ -387,26 +387,26 @@ ClientUrl = new Uri("wss://realtime.intelligence.internal/client"),
 </Tab>
 </Tabs>
 
-Do not append `/api` to the API host or `/websocket` to either WebSocket URL. The clients add those path segments. Setting only some endpoints can leave requests split between your deployment and cloud-hosted Intelligence.
+不要在 API 主机后追加 `/api`，也不要在任一 WebSocket URL 后追加 `/websocket`。客户端会自行添加这些路径段。只设置部分端点可能导致请求在你的部署与云托管 Intelligence 之间被拆分。
 
-Install steps are on [Self-host on Kubernetes](/intelligence/self-hosting) and [Self-host on ECS](/intelligence/self-hosting-ecs).
+安装步骤参见[在 Kubernetes 上自托管](/intelligence/self-hosting)和[在 ECS 上自托管](/intelligence/self-hosting-ecs)。
 
-## Troubleshooting
+## 故障排查
 
 <Accordions>
-  <Accordion title="Chat works, and the project has no thread">
-    In TypeScript, check that `intelligence` was passed to `CopilotRuntime`; otherwise it stays in SSE mode. The other runtimes have no SSE-only fallback. Check their server diagnostics and Intelligence endpoint settings.
+  <Accordion title="对话正常，但项目中没有线程">
+    在 TypeScript 中，检查 `intelligence` 是否已传给 `CopilotRuntime`；否则它会停留在 SSE 模式。其他运行时没有仅 SSE 的回退。请检查它们的服务端诊断信息和 Intelligence 端点设置。
   </Accordion>
-  <Accordion title="An auth error on the first request">
-    `CPK_INTELLIGENCE_API_KEY` is empty, or it belongs to another project.
+  <Accordion title="首个请求出现身份验证错误">
+    `CPK_INTELLIGENCE_API_KEY` 为空，或属于另一个项目。
   </Accordion>
-  <Accordion title="The socket stays on connecting, then reports that it did not settle in time">
-    Check every endpoint in the self-hosted settings above. The realtime host differs from the API host. Native runtimes need separate `/runner` and `/client` URLs; TypeScript uses the bare `wsUrl`.
+  <Accordion title="套接字一直处于 connecting，然后报告未能在时限内就绪">
+    检查上方自托管设置中的每个端点。实时（realtime）主机与 API 主机不同。原生运行时需要单独的 `/runner` 和 `/client` URL；TypeScript 则使用裸的 `wsUrl`。
   </Accordion>
-  <Accordion title="Request logs show /api/api/...">
-    `apiUrl` included an `/api` suffix.
+  <Accordion title="请求日志中出现 /api/api/...">
+    `apiUrl` 中包含了 `/api` 后缀。
   </Accordion>
-  <Accordion title="A type error or a throw that names runner">
-    This is a TypeScript configuration error: `runner` and `intelligence` are both set. Intelligence wires its own runner.
+  <Accordion title="出现类型错误或提及 runner 的抛错">
+    这是 TypeScript 配置错误：同时设置了 `runner` 和 `intelligence`。Intelligence 会自行接线自己的 runner。
   </Accordion>
 </Accordions>

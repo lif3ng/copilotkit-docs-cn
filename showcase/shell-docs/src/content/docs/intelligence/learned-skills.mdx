@@ -1,83 +1,83 @@
 ---
-title: Skill delivery
+title: 技能分发
 nav_title: Skill delivery
-description: Keep published skills available to agents, with verified snapshots and exact revision pins.
+description: 让已发布的技能持续对智能体可用，并提供经过验证的快照与精确的修订版锁定。
 frontend: universal
 doc_type: explanation
 ---
 
-## Overview
+## 概览
 
-Skill delivery makes published skills from one or more Learning containers available to an agent without another CLI download or process restart. A framework adapter adds an alphabetical catalog and two tools.
+技能分发让智能体无需再次执行 CLI 下载或重启进程，即可使用来自一个或多个 Learning 容器的已发布技能。框架适配器会添加一份按字母排序的目录和两个工具。
 
 <Image
   src="/images/cloud-hosted/cloud-hosted-skill-delivery.png"
-  alt="The Skills tab of a Learning container in cloud-hosted Intelligence. The Skill delivery toggle is on, and skill candidates wait for review."
+  alt="云托管 Intelligence 中某个 Learning 容器的 Skills 标签页。Skill delivery 开关已打开，技能候选正等待审核。"
   width={2000}
   height={1447}
   className="my-8 w-full rounded-xl border border-[var(--border)]"
 />
 
-The model decides when to load and follow a skill.
+由模型决定何时加载并遵循某个技能。
 
-Developer instructions retain precedence. Skills cannot override the agent's role, safety rules, tool restrictions, or application policy.
+开发者的指令始终具有最高优先级。技能无法覆盖智能体的角色、安全规则、工具限制或应用策略。
 
 <Callout type="info">
-  Start with [Automatic Learning](/learning) to collect threads, configure daily runs, and review skills. Before connecting an adapter, check that **Skill delivery** is enabled in the container's **Skills** tab. For guided setup, select **Set up skill delivery** there and copy the prompt into your coding agent.
+  从[自动学习](/learning)开始，收集线程、配置每日运行并审核技能。连接适配器之前，请检查容器的 **Skills** 标签页中是否已启用 **Skill delivery**。如需引导式配置，请在该处选择 **Set up skill delivery**，并将提示复制到你的编码智能体中。
 </Callout>
 
-## Before you start
+## 开始之前
 
-The Intelligence SDK adapters load published Skills into your agent automatically. They add a catalog and tools that read skill instructions during a run.
+Intelligence SDK 适配器会自动将已发布的技能加载到你的智能体中。它们会添加一份目录以及一些在运行期间读取技能指令的工具。
 
-Complete these steps before you run an example:
+在运行示例之前，请完成以下步骤：
 
-1. Create a Learning container in your Intelligence project.
-2. Publish a Skill and enable **Skill delivery** in the container's **Skills** tab.
-3. Configure the agent with your project key and Learning container ID.
+1. 在你的 Intelligence 项目中创建一个 Learning 容器。
+2. 发布一个技能，并在容器的 **Skills** 标签页中启用 **Skill delivery**。
+3. 使用项目密钥和 Learning 容器 ID 配置智能体。
 
-For one container, you can set the container and revision **in code or with environment variables**. The examples below show code parameters. To use environment variables instead, omit the corresponding parameters from the code. You can mix both approaches: an explicit code value overrides its environment variable.
+对于单个容器，你可以**在代码中或通过环境变量**设置容器与修订版。下面的示例展示的是代码参数。若想改用环境变量，请从代码中省略相应参数。两种方式可以混用：代码中的显式取值会覆盖对应的环境变量。
 
-For example, this environment configuration supplies the project key and container:
+例如，下面这份环境配置提供了项目密钥和容器：
 
-```bash title="Agent server environment"
+```bash title="智能体服务器环境"
 export CPK_INTELLIGENCE_API_KEY="your-project-key"
 export CPK_INTELLIGENCE_LEARNING_CONTAINER_ID="support-learning"
-# For self-hosted Intelligence, also set INTELLIGENCE_API_URL.
+# 自托管 Intelligence 还需设置 INTELLIGENCE_API_URL。
 ```
 
-Set your model provider's credentials separately. Replace model placeholders with your configured model and install its provider package when required by your framework.
+模型提供方的凭据需单独设置。将模型占位符替换为你已配置的模型，并在框架要求时安装相应的提供方包。
 
-To follow the latest published Skills, omit the revision parameter in code and leave `CPK_INTELLIGENCE_SKILLS_REVISION` unset. See [container configuration](#configure-one-container) for exact revision pins.
+若要跟随最新发布的技能，请在代码中省略 revision 参数，并保持 `CPK_INTELLIGENCE_SKILLS_REVISION` 未设置。精确修订版锁定请参见[容器配置](#配置单个容器)。
 
-Skill delivery does not send native agent runs to Automatic Learning. To collect new evidence, also [assign your Runtime's Threads to a container](/learning#assign-threads-from-your-runtime).
+技能分发不会把原生智能体运行发送到自动学习。若要收集新证据，还请[将你的 Runtime 线程分配给某个容器](/learning#assign-threads-from-your-runtime)。
 
-## Choose an adapter
+## 选择适配器
 
-| Framework                 | Package                                  | Native extension                                                     |
-| ------------------------- | ---------------------------------------- | -------------------------------------------------------------------- |
-| [BuiltInAgent](#builtinagent) | `@copilotkit/runtime/v2`                 | `learnedSkills` configuration                                        |
-| [LangGraph Python](#langgraph-python) | `copilotkit-intelligence-langgraph`      | `create_skill_registry_middleware`                                   |
-| [LangGraph TypeScript](#langgraph-typescript) | `@copilotkit/intelligence-langgraph`     | `createSkillRegistryMiddleware`                                      |
-| [Mastra](#mastra) | `@copilotkit/intelligence-mastra`        | `createSkillRegistryProcessor`                                       |
-| [Google ADK](#google-adk) | `copilotkit-intelligence-adk`            | `SkillRegistry` and `SkillToolset`                                   |
-| [Microsoft Agent Framework](#microsoft-agent-framework) | `CopilotKit.Intelligence.AgentFramework` | `SkillRegistryContextProvider` and `AddCopilotKitIntelligenceSkills` |
+| 框架 | 包 | 原生扩展 |
+| --- | --- | --- |
+| [BuiltInAgent](#builtinagent) | `@copilotkit/runtime/v2` | `learnedSkills` 配置 |
+| [LangGraph Python](#langgraph-python) | `copilotkit-intelligence-langgraph` | `create_skill_registry_middleware` |
+| [LangGraph TypeScript](#langgraph-typescript) | `@copilotkit/intelligence-langgraph` | `createSkillRegistryMiddleware` |
+| [Mastra](#mastra) | `@copilotkit/intelligence-mastra` | `createSkillRegistryProcessor` |
+| [Google ADK](#google-adk) | `copilotkit-intelligence-adk` | `SkillRegistry` 与 `SkillToolset` |
+| [Microsoft Agent Framework](#microsoft-agent-framework) | `CopilotKit.Intelligence.AgentFramework` | `SkillRegistryContextProvider` 与 `AddCopilotKitIntelligenceSkills` |
 
-Attach an adapter to the agents that need skills. Adapters do not inspect or rebuild arbitrary graphs or agent hierarchies. Subagent behavior follows the selected framework.
+将适配器挂载到需要技能的智能体上。适配器不会检查或重建任意的图结构或智能体层级。子智能体的行为遵循所选框架。
 
-TypeScript uses the canonical client from `@copilotkit/runtime/v2`. Python uses `copilotkit-intelligence-runtime`. These dependencies include Runtime features beyond skill delivery. The .NET adapter targets `net9.0` and uses `CopilotKit.Intelligence`.
+TypeScript 使用来自 `@copilotkit/runtime/v2` 的规范客户端。Python 使用 `copilotkit-intelligence-runtime`。这些依赖包含技能分发之外的 Runtime 功能。.NET 适配器面向 `net9.0`，并使用 `CopilotKit.Intelligence`。
 
-## Native setup
+## 原生设置
 
-These adapters require the server and canonical client releases described below.
+这些适配器需要下述版本的服务端与规范客户端。
 
-Each example shows an optional revision pin. Replace `"exact-revision-id"` with a published revision ID, or remove that parameter to use the environment fallback. If neither code nor environment specifies a revision, the adapter follows the latest published Skills. The SDK does not support `"auto"` as a special value.
+每个示例都展示了可选的修订版锁定。请将 `"exact-revision-id"` 替换为已发布的修订版 ID，或者移除该参数以使用环境变量回退。如果代码和环境都未指定修订版，适配器将跟随最新发布的技能。SDK 不支持将 `"auto"` 作为特殊取值。
 
 ### BuiltInAgent
 
-Configure `learnedSkills` directly on `BuiltInAgent`. No wrapper or separate adapter package is required.
+直接在 `BuiltInAgent` 上配置 `learnedSkills`。无需包装器或单独的适配器包。
 
-Set the container and revision in code below, **or** omit those parameters and use [environment variables](#configure-one-container). Code values take precedence.
+在下方代码中设置容器与修订版，**或者**省略这些参数并使用[环境变量](#配置单个容器)。代码取值优先。
 
 ```typescript
 import { BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -93,15 +93,15 @@ const agent = new BuiltInAgent({
 });
 ```
 
-Set `CPK_INTELLIGENCE_API_KEY` for skill delivery and your model provider's key separately. The configuration also accepts an existing `CopilotKitIntelligence` instance as `client`, or explicit `apiKey` and `apiUrl`. These credentials apply to Intelligence, not the model provider. The environment fallbacks and refresh settings below apply.
+`CPK_INTELLIGENCE_API_KEY` 用于技能分发，模型提供方的密钥需单独设置。该配置还支持将现有的 `CopilotKitIntelligence` 实例作为 `client` 传入，或者显式提供 `apiKey` 与 `apiUrl`。这些凭据作用于 Intelligence，而非模型提供方。下述的环境变量回退与刷新设置同样适用。
 
-Classic mode adds the catalog and both executable skill tools before the model call. When skills are available, the default step limit is 10 so the model can load and use guidance. An explicit `maxSteps` takes precedence. Without available skills, the existing default step limit remains unchanged.
+经典模式会在模型调用之前添加目录和两个可执行的技能工具。当有技能可用时，默认步骤上限为 10，以便模型加载并使用这些指导。显式设置的 `maxSteps` 优先。在没有可用技能时，既有的默认步骤上限保持不变。
 
-#### Factory mode
+#### 工厂模式
 
-BuiltInAgent fetches the snapshot before it calls your factory. Connect the catalog and tools to your model call:
+BuiltInAgent 会在调用你的工厂函数之前获取快照。请将目录和工具接入你的模型调用：
 
-Set the container and revision in code below, **or** omit those parameters and use [environment variables](#configure-one-container). Code values take precedence.
+在下方代码中设置容器与修订版，**或者**省略这些参数并使用[环境变量](#配置单个容器)。代码取值优先。
 
 ```typescript
 import {
@@ -133,23 +133,23 @@ const agent = new BuiltInAgent({
 });
 ```
 
-Import `BuiltInAgentFactoryContext` from `@copilotkit/runtime/v2` to annotate a factory context. Every factory receives a `learnedSkills` object. Its `catalog` is `""` and its `tools` is `{}` when delivery is unconfigured or the verified snapshot contains no skills. Omitting the configuration disables all skill requests, even when delivery environment variables exist. With configuration, later runs check for newly published skills according to the freshness window.
+从 `@copilotkit/runtime/v2` 导入 `BuiltInAgentFactoryContext` 可为工厂上下文添加类型标注。每个工厂都会收到一个 `learnedSkills` 对象。当分发未配置或经验证的快照中不含技能时，其 `catalog` 为 `""`、`tools` 为 `{}`。省略该配置会禁用所有技能请求，即使分发相关的环境变量存在也一样。配置之后，后续运行会按新鲜度窗口检查新发布的技能。
 
-The tools use AI SDK schemas and executors. TanStack and custom factories receive the same object and must adapt the tools to their model library; they are not TanStack-native tool definitions. Factory code owns the model call and its step limit. Keep the supplied catalog and tools together within that invocation. The tool map is read-only; spread it into a new object to add application tools.
+这些工具使用 AI SDK 的 schema 和执行器。TanStack 与自定义工厂收到的是同一个对象，必须将这些工具适配到各自的模型库；它们并不是 TanStack 原生的工具定义。工厂代码负责模型调用及其步骤上限。请在该次调用中一并使用所提供的目录和工具。工具映射是只读的；请将其展开到新对象中以添加应用工具。
 
-Each run, including a resume, acquires one snapshot before factory or model work. Agent clones share the refresh cache; each invocation retains its own snapshot. Cancellation stops that invocation's delivery wait without cancelling another clone's shared refresh. Snapshots stay out of application state. Existing cached skills can cover transient failures, but a confirmed delivery denial blocks new execution.
+每次运行（包括恢复运行）都会在工厂或模型工作开始前获取一份快照。智能体克隆共享刷新缓存；每次调用保留各自的快照。取消操作只会终止该次调用的分发等待，不会取消其他克隆共享的刷新。快照不会进入应用状态。已缓存的技能可以应对瞬时故障，但一旦确认分发被拒，就会阻止新的执行。
 
-Reserve `copilotkit_load_skill` and `copilotkit_read_skill_file` for delivery. Classic mode rejects conflicting client, configuration, or MCP tool names. Factory code must avoid overwriting these names when it combines tool maps.
+请将 `copilotkit_load_skill` 和 `copilotkit_read_skill_file` 保留给分发使用。经典模式会拒绝与之冲突的客户端、配置或 MCP 工具名称。工厂代码在合并工具映射时必须避免覆盖这些名称。
 
 ### LangGraph Python
 
-Use Python 3.11 or later with native asynchronous agents from `langchain.agents.create_agent`.
+使用 Python 3.11 或更高版本，并配合来自 `langchain.agents.create_agent` 的原生异步智能体。
 
 ```bash
 pip install copilotkit-intelligence-langgraph
 ```
 
-Set the container and revision in code below, **or** omit those parameters and use [environment variables](#configure-one-container). Code values take precedence.
+在下方代码中设置容器与修订版，**或者**省略这些参数并使用[环境变量](#配置单个容器)。代码取值优先。
 
 ```python
 import asyncio
@@ -182,20 +182,20 @@ async def main():
 asyncio.run(main())
 ```
 
-Use `ainvoke` or `astream`; synchronous execution is unsupported. The adapter supports LangChain `>=1.2.16,<2` and LangGraph `>=1.1.10,<2`. Attach middleware explicitly to each agent that needs skills. Arbitrary compiled graphs are outside this integration.
+请使用 `ainvoke` 或 `astream`；不支持同步执行。该适配器支持 LangChain `>=1.2.16,<2` 与 LangGraph `>=1.1.10,<2`。请将中间件显式挂载到每个需要技能的智能体上。任意的已编译图不在本集成范围内。
 
 ### LangGraph TypeScript
 
-Use Node.js 20.19 or later with native LangChain agents.
+使用 Node.js 20.19 或更高版本，并配合原生 LangChain 智能体。
 
-```bash title="Terminal"
+```bash title="终端"
 npm install @copilotkit/intelligence-langgraph langchain @langchain/core @langchain/langgraph zod
 npm install --save-dev tsx
 ```
 
-Save this example as `agent.mts`. Run it with `npx tsx agent.mts`:
+将此示例保存为 `agent.mts`，然后用 `npx tsx agent.mts` 运行：
 
-Set the container and revision in code below, **or** omit those parameters and use [environment variables](#configure-one-container). Code values take precedence.
+在下方代码中设置容器与修订版，**或者**省略这些参数并使用[环境变量](#配置单个容器)。代码取值优先。
 
 ```typescript
 import { createAgent } from "langchain";
@@ -224,26 +224,26 @@ const result = await agent.invoke({
 console.log(result.messages.at(-1)?.content);
 ```
 
-The wrapper is currently required because affected LangChain/LangGraph versions cannot keep private transient middleware state correctly. Use the wrapped agent for `invoke`, `stream`, and `streamEvents`, including native `Command` resumes. `withConfig` retains the wrapper. Apply default cancellation signals with `agent.withConfig` after wrapping, or pass the signal to each invocation. Stream objects, readers, and native cancellation remain available. Calling the middleware without its wrapper returns `INVALID_CONFIG`.
+目前必须使用包装器，因为受影响的 LangChain/LangGraph 版本无法正确保存私有的瞬态中间件状态。请在 `invoke`、`stream` 和 `streamEvents` 中使用包装后的智能体，包括原生的 `Command` 恢复。`withConfig` 会保留包装器。可在包装之后通过 `agent.withConfig` 应用默认取消信号，或将信号传入每次调用。流对象、读取器和原生取消机制仍然可用。在没有包装器的情况下调用中间件会返回 `INVALID_CONFIG`。
 
-After the native framework fix passes the same lifecycle tests, middleware-only setup will become the default. The wrapper will be optional, and existing wrapped agents will continue to work.
+待原生框架修复通过相同的生命周期测试后，仅中间件的配置方式将成为默认。包装器将变为可选，已包装的现有智能体仍可继续工作。
 
-Attach this middleware and its wrapper to each selected agent. Several agents can share one registry, but each wrapped invocation captures its own snapshot. Skills do not propagate automatically to arbitrary subagents. The wrapper supports the native agent's graph execution entry points for integrations that access `.graph`; graph batching and arbitrary compiled graph adaptation are outside this integration.
+请将该中间件及其包装器挂载到每个选定的智能体上。多个智能体可以共享一个注册表，但每次包装后的调用都会捕获各自的快照。技能不会自动传播到任意的子智能体。对于访问 `.graph` 的集成，包装器支持原生智能体的图执行入口；图批处理以及任意已编译图的适配不在本集成范围内。
 
-The supported dependency ranges are LangChain `>=1.5.11,<2`, LangGraph `>=1.4.14,<2`, and LangChain core `>=1.2.10,<2`. The registry owns in-memory snapshots and performs no filesystem writes. Your application retains ownership of an injected canonical client.
+支持的依赖版本范围为 LangChain `>=1.5.11,<2`、LangGraph `>=1.4.14,<2` 和 LangChain core `>=1.2.10,<2`。注册表持有内存中的快照，不执行任何文件系统写入。注入的规范客户端仍由你的应用持有。
 
 ### Mastra
 
-Use Node.js 22.13 or later with `@mastra/core>=1.0.0,<2`.
+使用 Node.js 22.13 或更高版本，并配合 `@mastra/core>=1.0.0,<2`。
 
-```bash title="Terminal"
+```bash title="终端"
 npm install @copilotkit/intelligence-mastra @mastra/core zod
 npm install --save-dev tsx
 ```
 
-Save this example as `agent.mts`. Run it with `npx tsx agent.mts`. Register the processor and its tools on the native `Agent`:
+将此示例保存为 `agent.mts`，然后用 `npx tsx agent.mts` 运行。在原生 `Agent` 上注册该处理器及其工具：
 
-Set the container and revision in code below, **or** omit those parameters and use [environment variables](#configure-one-container). Code values take precedence.
+在下方代码中设置容器与修订版，**或者**省略这些参数并使用[环境变量](#配置单个容器)。代码取值优先。
 
 ```typescript
 import { Agent } from "@mastra/core/agent";
@@ -272,23 +272,23 @@ const agent = skills.wrapAgent(
 const result = await agent.generate("Help with a refund.");
 ```
 
-Keep other processors and tools in the same arrays and maps. Reserve the names `copilotkit_load_skill` and `copilotkit_read_skill_file` for this adapter.
+其他处理器和工具保留在原来的数组和映射中即可。请将 `copilotkit_load_skill` 和 `copilotkit_read_skill_file` 这两个名称保留给该适配器。
 
-Call the wrapped agent for `generate`, `stream`, `resumeGenerate`, and `resumeStream`. The wrapper checks delivery before native execution and preserves Mastra's stream result. It also covers native tool approval and decline methods when your installed Mastra version provides them: `approveToolCall`, `declineToolCall`, `approveToolCallGenerate`, and `declineToolCallGenerate`. A resume starts a new invocation and captures the current verified snapshot, including when a tool runs before the next model call.
+请通过包装后的智能体调用 `generate`、`stream`、`resumeGenerate` 和 `resumeStream`。包装器会在原生执行之前检查分发，并保留 Mastra 的流式结果。当你安装的 Mastra 版本提供了原生工具批准与拒绝方法时，包装器也会一并覆盖：`approveToolCall`、`declineToolCall`、`approveToolCallGenerate` 和 `declineToolCallGenerate`。恢复操作会开启一次新调用并捕获当前经过验证的快照，包括在下次模型调用之前有工具运行的情况。
 
-Register the processor and tools, and wrap each selected agent. Several agents can share a registry; each invocation keeps its own snapshot. Subagents follow Mastra's native propagation rules. Networks, legacy methods, background workers, and separate durable-worker dispatch are outside this integration.
+注册处理器和工具，并包装每个选定的智能体。多个智能体可以共享一个注册表；每次调用保留各自的快照。子智能体遵循 Mastra 的原生传播规则。网络（networks）、旧版方法、后台工作进程以及独立的持久化工作进程分发不在本集成范围内。
 
-Pass `abortSignal` in the invocation options to cancel both the delivery wait and native execution. A signal set only in the agent's `defaultOptions` applies to native execution, but cannot cancel the delivery wait that runs before it. Cancelling one invocation does not cancel a registry refresh shared with other callers.
+在调用选项中传入 `abortSignal` 即可同时取消分发等待和原生执行。仅在智能体的 `defaultOptions` 中设置信号时，该信号作用于原生执行，但无法取消先于其运行的分发等待。取消某一次调用并不会取消与其他调用方共享的注册表刷新。
 
 ### Google ADK
 
-Use Python 3.11 or later and add `SkillToolset` to a standard ADK `LlmAgent`.
+使用 Python 3.11 或更高版本，并将 `SkillToolset` 添加到标准的 ADK `LlmAgent` 中。
 
 ```bash
 pip install copilotkit-intelligence-adk
 ```
 
-Set the container and revision in code below, **or** omit those parameters and use [environment variables](#configure-one-container). Code values take precedence.
+在下方代码中设置容器与修订版，**或者**省略这些参数并使用[环境变量](#配置单个容器)。代码取值优先。
 
 ```python
 import asyncio
@@ -334,13 +334,13 @@ async def main():
 asyncio.run(main())
 ```
 
-The adapter supports `google-adk>=1.17,<2`. Several selected agents can share one registry. Closing a toolset does not close that shared registry. Native resumed runs receive a fresh invocation pin; session state contains no snapshot or lock.
+该适配器支持 `google-adk>=1.17,<2`。多个选定的智能体可以共享一个注册表。关闭某个工具集并不会关闭共享的注册表。原生恢复的运行会获得新的调用标识；会话状态中不包含快照或锁。
 
 ### Microsoft Agent Framework
 
-Use the provider's native agent factory with your application's `IChatClient`:
+使用该提供方的原生智能体工厂，并配合你应用的 `IChatClient`：
 
-Set the container and revision in code below, **or** omit those parameters and use [environment variables](#configure-one-container). Code values take precedence.
+在下方代码中设置容器与修订版，**或者**省略这些参数并使用[环境变量](#配置单个容器)。代码取值优先。
 
 ```csharp
 using CopilotKit.Intelligence.AgentFramework;
@@ -361,15 +361,15 @@ var agent = skills.CreateAgent(chatClient, new ChatClientAgentOptions
 var response = await agent.RunAsync("Help with a refund.");
 ```
 
-The adapter targets .NET 9 and Agent Framework `>=1.0.0,<2.0.0`. `AddCopilotKitIntelligenceSkills` also registers a keyed provider and native agent through dependency injection. Use this extension or `CreateAgent` for complete invocation checks. Background responses and continuation tokens are unsupported because the framework bypasses context providers for those calls.
+该适配器面向 .NET 9 和 Agent Framework `>=1.0.0,<2.0.0`。`AddCopilotKitIntelligenceSkills` 还会通过依赖注入注册一个键控提供方和原生智能体。若要获得完整的调用检查，请使用此扩展方法或 `CreateAgent`。后台响应和继续令牌不受支持，因为框架在执行这些调用时会绕过上下文提供方。
 
-## Configure several containers
+## 配置多个容器
 
-Use `containers` to combine Skills from several Learning containers in the same project.
-Each entry has an `id` and an optional `revision` pin.
-An entry without a revision follows that container's latest published Skills.
+使用 `containers` 可以在同一项目中组合来自多个 Learning 容器的技能。
+每个条目包含一个 `id` 和一个可选的 `revision` 锁定。
+未指定修订版的条目将跟随该容器最新发布的技能。
 
-BuiltInAgent accepts the list inside `learnedSkills`:
+BuiltInAgent 在 `learnedSkills` 中接受这份列表：
 
 ```typescript
 const agent = new BuiltInAgent({
@@ -383,7 +383,7 @@ const agent = new BuiltInAgent({
 });
 ```
 
-Mastra and LangGraph TypeScript accept the same list in `SkillRegistry`:
+Mastra 与 LangGraph TypeScript 在 `SkillRegistry` 中接受同样的列表：
 
 ```typescript
 const registry = new SkillRegistry({
@@ -395,7 +395,7 @@ const registry = new SkillRegistry({
 await registry.initialize();
 ```
 
-LangGraph Python accepts the list in its middleware factory:
+LangGraph Python 在其中间件工厂中接受这份列表：
 
 ```python
 skills = create_skill_registry_middleware(
@@ -406,8 +406,8 @@ skills = create_skill_registry_middleware(
 )
 ```
 
-Google ADK accepts the same Python list in `SkillRegistry(containers=[...])`.
-For Microsoft Agent Framework, use typed container entries:
+Google ADK 在 `SkillRegistry(containers=[...])` 中接受同样的 Python 列表。
+对于 Microsoft Agent Framework，请使用带类型的容器条目：
 
 ```csharp
 var options = new SkillRegistryOptions
@@ -420,81 +420,81 @@ var options = new SkillRegistryOptions
 };
 ```
 
-The list must contain 1–50 entries, with unique, nonempty IDs.
-Credentials, timeouts, and the freshness window apply to every entry.
-All selected containers must belong to the project that the client key identifies.
+列表必须包含 1–50 个条目，且 ID 唯一、非空。
+凭据、超时和新鲜度窗口适用于每个条目。
+所有选定的容器都必须属于客户端密钥所标识的项目。
 
-Do not combine `containers` with the old `containerId` or top-level `revision` fields.
-The SDK rejects this combination, including the corresponding Python and .NET fields.
-TypeScript also rejects the combination at compile time.
+不要将 `containers` 与旧的 `containerId` 或顶层 `revision` 字段组合使用。
+SDK 会拒绝这种组合，包括对应的 Python 和 .NET 字段。
+TypeScript 还会在编译期拒绝这种组合。
 
-An explicit `containers` list ignores `CPK_INTELLIGENCE_LEARNING_CONTAINER_ID` and `CPK_INTELLIGENCE_SKILLS_REVISION`.
-Connection environment variables still apply.
-The [single-container interface](#configure-one-container) and its environment defaults remain supported unchanged.
+显式的 `containers` 列表会忽略 `CPK_INTELLIGENCE_LEARNING_CONTAINER_ID` 和 `CPK_INTELLIGENCE_SKILLS_REVISION`。
+连接类的环境变量仍然生效。
+[单容器接口](#配置单个容器)及其环境变量默认值保持不变，继续受支持。
 
-### One request for several containers
+### 多容器单次请求
 
-The SDK sends one batch request for all containers that need a refresh.
-Each entry includes its container ID, optional revision pin, and cached ETag.
-The response carries a snapshot, an unchanged result, or an error for each container.
-Fresh cached containers need no request.
-An explicit `containers` list uses this endpoint even when it contains one entry.
+对于所有需要刷新的容器，SDK 会发送一个批量请求。
+每个条目包含其容器 ID、可选的修订版锁定和缓存的 ETag。
+响应会为每个容器携带一个快照、一个未变更结果或一个错误。
+缓存仍然新鲜的容器无需请求。
+即使显式的 `containers` 列表只含一个条目，也会使用该端点。
 
-The new interface requires an Intelligence server that supports `POST /api/v1/learning/skills/batch`.
-For self-hosted Intelligence, update the server before you enable `containers`.
-The SDK does not fall back to separate requests on older servers.
-The original single-container interface keeps its existing endpoint.
+新接口要求 Intelligence 服务端支持 `POST /api/v1/learning/skills/batch`。
+对于自托管的 Intelligence，请先更新服务端再启用 `containers`。
+在较旧的服务端上，SDK 不会回退为分开的单独请求。
+原有的单容器接口继续沿用其现有端点。
 
-### Skill names and failures
+### 技能名称与失败
 
-The new interface prefixes every Skill name with its container ID, even for a list with one entry.
-For example, `support/refund-policy` and `company-wide/refund-policy` remain separate Skills.
-The SDK URI-encodes the container ID in this prefix.
-Tool calls use the exact name from the catalog.
-The old interface keeps its original, unprefixed names.
+新接口会为每个技能名称加上其容器 ID 前缀，即使列表中只有一个条目也不例外。
+例如，`support/refund-policy` 和 `company-wide/refund-policy` 仍是两个独立的技能。
+SDK 会对该前缀中的容器 ID 进行 URI 编码。
+工具调用使用目录中的确切名称。
+旧接口则保留原始的不带前缀名称。
 
-Each container keeps its own revision, cache, and refresh state.
-An invocation captures the complete combined catalog before model work starts.
-It keeps those Skills for all its tool calls, even after a later refresh.
+每个容器维护各自的修订版、缓存和刷新状态。
+调用会在模型工作开始前捕获完整的合并目录。
+即使之后发生刷新，该调用在其所有工具调用中仍使用这些技能。
 
-If any container cannot load its first snapshot, the invocation fails.
-A warm container can use its cached Skills after a transient failure.
-A confirmed access denial or revoked revision blocks the whole invocation.
-The SDK never silently supplies only part of the selected catalog.
+如果任何一个容器无法加载其首个快照，调用就会失败。
+已预热的容器在瞬时故障后可以继续使用其缓存的技能。
+确认的访问拒绝或已被撤销的修订版会阻止整个调用。
+SDK 绝不会悄悄地只提供所选目录的一部分。
 
-For the new interface, each entry in `status.containers` reports its container's revision and refresh status.
-.NET exposes the entries through `MultiSkillRegistryStatus.Containers`.
-The aggregate status has no server revision to pin.
-Its mode is `pinned` only when every container has a revision pin.
+对于新接口，`status.containers` 中的每个条目都会报告其容器的修订版和刷新状态。
+.NET 通过 `MultiSkillRegistryStatus.Containers` 暴露这些条目。
+聚合状态没有可锁定的服务端修订版。
+只有当每个容器都有修订版锁定时，其模式才为 `pinned`。
 
-## Configure one container
+## 配置单个容器
 
-The original interface selects one Learning container. Set `containerId` in TypeScript, `container_id` in Python, or `ContainerId` in .NET, as shown above. BuiltInAgent uses `learnedSkills.containerId`.
+原有接口选择一个 Learning 容器。如上所示，在 TypeScript 中设置 `containerId`，在 Python 中设置 `container_id`，或在 .NET 中设置 `ContainerId`。BuiltInAgent 使用 `learnedSkills.containerId`。
 
-The singular fields accept one stable container ID. To combine containers, use the separate `containers` interface above. Several agents can share a registry.
+单数字段只接受一个稳定的容器 ID。若要组合多个容器，请使用上文单独的 `containers` 接口。多个智能体可以共享一个注册表。
 
-An injected canonical Intelligence client supplies its existing project key, endpoint, and HTTP lifecycle. Your application retains ownership of that client. The adapter does not construct a second authenticated transport.
+注入的规范 Intelligence 客户端会提供其现有的项目密钥、端点和 HTTP 生命周期。该客户端仍由你的应用持有。适配器不会构建第二个经过身份验证的传输层。
 
-Environment-based setup uses these variables. `npx copilotkit@latest project select` writes the project key. If the CLI has no session, run `npx copilotkit@latest login` first. If the agent server is a different directory, copy the key into this environment.
+基于环境变量的配置使用以下变量。`npx copilotkit@latest project select` 会写入项目密钥。如果 CLI 尚无会话，请先运行 `npx copilotkit@latest login`。如果智能体服务器位于其他目录，请将该密钥复制到对应环境中。
 
 ```bash
 CPK_INTELLIGENCE_API_KEY=cpk-...
 CPK_INTELLIGENCE_LEARNING_CONTAINER_ID=expense-review
-# Self-hosted deployments only:
+# 仅限自托管部署：
 INTELLIGENCE_API_URL=https://intelligence.example.com
-# Optional exact revision; omit to follow latest:
+# 可选的精确修订版；省略则跟随最新：
 CPK_INTELLIGENCE_SKILLS_REVISION=42
 ```
 
-Explicit configuration overrides environment values. An injected client overrides connection environment values. Freshness and request timeout each default to five seconds; debug logging defaults to false. Configure these behavior options in code.
+显式配置会覆盖环境变量的取值。注入的客户端会覆盖连接类的环境变量。新鲜度和请求超时默认均为 5 秒；调试日志默认关闭。这些行为选项请在代码中配置。
 
-Initialization can run during application startup. A valid empty container initializes successfully. Initialization failures are catchable and retryable; the adapter never terminates the process. Model work cannot start until a verified snapshot exists.
+初始化可以在应用启动期间进行。有效但为空的容器也能成功完成初始化。初始化失败可被捕获并重试；适配器绝不会终止进程。在存在经过验证的快照之前，模型工作无法开始。
 
-### Reuse an Intelligence SDK client
+### 复用 Intelligence SDK 客户端
 
-If your server already creates an Intelligence client, pass that client to the registry. This reuses its project key and endpoint.
+如果你的服务端已经创建了 Intelligence 客户端，请将该客户端传给注册表，从而复用其项目密钥和端点。
 
-Set the container and revision in code below, **or** omit those parameters and use [environment variables](#configure-one-container). Code values take precedence.
+在下方代码中设置容器与修订版，**或者**省略这些参数并使用[环境变量](#配置单个容器)。代码取值优先。
 
 ```typescript
 import { CopilotKitIntelligence } from "@copilotkit/runtime/v2";
@@ -513,71 +513,71 @@ const registry = new SkillRegistry({
 await registry.initialize();
 ```
 
-For LangGraph TypeScript, import `SkillRegistry` from `@copilotkit/intelligence-langgraph` and use the same configuration. Then pass the registry to the framework adapter shown above.
+对于 LangGraph TypeScript，请从 `@copilotkit/intelligence-langgraph` 导入 `SkillRegistry` 并使用相同的配置。然后将该注册表传给上文展示的框架适配器。
 
-## Make sure delivery works
+## 确认分发正常工作
 
-For framework adapters, this check requires automatic updates. Remove `revision` (or `Revision` in .NET) from the example and unset `CPK_INTELLIGENCE_SKILLS_REVISION`. A pinned adapter continues to use its selected revision after you publish a newer one.
+对于框架适配器，此项检查要求自动更新。请从示例中移除 `revision`（.NET 中为 `Revision`），并取消设置 `CPK_INTELLIGENCE_SKILLS_REVISION`。已锁定修订版的适配器在你发布更新的修订版后，仍会继续使用其选定的修订版。
 
-1. Initialize the adapter with a published Skill in its container. Record the loaded revision from the adapter's status.
-2. Start a new invocation with a request that relates to that Skill.
-3. Inspect the model's tool calls for `copilotkit_load_skill` and, when needed, `copilotkit_read_skill_file`.
-4. Publish a new revision, wait past the freshness window, and start another invocation.
-5. Make sure that the loaded revision in the adapter's status changed to the newly published revision.
+1. 在容器中存在已发布技能的情况下初始化适配器。从适配器的状态中记录已加载的修订版。
+2. 用与该技能相关的请求开启一次新调用。
+3. 检查模型的工具调用中是否出现 `copilotkit_load_skill`，必要时还有 `copilotkit_read_skill_file`。
+4. 发布一个新修订版，等待超过新鲜度窗口，然后再开启一次调用。
+5. 确认适配器状态中已加载的修订版已变更为新发布的修订版。
 
-For the original single-container interface, read `registry.status.revision` in TypeScript, `skills.status.revision` for LangGraph Python, `registry.status.revision` for ADK, or `skills.Status.Revision` in .NET. BuiltInAgent does not expose a public registry status; inspect the loaded Skill's content in the tool result for your published change. A valid empty container can initialize successfully, so initialization alone does not prove that a Skill exists.
+对于原有的单容器接口，可在 TypeScript 中读取 `registry.status.revision`，LangGraph Python 读取 `skills.status.revision`，ADK 读取 `registry.status.revision`，.NET 读取 `skills.Status.Revision`。BuiltInAgent 不暴露公开的注册表状态；请在工具结果中检查已加载技能的内容，确认其中包含你发布的更改。有效但为空的容器也能成功初始化，因此仅有初始化成功并不能证明技能存在。
 
-The model chooses whether to call the skill tools. A run without a skill tool call does not prove that delivery failed. Inspect the catalog and registry status too.
+是否调用技能工具由模型决定。一次没有调用技能工具的运行并不能证明分发失败。也请检查目录和注册表状态。
 
-## Refresh and invocation behavior
+## 刷新与调用行为
 
-Before an invocation, the registry evaluates the freshness window for each selected container. When a check is due, that invocation waits for it. With `containers`, concurrent invocations share one batch request for the containers due for refresh, with no internal retry. An unchanged response resets the freshness window without transferring the ZIP again.
+在每次调用之前，注册表会为每个选定的容器评估新鲜度窗口。当检查到期时，该调用会等待检查完成。使用 `containers` 时，并发调用会为到期需要刷新的容器共享一个批量请求，内部不做重试。未变更的响应会重置新鲜度窗口，且不会再次传输 ZIP。
 
-Each invocation keeps one complete snapshot for its model and tool calls. A later refresh affects later invocations. Revision identifiers are opaque: pass the exact string without parsing, incrementing, or comparing it numerically.
+每次调用都会为它的模型调用和工具调用保留一份完整快照。之后的刷新只影响之后的调用。修订版标识符是不透明的：请原样传递该字符串，不要解析、递增或按数值比较。
 
-| Mode           | Behavior                                                                                   |
-| -------------- | ------------------------------------------------------------------------------------------ |
-| `latest`       | Adopt the complete newest published snapshot after a successful check.                     |
-| Exact revision | Keep the selected complete skill set while continuing authorization and revocation checks. |
+| 模式 | 行为 |
+| --- | --- |
+| `latest` | 检查成功后采用最新的完整已发布快照。 |
+| 精确修订版 | 在持续进行授权与撤销检查的同时，保留所选的完整技能集。 |
 
-Published revisions have no automatic expiry. A revoked revision cannot be used by new invocations once the adapter receives that denial. An invocation already in progress finishes with its captured snapshot.
+已发布的修订版不会自动过期。适配器一旦收到撤销通知，新的调用就无法再使用该被撤销的修订版。正在进行中的调用会用其捕获的快照完成执行。
 
-## Read tools
+## 读取工具
 
-The framework adapters keep both tools registered even when the snapshot is empty. BuiltInAgent omits both tools for an empty snapshot; its factory receives `tools: {}`. With available skills, the tools are:
+框架适配器即使在快照为空时也会保持这两个工具处于注册状态。BuiltInAgent 在快照为空时会省略这两个工具；其工厂收到 `tools: {}`。当有可用技能时，这两个工具为：
 
-- `copilotkit_load_skill(skill_name)` returns `SKILL.md` and the supporting file list.
-- `copilotkit_read_skill_file(skill_name, path)` returns one supporting UTF-8 text file.
+- `copilotkit_load_skill(skill_name)` 返回 `SKILL.md` 及其配套文件列表。
+- `copilotkit_read_skill_file(skill_name, path)` 返回一个配套的 UTF-8 文本文件。
 
-Lookups match the invocation's manifest. Unknown names, unknown paths, and unsupported content use the framework's tool-error behavior. The adapter never executes scripts or writes skill files to disk.
+查找会与该调用的清单进行匹配。未知名称、未知路径和不受支持的内容会按框架的工具错误行为处理。适配器绝不会执行脚本或将技能文件写入磁盘。
 
-## Failures and status
+## 失败与状态
 
-A cold registry returns a typed error when it cannot load a valid snapshot. After a successful load, a network failure, timeout, unavailable server, or unreadable replacement keeps the previous snapshot and marks it stale.
+冷启动的注册表在无法加载有效快照时会返回带类型的错误。加载成功后，网络故障、超时、服务端不可用或替换内容不可读都会保留上一个快照并将其标记为陈旧。
 
-There is no maximum stale age. A network-isolated process can retain its last verified snapshot until connectivity returns. Restarting clears that in-memory snapshot. Confirmed authentication, authorization, entitlement, delivery disablement, or revocation blocks new invocations instead of falling back to stale content.
+陈旧状态没有最长时限。网络隔离的进程可以保留其最后一个经过验证的快照，直到连接恢复。重启会清除该内存快照。经确认的身份验证、授权、权益、分发被禁用或修订版被撤销都会阻止新的调用，而不会回退到陈旧内容。
 
-The read-only status contains `initialized`, `revision`, `mode`, `lastCheckedAt`, `stale`, and `lastError`. Errors expose a stable `code`, safe `message`, `retryable`, and `cause`. Debug mode uses the normal language logger and excludes credentials, prompts, skill bodies, and file contents.
+只读状态包含 `initialized`、`revision`、`mode`、`lastCheckedAt`、`stale` 和 `lastError`。错误会暴露稳定的 `code`、安全的 `message`、`retryable` 和 `cause`。调试模式使用对应语言的常规日志器，且不会包含凭据、提示、技能正文和文件内容。
 
-## Migrate from downloaded skills
+## 从下载技能迁移
 
-Remove the old manual Learning-directory wiring when you enable an adapter for the same container. Keep unrelated static or hand-authored skills as needed. The adapter does not scan, change, or delete downloaded files.
+为同一容器启用适配器时，请移除旧的手动 Learning 目录接线。不相关的静态技能或手工编写的技能可按需保留。适配器不会扫描、修改或删除已下载的文件。
 
-`copilotkit skills download` remains supported for inspection, offline use, and unsupported frameworks.
-Pass several container IDs to download them together:
+`copilotkit skills download` 仍受支持，可用于检查、离线使用以及没有适配器的框架。
+传入多个容器 ID 即可一起下载：
 
 ```bash
 copilotkit skills download support company-wide --output ./skills
 ```
 
-The command writes each container under its own directory, such as `./skills/support/refund-policy/SKILL.md`.
-It creates the destination only after every bundle passes validation.
-The destination must not already exist.
-A single container keeps the original flat output, such as `./skills/refund-policy/SKILL.md`.
-See the [Automatic Learning guide](/learning) for the manual workflow.
+该命令会将每个容器写入各自的目录下，例如 `./skills/support/refund-policy/SKILL.md`。
+只有在所有包都通过校验之后，才会创建目标位置。
+目标位置不能已存在。
+单个容器保持原有的扁平输出结构，例如 `./skills/refund-policy/SKILL.md`。
+手动工作流请参见[自动学习指南](/learning)。
 
-## Deployment requirements
+## 部署要求
 
-Cloud-hosted and self-hosted Intelligence use the same delivery contract. The server migration and v1 delivery endpoint must deploy before adapters rely on them. Each adapter also requires a published canonical client version with the learned-snapshot operation.
+云托管与自托管的 Intelligence 使用相同的分发契约。适配器依赖的服务端迁移和 v1 分发端点必须先行部署。每个适配器还要求已发布的规范客户端版本中包含习得快照操作。
 
-Pausing new Learning runs does not stop delivery. Entitlement, explicit delivery disablement, and revision revocation control access to published snapshots separately.
+暂停新的学习运行并不会停止分发。权益、显式禁用分发和修订版撤销分别控制对已发布快照的访问。

@@ -1,48 +1,48 @@
 ---
-title: "Bring your own thread system"
-description: "Keep your existing thread storage while Intelligence records a separate copy of your AG-UI interactions."
+title: "自带线程系统"
+description: "保留你现有的线程存储，同时由 Intelligence 单独记录一份你的 AG-UI 交互副本。"
 doc_type: explanation
 ---
 
-Keep your existing thread system when you connect CopilotKit Intelligence. You do not need to replace your thread storage or move your agent state.
+接入 CopilotKit Intelligence 时，你可以保留现有的线程系统。你无需替换线程存储，也无需迁移智能体状态。
 
-Your framework continues managing the original conversation and agent state. Intelligence automatically records its own copy of the supported AG-UI interaction history that passes through your connected CopilotKit runtime.
+你的框架会继续管理原始对话与智能体状态。对于经过你所连接的 CopilotKit runtime 的、受支持的 AG-UI 交互历史，Intelligence 会自动记录属于自己的一份副本。
 
-## How recording works
+## 记录机制
 
-Sending a message that starts an agent run through the connected runtime creates the Intelligence thread record if it does not exist. Intelligence then records the interaction under that thread ID. Selecting a thread ID or opening the chat alone does not record a conversation.
+通过所连接的 runtime 发送一条会启动智能体运行的消息时，如果 Intelligence 线程记录尚不存在，就会创建它。随后 Intelligence 会在该线程 ID 下记录这次交互。仅仅选择一个线程 ID 或打开聊天，并不会记录对话。
 
-Recording covers traffic through that runtime after you connect Intelligence. Runs that bypass it do not appear automatically. Connecting Intelligence does not scan your framework database or copy all its older conversations. If the agent sends earlier messages during a new run, Intelligence can record those messages too.
+记录覆盖的是你接入 Intelligence 之后经过该 runtime 的流量。绕开它的运行不会自动出现。接入 Intelligence 不会扫描你的框架数据库，也不会复制其中所有历史对话。如果智能体在一次新运行中发送了更早的消息，Intelligence 也能记录这些消息。
 
-## What Intelligence records
+## Intelligence 记录哪些内容
 
-Intelligence records the supported interaction data sent through the connected runtime:
+Intelligence 会记录通过所连接 runtime 发送的、受支持的交互数据：
 
-- Messages sent by the user and agent.
-- Tool calls, their arguments, and tool results.
-- Application state sent as AG-UI state events.
-- Supported UI content, such as generative UI and activity messages, sent as part of the interaction.
+- 用户与智能体发送的消息。
+- 工具调用、其参数以及工具结果。
+- 以 AG-UI 状态事件形式发送的应用状态。
+- 作为交互一部分发送的受支持 UI 内容，例如生成式 UI 与活动消息。
 
-The copy contains what the integration sends through AG-UI. It is not a copy of your framework database, internal checkpoints, or arbitrary browser state. Restoring UI content also requires the matching renderers in your app.
+这份副本包含的是集成通过 AG-UI 发送的内容，并不是你的框架数据库、内部检查点或任意浏览器状态的副本。要还原 UI 内容，还需要你的应用中配备相应的渲染器。
 
-## Older history and lifecycle actions
+## 历史数据与生命周期操作
 
-To include older history, use the optional [supported import flow](/threads-import) for LangGraph, ADK, or Mastra. Import copies the supported content that the source still exposes. Future runs record automatically without an import. Import does not keep the two databases in sync.
+若要纳入更早的历史，可以使用针对 LangGraph、ADK 或 Mastra 的可选[受支持导入流程](/threads-import)。导入会复制数据源仍然暴露的受支持内容。之后的运行会自动记录，无需再导入。导入并不会让两个数据库保持同步。
 
-Intelligence rename, archive, and delete actions affect only Intelligence records. They do not rename, archive, or delete the original conversation in your native framework store. Neither automatic recording nor historical import keeps the two databases in sync.
+Intelligence 中的重命名、归档和删除操作只影响 Intelligence 自身的记录，不会重命名、归档或删除你原生框架存储中的原始对话。无论是自动记录还是历史导入，都不会让两个数据库保持同步。
 
 <FrontendOnly frontend="react">
 
-## Example: keep an existing LangGraph conversation
+## 示例：沿用现有的 LangGraph 对话
 
-This example uses a React app with a LangGraph agent registered as `support` in the CopilotKit runtime. Its durable checkpointer or LangGraph deployment already stores a conversation. [Connect the runtime to Intelligence](/intelligence/quickstart), then continue that conversation.
+本示例使用一个 React 应用，其中一个 LangGraph 智能体以 `support` 为名注册在 CopilotKit runtime 中。它的持久化 checkpointer 或 LangGraph deployment 中已经存有一段对话。[将 runtime 连接到 Intelligence](/intelligence/quickstart)，然后继续这段对话。
 
-If you want to copy its earlier history, [import it first](/langgraph-python/threads-import). Import cannot merge that history into a record already created by live recording. Otherwise, continue without importing:
+如果你想复制它更早的历史，请[先进行导入](/langgraph-python/threads-import)。导入无法把这段历史合并进一条已由实时记录创建的记录。否则，可以不导入而直接继续：
 
-1. Keep the agent's native persistence configured. Intelligence records AG-UI interaction history while LangGraph continues saving its own conversation and graph state.
-2. Copy the native conversation's thread ID from your app. Pass that value to `CopilotChat` under your existing `CopilotKitProvider`.
+1. 保持智能体的原生持久化配置不变。在 LangGraph 继续保存它自己的对话与图状态的同时，Intelligence 会记录 AG-UI 交互历史。
+2. 从你的应用中获取原生对话的线程 ID，并把该值传递给现有 `CopilotKitProvider` 下的 `CopilotChat`。
 
-   For example, if the native thread ID is `550e8400-e29b-41d4-a716-446655440000`, render this component in your app:
+   例如，如果原生线程 ID 为 `550e8400-e29b-41d4-a716-446655440000`，则在应用中渲染以下组件：
 
    ```tsx title="SupportConversation.tsx"
    "use client";
@@ -59,10 +59,10 @@ If you want to copy its earlier history, [import it first](/langgraph-python/thr
    }
    ```
 
-   Use your runtime's registered agent ID and your conversation's actual thread ID. This example uses the same UUID in both systems. If your backend maps IDs instead, reuse the saved mapping on every run. LangGraph Platform requires UUID thread IDs. Do not generate a new ID or mapping when you reopen the conversation.
+   请使用你的 runtime 中注册的智能体 ID，以及你的对话实际使用的线程 ID。本示例在两个系统中使用同一个 UUID。如果你的后端采用的是 ID 映射方式，请在每次运行时复用已保存的映射。LangGraph Platform 要求线程 ID 为 UUID 格式。重新打开对话时，不要生成新的 ID 或映射。
 
-3. Send a message through your app to run the agent. That run creates the Intelligence record if needed and records the supported interaction data. Opening the chat alone does not create the record or import old history.
-4. Open your runtime's project in [CopilotKit Intelligence](https://dashboard.operations.copilotkit.ai/) and find the thread by its ID. Make sure that it contains your new message and the agent's reply. On localhost, you can also find it in Inspector's Rich Threads pane.
-5. Reopen the chat with the same thread ID and send another message as the same application user. Make sure that Intelligence adds it to the same thread and LangGraph updates the same native conversation.
+3. 通过你的应用发送一条消息来运行智能体。这次运行会在需要时创建 Intelligence 记录，并记录受支持的交互数据。仅打开聊天不会创建记录，也不会导入旧历史。
+4. 在 [CopilotKit Intelligence](https://dashboard.operations.copilotkit.ai/) 中打开你的 runtime 项目，并按 ID 找到该线程。确认其中包含你的新消息和智能体的回复。在 localhost 环境下，你也可以在 Inspector 的 Rich Threads 面板中找到它。
+5. 使用相同的线程 ID 重新打开聊天，并以同一个应用用户身份再发送一条消息。确认 Intelligence 把它追加到了同一个线程，且 LangGraph 更新的是同一条原生对话。
 
 </FrontendOnly>

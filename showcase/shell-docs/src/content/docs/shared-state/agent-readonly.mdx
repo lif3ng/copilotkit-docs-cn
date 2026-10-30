@@ -1,6 +1,6 @@
 ---
-title: Agent Read-Only Context
-description: Publish UI values to the agent as a one-way read-only channel via useAgentContext.
+title: 智能体只读上下文
+description: 通过 useAgentContext 将 UI 值以单向只读通道发布给智能体。
 icon: "lucide/ArrowRight"
 hideTOC: true
 snippet_cell: readonly-state-agent-context
@@ -12,74 +12,49 @@ import InspectorPaneContext from "@/snippets/shared/inspector/open-inspector-pan
 
 <InspectorPaneContext components={props.components} />
 
-## What is this?
+## 这是什么？
 
-Sometimes you want the agent to *know* something about the current UI, like the logged-in user, the current page, or a recent activity log, but you don't want the agent to be able to modify it. That's what
-`useAgentContext` is for: a one-way **UI → agent** channel for
-read-only context.
+有时你想让智能体*了解*当前 UI 的一些信息，比如已登录的用户、当前页面或最近的活动日志，但又不希望智能体能够修改它们。这正是 `useAgentContext` 的用途：一条 **UI → 智能体** 的单向只读上下文通道。
 
-Unlike full shared state (where the agent can call tools that mutate
-the state back to the UI), `useAgentContext` values are pure inputs.
-The agent sees them on every turn via the runtime's context injection,
-but it has no setter and no tool to write them back.
+与完整的共享状态（智能体可以调用工具修改状态并同步回 UI）不同，`useAgentContext` 的值是纯输入。智能体会在每一轮通过运行时的上下文注入看到这些值，但它没有任何 setter，也没有工具能把值写回去。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Reach for `useAgentContext` instead of full shared state when:
+在以下情况下，应使用 `useAgentContext` 而不是完整的共享状态：
 
-- The value is **UI-owned** and has no meaning to the agent beyond
-  "what the user is looking at right now".
-- The agent should read but never write (user identity, feature flags,
-  selected record, scroll position).
-- You want the value to automatically unregister on unmount (e.g. the
-  "current record" context disappears when you leave the page).
+- 该值**由 UI 持有**，对智能体而言除了“用户当前正在看什么”之外没有别的意义。
+- 智能体只应读取而绝不写入（用户身份、功能开关、选中的记录、滚动位置）。
+- 你希望该值在组件卸载时自动注销（例如离开页面时“当前记录”上下文随之消失）。
 
-Think of it as "props for the agent".
+可以把它理解为“智能体的 props”。
 
-## How it works in code
+## 代码中的工作方式
 
 <FrameworkSetup concept="agent-context-setup" />
 
-Call `useAgentContext({ description, value })` once per value you want
-to publish. Each call registers a dynamic context entry with the
-runtime that is:
+每发布一个值就调用一次 `useAgentContext({ description, value })`。每次调用都会向运行时注册一个动态上下文条目，它会：
 
-- Refreshed whenever `value` changes (React re-renders).
-- Automatically removed when the component unmounts.
-- Surfaced to the agent via the backend's `CopilotKitMiddleware`, which
-  threads the entries into the model's message history on every turn.
+- 在 `value` 变化时刷新（React 重新渲染）。
+- 在组件卸载时自动移除。
+- 通过后端的 `CopilotKitMiddleware` 呈现给智能体，它会在每一轮把这些条目织入模型的消息历史。
 
 <Snippet region="use-agent-context-call" title="frontend/src/app/page.tsx — useAgentContext" />
 
-The `description` is important: it's a short human-readable label the
-agent sees alongside the value, so it knows what to do with it. Treat
-it like a parameter docstring.
+`description` 很重要：它是智能体在看到值的同时看到的一段简短的人类可读标签，让智能体知道该拿这个值做什么。把它当作参数的 docstring 来对待。
 
-## Wire it to your own state
+## 接入你自己的状态
 
-`useAgentContext` doesn't care where the value comes from: local
-state, a React Context, Redux, a query cache, anything. The only
-requirement is that the identity of the value is stable enough for
-React to avoid a render loop. In the demo we use a handful of
-`useState` hooks; in a real app these would likely come from an auth
-provider, a router hook, and your domain state stores.
+`useAgentContext` 并不关心值来自哪里：本地 state、React Context、Redux、查询缓存，什么都可以。唯一的要求是值的标识（identity）足够稳定，让 React 能避免陷入渲染循环。在演示中我们用了几个 `useState` 钩子；而在真实应用中，这些值很可能来自身份验证提供方、路由钩子以及你的领域状态存储。
 
-<Snippet region="context-provider-sketch" title="frontend/src/app/page.tsx — sourcing context values" />
+<Snippet region="context-provider-sketch" title="frontend/src/app/page.tsx — 获取上下文值" />
 
-## Read-only, by design
+## 设计上只读
 
-Because the agent never sees a setter or a mutation tool for these
-values, there's no way for a confused LLM to "update" them. That
-makes `useAgentContext` the right tool whenever the value in question
-is an input, not a field: the "context object passed to the agent on
-every turn", rather than "shared workspace you both edit".
+由于智能体永远看不到这些值的 setter 或修改工具，即使 LLM 出现混乱也无法“更新”它们。这使得 `useAgentContext` 成为正确之选——只要所讨论的值是输入而非字段：它是“每一轮传给智能体的上下文对象”，而非“你与智能体共同编辑的共享工作区”。
 
-When you need both reads *and* writes, you want full
-**[shared state](/shared-state)** instead.
+当你既需要读取*又*需要写入时，应该改用完整的 **[共享状态](/shared-state)**。
 
-## Related
+## 相关内容
 
-- **[Shared State (overview)](/shared-state)** — bidirectional
-  reads + writes.
-- **[State streaming](/shared-state/streaming)** — stream
-  agent-written state back to the UI during a run.
+- **[共享状态（概览）](/shared-state)** —— 双向读取 + 写入。
+- **[状态流式传输](/shared-state/streaming)** —— 在运行期间把智能体写入的状态流式传回 UI。

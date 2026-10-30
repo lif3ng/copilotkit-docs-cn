@@ -1,51 +1,51 @@
 ---
-title: Monitor self-hosted Intelligence with OpenTelemetry
+title: 使用 OpenTelemetry 监控自托管 Intelligence
 nav_title: Monitor with OpenTelemetry
-description: Send traces, metrics, product events, and logs from a self-hosted CopilotKit Intelligence deployment to your own OpenTelemetry collector, and read installation health from them.
+description: 将自托管 CopilotKit Intelligence 部署的链路、指标、产品事件与日志发送到你自己的 OpenTelemetry 采集器，并据此读取安装的健康状况。
 icon: "lucide/Activity"
 doc_type: how-to
 ---
 
-## Overview
+## 概览
 
-A self-hosted CopilotKit Intelligence deployment can send its telemetry to an OpenTelemetry collector that you run. From there, you forward it to the tracing and logging tools that your team already uses. This page lists each stream, what it contains, how to turn it on, and which signals show that the installation is healthy.
+自托管的 CopilotKit Intelligence 部署可以把遥测数据发送到你自行运行的 OpenTelemetry 采集器，再由你转发给团队已有的链路追踪与日志工具。本页列出每条数据流的内容、开启方法，以及哪些信号可以表明安装处于健康状态。
 
-Intelligence does not install a collector. The streams on this page go only to the endpoints that you configure, and each stream is off until you configure one.
+Intelligence 不会安装采集器。本页的数据流只会发往你配置的端点，且在配置之前每条数据流都处于关闭状态。
 
-## When should I use this?
+## 什么时候该用它？
 
-- You self-host Intelligence with the [Helm chart](/intelligence/self-hosting) or the [ECS bundle](/intelligence/self-hosting-ecs).
-- You want request traces, errors, and logs from Intelligence in your own observability tools.
-- You want to see whether a new installation or an upgrade is healthy.
+- 你使用 [Helm chart](/intelligence/self-hosting) 或 [ECS bundle](/intelligence/self-hosting-ecs) 自托管 Intelligence。
+- 你希望在自己的可观测性工具中查看 Intelligence 的请求链路、错误与日志。
+- 你想确认一次新安装或升级是否健康。
 
-Cloud-hosted Intelligence does not export these streams to customers.
+云端托管的 Intelligence 不会向客户导出这些数据流。
 
-## Prerequisites
+## 前置条件
 
-- A running self-hosted Intelligence deployment.
-- An OpenTelemetry Collector (the `otel/opentelemetry-collector-contrib` distribution) that the Intelligence services can reach over HTTP. Intelligence sends OTLP over HTTP only. It does not use gRPC.
-- For pod logs on Kubernetes: a collector that runs as a DaemonSet and can read `/var/log/pods` on each node.
+- 一个正在运行的自托管 Intelligence 部署。
+- 一个 Intelligence 服务可通过 HTTP 访问的 OpenTelemetry Collector（`otel/opentelemetry-collector-contrib` 发行版）。Intelligence 只通过 HTTP 发送 OTLP，不使用 gRPC。
+- 在 Kubernetes 上采集 pod 日志：需要一个以 DaemonSet 方式运行、能读取各节点 `/var/log/pods` 的采集器。
 
-## The streams
+## 数据流一览
 
-| Stream | Signal | Sent by | Turned on by | Status |
+| 数据流 | 信号 | 发送方 | 开启方式 | 状态 |
 | --- | --- | --- | --- | --- |
-| Backend traces | OTLP traces | app API, realtime gateway, Automatic Learning scheduler | `observability.tracing` (Helm) or `otlpEndpoint` (ECS) | Stable |
-| Scheduler metrics | OTLP metrics | Automatic Learning scheduler | `observability.tracing` (Helm) | Stable |
-| Product events | OTLP logs | app API, Automatic Learning scheduler and reconciler | `appApi.channelTelemetry` (Helm) | Preview |
-| Application logs | JSON lines on stdout | every service | `config.logLevel` (Helm) | Stable |
+| 后端链路 | OTLP 链路 | app API、实时网关、Automatic Learning 调度器 | `observability.tracing`（Helm）或 `otlpEndpoint`（ECS） | 稳定 |
+| 调度器指标 | OTLP 指标 | Automatic Learning 调度器 | `observability.tracing`（Helm） | 稳定 |
+| 产品事件 | OTLP 日志 | app API、Automatic Learning 调度器与 reconciler | `appApi.channelTelemetry`（Helm） | 预览 |
+| 应用日志 | stdout 上的 JSON 行 | 所有服务 | `config.logLevel`（Helm） | 稳定 |
 
-Application logs are not sent over OTLP. Your collector or log agent reads them from the container output.
+应用日志不会通过 OTLP 发送。你的采集器或日志代理会从容器的标准输出中读取它们。
 
-<Callout type="info" title="Product events are a preview">
-  The names and attributes of the `eip.*` product events can change between releases. Build dashboards on traces and logs if you need a stable contract.
+<Callout type="info" title="产品事件为预览功能">
+  `eip.*` 产品事件的名称与属性可能随版本更迭而变化。如果需要稳定的契约，请基于链路和日志构建仪表盘。
 </Callout>
 
-## Send traces and metrics
+## 发送链路与指标
 
 ### Helm
 
-Set a full OTLP/HTTP traces endpoint. The path must end in `/v1/traces`.
+设置完整的 OTLP/HTTP 链路端点，路径必须以 `/v1/traces` 结尾。
 
 ```yaml
 observability:
@@ -55,14 +55,14 @@ observability:
     environment: production
 ```
 
-- `environment` is required when tracing is on. Use 1 to 64 letters, numbers, dots, underscores, slashes, or hyphens.
-- The chart sends traces from the app API, the realtime gateway, and the Automatic Learning scheduler to this endpoint.
-- The scheduler also sends its metrics to the same collector, at the same base URL with `/v1/metrics`.
-- `helm install` and `helm upgrade` fail if the endpoint does not end in `/v1/traces`.
+- 开启链路追踪时 `environment` 为必填项。取值可使用 1 到 64 个字母、数字、点、下划线、斜杠或连字符。
+- chart 会把 app API、实时网关与 Automatic Learning 调度器的链路发送到该端点。
+- 调度器还会把自身指标发送到同一个采集器，即相同基础 URL 下的 `/v1/metrics`。
+- 如果端点不以 `/v1/traces` 结尾，`helm install` 和 `helm upgrade` 会失败。
 
 ### ECS
 
-Set `otlpEndpoint` to the base URL of your collector, without a path.
+将 `otlpEndpoint` 设置为你采集器的基础 URL，不带路径。
 
 ```json
 {
@@ -70,44 +70,44 @@ Set `otlpEndpoint` to the base URL of your collector, without a path.
 }
 ```
 
-- The release stack sends traces from the app API and the realtime gateway to `<otlpEndpoint>/v1/traces`.
-- `cpki-ecs deploy` removes a trailing `/` or `/v1/traces`, so a value in that form also works.
-- The ECS bundle sets `deployment.environment.name` to `ecs`. You cannot change it.
-- The collector must be reachable from the private subnets of the deployment.
+- 发布栈会把 app API 与实时网关的链路发送到 `<otlpEndpoint>/v1/traces`。
+- `cpki-ecs deploy` 会移除末尾的 `/` 或 `/v1/traces`，因此这两种形式的值同样可用。
+- ECS bundle 会把 `deployment.environment.name` 设置为 `ecs`，且无法更改。
+- 采集器必须能从部署所在的私有子网访问。
 
-### What every span carries
+### 每个 span 携带的内容
 
-Each span has these resource attributes:
+每个 span 都带有以下资源属性：
 
-| Attribute | Value |
+| 属性 | 值 |
 | --- | --- |
-| `service.name` | `app-api`, `realtime-gateway`, or `learning-scheduler` |
-| `service.version` | The image tag of the release |
-| `deployment.environment.name` | `observability.tracing.environment` on Helm, `ecs` on ECS |
+| `service.name` | `app-api`、`realtime-gateway` 或 `learning-scheduler` |
+| `service.version` | 该发布的镜像标签 |
+| `deployment.environment.name` | Helm 上为 `observability.tracing.environment`，ECS 上为 `ecs` |
 
-The services trace inbound HTTP and WebSocket upgrades, outbound HTTP, PostgreSQL, and Redis commands that run inside a request. Useful span attributes include:
+各服务会对请求内发生的入站 HTTP 与 WebSocket 升级、出站 HTTP、PostgreSQL 和 Redis 命令进行追踪。常用的 span 属性包括：
 
-- `http.request.method`, `http.route`, and `http.response.status_code`
-- `db.operation.name` on PostgreSQL spans
-- `cpki.organization.id` and `cpki.project.id` on requests from a known project
-- `provider.effect` spans on the realtime gateway for Slack and Microsoft Teams calls, with `cpki.provider.adapter` and `cpki.provider.outcome`
-- `replay.restore` spans on the realtime gateway, with `thread_id`, `organization_id`, and `project_id`
+- `http.request.method`、`http.route` 与 `http.response.status_code`
+- PostgreSQL span 上的 `db.operation.name`
+- 来自已知项目的请求上的 `cpki.organization.id` 与 `cpki.project.id`
+- 实时网关上针对 Slack 与 Microsoft Teams 调用的 `provider.effect` span，带有 `cpki.provider.adapter` 与 `cpki.provider.outcome`
+- 实时网关上的 `replay.restore` span，带有 `thread_id`、`organization_id` 与 `project_id`
 
-The services remove these attributes before a span leaves the process:
+在 span 离开进程之前，各服务会移除以下属性：
 
-- `db.statement` and `db.query.text` (SQL text)
-- `http.url`, `url.full`, `url.path`, and `url.query` (full URLs, paths, and query strings)
-- every `http.request.header.*` and `http.response.header.*` attribute
+- `db.statement` 与 `db.query.text`（SQL 文本）
+- `http.url`、`url.full`、`url.path` 与 `url.query`（完整 URL、路径与查询字符串）
+- 所有 `http.request.header.*` 与 `http.response.header.*` 属性
 
-Health probe requests do not create spans.
+健康探测请求不会创建 span。
 
-<Callout type="warn" title="Spans still identify clients">
-  Server spans keep `client.address` (the client IP address) and `user_agent.original`. If your policy does not allow IP addresses in your tracing tool, delete them in the collector.
+<Callout type="warn" title="span 仍会标识客户端">
+  服务端 span 会保留 `client.address`（客户端 IP 地址）与 `user_agent.original`。如果你的策略不允许在链路追踪工具中出现 IP 地址，请在采集器中删除它们。
 </Callout>
 
-## Send product events
+## 发送产品事件
 
-Product events are OTLP log records that describe product actions, for example a thread that was created or a skill that was approved. Use them to build your own usage reports.
+产品事件是描述产品动作的 OTLP 日志记录，例如某个线程被创建或某个 skill 被批准。可以用它们构建自己的用量报表。
 
 ```yaml
 appApi:
@@ -118,51 +118,51 @@ appApi:
       key: token
 ```
 
-- The endpoint must end in `/v1/logs`.
-- Set `tokenSecret` or `headers`. The chart fails if you set neither.
-- The app API sends the token as `Authorization: Bearer <token>`.
-- To send other headers, set `headers` to a literal `key=value,key=value` string. If both are set, the token wins for `Authorization`.
-- This stream has no ECS equivalent.
+- 端点必须以 `/v1/logs` 结尾。
+- 请设置 `tokenSecret` 或 `headers`，两者都不设置时 chart 会校验失败。
+- app API 会以 `Authorization: Bearer <token>` 的形式发送该 token。
+- 要发送其他请求头，请将 `headers` 设置为字面量 `key=value,key=value` 字符串。如果两者都设置了，token 对 `Authorization` 优先生效。
+- 该数据流没有 ECS 对应项。
 
-| Event | Sent when |
+| 事件 | 触发时机 |
 | --- | --- |
-| `eip.thread.created` | A thread is created |
-| `eip.thread.run_requested` | An agent run is requested on a thread |
-| `eip.channel.created` | A Channel is created |
-| `eip.channel.attached` | A Channel is connected to Slack or Microsoft Teams |
-| `eip.channel.inbound` | A Channel receives a new message event |
-| `eip.learning.run_started` | An Automatic Learning run starts |
-| `eip.learning.run_completed` | An Automatic Learning run ends |
-| `eip.learning.skill_approved` | A reviewer approves a skill |
-| `eip.learning.skill_pulled` | A runtime pulls a skill |
+| `eip.thread.created` | 线程被创建 |
+| `eip.thread.run_requested` | 在某个线程上请求智能体运行 |
+| `eip.channel.created` | Channel 被创建 |
+| `eip.channel.attached` | Channel 连接到 Slack 或 Microsoft Teams |
+| `eip.channel.inbound` | Channel 收到新的消息事件 |
+| `eip.learning.run_started` | Automatic Learning 运行开始 |
+| `eip.learning.run_completed` | Automatic Learning 运行结束 |
+| `eip.learning.skill_approved` | 审阅者批准某个 skill |
+| `eip.learning.skill_pulled` | 某个运行时拉取某个 skill |
 
-Every attribute name starts with `copilotkit.`. The key that you use to remove duplicates after a retry is different for each event family:
+每个属性名都以 `copilotkit.` 开头。重试之后用于去重的键因事件族而异：
 
-- **Thread and Learning events:** `copilotkit.event_id`, in the form `<event>:<organization>:<project>:<resource>`. On `eip.learning.skill_pulled`, the resource part is a new random ID for each pull. Two pulls of the same skill are two events.
-- **`eip.channel.inbound`:** `copilotkit.channel_event_id`, the ID of the inbound message event.
-- **`eip.channel.created` and `eip.channel.attached`:** no event ID. Do not remove duplicates of these events by an ID.
+- **线程与 Learning 事件**：`copilotkit.event_id`，形如 `<event>:<organization>:<project>:<resource>`。在 `eip.learning.skill_pulled` 上，resource 部分是每次拉取新生成的随机 ID，因此对同一 skill 的两次拉取是两个事件。
+- **`eip.channel.inbound`**：`copilotkit.channel_event_id`，即入站消息事件的 ID。
+- **`eip.channel.created` 与 `eip.channel.attached`**：没有事件 ID。不要按 ID 对这些事件去重。
 
-Product events never contain message content, raw provider payloads, credentials, Channel names, thread names, skill text, or insight text. They do contain identifiers: organization, project, thread, run, and API key IDs, and the ID of the signed-in user. `eip.channel.created` and `eip.channel.attached` can also carry `copilotkit.principal_email`, the email address of the user who made the change.
+产品事件绝不包含消息内容、原始提供方载荷、凭据、Channel 名称、线程名称、skill 文本或 insight 文本。它们确实包含标识符：组织、项目、线程、运行以及 API 密钥的 ID，还有登录用户的 ID。`eip.channel.created` 与 `eip.channel.attached` 还可能携带 `copilotkit.principal_email`，即做出更改的用户邮箱地址。
 
-## Collect application logs
+## 采集应用日志
 
-The app API, the realtime gateway, the thread compaction worker, the connector outbox, and the thread culler write one JSON object per line to stdout. Two services write plain text:
+app API、实时网关、线程压缩 worker、连接器 outbox 与线程清理器会向 stdout 每行写入一个 JSON 对象。有两个服务输出纯文本：
 
-- **App frontend:** Nginx access and error logs in the default Nginx text format.
-- **Embeddings:** the text-embeddings-inference server log.
+- **应用前端**：默认 Nginx 文本格式的 Nginx 访问与错误日志。
+- **Embeddings**：text-embeddings-inference 服务器日志。
 
-For the JSON services:
+对于 JSON 服务：
 
-- **Level:** set it with `config.logLevel` on Helm.
-- **Request lines:** the app API and the realtime gateway end each HTTP request with an `http.server.request.completed` line that has `duration_ms`, `http.method`, `http.route`, `http.status_code`, and `outcome`. In the app API line, `method`, `route`, and `status_code` are nested under an `http` object. The frontend writes no such line. To see frontend errors, read the status code in its Nginx access log.
-- **Trace links:** app API lines carry `trace_id` and `span_id` when tracing is on. Realtime gateway lines carry `dd.trace_id` and `dd.span_id` in the Datadog decimal format.
-- **Redaction:** app API logs replace authorization headers, cookies, API keys, and fields named like `password`, `token`, or `secret` with `[REDACTED]`.
+- **日志级别**：在 Helm 上通过 `config.logLevel` 设置。
+- **请求行**：app API 与实时网关会在每个 HTTP 请求结束时写一条 `http.server.request.completed` 行，包含 `duration_ms`、`http.method`、`http.route`、`http.status_code` 与 `outcome`。在 app API 的行中，`method`、`route` 与 `status_code` 嵌套在 `http` 对象之下。前端不会写这种行；要查看前端错误，请读取其 Nginx 访问日志中的状态码。
+- **链路关联**：开启链路追踪时，app API 的行会携带 `trace_id` 与 `span_id`。实时网关的行会以 Datadog 十进制格式携带 `dd.trace_id` 与 `dd.span_id`。
+- **脱敏**：app API 日志会将授权头、cookie、API 密钥，以及名称类似 `password`、`token` 或 `secret` 的字段替换为 `[REDACTED]`。
 
-On Kubernetes, read the logs with the collector's `filelog` receiver on `/var/log/pods`. On ECS, the logs are in the CloudWatch log groups `/ecs/<deploymentName>/...`.
+在 Kubernetes 上，使用采集器的 `filelog` receiver 读取 `/var/log/pods` 下的日志。在 ECS 上，日志位于 CloudWatch 日志组 `/ecs/<deploymentName>/...` 中。
 
-## Configure the collector
+## 配置采集器
 
-This configuration receives all OTLP streams, reads pod logs, and forwards everything to your backend. Replace the exporter with the one for your tool.
+以下配置会接收所有 OTLP 数据流、读取 pod 日志，并将所有内容转发到你的后端。请把 exporter 替换为适配你所用工具的那一个。
 
 ```yaml
 receivers:
@@ -226,39 +226,39 @@ service:
       exporters: [otlphttp]
 ```
 
-- Point `observability.tracing.endpoint` at `http://<collector-service>.<namespace>.svc:4318/v1/traces`.
-- Point `appApi.channelTelemetry.endpoint` at the same host with `/v1/logs`.
-- The `filelog` operators parse the JSON lines into attributes, so you can query fields such as `http.status_code`. Lines that are not JSON keep their text in the body.
-- The `trace_parser` maps the app API `trace_id` and `span_id` onto the log record. The realtime gateway `dd.trace_id` is a decimal number, so it does not map to an OpenTelemetry trace ID.
-- To check the setup, add `debug` to a pipeline's `exporters` and read the collector output.
+- 将 `observability.tracing.endpoint` 指向 `http://<collector-service>.<namespace>.svc:4318/v1/traces`。
+- 将 `appApi.channelTelemetry.endpoint` 指向同一主机的 `/v1/logs`。
+- `filelog` 的 operators 会把 JSON 行解析为属性，因此你可以查询 `http.status_code` 等字段。非 JSON 的行会在 body 中保留原始文本。
+- `trace_parser` 会把 app API 的 `trace_id` 与 `span_id` 映射到日志记录上。实时网关的 `dd.trace_id` 是十进制数，因此无法映射为 OpenTelemetry 的 trace ID。
+- 要验证配置，可在某个 pipeline 的 `exporters` 中加入 `debug`，然后查看采集器的输出。
 
-## Check installation health
+## 检查安装健康状态
 
-### Probes
+### 探针
 
-| Service | Liveness | Readiness | What readiness checks |
+| 服务 | 存活探针 | 就绪探针 | 就绪检查内容 |
 | --- | --- | --- | --- |
-| app API | `/api/health` | `/api/health` | A PostgreSQL query. Returns `503` if the database fails. Returns `200` with `"degraded"` if Channels is on but its encryption key is missing. |
-| realtime gateway | `/health/live` | `/health/ready` | Drain state and the license gate only |
-| app frontend | `/healthz` | `/healthz` | The web server only |
+| app API | `/api/health` | `/api/health` | 一次 PostgreSQL 查询。数据库失败时返回 `503`；当 Channels 已开启但缺少其加密密钥时返回 `200` 与 `"degraded"`。 |
+| 实时网关 | `/health/live` | `/health/ready` | 仅检查排空状态与许可证门槛 |
+| 应用前端 | `/healthz` | `/healthz` | 仅检查 web 服务器 |
 
-With the marketplace build, the app API uses `/api/health/live` and `/api/health/ready`.
+使用 marketplace 构建时，app API 使用 `/api/health/live` 与 `/api/health/ready`。
 
-### Signals to watch
+### 需要关注的信号
 
-- **Error rate:** error spans, `http.server.request.completed` lines with `http.status_code` 500 or higher, and frontend Nginx access lines with a 5xx status.
-- **Database:** app API `app-api health check failed` log lines, and failed `postgresql.*` spans.
-- **Realtime gateway memory:** `gateway_memory` lines every 5 seconds, and `gateway_memory_pressure` warnings when a container uses 80% or more of its memory limit.
-- **Product Analytics pipeline:** `realtime_gateway.analytics.projector.health` lines, when Product Analytics is on. The line logs at warning level when events wait in the queue, fail, or go to quarantine, and at error level when the gateway cannot read the queue. Watch `analytics_projector.queue_depth`, `analytics_projector.quarantine_depth`, and `analytics_projector.oldest_queue_age_ms`.
-- **Configuration:** a `telemetry.config_rejected` warning at startup. It means that an endpoint was set but rejected, and that stream is off.
+- **错误率**：错误 span、`http.status_code` 为 500 及以上的 `http.server.request.completed` 行，以及状态码为 5xx 的前端 Nginx 访问行。
+- **数据库**：app API 的 `app-api health check failed` 日志行，以及失败的 `postgresql.*` span。
+- **实时网关内存**：每 5 秒一条的 `gateway_memory` 行，以及当某个容器占用其内存限制的 80% 或以上时出现的 `gateway_memory_pressure` 警告。
+- **Product Analytics 管道**：开启 Product Analytics 时的 `realtime_gateway.analytics.projector.health` 行。事件在队列中等待、失败或进入隔离区时，该行以 warning 级别记录；网关无法读取队列时以 error 级别记录。请关注 `analytics_projector.queue_depth`、`analytics_projector.quarantine_depth` 与 `analytics_projector.oldest_queue_age_ms`。
+- **配置**：启动时出现 `telemetry.config_rejected` 警告，表示某个端点已设置但被拒绝，对应的数据流处于关闭状态。
 
-### What is not checked
+### 未覆盖的检查项
 
-- No probe checks Redis, object storage, or the connection between the app API and the realtime gateway. A Redis failure shows up only as request errors and error spans.
-- No service exports health metrics or connection counts. Use the signals above in your own tools.
+- 没有任何探针检查 Redis、对象存储，或 app API 与实时网关之间的连接。Redis 故障只会表现为请求错误和错误 span。
+- 没有任何服务导出健康指标或连接数。请在你自己的工具中使用上述信号。
 
-## Next steps
+## 下一步
 
-- [Self-host on Kubernetes](/intelligence/self-hosting) has the full Helm configuration reference.
-- [Self-host on ECS](/intelligence/self-hosting-ecs) has the full ECS configuration.
-- [Product Analytics](/intelligence/analytics) shows usage inside Intelligence.
+- [在 Kubernetes 上自托管](/intelligence/self-hosting) 包含完整的 Helm 配置参考。
+- [在 ECS 上自托管](/intelligence/self-hosting-ecs) 包含完整的 ECS 配置。
+- [Product Analytics](/intelligence/analytics) 展示 Intelligence 内部的使用情况。

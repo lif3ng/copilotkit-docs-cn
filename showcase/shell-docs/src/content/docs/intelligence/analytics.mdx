@@ -1,126 +1,126 @@
 ---
-title: Product Analytics
+title: 产品数据分析
 nav_title: Product Analytics
-description: See how people use your agent, how reliable it is, and what it costs, from the runs Intelligence already records.
+description: 基于 Intelligence 已记录的运行，查看用户如何使用你的智能体、它的可靠性如何、成本是多少。
 icon: "lucide/BarChart3"
 doc_type: how-to
 ---
 
-## Overview
+## 概览
 
-Product Analytics shows what people do with your agent, how reliable it is, and what it costs, from the agent runs Intelligence already records. There is nothing extra to instrument.
+产品数据分析基于 Intelligence 已记录的智能体运行，展示用户如何使用你的智能体、它的可靠性如何、成本是多少。无需任何额外的埋点工作。
 
 <Image
   src="/images/cloud-hosted/cloud-hosted-product-analytics.png"
-  alt="The Product Analytics page for a cloud-hosted project. The Activity tab shows runtime events, active users, event volume, and tool usage share."
+  alt="云托管项目的产品数据分析页面。活动标签页展示了运行时事件、活跃用户、事件量与工具使用占比。"
   width={2000}
   height={1469}
   className="my-8 w-full rounded-xl border border-[var(--border)]"
 />
 
-Which tools does the agent call? How many people use it? How often does a run fail? The Activity, Reliability, Tokens, and Memory tabs answer those questions for one project and one time range.
+智能体调用了哪些工具？有多少人在使用它？运行失败的频率有多高？活动（Activity）、可靠性（Reliability）、Token、记忆（Memory）这几个标签页会针对一个项目、一个时间范围回答这些问题。
 
-Product Analytics is available as a limited trial on Developer. Full Product Analytics is part of Enterprise. The project sidebar shows the features available to your plan; see the [pricing page](/intelligence/plans#overview) for current usage limits.
+产品数据分析在 Developer 套餐中以限量试用形式提供；完整功能属于 Enterprise 套餐。项目侧边栏会显示你的套餐可用的特性；当前的用量限制请参阅[定价页面](/intelligence/plans#overview)。
 
-## See your first metrics
+## 查看你的首批指标
 
 <Steps>
   <Step>
-    ### Connect your app
+    ### 连接你的应用
 
-    Follow the [quickstart](/intelligence/quickstart). It signs you in with the CLI, selects a project, and writes the project key to `.env`. Product Analytics only counts runs that reach Intelligence through that key.
-
-  </Step>
-
-  <Step>
-    ### Send a few messages
-
-    Use your app the way a person would: ask a question, trigger a tool, finish a conversation. Each run becomes a set of runtime events in the project. Confirm the run landed by opening the thread in [AG-UI Streams](/AG-UI-Streams) or in the Inspector.
+    按照[快速开始](/intelligence/quickstart)操作。它会通过 CLI 让你登录、选择一个项目，并把项目密钥写入 `.env`。产品数据分析只统计通过该密钥到达 Intelligence 的运行。
 
   </Step>
 
   <Step>
-    ### Open Product Analytics
+    ### 发送几条消息
 
-    Open your project in [cloud-hosted Intelligence](/intelligence/managed-intelligence-platform) and select **Product Analytics** in the sidebar. The status pill in the top right reads **Loading metrics**, then **Metrics loaded**.
-
-    If it reads **No project metrics yet**, no run has reached the project. The page shows a demo dashboard until one does.
+    像真实用户一样使用你的应用：提一个问题、触发一个工具、完成一次对话。每次运行都会成为项目中的一组运行时事件。你可以在 [AG-UI Streams](/AG-UI-Streams) 或 Inspector 中打开该线程，确认运行已经落地。
 
   </Step>
 
   <Step>
-    ### Pick a time range
+    ### 打开产品数据分析
 
-    Select **1 hour**, **1 day**, **3 days**, or **7 days**. Select **Custom** for a start and end time of your own. The range you choose applies to every tab. A range with no runs reads **No data in this range**.
+    在[云托管版 Intelligence](/intelligence/managed-intelligence-platform) 中打开你的项目，并在侧边栏中选择**产品数据分析**。右上角的状态徽标会先显示**正在加载指标**，随后显示**指标已加载**。
+
+    如果显示的是**项目尚无指标**，说明还没有任何运行到达该项目。在有运行到达之前，页面会一直展示一个演示仪表盘。
 
   </Step>
 
   <Step>
-    ### Read the Activity tab
+    ### 选择时间范围
 
-    **Activity** opens first. Four tiles summarize the range, and three charts show how it changed over time. The next section explains each one.
+    选择 **1 小时**、**1 天**、**3 天**或 **7 天**；也可以选择**自定义**来指定起止时间。所选范围会应用到每一个标签页。如果该范围内没有运行，页面会显示**该范围内暂无数据**。
+
+  </Step>
+
+  <Step>
+    ### 阅读活动标签页
+
+    页面默认打开**活动**标签页。四个指标卡汇总了所选范围的情况，三张图表展示其随时间的变化。下一节会逐一说明。
 
   </Step>
 </Steps>
 
-## How Product Analytics works
+## 产品数据分析的工作原理
 
-### What gets counted
+### 统计哪些内容
 
-Every agent run that goes through Intelligence produces runtime events: the run starts, messages stream, tools are called, the model responds, the run finishes or fails. Intelligence writes those events to a time-series store a moment after each run is accepted. Product Analytics queries that store for your project.
+每个经过 Intelligence 的智能体运行都会产生运行时事件：运行开始、消息流式传输、工具被调用、模型响应、运行结束或失败。在每次运行被接受后不久，Intelligence 会把这些事件写入一个时序存储。产品数据分析会针对你的项目查询该存储。
 
-Two things are not counted:
+有两类情况不会被统计：
 
-- Threads you [imported](/threads-import) from another system. Only live runs produce runtime events.
-- Runs that never reached Intelligence, such as a local app without a project key.
+- 从其他系统[导入](/threads-import)的线程。只有实时运行才会产生运行时事件。
+- 从未到达 Intelligence 的运行，例如没有配置项目密钥的本地应用。
 
-Runtime events are kept for **90 days**. A range that starts earlier than that returns what is still stored.
+运行时事件会保留 **90 天**。如果所选范围的起点早于此期限，将只返回仍然存储着的数据。
 
-### Buckets
+### 分桶
 
-Every chart groups events into buckets. The bucket size follows the range:
+每张图表都会把事件归入分桶（bucket）。分桶的粒度随时间范围变化：
 
-| Range                      | Bucket |
+| 时间范围                   | 分桶粒度 |
 | -------------------------- | ------ |
-| 1 hour, 1 day, 3 days      | Hourly |
-| 7 days                     | Daily  |
-| Custom, up to 3 days       | Hourly |
-| Custom, longer than 3 days | Daily  |
+| 1 小时、1 天、3 天         | 按小时 |
+| 7 天                       | 按天   |
+| 自定义，不超过 3 天        | 按小时 |
+| 自定义，超过 3 天          | 按天   |
 
-Tiles that say **latest bucket** or **busiest bucket** refer to those groups. The small percentage on a tile compares the last bucket in the range with the first one. A rising error rate is shown as a negative trend even though the number went up.
+指标卡上标注的**最新分桶**或**最繁忙分桶**指的就是这些分组。指标卡上的小百分比是把范围内的最后一个分桶与第一个分桶进行比较。错误率上升时会显示为负向趋势，即便数字本身在变大。
 
-### Tabs
+### 标签页
 
-| Tab             | Tiles                                                    | Charts                                                                                                                                                         |
+| 标签页          | 指标卡                                                   | 图表                                                                                                                                                           |
 | --------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Activity**    | Runtime events, Active users, Avg volume, Peak volume    | **Event volume**, runtime events per bucket. **Active users**, people who interacted with agents in the period. **Tool usage share**, calls per tool.          |
-| **Reliability** | Error rate, Error events, Tool calls, Clean runs         | **Error rate** over time, normalized against total activity. **Tool usage**, most-used tools per bucket. **Error share**, clean runs versus runs with an error. |
-| **Tokens**      | Total tokens, Avg response, Peak response, Output tokens | **Token volume**, **Response time**, and **Token split** between input and output.                                                                              |
-| **Memory**      | Created, Invalidated, Net new, Retention                 | **Memory created**, **Memory invalidated**, and **Memory split** per day.                                                                                      |
+| **活动**        | 运行时事件、活跃用户、平均事件量、峰值事件量             | **事件量**，每个分桶的运行时事件数。**活跃用户**，在此期间与智能体交互过的人数。**工具使用占比**，每个工具的调用次数。                                          |
+| **可靠性**      | 错误率、错误事件、工具调用、无错误运行                   | 随时间变化的**错误率**，按总活动量归一化。**工具使用**，每个分桶中使用最多的工具。**错误占比**，无错误运行与出现错误的运行之比。                                |
+| **Token**       | 总 Token 数、平均响应、峰值响应、输出 Token              | **Token 量**、**响应时间**，以及输入与输出之间的 **Token 分布**。                                                                                              |
+| **记忆**        | 已创建、已失效、净新增、留存                             | 每天的**记忆创建**、**记忆失效**与**记忆分布**。                                                                                                                |
 
-A few definitions:
+几点说明：
 
-- **Active users** counts distinct app users. Intelligence records the user ID your app passes with each run, so pass a stable ID per person. See [Scope AG-UI Streams to the signed-in user](/threads-lifecycle#scope-rich-threads-to-the-signed-in-user).
-- **Tool usage share** groups tool calls by tool name. The legend shows each name in words, so a tool called `show_capabilities` appears as **Show capabilities**.
-- **Error events** are runs that ended with an error. **Clean runs** is the share that did not.
-- **Tokens** and **response time** are recorded when a run finishes. Runs that fail before the model responds have no token count.
-- The **Memory** tab reads [User Memories](/intelligence/memories) rather than runtime events, so it reflects what memory saved and invalidated each day. The tab appears only when Automatic Learning is on for the project.
+- **活跃用户**统计的是去重后的应用用户。Intelligence 会记录你的应用随每次运行传递的用户 ID，因此请为每个用户传递一个稳定的 ID。参见[将 AG-UI Streams 限定为已登录用户](/threads-lifecycle#scope-rich-threads-to-the-signed-in-user)。
+- **工具使用占比**按工具名称对工具调用进行分组。图例会以文字形式显示每个名称，因此名为 `show_capabilities` 的工具会显示为 **Show capabilities**。
+- **错误事件**指以错误结束的运行。**无错误运行**则是未出错的运行所占比例。
+- **Token** 与**响应时间**在运行结束时记录。在模型响应之前就失败的运行没有 Token 计数。
+- **记忆**标签页读取的是[用户记忆](/intelligence/memories)而非运行时事件，因此它反映的是记忆每天保存与失效的内容。只有当项目开启自动学习（Automatic Learning）时，该标签页才会出现。
 
-### Status messages
+### 状态消息
 
-| The page says                               | What it means                                                 | What to do                                                            |
+| 页面显示                                    | 含义                                                           | 处理方式                                                              |
 | ------------------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------- |
-| **Metrics loaded**                          | Every metric returned data.                                   | Nothing.                                                              |
-| **No data in this range**                   | The store has events for the project, but none in this range. | Widen the range.                                                      |
-| **No project metrics yet**                  | No run has reached the project.                               | Finish the [quickstart](/intelligence/quickstart) and send a message. |
-| **Analytics isn't available for your role** | Your role on this project cannot read analytics.              | Ask a project admin for access.                                       |
-| **Analytics is temporarily unavailable**    | The store did not answer.                                     | Select **Retry** on the tile, or try again shortly.                   |
+| **指标已加载**                              | 每个指标都返回了数据。                                         | 无需操作。                                                            |
+| **该范围内暂无数据**                        | 存储中有该项目的事件，但此范围内没有。                         | 扩大时间范围。                                                        |
+| **项目尚无指标**                            | 还没有任何运行到达该项目。                                     | 完成[快速开始](/intelligence/quickstart)并发送一条消息。              |
+| **你的角色无法使用数据分析**                | 你在该项目中的角色无权读取分析数据。                           | 向项目管理员申请权限。                                                |
+| **数据分析暂时不可用**                      | 存储没有响应。                                                 | 点击指标卡上的**重试**，或稍后再试。                                  |
 
-A tile that could not load shows **N/A** and a **Retry** button. Other tiles keep working.
+无法加载的指标卡会显示 **N/A** 和一个**重试**按钮。其他指标卡不受影响。
 
-## Self-hosted deployments
+## 自托管部署
 
-On cloud-hosted Intelligence, CopilotKit runs the analytics pipeline for you. A [self-hosted](/intelligence/self-hosting) deployment runs it inside your network. Turn it on in the Helm values:
+在云托管版 Intelligence 上，CopilotKit 会为你运行数据分析管线。而[自托管](/intelligence/self-hosting)部署则会在你自己的网络内运行该管线。在 Helm values 中开启它：
 
 ```yaml title="values.yaml"
 analytics:
@@ -136,16 +136,16 @@ analytics:
     existingSecret: intelligence-analytics-db-owner
 ```
 
-The chart passes the TimescaleDB URL to the app API and the realtime gateway and runs the schema migration as a Job. Your license must include analytics. Events are recorded for the whole deployment as soon as the pipeline is on, so the history is there when you open the page. The rest of the install is in the [self-hosting guide](/intelligence/self-hosting).
+Chart 会把 TimescaleDB URL 传给应用 API 与实时网关，并以 Job 的形式执行 schema 迁移。你的许可证必须包含数据分析功能。管线一开启，整个部署的事件就会被记录下来，因此当你打开页面时历史数据已经在那里了。安装的其余内容见[自托管指南](/intelligence/self-hosting)。
 
-## Export to your own tools
+## 导出到你自己的工具
 
-Product Analytics is a view inside Intelligence. The charts themselves are not exported.
+产品数据分析是 Intelligence 内部的一个视图，图表本身无法导出。
 
-A self-hosted deployment can send traces and product events, such as a thread created or a run requested, to an OpenTelemetry collector you run. Product events never contain message content. [Monitor with OpenTelemetry](/intelligence/self-hosting-observability) lists each stream, what it contains, and how to turn it on.
+自托管部署可以把链路追踪（traces）和产品事件（例如线程被创建、运行被发起）发送到你自行运行的 OpenTelemetry collector。产品事件绝不包含消息内容。[使用 OpenTelemetry 监控](/intelligence/self-hosting-observability)列出了每一路数据流的内容与开启方式。
 
-## Next steps
+## 后续步骤
 
-- Open a thread in the [cloud-hosted project](/intelligence/managed-intelligence-platform) to see the events behind one number.
-- [Automatic Learning](/learning) turns the same runs into Skills you review and publish.
-- [Plans](/intelligence/plans) shows the limits that apply to your project.
+- 在[云托管项目](/intelligence/managed-intelligence-platform)中打开一个线程，看看某个数字背后的事件。
+- [自动学习](/learning) 会把同样的运行转化为可供你审阅并发布的 Skills。
+- [套餐](/intelligence/plans) 页面展示了适用于你项目的限制。

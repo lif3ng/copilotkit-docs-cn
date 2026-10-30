@@ -1,57 +1,57 @@
 ---
-title: Channels
+title: 渠道
 nav_title: Channels
-description: Put the agent you already built into Slack or Microsoft Teams. Intelligence owns the connection; your agent stays where it runs.
+description: 把你已构建好的智能体接入 Slack 或 Microsoft Teams——由 Intelligence 负责连接，你的智能体仍留在它运行的地方。
 icon: "lucide/Hash"
 doc_type: explanation
 ---
 
-## Overview
+## 概览
 
-Channels lets the agent you already built answer in Slack or Microsoft Teams. Intelligence owns the connection; your agent stays where it runs.
+渠道（Channels）让你已构建的智能体直接在 Slack 或 Microsoft Teams 中应答。连接由 Intelligence 负责，你的智能体仍留在它运行的地方。
 
 <Image
   src="/images/cloud-hosted/cloud-hosted-channels-slack.png"
-  alt="A Slack channel where a person mentions the agent and asks for a chart. The agent replies in the thread with a native bar chart and a short summary."
+  alt="一个 Slack 频道：有人在其中提及智能体并请求一张图表。智能体在该会话线程中以原生柱状图和简短摘要作出回复。"
   width={2000}
   height={1567}
   className="my-8 w-full rounded-xl border border-[var(--border)]"
 />
 
-Someone mentions the agent in a channel, it runs with the same tools and context it has in your app, and it replies in the thread with native messages, cards, and charts.
+有人在频道中提及智能体，它会以与你的应用中相同的工具和上下文运行，并以原生消息、卡片和图表在该会话线程中回复。
 
-## What Channels does
+## 渠道提供的功能
 
-- **One agent, every surface.** The agent process you run for your app also serves Slack and Teams. No second agent, no second prompt, no second set of tools.
-- **Native replies.** Text, buttons, approvals, and charts render as Slack Block Kit or Teams Adaptive Cards. In the screenshot the agent answers a question with a bar chart, not a link.
-- **Conversations that persist.** Each Slack or Teams conversation shares a stable thread id with the agent run, so Intelligence keeps its history and the run appears in Product Analytics like any other.
-- **Identity you control.** Your code maps the Slack or Teams user to your app user, so tools and permissions follow the person, and you decide when a run may use User Memory.
+- **一个智能体，覆盖所有入口。** 你为应用运行的智能体进程同样服务于 Slack 和 Teams。不需要第二个智能体、第二套提示或第二组工具。
+- **原生回复。** 文本、按钮、审批和图表以 Slack Block Kit 或 Teams Adaptive Cards 呈现。在截图中，智能体用一张柱状图回答问题，而不是一个链接。
+- **对话可持续留存。** 每个 Slack 或 Teams 会话与智能体运行共享一个稳定的线程 ID，因此 Intelligence 会保留其历史，该运行也会像其他运行一样出现在产品数据分析中。
+- **由你掌控的身份。** 由你的代码把 Slack 或 Teams 用户映射到你的应用用户，因此工具和权限跟随具体的人，由你决定运行何时可以使用用户记忆（User Memory）。
 
-## How it works
+## 工作原理
 
-Intelligence sits between the platform and your agent. It holds the Slack or Teams credentials, receives each message event, and delivers the turn to a long-running Channels SDK process that you run. Your process runs the agent over AG-UI and sends the rendered reply back through Intelligence to the thread.
+Intelligence 位于平台与你的智能体之间。它保管 Slack 或 Teams 凭据，接收每一条消息事件，并把这一轮对话交给一个由你运行的、长期驻留的 Channels SDK 进程。你的进程通过 AG-UI 运行智能体，并把渲染好的回复经 Intelligence 送回该会话线程。
 
-You never hand platform credentials to your agent, and CopilotKit never runs your agent or your tools. The full message path and the split of responsibilities are on the [Channels overview](/channels).
+你无需把平台凭据交给你的智能体，CopilotKit 也从不运行你的智能体或你的工具。完整的消息路径与职责划分见 [Channels 概览](/channels)。
 
-Slack and Microsoft Teams are generally available on cloud-hosted Intelligence.
+在云托管版 Intelligence 上，Slack 和 Microsoft Teams 均已正式可用。
 
-## Pick your channel and framework
+## 选择渠道与框架
 
-Choose where the agent should answer, then the framework it already runs on. The guide you land on starts from that framework and ends with the agent replying in a channel.
+先选择智能体应答的位置，再选择它已经在使用的框架。你最终进入的指南会从该框架出发，直到智能体在渠道中完成回复。
 
 <ChannelsIntegrationPicker />
 
-## Where to go next
+## 后续阅读
 
-| You want to                                           | Read                                                            |
+| 你想做的事                                             | 阅读内容                                                        |
 | ----------------------------------------------------- | --------------------------------------------------------------- |
-| Give the agent application actions and context        | [Tools and context](/channels/tools)                            |
-| Map Slack or Teams users to your app users            | [Identity and Memory](/channels/identity-and-memory)            |
-| Send cards, charts, and formatted messages            | [Rich messages and components](/channels/rich-messages)         |
-| Add buttons and approval steps                        | [Interactive messages and approvals](/channels/interactive)     |
-| Handle slash commands and emoji reactions             | [Commands and reactions](/channels/commands-and-reactions)      |
-| Accept files and images from the conversation         | [Files and multimodal input](/channels/files-and-multimodality) |
-| See how a channel conversation relates to AG-UI Streams | [Threads and state](/channels/threads-and-state)               |
-| Make workflow state survive a restart                 | [Persistence and scaling](/channels/persistence-and-scaling)    |
-| Read conversation history or keep a transcript        | [History and transcripts](/channels/history-and-transcripts)    |
-| Run the listener in production                        | [Deploy and operate](/channels/deploy-and-operate)              |
+| 为智能体提供应用操作和上下文                          | [工具与上下文](/channels/tools)                                 |
+| 将 Slack 或 Teams 用户映射到你的应用用户              | [身份与记忆](/channels/identity-and-memory)                     |
+| 发送卡片、图表和格式化消息                            | [富消息与组件](/channels/rich-messages)                         |
+| 添加按钮和审批步骤                                    | [交互式消息与审批](/channels/interactive)                       |
+| 处理斜杠命令和 emoji 表情回应                         | [命令与回应](/channels/commands-and-reactions)                  |
+| 接收会话中的文件和图片                                | [文件与多模态输入](/channels/files-and-multimodality)           |
+| 了解渠道会话与 AG-UI Streams 的关系                   | [线程与状态](/channels/threads-and-state)                       |
+| 让工作流状态在重启后仍然保留                          | [持久化与扩缩容](/channels/persistence-and-scaling)             |
+| 读取会话历史或保存会话记录                            | [历史与会话记录](/channels/history-and-transcripts)             |
+| 在生产环境中运行监听器                                | [部署与运维](/channels/deploy-and-operate)                      |

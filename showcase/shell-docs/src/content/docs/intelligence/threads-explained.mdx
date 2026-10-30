@@ -1,6 +1,6 @@
 ---
-title: "AG-UI Streams & Framework Threads"
-description: "Understand how Intelligence’s AG-UI streams deliver conversation history, catch-up, and reconnection alongside framework-managed agent context."
+title: "AG-UI 流与框架线程"
+description: "了解 Intelligence 的 AG-UI 流如何交付会话历史、支持追平与重连，并与框架管理的智能体上下文并行工作。"
 icon: "lucide/MessageSquareMore"
 doc_type: explanation
 ---
@@ -10,161 +10,156 @@ doc_type: explanation
   surface="docs_learn_threads"
 />
 
-## Overview
+## 概览
 
-Start with the [AG-UI Streams overview](/AG-UI-Streams) to understand what AG-UI Streams provide
-and choose between the prebuilt Drawer and a custom headless UI. This page
-explains the persistence and replay architecture beneath both paths. For the
-client-side lifecycle (minting a `threadId`, hydrating history on load, and
-switching or starting threads), see [Thread & History Lifecycle](/threads-lifecycle).
+先阅读 [AG-UI Streams 概览](/AG-UI-Streams)，了解 AG-UI Streams 提供了什么，并在预构建的 Drawer 与自定义无头 UI 之间做出选择。本页讲解这两条路径底层的持久化与重放架构。客户端侧的生命周期（生成 `threadId`、加载时注入历史、切换或新建线程）请参阅[线程与历史生命周期](/threads-lifecycle)。
 
-## What are threads?
+## 什么是线程？
 
-Framework threads manage an agent’s conversation and model context. Intelligence’s **AG-UI streams** record and deliver the interaction to your users.
+框架线程管理智能体的会话与模型上下文，而 Intelligence 的 **AG-UI 流**负责记录这次交互并交付给你的用户。
 
-A CopilotKit `threadId` identifies the conversation whose AG-UI events Intelligence stores and replays. Use `useThreads` or `CopilotThreadsDrawer` to list and select conversations, then pass the selected `threadId` to your chat.
+CopilotKit 的 `threadId` 标识某段会话，Intelligence 会存储并重放该会话的 AG-UI 事件。使用 `useThreads` 或 `CopilotThreadsDrawer` 列出并选择会话，再把选中的 `threadId` 传给你的聊天组件。
 
-| Concept | Responsibility |
+| 概念 | 职责 |
 |---|---|
-| Framework thread or ADK session | Agent conversation, model context, and framework-specific execution state. |
-| Intelligence’s AG-UI stream | Recorded interaction events, replay, catch-up, and delivery to connected clients. |
-| Channel thread | The native Slack or Microsoft Teams conversation. |
+| 框架线程或 ADK session | 智能体会话、模型上下文以及框架专属的执行状态。 |
+| Intelligence 的 AG-UI 流 | 记录交互事件、重放、追平，以及向已连接客户端的投递。 |
+| Channel 线程 | Slack 或 Microsoft Teams 上的原生会话。 |
 
-Model-context compaction and user-visible history serve different purposes. Intelligence records the AG-UI events delivered through it independently of the framework’s context store. Replay uses those recorded events; this separation does not imply unlimited retention or recovery of history that was never recorded.
+模型上下文压缩与用户可见的历史服务于不同目的。Intelligence 独立于框架的上下文存储，记录经它交付的 AG-UI 事件。重放使用这些被记录的事件；这种分离并不意味着无限期保留，也不意味着可以恢复从未被记录的历史。
 
-## How threads work with framework storage
+## 线程如何与框架存储协同工作
 
-Starting fresh? CopilotKit Intelligence provides conversation persistence: it stores interaction events so users can reopen rich conversations across sessions and devices, reconnect to active runs, and manage their threads.
+从头开始？CopilotKit Intelligence 提供会话持久化：它存储交互事件，让用户可以跨会话、跨设备重新打开完整的对话，重连到进行中的运行，并管理自己的线程。
 
-Keep your existing thread system when you connect Intelligence. As conversations run through your connected CopilotKit runtime, Intelligence automatically records its own copy of the supported AG-UI interaction history. Your framework continues managing the original conversation and agent state. Keep your [durable LangGraph checkpointer or deployment](https://docs.langchain.com/oss/python/langgraph/persistence) configured. For ADK, keep your [durable session service](https://google.github.io/adk-docs/sessions/session/) configured. Replaying recorded AG-UI history does not resume framework execution from a checkpoint. Your framework still handles that recovery.
+接入 Intelligence 时，可以保留你现有的线程系统。当会话经由你连接的 CopilotKit runtime 运行时，Intelligence 会自动记录一份它所支持的 AG-UI 交互历史副本。你的框架继续管理原始会话与智能体状态。请保持已配置的[持久化 LangGraph checkpointer 或部署](https://docs.langchain.com/oss/python/langgraph/persistence)。对于 ADK，请保持已配置的[持久化 session service](https://google.github.io/adk-docs/sessions/session/)。重放已记录的 AG-UI 历史并不会从检查点恢复框架执行，这类恢复仍由你的框架负责。
 
-Keep the same thread ID, or a stable mapping to the native thread or session ID, when you continue a conversation. [Bring your own thread system](/intelligence/bring-your-own-thread-system) explains what Intelligence records and shows an existing LangGraph app example.
+继续某段会话时，请沿用同一个线程 ID，或与原生线程/session ID 保持稳定映射。[自带线程系统](/intelligence/bring-your-own-thread-system)说明了 Intelligence 会记录什么，并给出了一个既有 LangGraph 应用的示例。
 
-Historical import is optional. It copies supported history and does not create a general replication link between databases. Intelligence rename, archive, and delete actions affect only its own records.
+历史导入是可选的。它只复制受支持的历史，不会在数据库之间建立通用的复制链路。Intelligence 的重命名、归档与删除操作只影响它自己的记录。
 
-## Key concepts
+## 核心概念
 
-### Thread vs. Run
+### 线程与 Run
 
-A **thread** is the durable container. A **run** is a single agent execution within that thread. One thread can have many runs. Each time the user sends a message and the agent responds, that is a new run, and the thread accumulates events across all of its runs.
+**线程**是持久容器，**run** 是线程内的一次智能体执行。一个线程可以包含多个 run。用户每发送一条消息并得到智能体回应，就是一次新的 run；线程会累积其所有 run 的事件。
 
-### How the pieces fit together
+### 各部分如何协作
 
-From a developer's perspective, threads involve three things:
+从开发者的视角看，线程涉及三样东西：
 
-| What you use | What it does |
+| 你使用的 | 它做什么 |
 |-------------|-------------|
-| Frontend thread API | Lists, renames, archives, and deletes threads. Supports pagination and stays in sync across tabs and devices via WebSocket. |
-| `CopilotChat` with `threadId` | Connects to a specific thread, loads its history, and streams new events in realtime. |
-| `CopilotRuntime` | Server-side layer that executes agents, stores thread data in CopilotKit Intelligence, and relays events to connected clients. |
+| 前端线程 API | 列出、重命名、归档与删除线程。支持分页，并通过 WebSocket 跨标签页与设备保持同步。 |
+| 携带 `threadId` 的 `CopilotChat` | 连接到指定线程，加载其历史，并实时流式接收新事件。 |
+| `CopilotRuntime` | 服务端层，负责执行智能体、把线程数据存入 CopilotKit Intelligence，并向已连接的客户端转发事件。 |
 
-You interact with the first two. The runtime and platform handle persistence and sync behind the scenes.
+你只会直接与其中前两者交互。持久化与同步由 runtime 和平台在幕后完成。
 
-To wire these pieces into a custom chat UI, follow [Headless Threads](/headless-threads).
+要把这些组件接进自定义聊天 UI，请遵循[无头线程](/headless-threads)。
 
-### Auto-naming
+### 自动命名
 
-When a new thread is created and the first run completes, the runtime automatically generates a short name (2–5 words) using the LLM. This runs asynchronously, so it doesn't block thread creation or the agent's response. The generated name appears through the frontend thread API via realtime sync.
+新线程创建且第一个 run 完成后，runtime 会用 LLM 自动生成一个简短名称（2–5 个词）。这一步异步进行，因此不会阻塞线程创建或智能体响应。生成的名称通过实时同步经前端线程 API 呈现。
 
-Auto-naming is enabled by default. Disable it with `generateThreadNames: false` on the runtime. Users can always override the generated name via `renameThread()`.
+自动命名默认开启。可在 runtime 上用 `generateThreadNames: false` 关闭。用户始终可以通过 `renameThread()` 覆盖生成的名称。
 
-### Archive vs. delete
+### 归档与删除
 
-Threads support two removal operations with different semantics:
+线程支持两种语义不同的移除操作：
 
-- **Archive** is a soft delete. The thread remains stored but disappears from the default list. Show archived threads by setting `includeArchived: true` in the frontend thread API. Threads can also be unarchived, which restores them to the active list.
-- **Delete** is permanent and irreversible. The thread and its history are removed entirely.
+- **归档**是软删除。线程仍被存储，但会从默认列表中消失。在前端线程 API 中设置 `includeArchived: true` 即可显示已归档线程。线程还可以取消归档，恢复到活跃列表。
+- **删除**是永久且不可逆的。线程及其历史会被彻底移除。
 
-Neither operation has a built-in confirmation dialog, so your application should implement its own if needed.
+这两种操作都没有内置确认对话框，因此如有需要，应用应自行实现。
 
-## How it works
+## 工作原理
 
-The client-side steps (minting a `threadId`, hydrating history on load, and switching or starting threads) live in [Thread & History Lifecycle](/threads-lifecycle). This section covers what the platform does underneath: persisting runs, replaying them, and keeping every connected client in sync.
+客户端侧的步骤（生成 `threadId`、加载时注入历史、切换或新建线程）见[线程与历史生命周期](/threads-lifecycle)。本节介绍平台在其下做了什么：持久化 run、重放 run，并让每个已连接的客户端保持同步。
 
-### Persistence and replay
+### 持久化与重放
 
-As an agent runs, the runtime writes each event (messages, tool calls, and state updates) to the thread in CopilotKit Intelligence. Intelligence persists AG-UI events and constructs a replay for returning clients. A reconnecting client can use its replay cursor to catch up on missed events.
+智能体运行时，runtime 会把每个事件（消息、工具调用与状态更新）写入 CopilotKit Intelligence 中的线程。Intelligence 持久化 AG-UI 事件，并为回归的客户端构建重放。重连的客户端可以用自己的重放游标追平错过的事件。
 
-When a client opens an existing thread, the Runtime provides connection credentials. The frontend joins the event stream and receives the recorded history. If a run is active, new events continue over the same connection after replay.
-Replayed history is followed by live updates when a run is active. If a tool call from a previous thread completes while the client is switching away, its result is discarded rather than inserted into the new thread, so stale output never leaks between conversations.
+当客户端打开既有线程时，Runtime 会提供连接凭据。前端加入事件流并收到已记录的历史。如果有 run 正在进行，重放完成后新事件会经同一连接继续推送。
+当有 run 正在进行时，重放的历史之后会紧跟实时更新。如果客户端正在切换线程时，上一个线程的某个工具调用完成了，其结果会被丢弃而不是插入新线程，因此过期的输出绝不会在会话之间泄漏。
 
-### Background execution
+### 后台执行
 
-A browser disconnect does not by itself stop the authoritative agent run. While your Runtime and agent remain running, execution can continue and Intelligence records its events. Reopening the conversation lets the user catch up. This does not replace the framework’s checkpoint recovery or recover a run after a Runtime failure.
+浏览器断开本身并不会让权威的智能体运行停止。只要你的 Runtime 与智能体仍在运行，执行就可以继续，Intelligence 会记录其事件。用户重新打开会话即可追平进度。这不能替代框架的检查点恢复，也无法在 Runtime 故障后恢复某个 run。
 
-### Realtime sync
+### 实时同步
 
-The frontend thread client maintains a WebSocket subscription for thread metadata changes. When any client creates, renames, archives, or deletes a thread, the update is pushed to all connected clients automatically. This is how a thread created on one tab appears in the sidebar on another tab without polling.
+前端线程客户端会为线程元数据变更维护一个 WebSocket 订阅。任何客户端创建、重命名、归档或删除线程时，更新都会自动推送到所有已连接的客户端。正因如此，在一个标签页创建的线程无需轮询就会出现在另一个标签页的侧边栏中。
 
-### Pessimistic updates
+### 悲观更新
 
-Thread mutations (`rename`, `archive`, `delete`) use a pessimistic update model: the client waits for the server to confirm via WebSocket before updating the thread list. This means:
+线程变更（`rename`、`archive`、`delete`）采用悲观更新模型：客户端等待服务器经 WebSocket 确认之后才更新线程列表。这意味着：
 
-- The thread list doesn't change until the server confirms the operation.
-- If the server rejects the mutation, the UI never shows an incorrect state.
-- The returned promise resolves only after server confirmation, or rejects on failure.
+- 在服务器确认操作之前，线程列表不会变化。
+- 如果服务器拒绝变更，UI 永远不会显示错误状态。
+- 返回的 promise 只在服务器确认后 resolve，失败时 reject。
 
-## Error handling
+## 错误处理
 
-### Mutation failures
+### 变更失败
 
-All mutation methods (`renameThread`, `archiveThread`, `deleteThread`) return promises that reject with an `Error` if the server cannot complete the operation. Common causes:
+所有变更方法（`renameThread`、`archiveThread`、`deleteThread`）都返回 promise，当服务器无法完成操作时会以 `Error` reject。常见原因：
 
-- **Network failure.** The client can't reach the runtime.
-- **Thread not found.** Another client deleted the thread before your mutation arrived.
-- **Authorization failure.** The user doesn't have permission to modify the thread.
-- **Timeout.** The server didn't respond within 15 seconds.
+- **网络故障**：客户端无法连接到 runtime。
+- **线程不存在**：你的变更到达之前，线程已被其他客户端删除。
+- **授权失败**：用户没有修改该线程的权限。
+- **超时**：服务器在 15 秒内没有响应。
 
-The thread client exposes the most recent list or mutation error and clears it
-after the next successful operation.
+线程客户端会暴露最近一次列表或变更错误，并在下一次成功操作后将其清除。
 
-### WebSocket disconnection
+### WebSocket 断开
 
-If the WebSocket connection drops (network change, server restart, laptop sleep):
+如果 WebSocket 连接中断（网络切换、服务器重启、笔记本休眠）：
 
-- **Thread list.** The frontend thread API stops receiving realtime updates, so the list becomes stale until the connection is re-established. Reconnection is automatic with exponential backoff.
-- **Active conversation.** If `CopilotChat` loses its WebSocket mid-run, the agent's output may be interrupted. Reloading the page, or switching away and back to the thread, triggers the reconnection flow, which replays any missed events.
+- **线程列表**：前端线程 API 会停止接收实时更新，列表会变得过时，直到连接重建。重连自动进行，采用指数退避。
+- **进行中的对话**：如果 `CopilotChat` 在 run 进行中失去 WebSocket，智能体的输出可能被中断。重新加载页面，或切走再切回该线程，会触发重连流程，重放所有错过的事件。
 
-### Thread locked
+### 线程被锁定
 
-If a thread already has an active run and another client tries to start a new run on the same thread, the request is rejected with a **409 Conflict**. This prevents two agent runs from interleaving events on the same thread. The existing run must complete or be stopped before a new one can begin.
+如果某线程已有一个进行中的 run，而另一个客户端尝试在同一线程上启动新 run，请求会被 **409 Conflict** 拒绝。这可以防止两个智能体 run 在同一线程上交错写入事件。必须等既有 run 完成或被停止后，才能开始新的 run。
 
-The runtime acquires a Redis-backed lock on the thread for the duration of each run. You can tune this behavior on the runtime:
+runtime 会在每个 run 期间获取一个基于 Redis 的线程锁。你可以在 runtime 上调整这一行为：
 
-| Option | Default | Max | Description |
+| 选项 | 默认值 | 最大值 | 说明 |
 |--------|---------|-----|-------------|
-| `lockTtlSeconds` | `20` | `3600` (1 hour) | How long the lock is held before it expires automatically. |
-| `lockHeartbeatIntervalSeconds` | `15` | `3000` (50 min) | How often the runtime renews the lock during a run. The heartbeat always runs; you only need to adjust the interval. |
-| `lockKeyPrefix` | — | — | Custom Redis key prefix for the thread lock. Useful when multiple apps share a Redis instance. |
+| `lockTtlSeconds` | `20` | `3600`（1 小时） | 锁在被自动过期之前持有多久。 |
+| `lockHeartbeatIntervalSeconds` | `15` | `3000`（50 分钟） | run 期间 runtime 续期的频率。心跳始终运行，你只需要调整间隔。 |
+| `lockKeyPrefix` | — | — | 线程锁的自定义 Redis 键前缀。多个应用共享一个 Redis 实例时很有用。 |
 
-If a run completes normally, the lock is released immediately. The TTL is a safety net for cases where the runtime crashes without releasing the lock.
+run 正常完成后，锁会立即释放。TTL 是一种兜底保护，用于 runtime 崩溃且未释放锁的情况。
 
-## Design decisions
+## 设计决策
 
-### Why event replay instead of message snapshots?
+### 为什么用事件重放而不是消息快照？
 
-Intelligence records AG-UI events rather than relying only on the framework’s current message list. This enables:
+Intelligence 记录 AG-UI 事件，而不只依赖框架当前的消息列表。这样可以实现：
 
-- **Catch-up.** A reconnecting client can use its replay cursor to fetch missed events rather than reloading the entire history.
-- **Interactive history.** Recorded messages, tool calls, and state updates reconstruct the conversation. Replay may compact events for delivery; it is not a guarantee that every original event is sent unchanged.
+- **追平**：重连的客户端可以用自己的重放游标获取错过的事件，而不是重新加载整个历史。
+- **可交互的历史**：被记录的消息、工具调用与状态更新可以重建对话。重放在投递时可能会压缩事件；它并不保证每个原始事件都原样送达。
 
-The trade-off is that replay is more complex than loading a message array. The platform handles this complexity so your application doesn't have to.
+代价是重放比加载一个消息数组更复杂。平台承担了这份复杂度，你的应用无需关心。
 
-### When threads are the wrong tool
+### 什么时候线程不是合适的工具
 
-- **Ephemeral interactions.** If your users don't need conversation history (e.g., a one-shot Q&A widget), threads add unnecessary complexity. Use `CopilotChat` without a `threadId`.
-- **Client-only state.** If you need local-only chat history without server persistence, manage messages in frontend state or localStorage instead.
+- **临时交互**：如果你的用户不需要会话历史（例如一次性的问答小组件），线程只会带来不必要的复杂度。使用不带 `threadId` 的 `CopilotChat`。
+- **仅客户端状态**：如果你只需要本地聊天历史而不需要服务端持久化，请改在前端状态或 localStorage 中管理消息。
 
-## Next steps
+## 下一步
 
-- **Client lifecycle:** [Thread & History Lifecycle](/threads-lifecycle) — how a `threadId` is minted, hydrated, and switched on the client
-- **Overview:** [AG-UI Streams](/AG-UI-Streams) — understand the feature and choose an implementation path
-- **Step-by-step guide:** [Headless Threads](/headless-threads) — build a custom thread-management UI
+- **客户端生命周期**：[线程与历史生命周期](/threads-lifecycle) —— `threadId` 在客户端如何生成、注入与切换
+- **概览**：[AG-UI Streams](/AG-UI-Streams) —— 理解该特性并选择实现路径
+- **分步指南**：[无头线程](/headless-threads) —— 构建自定义线程管理 UI
 <FrontendOnly frontend="react">
-- **API reference:** [useThreads](/reference/hooks/useThreads) — parameters, return values, types
+- **API 参考**：[useThreads](/reference/hooks/useThreads) —— 参数、返回值与类型
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
-- **Angular guide:** <a href="/angular/guides/threads-memory-attachments-headless">Threads, memory, attachments, and headless UI</a>
-- **API reference:** <a href="/reference/angular/functions/injectThreads">injectThreads</a> — options, signals, and mutations
+- **Angular 指南**：<a href="/angular/guides/threads-memory-attachments-headless">线程、记忆、附件与无头 UI</a>
+- **API 参考**：<a href="/reference/angular/functions/injectThreads">injectThreads</a> —— 选项、signals 与变更操作
 </FrontendOnly>

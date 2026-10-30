@@ -1,7 +1,7 @@
 ---
-title: Quickstart
+title: 快速开始
 nav_title: Quickstart
-description: Run Intelligence locally with the CopilotKit CLI and record your first Trajectory from a React app.
+description: 使用 CopilotKit CLI 在本地运行 Intelligence，并从 React 应用录制你的第一条轨迹。
 icon: "lucide/Play"
 frontend:
   kind: frontend-variant
@@ -11,75 +11,75 @@ earlyAccess: trajectories
 search: false
 ---
 
-## Overview
+## 概览
 
-This guide uses the CopilotKit CLI to run CopilotKit Intelligence on your machine and connect an existing React app. You will record browser activity and find the saved Trajectory in Intelligence.
+本指南使用 CopilotKit CLI 在你的机器上运行 CopilotKit Intelligence，并连接一个已有的 React 应用。你将录制浏览器活动，并在 Intelligence 中找到已保存的轨迹。
 
-<Callout type="info" title="Early access with our engineering team">
-  Trajectories are in early access. This guide is for a proof of concept with our engineering team. It assumes that your license and Trajectories access are ready.
+<Callout type="info" title="与工程团队一起抢先体验">
+  轨迹功能目前处于抢先体验阶段。本指南用于与我们的工程团队一起进行概念验证，并默认你的许可证与轨迹访问权限均已就绪。
 
-  If you are unsure, [book time with our engineers](https://www.copilotkit.ai/talk-to-an-engineer) before you start.
+  如果不确定，请在开始前[预约我们的工程师](https://www.copilotkit.ai/talk-to-an-engineer)。
 </Callout>
 
-The CLI installs and manages the local stack. You do not need to install its internal tools or create installation configuration files. This setup is for local evaluation, not a production deployment.
+CLI 会安装并管理本地技术栈。你无需安装其内部工具，也无需创建安装配置文件。此配置仅用于本地评估，并非生产部署。
 
-## Before you start
+## 开始之前
 
-- macOS with Docker Desktop running. Allow at least 4 CPUs, 12 GiB of Docker memory, and 40 GiB of free storage.
-- An existing React app with a TypeScript CopilotKit Runtime, plus Node.js 22 or later.
-- Your existing CopilotKit sign-in for the CLI.
+- macOS，且 Docker Desktop 正在运行。请预留至少 4 个 CPU、12 GiB 的 Docker 内存和 40 GiB 的可用存储。
+- 一个已有的 React 应用，带 TypeScript CopilotKit Runtime，外加 Node.js 22 或更高版本。
+- 你已有的 CopilotKit 登录账号，供 CLI 使用。
 
-You do not need a model for browser capture. The steps below skip model configuration and sample conversations.
+浏览器捕获不需要模型。下面的步骤会跳过模型配置与示例对话。
 
-## 1. Install Intelligence with the CLI
+## 1. 用 CLI 安装 Intelligence
 
-Run all CLI commands in your existing app's folder. Sign in with your existing account:
+在既有应用的文件夹中运行所有 CLI 命令。用已有账号登录：
 
 ```bash
 npx copilotkit@latest login
 ```
 
-Choose the organization for this proof of concept. Then install the local stack:
+为这次概念验证选择组织。然后安装本地技术栈：
 
 ```bash
 npx copilotkit@latest local setup --defer-model --no-samples
 ```
 
-The CLI checks Docker, downloads the release, and installs Intelligence. When setup finishes, it opens the local dashboard and signs you in. Wait for setup to finish before you continue.
+CLI 会检查 Docker、下载发布产物并安装 Intelligence。安装完成后，它会打开本地仪表盘并帮你登录。请等安装完成后再继续。
 
-For more about the CLI installation, see [Evaluate Intelligence locally](/intelligence/self-hosting-local).
+关于 CLI 安装的更多信息，请参阅[在本地评估 Intelligence](/intelligence/self-hosting-local)。
 
-## 2. Connect your app
+## 2. 连接你的应用
 
-Preview the connection changes:
+预览连接变更：
 
 ```bash
 npx copilotkit@latest local connect
 ```
 
-Apply them:
+应用这些变更：
 
 ```bash
 npx copilotkit@latest local connect --approve-connection
 ```
 
-The CLI writes the local API URL, gateway URL, and project key to your app's `.env`. It also writes `SL_ENABLED=true`. Keep the project key on the server.
+CLI 会把本地 API URL、网关 URL 与项目密钥写入你应用的 `.env`，同时写入 `SL_ENABLED=true`。项目密钥请保存在服务端。
 
-Make sure your Runtime server loads this `.env` file. The CLI chooses the local ports, so keep the URLs it writes.
+请确保你的 Runtime 服务器加载了这个 `.env` 文件。本地端口由 CLI 选择，因此请保留它写入的 URL。
 
-The CLI saves the previous configuration before it makes changes. It refuses to write a key if Git tracks `.env`.
+CLI 在修改之前会保存原有配置。如果 `.env` 被 Git 跟踪，它会拒绝写入密钥。
 
-## 3. Configure your Runtime
+## 3. 配置你的 Runtime
 
-Install the packages used by the examples:
+安装示例所需的软件包：
 
 ```bash
 npm install @copilotkit/react-core@1.79.1 @copilotkit/runtime@1.79.1
 ```
 
-Use the values from `.env` to configure the Intelligence client in your existing Runtime:
+使用 `.env` 中的值，在既有 Runtime 中配置 Intelligence 客户端：
 
-```ts title="Your CopilotKit Runtime"
+```ts title="你的 CopilotKit Runtime"
 import {
   CopilotKitIntelligence,
   CopilotRuntime,
@@ -98,85 +98,85 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-Keep your existing `agents`, handler, and application authentication. `identifyUser` returns the user from your verified application session. Remove an explicit `runner` option because Intelligence provides the runner.
+保留你既有的 `agents`、handler 与应用身份验证。`identifyUser` 从你已验证的应用会话中返回用户。请移除显式的 `runner` 选项，因为 Intelligence 会提供 runner。
 
-If your Runtime does not have `identifyUser`, use the [Runtime connection example](/intelligence/quickstart#connect-your-runtime).
+如果你的 Runtime 没有 `identifyUser`，请参考 [Runtime 连接示例](/intelligence/quickstart#connect-your-runtime)。
 
-Restart your Runtime and app after the configuration change.
+配置更改后，请重启你的 Runtime 和应用。
 
-## 4. Record a Trajectory
+## 4. 录制一条轨迹
 
-Before you turn on capture, read [Captured data](/intelligence/captured-data).
+开启捕获之前，请先阅读[捕获的数据](/intelligence/captured-data)。
 
-Add `learning` to your existing provider:
+在既有 provider 中添加 `learning`：
 
-```tsx title="Your CopilotKit provider"
+```tsx title="你的 CopilotKit Provider"
 <CopilotKitProvider runtimeUrl="/api/copilotkit" learning>
   {children}
 </CopilotKitProvider>
 ```
 
-Keep your existing `runtimeUrl` and authentication props. If your Runtime uses a single endpoint, keep `useSingleEndpoint` too. Capture starts when the provider mounts.
+保留你既有的 `runtimeUrl` 与身份验证 props。如果你的 Runtime 使用单一端点，也请保留 `useSingleEndpoint`。provider 挂载时捕获即开始。
 
-1. Open your app.
-2. Click a few controls and edit a form field.
-3. Send a message to your agent to link the conversation. Browser capture also works without a conversation.
-4. Wait at least two seconds for the next batch.
+1. 打开你的应用。
+2. 点击几个控件，并编辑一个表单字段。
+3. 向你的智能体发送一条消息以关联会话。没有会话时，浏览器捕获同样可用。
+4. 等待至少两秒，让下一批数据发出。
 
-If capture cannot connect, the browser console shows a warning with an error code. See [Error codes](/intelligence/trajectories-reference#error-codes).
+如果捕获无法连接，浏览器控制台会显示带错误码的警告。参见[错误码](/intelligence/trajectories-reference#error-codes)。
 
-## 5. Find the saved Trajectory
+## 5. 找到已保存的轨迹
 
-Open the local dashboard from your app's folder:
+在应用的文件夹中打开本地仪表盘：
 
 ```bash
 npx copilotkit@latest local login
 ```
 
-The CLI opens the dashboard and signs you in.
+CLI 会打开仪表盘并帮你登录。
 
-1. Open the project connected to your app.
-2. Select **Trajectories**.
-3. Refresh the list and open the newest Trajectory.
-4. On its **Timeline**, expand **Product trajectory** and find your click or form edit.
-5. Reload the page and check that the event remains.
+1. 打开与你的应用连接的项目。
+2. 选择 **Trajectories**。
+3. 刷新列表并打开最新的轨迹。
+4. 在其 **Timeline** 上展开 **Product trajectory**，找到你的点击或表单编辑。
+5. 重新加载页面，确认事件仍在。
 
-The event is now part of the saved Trajectory. A model and live viewing are not required for this check.
+该事件现在已是已保存轨迹的一部分。这项检查既不需要模型，也不需要实时查看。
 
-## Next steps
+## 下一步
 
-- [Capture interactions](/intelligence/capture-interactions) explains consent, manual start and stop, outcome events, and error handling.
-- [Captured data](/intelligence/captured-data) describes fields, delivery limits, and controls that exclude data.
-- [API reference](/intelligence/trajectories-reference) lists every `learning` option and Core method.
-- [Automatic Learning](/learning#assign-browser-activity-to-a-learning-space) explains how to use Trajectories as evidence in a Learning Space.
+- [捕获交互](/intelligence/capture-interactions)介绍授权同意、手动启动与停止、结果事件以及错误处理。
+- [捕获的数据](/intelligence/captured-data)描述字段、投递限制以及用于排除数据的开关。
+- [API 参考](/intelligence/trajectories-reference)列出每一个 `learning` 选项与 Core 方法。
+- [Automatic Learning](/learning#assign-browser-activity-to-a-learning-space) 介绍如何在 Learning Space 中把轨迹用作证据。
 
-## Stop and restart
+## 停止与重启
 
-From your app's folder, stop the local stack:
+在应用的文件夹中停止本地技术栈：
 
 ```bash
 npx copilotkit@latest local stop
 ```
 
-This keeps the local data. To continue later:
+这会保留本地数据。稍后要继续时：
 
 ```bash
 npx copilotkit@latest local start
 ```
 
-## Troubleshooting
+## 故障排查
 
-<Callout type="warn" title="License and access errors need our team">
-  If you see `TRAJECTORIES_NOT_ENABLED`, `TRAJECTORIES_UNAVAILABLE`, or `MARKETPLACE_LICENSE_REQUIRED`, [book time with our engineers](https://www.copilotkit.ai/talk-to-an-engineer) before you continue. Our team can check your license, project access, and deployment support.
+<Callout type="warn" title="许可证与访问错误需要我们的团队处理">
+  如果看到 `TRAJECTORIES_NOT_ENABLED`、`TRAJECTORIES_UNAVAILABLE` 或 `MARKETPLACE_LICENSE_REQUIRED`，请在继续之前[预约我们的工程师](https://www.copilotkit.ai/talk-to-an-engineer)。我们的团队可以检查你的许可证、项目访问权限与部署支持。
 </Callout>
 
-| Problem | Action |
+| 问题 | 处理方式 |
 | --- | --- |
-| Docker does not respond | Start Docker Desktop. Check that Docker has the resources listed under **Before you start**. |
-| The installation stops | Read the CLI error. Run `npx copilotkit@latest local status` to inspect the stack. After you resolve the error, repeat the setup command to resume. |
-| The dashboard needs a new sign-in | Run `npx copilotkit@latest local login` from your app's folder. |
-| The browser console shows a capture error | Check that your Runtime loads the `.env` values from `local connect`. Restart the Runtime after a configuration change. For each error code, see [Error codes](/intelligence/trajectories-reference#error-codes). |
-| A Trajectory has no visible events | Wait for the saved data to update, then refresh. Check the browser console and the selected project. |
-| A Trajectory has no linked conversation | Start an agent conversation while capture is active. Earlier conversations do not link automatically. |
+| Docker 没有响应 | 启动 Docker Desktop。检查 Docker 是否具备**开始之前**中列出的资源。 |
+| 安装中途停止 | 阅读 CLI 报错。运行 `npx copilotkit@latest local status` 检查技术栈状态。解决错误后，重新运行安装命令即可继续。 |
+| 仪表盘要求重新登录 | 在应用的文件夹中运行 `npx copilotkit@latest local login`。 |
+| 浏览器控制台显示捕获错误 | 检查 Runtime 是否加载了 `local connect` 写入的 `.env` 值。配置更改后请重启 Runtime。各错误码参见[错误码](/intelligence/trajectories-reference#error-codes)。 |
+| 轨迹中没有可见事件 | 等待已保存的数据更新后刷新。检查浏览器控制台与所选项目。 |
+| 轨迹没有关联会话 | 在捕获激活期间发起一次智能体对话。更早的对话不会自动关联。 |
 
-For more CLI commands and recovery steps, see [Manage the stack](/intelligence/self-hosting-local#manage-the-stack).
+更多 CLI 命令与恢复步骤，请参阅[管理技术栈](/intelligence/self-hosting-local#manage-the-stack)。

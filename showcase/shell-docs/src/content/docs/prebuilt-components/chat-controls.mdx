@@ -1,19 +1,14 @@
 ---
-title: "Open, close, and feedback"
+title: "打开、关闭与反馈"
 icon: "lucide/SlidersHorizontal"
-description: "Open and close the prebuilt chat from your UI, and capture assistant message feedback."
+description: "从你的 UI 打开和关闭预构建聊天，并捕获助手消息反馈。"
 ---
 
-Two common controls for the prebuilt chat are opening it from your own UI and
-capturing thumbs-up / thumbs-down feedback on assistant messages.
+预构建聊天有两个常见的控制需求：从你自己的 UI 打开它，以及捕获助手消息上的点赞/点踩反馈。
 
-## Control the open state from your own UI
+## 从你自己的 UI 控制打开状态
 
-Pass `open` and `onOpenChange` to `<CopilotSidebar>` or `<CopilotPopup>` to own
-the open state yourself. This is the controlled pattern: the surface renders
-whatever `open` says, and every request to open or close (the toggle button,
-click-outside on the popup) arrives on `onOpenChange` instead of moving the
-surface directly.
+将 `open` 与 `onOpenChange` 传给 `<CopilotSidebar>` 或 `<CopilotPopup>`，即可自己掌握打开状态。这就是受控模式：界面完全按照 `open` 的值来渲染，而每一个打开或关闭的请求（切换按钮、点击弹窗外部）都会通过 `onOpenChange` 送达，而不是直接改变界面状态。
 
 ```tsx
 import { useState } from "react";
@@ -34,25 +29,15 @@ function Layout() {
 }
 ```
 
-The button lives outside the sidebar, which is the point: nothing has to be
-rendered inside the chat subtree to open or close it. Because `open` is the
-source of truth, you can also keep the chat in sync with a route, a keyboard
-shortcut, or any other state you already have.
+按钮位于侧边栏之外，这正是关键所在：无需在聊天子树内渲染任何东西就能打开或关闭它。由于 `open` 是唯一的事实来源，你还可以让聊天与路由、键盘快捷键或你已有的任何其他状态保持同步。
 
 <Callout type="info">
-`onOpenChange` reports a request, not a change. If you do not feed the new value
-back into `open`, the surface stays where it is. That is what makes it possible
-to gate opening the chat, for example behind a sign-in check. You can also pass
-`onOpenChange` on its own, without `open`: the surface keeps managing itself and
-you are notified each time it opens or closes.
+`onOpenChange` 报告的是一个请求，而不是一次变更。如果你不把新值回写到 `open`，界面就会保持原样。正因如此，你可以为打开聊天设置门槛，例如要求先通过登录检查。你也可以只传 `onOpenChange` 而不传 `open`：界面继续自行管理，而它每次打开或关闭时你都会收到通知。
 </Callout>
 
-## Programmatically open or close the chat
+## 以编程方式打开或关闭聊天
 
-If you would rather not lift the state into your own component, the open state
-for `<CopilotPopup>` and `<CopilotSidebar>` also lives in the **chat
-configuration context**. Read it with `useCopilotChatConfiguration()` and call
-`setModalOpen(true | false)` from anywhere inside the provider:
+如果你不想把状态提升到自己的组件里，`<CopilotPopup>` 和 `<CopilotSidebar>` 的打开状态也保存在 **聊天配置上下文** 中。通过 `useCopilotChatConfiguration()` 读取它，并在 provider 内的任意位置调用 `setModalOpen(true | false)`：
 
 ```tsx
 import { useCopilotChatConfiguration } from "@copilotkit/react-core/v2";
@@ -72,7 +57,7 @@ function OpenChatButton() {
 }
 ```
 
-To toggle, read `config.isModalOpen` and flip it:
+若要切换，读取 `config.isModalOpen` 并取反即可：
 
 ```tsx
 <button onClick={() => config.setModalOpen(!config.isModalOpen)}>
@@ -81,31 +66,20 @@ To toggle, read `config.isModalOpen` and flip it:
 ```
 
 <Callout type="info">
-`setModalOpen` / `isModalOpen` are only defined when a provider in the tree owns
-modal state. The prebuilt `<CopilotPopup>` and `<CopilotSidebar>` create it
-automatically. If you compose chat yourself, wrap the relevant subtree in
-`<CopilotChatConfigurationProvider isModalDefaultOpen={false}>` so the modal state
-exists. See the
-[`useCopilotChatConfiguration` reference](/reference/hooks/useCopilotChatConfiguration#modal-state-management).
+`setModalOpen` / `isModalOpen` 只有在组件树中有 provider 持有模态状态时才有定义。预构建的 `<CopilotPopup>` 和 `<CopilotSidebar>` 会自动创建它。如果你自行组装聊天，请将相关子树包裹在 `<CopilotChatConfigurationProvider isModalDefaultOpen={false}>` 中，以确保模态状态存在。参见 [`useCopilotChatConfiguration` 参考](/reference/hooks/useCopilotChatConfiguration#modal-state-management)。
 </Callout>
 
-You can also set the **initial** open state declaratively, and then let the
-surface manage itself. The prebuilt surfaces accept a `defaultOpen` prop:
+你还可以用声明式方式设置 **初始** 打开状态，然后让界面自行管理。预构建界面接受一个 `defaultOpen` prop：
 
 ```tsx
 <CopilotSidebar defaultOpen={false} />
 ```
 
-`defaultOpen` and `open` are the usual uncontrolled/controlled pair: use
-`defaultOpen` for a starting point, and `open` when your own state decides. When
-both are passed, `open` wins.
+`defaultOpen` 与 `open` 就是非受控/受控这对常见搭配：用 `defaultOpen` 指定起始状态，用 `open` 让你自己的状态做决定。两者同时传入时，`open` 优先。
 
-## Capture message feedback (thumbs up / down)
+## 捕获消息反馈（点赞/点踩）
 
-The assistant-message toolbar can show thumbs-up and thumbs-down buttons. In v2
-you opt in by passing `onThumbsUp` / `onThumbsDown` to the **assistant message
-slot**. Without Automatic Learning capture, the buttons only render when a
-handler or a custom thumb slot is provided:
+助手消息工具栏可以显示点赞和点踩按钮。在 v2 中，通过向 **助手消息插槽** 传入 `onThumbsUp` / `onThumbsDown` 来启用该功能。在没有开启 Automatic Learning 采集的情况下，只有提供了处理器或自定义点赞插槽时，这些按钮才会渲染：
 
 ```tsx
 import { CopilotChat } from "@copilotkit/react-core/v2";
@@ -124,41 +98,21 @@ import { CopilotChat } from "@copilotkit/react-core/v2";
 />;
 ```
 
-Each handler receives the assistant `message`, so you can record the feedback
-against the specific response (`message.id`). The same `messageView` slot works on
-`<CopilotPopup>` and `<CopilotSidebar>` since they wrap `<CopilotChat>`.
+每个处理器都会收到助手 `message`，因此你可以把反馈关联到具体的那条响应（`message.id`）。由于 `<CopilotPopup>` 和 `<CopilotSidebar>` 都是对 `<CopilotChat>` 的封装，同样的 `messageView` 插槽在这两者上同样可用。
 
-When the slot is rendered through `CopilotChatMessageView`, a live assistant
-message created by a direct AG-UI `TEXT_MESSAGE_START` can also include that
-event's opaque `rawEvent` value. The join happens when the thumbs callback runs;
-canonical messages and future run input stay unchanged. Chunk, snapshot,
-persisted, legacy, and direct `CopilotChatAssistantMessage` paths don't provide
-this callback metadata.
+当插槽通过 `CopilotChatMessageView` 渲染时，由直接的 AG-UI `TEXT_MESSAGE_START` 创建的实时助手消息还可以携带该事件的不透明 `rawEvent` 值。拼接发生在点赞回调运行时；规范化消息和未来的运行输入保持不变。chunk、snapshot、持久化、旧版以及直接使用 `CopilotChatAssistantMessage` 的路径不提供这一回调元数据。
 
-The button labels come from the chat labels (`assistantMessageToolbarThumbsUpLabel`
-defaults to `"Good response"`, `assistantMessageToolbarThumbsDownLabel` to
-`"Bad response"`); override them via
-[chat labels](/reference/hooks/useCopilotChatConfiguration#copilotchatlabels).
+按钮文案来自聊天标签（`assistantMessageToolbarThumbsUpLabel` 默认为 `"Good response"`，`assistantMessageToolbarThumbsDownLabel` 默认为 `"Bad response"`）；可以通过[聊天标签](/reference/hooks/useCopilotChatConfiguration#copilotchatlabels)覆盖它们。
 
-With [Automatic Learning capture](/intelligence/capture-interactions#collect-reply-ratings)
-on and a Trajectory started, the buttons appear without handlers in every chat
-that renders messages with `CopilotChatMessageView` inside a
-`CopilotChatConfigurationProvider`, as `CopilotChat`, `CopilotPopup`, and
-`CopilotSidebar` do. A rating then also goes to the active
-Trajectory, the user can add a comment, and clicking the chosen thumb again
-removes the rating. Your handlers run when a rating is given, not when it is
-removed.
+开启 [Automatic Learning 采集](/intelligence/capture-interactions#collect-reply-ratings)并启动一个 Trajectory 后，在任何像 `CopilotChat`、`CopilotPopup`、`CopilotSidebar` 那样在 `CopilotChatConfigurationProvider` 内使用 `CopilotChatMessageView` 渲染消息的聊天中，这些按钮无需处理器就会出现。此时评分还会发送到当前活跃的 Trajectory，用户可以添加评论，再次点击已选择的按钮则会移除评分。你的处理器只在给出评分时运行，移除评分时不会运行。
 
 <Callout type="info">
-Building a fully custom message component instead of using the slot? The
-underlying [`CopilotChatAssistantMessage`](/reference/components/CopilotChatAssistantMessage)
-exposes the same `onThumbsUp` / `onThumbsDown` props directly, but callback
-metadata enrichment is owned by `CopilotChatMessageView`.
+想构建完全自定义的消息组件而不使用插槽？底层的 [`CopilotChatAssistantMessage`](/reference/components/CopilotChatAssistantMessage) 直接暴露了同样的 `onThumbsUp` / `onThumbsDown` props，但回调元数据的丰富由 `CopilotChatMessageView` 负责。
 </Callout>
 
-## Related
+## 相关内容
 
-- [CopilotPopup](/prebuilt-components/popup) and [CopilotSidebar](/prebuilt-components/sidebar): the prebuilt surfaces that own modal state.
-- [`useCopilotChatConfiguration` reference](/reference/hooks/useCopilotChatConfiguration): full context shape, modal state, and labels.
-- [Slots](/custom-look-and-feel/slots): the `messageView` / `assistantMessage` slot system used above.
-- [Programmatic Control](/programmatic-control): driving agent runs from code without a chat UI.
+- [CopilotPopup](/prebuilt-components/popup) 与 [CopilotSidebar](/prebuilt-components/sidebar)：持有模态状态的预构建界面。
+- [`useCopilotChatConfiguration` 参考](/reference/hooks/useCopilotChatConfiguration)：完整的上下文形态、模态状态与标签。
+- [插槽](/custom-look-and-feel/slots)：上文用到的 `messageView` / `assistantMessage` 插槽系统。
+- [编程式控制](/programmatic-control)：在没有聊天 UI 的情况下用代码驱动智能体运行。

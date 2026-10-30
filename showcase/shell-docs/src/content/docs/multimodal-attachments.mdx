@@ -1,14 +1,14 @@
 ---
-title: Multimodal Attachments
+title: 多模态附件
 icon: "lucide/Paperclip"
-description: Let users send images, audio, video, and documents to the AI alongside their messages.
+description: 让用户随消息一起向 AI 发送图像、音频、视频和文档。
 ---
 
-You have a working CopilotChat and want users to attach files — images, PDFs, audio, video — that the AI can see and respond to. By the end of this guide, your chat will support drag-and-drop file attachments with previews, lightbox viewing, and multimodal AI responses.
+你已经有了一个可用的 CopilotChat，希望用户能随消息一起附加文件——图像、PDF、音频、视频——让 AI 能够看到并作出回应。读完本指南后，你的聊天将支持拖放文件附件，并带有预览、灯箱查看和多模态 AI 响应。
 
-## Quick start
+## 快速开始
 
-Add `attachments` to your `CopilotChat` component:
+在你的 `CopilotChat` 组件上添加 `attachments`：
 
 ```tsx title="page.tsx"
 import { CopilotChat } from "@copilotkit/react-core/v2";
@@ -19,11 +19,11 @@ import { CopilotChat } from "@copilotkit/react-core/v2";
 />
 ```
 
-That's it. Users can now click the attachment button or drag-and-drop files into the chat. The files are sent as part of the message content to your agent.
+就这么简单。用户现在可以点击附件按钮，或将文件拖放到聊天中。这些文件会作为消息内容的一部分发送给你的智能体。
 
-## Configuration
+## 配置
 
-The `attachments` prop accepts an `AttachmentsConfig` object:
+`attachments` prop 接受一个 `AttachmentsConfig` 对象：
 
 ```tsx
 <CopilotChat
@@ -37,38 +37,38 @@ The `attachments` prop accepts an `AttachmentsConfig` object:
 />
 ```
 
-| Option | Type | Default | Description |
+| 选项 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `enabled` | `boolean` | — | Enable file attachments in the chat input. |
-| `accept` | `string` | `"*/*"` | MIME type filter. Supports patterns like `"image/*"`, `".pdf,.docx"`, or comma-separated lists. |
-| `maxSize` | `number` | `20 * 1024 * 1024` | Maximum file size in bytes. |
-| `maxConcurrentUploads` | `number` | `1` | How many files upload at the same time. See [Upload concurrency](#upload-concurrency). |
-| `onUpload` | `(file: File) => AttachmentUploadResult \| Promise<...>` | — | Custom upload handler. See [Custom upload handler](#custom-upload-handler). |
-| `onUploadFailed` | `(error: AttachmentUploadError) => void` | — | Called when a file fails validation or upload. See [Handling upload errors](#handling-upload-errors). |
+| `enabled` | `boolean` | — | 在聊天输入框中启用文件附件。 |
+| `accept` | `string` | `"*/*"` | MIME 类型过滤。支持 `"image/*"`、`".pdf,.docx"` 等模式，或逗号分隔的列表。 |
+| `maxSize` | `number` | `20 * 1024 * 1024` | 文件大小上限（单位为字节）。 |
+| `maxConcurrentUploads` | `number` | `1` | 同时上传的文件数量。参见[上传并发](#上传并发)。 |
+| `onUpload` | `(file: File) => AttachmentUploadResult \| Promise<...>` | — | 自定义上传处理器。参见[自定义上传处理器](#自定义上传处理器)。 |
+| `onUploadFailed` | `(error: AttachmentUploadError) => void` | — | 在文件未通过校验或上传失败时调用。参见[处理上传错误](#处理上传错误)。 |
 
-## Supported file types
+## 支持的文件类型
 
-Attachments are categorized by modality based on their MIME type:
+附件会根据其 MIME 类型按模态分类：
 
-| Modality | MIME types | Preview | AI support |
+| 模态 | MIME 类型 | 预览 | AI 支持 |
 | --- | --- | --- | --- |
-| **Image** | `image/*` | Thumbnail with lightbox | Supported by most vision-capable models (GPT-4o, Claude, etc.) |
-| **Audio** | `audio/*` | Audio player | Model-dependent |
-| **Video** | `video/*` | Thumbnail with play button + lightbox | Model-dependent |
-| **Document** | Everything else | File icon + name; PDF and text get lightbox preview | Sent as file content — model support varies |
+| **图像** | `image/*` | 缩略图 + 灯箱查看 | 大多数具备视觉能力的模型均支持（GPT-4o、Claude 等） |
+| **音频** | `audio/*` | 音频播放器 | 取决于模型 |
+| **视频** | `video/*` | 带播放按钮的缩略图 + 灯箱 | 取决于模型 |
+| **文档** | 其余所有类型 | 文件图标 + 名称；PDF 与文本支持灯箱预览 | 以文件内容形式发送——模型支持程度不一 |
 
 <Callout type="info">
-  Not all models support all modalities. For example, OpenAI's GPT-4o supports images but not audio file parts. If the model doesn't support a file type, you'll get a `RUN_ERROR` event. Use the `onError` callback to handle this gracefully.
+  并非所有模型都支持所有模态。例如，OpenAI 的 GPT-4o 支持图像，但不支持音频文件部分。如果模型不支持某种文件类型，你会收到 `RUN_ERROR` 事件。请使用 `onError` 回调来优雅地处理这种情况。
 </Callout>
 
-## Custom upload handler
+## 自定义上传处理器
 
-By default, files are read as base64 and sent inline. For large files or production apps, you'll want to upload to your own storage and pass a URL instead.
+默认情况下，文件会以 base64 读取并内联发送。对于大文件或生产环境应用，你应该上传到自己的存储，然后改为传入 URL。
 
-`onUpload` returns an `AttachmentUploadResult` — a discriminated union with two variants:
+`onUpload` 返回一个 `AttachmentUploadResult`——一个包含两种变体的可辨识联合类型：
 
-<Tabs items={["Base64 (inline)", "URL (hosted)"]}>
-  <Tab value="Base64 (inline)">
+<Tabs items={["Base64（内联）", "URL（托管）"]}>
+  <Tab value="Base64（内联）">
     ```tsx
     <CopilotChat
       attachments={{
@@ -86,7 +86,7 @@ By default, files are read as base64 and sent inline. For large files or product
     />
     ```
   </Tab>
-  <Tab value="URL (hosted)">
+  <Tab value="URL（托管）">
     ```tsx
     <CopilotChat
       attachments={{
@@ -108,9 +108,9 @@ By default, files are read as base64 and sent inline. For large files or product
   </Tab>
 </Tabs>
 
-### Adding metadata
+### 添加元数据
 
-You can attach custom metadata to any upload. It's included in the `InputContent` part sent to the agent and accessible via `metadata` on the content part.
+你可以为任意上传附加自定义元数据。它会包含在发送给智能体的 `InputContent` 部分中，并可通过内容部分上的 `metadata` 访问。
 
 ```tsx
 onUpload: async (file) => {
@@ -127,13 +127,13 @@ onUpload: async (file) => {
 },
 ```
 
-The filename is always included in metadata automatically — you don't need to add it yourself.
+文件名会自动包含在元数据中——你无需自己添加。
 
-## Upload concurrency
+## 上传并发
 
-When a user attaches several files at once, they upload one at a time by default. Every picked file shows in the attachment queue immediately, whether or not its upload has started.
+当用户一次附加多个文件时，默认会逐个上传。每个选中的文件都会立即出现在附件队列中，无论其上传是否已开始。
 
-Set `maxConcurrentUploads` to upload several together — worth raising when your upload endpoint handles parallel requests:
+设置 `maxConcurrentUploads` 可以同时上传多个文件——当你的上传端点能处理并行请求时，值得调高该值：
 
 ```tsx
 <CopilotChat
@@ -145,13 +145,13 @@ Set `maxConcurrentUploads` to upload several together — worth raising when you
 />
 ```
 
-The limit covers every upload in flight, not each batch: if a paste lands while a dropped selection is still uploading, both share the same slots. `Infinity` lifts the limit entirely.
+该限制针对的是所有进行中的上传，而不是每一批：如果在一批拖放的文件仍在上传时又粘贴了新文件，两者会共享同一组并发名额。设为 `Infinity` 可完全解除限制。
 
-Above `1`, your `onUpload` handler may be called concurrently, so it must not rely on the previous file having finished.
+当该值大于 `1` 时，你的 `onUpload` 处理器可能被并发调用，因此它不能依赖前一个文件已完成上传。
 
-## Handling upload errors
+## 处理上传错误
 
-Use `onUploadFailed` to react when a file is rejected or an upload fails — for example, to show a toast:
+使用 `onUploadFailed` 来响应文件被拒绝或上传失败的情况——例如显示一个 toast 提示：
 
 ```tsx
 <CopilotChat
@@ -169,13 +169,13 @@ Use `onUploadFailed` to react when a file is rejected or an upload fails — for
 />
 ```
 
-| Reason | When it fires |
+| 原因 | 触发时机 |
 | --- | --- |
-| `invalid-type` | File doesn't match the `accept` filter. |
-| `file-too-large` | File exceeds `maxSize`. |
-| `upload-failed` | The `onUpload` handler threw, or the default base64 reader failed. |
+| `invalid-type` | 文件不符合 `accept` 过滤条件。 |
+| `file-too-large` | 文件超过 `maxSize`。 |
+| `upload-failed` | `onUpload` 处理器抛出异常，或默认的 base64 读取器失败。 |
 
-For errors that happen _after_ the message is sent (e.g., the model doesn't support the file type), use the `onError` callback on `CopilotChat`:
+对于消息发送_之后_才发生的错误（例如模型不支持该文件类型），请使用 `CopilotChat` 上的 `onError` 回调：
 
 ```tsx
 <CopilotChat
@@ -186,13 +186,13 @@ For errors that happen _after_ the message is sent (e.g., the model doesn't supp
 />
 ```
 
-## How it works
+## 工作原理
 
-When a user attaches files and sends a message, CopilotKit:
+当用户附加文件并发送消息时，CopilotKit 会：
 
-1. Reads each file (via the default base64 reader or your `onUpload` handler)
-2. Builds an array of `InputContent` parts — text + one part per attachment
-3. Adds the message to the agent with `content: [{ type: "text", ... }, { type: "image", source: ... }, ...]`
-4. The agent receives the multimodal content via the AG-UI protocol and forwards it to the model
+1. 读取每个文件（通过默认的 base64 读取器或你的 `onUpload` 处理器）
+2. 构建一个 `InputContent` 部分数组——文本 + 每个附件一个部分
+3. 使用 `content: [{ type: "text", ... }, { type: "image", source: ... }, ...]` 将消息添加给智能体
+4. 智能体通过 AG-UI 协议接收多模态内容，并将其转发给模型
 
-The attachments are part of the standard AG-UI `InputContent` schema, so any AG-UI-compatible agent (BuiltInAgent, LangGraph, custom) can receive them.
+附件属于标准 AG-UI `InputContent` schema 的一部分，因此任何兼容 AG-UI 的智能体（BuiltInAgent、LangGraph、自定义）都能接收它们。

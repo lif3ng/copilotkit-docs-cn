@@ -1,6 +1,6 @@
 ---
 title: Automatic Learning
-description: Turn real use of your app into skills you can review and publish.
+description: 把应用的真实使用转化为可供你审阅并发布的 Skill。
 icon: "lucide/Lightbulb"
 frontend: universal
 doc_type: how-to
@@ -8,55 +8,55 @@ doc_type: how-to
 
 import InspectorPaneLearning from "@/snippets/shared/inspector/open-inspector-pane-learning.mdx";
 
-## Overview
+## 概览
 
-Automatic Learning turns patterns from real agent runs into skills you can publish. It reads completed conversations in [AG-UI Streams](/AG-UI-Streams), writes insights, and proposes instructions you review before you publish them.
+Automatic Learning 把真实智能体运行中的模式转化为你可以发布的 Skill。它读取 [AG-UI Streams](/AG-UI-Streams) 中已完成的对话，撰写 Insight，并提议供你审阅的指令，审阅通过后才会发布。
 
 <div className="not-prose shell-docs-radius-surface aspect-[7/4] w-full overflow-hidden border border-[var(--border)] bg-[var(--bg-surface)] shadow-[var(--shadow-panel)]">
   <iframe
     src="https://www.loom.com/embed/2978fbfe42324e509057ac5fd46b7a70"
-    title="Automatic Learning and User Memories in CopilotKit"
+    title="CopilotKit 中的 Automatic Learning 与 User Memory"
     className="h-full w-full"
     frameBorder="0"
     allowFullScreen
   />
 </div>
 
-The video also shows [User Memory](/intelligence/memories), then an expense-review workflow that becomes a skill.
+视频还展示了 [User Memory](/intelligence/memories)，随后是一个最终变成 Skill 的报销审核工作流。
 
-## Start with your coding agent
+## 从你的编码智能体开始
 
-Copy this prompt into your coding agent to inspect your existing app and configure Automatic Learning for one focused workflow. Prefer to work through the setup yourself? Follow the manual steps below.
+把这段提示词复制到你的编码智能体中，让它检查你现有的应用，并针对一个重点工作流配置 Automatic Learning。更愿意自己动手完成配置？请按照下面的手动步骤操作。
 
 <LearningSetupPrompt />
 
-## How Automatic Learning works
+## Automatic Learning 的工作方式
 
-Learning starts with a container, which groups Threads from the same kind of work. Intelligence analyzes completed runs in that container and summarizes recurring patterns as Insights.
+Learning 从一个容器开始，容器把同一类工作的线程归为一组。Intelligence 会分析该容器中已完成的运行，并把反复出现的模式总结为 Insight。
 
-When a pattern can be reused, Learning proposes a Skill. You review the supporting Threads and decide whether to publish it. A published Skill is a versioned set of instructions that you load into your agent; Learning does not change the model itself.
+当某个模式可以复用时，Learning 会提议一个 Skill。你审阅支撑它的线程，并决定是否发布。已发布的 Skill 是一组带版本的指令，由你加载进智能体；Learning 不会改变模型本身。
 
-Automatic Learning checks eligible containers on a daily schedule. After you approve a skill, [skill delivery](/intelligence/learned-skills) makes it available to connected agents. A scheduled run does not approve skills. Turning on delivery does not connect your agent for you.
+Automatic Learning 按每日计划检查符合条件的容器。在你批准某个 Skill 之后，[Skill 交付](/intelligence/learned-skills)会让已连接的智能体能够使用它。计划运行不会自动批准 Skill。开启交付也不会替你连接智能体。
 
-To record what people do in your app around the agent, such as clicks in a tool's UI and page changes, see [Capture interactions](/intelligence/capture-interactions).
+要记录用户在应用中围绕智能体的操作，例如工具 UI 中的点击与页面切换，请参阅[捕获交互](/intelligence/capture-interactions)。
 
-## Collect runs and deliver Skills
+## 收集运行并交付 Skill
 
-The learning loop has two connections. Run ingestion collects evidence in a Learning container. Skill delivery loads published instructions into an agent.
+Learning 闭环包含两条连接。运行摄取把证据收集到 Learning 容器中；Skill 交付把已发布的指令加载进智能体。
 
-| Connection | Configuration | Result |
+| 连接 | 配置 | 结果 |
 | --- | --- | --- |
-| Runtime to Automatic Learning | `CopilotKitIntelligence.getLearningContainerId` | Assigns selected Threads to a container for analysis. |
-| Browser activity to Automatic Learning | `CopilotKitIntelligence.getTrajectoryLearningContainerIds` | Assigns captured Trajectories to existing Learning Spaces. |
-| Learning to agent | An Intelligence SDK adapter for your framework | Makes published Skills available during agent invocations. |
+| Runtime 到 Automatic Learning | `CopilotKitIntelligence.getLearningContainerId` | 把选定的线程分配到某个容器以供分析。 |
+| 浏览器活动到 Automatic Learning | `CopilotKitIntelligence.getTrajectoryLearningContainerIds` | 把捕获的轨迹分配到既有的 Learning Space。 |
+| Learning 到智能体 | 适配你的框架的 Intelligence SDK 适配器 | 让已发布的 Skill 在智能体调用期间可用。 |
 
-When an agent must learn from its own workflow, use the same project and container for both connections. The SDK adapters also work with native agents outside a CopilotKit frontend, but they do not collect those agents' runs automatically.
+当智能体需要从自己的工作流中学习时，请为两条连接使用相同的项目和容器。SDK 适配器也可以用于 CopilotKit 前端之外的原生智能体，但它们不会自动收集这些智能体的运行。
 
-For agent setup, use the [Mastra](/intelligence/learned-skills#mastra), [LangGraph TypeScript](/intelligence/learned-skills#langgraph-typescript), or [LangGraph Python](/intelligence/learned-skills#langgraph-python) example. The delivery guide also covers [Google ADK](/intelligence/learned-skills#google-adk), [BuiltInAgent](/intelligence/learned-skills#builtinagent), and [Microsoft Agent Framework](/intelligence/learned-skills#microsoft-agent-framework).
+智能体配置请参考 [Mastra](/intelligence/learned-skills#mastra)、[LangGraph TypeScript](/intelligence/learned-skills#langgraph-typescript) 或 [LangGraph Python](/intelligence/learned-skills#langgraph-python) 示例。交付指南还涵盖 [Google ADK](/intelligence/learned-skills#google-adk)、[BuiltInAgent](/intelligence/learned-skills#builtinagent) 与 [Microsoft Agent Framework](/intelligence/learned-skills#microsoft-agent-framework)。
 
-## Assign browser activity to a Learning Space
+## 将浏览器活动分配到 Learning Space
 
-For capture connected to Intelligence, select existing Learning Spaces in your Runtime's server configuration:
+对于已连接 Intelligence 的捕获，请在 Runtime 的服务端配置中选择既有的 Learning Space：
 
 ```ts
 const intelligence = new CopilotKitIntelligence({
@@ -66,61 +66,61 @@ const intelligence = new CopilotKitIntelligence({
 });
 ```
 
-Create the Space before capture starts. The callback receives the Trajectory ID chosen by the browser and the application user verified by your Runtime. It does not require a Thread or an agent conversation. Browser-supplied Space IDs are ignored. A linked Thread's Space does not add the Trajectory; to show a Trajectory's chat during analysis, also assign its Threads to the same Space with `getLearningContainerId`.
+请在捕获开始之前创建好 Space。回调会收到浏览器选择的轨迹 ID，以及经你的 Runtime 验证的应用用户。它不需要线程或智能体对话。浏览器提供的 Space ID 会被忽略。已关联线程所在的 Space 并不会把轨迹加进去；要在分析期间展示轨迹对应的聊天，还需用 `getLearningContainerId` 把它的线程分配到同一个 Space。
 
-Return `[]` to request no new assignments explicitly. Return `null` or `undefined` to omit assignments from the connect request. Each connect adds memberships and never removes existing ones, so keep the selection stable across reconnects. A membership removed in Intelligence stays removed.
+返回 `[]` 可显式表示不请求新的分配；返回 `null` 或 `undefined` 则在连接请求中省略分配。每次连接只会增加成员关系，绝不会移除既有成员关系，因此在多次重连之间请保持选择稳定。在 Intelligence 中被移除的成员关系会保持移除状态。
 
-Assignment problems never stop capture. If a selected Space does not exist in the project, the Runtime logs a warning with the Trajectory and Space IDs and connects the Trajectory without any assignments, including the Spaces that exist. The callback has a five-second deadline. Its optional second argument is an `AbortSignal` that cancels when the request ends or the deadline expires. If the callback throws, returns invalid IDs, or exceeds its deadline, the Runtime logs the error and connects the Trajectory without assignments. Check your Runtime logs when Trajectories do not appear in a Space. Your Intelligence backend must support Trajectory inputs for Automatic Learning. Assignment alone does not start an analysis or guarantee an insight.
+分配出问题绝不会让捕获停止。如果所选 Space 在项目中不存在，Runtime 会带着轨迹与 Space ID 记录一条警告，并在完全没有任何分配（包括确实存在的 Space）的情况下连接轨迹。回调有 5 秒的时限。它的可选第二个参数是一个 `AbortSignal`，在请求结束或时限到期时取消。如果回调抛出异常、返回无效 ID 或超出时限，Runtime 会记录错误，并在没有分配的情况下连接轨迹。当轨迹没有出现在某个 Space 中时，请检查 Runtime 日志。你的 Intelligence 后端必须支持 Automatic Learning 的轨迹输入。仅分配本身不会启动分析，也不保证产生 Insight。
 
-## Set up Automatic Learning manually
+## 手动配置 Automatic Learning
 
-When you are done, your Runtime will send selected Threads to a Learning container, ready to be analyzed and turned into reviewed Skills.
+完成后，你的 Runtime 会把选定的线程发送到 Learning 容器，等待分析并转化为经审阅的 Skill。
 
 <Steps>
   <Step>
-    ### Connect CopilotKit Intelligence
+    ### 连接 CopilotKit Intelligence
 
-    Complete the [Intelligence quickstart](/intelligence/quickstart). That page signs you in with the CLI and selects the project. Then send a message and make sure that it appears in [AG-UI Streams](/AG-UI-Streams). Open your project in [CopilotKit Intelligence](https://dashboard.operations.copilotkit.ai/) and make sure that Learning is available.
+    先完成 [Intelligence 快速开始](/intelligence/quickstart)。该页面会用 CLI 帮你登录并选择项目。然后发送一条消息，确认它出现在 [AG-UI Streams](/AG-UI-Streams) 中。在 [CopilotKit Intelligence](https://dashboard.operations.copilotkit.ai/) 中打开你的项目，确认 Learning 可用。
 
   </Step>
 
   <Step>
-    ### Create a Learning container
+    ### 创建 Learning 容器
 
-    In your Intelligence project, open **Learning** and choose **Create Learning container**. Give the container a stable ID, a descriptive name, and optional guidance about what good work looks like.
+    在你的 Intelligence 项目中，打开 **Learning** 并选择 **Create Learning container**。为容器设置一个稳定 ID、一个描述性名称，以及关于“什么算好的工作”的可选指引。
 
-    Keep each container focused on one kind of work, such as expense review, support quality, or customer onboarding. Stable IDs contain 1–64 lowercase letters, numbers, or single hyphens; for example, `expense-review`.
+    让每个容器只聚焦一类工作，例如报销审核、支持质量或客户入职。稳定 ID 由 1–64 个小写字母、数字或单个连字符组成，例如 `expense-review`。
 
-    You can also use the CLI. Run these commands in the folder where you selected the project. First, list the containers that already exist:
+    也可以使用 CLI。在你选择项目的文件夹中运行以下命令。首先，列出现有的容器：
 
-    ```bash title="Terminal"
+    ```bash title="终端"
     npx copilotkit@latest learning containers list
     ```
 
-    If a container for this kind of work exists, reuse its ID. Do not create a second container for the same work.
+    如果已有针对这类工作的容器，请复用它的 ID。不要为同一类工作创建第二个容器。
 
-    If no container fits, print the default container ID for your project. The CLI makes this ID from your project slug. It does not check whether the container exists.
+    如果没有合适的容器，打印项目的默认容器 ID。CLI 会根据你的项目 slug 生成这个 ID，它不会检查容器是否存在。
 
-    ```bash title="Terminal"
+    ```bash title="终端"
     npx copilotkit@latest learning containers default-id
     ```
 
-    Then create the container with that ID and a name:
+    然后用该 ID 和一个名称创建容器：
 
-    ```bash title="Terminal"
+    ```bash title="终端"
     npx copilotkit@latest learning containers create --id <container-id> --name "<container name>"
     ```
 
-    To give guidance about what good work looks like, you can also add `--prompt-context` with a text value, for example `--prompt-context "Use approved answers."`.
+    要提供关于“什么算好的工作”的指引，还可以附加带文本值的 `--prompt-context`，例如 `--prompt-context "Use approved answers."`。
 
   </Step>
 
   <Step>
-    ### Assign Threads from your Runtime
+    ### 从你的 Runtime 分配线程
 
-    Return the container's stable ID from `getLearningContainerId` on the CopilotKit runtime you already run. Keep your agents as they are. The callback is the same for every agent framework.
+    在你已在运行的 CopilotKit runtime 上，通过 `getLearningContainerId` 返回容器的稳定 ID。智能体保持原样即可。该回调对所有智能体框架都一样。
 
-    ```ts title="Your CopilotKit runtime"
+    ```ts title="你的 CopilotKit Runtime"
     import {
       CopilotKitIntelligence,
       CopilotRuntime,
@@ -139,59 +139,59 @@ When you are done, your Runtime will send selected Threads to a Learning contain
     });
     ```
 
-    Return `null` or `undefined` when a run should not participate. You can use the callback's user, surface, agent, and run input to route different workflows to different containers.
+    当某次运行不应参与时，返回 `null` 或 `undefined`。可以利用回调提供的 user、surface、agent 与 run 输入，把不同的工作流路由到不同的容器。
 
-    <Callout type="warn" title="Keep a Thread's assignment stable">
-      Assign a Thread before its first agent run and return the same container ID for every later run. Existing evidence is not backfilled, and a Thread cannot move between containers.
+    <Callout type="warn" title="保持线程的分配稳定">
+      在线程的第一次运行之前就完成分配，并在之后的每次运行中返回相同的容器 ID。既有证据不会被回填，线程也不能在容器之间移动。
     </Callout>
 
   </Step>
 
   <Step>
-    ### Collect examples
+    ### 收集示例
 
-    Use the application normally and complete several related workflows. Corrections, tool calls, and application interactions all help Learning understand what a good result looks like.
+    正常使用应用，并完成几个相关的工作流。纠正操作、工具调用与应用交互都能帮助 Learning 理解什么样的结果才算好。
 
-    The container shows how many eligible Threads are ready and how many more are needed. By default, Automatic Learning requires **15 eligible Threads** for both the first run and each run after a success. Use the count shown in your container if your deployment has a different threshold.
-
-  </Step>
-
-  <Step>
-    ### Choose the daily schedule
-
-    In the container, select **Edit schedule**. Under **This project**, keep **Use organization schedule** or choose **Custom project schedule**, set the daily time and time zone, and save. The schedule applies to all containers in the project.
-
-    Organizations start with a daily default of **02:00 UTC**. The **Organization default** tab changes the schedule for every project without an override and asks you to confirm that scope. Projects with a custom schedule keep it; choosing **Use organization schedule** again restores inheritance, including future changes to the default.
-
-    When the container is eligible, **Next scheduled run** shows a countdown and the scheduled time in your local zone and UTC. This is the next eligibility check: reaching the Thread threshold does not start a run immediately. An active analysis, a failure block, or disabled Automatic Learning can prevent a run. Saving a schedule does not start or cancel an analysis.
+    容器会显示已有多少符合条件的线程就绪，还需要多少。默认情况下，无论是首次运行还是每次成功之后的运行，Automatic Learning 都要求 **15 个符合条件的线程**。如果你的部署采用了不同阈值，请以容器中显示的数量为准。
 
   </Step>
 
   <Step>
-    ### Run Learning and review
+    ### 设置每日计划
 
-    Wait for the scheduled run, or select **Start manual run now** to analyze available evidence without waiting for the daily schedule or automatic Thread threshold. Follow its progress under **Analysis results**.
+    在容器中选择 **Edit schedule**。在 **This project** 下，保持 **Use organization schedule** 或选择 **Custom project schedule**，设置每日时间与时区并保存。该计划适用于项目中的所有容器。
 
-    Review the resulting Insights and their source Threads, then approve or reject each proposed Skill. Approved revisions appear under **Skills**. Automatic runs use the same review process; only published Skills are available for delivery.
+    组织的每日默认时间为 **02:00 UTC**。**Organization default** 标签页会更改所有未单独覆盖的项目的计划，并要求你确认这个作用范围。设置了自定义计划的项目会保留自定义；重新选择 **Use organization schedule** 会恢复继承，包括之后对默认值的更改。
+
+    当容器符合条件时，**Next scheduled run** 会显示倒计时，以及本地时区与 UTC 的计划时间。这是下一次资格检查：达到线程阈值并不会立即启动运行。进行中的分析、失败阻止或已禁用的 Automatic Learning 都可能阻止运行。保存计划不会启动或取消分析。
+
+  </Step>
+
+  <Step>
+    ### 运行 Learning 并审阅
+
+    等待计划运行，或选择 **Start manual run now**，在不等待每日计划或自动线程阈值的情况下分析现有证据。在 **Analysis results** 下跟踪进度。
+
+    审阅产生的 Insight 及其来源线程，然后批准或拒绝每个提议的 Skill。已批准的修订会出现在 **Skills** 下。自动运行使用同样的审阅流程；只有已发布的 Skill 才可供交付。
 
   </Step>
 </Steps>
 
 <InspectorPaneLearning />
 
-## Manage Learning from your server
+## 在你的服务端管理 Learning
 
-`CopilotKitIntelligence` can list containers, start manual runs, and review proposed Skills from your application server.
-The experimental Learning management methods require an Intelligence deployment with the runtime Learning management API. Their SDK contracts can change before release.
-They use the project API key from the existing client configuration.
+`CopilotKitIntelligence` 可以在应用服务器上列出容器、启动手动运行并审阅提议的 Skill。
+这些实验性的 Learning 管理方法需要具备运行时 Learning 管理 API 的 Intelligence 部署。其 SDK 契约在正式发布前可能变化。
+它们使用现有客户端配置中的项目 API 密钥。
 
-Keep the key on your server. Authorize each application user before you call these methods.
-A project key can read evidence and publish Skills across that project.
-It does not represent the person who clicked a control in your application.
+请把密钥保存在你的服务端。调用这些方法之前，先对每个应用用户进行授权。
+项目密钥可以读取证据并在整个项目中发布 Skill。
+它并不代表在你应用中点击控件的那个用户。
 
-### Select a container and start a run
+### 选择容器并启动一次运行
 
-```ts title="Application server"
+```ts title="应用服务器"
 import { CopilotKitIntelligence } from "@copilotkit/runtime/v2";
 
 const intelligence = new CopilotKitIntelligence({
@@ -214,13 +214,13 @@ const runs = await intelligence.experimental.learning.listLearningRuns({
 const progress = runs.find((run) => run.id === admittedRun.id);
 ```
 
-A successful start response confirms admission, not completion. `listLearningRuns` returns the latest 100 runs, including their status and failure code.
-A manual run analyzes eligible evidence across the selected container, including evidence from other applications that share it.
-These methods do not upload workspace files, move Threads, or change their assignments.
+启动成功的响应只确认已受理，并不代表已完成。`listLearningRuns` 返回最近 100 次运行，包括它们的状态与失败码。
+手动运行会分析所选容器内符合条件的证据，包括共享该容器的其他应用的证据。
+这些方法不会上传工作区文件、移动线程或更改线程的分配。
 
-### Review a proposed Skill
+### 审阅提议的 Skill
 
-```ts title="Application server"
+```ts title="应用服务器"
 const candidates = await intelligence.experimental.learning.listLearningCandidates({
   containerId: "expense-review",
 });
@@ -242,12 +242,12 @@ if (pending) {
 }
 ```
 
-`listLearningCandidates` returns the latest 500 candidates, including completed reviews.
-Evidence includes availability fields for missing Threads and Trajectories.
+`listLearningCandidates` 返回最近 500 个候选，包括已完成审阅的。
+证据中包含缺失线程与轨迹的可用性字段。
 
-After the reviewer explicitly chooses **Approve** or **Reject**, call `reviewLearningCandidate` from your authorized server handler:
+在审阅者明确选择 **Approve** 或 **Reject** 之后，从你经过授权的服务端 handler 调用 `reviewLearningCandidate`：
 
-```ts title="Authorized review handler"
+```ts title="经过授权的审阅 handler"
 const review = await intelligence.experimental.learning.reviewLearningCandidate({
   containerId: "expense-review",
   candidateId, // The candidate the reviewer inspected.
@@ -255,98 +255,98 @@ const review = await intelligence.experimental.learning.reviewLearningCandidate(
 });
 ```
 
-Approval publishes the proposed change to the shared container. Rejection does not publish it.
-Published Skill content remains available through [Skill delivery](/intelligence/learned-skills).
+批准会把提议的更改发布到共享容器；拒绝则不会发布。
+已发布的 Skill 内容仍可通过 [Skill 交付](/intelligence/learned-skills)获取。
 
-### Handle errors and cancellation
+### 处理错误与取消
 
-All management methods accept an optional `signal: AbortSignal` and have a 30-second request deadline.
-Cancellation stops the request; it does not undo a run or review that the server already accepted.
-The SDK does not retry these requests automatically.
+所有管理方法都接受可选的 `signal: AbortSignal`，并有 30 秒的请求时限。
+取消只会终止请求本身；它不会撤销服务器已经接受的运行或审阅。
+SDK 不会自动重试这些请求。
 
-HTTP errors use the exported `PlatformRequestError` with `status`, `retryable`, and an optional backend `code`.
-Error messages omit raw backend details. Invalid responses fail instead of returning partial data.
-If a write response is lost, read the current runs or candidate before you offer another action.
+HTTP 错误使用导出的 `PlatformRequestError`，包含 `status`、`retryable` 与可选的后端 `code`。
+错误消息不包含后端的原始细节。无效的响应会直接失败，而不是返回部分数据。
+如果写操作的响应丢失了，请在提供下一次操作之前先读取当前的运行或候选。
 
-## Use published Skills
+## 使用已发布的 Skill
 
-### Set up skill delivery
+### 配置 Skill 交付
 
-Once you have published a Skill, connect the agent that should use it:
+发布 Skill 之后，把应当使用它的智能体连接起来：
 
 <Steps>
   <Step>
-    #### Enable delivery for the container
+    #### 为容器启用交付
 
-    Open the container's **Skills** tab and check that **Skill delivery** shows **Delivery enabled**. This controls new requests for published Skills from this container.
+    打开容器的 **Skills** 标签页，确认 **Skill delivery** 显示 **Delivery enabled**。它控制来自该容器的对已发布 Skill 的新请求。
   </Step>
 
   <Step>
-    #### Connect your agent
+    #### 连接你的智能体
 
-    Select **Set up skill delivery**, then **Copy setup prompt**, and paste it into your coding agent. The prompt includes your container ID and asks the coding agent to inspect your framework, preserve existing agent behavior, and configure the supported native adapter.
+    选择 **Set up skill delivery**，再选择 **Copy setup prompt**，并把它粘贴到你的编码智能体中。这段提示词包含你的容器 ID，并要求编码智能体检查你的框架、保留既有智能体行为，并配置受支持的原生适配器。
 
-    For manual setup, follow the [framework adapter examples](/intelligence/learned-skills#native-setup). Pick the adapter for the agent you already run. Configure that adapter in the agent server environment with the same project key and container ID used above.
+    手动配置请参考[框架适配器示例](/intelligence/learned-skills#native-setup)。为你已在运行的智能体挑选适配器，并在智能体服务器环境中使用与上文相同的项目密钥和容器 ID 配置该适配器。
 
-    If that server does not already have the key, sign in and select the project from its directory:
+    如果那台服务器还没有密钥，请在它的目录中登录并选择项目：
 
-    ```bash title="Terminal"
+    ```bash title="终端"
     npx copilotkit@latest login
     npx copilotkit@latest project select
     ```
 
-    ```bash title="Agent server environment"
+    ```bash title="智能体服务器环境"
     CPK_INTELLIGENCE_API_KEY=cpk-...
     CPK_INTELLIGENCE_LEARNING_CONTAINER_ID=expense-review
     ```
 
-    Keep the key server-side. Leave `CPK_INTELLIGENCE_SKILLS_REVISION` unset to follow the latest published Skills. See [container configuration](/intelligence/learned-skills#configure-one-container) for self-hosted endpoints and exact revision pins.
+    密钥请保存在服务端。让 `CPK_INTELLIGENCE_SKILLS_REVISION` 保持未设置，即可跟随最新发布的 Skill。自托管端点与精确的修订锁定请参阅[容器配置](/intelligence/learned-skills#configure-one-container)。
   </Step>
 
   <Step>
-    #### Verify delivery in a new invocation
+    #### 在新调用中验证交付
 
-    Initialize the adapter and start a new agent invocation. Confirm that the published Skill appears in its catalog, `copilotkit_load_skill` can load its `SKILL.md`, and `copilotkit_read_skill_file` can read a supporting file if the Skill has one. Copying the setup prompt or enabling the toggle alone does not verify the connection.
+    初始化适配器并发起一次新的智能体调用。确认已发布的 Skill 出现在它的目录中，`copilotkit_load_skill` 能加载它的 `SKILL.md`，并且如果该 Skill 带有支持文件，`copilotkit_read_skill_file` 能读取它。仅复制配置提示词或打开开关并不足以验证连接。
 
-    The adapter refreshes published Skills automatically, with a default freshness window of five seconds. Each invocation keeps one snapshot; a newly published revision is available to later invocations after refresh. The model decides when to load and follow a Skill.
+    适配器会自动刷新已发布的 Skill，默认的新鲜度窗口为 5 秒。每次调用保留一个快照；新发布的修订会在刷新后对后续调用可用。何时加载并遵循某个 Skill 由模型决定。
   </Step>
 </Steps>
 
-<Callout type="info" title="Pausing delivery is separate from Learning">
-  Turning off **Skill delivery** does not stop Learning runs or revoke published revisions. Once an adapter checks delivery and receives the denial, it blocks new invocations; invocations already in progress keep their captured Skills. Pausing Learning runs likewise does not stop delivery of published Skills.
+<Callout type="info" title="暂停交付与 Learning 相互独立">
+  关闭 **Skill delivery** 不会停止 Learning 运行，也不会撤销已发布的修订。适配器一旦检查交付并收到拒绝，就会阻止新的调用；进行中的调用保留其已获取的 Skill。同样，暂停 Learning 运行也不会停止已发布 Skill 的交付。
 </Callout>
 
-### Download Skills manually
+### 手动下载 Skill
 
-Use the CLI for offline inspection or frameworks without a supported adapter. If you switch an agent from downloaded Skills to automatic delivery, remove the old manual loading for that container to avoid loading the same Skills twice.
+需要离线检查，或框架没有受支持的适配器时，请使用 CLI。如果把某个智能体从下载的 Skill 切换到自动交付，请移除该容器原有的手动加载逻辑，以免重复加载相同的 Skill。
 
-From the agent directory, sign in and select the same Intelligence project. Then download the container's published Skills:
+在智能体目录中登录并选择同一个 Intelligence 项目。然后下载该容器已发布的 Skill：
 
-```bash title="Terminal"
+```bash title="终端"
 npx copilotkit@latest login
 npx copilotkit@latest project select
 npx copilotkit@latest skills download expense-review --output ./learned-skills
 ```
 
-The output contains a directory and `SKILL.md` for each published Skill. Configure your agent environment to load `./learned-skills` before expecting the new behavior in a run.
+输出中包含每个已发布 Skill 的一个目录和 `SKILL.md`。配置智能体环境加载 `./learned-skills`，之后才能在运行中期待新行为。
 
-## Troubleshooting
+## 故障排查
 
-| Problem                                     | What to check                                                                                                                |
+| 问题                                     | 检查要点                                                                                                                                |
 | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| A Thread never appears in the container     | Confirm the callback returned an existing stable ID before the Thread's first run and that the run reached a terminal state. |
-| The Runtime reports a container conflict    | The selector returned a different ID for an already-bound Thread. Restore the original mapping or start a new Thread.        |
-| A run has no new evidence                   | Runs created before assignment, still in progress, or already included in an earlier Learning run are not new input.         |
-| An automatic run has not started            | Check the container's readiness count, daily schedule, and active or failed analysis. If it shows **Automatic learning is off**, scheduling is disabled for the deployment; editing the time does not enable it. Manual runs remain available. |
-| Learning is waiting after a failed run      | Inspect the failure under **Analysis results**. Automatic Learning waits for additional eligible Threads before retrying that evidence; you can also start a manual run. |
-| A run succeeds without a Skill candidate    | Inspect the Insights. The evidence may be useful without supporting a reusable procedural Skill.                             |
-| An approved Skill does not affect the agent | Confirm delivery is enabled, the adapter uses the correct project and container, and a new invocation can load the Skill. Check for an exact revision pin. For manual loading, download the latest bundle and confirm your agent loads its directory. |
-| Delivery status is unavailable              | Select **Retry delivery status**. For self-hosted deployments, verify the delivery endpoint and migration are installed before relying on an adapter. See [deployment requirements](/intelligence/learned-skills#deployment-requirements). |
+| 线程一直没出现在容器中 | 确认回调在线程第一次运行之前返回了一个存在的稳定 ID，且该运行到达了终态。 |
+| Runtime 报告容器冲突 | 选择器为已绑定的线程返回了另一个 ID。恢复原映射，或者新建线程。 |
+| 某次运行没有新证据 | 在分配之前创建、仍在进行中、或已包含在更早 Learning 运行中的运行，不算新输入。 |
+| 自动运行没有启动 | 检查容器的就绪数量、每日计划以及进行中或失败的分析。如果显示 **Automatic learning is off**，说明该部署已禁用计划；修改时间无法启用它。手动运行仍然可用。 |
+| 运行失败后 Learning 在等待 | 在 **Analysis results** 下查看失败原因。Automatic Learning 会等待更多符合条件的线程再重试该证据；你也可以启动手动运行。 |
+| 运行成功但没有 Skill 候选 | 检查各条 Insight。证据可能有价值，但不足以支撑一个可复用的流程性 Skill。 |
+| 已批准的 Skill 对智能体没有生效 | 确认交付已启用、适配器使用了正确的项目和容器，且新的调用能加载该 Skill。检查是否存在精确的修订锁定。手动加载时，请下载最新的 bundle，并确认你的智能体加载了它的目录。 |
+| 交付状态不可用 | 选择 **Retry delivery status**。对于自托管部署，在依赖适配器之前，请确认交付端点与迁移已安装。参见[部署要求](/intelligence/learned-skills#deployment-requirements)。 |
 
-## Related guides
+## 相关指南
 
-- [CopilotKit Intelligence overview](/intelligence/overview)
-- [Connect CopilotKit Intelligence](/intelligence/quickstart)
+- [CopilotKit Intelligence 概览](/intelligence/overview)
+- [连接 CopilotKit Intelligence](/intelligence/quickstart)
 - [AG-UI Streams](/AG-UI-Streams)
-- [AG-UI Streams & Framework Threads](/intelligence/threads-explained)
+- [AG-UI 流与框架线程](/intelligence/threads-explained)
 - [CopilotKit CLI](/cli)

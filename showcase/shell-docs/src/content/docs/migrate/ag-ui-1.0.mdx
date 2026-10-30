@@ -1,37 +1,37 @@
 ---
-title: Upgrade to AG-UI 1.0
-description: What changes for your app when CopilotKit moves to AG-UI 1.0
+title: 升级到 AG-UI 1.0
+description: CopilotKit 迁移到 AG-UI 1.0 时，你的应用会有哪些变化
 icon: "lucide/RefreshCw"
 ---
 
-CopilotKit now uses AG-UI 1.0 (`@ag-ui/core`, `@ag-ui/client`, `@ag-ui/encoder` and `@ag-ui/proto` 1.0.0).
-Most apps need no change. This page lists what keeps working and what you can need to update.
+CopilotKit 现已使用 AG-UI 1.0（`@ag-ui/core`、`@ag-ui/client`、`@ag-ui/encoder` 与 `@ag-ui/proto` 1.0.0）。
+大多数应用无需任何改动。本页列出了哪些可以继续正常工作，以及哪些可能需要更新。
 
-For the protocol-level changes, read the AG-UI guide
-[Migrating to 1.0](https://docs.ag-ui.com/migrating-to-1-0).
+关于协议层面的变更，请阅读 AG-UI 指南
+[迁移到 1.0](https://docs.ag-ui.com/migrating-to-1-0)。
 
-## What keeps working
+## 继续可用的部分
 
-- **Agents built on AG-UI 0.x.** The 1.0 client translates the old event shapes.
-  For example, `THINKING_*` events become `REASONING_*` events.
-- **Older CopilotKit frontends.** The runtime accepts requests from 0.x clients.
-  This includes legacy `binary` attachment parts and the `null` values that 0.x sent for optional fields.
-- **Stored threads.** When a thread replays, CopilotKit translates 0.x history before it shows the messages.
-- **Validators.** `@copilotkit/react-core/v2` and `@copilotkit/vue` still export `EventSchemas`,
-  `RunAgentInputSchema` and the other `*Schema` validators.
-- **An `HttpAgent` from your own `@ag-ui/client` copy.** CopilotKit still applies its headers to it.
+- **基于 AG-UI 0.x 构建的智能体**：1.0 客户端会转换旧的事件形态。
+  例如，`THINKING_*` 事件会变为 `REASONING_*` 事件。
+- **旧版 CopilotKit 前端**：运行时会接受来自 0.x 客户端的请求。
+  这包括旧版 `binary` 附件部分，以及 0.x 为可选字段发送的 `null` 值。
+- **已存储的线程**：回放线程时，CopilotKit 会先转换 0.x 历史，再展示消息。
+- **校验器**：`@copilotkit/react-core/v2` 与 `@copilotkit/vue` 仍会导出 `EventSchemas`、
+  `RunAgentInputSchema` 以及其他 `*Schema` 校验器。
+- **来自你自己的 `@ag-ui/client` 副本的 `HttpAgent`**：CopilotKit 仍会对其应用自身的请求头。
 
-## What you can need to change
+## 可能需要变更的部分
 
-### If your app depends on `@ag-ui/*` packages directly
+### 如果你的应用直接依赖 `@ag-ui/*` 包
 
-Upgrade them to 1.0 at the same time as CopilotKit.
-If you keep 0.x types in your code, TypeScript can report that two `AbstractAgent` or `Message` types do not match.
+请在升级 CopilotKit 的同时将它们升级到 1.0。
+如果代码中保留了 0.x 类型，TypeScript 可能会报告两个 `AbstractAgent` 或 `Message` 类型不匹配。
 
-### Tool results can be content parts
+### 工具结果可以是内容部分
 
-`ToolMessage.content` and `TOOL_CALL_RESULT.content` are now `string | ContentPart[]`.
-If your code reads a tool result as a string, convert it first:
+`ToolMessage.content` 与 `TOOL_CALL_RESULT.content` 现在是 `string | ContentPart[]` 类型。
+如果你的代码将工具结果当作字符串读取，请先进行转换：
 
 ```ts
 import { contentToText } from "@ag-ui/client";
@@ -39,11 +39,11 @@ import { contentToText } from "@ag-ui/client";
 const text = contentToText(toolMessage.content);
 ```
 
-The `result` prop of a tool renderer is still a string. CopilotKit converts it for you.
+工具渲染器的 `result` prop 仍是字符串，CopilotKit 会为你完成转换。
 
-### The finish reason moved into metadata
+### 完成原因移入 metadata
 
-`RUN_FINISHED` has no `finishReason` field in AG-UI 1.0. CopilotKit now sends it in `metadata`:
+在 AG-UI 1.0 中，`RUN_FINISHED` 不再包含 `finishReason` 字段。CopilotKit 现在将其放在 `metadata` 中发送：
 
 ```ts
 agent.subscribe({
@@ -53,29 +53,29 @@ agent.subscribe({
 });
 ```
 
-### A stopped run finishes as cancelled
+### 停止的运行会以 cancelled 结束
 
-When the user stops a run, a 1.0 client receives `RUN_FINISHED` with `outcome: { type: "cancelled" }`.
-Before, the event had no outcome, which means success. Do not show a cancelled run as a failure.
+当用户停止一次运行时，1.0 客户端会收到带有 `outcome: { type: "cancelled" }` 的 `RUN_FINISHED`。
+此前该事件没有 outcome，即表示成功。请不要将已取消的运行显示为失败。
 
-### Removed names
+### 已移除的名称
 
-AG-UI 1.0 removed these names, so CopilotKit no longer exports them:
+AG-UI 1.0 移除了以下名称，因此 CopilotKit 不再导出它们：
 
-| Removed | Use instead |
+| 已移除 | 改用 |
 | --- | --- |
-| `THINKING_*` event types and their `Thinking*Event` types | `REASONING_*` events |
-| `BinaryInputContent` | `image`, `audio`, `video` and `document` parts with a `source` |
+| `THINKING_*` 事件类型及其 `Thinking*Event` 类型 | `REASONING_*` 事件 |
+| `BinaryInputContent` | 带 `source` 的 `image`、`audio`、`video` 与 `document` 部分 |
 | `SubAgentInfo` | `SubagentInfo` |
-| `BackwardCompatibility_0_0_47` | Not needed. The client translates old shapes by default. |
+| `BackwardCompatibility_0_0_47` | 无需使用。客户端默认会转换旧形态。 |
 
-### Validators moved in `@ag-ui/client`
+### 校验器移出 `@ag-ui/client`
 
-`@ag-ui/client` no longer exports the zod validators.
-If you import them from `@ag-ui/client` directly, import them from `@ag-ui/core/schemas` instead.
-That subpath needs `zod` 3.25.18 or later, or `zod` 4.
+`@ag-ui/client` 不再导出 zod 校验器。
+如果你之前直接从 `@ag-ui/client` 导入它们，请改为从 `@ag-ui/core/schemas` 导入。
+该子路径需要 `zod` 3.25.18 或更高版本，或 `zod` 4。
 
-### `RunAgentInput.tools` and `context` are required in TypeScript
+### `RunAgentInput.tools` 与 `context` 在 TypeScript 中为必填
 
-If you build a `RunAgentInput` in your own code, set `tools: []` and `context: []` when you have none.
-On the wire, a missing field still means an empty list.
+如果你在自己的代码中构建 `RunAgentInput`，即使没有内容也要设置 `tools: []` 与 `context: []`。
+在传输层面，缺失字段仍表示空列表。

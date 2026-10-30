@@ -1,24 +1,24 @@
 ---
-title: Standalone collector
-description: Capture clicks, form edits, page changes, and network requests as AG-UI events in any web app, without CopilotKit.
+title: 独立采集器
+description: 在任何 Web 应用中捕获点击、表单编辑、页面切换与网络请求并将其转换为 AG-UI 事件，无需 CopilotKit。
 icon: "lucide/Network"
 frontend: universal
 doc_type: how-to
 ---
 
-## Overview
+## 概览
 
-`@copilotkit/learning` captures clicks, form edits, page changes, and network requests as AG-UI `CUSTOM` events. It sends batches to a sink you provide. This standalone integration is experimental and self-hosted.
+`@copilotkit/learning` 会将点击、表单编辑、页面切换与网络请求捕获为 AG-UI `CUSTOM` 事件，并以批次发送到你提供的 sink。这个独立集成目前处于实验阶段，且面向自托管场景。
 
-Capture retains browser-visible text, values, headers, bounded body snapshots, and full URLs by default. See [Captured data](/intelligence/captured-data) for fields, limits, and explicit exclusions.
+默认情况下，捕获会保留浏览器可见的文本、值、请求头、有长度上限的 body 快照以及完整 URL。字段、限制与显式排除项请参阅[捕获的数据](/intelligence/captured-data)。
 
-When you are done, your app sends batches of events to your own endpoint. You can also add events for the outcomes that matter to you.
+完成后，你的应用就会把事件批次发送到你自己的端点。你还可以为你在意的结果补充自定义事件。
 
-## Capture events
+## 采集事件
 
 <Steps>
   <Step>
-    ### Install the package
+    ### 安装软件包
 
     ```bash
     npm install @copilotkit/learning
@@ -26,7 +26,7 @@ When you are done, your app sends batches of events to your own endpoint. You ca
 
   </Step>
   <Step>
-    ### Create a collector and start it
+    ### 创建采集器并启动
 
     ```ts title="src/capture.ts"
     import { createCollector, httpSink } from "@copilotkit/learning";
@@ -38,38 +38,38 @@ When you are done, your app sends batches of events to your own endpoint. You ca
     collector.start({ trajectoryId: crypto.randomUUID() });
     ```
 
-    Before `start()`, the collector installs nothing. Call `start()` only after the person allows capture.
+    在调用 `start()` 之前，采集器不会安装任何监听。只有在用户允许捕获之后，再调用 `start()`。
 
   </Step>
   <Step>
-    ### Add events for outcomes
+    ### 为结果添加事件
 
-    Clicks show what a person did. They do not show whether it worked. Emit an event when the outcome is known:
+    点击能反映用户做了什么，却不能反映是否成功。当结果已可知时，发出一个事件：
 
     ```ts
     collector.emit("report.exported", { format: "csv", rows: 120 });
     ```
 
-    Use your own names. Built-in names such as `click` are reserved.
+    请使用你自己的命名。`click` 等内置名称是保留名。
 
   </Step>
   <Step>
-    ### Stop when the session ends
+    ### 会话结束时停止
 
     ```ts
     collector.stop();
     ```
 
-    `stop()` removes every listener and patch, then sends queued events once. It does not wait for delivery or retry a failed send.
+    `stop()` 会移除所有监听器与补丁，然后把队列中的事件发送一次。它不会等待送达，也不会重试失败的发送。
 
   </Step>
 </Steps>
 
-Your endpoint now receives batches such as `{ "trajectoryId": "...", "events": [...], "dropped": 0 }`.
+此时你的端点就会收到形如 `{ "trajectoryId": "...", "events": [...], "dropped": 0 }` 的批次。
 
-## Send events somewhere else
+## 将事件发送到别处
 
-A sink is a function that receives each batch. Use it to forward events to your own service:
+sink 是一个接收每批数据的函数。可以用它把事件转发到你自己的服务：
 
 ```ts
 import { createCollector } from "@copilotkit/learning";
@@ -88,11 +88,11 @@ const collector = createCollector({
 });
 ```
 
-Add your sink's URL to `ignoreUrls`, so the collector does not record its own requests. `httpSink` does this for you.
+把 sink 的 URL 加入 `ignoreUrls`，这样采集器就不会记录自己发出的请求。`httpSink` 已替你做好这一点。
 
-## Add context to clicks
+## 为点击添加上下文
 
-`enrich` adds fields to each click from the element that was clicked:
+`enrich` 会根据被点击的元素为每次点击补充字段：
 
 ```ts
 const collector = createCollector({
@@ -103,6 +103,6 @@ const collector = createCollector({
 });
 ```
 
-Capture already includes element text, attributes, and live control values. Use `enrich` for additional app context. Use `beforeSend`, capture flags, or `data-copilotkit-ignore` to exclude data.
+捕获本身已包含元素文本、属性以及控件的实时值。`enrich` 用于补充额外的应用上下文。要排除数据，请使用 `beforeSend`、捕获开关或 `data-copilotkit-ignore`。
 
-For every field and control, see [Captured data](/intelligence/captured-data). With CopilotKit, use the [`learning` prop](/intelligence/capture-interactions) instead.
+完整的字段与控件清单请参阅[捕获的数据](/intelligence/captured-data)。如果使用 CopilotKit，请改用 [`learning` prop](/intelligence/capture-interactions)。

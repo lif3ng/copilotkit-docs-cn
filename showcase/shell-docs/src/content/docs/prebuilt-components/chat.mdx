@@ -1,38 +1,32 @@
 ---
 title: "CopilotChat"
 icon: "lucide/MessageSquare"
-description: "Inline chat component you can place anywhere and size as needed."
+description: "可放置在任意位置、并按需调整尺寸的内联聊天组件。"
 snippet_cell: agentic-chat
 ---
 
 <InlineDemo demo="agentic-chat" />
 
-## What is this?
+## 这是什么？
 
-`<CopilotChat>` is the base prebuilt chat surface. Drop it in wherever you
-want the chat to render and size it to fit your layout. `<CopilotSidebar>`
-and `<CopilotPopup>` are both thin wrappers over the same primitives; if you
-need a dedicated chat page or an inline pane alongside other content, this
-is the component you want.
+`<CopilotChat>` 是基础的预构建聊天界面。把它放到任何你希望聊天出现的位置，并调整尺寸以适配你的布局即可。`<CopilotSidebar>` 和 `<CopilotPopup>` 都是对同一套底层原语的轻量封装；如果你需要一个专属聊天页面，或一个与其他内容并列的内联面板，这个组件就是你要找的。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Use `<CopilotChat>` when you want:
+在以下场景使用 `<CopilotChat>`：
 
-- A full-bleed chat that fills its container
-- An inline chat pane as part of a larger page
-- A dedicated `/chat` route
-- Maximum layout freedom (no docked chrome or launcher)
+- 需要一个铺满容器的全幅聊天
+- 需要一个作为更大页面组成部分的内联聊天面板
+- 需要一个专属的 `/chat` 路由
+- 需要最大的布局自由度（没有停靠的外框或启动器）
 
-For a collapsible docked chat, use [CopilotSidebar](/prebuilt-components/sidebar).
-For a floating bubble that overlays content, use [CopilotPopup](/prebuilt-components/popup).
-For saved conversations and switching between prior conversations, drop in the [Threads Drawer](/prebuilt-components/copilot-threads-drawer) (or go headless with [Headless Threads](/headless-threads)).
+如果需要可折叠的停靠式聊天，请使用 [CopilotSidebar](/prebuilt-components/sidebar)。
+如果需要覆盖在内容之上的浮动气泡，请使用 [CopilotPopup](/prebuilt-components/popup)。
+如果需要保存会话并在历史会话之间切换，请加入 [Threads 抽屉](/prebuilt-components/copilot-threads-drawer)（或者通过 [无头 Threads](/headless-threads) 走无头路线）。
 
-## Basic setup
+## 基础配置
 
-Wrap your app in `<CopilotKit>` once (the provider wires the runtime, session,
-and agent registry) and render `<CopilotChat>` inside the layout of your
-choosing:
+用 `<CopilotKit>` 包裹你的应用一次（该 provider 负责接通运行时、会话与智能体注册表），然后在你选择的布局中渲染 `<CopilotChat>`：
 
 ```tsx
 import { CopilotKit, CopilotChat } from "@copilotkit/react-core/v2";
@@ -40,38 +34,35 @@ import "@copilotkit/react-core/v2/styles.css";
 ```
 
 <Callout type="warn">
-  `@copilotkit/react-ui` also exports a component named `CopilotChat`. That one
-  is the [deprecated v1 chat](/migrate/v2). This page documents the v2 chat,
-  which you import from `@copilotkit/react-core/v2`.
+  `@copilotkit/react-ui` 也导出一个名为 `CopilotChat` 的组件。那个是[已弃用的 v1 聊天](/migrate/v2)。本页文档介绍的是 v2 聊天，需从 `@copilotkit/react-core/v2` 导入。
 </Callout>
 
-<Snippet region="provider-setup" title="frontend/src/app/page.tsx — provider + chat" />
+<Snippet region="provider-setup" title="frontend/src/app/page.tsx —— provider 与聊天" />
 
-## Code example
+## 代码示例
 
-A self-contained component that renders the chat and wires in starter suggestions:
+一个自包含的组件，渲染聊天并接入起步建议：
 
-<Snippet region="chat-component" title="frontend/src/app/page.tsx — the Chat component" />
+<Snippet region="chat-component" title="frontend/src/app/page.tsx —— Chat 组件" />
 
-## Common props
+## 常用 props
 
-`<CopilotChat>` is the root primitive. `<CopilotSidebar>` and `<CopilotPopup>`
-accept the same slots and labels, plus a few wrapper-specific props.
+`<CopilotChat>` 是根原语。`<CopilotSidebar>` 和 `<CopilotPopup>` 接受相同的插槽与标签，另有少量封装层特有的 prop。
 
-| Prop | Description |
+| Prop | 说明 |
 |------|-------------|
-| `agentId` | Agent slug the chat should talk to (must match an agent configured on the runtime). |
-| `labels` | User-facing copy — header title, placeholder, welcome, disclaimer. |
-| `messageView` | Slot for the message list — see [slots](/custom-look-and-feel/slots). |
-| `input` | Slot for the composer area (text area, send button, disclaimer). |
-| `scrollView` | Slot for the scroll container (e.g. custom feather/gradient). |
-| `suggestionView` | Slot for the suggestion pills shown below messages. |
-| `welcomeScreen` | Slot for the empty-state. Pass `false` to disable. |
+| `agentId` | 聊天要对话的智能体 slug（必须与运行时上配置的某个智能体匹配）。 |
+| `labels` | 面向用户的文案——头部标题、占位符、欢迎语、免责声明。 |
+| `messageView` | 消息列表的插槽——参见[插槽](/custom-look-and-feel/slots)。 |
+| `input` | 输入区（文本框、发送按钮、免责声明）的插槽。 |
+| `scrollView` | 滚动容器的插槽（例如自定义羽化/渐变效果）。 |
+| `suggestionView` | 消息下方建议胶囊的插槽。 |
+| `welcomeScreen` | 空状态的插槽。传 `false` 可禁用。 |
 
-## Styling
+## 样式
 
-`<CopilotChat>` is fully themable:
+`<CopilotChat>` 支持完全的主题定制：
 
-- **CSS variables / class overrides** — see [CSS customization](/custom-look-and-feel/css)
-- **Slots (subcomponents)** — see [slots](/custom-look-and-feel/slots)
-- **Fully headless** — see [headless UI](/custom-look-and-feel/headless-ui)
+- **CSS 变量 / 类名覆盖**——参见 [CSS 自定义](/custom-look-and-feel/css)
+- **插槽（子组件）**——参见[插槽](/custom-look-and-feel/slots)
+- **完全无头**——参见[无头 UI](/custom-look-and-feel/headless-ui)

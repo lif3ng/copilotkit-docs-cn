@@ -1,43 +1,36 @@
 ---
-title: Programmatic Control
+title: 编程式控制
 icon: "lucide/Terminal"
-description: Drive agent runs directly from code — no chat UI required.
+description: 直接从代码驱动智能体运行——无需聊天 UI。
 hideTOC: true
 snippet_cell: headless-complete
 ---
 
-## What is this?
+## 这是什么？
 
-Programmatic control is what you reach for when you want to drive an
-agent run from code rather than from a chat composer: a button, a
-form, a cron job, a keyboard shortcut, a graph callback. CopilotKit
-exposes three primitives that cover every triggering pattern:
+编程式控制适用于你想从代码而非聊天输入框来驱动智能体运行的情形：一个按钮、一个表单、一个定时任务、一个快捷键、一个图回调。CopilotKit 暴露了三个原语，覆盖所有触发模式：
 
-- `agent.addMessage(...)` — append a message to the conversation without running the agent. Pair with `copilotkit.runAgent({ agent })` when you want the appended message to kick off a turn.
-- `copilotkit.runAgent({ agent })` — the same entry point `<CopilotChat />` calls under the hood. Orchestrates frontend tools, follow-up runs, and the subscriber lifecycle.
-- `agent.subscribe(subscriber)` — low-level AG-UI event subscription (`onCustomEvent`, `onRunStartedEvent`, `onRunFinalized`, `onRunFailed`, …). Pairs with `copilotkit.runAgent({ agent, resume })` for standard AG-UI interrupts, or `copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })` for legacy `on_interrupt` custom events, to drive interrupt resolution from arbitrary UI.
+- `agent.addMessage(...)` —— 向对话追加一条消息但不运行智能体。当你希望追加的消息开启一轮对话时，配合 `copilotkit.runAgent({ agent })` 使用。
+- `copilotkit.runAgent({ agent })` —— `<CopilotChat />` 底层调用的同一入口。负责编排前端工具、后续运行和订阅者生命周期。
+- `agent.subscribe(subscriber)` —— 底层 AG-UI 事件订阅（`onCustomEvent`、`onRunStartedEvent`、`onRunFinalized`、`onRunFailed` 等）。配合 `copilotkit.runAgent({ agent, resume })`（标准 AG-UI 中断）或 `copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })`（旧版 `on_interrupt` 自定义事件）使用，可从任意 UI 驱动中断的解决。
 
-The send-and-stop example below is intentionally self-contained. The
-later subscription and interrupt examples are pulled from the live
-`interrupt-headless` cell.
+下文的“发送并停止”示例刻意做到自包含。后面的订阅与中断示例则取自实际的 `interrupt-headless` 单元。
 
-## When should I use this?
+## 什么时候该用它？
 
-Use programmatic control when you want to:
+在以下情况下使用编程式控制：
 
-- Trigger agent runs from buttons, forms, or other UI elements
-- Execute specific tools directly from UI interactions (without an LLM turn)
-- Build agent features without a chat window
-- Access agent state and results programmatically
-- Create fully custom agent-driven workflows
+- 从按钮、表单或其他 UI 元素触发智能体运行
+- 从 UI 交互直接执行特定工具（无需 LLM 回合）
+- 在没有聊天窗口的情况下构建智能体特性
+- 以编程方式访问智能体状态与结果
+- 创建完全自定义的智能体驱动工作流
 
-## Sending a message from code
+## 从代码发送消息
 
 <FrameworkSetup concept="programmatic-control-setup" />
 
-The canonical pattern is to append a user message with
-`agent.addMessage`, then call `copilotkit.runAgent({ agent })`. Use
-`copilotkit.stopAgent({ agent })` to cancel an in-flight run.
+典型模式是用 `agent.addMessage` 追加一条用户消息，然后调用 `copilotkit.runAgent({ agent })`。使用 `copilotkit.stopAgent({ agent })` 可以取消进行中的运行。
 
 ```tsx title="frontend/src/app/agent-trigger.tsx"
 "use client";
@@ -80,86 +73,53 @@ export function AgentTrigger({ agentId }: { agentId: string }) {
 }
 ```
 
-### `copilotkit.runAgent()` vs `agent.runAgent()`
+### `copilotkit.runAgent()` 与 `agent.runAgent()` 的区别
 
-Both methods trigger the agent, but they operate at different levels:
+两个方法都会触发智能体，但它们工作在不同的层级：
 
-- **`copilotkit.runAgent({ agent })`** — the recommended default. Orchestrates the full lifecycle: executes frontend tools, handles follow-up runs, and routes errors through the subscriber system.
-- **`agent.runAgent(options)`** — low-level method on the agent instance. Sends the request to the runtime but does **not** execute frontend tools or chain follow-ups. Reach for this only when you need direct control. (For the interrupt-resume case, use `copilotkit.runAgent({ agent, resume })` for standard AG-UI interrupts, or `copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })` for legacy `on_interrupt` custom events — the snippet below shows the legacy form — so the subscriber lifecycle still wraps the resumed run.)
+- **`copilotkit.runAgent({ agent })`** —— 推荐的默认选择。编排完整生命周期：执行前端工具、处理后续运行，并通过订阅者系统路由错误。
+- **`agent.runAgent(options)`** —— 智能体实例上的底层方法。它把请求发送给运行时，但**不会**执行前端工具，也不会串联后续运行。只在需要直接控制时使用它。（在中断恢复场景下，标准 AG-UI 中断请使用 `copilotkit.runAgent({ agent, resume })`，旧版 `on_interrupt` 自定义事件请使用 `copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })`——下面的代码片段展示的正是旧版形式——这样订阅者生命周期仍会包住恢复后的运行。）
 
-## Subscribing to agent events
+## 订阅智能体事件
 
-`agent.subscribe(subscriber)` returns `{ unsubscribe }`. The subscriber
-object accepts every AG-UI lifecycle callback: `onCustomEvent`,
-`onRunStartedEvent`, `onRunFinalized`, `onRunFailed`, and the streaming
-deltas. Use it to drive custom progress UI, forward events to
-analytics, or catch framework pause/resume events and resolve them with
-a payload (the pattern below).
+`agent.subscribe(subscriber)` 返回 `{ unsubscribe }`。订阅者对象接受所有 AG-UI 生命周期回调：`onCustomEvent`、`onRunStartedEvent`、`onRunFinalized`、`onRunFailed`，以及各流式增量。可以用它驱动自定义进度 UI、把事件转发给分析系统，或捕获框架的暂停/恢复事件并用负载将其解决（即下文的模式）。
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="native">
 
-## Resolving a LangGraph interrupt from a button
+## 通过按钮解决 LangGraph 中断
 
-The `interrupt-headless` cell demonstrates the full pattern without
-`useInterrupt` or a chat surface. A plain hook subscribes to
-`on_interrupt` custom events, buffers the payload until the run
-finalizes (so the UI doesn't flash mid-stream), and exposes a
-`resolve(response)` callback that calls `copilotkit.runAgent({ agent,
-forwardedProps: { command: { resume, interruptEvent } } })` to unblock
-the graph:
+`interrupt-headless` 单元展示了不借助 `useInterrupt` 或聊天界面的完整模式。一个普通 hook 订阅 `on_interrupt` 自定义事件，缓冲负载直到运行结束（避免 UI 在流式过程中闪烁），并暴露一个 `resolve(response)` 回调，该回调调用 `copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })` 来解除图的阻塞：
 
-<Snippet region="headless-useinterrupt-primitives" cell="interrupt-headless" title="frontend/src/app/page.tsx — subscribe + resume" />
+<Snippet region="headless-useinterrupt-primitives" cell="interrupt-headless" title="frontend/src/app/page.tsx —— 订阅 + 恢复" />
 
-The resulting `{ pending, resolve }` tuple is pure data; any UI can
-drive it. The cell itself renders a simple button grid, but the same
-hook would power a modal, a toast, a sidebar form, or a voice UI.
+得到的 `{ pending, resolve }` 元组是纯数据，任何 UI 都可以驱动它。该单元本身渲染的是一个简单的按钮网格，但同一个 hook 也可以支撑模态框、toast 提示、侧边栏表单或语音 UI。
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="promise-based">
 
-## Resolving a frontend tool call from a button
+## 通过按钮解决前端工具调用
 
-For promise-based integrations there is no native interrupt primitive —
-the demo uses `useFrontendTool` with a Promise-based handler instead.
-The handler stages its `resolve` callback and pending payload via React
-state, the app surface renders the picker outside the chat, and the
-user's pick resolves the Promise that the agent's tool call is awaiting.
-Same UX, different mechanism — the agent never knows it's talking to a
-button grid instead of a chat picker:
+对于基于 Promise 的集成，没有原生的中断原语——演示改用带 Promise 处理器的 `useFrontendTool`。处理器通过 React state 暂存它的 `resolve` 回调和待定负载，应用界面在聊天之外渲染选择器，用户的选择会 resolve 智能体工具调用正在等待的那个 Promise。相同的 UX，不同的机制——智能体永远不知道自己面对的是按钮网格而不是聊天选择器：
 
-<Snippet region="headless-promise-primitives" cell="interrupt-headless" title="frontend/src/app/page.tsx — useFrontendTool + Promise resolver" />
+<Snippet region="headless-promise-primitives" cell="interrupt-headless" title="frontend/src/app/page.tsx —— useFrontendTool + Promise 解析器" />
 
-The resulting `{ pending, resolveActive }` pair is pure data; any UI
-can drive it. The cell itself renders a simple button grid, but the
-same pattern would power a modal, a toast, a sidebar form, or a voice
-UI.
+得到的 `{ pending, resolveActive }` 对是纯数据，任何 UI 都可以驱动它。该单元本身渲染的是一个简单的按钮网格，但同一模式也可以支撑模态框、toast 提示、侧边栏表单或语音 UI。
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="interrupt_pattern" absent>
 
-## Resolving a pause from a button
+## 通过按钮解除暂停
 
-> **Interrupt-style pause/resume isn't available on this framework.**
-> The headless interrupt pattern shown above requires the underlying
-> runtime to expose either a native `interrupt(...)` primitive
-> (LangGraph) or a Promise-resolving frontend-tool path. For all other
-> integrations, drive pauses through
-> [`useHumanInTheLoop`](./human-in-the-loop) instead — it's the
-> standard hook for tool-call-based pause/resume flows and works on
-> every framework that supports tool calls. The `agent.addMessage`,
-> `copilotkit.runAgent`, and `agent.subscribe` primitives above still
-> apply — only the interrupt-resolution path is framework-specific.
+> **此框架不支持中断式的暂停/恢复**。
+> 上面展示的无头中断模式，要求底层运行时要么暴露原生 `interrupt(...)` 原语（LangGraph），要么提供基于 Promise 解析的前端工具路径。对于所有其他集成，请改用 [`useHumanInTheLoop`](./human-in-the-loop) 来驱动暂停——它是基于工具调用的暂停/恢复流程的标准 hook，适用于所有支持工具调用的框架。上文中的 `agent.addMessage`、`copilotkit.runAgent` 和 `agent.subscribe` 原语依然适用——只有中断解决路径因框架而异。
 
 </WhenFrameworkHas>
 
-## See also
+## 另请参阅
 
-- [Headless UI](./headless) — the full `useRenderedMessages` composition
-  that mirrors `<CopilotChatMessageView>` line-for-line.
-- [Human-in-the-Loop](./human-in-the-loop) — the `useHumanInTheLoop` and
-  `useInterrupt` hooks with their render-prop contracts, for the
-  "paused mid-chat" pattern this page's headless variant replaces.
+- [无头 UI](./headless) —— 完整的 `useRenderedMessages` 组合方式，与 `<CopilotChatMessageView>` 逐行对应。
+- [人机协同（human-in-the-loop）](./human-in-the-loop) —— 带有 render-prop 契约的 `useHumanInTheLoop` 与 `useInterrupt` hook，用于“对话中途暂停”模式（本页的无头变体即是对它的替代）。
 
 <IntegrationGrid path="programmatic-control" />

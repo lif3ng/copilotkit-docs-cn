@@ -1,37 +1,29 @@
 ---
 title: "CopilotPopup"
 icon: "lucide/MessageCircle"
-description: "Floating chat bubble that toggles open an overlay chat window."
+description: "悬浮聊天气泡，点击即可展开覆盖式聊天窗口。"
 snippet_cell: prebuilt-popup
 ---
 
 <InlineDemo demo="prebuilt-popup" />
 
-## What is this?
+## 这是什么？
 
-`<CopilotPopup>` is a prebuilt floating launcher that opens an overlay chat
-window on top of your page content. It's the lightest-weight way to add a
-copilot to an existing app. Drop it in once and a bubble appears in the
-corner ready to chat.
+`<CopilotPopup>` 是一个预构建的悬浮启动器，会在页面内容之上打开一个覆盖式聊天窗口。它是为现有应用添加 copilot 的最轻量方式。只需引入一次，角落里就会出现一个随时待聊的气泡。
 
-## When should I use this?
+## 什么时候该用它？
 
-Use the popup when you want:
+在以下情况下使用弹窗：
 
-- A minimal-footprint copilot that overlays existing content on demand
-- A launcher you can place on top of any page without reflowing the layout
-- A quick assistant bubble that users open for short, task-focused chats
+- 一个占用极小、可按需覆盖现有内容的 copilot
+- 一个可以叠放在任何页面之上而无需重排布局的启动器
+- 一个供用户进行简短、聚焦任务的对话时打开的快捷助手气泡
 
-If you need chat to live alongside your content rather than on top of it,
-use [CopilotSidebar](/prebuilt-components/sidebar). For a fully embedded
-chat pane, use [`<CopilotChat>`](/prebuilt-components/chat) directly.
+如果你需要聊天与内容并排呈现而不是覆盖在内容之上，请使用 [CopilotSidebar](/prebuilt-components/sidebar)。如果需要完全内嵌的聊天面板，请直接使用 [`<CopilotChat>`](/prebuilt-components/chat)。
 
-## Basic setup
+## 基础配置
 
-Wrap your app in `<CopilotKit>` once (the provider wires the runtime,
-session, and agent registry) and render `<CopilotPopup>` as a sibling of
-your main content. The example below opens the popup by default and
-customizes the input placeholder via `labels`:
+用 `<CopilotKit>` 包裹你的应用一次（provider 会接好运行时、会话与智能体注册表），并把 `<CopilotPopup>` 渲染为主内容的兄弟节点。下面的示例让弹窗默认打开，并通过 `labels` 自定义输入框占位符：
 
 ```tsx
 import { CopilotKit, CopilotPopup } from "@copilotkit/react-core/v2";
@@ -39,30 +31,23 @@ import "@copilotkit/react-core/v2/styles.css";
 ```
 
 <Callout type="warn">
-  `@copilotkit/react-ui` also exports a component named `CopilotPopup`. That one
-  is the [deprecated v1 popup](/migrate/v2). This page documents the v2 popup,
-  which you import from `@copilotkit/react-core/v2`.
+  `@copilotkit/react-ui` 也导出了一个名为 `CopilotPopup` 的组件。那个是[已弃用的 v1 弹窗](/migrate/v2)。本页介绍的是 v2 弹窗，需从 `@copilotkit/react-core/v2` 导入。
 </Callout>
 
-<Snippet region="popup-basic-setup" title="frontend/src/app/page.tsx — CopilotPopup wired up" />
+<Snippet region="popup-basic-setup" title="frontend/src/app/page.tsx —— CopilotPopup 接线示例" />
 
-## Configuring the popup
+## 配置弹窗
 
-`<CopilotPopup>` accepts the same props as `<CopilotChat>` plus a few of
-its own. Commonly used options:
+`<CopilotPopup>` 接受与 `<CopilotChat>` 相同的 props，另有几个自己的属性。常用选项：
 
-| Prop | Description |
+| 属性 | 说明 |
 |------|-------------|
-| `defaultOpen` | Whether the popup starts open on first render. |
-| `agentId` | Agent slug the popup should talk to (must match an agent configured on the runtime). |
-| `labels` | User-facing copy for the header, placeholder, and disclaimer. |
-| `header` | Slot for the popup header bar — see the [slot system](/custom-look-and-feel/slots). |
-| `toggleButton` | Slot for the floating launcher button. |
+| `defaultOpen` | 弹窗首次渲染时是否默认打开。 |
+| `agentId` | 弹窗要对话的智能体 slug（必须与运行时上配置的某个智能体匹配）。 |
+| `labels` | 页头、占位符与免责声明的用户可见文案。 |
+| `header` | 弹窗页头栏的插槽——参见[插槽系统](/custom-look-and-feel/slots)。 |
+| `toggleButton` | 悬浮启动按钮的插槽。 |
 
-## Styling
+## 样式
 
-`CopilotPopup` participates in the slot system, so every piece of its UI
-is customizable, from Tailwind classes on the message view to a full
-component swap for the header or toggle button. See
-[custom look and feel](/custom-look-and-feel/slots) for the full slot
-reference.
+`CopilotPopup` 参与插槽系统，因此它的每一块 UI 都可以自定义——从消息视图上的 Tailwind 类，到整个页头或切换按钮组件的替换。完整的插槽参考见[自定义外观](/custom-look-and-feel/slots)。

@@ -1,7 +1,7 @@
 ---
-title: Trajectories API reference
+title: 轨迹 API 参考
 nav_title: API reference
-description: Options and methods for capturing Trajectories in CopilotKit Intelligence from React, Core, and the Runtime.
+description: 在 CopilotKit Intelligence 中从 React、Core 与 Runtime 捕获轨迹所需的选项与方法。
 icon: "lucide/BookOpen"
 frontend: universal
 doc_type: reference
@@ -9,11 +9,11 @@ earlyAccess: trajectories
 search: false
 ---
 
-## Overview
+## 概览
 
-This page lists the `learning` prop, the Core methods, and the `CopilotKitIntelligence` options that control Trajectory capture. To set up capture, see [Capture interactions](/intelligence/capture-interactions); for the fields in each event, see [Captured data](/intelligence/captured-data).
+本页列出控制轨迹捕获的 `learning` prop、Core 方法与 `CopilotKitIntelligence` 选项。捕获的配置步骤见[捕获交互](/intelligence/capture-interactions)；每个事件的字段见[捕获的数据](/intelligence/captured-data)。
 
-## `learning` prop on `CopilotKitProvider`
+## `CopilotKitProvider` 上的 `learning` prop
 
 ```tsx
 <CopilotKitProvider
@@ -29,56 +29,56 @@ This page lists the `learning` prop, the Core methods, and the `CopilotKitIntell
 ```
 
 <PropertyReference name="learning" type="boolean | object">
-  Turns on Trajectory capture. `learning` or `learning={true}` captures with the default options. Pass an object to set options. `false` or no prop turns capture off and stops the active Trajectory.
+  开启轨迹捕获。`learning` 或 `learning={true}` 会以默认选项进行捕获。传入对象可设置选项。`false` 或不传该 prop 会关闭捕获并停止当前活动的轨迹。
 
-  Capture starts after the provider mounts and stops when it unmounts, including Trajectories started with `startTrajectory()`. Option changes apply to the next Trajectory; they do not restart the active one.
+  捕获在 provider 挂载后开始、卸载时停止，对以 `startTrajectory()` 启动的轨迹同样如此。选项更改只对下一条轨迹生效，不会重启当前活动的轨迹。
 
   <PropertyReference name="autoStart" type="boolean" default="true">
-    Starts a Trajectory after mount. Set `false` to start capture yourself with [`startTrajectory()`](#starttrajectory).
+    挂载后自动启动一条轨迹。设为 `false` 可由你自己通过 [`startTrajectory()`](#starttrajectory) 启动捕获。
   </PropertyReference>
 
   <PropertyReference name="trajectoryId" type="string">
-    The UUID for the Trajectory that the provider starts. Without it, the provider generates a UUID that stays the same across rerenders, reconnects, and option changes. Changing this value starts a new Trajectory with the new ID. Turning capture off, or setting `autoStart: false`, ends a generated Trajectory; the next one gets a new ID. With `autoStart: false`, the provider ignores this option and logs a warning; pass the ID to `startTrajectory()` instead.
+    provider 启动的轨迹所用的 UUID。不传时，provider 会生成一个 UUID，并在重新渲染、重连与选项更改期间保持不变。更改此值会以新 ID 启动一条新轨迹。关闭捕获或设置 `autoStart: false` 会结束由 provider 生成的轨迹；下一条轨迹会获得新 ID。在 `autoStart: false` 时，provider 会忽略该选项并记录警告；请改为把 ID 传给 `startTrajectory()`。
   </PropertyReference>
 
   <PropertyReference name="capture" type="{ clicks?: boolean; inputs?: boolean; navigation?: boolean; network?: boolean }" default="all true">
-    Turns capture modules on or off. A module is on unless you set it to `false`. The `page` event at start and developer events are always sent.
+    开启或关闭各个捕获模块。除非显式设为 `false`，模块默认开启。启动时的 `page` 事件与开发者事件始终会发送。
 
     <PropertyReference name="clicks" type="boolean" default="true">
-      Records `click` events.
+      记录 `click` 事件。
     </PropertyReference>
 
     <PropertyReference name="inputs" type="boolean" default="true">
-      Records `input` events from inputs, selects, text areas, and editable elements.
+      记录来自输入框、下拉框、文本域与可编辑元素的 `input` 事件。
     </PropertyReference>
 
     <PropertyReference name="navigation" type="boolean" default="true">
-      Records `navigation` events.
+      记录 `navigation` 事件。
     </PropertyReference>
 
     <PropertyReference name="network" type="boolean" default="true">
-      Records `network` events for browser `fetch` and XHR requests.
+      记录浏览器 `fetch` 与 XHR 请求的 `network` 事件。
     </PropertyReference>
   </PropertyReference>
 
   <PropertyReference name="ignoreUrls" type="(string | RegExp)[]" default="[]">
-    Requests that network capture skips. A string matches as a prefix of the absolute request URL. A regular expression is tested against the absolute URL. Core always adds the `runtimeUrl`, the Runtime endpoint, `https://telemetry.copilotkit.ai/`, and `https://cdn.copilotkit.ai/`.
+    网络捕获要跳过的请求。字符串会作为绝对请求 URL 的前缀进行匹配；正则表达式则对绝对 URL 进行测试。Core 始终会加上 `runtimeUrl`、Runtime 端点、`https://telemetry.copilotkit.ai/` 与 `https://cdn.copilotkit.ai/`。
   </PropertyReference>
 
   <PropertyReference name="beforeSend" type="(event: TrajectoryEvent) => TrajectoryEvent | null">
-    Runs in the browser for each event, after built-in redaction and before validation and delivery. Return the event, a changed copy, or `null` to drop it. It also runs for developer events and `thread.linked`. If it throws or returns an invalid event, Core drops the event and reports `INVALID_EVENT`.
+    在浏览器中对每个事件运行，时机在内置脱敏之后、校验与投递之前。返回原事件、修改后的副本，或返回 `null` 以丢弃该事件。它也会对开发者事件与 `thread.linked` 运行。如果它抛出异常或返回无效事件，Core 会丢弃该事件并报告 `INVALID_EVENT`。
 
-    `TrajectoryEvent` is `{ type: "CUSTOM"; name: string; timestamp: number; value: JsonValue }`.
+    `TrajectoryEvent` 的结构为 `{ type: "CUSTOM"; name: string; timestamp: number; value: JsonValue }`。
   </PropertyReference>
 
   <PropertyReference name="onError" type="(error: { code: string; message: string }) => void">
-    Receives capture errors without interrupting the app. Errors thrown by the callback are ignored. Without `onError`, Core logs a warning with a setup hint once per error code when capture fails to start or stops on its own. See [Error codes](#error-codes).
+    接收捕获错误，而不中断应用。回调自身抛出的错误会被忽略。未提供 `onError` 时，当捕获启动失败或自行停止，Core 会按错误码各记录一次带配置提示的警告。参见[错误码](#错误码)。
   </PropertyReference>
 </PropertyReference>
 
-## Core methods
+## Core 方法
 
-Read these from `copilotkit`, returned by `useCopilotKit()`.
+通过 `useCopilotKit()` 返回的 `copilotkit` 读取这些成员。
 
 ```tsx
 const { copilotkit } = useCopilotKit();
@@ -88,84 +88,84 @@ if (result.status === "error") console.warn(result.code);
 ```
 
 <PropertyReference name="trajectoryId" type="string | null">
-  The ID of the connected Trajectory. It is `null` while capture is stopped, while a start is connecting, and while capture reconnects. Subscribers receive `onTrajectoryChanged({ copilotkit, trajectoryId })` when it changes.
+  当前连接轨迹的 ID。在捕获已停止、启动正在连接或捕获正在重连时为 `null`。它发生变化时，订阅者会收到 `onTrajectoryChanged({ copilotkit, trajectoryId })`。
 </PropertyReference>
 
 <PropertyReference name="startTrajectory(options?): Promise<StartResult>" type="method">
-  Starts one Trajectory. Core authorizes the browser through the Runtime, then joins the connection to Intelligence. The promise resolves after the join or the failure; it does not reject for capture errors.
+  启动一条轨迹。Core 先通过 Runtime 为浏览器授权，再加入与 Intelligence 的连接。promise 在加入成功或失败后 resolve；捕获错误不会使其 reject。
 
-  One Trajectory runs at a time. A call with no ID, or with the active ID, returns the active start. A call with a different ID stops the active Trajectory and starts the new one. If the first connection fails, the start resolves with an error and does not retry.
+  同一时间只有一条轨迹在运行。不带 ID、或带当前活动 ID 的调用会返回正在进行的启动。带不同 ID 的调用会停止当前轨迹并启动新轨迹。如果首次连接失败，启动会以错误 resolve，且不会重试。
 
   <PropertyReference name="options.trajectoryId" type="string">
-    A UUID for the Trajectory. Omit it to generate one. The Runtime rejects an ID that is not a UUID with `INVALID_REQUEST`.
+    轨迹使用的 UUID。省略则自动生成。不是 UUID 的 ID 会被 Runtime 以 `INVALID_REQUEST` 拒绝。
   </PropertyReference>
 
   <PropertyReference name="StartResult" type='{ status: "started"; trajectoryId: string } | { status: "error"; code: string }'>
-    `status` is `"started"` after the join, with the `trajectoryId` in use. `status` is `"error"` when capture did not start, with a `code` from [Error codes](#error-codes).
+    加入成功后 `status` 为 `"started"`，并携带正在使用的 `trajectoryId`。捕获未能启动时 `status` 为 `"error"`，并携带来自[错误码](#错误码)的 `code`。
   </PropertyReference>
 </PropertyReference>
 
 <PropertyReference name="stopTrajectory(): void" type="method">
-  Stops capture and removes capture listeners. A pending start resolves with `CANCELLED`. Core attempts one final batch if no earlier batch is waiting for a receipt. It does not wait for the receipt, so the last events may not be saved.
+  停止捕获并移除捕获监听器。尚在进行的启动会以 `CANCELLED` resolve。如果没有更早的批次还在等待回执，Core 会尝试发送最后一批。它不会等待回执，因此最后的事件可能未被保存。
 </PropertyReference>
 
 <PropertyReference name="emitTrajectoryEvent(name: string, value?: JsonValue): void" type="method">
-  Records an outcome that clicks cannot show, such as an approved deal. Call it after your operation succeeds.
+  记录点击无法体现的结果，例如一笔已批准的交易。请在操作成功之后调用。
 
-  `name` must be non-empty, at most 200 characters, and not a built-in name: `page`, `navigation`, `click`, `input`, `network`, or `thread.linked`. `value` defaults to `{}` and must be JSON. Core adds `seq` to an object value. Arrays, primitives, and objects that already contain `seq` are sent under `value.data`.
+  `name` 必须非空、不超过 200 个字符，且不能是内置名称：`page`、`navigation`、`click`、`input`、`network` 或 `thread.linked`。`value` 默认为 `{}`，且必须是 JSON。Core 会为对象值添加 `seq`。数组、原始值以及已包含 `seq` 的对象会放在 `value.data` 下发送。
 
-  The call does nothing while no Trajectory runs. Events emitted while capture reconnects count as dropped. Automatic credential redaction does not inspect these events.
+  没有轨迹在运行时，该调用不做任何事。捕获重连期间发出的事件计为已丢弃。自动凭据脱敏不会检查这些事件。
 </PropertyReference>
 
-### Error codes
+### 错误码
 
-`startTrajectory()` returns these codes in `StartResult`, and `onError` receives them, except where noted.
+`startTrajectory()` 会在 `StartResult` 中返回这些错误码，`onError` 也会收到它们，另有说明的除外。
 
-<Callout type="info" title="Early access support">
-  During early access, our engineering team helps with Trajectories licenses, project access, and deployment support. For errors related to these requirements, [book time with our engineers](https://www.copilotkit.ai/talk-to-an-engineer).
+<Callout type="info" title="抢先体验支持">
+  抢先体验期间，我们的工程团队会协助处理轨迹许可证、项目访问与部署支持。与这些要求相关的错误，请[预约我们的工程师](https://www.copilotkit.ai/talk-to-an-engineer)。
 </Callout>
 
-| Code | Meaning | Action |
+| 错误码 | 含义 | 处理方式 |
 | --- | --- | --- |
-| `LEARNING_DISABLED` | No `learning` config is set. Start result only. | Pass the `learning` prop. |
-| `CANCELLED` | `stopTrajectory()`, unmount, or a start with another ID ended this start. Start result only. | None. |
-| `RUNTIME_REQUIRED` | Core has no `runtimeUrl`. | Set `runtimeUrl` on the provider. |
-| `INVALID_REQUEST` | The Trajectory ID is not a UUID. | Pass a UUID, such as `crypto.randomUUID()`. |
-| `INTELLIGENCE_RUNTIME_REQUIRED` | The Runtime has no `intelligence` configured. | Configure `CopilotRuntime` with `intelligence`. |
-| `IDENTITY_REQUIRED` | The Runtime has no `identifyUser`, or it did not identify the user. | Configure `identifyUser` and send the app session with Runtime requests. |
-| `CONNECTION_FAILED` | The Runtime could not connect to Intelligence, or Intelligence rejected the request. | Check the Intelligence credentials on the Runtime and the Runtime logs. |
-| `CONNECTION_TIMEOUT` | The Runtime or Intelligence did not answer within 10 seconds. | Check the network and the Runtime. |
-| `INVALID_GRANT` | The Runtime response was not a capture grant. | Check that `runtimeUrl` points to a `CopilotRuntime`. |
-| `JOIN_FAILED` | Intelligence refused the connection without a known reason. | Check the Intelligence deployment. |
-| `TRAJECTORIES_NOT_ENABLED` | Trajectories are off for this Intelligence project. | Ask our engineering team to enable project access. |
-| `TRAJECTORIES_UNAVAILABLE` | This Intelligence deployment does not serve Trajectory capture. | Ask our engineering team to check deployment support. |
-| `TRAJECTORIES_ENTITLEMENT_UNAVAILABLE` | Intelligence could not confirm that Trajectories are enabled. | Try again later. If the error continues, contact our engineering team. |
-| `MARKETPLACE_LICENSE_REQUIRED` | The project has no CopilotKit license for capture. | Ask our engineering team to check the license. |
-| `RATE_LIMIT_EXCEEDED` | Intelligence rate-limited the connection request. | Try again later. |
-| `TRAJECTORY_APP_USER_CONFLICT` | Intelligence refused this Trajectory ID for this user. | Start with a new UUID. |
-| `CONNECTION_LOST` | The connection closed, or the browser went offline. | None after start: Core reconnects. Before start, start again. |
-| `CAPTURE_FAILED` | Browser listeners could not start. Capture ends. | Start again. |
-| `UNAUTHORIZED`, `TRAJECTORY_MISMATCH` | Intelligence refused a batch for this connection. Capture ends. | Start a new Trajectory. |
+| `LEARNING_DISABLED` | 未设置任何 `learning` 配置。仅出现在启动结果中。 | 传入 `learning` prop。 |
+| `CANCELLED` | `stopTrajectory()`、组件卸载或另一个 ID 的启动终结了这次启动。仅出现在启动结果中。 | 无需处理。 |
+| `RUNTIME_REQUIRED` | Core 没有 `runtimeUrl`。 | 在 provider 上设置 `runtimeUrl`。 |
+| `INVALID_REQUEST` | 轨迹 ID 不是 UUID。 | 传入 UUID，例如 `crypto.randomUUID()`。 |
+| `INTELLIGENCE_RUNTIME_REQUIRED` | Runtime 没有配置 `intelligence`。 | 为 `CopilotRuntime` 配置 `intelligence`。 |
+| `IDENTITY_REQUIRED` | Runtime 没有 `identifyUser`，或它没有识别出用户。 | 配置 `identifyUser`，并在 Runtime 请求中携带应用会话。 |
+| `CONNECTION_FAILED` | Runtime 无法连接到 Intelligence，或 Intelligence 拒绝了请求。 | 检查 Runtime 上的 Intelligence 凭据与 Runtime 日志。 |
+| `CONNECTION_TIMEOUT` | Runtime 或 Intelligence 在 10 秒内没有响应。 | 检查网络与 Runtime。 |
+| `INVALID_GRANT` | Runtime 的响应不是捕获授权。 | 检查 `runtimeUrl` 是否指向一个 `CopilotRuntime`。 |
+| `JOIN_FAILED` | Intelligence 在没有明确原因的情况下拒绝了连接。 | 检查 Intelligence 部署。 |
+| `TRAJECTORIES_NOT_ENABLED` | 该 Intelligence 项目的轨迹功能未开启。 | 请我们的工程团队开通项目访问。 |
+| `TRAJECTORIES_UNAVAILABLE` | 该 Intelligence 部署不提供轨迹捕获。 | 请我们的工程团队确认部署支持。 |
+| `TRAJECTORIES_ENTITLEMENT_UNAVAILABLE` | Intelligence 无法确认轨迹功能已启用。 | 稍后重试。若错误持续，请联系我们的工程团队。 |
+| `MARKETPLACE_LICENSE_REQUIRED` | 项目没有用于捕获的 CopilotKit 许可证。 | 请我们的工程团队核查许可证。 |
+| `RATE_LIMIT_EXCEEDED` | Intelligence 对连接请求做了限流。 | 稍后重试。 |
+| `TRAJECTORY_APP_USER_CONFLICT` | Intelligence 拒绝了该用户使用此轨迹 ID。 | 换用新的 UUID 启动。 |
+| `CONNECTION_LOST` | 连接关闭，或浏览器离线。 | 启动后无需处理：Core 会重连。启动前，请重新启动。 |
+| `CAPTURE_FAILED` | 浏览器监听器未能启动。捕获结束。 | 重新启动。 |
+| `UNAUTHORIZED`、`TRAJECTORY_MISMATCH` | Intelligence 拒绝了此连接的某个批次。捕获结束。 | 启动新轨迹。 |
 
-After capture starts, Core reconnects with fresh credentials after network errors, timeouts, and server errors, and reports each failure to `onError`. Other failures end capture.
+捕获开始后，遇到网络错误、超时与服务器错误时，Core 会用新凭据重连，并把每次失败报告给 `onError`。其他失败会结束捕获。
 
-These codes go to `onError` only. Capture continues.
+以下错误码只发送到 `onError`。捕获继续进行。
 
-| Code | Meaning | Action |
+| 错误码 | 含义 | 处理方式 |
 | --- | --- | --- |
-| `INVALID_EVENT` | An event has an invalid name or a value that is not JSON, or `beforeSend` threw. Core drops it. | Fix the event or `beforeSend`. |
-| `EVENT_TOO_LARGE` | An event exceeds 16 KiB of serialized JSON. Core drops it. | Shorten the value, or trim it in `beforeSend`. |
-| `EVENTS_DROPPED` | Core discarded queued events. The next batch counts them in `dropped`. | None. |
-| `EVENTS_REJECTED` | Intelligence rejected some events in a batch. | Check event names and values. |
-| `PERSISTENCE_UNKNOWN` | No receipt arrived for a batch. Intelligence may have saved it. Core does not resend it. | Reopen the Trajectory to check. |
-| `INVALID_BATCH`, `BATCH_TOO_LARGE`, `BATCH_TOO_MANY_EVENTS`, `UNSUPPORTED_EVENT`, `TRAJECTORY_OVER_SHARE`, `TRAJECTORY_OUTBOX_FULL` | Intelligence refused a batch. Its events count as dropped. | None. |
-| `SEQUENCE_EXHAUSTED` | Core ran out of sequence numbers. Core drops the event. | Reload the page. |
+| `INVALID_EVENT` | 事件名称无效或值不是 JSON，或 `beforeSend` 抛出了异常。Core 会丢弃该事件。 | 修复事件或 `beforeSend`。 |
+| `EVENT_TOO_LARGE` | 事件序列化后的 JSON 超过 16 KiB。Core 会丢弃该事件。 | 缩短值，或在 `beforeSend` 中裁剪。 |
+| `EVENTS_DROPPED` | Core 丢弃了排队中的事件。下一批会在 `dropped` 中统计它们。 | 无需处理。 |
+| `EVENTS_REJECTED` | Intelligence 拒绝了某个批次中的部分事件。 | 检查事件名称与值。 |
+| `PERSISTENCE_UNKNOWN` | 某个批次没有收到回执。Intelligence 可能已保存它。Core 不会重发。 | 重新打开该轨迹核实。 |
+| `INVALID_BATCH`、`BATCH_TOO_LARGE`、`BATCH_TOO_MANY_EVENTS`、`UNSUPPORTED_EVENT`、`TRAJECTORY_OVER_SHARE`、`TRAJECTORY_OUTBOX_FULL` | Intelligence 拒绝了某个批次。其中的事件计为已丢弃。 | 无需处理。 |
+| `SEQUENCE_EXHAUSTED` | Core 的序列号已用尽。Core 会丢弃该事件。 | 重新加载页面。 |
 
-See [Batches](/intelligence/captured-data#batches) for delivery limits.
+投递限制参见[批次](/intelligence/captured-data#batches)。
 
-## Trajectory options on `CopilotKitIntelligence`
+## `CopilotKitIntelligence` 上的轨迹选项
 
-Set these on the server, in `@copilotkit/runtime/v2`. Capture also needs `identifyUser` on `CopilotRuntime`.
+在服务端的 `@copilotkit/runtime/v2` 中设置这些选项。捕获还需要 `CopilotRuntime` 上的 `identifyUser`。
 
 ```ts
 import { CopilotKitIntelligence } from "@copilotkit/runtime/v2";
@@ -177,13 +177,13 @@ const intelligence = new CopilotKitIntelligence({
 ```
 
 <PropertyReference name="getTrajectoryLearningContainerIds" type="(input: { trajectoryId: string; user: { id: string; name: string } }, signal?: AbortSignal) => string[] | null | undefined | Promise<string[] | null | undefined>">
-  Selects existing Learning Spaces for a Trajectory each time the browser connects or reconnects. `trajectoryId` comes from the browser. `user` comes from `identifyUser` on the Runtime. The browser cannot choose Spaces.
+  在浏览器每次连接或重连时，为轨迹挑选既有的 Learning Space。`trajectoryId` 来自浏览器，`user` 来自 Runtime 上的 `identifyUser`。浏览器不能自行选择 Space。
 
-  Return up to 100 Space IDs. Each ID has 1 to 64 lowercase letters, numbers, and single hyphens. Return `[]` to request no new assignments, or `null` or `undefined` to send none. Assignments are additive, so keep the selection stable for a Trajectory.
+  最多返回 100 个 Space ID。每个 ID 由 1 到 64 个小写字母、数字和单个连字符组成。返回 `[]` 表示不请求新的分配，返回 `null` 或 `undefined` 表示不做分配。分配是累加的，因此对同一条轨迹请保持选择稳定。
 
-  The callback has a five-second deadline. `signal` aborts when the request ends or the deadline passes. If the callback throws, times out, or returns invalid IDs, or a selected Space does not exist, the Runtime logs the problem and connects the Trajectory without assignments. Capture still starts.
+  回调有 5 秒的时限。请求结束或时限已过时，`signal` 会中止。如果回调抛出异常、超时、返回无效 ID，或所选 Space 不存在，Runtime 会记录该问题，并在无分配的情况下连接轨迹。捕获仍会启动。
 
-  See [Assign browser activity to a Learning Space](/learning#assign-browser-activity-to-a-learning-space).
+  参见[将浏览器活动分配到 Learning Space](/learning#assign-browser-activity-to-a-learning-space)。
 </PropertyReference>
 
-For self-hosted Intelligence, capture connects to the client socket derived from `wsUrl`. Set `apiUrl` and `wsUrl` for the same deployment.
+对于自托管的 Intelligence，捕获会连接由 `wsUrl` 派生的客户端 socket。请为同一部署设置 `apiUrl` 与 `wsUrl`。

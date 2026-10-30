@@ -1,7 +1,7 @@
 ---
-title: Prebuilt Components
+title: 预构建组件
 icon: "lucide/MessageSquare"
-description: Drop-in chat components with a full customization ladder, from pure CSS to fully headless.
+description: 开箱即用的聊天组件，提供从纯 CSS 到完全无头的完整自定义阶梯。
 hideTOC: true
 snippet_cell: agentic-chat
 ---
@@ -10,21 +10,18 @@ snippet_cell: agentic-chat
 
 <OpsPlatformCTA
   variant="inline"
-  title="Want users to resume conversations across sessions?"
-  body="Persistent threads ship with CopilotKit Intelligence. Try it for free."
+  title="希望用户能跨会话恢复对话？"
+  body="持久化线程随 CopilotKit Intelligence 一同提供。免费试用。"
   surface="docs_prebuilt_components"
 />
 
-## Pre-built components for agentic chat
+## 智能体化聊天的预构建组件
 
-CopilotKit ships three prebuilt chat surfaces that connect directly to your
-agent: [**CopilotChat**](/prebuilt-components/chat),
-[**CopilotSidebar**](/prebuilt-components/sidebar), and
-[**CopilotPopup**](/prebuilt-components/popup). Each is a wrapper around the
-same primitives with a different layout. Pick the one that fits your app; they
-all handle streaming, generative UI, and deep customization.
+CopilotKit 提供三种可直接连接到你智能体的预构建聊天界面：[**CopilotChat**](/prebuilt-components/chat)、
+[**CopilotSidebar**](/prebuilt-components/sidebar) 和
+[**CopilotPopup**](/prebuilt-components/popup)。它们都是同一套底层原语的包装器，只是布局不同。选择适合你应用的一款；它们全都支持流式传输、生成式 UI 和深度自定义。
 
-If your chat surface needs saved conversations, history, or thread switching, drop in the [**Threads Drawer**](/prebuilt-components/copilot-threads-drawer) next to any of them — or build your own switcher with [Headless Threads](/headless-threads).
+如果你的聊天界面需要保存会话、历史记录或线程切换，可以把 [**线程抽屉（Threads Drawer）**](/prebuilt-components/copilot-threads-drawer) 放在其中任意一款旁边——或者用 [无头线程（Headless Threads）](/headless-threads) 构建你自己的切换器。
 
 <video
   src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/agentic-chat-ui.mp4"
@@ -36,81 +33,72 @@ If your chat surface needs saved conversations, history, or thread switching, dr
   muted
 />
 
-## The customization ladder
+## 自定义阶梯
 
-One of CopilotKit's design principles is that **you should never have to throw the prebuilt UI away** to get the look you want. Start at the top of this ladder and step down only when you need more control.
+CopilotKit 的设计原则之一是：**你永远不必为了得到想要的外观而丢弃预构建 UI**。从这条阶梯的顶端开始，只在需要更多控制权时才向下走。
 
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
   <a href="/prebuilt-components/chat" className="block rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] p-5 no-underline hover:border-[var(--accent)] hover:shadow-sm transition">
-    <div className="text-xs uppercase tracking-wide text-[var(--text-muted)] mb-1">Level 1 · Easiest</div>
-    <div className="text-[var(--text)] font-semibold mb-2">Drop in as-is</div>
+    <div className="text-xs uppercase tracking-wide text-[var(--text-muted)] mb-1">第 1 级 · 最简单</div>
+    <div className="text-[var(--text)] font-semibold mb-2">原样引入</div>
     <div className="text-sm text-[var(--text-secondary)]">
-      Render `<CopilotChat>`, `<CopilotSidebar>`, or `<CopilotPopup>` and ship.
-      Streaming, tool calls, generative UI, and suggestions, all wired up.
+      渲染 `<CopilotChat>`、`<CopilotSidebar>` 或 `<CopilotPopup>` 即可上线。
+      流式传输、工具调用、生成式 UI 与建议，全部开箱即联。
     </div>
   </a>
 
   <a href="/custom-look-and-feel/css" className="block rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] p-5 no-underline hover:border-[var(--accent)] hover:shadow-sm transition">
-    <div className="text-xs uppercase tracking-wide text-[var(--text-muted)] mb-1">Level 2 · Re-skin</div>
-    <div className="text-[var(--text)] font-semibold mb-2">Customize with CSS</div>
+    <div className="text-xs uppercase tracking-wide text-[var(--text-muted)] mb-1">第 2 级 · 换肤</div>
+    <div className="text-[var(--text)] font-semibold mb-2">用 CSS 自定义</div>
     <div className="text-sm text-[var(--text-secondary)]">
-      Override theme tokens (`--copilot-kit-primary-color`, etc.) or target
-      `.copilotKit...` classes. Keep every feature, change every color.
+      覆盖主题令牌（`--copilot-kit-primary-color` 等）或针对
+      `.copilotKit...` 类名编写样式。保留全部特性，改遍所有颜色。
     </div>
   </a>
 
   <a href="/custom-look-and-feel/slots" className="block rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] p-5 no-underline hover:border-[var(--accent)] hover:shadow-sm transition">
-    <div className="text-xs uppercase tracking-wide text-[var(--text-muted)] mb-1">Level 3 · Recompose</div>
-    <div className="text-[var(--text)] font-semibold mb-2">Customize via slots (subcomponents)</div>
+    <div className="text-xs uppercase tracking-wide text-[var(--text-muted)] mb-1">第 3 级 · 重组</div>
+    <div className="text-[var(--text)] font-semibold mb-2">通过插槽（子组件）自定义</div>
     <div className="text-sm text-[var(--text-secondary)]">
-      Swap the welcome screen, message bubble, composer, disclaimer, header,
-      or toggle button with your own React component. Recursive; drill down
-      as deep as you want.
+      用你自己的 React 组件替换欢迎屏、消息气泡、输入框、免责声明、页头
+      或切换按钮。支持递归，想钻多深就钻多深。
     </div>
   </a>
 
   <a href="/custom-look-and-feel/headless-ui" className="block rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] p-5 no-underline hover:border-[var(--accent)] hover:shadow-sm transition">
-    <div className="text-xs uppercase tracking-wide text-[var(--text-muted)] mb-1">Level 4 · Full control</div>
-    <div className="text-[var(--text)] font-semibold mb-2">Go fully headless</div>
+    <div className="text-xs uppercase tracking-wide text-[var(--text-muted)] mb-1">第 4 级 · 完全控制</div>
+    <div className="text-[var(--text)] font-semibold mb-2">走向完全无头</div>
     <div className="text-sm text-[var(--text-secondary)]">
-      Compose your own chat from the low-level hooks (`useAgent`,
-      `useCopilotKit`, `useRenderToolCall`). Any layout, any design system, or
-      even non-chat surfaces.
+      用底层 hooks（`useAgent`、`useCopilotKit`、`useRenderToolCall`）组装你自己的聊天。
+      任意布局、任意设计系统，甚至非聊天界面。
     </div>
   </a>
 </div>
 
-Everything below Level 1 is incremental: you can freely mix CSS variables, a custom welcome slot, and headless tool-call renderers in the same app. Nothing forces you to throw work away as your needs grow.
+第 1 级以下的一切都是增量式的：你可以在同一个应用里自由混用 CSS 变量、自定义欢迎插槽和无头工具调用渲染器。随着需求增长，没有任何机制迫使你推翻已完成的工作。
 
-## Drop-in chat in a few lines
+## 几行代码接入开箱即用的聊天
 
-Wrap your app in `<CopilotKit>` and drop `<CopilotChat>` where the
-chat should live. The provider wires the runtime, the session, and
-the agent registry. Everything else is optional configuration:
+用 `<CopilotKit>` 包裹你的应用，并把 `<CopilotChat>` 放在聊天应该出现的位置。Provider 会接好运行时、会话与智能体注册表。其余一切都是可选配置：
 
-<Snippet region="provider-setup" title="frontend/src/app/page.tsx: provider + chat" />
+<Snippet region="provider-setup" title="frontend/src/app/page.tsx：provider 与聊天" />
 
-## Starter suggestions
+## 起步建议
 
-`useConfigureSuggestions` lets you seed the chat with contextual
-prompts the moment a user arrives. The example below uses a single
-"Write a sonnet" suggestion:
+`useConfigureSuggestions` 让你在用户一到来时就用贴合上下文的提示填充聊天。下面的示例使用单条“写一首十四行诗”建议：
 
-<Snippet region="configure-suggestions" title="frontend/src/app/page.tsx: suggestions" />
+<Snippet region="configure-suggestions" title="frontend/src/app/page.tsx：建议" />
 
-## Pick a surface
+## 选择界面形态
 
-Each surface is a drop-in component with the same underlying primitives, differing only in layout.
+每种界面形态都是开箱即用的组件，底层原语相同，仅布局不同。
 
-- [`<CopilotChat>`](/prebuilt-components/chat): inline chat pane you can place anywhere and size to fit.
-- [`<CopilotSidebar>`](/prebuilt-components/sidebar): collapsible sidebar docked to the edge of your app.
-- [`<CopilotPopup>`](/prebuilt-components/popup): floating bubble that overlays your page content.
+- [`<CopilotChat>`](/prebuilt-components/chat)：可放在任意位置、按需调整大小的内嵌聊天面板。
+- [`<CopilotSidebar>`](/prebuilt-components/sidebar)：停靠在应用边缘、可折叠的侧边栏。
+- [`<CopilotPopup>`](/prebuilt-components/popup)：悬浮气泡，覆盖在页面内容之上。
 
-Add a conversation-history sidebar next to any of these with
-[Threads Drawer](/prebuilt-components/copilot-threads-drawer) — a
-drop-in thread switcher with no active-thread wiring.
+用 [线程抽屉（Threads Drawer）](/prebuilt-components/copilot-threads-drawer) 在其中任意一种旁边加上会话历史侧边栏——一个开箱即用的线程切换器，无需任何活动线程接线。
 
-Need to open/close the chat from your own button, or capture thumbs-up/down
-feedback? See [Open, close, and feedback](/prebuilt-components/chat-controls).
+需要从你自己的按钮打开/关闭聊天，或捕捉点赞/点踩反馈？参见[打开、关闭与反馈](/prebuilt-components/chat-controls)。
 
 <IntegrationGrid path="prebuilt-components" />

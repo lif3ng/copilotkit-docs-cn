@@ -1,107 +1,107 @@
 ---
-title: Cloud-hosted Intelligence
+title: 云托管 Intelligence
 nav_title: Cloud-hosted
-description: Sign in, create a project, and connect your runtime with a project API key.
+description: 登录、创建项目，并使用项目 API 密钥连接你的运行时。
 icon: "lucide/Cloud"
 doc_type: how-to
 ---
 
-## Overview
+## 概览
 
-Cloud-hosted Intelligence runs the platform for you, with a project and an API key and no cluster to operate. Your app still uses the CopilotKit SDK.
+云托管 Intelligence 为你代管整个平台：只需一个项目和一个 API 密钥，无需运维任何集群。你的应用仍然使用 CopilotKit SDK。
 
-![The cloud-hosted Intelligence ready page.](/images/cloud-hosted/cloud-hosted-ready.png)
+![云托管 Intelligence 就绪页面。](/images/cloud-hosted/cloud-hosted-ready.png)
 
-The cloud-hosted service stores the project's threads, events, and API keys. You create the project once, connect your app with the CLI, and everything else is in the web app.
+云托管服务会存储项目的线程、事件和 API 密钥。你只需创建一次项目，用 CLI 连接你的应用，其余一切都在 Web 应用中完成。
 
-The web app is for the people who build and operate the app. The people who chat with your agent do not sign in there. Your app still identifies those people and passes that identity through the runtime.
+Web 应用面向构建和运营该应用的人。与你的智能体对话的用户无需在那里登录。你的应用仍会识别这些用户，并通过运行时传递其身份。
 
-Compare this deployment with self-hosted on the [architecture page](/intelligence/intelligence-platform).
+请在[架构页面](/intelligence/intelligence-platform)上将此部署方式与自托管进行比较。
 
-## Get started
+## 开始使用
 
-Start at [intelligence.copilotkit.ai](https://intelligence.copilotkit.ai) or in the CopilotKit CLI.
+从 [intelligence.copilotkit.ai](https://intelligence.copilotkit.ai) 或 CopilotKit CLI 开始。
 
 <Steps>
   <Step>
-    ### Sign in
+    ### 登录
 
-    New accounts accept the CopilotKit Self-Service Agreement. An account that already accepted it does not accept it again.
+    新账户需接受 CopilotKit 自助服务协议。已接受过该协议的账户不会再次弹出。
 
     <OpsPlatformCTA
       variant="inline"
-      title="Start cloud-hosted setup"
-      body="Sign in, create an organization, then return to the CLI or the web app and select a project."
-      ctaLabel="Start cloud-hosted setup"
+      title="开始云托管配置"
+      body="登录并创建组织，然后返回 CLI 或 Web 应用并选择一个项目。"
+      ctaLabel="开始云托管配置"
       href="https://intelligence.copilotkit.ai/"
       surface="docs_intelligence_managed_platform_intro"
     />
 
-    A new organization chooses the Developer plan or a paid plan. Developer is the no-cost plan. Read [Plans](/intelligence/plans) when you want to change that choice.
+    新组织可选择 Developer 计划或付费计划。Developer 是免费计划。想更改这一选择时，请阅读[计划](/intelligence/plans)。
   </Step>
 
   <Step>
-    ### Create or select an organization
+    ### 创建或选择组织
 
-    Select an organization in the browser, or create one.
+    在浏览器中选择一个组织，或创建一个新组织。
   </Step>
 
   <Step>
-    ### Return to the tool that sent you
+    ### 返回发起跳转的工具
 
-    After the organization step, the browser returns to the CLI or the web app that opened it. If the CLI opened the browser, return to the terminal and let the command continue.
+    完成组织步骤后，浏览器会返回打开它的 CLI 或 Web 应用。如果是 CLI 打开的浏览器，请回到终端并让命令继续执行。
   </Step>
 
   <Step>
-    ### Select or create a project
+    ### 选择或创建项目
 
-    A project holds one app or one environment. Create a separate project for production, staging, demos, and experiments. Their API keys and threads stay separate.
+    一个项目承载一个应用或一个环境。请为生产、预发布、演示和实验分别创建独立的项目。它们的 API 密钥和线程彼此隔离。
 
-    Sign in and select the project in the [quickstart](/intelligence/quickstart#select-an-intelligence-project). That page writes `CPK_INTELLIGENCE_API_KEY` to `.env`.
+    在[快速开始](/intelligence/quickstart#select-an-intelligence-project)中登录并选择项目。该页面会把 `CPK_INTELLIGENCE_API_KEY` 写入 `.env`。
 
-    Two other commands fit a different starting point:
+    另有两个命令适用于不同的起点：
 
-    - `npx copilotkit@latest create` creates a new app and writes the same key.
-    - `npx copilotkit@latest skills onboard` adds CopilotKit to an existing app.
+    - `npx copilotkit@latest create` 创建一个新应用并写入同样的密钥。
+    - `npx copilotkit@latest skills onboard` 将 CopilotKit 添加到现有应用。
   </Step>
 </Steps>
 
-The [CopilotKit CLI](/cli) uses the same sign-in. The first `login` opens a browser sign-in page and stores a local session. Later commands reuse that session. `project select` creates the project API key and writes it to `.env`.
+[CopilotKit CLI](/cli) 使用同样的登录方式。首次 `login` 会打开浏览器登录页面并保存本地会话。后续命令会复用该会话。`project select` 会创建项目 API 密钥并写入 `.env`。
 
-![The cloud-hosted project list.](/images/cloud-hosted/cloud-hosted-projects.png)
+![云托管项目列表。](/images/cloud-hosted/cloud-hosted-projects.png)
 
-Choose a project to open its **Overview**. The project navigation groups its pages into two areas:
+选择一个项目即可打开其**概览**。项目导航将其页面分为两个区域：
 
-- **Overview**, **Product Analytics**, and **Automatic Learning** show project activity and analysis. During the Developer trial, Product Analytics and Automatic Learning are marked **TRIAL**.
-- **Project resources** contains [Threads](/AG-UI-Streams), [Channels](/intelligence/channels), [User Memories](/intelligence/memories), and [API Keys](#create-an-api-key).
+- **Overview**、**Product Analytics** 和 **Automatic Learning** 展示项目动态与分析。在 Developer 试用期内，Product Analytics 和 Automatic Learning 会标记 **TRIAL**。
+- **Project resources** 包含[线程](/AG-UI-Streams)、[渠道](/intelligence/channels)、[用户记忆](/intelligence/memories)和 [API 密钥](#创建-api-密钥)。
 
-Each page is scoped to the selected project. Its project API key connects your runtime to that same project.
+每个页面都限定于所选项目。该项目 API 密钥将你的运行时连接到同一个项目。
 
-Inside a project, open **Threads** to find the conversations saved for that project.
+在项目内打开 **Threads**，即可查看为该项目保存的对话。
 
-![A cloud-hosted project and its threads.](/images/cloud-hosted/cloud-hosted-thread-list.png)
+![云托管项目及其线程。](/images/cloud-hosted/cloud-hosted-thread-list.png)
 
-Open one thread to read its event timeline.
+打开某个线程即可查看其事件时间线。
 
-![A cloud-hosted thread with its event timeline.](/images/cloud-hosted/cloud-hosted-thread-detail.png)
+![云托管线程及其事件时间线。](/images/cloud-hosted/cloud-hosted-thread-detail.png)
 
-The thread page shows the agent, the app user, the status, the last update time, and the event timeline. Open an event when you need the raw payload. **Rename**, **Archive**, and **Delete** match the thread API in your app: archive hides the thread from the active list and keeps the history, delete removes it. Read [AG-UI Streams](/AG-UI-Streams) for how a thread works in your app.
+线程页面会显示智能体、应用用户、状态、最后更新时间和事件时间线。需要查看原始负载时，可以打开某个事件。**Rename**、**Archive** 和 **Delete** 与你应用中的线程 API 对应：archive 会将线程从活动列表中隐藏并保留历史，delete 则将其删除。线程在应用中的工作方式请阅读 [AG-UI Streams](/AG-UI-Streams)。
 
-## Create an API key
+## 创建 API 密钥
 
-A project API key connects your runtime to this project. The [quickstart](/intelligence/quickstart#select-an-intelligence-project) writes it to `.env` as `CPK_INTELLIGENCE_API_KEY`. `init` or its `create` alias writes the same key when it creates an app.
+项目 API 密钥将你的运行时连接到该项目。[快速开始](/intelligence/quickstart#select-an-intelligence-project)会把它作为 `CPK_INTELLIGENCE_API_KEY` 写入 `.env`。`init` 及其别名 `create` 在创建应用时也会写入同样的密钥。
 
-Cloud-hosted setup does not issue `COPILOTKIT_LICENSE_TOKEN`. A license key is only for a self-hosted deployment. It does not replace the project API key.
+云托管配置不会签发 `COPILOTKIT_LICENSE_TOKEN`。许可证密钥仅用于自托管部署。它不能替代项目 API 密钥。
 
-Keep `CPK_INTELLIGENCE_API_KEY` on the server.
+请将 `CPK_INTELLIGENCE_API_KEY` 保存在服务器端。
 
-![The cloud-hosted API keys page.](/images/cloud-hosted/cloud-hosted-api-keys.png)
+![云托管 API 密钥页面。](/images/cloud-hosted/cloud-hosted-api-keys.png)
 
-The CLI writes the full key into `.env`. A later run of `project select` creates another key for the same project. Deleting a key stops every app that still uses it.
+CLI 会将完整密钥写入 `.env`。之后再运行一次 `project select` 会为同一项目创建另一个密钥。删除某个密钥会导致所有仍在使用它的应用失效。
 
-Connect the key in the [quickstart](/intelligence/quickstart).
+请在[快速开始](/intelligence/quickstart)中连接该密钥。
 
-## Next
+## 后续步骤
 
-- [Plans](/intelligence/plans) shows limits and how to change the plan.
-- [Self-host Intelligence](/intelligence/self-hosting) when the platform must run in your cluster.
+- [计划](/intelligence/plans)介绍了各项限制以及如何更改计划。
+- 当平台必须运行在你自己的集群中时，请参阅[自托管 Intelligence](/intelligence/self-hosting)。

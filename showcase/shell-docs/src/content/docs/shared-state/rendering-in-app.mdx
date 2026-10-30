@@ -1,18 +1,14 @@
 ---
-title: "Render agent state in your app"
+title: "在应用中渲染智能体状态"
 icon: "lucide/LayoutDashboard"
-description: "Read agent.state with useAgent and render it in your main view or canvas."
+description: "用 useAgent 读取 agent.state，并在主视图或画布中渲染。"
 ---
 
-[Shared state](/shared-state) is most powerful when the agent's state shows up in
-your application UI, such as a dashboard, document canvas, map, or table. Because
-`agent.state` is plain React data, you can subscribe to it from any component in
-your tree and render it however you like.
+当智能体状态直接呈现在你的应用 UI 中时，[共享状态](/shared-state)的威力最为明显，比如仪表盘、文档画布、地图或表格。由于 `agent.state` 就是普通的 React 数据，你可以在组件树中的任意组件里订阅它，并按自己喜欢的方式渲染。
 
-## The pattern
+## 基本模式
 
-`useAgent` works in any component under `<CopilotKit>`. It doesn't have to be
-near the chat. Call it in your main-view component, read `agent.state`, and render:
+`useAgent` 可以在 `<CopilotKit>` 下的任意组件中使用，不必靠近聊天组件。在你的主视图组件中调用它，读取 `agent.state` 并渲染即可：
 
 ```tsx title="components/Canvas.tsx"
 import { useEffect } from "react";
@@ -69,21 +65,13 @@ export function Canvas() {
 }
 ```
 
-The `INITIAL_CANVAS_STATE` value is UI-owned initial state for this example.
-It makes the canvas visible before the agent writes state. The effect sets only
-`undefined` fields and preserves all other state. If the backend owns the initial
-state, define it in the shared-state setup for that framework.
+本例中的 `INITIAL_CANVAS_STATE` 是由 UI 持有的初始状态，用于在智能体写入状态之前让画布可见。该 effect 只设置值为 `undefined` 的字段，并保留其他所有状态。如果初始状态由后端持有，请在对应框架的共享状态配置中定义它。
 
-Every time the agent mutates its state, whether from a tool call, node
-transition, or [streamed update](/shared-state/streaming), `useAgent` re-renders this component
-with the new values. The chat can be in a sidebar, a popup, or absent entirely;
-your canvas updates the same way.
+每当智能体修改其状态时——无论是通过工具调用、节点切换还是[流式更新](/shared-state/streaming)——`useAgent` 都会用新值重新渲染该组件。聊天可以放在侧边栏、弹窗中，甚至完全不出现；你的画布都会以同样的方式更新。
 
-## Put it anywhere in your layout
+## 放在布局的任意位置
 
-The agent lives on the `<CopilotKit>` provider, so the chat surface and your
-main-view components are just two consumers of the same agent. A typical layout
-renders the canvas as the primary content and the chat as a docked sidebar:
+智能体依附于 `<CopilotKit>` 提供方，因此聊天界面和你的主视图组件只是同一个智能体的两个消费方。典型的布局会把画布作为主要内容渲染，把聊天作为停靠的侧边栏：
 
 ```tsx title="app/page.tsx"
 import { CopilotKit, CopilotSidebar } from "@copilotkit/react-core/v2";
@@ -104,16 +92,12 @@ export default function Page() {
 ```
 
 <Callout type="info">
-`<Canvas>` and `<CopilotSidebar>` both call `useAgent()` for the same `agentId`,
-so they share one agent instance and one state object. There's nothing chat-specific
-about reading `agent.state`. The sidebar is not special.
+`<Canvas>` 和 `<CopilotSidebar>` 都针对同一个 `agentId` 调用 `useAgent()`，因此它们共享同一个智能体实例和同一个状态对象。读取 `agent.state` 没有任何聊天专属之处，侧边栏也并不特殊。
 </Callout>
 
-## Writing back from the main view
+## 从主视图写回
 
-The same `agent` exposes `setState`, so your canvas can be interactive, not just a
-read-only mirror. A click handler in the main view can push a new value that the
-agent reads on its next turn:
+同一个 `agent` 还暴露了 `setState`，因此你的画布可以是可交互的，而不只是只读镜像。主视图中的点击处理函数可以推送新值，供智能体在下一轮读取：
 
 ```tsx
 function toggleItem(id: string) {
@@ -126,22 +110,17 @@ function toggleItem(id: string) {
 }
 ```
 
-This is the same two-way channel described in [Shared State](/shared-state). The
-only difference here is that the reads and writes happen in your application's main
-surface rather than in the chat.
+这就是 [共享状态](/shared-state) 中描述的同一条双向通道。唯一的区别在于，这里的读写发生在应用的主界面上，而不是聊天中。
 
-## Tips
+## 实用技巧
 
-- **Target a specific agent** with `useAgent({ agentId: "research-agent" })` when
-  you have more than one. The default is the agent named `"default"`.
-- **Throttle high-frequency updates** with `useAgent({ throttleMs })` if a
-  streaming run re-renders a heavy canvas too often.
-- **Treat `agent.state` as possibly partial** while a run is in progress. Guard
-  with defaults (as above) so half-streamed state doesn't crash your render.
+- **定位特定智能体**：当你有多个智能体时，使用 `useAgent({ agentId: "research-agent" })`。默认是名为 `"default"` 的智能体。
+- **节流高频更新**：如果流式运行导致较重的画布重新渲染得过于频繁，可使用 `useAgent({ throttleMs })`。
+- **把 `agent.state` 视为可能不完整的状态**：运行进行期间，请像上面那样用默认值做防护，避免只流式传输了一半的状态导致渲染崩溃。
 
-## Related
+## 相关内容
 
-- [Shared State](/shared-state): the full read/write model and the underlying `useAgent` subscription.
-- [State streaming](/shared-state/streaming): stream a tool argument into a state key so the canvas fills in token-by-token.
-- [Agent read-only context](/shared-state/agent-readonly): push UI values *to* the agent without letting it write back.
-- [`useAgent` reference](/reference/v2/hooks/useAgent): full hook signature and options.
+- [共享状态](/shared-state)：完整的读写模型以及底层的 `useAgent` 订阅。
+- [状态流式传输](/shared-state/streaming)：把工具参数流式写入状态键，让画布逐 token 填充。
+- [智能体只读上下文](/shared-state/agent-readonly)：把 UI 值推送*给*智能体，但不允许它写回。
+- [`useAgent` 参考](/reference/v2/hooks/useAgent)：完整的 hook 签名与选项。

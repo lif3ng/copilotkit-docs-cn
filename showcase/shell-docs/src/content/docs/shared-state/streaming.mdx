@@ -1,6 +1,6 @@
 ---
-title: State Streaming
-description: Stream partial agent state updates to the UI while a tool call is still running.
+title: 状态流式传输
+description: 在工具调用仍在运行时，把部分的智能体状态更新流式推送到 UI。
 icon: "lucide/Podcast"
 hideTOC: true
 snippet_cell: shared-state-streaming
@@ -8,73 +8,47 @@ snippet_cell: shared-state-streaming
 
 <InlineDemo demo="shared-state-streaming" />
 
-## What is this?
+## 这是什么？
 
-By default, agent state only updates *between* backend checkpoints, so
-a long-running tool call (writing a full document, drafting an email)
-appears to the UI as one big burst at the end. For agent-native apps,
-that feels broken: users expect to watch the output materialise.
+默认情况下，智能体状态只在后端检查点*之间*更新，因此一次长时间运行的工具调用（比如撰写完整文档、起草邮件）在 UI 看来就是最后一次性涌出的一大块。对智能体原生的应用来说，这种体验很糟糕：用户期望看着输出逐步成形。
 
-**State streaming** forwards the value of a specific tool argument
-straight into an agent state key *as the argument is being generated*.
-The UI, subscribed via `useAgent`, re-renders every token.
+**状态流式传输**会在*参数生成的过程中*，把特定工具参数的值直接转发到某个智能体状态键。通过 `useAgent` 订阅的 UI 会随每个 token 重新渲染。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Use state streaming whenever a tool's output is long-form text or a
-growing structured value and you want the user to see it assemble in
-real time. Common shapes:
+只要工具的输出是长篇文本或不断增长的结构化值，并且你希望用户实时看到它逐步组装起来，就可以使用状态流式传输。常见形态有：
 
-- A collaborative writing agent that emits a document
-- A research agent that accumulates a list of findings
-- A planning agent that builds up a step-by-step plan
+- 输出文档的协作写作智能体
+- 不断累积发现清单的研究智能体
+- 逐步构建分步计划的规划智能体
 
-Without streaming, the user stares at a spinner. With streaming, they
-see the answer grow token-by-token.
+没有流式传输时，用户只能盯着加载动画；有了流式传输，他们能看到答案逐 token 生长。
 
-## The backend: one streaming state mapping
+## 后端：一条流式状态映射
 
 <FrameworkSetup concept="state-streaming-setup" />
 
-The backend pattern is always the same: map one streaming tool argument
-to one shared-state key. Middleware-backed frameworks usually expose
-this as a declarative mapping — for example, LangGraph Python's
-`StateStreamingMiddleware` with `StateItem(...)` entries, or
-`copilotkitCustomizeConfig` with an `emitIntermediateState` mapping for
-LangGraph TypeScript graphs. Direct SDK adapters do the same work in
-their streaming loop by parsing partial tool arguments and emitting
-`STATE_SNAPSHOT` whenever the mapped value changes. When the LLM streams
-that argument, CopilotKit writes every partial value into shared state
-before the tool even finishes executing.
+后端模式始终相同：把一个流式工具参数映射到一个共享状态键。基于中间件的框架通常以声明式映射的形式暴露这一能力——例如 LangGraph Python 中带 `StateItem(...)` 条目的 `StateStreamingMiddleware`，或针对 LangGraph TypeScript 图使用带 `emitIntermediateState` 映射的 `copilotkitCustomizeConfig`。直接的 SDK 适配器则在各自的流式循环中完成同样的工作：解析不完整的工具参数，并在映射值变化时发出 `STATE_SNAPSHOT`。当 LLM 流式生成该参数时，CopilotKit 会在工具尚未执行完毕之前，把每个部分值写入共享状态。
 
-<Snippet region="state-streaming-middleware" title="backend — streaming state mapping" />
+<Snippet region="state-streaming-middleware" title="backend — 流式状态映射" />
 
-A few things to note:
+有几点需要注意：
 
-- The state key must exist in your agent state (`document` in this demo).
-- The tool and argument names must match the exact LLM-facing tool call
-  you want to forward (`write_document.document` here).
-- When the tool call completes, its final return value is written to
-  the same key, so the streamed partial eventually becomes the
-  authoritative final value.
+- 状态键必须已存在于你的智能体状态中（本演示中是 `document`）。
+- 工具名和参数名必须与你要转发的那个面向 LLM 的工具调用完全一致（这里是 `write_document.document`）。
+- 工具调用完成后，其最终返回值会写入同一个键，因此流式传输的部分值最终会变为权威的最终值。
 
-## The frontend: useAgent + OnStateChanged
+## 前端：useAgent + OnStateChanged
 
-The UI side is identical to any other shared-state subscription:
-`useAgent` with `OnStateChanged` gives you a reactive `agent.state`.
-Add `OnRunStatusChanged` if you want a "LIVE" / "done" indicator.
+UI 这边与任何其他共享状态订阅完全一致：`useAgent` 配合 `OnStateChanged` 即可得到响应式的 `agent.state`。如果你想要一个“实时”/“完成”指示器，再加上 `OnRunStatusChanged`。
 
-<Snippet region="frontend-use-coagent-state" title="frontend/src/app/page.tsx — useAgent subscription" />
+<Snippet region="frontend-use-coagent-state" title="frontend/src/app/page.tsx — useAgent 订阅" />
 
-From there, `agent.state.document` is just a string that grows on every
-token, and `agent.isRunning` tells you whether to show a streaming
-indicator.
+从这里开始，`agent.state.document` 就是一个随每个 token 增长的字符串，`agent.isRunning` 则告诉你是否要显示流式指示器。
 
-## Related
+## 相关内容
 
-- **[Shared State (overview)](/shared-state)** — the bidirectional
-  read + write pattern this extends.
-- **[Agent read-only context](/shared-state/agent-readonly)** —
-  for the inverse, UI → agent one-way channel.
+- **[共享状态（概览）](/shared-state)** —— 本文所扩展的双向读写模式。
+- **[智能体只读上下文](/shared-state/agent-readonly)** —— 反方向的单向通道：UI → 智能体。
 
 <IntegrationGrid path="shared-state/streaming" exclude={["agno", "agent-spec", "spring-ai", "langroid"]} />

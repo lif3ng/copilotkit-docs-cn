@@ -1,84 +1,84 @@
 ---
-title: "CopilotKit Intelligence architecture"
-description: "How a CopilotKit runtime connects to Intelligence, and how cloud-hosted differs from self-hosted."
+title: "CopilotKit Intelligence 架构"
+description: "CopilotKit runtime 如何连接到 Intelligence，以及云托管与自托管有何区别。"
 icon: "lucide/Server"
 doc_type: explanation
 ---
 
-## Overview
+## 概览
 
-You want to see how your app, your runtime, and Intelligence fit together, and which deployment to run. This page is that map. It applies to [cloud-hosted Intelligence](/intelligence/managed-intelligence-platform) and to [self-hosted Intelligence](/intelligence/self-hosting).
+你想了解你的应用、你的 runtime 与 Intelligence 如何协同工作，以及该运行哪种部署形态。本页面就是这幅地图。它适用于[云托管版 Intelligence](/intelligence/managed-intelligence-platform) 和[自托管版 Intelligence](/intelligence/self-hosting)。
 
-To connect a runtime, follow the [quickstart](/intelligence/quickstart). For the Kubernetes install, go to [self-host on Kubernetes](/intelligence/self-hosting).
+要连接 runtime，请按照[快速开始](/intelligence/quickstart)操作。Kubernetes 安装请前往[在 Kubernetes 上自托管](/intelligence/self-hosting)。
 
 <OpsPlatformCTA
   variant="inline"
-  title="Start with cloud-hosted Intelligence"
-  body="Create a project, get a project API key, and inspect the first thread before you decide to self-host."
-  ctaLabel="Start cloud-hosted setup"
+  title="从云托管版 Intelligence 开始"
+  body="创建一个项目，获取项目 API 密钥，并查看第一个线程，然后再决定是否自托管。"
+  ctaLabel="开始云托管配置"
   href="https://intelligence.copilotkit.ai/"
   surface="docs_intelligence_architecture_intro"
 />
 
-## Runtime and platform roles
+## Runtime 与平台的角色
 
-A CopilotKit app has three layers:
+一个 CopilotKit 应用包含三层：
 
-- **Frontend.** Your application uses the CopilotKit frontend SDK to render chat, generative UI, tools, and thread controls.
-- **Runtime.** Your application server hosts the CopilotKit runtime and connects to your agent framework through AG-UI.
-- **CopilotKit Intelligence.** The platform service that stores threads, serves project APIs, and powers the web app.
+- **前端。** 你的应用使用 CopilotKit 前端 SDK 来渲染聊天、生成式 UI、工具和线程控件。
+- **Runtime。** 你的应用服务器承载 CopilotKit runtime，并通过 AG-UI 连接到你的智能体框架。
+- **CopilotKit Intelligence。** 存储线程、提供项目 API 并支撑 Web 应用的平台服务。
 
-The runtime is the bridge. It receives requests from your app, streams AG-UI events to and from your agent, and uses CopilotKit Intelligence when a capability needs durable platform state.
+runtime 是桥梁。它接收来自应用的请求，与你的智能体之间双向流式传输 AG-UI 事件，并在某项能力需要持久化的平台状态时使用 CopilotKit Intelligence。
 
-## Project boundaries
+## 项目边界
 
-The platform scopes data through three concepts:
+平台通过三个概念来划分数据范围：
 
-- **Organization.** The billing and workspace boundary.
-- **Project.** One application or environment inside an organization, such as production, staging, or a demo.
-- **User.** The signed-in person from your application.
+- **组织（Organization）。** 计费与工作区的边界。
+- **项目（Project）。** 组织内的一个应用或环境，例如生产、预发（staging）或演示。
+- **用户（User）。** 来自你应用的已登录人员。
 
-Project API keys are issued per project. Threads, events, and dashboard history are visible only inside the project that owns them, so production and staging can share the same platform deployment without sharing conversation data.
+项目 API 密钥按项目签发。线程、事件和仪表盘历史只在拥有它们的项目内可见，因此生产与预发环境可以共享同一个平台部署，而互不共享会话数据。
 
-## Threads
+## 线程
 
-A thread is the saved conversation for one user in one project. Read [AG-UI Streams](/AG-UI-Streams) for the product. Read [how a thread is saved](/intelligence/threads-explained) for replay and sync.
+线程是某个用户在某个项目中保存下来的对话。产品介绍请阅读 [AG-UI Streams](/AG-UI-Streams)。回放与同步机制请阅读[线程是如何保存的](/intelligence/threads-explained)。
 
-## Realtime sync
+## 实时同步
 
-Realtime sync keeps thread metadata and active conversation state aligned across clients. When enabled, clients subscribe to platform-backed updates so changes such as renames, archives, and active-run status can appear without a page reload.
+实时同步让线程元数据和活动会话状态在各客户端之间保持一致。启用后，客户端会订阅由平台支持的更新，因此重命名、归档、活动运行状态等变化无需刷新页面即可呈现。
 
-The important application-level contract is simple: your app uses the same frontend APIs, while the runtime points at the platform endpoint for the selected deployment.
+重要的应用层约定很简单：你的应用使用相同的前端 API，而 runtime 指向所选部署形态对应的平台端点。
 
-## Inspection
+## 检查
 
-Open a stored thread in the [cloud-hosted project](/intelligence/managed-intelligence-platform#get-started). API keys and plans live on [Cloud-hosted](/intelligence/managed-intelligence-platform) and [Plans](/intelligence/plans).
+在[云托管项目](/intelligence/managed-intelligence-platform#get-started)中打开一条已存储的线程。API 密钥与套餐信息见 [Cloud-hosted](/intelligence/managed-intelligence-platform) 和 [套餐](/intelligence/plans)。
 
-## Hosting model
+## 托管模式
 
-Cloud-hosted and self-hosted CopilotKit Intelligence share the same application contract:
+云托管与自托管的 CopilotKit Intelligence 共享相同的应用契约：
 
-| Deployment | What changes | What stays the same |
+| 部署形态 | 有何变化 | 保持不变的部分 |
 |---|---|---|
-| Cloud-hosted | CopilotKit runs the platform, database, web app, project API keys, and plan management. | Your frontend APIs, runtime APIs, AG-UI agent connection, and thread APIs. |
-| Self-hosted | You run the platform in your own Kubernetes cluster and own its infrastructure dependencies. | Your frontend APIs, runtime APIs, AG-UI agent connection, and thread APIs. |
+| 云托管 | CopilotKit 运行平台、数据库、Web 应用、项目 API 密钥和套餐管理。 | 你的前端 API、runtime API、AG-UI 智能体连接和线程 API。 |
+| 自托管 | 你在自己的 Kubernetes 集群中运行平台，并拥有其基础设施依赖。 | 你的前端 API、runtime API、AG-UI 智能体连接和线程 API。 |
 
-Self-hosted changes who operates the platform. The frontend integration stays the same. Moving from cloud-hosted to self-hosted is available on the Team Self-hosted plan or the Enterprise plan. See [Plans](/intelligence/plans).
+自托管改变的只是平台的运营方，前端集成保持不变。从云托管切换到自托管需要 Team Self-hosted 套餐或 Enterprise 套餐。参见[套餐](/intelligence/plans)。
 
-## Error handling model
+## 错误处理模型
 
-Platform-backed features are networked features. If the platform endpoint is unavailable or credentials are invalid, thread operations surface as runtime errors rather than silently falling back to local-only state.
+由平台支撑的特性就是依赖网络的特性。如果平台端点不可用或凭据无效，线程操作会以运行时错误的形式暴露出来，而不是静默回退到仅本地的状态。
 
-Common debugging checks:
+常见的排查要点：
 
-- Confirm the runtime is using the right platform URL for the selected deployment.
-- Confirm the runtime API key or license is valid for the project or self-hosted environment.
-- Confirm the user and project context you pass from the app match the thread history you expect to see.
-- Confirm realtime sync is configured when you expect cross-tab or cross-device updates.
+- 确认 runtime 使用的平台 URL 与所选部署形态相匹配。
+- 确认 runtime API 密钥或许可证对该项目或自托管环境有效。
+- 确认你从应用传递的用户与项目上下文，与你期望看到的线程历史相匹配。
+- 如果你期望跨标签页或跨设备的更新，确认实时同步已配置。
 
-## Next steps
+## 后续步骤
 
-- [Overview](/intelligence/overview) lists each feature on its own page.
-- [Cloud-hosted](/intelligence/managed-intelligence-platform) creates the project and the API key.
-- [Self-host on Kubernetes](/intelligence/self-hosting) installs the platform in your cluster.
-- [How a thread is saved](/intelligence/threads-explained) covers replay and sync.
+- [概览](/intelligence/overview) 在各自的页面上列出每项特性。
+- [云托管](/intelligence/managed-intelligence-platform) 创建项目并生成 API 密钥。
+- [在 Kubernetes 上自托管](/intelligence/self-hosting) 在你的集群中安装平台。
+- [线程是如何保存的](/intelligence/threads-explained) 介绍回放与同步。
