@@ -1,9 +1,9 @@
 ---
-title: Button
-description: Post a portable callback or link button in Slack and Microsoft Teams.
+title: "Button"
+description: "在 Slack 与 Microsoft Teams 中发布可移植的回调按钮或链接按钮。"
 ---
 
-`Button` creates the most portable managed interaction control.
+`Button` 创建可移植性最高的托管交互控件。
 
 ```tsx
 import { Actions, Button } from "@copilotkit/channels/ui";
@@ -23,18 +23,14 @@ import { Actions, Button } from "@copilotkit/channels/ui";
 
 ## Props
 
-| Prop | Type | Description |
-| --- | --- | --- |
-| `value` | `TValue` | JSON-serializable value returned as `ctx.action.value`. It also infers the callback value type. |
-| `onClick` | `ClickHandler<TValue>` | Callback for a native button submission. |
-| `url` | `string` | Creates a native link button. When set, `onClick` and `value` are ignored. |
-| `style` | `"primary" \| "danger"` | Maps to the closest provider emphasis. |
-| `children` | `BotChildren` | Button label. |
+| Prop       | 类型                      | 说明                                                                                  |
+| ---------- | ------------------------- | ------------------------------------------------------------------------------------- |
+| `value`    | `TValue`                  | 作为 `ctx.action.value` 返回的 JSON 可序列化值。它同时会推断回调的值类型。            |
+| `onClick`  | `ClickHandler<TValue>`    | 原生按钮提交的回调。                                                                  |
+| `url`      | `string`                  | 创建原生链接按钮。设置后，`onClick` 与 `value` 会被忽略。                             |
+| `style`    | `"primary" \| "danger"`   | 映射到最接近的提供方强调样式。                                                        |
+| `children` | `BotChildren`             | 按钮标签。                                                                            |
 
-Managed Slack renders a Block Kit button. Managed Teams renders
-`Action.Submit`, or `Action.OpenUrl` when `url` is set. A Teams submission can
-arrive without a source message reference, so only call `thread.update()` when
-`ctx.message.ref.id` is non-empty.
+托管 Slack 渲染一个 Block Kit 按钮。托管 Teams 渲染 `Action.Submit`，设置 `url` 时则渲染 `Action.OpenUrl`。Teams 的提交可能在缺少来源消息引用的情况下到达，因此只有当 `ctx.message.ref.id` 非空时才调用 `thread.update()`。
 
-Register the named component that owns `onClick`. Add a durable `StateStore`
-when buttons must remain usable across a runner restart.
+注册拥有 `onClick` 的具名组件。当按钮必须在 runner 重启后仍然可用时，添加持久化的 `StateStore`。

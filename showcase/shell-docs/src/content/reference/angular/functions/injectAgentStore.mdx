@@ -1,21 +1,21 @@
 ---
 title: "injectAgentStore"
-description: "Angular function that subscribes to an AG-UI agent and returns a signal of reactive agent state (messages, state, isRunning) for @copilotkit/angular."
+description: "面向 @copilotkit/angular 的 Angular 函数，订阅 AG-UI 智能体并返回承载响应式智能体状态（messages、state、isRunning）的 signal。"
 ---
 
-## Overview
+## 概览
 
-`injectAgentStore` subscribes to an [AG-UI agent](https://docs.ag-ui.com/sdk/js/client/abstract-agent) and returns an Angular `Signal<AgentStore>`. The `AgentStore` exposes the agent instance plus its reactive state (messages, shared state, and run status) as Angular signals, so your component re-renders automatically when the agent changes.
+`injectAgentStore` 订阅一个 [AG-UI agent](https://docs.ag-ui.com/sdk/js/client/abstract-agent)，并返回 Angular 的 `Signal<AgentStore>`。`AgentStore` 把智能体实例及其响应式状态（消息、共享状态和运行状态）以 Angular signals 的形式暴露出来，因此当智能体变化时，你的组件会自动重新渲染。
 
-Read the store by calling the outer signal, then read each member by calling its signal: `store().messages()`, `store().isRunning()`, `store().state()`. The `agent` member is the plain AG-UI instance (not a signal), so you read it directly: `store().agent`.
+调用外层 signal 即可读取 store，再调用各成员自身的 signal 读取成员：`store().messages()`、`store().isRunning()`、`store().state()`。`agent` 成员是普通的 AG-UI 实例（不是 signal），可直接读取：`store().agent`。
 
-Call it from an injection context such as a constructor or field initializer. The subscription is torn down automatically when the owning component or service is destroyed.
+请在注入上下文中调用它，例如构造函数或字段初始化器。当所属组件或服务销毁时，订阅会自动拆除。
 
 <Callout type="warn">
-  Resolution of the agent is lazy and reactive. If no agent can be resolved for the given `agentId` after the runtime has synced (for example, the id does not match any agent reported by your runtime `/info` or configured through `agents` or `selfManagedAgents`), reading the store signal throws an error listing the known agents.
+  智能体的解析是惰性且响应式的。如果运行时同步完成后仍无法为给定的 `agentId` 解析出智能体（例如该 id 与运行时 `/info` 报告的任何智能体都不匹配，也未通过 `agents` 或 `selfManagedAgents` 配置），读取 store signal 会抛出一个错误，其中列出已知的智能体。
 </Callout>
 
-## Signature
+## 签名
 
 ```ts
 import { injectAgentStore } from "@copilotkit/angular";
@@ -26,47 +26,47 @@ function injectAgentStore(
 ): Signal<AgentStore>;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="agentId" type="string | Signal<string | undefined>" required>
-  ID of the agent to subscribe to. Pass a plain string for a fixed agent, or a `Signal<string | undefined>` to switch agents reactively. When the resolved id is empty or `undefined`, the default agent id is used. The returned signal re-resolves whenever this id, the available agents, or the runtime connection status change.
+  要订阅的智能体的 ID。固定智能体传普通字符串；需要响应式切换智能体时传 `Signal<string | undefined>`。当解析出的 id 为空或 `undefined` 时，使用默认智能体 id。只要该 id、可用智能体集合或运行时连接状态发生变化，返回的 signal 就会重新解析。
 </PropertyReference>
 
-## Return Value
+## 返回值
 
 <PropertyReference name="store" type="Signal<AgentStore>">
-  An Angular signal holding the current `AgentStore`. Calling it (`store()`) returns the live `AgentStore` instance, recomputing when the agent is re-resolved. Reading it also throws if the agent cannot be resolved (see the callout above).
+  一个持有当前 `AgentStore` 的 Angular signal。调用它（`store()`）会返回最新的 `AgentStore` 实例，并在智能体重新解析时重新计算。如果无法解析智能体，读取它同样会抛错（见上方提示块）。
 
-  The `AgentStore` exposes the following members:
+  `AgentStore` 暴露以下成员：
 
   <PropertyReference name="agent" type="AbstractAgent">
-    The underlying AG-UI agent instance. This is a plain reference, not a signal, so read it directly as `store().agent`. Use it to call agent methods such as `runAgent`, `setState`, `addMessage`, and `abortRun`. See the [AbstractAgent documentation](https://docs.ag-ui.com/sdk/js/client/abstract-agent) for the full interface.
+    底层的 AG-UI 智能体实例。这是一个普通引用，不是 signal，因此可直接以 `store().agent` 读取。用它调用智能体方法，例如 `runAgent`、`setState`、`addMessage` 和 `abortRun`。完整接口见 [AbstractAgent 文档](https://docs.ag-ui.com/sdk/js/client/abstract-agent)。
   </PropertyReference>
 
   <PropertyReference name="messages" type="Signal<Message[]>">
-    A readonly signal of the agent's conversation messages. Read it with `store().messages()`. Each entry is an AG-UI `Message` with fields such as `id`, `role` (`"user" | "assistant" | "system" | "tool" | "developer"`), and `content`. Updates whenever the agent's messages change.
+    智能体会话消息的只读 signal。用 `store().messages()` 读取。每一项都是一个 AG-UI `Message`，包含 `id`、`role`（`"user" | "assistant" | "system" | "tool" | "developer"`）和 `content` 等字段。智能体消息变化时随之更新。
   </PropertyReference>
 
   <PropertyReference name="state" type="Signal<unknown>">
-    A readonly signal of the agent's shared state object, synchronized between your app and the agent. Read it with `store().state()`. The store seeds this signal synchronously from the agent's current `state`, including state restored before subscription. Cast or type it as needed for your agent's state shape.
+    智能体共享状态对象的只读 signal，在你的应用与智能体之间保持同步。用 `store().state()` 读取。store 会从智能体当前的 `state` 同步初始化该 signal，包括订阅之前恢复的状态。可按你智能体的状态形态按需进行类型转换或标注。
   </PropertyReference>
 
   <PropertyReference name="isRunning" type="Signal<boolean>">
-    A readonly signal indicating whether the agent is currently executing. Read it with `store().isRunning()`. It becomes `true` when a run is initialized and `false` when the run finalizes, fails, or reports a protocol-level run error.
+    指示智能体当前是否正在执行的只读 signal。用 `store().isRunning()` 读取。运行初始化时变为 `true`，运行结束、失败或报告协议级运行错误时变为 `false`。
   </PropertyReference>
 
   <PropertyReference name="interruptController" type="InterruptController">
-    The pending interrupt for this conversation — the same agent and thread the other members describe. Read it directly (`store().interruptController`), then bind its signals: `hasInterrupt()`, `view()`, `interrupt()`, `interrupts()`, `error()`, and resolve with `resolve(payload?, interruptId?)` or `cancel(interruptId?)`.
+    此会话的待处理中断——与其他成员描述的是同一智能体和线程。直接读取它（`store().interruptController`），然后绑定它的 signals：`hasInterrupt()`、`view()`、`interrupt()`、`interrupts()`、`error()`，并用 `resolve(payload?, interruptId?)` 或 `cancel(interruptId?)` 来处理。
 
-    The controller is created and connected with the store. Standard AG-UI interrupts retained by the agent are surfaced immediately, and legacy `on_interrupt` events are observed for the store's full lifetime. The controller is destroyed when the store is torn down or the agent is swapped.
+    该控制器随 store 一起创建并连接。智能体保留的标准 AG-UI 中断会立即呈现，旧版 `on_interrupt` 事件则在 store 的整个生命周期内被监听。store 被拆除或智能体被替换时，控制器随之销毁。
 
-    This is the unfiltered default and is untyped (`InterruptController<unknown, never>`). For a typed value, an `enabled` filter, or a `handler`, use [`injectInterrupt`](/reference/angular/functions/injectInterrupt) with the same agent id.
+    这是不带过滤的默认版本，且无类型（`InterruptController<unknown, never>`）。需要带类型的值、`enabled` 过滤器或 `handler` 时，请对同一智能体 id 使用 [`injectInterrupt`](/reference/angular/functions/injectInterrupt)。
   </PropertyReference>
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Basic usage
+### 基本用法
 
 ```ts title="src/app/agent-status.component.ts"
 import { Component } from "@angular/core";
@@ -85,9 +85,9 @@ export class AgentStatusComponent {
 }
 ```
 
-### Reading and updating shared state
+### 读取与更新共享状态
 
-Read the state via the signal, and write it through the agent instance.
+通过 signal 读取状态，通过智能体实例写入状态。
 
 ```ts title="src/app/theme-panel.component.ts"
 import { Component } from "@angular/core";
@@ -111,9 +111,9 @@ export class ThemePanelComponent {
 }
 ```
 
-### Switching agents reactively
+### 响应式切换智能体
 
-Pass a signal so the store re-resolves when the selected agent id changes.
+传入一个 signal，这样当选中的智能体 id 变化时，store 会重新解析。
 
 ```ts title="src/app/multi-agent.component.ts"
 import { Component, signal } from "@angular/core";
@@ -135,31 +135,31 @@ export class MultiAgentComponent {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Reactive resolution.** The returned signal recomputes when the `agentId`, the set of available agents, the runtime connection status, the runtime URL or transport, or the request headers change.
-- **Provisional agents.** When a runtime is configured but not yet connected, a provisional proxied runtime agent is created and cached so the store has something to render before the runtime syncs.
-- **Automatic cleanup.** The agent subscription is unsubscribed when the owning component or service is destroyed. Switching to a new agent tears down the previous store's subscription first, including its interrupt controller.
-- **Error on missing agent.** If no agent resolves after the runtime has synced, reading the store signal throws an error that lists the known agent ids.
+- **响应式解析**。当 `agentId`、可用智能体集合、运行时连接状态、运行时 URL 或传输方式、请求头发生变化时，返回的 signal 会重新计算。
+- **临时智能体**。当已配置运行时但尚未连接时，会创建并缓存一个临时代理运行时智能体，让 store 在运行时同步之前也有内容可渲染。
+- **自动清理**。所属组件或服务销毁时，智能体订阅会被退订。切换到新智能体时，会先拆除上一个 store 的订阅，包括其中断控制器。
+- **缺少智能体时报错**。如果运行时同步完成后仍无法解析出智能体，读取 store signal 会抛出一个错误，其中列出已知的智能体 id。
 
-## Related
+## 另请参阅
 
 <Cards>
   <Card
     title="connectAgentContext"
-    description="Share application state with the agent reactively from a function."
+    description="通过函数以响应式方式把应用状态共享给智能体。"
     href="/reference/angular/functions/connectAgentContext"
     icon={<LinkIcon />}
   />
   <Card
     title="CopilotKit service"
-    description="The central handle on agents, tools, and the runtime connection."
+    description="智能体、工具与运行时连接的中央句柄。"
     href="/reference/angular/services/CopilotKit"
     icon={<LinkIcon />}
   />
   <Card
     title="AG-UI AbstractAgent"
-    description="Full agent interface: methods, messages, state, and subscriptions."
+    description="完整的智能体接口：方法、消息、状态与订阅。"
     href="https://docs.ag-ui.com/sdk/js/client/abstract-agent"
     icon={<LinkIcon />}
   />

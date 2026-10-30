@@ -1,21 +1,15 @@
 ---
 title: "injectThreads"
-description: "Angular function for listing and managing CopilotKit Intelligence threads with signals, pagination, realtime updates, and injector-scoped cleanup."
+description: "Angular 函数，用于借助 signal 列出和管理 CopilotKit Intelligence 线程，支持分页、实时更新以及注入器作用域的自动清理。"
 ---
 
-## Overview
+## 概览
 
-`injectThreads` returns the thread list and mutations for one agent as Angular
-signals and stable callbacks. It fetches the runtime-authenticated user's
-threads from CopilotKit Intelligence, keeps metadata current through
-realtime updates when available, and sorts the list by most recent agent
-activity.
+`injectThreads` 以 Angular signal 和稳定回调的形式返回单个智能体的线程列表与各项变更操作。它会从 CopilotKit Intelligence 拉取经运行时身份验证的用户的线程，在可用时通过实时更新保持元数据最新，并按最近一次智能体活动对列表排序。
 
-Call it from an Angular injection context such as a component field initializer
-or constructor. The list subscription, realtime connection, and core store
-registration are removed automatically when the owning injector is destroyed.
+在 Angular 注入上下文（例如组件字段初始化器或构造函数）中调用它。当所属注入器被销毁时，列表订阅、实时连接和核心 store 注册会自动移除。
 
-## Signature
+## 签名
 
 ```ts
 import { injectThreads } from "@copilotkit/angular";
@@ -23,56 +17,49 @@ import { injectThreads } from "@copilotkit/angular";
 function injectThreads(input: InjectThreadsInput): InjectThreadsResult;
 ```
 
-## Input
+## 输入
 
 <PropertyReference name="agentId" type="string | Signal<string>" required>
-  Agent whose threads should be listed and managed. When a signal is supplied,
-  the store reconnects whenever its value changes.
+  要列出并管理其线程的智能体。提供 signal 时，store 会在其值变化时重新连接。
 </PropertyReference>
 
 <PropertyReference name="includeArchived" type="boolean | Signal<boolean | undefined>">
-  Include archived threads. Defaults to `false`.
+  是否包含已归档的线程。默认为 `false`。
 </PropertyReference>
 
 <PropertyReference name="limit" type="number | Signal<number | undefined>">
-  Maximum number of threads per page. Supplying a value enables cursor-based
-  pagination through `hasMoreThreads` and `fetchMoreThreads`.
+  每页线程的最大数量。提供该值后，可通过 `hasMoreThreads` 和 `fetchMoreThreads` 进行基于游标的分页。
 </PropertyReference>
 
 <PropertyReference name="enabled" type="boolean | Signal<boolean | undefined>">
-  Whether the store may fetch or subscribe. Defaults to `true`. Set this to
-  `false` for gated surfaces that must remain network-inert until access is
-  available.
+  是否允许该 store 发起请求或订阅。默认为 `true`。对于在获得访问权限前必须完全不发起网络请求的受控界面，请将其设为 `false`。
 </PropertyReference>
 
-## Return value
+## 返回值
 
-The returned `InjectThreadsResult` contains:
+返回的 `InjectThreadsResult` 包含：
 
-| Member | Type | Purpose |
+| 成员 | 类型 | 说明 |
 | --- | --- | --- |
-| `threads` | `Signal<Thread[]>` | Server-authoritative list, sorted by most recent agent activity |
-| `isLoading` | `Signal<boolean>` | Initial-list loading state |
-| `listError` | `Signal<Error \| null>` | User-safe list or mutation error |
-| `error` | `Signal<Error \| null>` | Most recent error, including developer configuration errors |
-| `fetchMoreError` | `Signal<Error \| null>` | Error from the most recent next-page request |
-| `hasMoreThreads` | `Signal<boolean>` | Whether another page is available |
-| `isFetchingMoreThreads` | `Signal<boolean>` | Whether the next page is loading |
-| `isMutating` | `Signal<boolean>` | Whether a rename, archive, restore, or delete is in flight |
-| `fetchMoreThreads()` | `() => void` | Fetch the next page when one exists |
-| `refetchThreads()` | `() => void` | Refresh without clearing the visible list |
-| `startNewThread()` | `() => void` | Reset to a fresh client-side thread; persistence starts with its first run |
-| `renameThread(id, name)` | `Promise<void>` | Rename a thread |
-| `archiveThread(id)` | `Promise<void>` | Hide a thread through a reversible archive |
-| `unarchiveThread(id)` | `Promise<void>` | Restore an archived thread |
-| `deleteThread(id)` | `Promise<void>` | Permanently delete a thread |
+| `threads` | `Signal<Thread[]>` | 以服务器为准的列表，按最近一次智能体活动排序 |
+| `isLoading` | `Signal<boolean>` | 列表初始加载状态 |
+| `listError` | `Signal<Error \| null>` | 适合展示给用户的列表或变更错误 |
+| `error` | `Signal<Error \| null>` | 最近一次错误，包括开发者配置错误 |
+| `fetchMoreError` | `Signal<Error \| null>` | 最近一次下一页请求的错误 |
+| `hasMoreThreads` | `Signal<boolean>` | 是否还有下一页可用 |
+| `isFetchingMoreThreads` | `Signal<boolean>` | 下一页是否正在加载 |
+| `isMutating` | `Signal<boolean>` | 是否有重命名、归档、恢复或删除操作正在进行 |
+| `fetchMoreThreads()` | `() => void` | 在存在下一页时获取下一页 |
+| `refetchThreads()` | `() => void` | 刷新列表且不清空当前可见列表 |
+| `startNewThread()` | `() => void` | 重置为全新的客户端线程；持久化从其首次运行开始 |
+| `renameThread(id, name)` | `Promise<void>` | 重命名线程 |
+| `archiveThread(id)` | `Promise<void>` | 通过可逆归档隐藏线程 |
+| `unarchiveThread(id)` | `Promise<void>` | 恢复已归档的线程 |
+| `deleteThread(id)` | `Promise<void>` | 永久删除线程 |
 
-Each `Thread` has `id`, `agentId`, `name`, `archived`, `createdAt`,
-`updatedAt`, and an optional `lastRunAt`. Prefer `lastRunAt` for
-user-facing activity timestamps because metadata-only changes can update
-`updatedAt`.
+每个 `Thread` 都包含 `id`、`agentId`、`name`、`archived`、`createdAt`、`updatedAt`，以及可选的 `lastRunAt`。面向用户的活动时间戳应优先使用 `lastRunAt`，因为仅元数据的变化也可能更新 `updatedAt`。
 
-## Usage
+## 用法
 
 ```ts title="src/app/thread-list.component.ts"
 import { Component, signal } from "@angular/core";
@@ -121,42 +108,36 @@ export class ThreadListComponent {
 }
 ```
 
-Bind the selected id to a chat component in the same feature:
+在同个功能模块内，将选中的 id 绑定到聊天组件：
 
 ```html
 <copilot-chat agentId="support" [threadId]="selectedThreadId()" />
 ```
 
-## Mutation behavior
+## 变更行为
 
-Rename, archive, unarchive, and delete update the visible list optimistically
-and return a promise that settles when the platform confirms the operation.
-Handle rejection in the calling UI. Deletion is irreversible and rolls back
-its optimistic removal if the request fails; ask the user for confirmation
-before calling it.
+重命名、归档、取消归档和删除都会以乐观更新的方式刷新可见列表，并返回一个在平台确认操作后才敲定（settle）的 Promise。请在调用方 UI 中处理拒绝情况。删除操作不可逆，如果请求失败会回滚其乐观移除；调用它之前应先请用户确认。
 
-Use `listError` for end-user messaging. The broader `error` signal can include
-configuration details such as a missing runtime URL or unavailable thread
-endpoints and is intended for developer diagnostics.
+面向最终用户的提示信息请使用 `listError`。更宽泛的 `error` signal 可能包含配置细节，例如缺少运行时 URL 或线程端点不可用，它面向的是开发者诊断。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
-    title="Angular threads and headless UI guide"
-    description="Build thread selection, memory, attachments, and a custom signal-based chat."
+    title="Angular 线程与无头 UI 指南"
+    description="构建线程选择、记忆、附件以及基于 signal 的自定义聊天。"
     href="/angular/guides/threads-memory-attachments-headless"
     icon={<LinkIcon />}
   />
   <Card
-    title="Threads explained"
-    description="Understand persistence, realtime synchronization, naming, replay, and failure behavior."
+    title="线程详解"
+    description="了解持久化、实时同步、命名、重放与失败行为。"
     href="/angular/intelligence/threads-explained"
     icon={<LinkIcon />}
   />
   <Card
     title="CopilotChat"
-    description="Connect the selected thread to the prebuilt Angular chat."
+    description="将选中的线程连接到预构建的 Angular 聊天组件。"
     href="/reference/angular/components/CopilotChat"
     icon={<LinkIcon />}
   />

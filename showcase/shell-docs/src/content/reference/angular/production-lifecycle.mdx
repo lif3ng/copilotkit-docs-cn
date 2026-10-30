@@ -1,14 +1,13 @@
 ---
-title: "Production and lifecycle"
-description: "Cleanup, errors, SSR, hydration, and zoneless behavior for @copilotkit/angular."
+title: "生产与生命周期"
+description: "@copilotkit/angular 的清理、错误处理、SSR、hydration 与 zoneless 行为。"
 ---
 
-`@copilotkit/angular` uses signals and standalone Angular APIs and is compatible
-with zoneless Angular. Most UI components use `OnPush`; `RenderToolCalls`
-currently uses Angular's default change-detection strategy. This page describes
-the environment and ownership rules that apply across the public API.
+`@copilotkit/angular` 使用 signal 与 standalone Angular API，并与 zoneless Angular
+兼容。大多数 UI 组件使用 `OnPush`；`RenderToolCalls`
+目前使用 Angular 默认的变更检测策略。本页描述适用于整个公开 API 的环境与归属规则。
 
-## Minimal production setup
+## 最小生产配置
 
 ```ts title="src/app/app.config.ts"
 import {
@@ -27,86 +26,70 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-Use a same-origin runtime URL where possible. If server and browser origins
-differ, resolve an absolute URL independently in each environment while
-keeping the rendered component tree and initial input values identical.
+尽可能使用同源的运行时 URL。如果服务端与浏览器的源不同，请在每个环境中各自解析出绝对
+URL，同时保持渲染出的组件树与初始输入值完全一致。
 
-## Ownership and cleanup
+## 归属与清理
 
-Call injectable helpers from a field initializer, constructor, or another
-Angular injection context. They use the owning `DestroyRef`:
+请从字段初始化器、构造函数或其他 Angular 注入上下文中调用可注入的辅助函数。它们使用所属的
+`DestroyRef`：
 
-| API family                                                                                                  | Owned lifecycle work                                            | Cleanup behavior                                                               |
+| API 类别                                                                                                    | 持有的生命周期工作                                              | 清理行为                                                                         |
 | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `injectAgentStore`                                                                                          | Agent subscription, signal projection, interrupt controller     | Replaces the subscription when `agentId` changes; unsubscribes and destroys the controller on destroy |
-| `connectAgentContext`                                                                                       | Reactive context registration                                   | Removes the context when the owning effect is destroyed                        |
-| `registerFrontendTool`, `registerRenderToolCall`, `registerHumanInTheLoop`                                  | Runtime renderer or tool registration                           | Removes registrations matching the same name and optional agent ID on destroy  |
-| `registerRenderActivityMessage`                                                                             | Activity renderer registration                                  | Removes the exact renderer object on destroy                                   |
-| `injectInterrupt`                                                                                           | Agent subscription, pending interrupt state, handler generation | Disconnects and invalidates pending asynchronous handler work on destroy       |
-| `injectThreads`                                                                                             | Store selectors, realtime lifecycle, runtime registration       | Unsubscribes, stops, and unregisters the store on destroy                      |
-| `injectMemories`                                                                                            | RxJS selectors converted to signals                             | Angular's signal interop owns the subscriptions                                |
-| Popup, sidebar, chat primitives                                                                             | Media listeners, observers, timers, focus and body layout       | Restore listeners, timers, observers, focus, and docked body layout on destroy |
-| MCP Apps and Open Generative UI                                                                             | Iframe listeners, queues, sandbox instances                     | Cancel renderer-owned work and destroy renderer-owned sandboxes only           |
+| `injectAgentStore`                                                                                          | 智能体订阅、signal 投影、中断控制器                              | `agentId` 变化时替换订阅；销毁时取消订阅并销毁控制器                             |
+| `connectAgentContext`                                                                                       | 响应式上下文注册                                                | 所属 effect 被销毁时移除该上下文                                                 |
+| `registerFrontendTool`, `registerRenderToolCall`, `registerHumanInTheLoop`                                  | 运行时渲染器或工具注册                                          | 销毁时移除同名及可选 agent ID 匹配的注册                                         |
+| `registerRenderActivityMessage`                                                                             | 活动渲染器注册                                                  | 销毁时移除对应的渲染器对象                                                       |
+| `injectInterrupt`                                                                                           | 智能体订阅、待决中断状态、handler 生成                           | 销毁时断开连接并使待决的异步 handler 工作失效                                    |
+| `injectThreads`                                                                                             | store 选择器、实时生命周期、运行时注册                           | 销毁时取消订阅、停止并注销 store                                                 |
+| `injectMemories`                                                                                            | 转换为 signal 的 RxJS 选择器                                    | 订阅由 Angular 的 signal 互操作层持有                                            |
+| 弹窗、侧边栏、聊天原语                                                                                       | 媒体监听器、观察者、定时器、焦点与 body 布局                     | 销毁时恢复监听器、定时器、观察者、焦点与停靠的 body 布局                          |
+| MCP Apps 与 Open Generative UI                                                                              | iframe 监听器、队列、沙箱实例                                   | 仅取消渲染器持有的工作并销毁渲染器持有的沙箱                                     |
 
-Application-owned work stays application-owned. For example, abort a fetch
-started by a frontend tool when the tool's host is destroyed. Do not retain an
-injected controller outside its injector. `AgentStore.teardown()` exists for
-manually constructed advanced stores; injected stores clean themselves up.
+应用自有的工作仍归应用所有。例如，当前端工具的宿主被销毁时，应中止该工具启动的
+fetch。不要让被注入的控制器存活到其 injector 之外。`AgentStore.teardown()`
+是为手动构造的高级 store 准备的；注入获取的 store 会自行清理。
 
-## Error behavior
+## 错误行为
 
-- Agent lookup throws an error containing the requested agent, runtime URL,
-  and known agent IDs after runtime synchronization cannot resolve it.
-- Activity-renderer content must pass its Standard Schema before rendering.
-  Frontend-tool and tool-call-renderer schemas define advertised JSON Schema and
-  TypeScript types, but runtime arguments are only JSON-parsed. Unknown tools
-  remain hidden unless `defaultToolRendering` is explicitly enabled.
-- Interrupt predicate and preparation failures are exposed on the controller's
-  `error` signal. Expired interrupts produce `InterruptExpiredError`. Resume
-  failures are not retried automatically.
-- Thread and memory controllers expose errors as signals; mutation promises
-  reject so the application can announce or display the failure.
-- A2UI recovery visibility is controlled by `A2UIRecoveryOptions` and may be
-  overridden by authoritative server lifecycle content.
-- MCP Apps validates snapshot content, iframe sources, and JSON-RPC messages.
-  Queue timeout, thread replacement, resource, and protocol failures render as
-  owned error states rather than escaping into another renderer.
+- 当运行时同步完成后仍无法解析目标时，智能体查找会抛出一个错误，其中包含所请求的智能体、运行时
+  URL 与已知的智能体 ID。
+- 活动渲染器的 content 必须先通过其 Standard Schema，才会渲染。前端工具与工具调用渲染器的
+  schema 定义对外宣告的 JSON Schema 与 TypeScript 类型，但运行时参数只会被 JSON
+  解析。除非显式启用 `defaultToolRendering`，未知工具会保持隐藏。
+- 中断谓词与准备阶段的失败会暴露在控制器的 `error` signal 上。过期的中断会产生
+  `InterruptExpiredError`。恢复失败不会自动重试。
+- 线程与记忆控制器以 signal 形式暴露错误；变更 promise 会 reject，以便应用能够通告或展示失败。
+- A2UI 恢复的可见性由 `A2UIRecoveryOptions` 控制，并可能被权威的服务端生命周期内容覆盖。
+- MCP Apps 会校验快照内容、iframe 来源与 JSON-RPC
+  消息。队列超时、线程替换、资源与协议失败会渲染为各自的错误状态，而不会泄漏到其他渲染器中。
 
-## SSR and hydration
+## SSR 与 hydration
 
-Browser-only behavior is inert during server rendering and activates after
-hydration. Follow these rules:
+仅限浏览器的行为在服务端渲染期间保持惰性，并在 hydration 之后激活。请遵循以下规则：
 
-1. Provide the same CopilotKit configuration and initial component inputs on
-   the server and first browser render.
-2. Do not call `runAgent`, media capture, sandbox functions, or MCP iframe
-   operations during server rendering.
-3. Put application-owned `window`, `document`, observer, media-query, and media
-   API access behind `isPlatformBrowser` or `afterNextRender`.
-4. Allow A2UI surfaces, Open Generative UI sandboxes, audio recording,
-   and MCP Apps iframes to activate in the browser after hydration.
-5. Do not branch the pre-hydration template on browser globals. Change UI state
-   through signals after hydration instead.
+1. 在服务端与浏览器首次渲染时提供相同的 CopilotKit 配置与初始组件输入。
+2. 在服务端渲染期间不要调用 `runAgent`、媒体采集、沙箱函数或 MCP iframe 操作。
+3. 把应用自有的 `window`、`document`、观察者、媒体查询与媒体 API 访问置于
+   `isPlatformBrowser` 或 `afterNextRender` 之后。
+4. 让 A2UI 界面、Open Generative UI 沙箱、录音与 MCP Apps iframe 在 hydration
+   之后于浏览器中激活。
+5. 不要依据浏览器全局对象对 hydration 前的模板做分支。改为在 hydration 之后通过 signal 修改 UI 状态。
 
-Keep popup and sidebar initial `open`, `mode`, and `position` inputs stable
-through hydration so the server and browser produce matching semantics. Treat
-their generated dialog IDs as implementation details rather than persisting or
-querying them from application code.
+让弹窗与侧边栏的初始 `open`、`mode` 与 `position` 输入在 hydration
+过程中保持稳定，使服务端与浏览器产生一致的语义。把生成出的 dialog ID
+视为实现细节，不要在应用代码中持久化或查询它们。
 
-## Zoneless behavior
+## Zoneless 行为
 
-The package does not require Zone.js. Signals, signal inputs/models, Angular
-outputs, `afterNextRender`, and explicit observer callbacks drive updates.
-Custom renderer components should also be standalone and OnPush- or
-zoneless-compatible. When bridging a third-party callback, update an Angular
-signal or use Angular's supported scheduling APIs instead of relying on Zone.js
-to notice arbitrary mutation.
+该包不依赖 Zone.js。更新由 signal、signal 输入/模型、Angular outputs、`afterNextRender`
+与显式观察者回调驱动。自定义渲染器组件同样应为 standalone 且兼容 OnPush 或
+zoneless。桥接第三方回调时，请更新一个 Angular signal 或使用 Angular 支持的调度
+API，而不要指望 Zone.js 去感知任意变更。
 
-## Security boundaries
+## 安全边界
 
-`headers`, `properties`, tool arguments, activity content, and MCP host context
-are browser-visible. Never put model-provider credentials or other secrets in
-them. Keep model credentials behind Copilot Runtime. Open Generative UI
-functions should expose narrow application capabilities, and MCP Apps runtime
-traffic should continue through the selected AG-UI agent rather than a
-browser-supplied server URL.
+`headers`、`properties`、工具参数、活动内容与 MCP
+宿主上下文对浏览器可见。切勿在其中放置模型提供方凭据或其他机密。模型凭据应保留在 Copilot Runtime
+之后。Open Generative UI 函数应只暴露最小化的应用能力，MCP Apps 的运行时流量也应继续经由所选的
+AG-UI 智能体，而不是浏览器提供的某个服务器 URL。

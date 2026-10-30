@@ -1,10 +1,9 @@
 ---
-title: MemoryStore
-description: The built-in process-local StateStore used when a Channel has no explicit persistence adapter.
+title: "MemoryStore"
+description: "Channel 未显式配置持久化适配器时使用的内置进程本地 StateStore。"
 ---
 
-`MemoryStore` implements the complete `StateStore` interface in one Node
-process.
+`MemoryStore` 在单个 Node 进程内实现了完整的 `StateStore` 接口。
 
 ```ts
 import { MemoryStore } from "@copilotkit/channels";
@@ -19,19 +18,12 @@ const channel = createChannel({
 });
 ```
 
-It supports key/value TTLs, lists, locks, deduplication, and queues. It is also
-the SDK default when no explicit or adapter-provided store exists.
+它支持键/值 TTL、列表、锁、去重与队列。当不存在显式配置或由适配器提供的 store 时，它也是 SDK 的默认选择。
 
-<Callout type="warn" title="Process-local only">
-  Values disappear on restart and are not shared between replicas. Do not use
-  MemoryStore for restart-safe approvals, durable workflow state, or
-  cross-process locking.
+<Callout type="warn" title="仅限进程本地">
+  重启后值会消失，且不会在多个副本之间共享。不要将 MemoryStore 用于需要重启安全的审批、持久化工作流状态或跨进程锁定的场景。
 </Callout>
 
-MemoryStore preserves JavaScript values by reference, while a remote
-`StateStore` must round-trip JSON. Test application state with the production
-backend so a `Date`, `Map`, or class instance does not pass locally and fail
-after deployment.
+MemoryStore 按引用保留 JavaScript 值，而远程 `StateStore` 必须经 JSON 往返。请用生产后端测试应用状态，以免 `Date`、`Map` 或类实例在本地通过却在部署后失败。
 
-See [`StateStore`](/reference/channels/types/StateStore) and
-[Persistence and scaling](/slack/persistence-and-scaling).
+参见 [`StateStore`](/reference/channels/types/StateStore)与[持久化与扩展](/slack/persistence-and-scaling)。

@@ -1,21 +1,21 @@
 ---
 title: "connectAgentContext"
-description: "Angular function that adds reactive context for the agent and cleans it up automatically for @copilotkit/angular."
+description: "面向 @copilotkit/angular 的 Angular 函数，为智能体添加响应式上下文并自动清理。"
 ---
 
-## Overview
+## 概览
 
-`connectAgentContext` registers [context](https://docs.ag-ui.com/concepts/context) with the agent so it can read your application state. It accepts a static `Context` object or a zero-argument accessor. The internal Angular `effect` tracks any signals read by the accessor and updates the context when they change.
+`connectAgentContext` 向智能体注册 [context](https://docs.ag-ui.com/concepts/context)，使其能够读取你的应用状态。它接受静态的 `Context` 对象或无参访问器。内部的 Angular `effect` 会追踪访问器读取的所有 signals，并在它们变化时更新上下文。
 
-The registration is wrapped in an Angular `effect`, so the context is cleaned up automatically when the owning component or service is destroyed.
+注册包裹在 Angular `effect` 中，因此当所属组件或服务销毁时，上下文会自动清理。
 
-For a template-driven alternative, use the [`CopilotKitAgentContext`](/reference/angular/directives/CopilotKitAgentContext) directive.
+若需基于模板的方式，请使用 [`CopilotKitAgentContext`](/reference/angular/directives/CopilotKitAgentContext) 指令。
 
 <Callout type="warn">
-  Call this from an Angular injection context, such as a constructor or field initializer. The current implementation resolves the ambient injector before it reads the config, so passing `config.injector` does not make an outside-context call valid.
+  请在 Angular 注入上下文中调用它，例如构造函数或字段初始化器。当前实现会先解析环境注入器再读取配置，因此传入 `config.injector` 也无法让上下文之外的调用生效。
 </Callout>
 
-## Signature
+## 签名
 
 ```ts
 import { connectAgentContext } from "@copilotkit/angular";
@@ -32,32 +32,31 @@ function connectAgentContext(
 ): void;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="context" type="Context | (() => Context)" required>
-  The context to share with the agent, or a zero-argument accessor that returns it. A `Context` is an object with the following fields. When the accessor reads Angular signals, the context re-registers when those signals change.
+  要与智能体共享的上下文，或返回该上下文的无参访问器。`Context` 是一个包含以下字段的对象。当访问器读取 Angular signals 时，这些 signals 变化时上下文会重新注册。
 
   <PropertyReference name="description" type="string" required>
-    A human-readable description of what this context represents, for example `"User preferences"`.
+    一段人类可读的说明，描述此上下文表示什么，例如 `"User preferences"`。
   </PropertyReference>
 
   <PropertyReference name="value" type="string" required>
-    The context value. Stringify non-string values (for example with `JSON.stringify`) before passing them.
+    上下文的值。传入前请先对非字符串值做字符串化（例如使用 `JSON.stringify`）。
   </PropertyReference>
 </PropertyReference>
 
 <PropertyReference name="config" type="ConnectAgentContextConfig">
-  Optional configuration. You must still call the function from an injection context.
+  可选配置。你仍必须在注入上下文中调用该函数。
 
   <PropertyReference name="injector" type="Injector">
-    Injector used to resolve `CopilotKit` and own the reactive effect. When
-    supplied, it takes precedence over the ambient injector.
+    用于解析 `CopilotKit` 并持有响应式 effect 的注入器。提供时优先于环境注入器。
   </PropertyReference>
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Static context
+### 静态上下文
 
 ```ts title="src/app/preferences.component.ts"
 import { Component } from "@angular/core";
@@ -78,9 +77,9 @@ export class PreferencesComponent {
 }
 ```
 
-### Reactive context with an accessor
+### 使用访问器的响应式上下文
 
-Pass an accessor that reads signals so the agent always sees the current value.
+传入一个读取 signals 的访问器，让智能体始终看到当前值。
 
 ```ts title="src/app/cart.component.ts"
 import { Component, signal } from "@angular/core";
@@ -108,30 +107,30 @@ export class CartComponent {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Reactive updates.** When an accessor reads signals, the context is removed and re-added whenever one of those signals changes.
-- **Automatic cleanup.** Registration runs inside an Angular `effect`; the context is removed when the effect is torn down, which happens when the owning component, service, or injector is destroyed.
-- **Injection context required.** Angular throws `NG0203` when you call the function outside an injection context.
+- **响应式更新**。当访问器读取 signals 时，只要其中任一 signals 变化，上下文就会被移除并重新添加。
+- **自动清理**。注册运行在 Angular `effect` 内部；effect 被销毁时上下文会被移除——这发生在所属组件、服务或注入器销毁之时。
+- **必须在注入上下文中调用**。在注入上下文之外调用该函数时，Angular 会抛出 `NG0203`。
 
-## Related
+## 另请参阅
 
 <Cards>
   <Card
     title="CopilotKitAgentContext directive"
-    description="Share context with the agent from a template instead of a function."
+    description="通过模板而非函数与智能体共享上下文。"
     href="/reference/angular/directives/CopilotKitAgentContext"
     icon={<LinkIcon />}
   />
   <Card
     title="injectAgentStore"
-    description="Subscribe to an agent and read its messages, state, and run status."
+    description="订阅智能体并读取其消息、状态与运行状态。"
     href="/reference/angular/functions/injectAgentStore"
     icon={<LinkIcon />}
   />
   <Card
     title="CopilotKit service"
-    description="The central handle on agents, tools, and the runtime connection."
+    description="智能体、工具与运行时连接的中央句柄。"
     href="/reference/angular/services/CopilotKit"
     icon={<LinkIcon />}
   />

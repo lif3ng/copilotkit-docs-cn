@@ -1,57 +1,38 @@
 ---
-title: "Public API inventory"
-description: "Supported entry points and API families for @copilotkit/angular."
+title: "公开 API 清单"
+description: "@copilotkit/angular 受支持的入口点与 API 族。"
 ---
 
-The supported entry points are `@copilotkit/angular`,
-`@copilotkit/angular/mcp-apps`, and `@copilotkit/angular/styles.css`. The
-published package includes `API.md`, an alphabetized, machine-validated list of
-every exported value and type. A test resolves both TypeScript entry points and
-requires every export to appear exactly once in that inventory.
+受支持的入口点为 `@copilotkit/angular`、`@copilotkit/angular/mcp-apps` 与
+`@copilotkit/angular/styles.css`。发布的包中包含 `API.md`，这是一份按字母排序、经机器校验的清单，列出每一个导出的值与类型。有一个测试会解析两个 TypeScript
+入口点，并要求每个导出在该清单中恰好出现一次。
 
-## Root API families
+## 根入口 API 族
 
-- **Setup and runtime:** `provideCopilotKit`, `CopilotKit`, `CopilotKitConfig`,
-  configuration and label providers, and injection tokens.
-- **Complete UI:** `CopilotChat`, `CopilotPopup`, `CopilotSidebar`,
-  `CopilotThreadsDrawer`, and their input/model types.
-- **Composable chat UI:** `CopilotChatView`, message, input, textarea,
-  suggestion, toolbar, button, attachment, audio, scroll, cursor, disclaimer,
-  feather, tools-menu, and renderer components plus their slot/context types.
-- **Agents and application state:** `injectAgentStore`, `injectCapabilities`,
-  `AgentStore`, `connectAgentContext`, `CopilotKitAgentContext`,
-  `injectChatState`, `injectThreads`, `injectMemories`, and their stores,
-  controllers, and types.
-- **Tools and activities:** `registerComponent`, `registerFrontendTool`, `registerRenderToolCall`,
-  `registerHumanInTheLoop`, `registerRenderActivityMessage`, `RenderToolCalls`,
-  `CopilotDefaultToolRenderer`, schemas, configurations, renderer interfaces,
-  and safe parsing/serialization utilities.
-- **Interrupts:** `injectInterrupt`, `InterruptController`,
-  `InterruptExpiredError`, and the event, view, runner, handler, and options
-  types.
-- **Generative UI:** A2UI configuration, activity/tool/progress/recovery
-  components and lifecycle schemas; Open Generative UI configuration,
-  sandboxes, activity/tool renderers, content schemas, and constants.
-- **Attachments and transcription:** attachment types, queue and renderer
-  components, attachment directive, audio recorder controls, transcription
-  function, errors, and result/state types.
-- **Slots, directives, and utilities:** slot registry and render helpers,
-  stick-to-bottom, tooltip, resize/scroll services and state, class-name and
-  tool-call utilities.
-- **Protocol types:** selected AG-UI messages and CopilotKit suggestion and
-  memory types are re-exported so application signatures use the same types as
-  the SDK.
+- **配置与运行时**：`provideCopilotKit`、`CopilotKit`、`CopilotKitConfig`、配置与标签提供方，以及注入 token。
+- **完整 UI**：`CopilotChat`、`CopilotPopup`、`CopilotSidebar`、`CopilotThreadsDrawer`，以及它们的输入/模型类型。
+- **可组合聊天 UI**：`CopilotChatView`，以及消息、输入、textarea、建议、工具栏、按钮、附件、音频、滚动、光标、免责声明、feather、工具菜单与渲染器组件，外加它们的插槽/上下文类型。
+- **智能体与应用状态**：`injectAgentStore`、`injectCapabilities`、`AgentStore`、`connectAgentContext`、`CopilotKitAgentContext`、`injectChatState`、`injectThreads`、`injectMemories`，以及它们的 store、控制器与类型。
+- **工具与活动**：`registerComponent`、`registerFrontendTool`、`registerRenderToolCall`、
+  `registerHumanInTheLoop`、`registerRenderActivityMessage`、`RenderToolCalls`、
+  `CopilotDefaultToolRenderer`、schema、配置、渲染器接口，以及安全的解析/序列化工具。
+- **中断**：`injectInterrupt`、`InterruptController`、
+  `InterruptExpiredError`，以及事件、视图、运行器、handler 与选项类型。
+- **生成式 UI**：A2UI 配置、活动/工具/进度/恢复组件与生命周期
+  schema；Open Generative UI 配置、沙箱、活动/工具渲染器、content schema 与常量。
+- **附件与转写**：附件类型、队列与渲染器组件、附件指令、录音控制、转写函数、错误，以及结果/状态类型。
+- **插槽、指令与工具函数**：插槽注册表与渲染辅助函数、stick-to-bottom、tooltip、resize/scroll
+  服务与状态、class-name 与工具调用工具。
+- **协议类型**：挑选出的 AG-UI 消息与 CopilotKit 的建议、记忆类型会被重新导出，使应用签名使用与 SDK 相同的类型。
 
-The exported `ɵCOPILOTKIT_BUILT_IN_ACTIVITY_RENDERERS` token is explicitly
-internal. It exists only for CopilotKit-maintained secondary entry points and
-applications must not depend on it.
+导出的 `ɵCOPILOTKIT_BUILT_IN_ACTIVITY_RENDERERS` token 是显式的内部
+API。它仅供 CopilotKit 维护的次级入口点使用，应用不得依赖它。
 
-## MCP Apps API family
+## MCP Apps API 族
 
-The secondary entry point exports `provideMCPApps`, its configuration and DI
-tokens, the snapshot schema and type, the ready-made activity renderer config,
-and `CopilotMCPAppsActivityRenderer`/`CopilotMCPAppsWidget` for advanced hosts.
+该次级入口点导出 `provideMCPApps`、它的配置与 DI token、快照 schema
+与类型、开箱即用的活动渲染器配置，以及面向高级宿主的
+`CopilotMCPAppsActivityRenderer`/`CopilotMCPAppsWidget`。
 
-Use the task-specific reference pages for signatures and behavior. Consult the
-`API.md` included beside the package README when reviewing the exact symbol
-inventory for an installed version; that file is the normative export list.
+签名与行为请查阅各任务对应的参考页。在核对某个已安装版本的确切符号清单时，请参考包 README 旁边的
+`API.md`；该文件是规范性的导出清单。

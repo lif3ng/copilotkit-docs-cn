@@ -1,9 +1,9 @@
 ---
 title: Message
-description: Root container for portable Channels content and reaction behavior.
+description: 可移植 Channels 内容与表情回应行为的根容器。
 ---
 
-`Message` groups one portable message tree.
+`Message` 将一棵可移植的消息树组织在一起。
 
 ```tsx
 import { Message, Section } from "@copilotkit/channels/ui";
@@ -15,15 +15,13 @@ import { Message, Section } from "@copilotkit/channels/ui";
 
 ## Props
 
-| Prop | Type | Description |
+| Prop | 类型 | 说明 |
 | --- | --- | --- |
-| `accent` | `string` | Optional renderer hint. Direct adapters may map it natively; the current managed Slack and Teams connectors ignore it. |
-| `onReaction` | `MessageReactionHandler` | Handles an added or removed reaction on this posted message. |
-| `children` | `BotChildren` | Portable Channels content. |
+| `accent` | `string` | 可选的渲染器提示。直连适配器可以原生映射它；当前的托管 Slack 与 Teams 连接器会忽略它。 |
+| `onReaction` | `MessageReactionHandler` | 处理这条已发送消息上新增或移除的表情回应。 |
+| `children` | `BotChildren` | 可移植的 Channels 内容。 |
 
-`onReaction` receives the normalized emoji first and a reaction context second.
-The context contains `added`, `rawEmoji`, `user`, `thread`, `messageId`, and
-`messageRef`.
+`onReaction` 的第一个参数是规范化后的 emoji，第二个参数是表情回应上下文。该上下文包含 `added`、`rawEmoji`、`user`、`thread`、`messageId` 和 `messageRef`。
 
 ```tsx
 <Message
@@ -38,14 +36,8 @@ The context contains `added`, `rawEmoji`, `user`, `thread`, `messageId`, and
 </Message>
 ```
 
-Managed Slack routes reactions on bot-authored messages. Managed Teams routes
-delivered `messageReaction` activities. The managed adapter cannot add or
-remove the bot's own reactions.
+托管 Slack 会路由机器人所发消息上的表情回应。托管 Teams 则路由已送达的 `messageReaction` 活动。托管适配器无法添加或移除机器人自己的表情回应。
 
-An output-free managed reaction callback is finalized and acknowledged. Silent
-audit-only work is supported, but make the side effect idempotent because
-managed delivery is at-least-once.
+无输出的托管表情回应回调会被终结并确认。支持只在后台静默地做审计类工作，但请让副作用保持幂等，因为托管投递是至少一次（at-least-once）语义。
 
-Register named components containing `onReaction` in
-`createChannel({ components })`; a durable `StateStore` is also required for a
-reaction to an older message to survive a process restart.
+请在 `createChannel({ components })` 中注册包含 `onReaction` 的具名组件；要让针对较早消息的表情回应在进程重启后仍然生效，还需要一个持久化的 `StateStore`。

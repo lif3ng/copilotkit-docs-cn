@@ -1,15 +1,15 @@
 ---
 title: "injectChatLabels"
-description: "Angular function that returns the CopilotKit chat labels, with provided overrides merged over the defaults"
+description: "Angular 函数，返回 CopilotKit 聊天标签，并将提供的覆盖项合并到默认值之上"
 ---
 
-## Overview
+## 概览
 
-`injectChatLabels` returns the full set of [`CopilotChatLabels`](/reference/angular/functions/provideCopilotChatLabels#parameters) in scope: any labels you provided through [`provideCopilotChatLabels`](/reference/angular/functions/provideCopilotChatLabels) merged over `COPILOT_CHAT_DEFAULT_LABELS`. If no labels were provided, it returns the defaults unchanged.
+`injectChatLabels` 返回当前作用域内完整的 [`CopilotChatLabels`](/reference/angular/functions/provideCopilotChatLabels#parameters) 集合：即通过 [`provideCopilotChatLabels`](/reference/angular/functions/provideCopilotChatLabels) 提供的标签覆盖项与 `COPILOT_CHAT_DEFAULT_LABELS` 合并后的结果。如果未提供任何标签，则原样返回默认值。
 
-It reads the `COPILOT_CHAT_LABELS` injection token (optionally), so it must run inside an Angular injection context (a constructor, a field initializer, or a factory). The prebuilt chat components call it internally; use it directly when you build your own chat UI and want the same configurable strings.
+它（可选地）读取 `COPILOT_CHAT_LABELS` 注入令牌，因此必须在 Angular 注入上下文（构造函数、字段初始化器或工厂函数）中运行。预构建聊天组件会在内部调用它；当你构建自己的聊天 UI 并希望使用同样的可配置文案时，可以直接调用它。
 
-## Signature
+## 签名
 
 ```ts
 import { injectChatLabels } from "@copilotkit/angular";
@@ -17,13 +17,13 @@ import { injectChatLabels } from "@copilotkit/angular";
 function injectChatLabels(): CopilotChatLabels;
 ```
 
-## Return Value
+## 返回值
 
-Returns a complete `CopilotChatLabels` object. Because the value is the merge of your overrides over the defaults, every field is always present (never `undefined`).
+返回一个完整的 `CopilotChatLabels` 对象。由于该值是你的覆盖项与默认值合并后的结果，每个字段始终存在（永远不会是 `undefined`）。
 
-## Usage
+## 用法
 
-Call it from an injection context and read the labels you need.
+在注入上下文中调用它，并读取你需要的标签。
 
 ```ts title="src/app/my-chat.component.ts"
 import { Component } from "@angular/core";
@@ -39,17 +39,17 @@ export class MyChatComponent {
 }
 ```
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="provideCopilotChatLabels"
-    description="Provide the label overrides that this function merges over the defaults."
+    description="提供本函数用来合并到默认值之上的标签覆盖项。"
     href="/reference/angular/functions/provideCopilotChatLabels"
   />
   <Card
     title="CopilotChat"
-    description="The prebuilt chat component that uses these labels internally."
+    description="内部使用这些标签的预构建聊天组件。"
     href="/reference/angular/components/CopilotChat"
   />
 </Cards>

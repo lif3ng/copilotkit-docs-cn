@@ -1,12 +1,11 @@
 ---
 title: createChannel
-description: Declare a managed Slack or Teams Channel, its agent, handlers, tools, components, and SDK persistence.
+description: 声明一个托管 Slack 或 Teams Channel，及其智能体、处理器、工具、组件与 SDK 持久化配置。
 ---
 
-`createChannel(options)` creates the provider-neutral Channel registered with
-`CopilotRuntime({ channels })`.
+`createChannel(options)` 会创建与提供方无关的 Channel，并注册到 `CopilotRuntime({ channels })` 中。
 
-## Signature
+## 签名
 
 ```ts
 function createChannel<TStateSchema>(
@@ -14,13 +13,13 @@ function createChannel<TStateSchema>(
 ): Channel<ThreadStateOf<TStateSchema>>;
 ```
 
-Import it from the umbrella package:
+从聚合包中导入它：
 
 ```ts
 import { createChannel } from "@copilotkit/channels";
 ```
 
-## Managed example
+## 托管示例
 
 ```ts title="channel.ts"
 const channel = createChannel({
@@ -41,54 +40,42 @@ channel.onMessage(async ({ thread, message }) => {
 });
 ```
 
-The Channel name is the project-unique Intelligence Code. A single managed
-runtime declares both Slack and Teams for that Channel; Intelligence routes each
-prepared delivery only to its originating provider.
+Channel 名称即项目内唯一的 Intelligence Code。一个托管运行时可以为该 Channel 同时声明 Slack 和 Teams；Intelligence 会把每条准备投递的消息只路由回其来源提供方。
 
-Handlers that reply directly without `runAgent()` may omit `agent`.
+不通过 `runAgent()` 而直接回复的处理器可以省略 `agent`。
 
-## Options
+## 选项
 
-| Option           | Type                                           | Notes                                                                                                                                |
+| 选项             | 类型                                           | 说明                                                                                                                                    |
 | ---------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `name`           | `string`                                       | Required for managed delivery. Must match the project-unique Intelligence Code.                                                      |
-| `identifyUser`   | `"platform" \| ChannelIdentifyUser`            | Required. Maps each provider actor to an application user or `null`. See the Identity and Memory guide for [Slack](/slack/identity-and-memory) or [Teams](/teams/identity-and-memory). |
-| `showToolStatus` | `boolean`                                      | Managed Slack hides tool-call progress by default. Set `true` to show it; tool history remains available in Intelligence either way. |
-| `replyContinuation` | `ReplyContinuationOptions`                  | Managed Slack continuation limits. Direct Slack configures the same option on `slack()`.                                             |
-| `agent`          | `AbstractAgent \| (threadId) => AbstractAgent` | Required when calling `thread.runAgent()`. Not inherited from `runtime.agents`. Prefer a factory.                                 |
-| `sanitizeAgentEvents` | `boolean`                                  | Defaults to `true`. Repairs the known nullable AG-UI parent-message field before strict HTTP-stream validation.                       |
-| `tools`          | `ChannelTool[]`                                | Channel-level typed tools.                                                                                                           |
-| `context`        | `ContextEntry[]`                               | Stable context added to every agent run.                                                                                             |
-| `components`     | `ChannelComponent[]`                           | Named JSX components used to reconstruct callbacks.                                                                                  |
-| `commands`       | `ChannelCommand[]`                             | Declared commands routed from provider ingress.                                                                                      |
-| `store`          | `StoreConfig`                                  | State, persistence, turn concurrency (`parallel` default), transcripts, and dedup.                                                   |
-| `adapters`       | `PlatformAdapter[]`                            | Developer-owned direct transports that may coexist with the cloud-hosted Intelligence adapter.                                            |
+| `name`           | `string`                                       | 托管投递必填。必须与项目内唯一的 Intelligence Code 一致。                                                      |
+| `identifyUser`   | `"platform" \| ChannelIdentifyUser`            | 必填。将每个提供方 actor 映射到应用用户或 `null`。参见身份与内存指南中的 [Slack](/slack/identity-and-memory) 或 [Teams](/teams/identity-and-memory)。 |
+| `showToolStatus` | `boolean`                                      | 托管 Slack 默认隐藏工具调用进度。设为 `true` 可显示进度；无论哪种设置，工具历史在 Intelligence 中始终可见。 |
+| `replyContinuation` | `ReplyContinuationOptions`                  | 托管 Slack 的续写限制。直连 Slack 则在 `slack()` 上配置同一选项。                                             |
+| `agent`          | `AbstractAgent \| (threadId) => AbstractAgent` | 调用 `thread.runAgent()` 时必填。不会从 `runtime.agents` 继承。建议使用工厂函数。                                 |
+| `sanitizeAgentEvents` | `boolean`                                  | 默认为 `true`。在严格的 HTTP 流校验之前，修复 AG-UI 已知的可空 parent-message 字段。                       |
+| `tools`          | `ChannelTool[]`                                | Channel 级别的类型化工具。                                                                                                           |
+| `context`        | `ContextEntry[]`                               | 添加到每次智能体运行中的稳定上下文。                                                                                             |
+| `components`     | `ChannelComponent[]`                           | 用于重建回调的具名 JSX 组件。                                                                                  |
+| `commands`       | `ChannelCommand[]`                             | 从提供方入口路由过来的已声明命令。                                                                                      |
+| `store`          | `StoreConfig`                                  | 状态、持久化、回合并发（默认 `parallel`）、会话记录与去重。                                                   |
+| `adapters`       | `PlatformAdapter[]`                            | 开发者自有的直连传输层，可与云端托管的 Intelligence 适配器共存。                                            |
 
-The managed runtime validates `name` as lowercase kebab-case, 3–64 characters,
-not equal to `channels`, and unique within the Runtime.
+托管运行时会校验 `name`：必须为小写 kebab-case，长度 3–64 个字符，不等于 `channels`，且在 Runtime 内唯一。
 
-Handlers receive both the required provider `actor` and the nullable
-application `user`. The SDK resolves that pair once for each incoming event.
-Both objects are immutable snapshots. The SDK does not link accounts by email,
-name, or handle.
+处理器会同时收到必填的提供方 `actor` 和可为空的应用 `user`。SDK 会为每个传入事件解析一次这一对对象。两者都是不可变的快照。SDK 不会通过邮箱、姓名或句柄关联账号。
 
-Malformed callback output rejects with `channel_identity_invalid`. A callback
-exception rejects with `channel_identity_failed` and never falls back to the
-standard platform policy.
+回调输出格式不当时会以 `channel_identity_invalid` 拒绝。回调抛出异常时会以 `channel_identity_failed` 拒绝，且绝不会回退到标准平台策略。
 
-### Tune long Slack replies
+### 调优较长的 Slack 回复
 
-Slack replies continue into additional messages when they exceed one message's
-soft byte limit. The defaults are 11,000 UTF-8 bytes per message and 20 messages
-per reply, followed by a visible English truncation notice. Most Channels should
-keep those defaults; customize them when the product needs a tighter bound or a
-localized notice:
+当 Slack 回复超过单条消息的软字节上限时，会续写为多条消息。默认值为每条消息 11,000 个 UTF-8 字节、每条回复最多 20 条消息，超出后会附加一条可见的英文截断提示。大多数 Channel 应保留这些默认值；当产品需要更紧的上限或本地化的提示时再自定义：
 
-| Field | Behavior |
+| 字段 | 行为 |
 | ----- | -------- |
-| `messageByteLimit` | Soft UTF-8 byte limit before continuing into another Slack message. |
-| `maxMessages` | Maximum messages occupied by one reply before truncation. |
-| `truncationMarker` | Visible notice appended when the message limit is reached. |
+| `messageByteLimit` | 续写为下一条 Slack 消息之前的软 UTF-8 字节上限。 |
+| `maxMessages` | 一条回复在被截断前最多占用的消息数。 |
+| `truncationMarker` | 达到消息上限时附加的可见提示。 |
 
 ```ts
 const channel = createChannel({
@@ -102,33 +89,24 @@ const channel = createChannel({
 });
 ```
 
-### Sanitize HTTP agent events
+### 清理 HTTP 智能体事件
 
-`sanitizeAgentEvents` defaults to `true`. It repairs the nullable
-`parentMessageId` emitted by some LangGraph tool-call and interrupt streams so
-strict client validation does not abort the run. The sanitizer applies only to
-agents that stream over HTTP and only to the known malformed field. Set it to
-`false` to forward events unchanged and let malformed events fail validation.
+`sanitizeAgentEvents` 默认为 `true`。它会修复某些 LangGraph 工具调用流与中断流中发出的可空 `parentMessageId`，从而避免严格的客户端校验中止整个运行。该清理器只作用于通过 HTTP 流式传输的智能体，且只针对这个已知的畸形字段。设为 `false` 则原样转发事件，让畸形事件在校验时失败。
 
-Every run uses a distinct result from `agent.clone()`, including when `agent` is
-a factory. A custom agent whose subclass fields contain configuration should
-override `clone()` to preserve that configuration without sharing mutable
-per-run state. Channels 0.6.1 warns when enumerable fields are dropped; that
-warning alone no longer refuses the turn.
+每次运行都会使用 `agent.clone()` 的一个独立结果，包括 `agent` 是工厂函数的情况。如果自定义智能体的子类字段中保存了配置，应重写 `clone()` 以保留这些配置，同时不共享可变的单次运行状态。Channels 0.6.1 会在可枚举字段被丢弃时发出警告；仅该警告不会再拒绝这一回合。
 
-## Registration methods
+## 注册方法
 
-The returned Channel supports:
+返回的 Channel 支持：
 
-- `onMessage` and `onMention`
+- `onMessage` 和 `onMention`
 - `onWelcome`
 - `onInterrupt`
 - `onInteraction`
 - `onCommand`
 - `onReaction`
 - `onThreadStarted`
-- `onModalSubmit` and `onModalClose` for adapters that support modals
-- `tool` to add a tool before the Channel starts
+- `onModalSubmit` 和 `onModalClose`，用于支持模态框的适配器
+- `tool`，用于在 Channel 启动前添加工具
 
-See [`Channel`](/reference/channels/classes/Channel) for handler signatures and
-[`StoreConfig`](/reference/channels/types/StoreConfig) for persistence.
+处理器签名参见 [`Channel`](/reference/channels/classes/Channel)，持久化配置参见 [`StoreConfig`](/reference/channels/types/StoreConfig)。

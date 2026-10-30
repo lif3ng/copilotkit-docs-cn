@@ -1,15 +1,15 @@
 ---
 title: "injectCopilotKitConfig"
-description: "Angular function that reads the CopilotKitConfig provided through provideCopilotKit from the current injection context"
+description: "Angular 函数，从当前注入上下文读取通过 provideCopilotKit 提供的 CopilotKitConfig"
 ---
 
-## Overview
+## 概览
 
-`injectCopilotKitConfig` returns the [`CopilotKitConfig`](/reference/angular/functions/provideCopilotKit#parameters) that you registered with [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit). It reads the value bound to the `COPILOT_KIT_CONFIG` injection token, so it must run inside an Angular injection context (a constructor, a field initializer, or a factory).
+`injectCopilotKitConfig` 返回你通过 [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit) 注册的 [`CopilotKitConfig`](/reference/angular/functions/provideCopilotKit#parameters)。它读取绑定到 `COPILOT_KIT_CONFIG` 注入令牌的值，因此必须在 Angular 注入上下文（构造函数、字段初始化器或工厂函数）中运行。
 
-Most applications do not call this directly. The [`CopilotKit`](/reference/angular/services/CopilotKit) service uses it internally to build its core. Reach for it when you need to read the raw config you provided, for example to read your own `properties` or `runtimeUrl`.
+大多数应用不会直接调用它。[`CopilotKit`](/reference/angular/services/CopilotKit) 服务会在内部使用它来构建自己的核心。当你需要读取所提供的原始配置时（例如读取自己的 `properties` 或 `runtimeUrl`），可以使用它。
 
-## Signature
+## 签名
 
 ```ts
 import { injectCopilotKitConfig } from "@copilotkit/angular";
@@ -17,13 +17,13 @@ import { injectCopilotKitConfig } from "@copilotkit/angular";
 function injectCopilotKitConfig(): CopilotKitConfig;
 ```
 
-## Return Value
+## 返回值
 
-Returns the `CopilotKitConfig` bound to the `COPILOT_KIT_CONFIG` token. Note that the `headers` field reflects the merged headers computed by `provideCopilotKit`, which may include the `X-CopilotCloud-Public-Api-Key` header derived from your `licenseKey`.
+返回绑定到 `COPILOT_KIT_CONFIG` 令牌的 `CopilotKitConfig`。注意 `headers` 字段反映的是 `provideCopilotKit` 计算出的合并后请求头，其中可能包含由你的 `licenseKey` 推导出的 `X-CopilotCloud-Public-Api-Key` 请求头。
 
-## Usage
+## 用法
 
-Call it from an injection context, such as a service constructor or a component field initializer.
+在注入上下文中调用它，例如服务构造函数或组件字段初始化器。
 
 ```ts title="src/app/runtime-info.service.ts"
 import { Injectable } from "@angular/core";
@@ -39,17 +39,17 @@ export class RuntimeInfoService {
 }
 ```
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="provideCopilotKit"
-    description="Register the CopilotKitConfig that this function reads back."
+    description="注册本函数读取回的 CopilotKitConfig。"
     href="/reference/angular/functions/provideCopilotKit"
   />
   <Card
     title="CopilotKit"
-    description="The service that consumes the configuration and exposes runtime state as signals."
+    description="使用该配置并以 signal 形式暴露运行时状态的服务。"
     href="/reference/angular/services/CopilotKit"
   />
 </Cards>

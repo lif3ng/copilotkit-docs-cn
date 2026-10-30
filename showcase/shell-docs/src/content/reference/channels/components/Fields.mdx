@@ -1,9 +1,9 @@
 ---
 title: Fields and Field
-description: Render compact label-value facts in Slack and Microsoft Teams.
+description: 在 Slack 和 Microsoft Teams 中渲染紧凑的标签-值事实信息。
 ---
 
-`Fields` groups `Field` values into a compact fact layout.
+`Fields` 将若干 `Field` 值组合成紧凑的事实布局。
 
 ```tsx
 import { Field, Fields, Message } from "@copilotkit/channels/ui";
@@ -18,13 +18,10 @@ import { Field, Fields, Message } from "@copilotkit/channels/ui";
 
 ## Props
 
-| Component | Prop | Type | Description |
+| 组件 | Prop | 类型 | 说明 |
 | --- | --- | --- | --- |
-| `Fields` | `children` | `BotChildren` | `Field` children. |
-| `Field` | `label` | `string` | Optional provider label. Managed Slack renders it in bold. |
-| `Field` | `children` | `BotChildren` | Field value. |
+| `Fields` | `children` | `BotChildren` | `Field` 子元素。 |
+| `Field` | `label` | `string` | 可选的提供方标签。托管 Slack 会以粗体渲染它。 |
+| `Field` | `children` | `BotChildren` | 字段值。 |
 
-Managed Slack creates section fields and honors the `label` prop. Managed Teams
-creates an Adaptive Card `FactSet` by splitting each field's text at the first
-colon; it does not currently read the `label` prop. Use `Label: value` text, as
-in the example, when the same component must preserve labels in both providers.
+托管 Slack 会创建 section 字段并遵循 `label` prop。托管 Teams 则通过在每个字段文本的第一个冒号处拆分来创建 Adaptive Card `FactSet`；它目前不会读取 `label` prop。当同一个组件需要在两个提供方中都保留标签时，请像示例中那样使用 `Label: value` 形式的文本。

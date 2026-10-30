@@ -1,10 +1,9 @@
 ---
 title: Modal
-description: Reference for the exported modal component vocabulary and its managed Channels availability.
+description: 导出的模态框组件族参考，及其在托管 Channels 中的可用性。
 ---
 
-The UI package exports `Modal`, `TextInput`, `ModalSelect`,
-`ModalSelectOption`, and `RadioButtons` for adapters with modal support.
+UI 包为支持模态框的适配器导出了 `Modal`、`TextInput`、`ModalSelect`、`ModalSelectOption` 和 `RadioButtons`。
 
 ```tsx
 import {
@@ -22,24 +21,20 @@ import {
 </Modal>;
 ```
 
-<Callout type="warn" title="Not available on managed Slack or Teams">
-  The Intelligence adapter reports `supportsModals: false`; managed interaction
-  contexts do not expose `openModal`, and managed ingress does not deliver modal
-  submit or close events. Use a posted `Button` card and a later
-  `thread.resume(value)` instead.
+<Callout type="warn" title="托管 Slack 或 Teams 上不可用">
+  Intelligence 适配器会报告 `supportsModals: false`；托管交互上下文不会暴露 `openModal`，托管入口也不会投递模态框的提交或关闭事件。请改用已发送的 `Button` 卡片，并在稍后调用 `thread.resume(value)`。
 </Callout>
 
-## Modal props
+## Modal 的 props
 
-| Prop | Type | Description |
+| Prop | 类型 | 说明 |
 | --- | --- | --- |
-| `callbackId` | `string` | Stable id for submit and close routing. |
-| `title` | `string` | Modal title. |
-| `submitLabel` | `string` | Optional submit label. |
-| `closeLabel` | `string` | Optional close label. |
-| `notifyOnClose` | `boolean` | Requests a close event on supporting adapters. |
-| `privateMetadata` | `string` | Opaque metadata echoed to submit or close handlers. |
-| `children` | `BotChildren` | Modal input components. |
+| `callbackId` | `string` | 用于提交与关闭路由的稳定 id。 |
+| `title` | `string` | 模态框标题。 |
+| `submitLabel` | `string` | 可选的提交按钮标签。 |
+| `closeLabel` | `string` | 可选的关闭按钮标签。 |
+| `notifyOnClose` | `boolean` | 在支持的适配器上请求关闭事件。 |
+| `privateMetadata` | `string` | 原样回传给提交或关闭处理器的不透明元数据。 |
+| `children` | `BotChildren` | 模态框输入组件。 |
 
-These components remain public for direct adapters. They are reference-only for
-the managed Slack and Teams setup documented here.
+这些组件对直连适配器仍然公开可用。对于本文所记载的托管 Slack 与 Teams 配置，它们仅供参考。

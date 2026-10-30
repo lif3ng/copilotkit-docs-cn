@@ -1,9 +1,9 @@
 ---
 title: Input
-description: Render a portable text input and understand its current managed-provider callback limits.
+description: 渲染一个可移植的文本输入框，并了解其在当前托管提供方下的回调限制。
 ---
 
-`Input` describes a single- or multiline text field.
+`Input` 描述一个单行或多行文本字段。
 
 ```tsx
 import { Button, Input, Message } from "@copilotkit/channels/ui";
@@ -33,15 +33,11 @@ import { Button, Input, Message } from "@copilotkit/channels/ui";
 
 ## Props
 
-| Prop          | Type                   | Description                                                |
+| Prop          | 类型                   | 说明                                                |
 | ------------- | ---------------------- | ---------------------------------------------------------- |
-| `name`        | `string`               | Logical field name.                                        |
-| `placeholder` | `string`               | Native placeholder or label text.                          |
-| `multiline`   | `boolean`              | Requests a multiline native input.                         |
-| `onSubmit`    | `ClickHandler<string>` | Text submission callback where the provider dispatches it. |
+| `name`        | `string`               | 逻辑字段名。 |
+| `placeholder` | `string`               | 原生的占位符或标签文本。 |
+| `multiline`   | `boolean`              | 请求原生的多行输入。 |
+| `onSubmit`    | `ClickHandler<string>` | 文本提交回调，在提供方分发该事件时触发。 |
 
-Managed Slack renders a dispatching plain-text input block. Managed Teams
-renders `Input.Text`. Give the field a `name` and place it with a submitting
-`Button`; Teams sends the text to the Button callback in `ctx.values[name]`,
-while Slack invokes `Input.onSubmit` as soon as the input is dispatched. Teams
-does not dispatch `Input.onSubmit` independently.
+托管 Slack 会渲染一个可分发的纯文本输入块。托管 Teams 则渲染 `Input.Text`。请为字段指定一个 `name`，并将其与一个用于提交的 `Button` 搭配放置；Teams 会把文本通过 `ctx.values[name]` 发送给 Button 回调，而 Slack 会在输入被分发时立即调用 `Input.onSubmit`。Teams 不会单独分发 `Input.onSubmit`。

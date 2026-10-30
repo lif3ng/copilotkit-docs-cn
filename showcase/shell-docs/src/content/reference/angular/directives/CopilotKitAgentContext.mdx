@@ -1,19 +1,19 @@
 ---
 title: "CopilotKitAgentContext"
-description: "Angular standalone directive that shares application state with the agent as context from a template for @copilotkit/angular."
+description: "面向 @copilotkit/angular 的 Angular standalone 指令，可在模板中把应用状态作为上下文共享给智能体。"
 ---
 
-## Overview
+## 概览
 
-`CopilotKitAgentContext` is a standalone Angular directive that shares a piece of [context](https://docs.ag-ui.com/concepts/context) with the agent from your template. Apply it to any element. It adds a complete context when the element initializes, updates an existing registration when its inputs change, and removes it when the element is destroyed.
+`CopilotKitAgentContext` 是一个 standalone Angular 指令，可在模板中把一段 [context](https://docs.ag-ui.com/concepts/context) 共享给智能体。它可以应用到任意元素。元素初始化时会添加完整上下文，输入变化时会更新既有注册，元素销毁时会移除该上下文。
 
-You can supply the context either as a single object via the directive selector input, or as separate `description` and `value` inputs. The context object takes precedence when both are provided.
+你既可以通过指令选择器输入传入单个对象，也可以通过分开的 `description` 和 `value` 输入提供上下文。两者同时提供时，上下文对象优先。
 
-This is the template-based alternative to [`connectAgentContext`](/reference/angular/functions/connectAgentContext).
+这是 [`connectAgentContext`](/reference/angular/functions/connectAgentContext) 的基于模板的替代方案。
 
-## Import
+## 导入
 
-The directive is standalone. Import the class into your component's `imports` array, then use the `copilotkitAgentContext` attribute selector in the template.
+该指令是 standalone 的。把类导入组件的 `imports` 数组，然后在模板中使用 `copilotkitAgentContext` 属性选择器。
 
 ```ts title="src/app/profile.component.ts"
 import { Component } from "@angular/core";
@@ -36,35 +36,31 @@ export class ProfileComponent {
 }
 ```
 
-## Selector
+## 选择器
 
 ```
 [copilotkitAgentContext]
 ```
 
-It is an attribute directive, so apply it to any element.
+它是一个属性型指令，可以应用到任意元素。
 
-## Inputs
+## 输入
 
 <PropertyReference name="copilotkitAgentContext" type="Context">
-  A complete context object containing both `description` and `value`. This is the directive's selector input (`[copilotkitAgentContext]="..."`). When provided, it takes precedence over the separate `description` and `value` inputs. A `Context` has the shape `{ description: string; value: string }`.
+  一个同时包含 `description` 和 `value` 的完整上下文对象。也就是指令的选择器输入（`[copilotkitAgentContext]="..."`）。提供时优先于分开的 `description` 和 `value` 输入。`Context` 的结构为 `{ description: string; value: string }`。
 </PropertyReference>
 
 <PropertyReference name="description" type="string">
-  A human-readable description of what this context represents. Used to build the context object when the `copilotkitAgentContext` object input is not provided. The context is only registered when both `description` and `value` are set.
+  一段人类可读的说明，描述此上下文表示什么。在未提供 `copilotkitAgentContext` 对象输入时，用于构建上下文对象。只有当 `description` 和 `value` 都已设置时，上下文才会注册。
 </PropertyReference>
 
 <PropertyReference name="value" type="any">
-  The value forwarded with `description` when the object input is not provided.
-  The directive currently declares this input as `any`, but the AG-UI `Context`
-  contract requires a string. Serialize objects before binding them. The context
-  is registered only when both `description` and `value` are set during
-  initialization.
+  未提供对象输入时，与 `description` 一起转发的值。该指令目前把此输入声明为 `any`，但 AG-UI 的 `Context` 契约要求字符串。绑定对象前请先序列化。只有初始化时 `description` 和 `value` 都已设置，上下文才会注册。
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Separate inputs
+### 分开输入
 
 ```html
 <div copilotkitAgentContext
@@ -73,58 +69,50 @@ It is an attribute directive, so apply it to any element.
 </div>
 ```
 
-### Context object
+### 上下文对象
 
-Pass a complete `{ description, value }` object through the selector input.
+通过选择器输入传入一个完整的 `{ description, value }` 对象。
 
 ```html
 <div [copilotkitAgentContext]="contextObject"></div>
 ```
 
-### Updating a registered context
+### 更新已注册的上下文
 
-The directive re-registers a context when inputs change after a complete context
-was registered during initialization. Supply both fields at initialization.
+当初始化期间已注册完整上下文之后，输入变化时指令会重新注册上下文。请在初始化时就提供两个字段。
 
 ```html
 <div [copilotkitAgentContext]="formContext"></div>
 ```
 
-If the initial object or separate value is missing, a later input change does
-not create the first registration. Render the directive only after the complete
-context is available, or use
-[`connectAgentContext`](/reference/angular/functions/connectAgentContext) for a
-reactive accessor.
+如果初始对象或分开的值缺失，后续的输入变化不会创建首次注册。请等到完整上下文可用后再渲染该指令，或改用 [`connectAgentContext`](/reference/angular/functions/connectAgentContext) 获得响应式访问器。
 
-## Behavior
+## 行为
 
-- **Adds on init.** The context is registered with the agent in `ngOnInit`.
-- **Updates an existing registration.** When `copilotkitAgentContext`,
-  `description`, or `value` changes after initialization registered a context,
-  the directive removes the previous context and adds the new one.
-- **Does not add after an empty initialization.** If initialization has no
-  complete context, later input changes do not create the first registration.
-- **Removes on destroy.** The context is removed when the host element is destroyed.
-- **Object input precedence.** When the `copilotkitAgentContext` object input is set, it is used and the separate `description` and `value` inputs are ignored. Otherwise, the context is built from `description` and `value`, and is only registered when both are set.
+- **初始化时添加**。上下文在 `ngOnInit` 中注册到智能体。
+- **更新既有注册**。当初始化已注册上下文之后，`copilotkitAgentContext`、`description` 或 `value` 发生变化时，指令会移除旧上下文并添加新上下文。
+- **初始化为空时不添加**。如果初始化时没有完整上下文，后续输入变化不会创建首次注册。
+- **销毁时移除**。宿主元素销毁时，上下文会被移除。
+- **对象输入优先**。设置了 `copilotkitAgentContext` 对象输入时，将使用它，并忽略分开的 `description` 和 `value` 输入。否则，上下文由 `description` 和 `value` 构建，且仅在两者都已设置时才注册。
 
-## Related
+## 另请参阅
 
 <Cards>
   <Card
     title="connectAgentContext"
-    description="Share context with the agent from a function instead of a template."
+    description="通过函数而非模板与智能体共享上下文。"
     href="/reference/angular/functions/connectAgentContext"
     icon={<LinkIcon />}
   />
   <Card
     title="injectAgentStore"
-    description="Subscribe to an agent and read its messages, state, and run status."
+    description="订阅智能体并读取其消息、状态与运行状态。"
     href="/reference/angular/functions/injectAgentStore"
     icon={<LinkIcon />}
   />
   <Card
     title="CopilotKit service"
-    description="The central handle on agents, tools, and the runtime connection."
+    description="智能体、工具与运行时连接的中央句柄。"
     href="/reference/angular/services/CopilotKit"
     icon={<LinkIcon />}
   />

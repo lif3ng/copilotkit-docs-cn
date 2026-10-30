@@ -1,17 +1,17 @@
 ---
 title: "provideCopilotChatLabels"
-description: "Angular provider that overrides the default text labels used by the CopilotKit chat components"
+description: "Angular 提供器，用于覆盖 CopilotKit 聊天组件使用的默认文字标签"
 ---
 
-## Overview
+## 概览
 
-`provideCopilotChatLabels` returns an Angular [`Provider`](https://angular.dev/guide/di/dependency-injection-providers) that customizes the text labels used throughout the prebuilt chat components, such as the input placeholder, toolbar button labels, the disclaimer text, and the welcome message. You pass a partial set of labels and they are merged over the defaults, so you only override the strings you want to change.
+`provideCopilotChatLabels` 返回一个 Angular [`Provider`](https://angular.dev/guide/di/dependency-injection-providers)，用于自定义预构建聊天组件中通用的文字标签，例如输入框占位符、工具栏按钮标签、免责声明文本和欢迎消息。你只需传入一部分标签，它们会合并到默认值之上，因此只覆盖你想修改的字符串。
 
-Add it to an application or component `providers` array. Components read the merged labels through [`injectChatLabels`](/reference/angular/functions/injectChatLabels).
+将它加入应用或组件的 `providers` 数组。组件通过 [`injectChatLabels`](/reference/angular/functions/injectChatLabels) 读取合并后的标签。
 
-The full set of defaults lives in `COPILOT_CHAT_DEFAULT_LABELS`. Any field you omit falls back to its default value.
+完整的默认值集合位于 `COPILOT_CHAT_DEFAULT_LABELS` 中。你省略的任何字段都会回退到其默认值。
 
-## Signature
+## 签名
 
 ```ts
 import { provideCopilotChatLabels } from "@copilotkit/angular";
@@ -22,90 +22,89 @@ function provideCopilotChatLabels(
 ): Provider;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="config" type="Partial<CopilotChatLabels>" required>
-  A partial set of label overrides. Provided fields are merged over
-  `COPILOT_CHAT_DEFAULT_LABELS`; omitted fields keep their defaults.
+  一部分标签覆盖项。提供的字段会合并到 `COPILOT_CHAT_DEFAULT_LABELS` 之上；省略的字段保留默认值。
 
   <PropertyReference name="chatInputPlaceholder" type="string" default="Type a message...">
-    Placeholder text for the chat input.
+    聊天输入框的占位文本。
   </PropertyReference>
   <PropertyReference name="chatInputToolbarStartTranscribeButtonLabel" type="string" default="Transcribe">
-    Label for the start-transcription button.
+    开始转写按钮的标签。
   </PropertyReference>
   <PropertyReference name="chatInputToolbarCancelTranscribeButtonLabel" type="string" default="Cancel">
-    Label for the cancel-transcription button.
+    取消转写按钮的标签。
   </PropertyReference>
   <PropertyReference name="chatInputToolbarFinishTranscribeButtonLabel" type="string" default="Finish">
-    Label for the finish-transcription button.
+    结束转写按钮的标签。
   </PropertyReference>
   <PropertyReference name="chatInputToolbarAddButtonLabel" type="string" default="Add photos or files">
-    Label for the add-attachment button.
+    添加附件按钮的标签。
   </PropertyReference>
   <PropertyReference name="chatInputToolbarToolsButtonLabel" type="string" default="Tools">
-    Label for the tools button.
+    工具按钮的标签。
   </PropertyReference>
   <PropertyReference name="chatInputToolbarSendButtonLabel" type="string" default="Send message">
-    Accessible name of the send button.
+    发送按钮的无障碍名称。
   </PropertyReference>
   <PropertyReference name="assistantMessageToolbarCopyCodeLabel" type="string" default="Copy">
-    Label for the copy-code action on an assistant message.
+    助手消息上复制代码操作的标签。
   </PropertyReference>
   <PropertyReference name="assistantMessageToolbarCopyCodeCopiedLabel" type="string" default="Copied">
-    Label shown after code is copied from an assistant message.
+    从助手消息复制代码后显示的标签。
   </PropertyReference>
   <PropertyReference name="assistantMessageToolbarCopyMessageLabel" type="string" default="Copy">
-    Label for the copy-message action on an assistant message.
+    助手消息上复制消息操作的标签。
   </PropertyReference>
   <PropertyReference name="assistantMessageToolbarThumbsUpLabel" type="string" default="Good response">
-    Label for the thumbs-up action.
+    点赞操作的标签。
   </PropertyReference>
   <PropertyReference name="assistantMessageToolbarThumbsDownLabel" type="string" default="Bad response">
-    Label for the thumbs-down action.
+    点踩操作的标签。
   </PropertyReference>
   <PropertyReference name="assistantMessageToolbarReadAloudLabel" type="string" default="Read aloud">
-    Label for the read-aloud action.
+    朗读操作的标签。
   </PropertyReference>
   <PropertyReference name="assistantMessageToolbarRegenerateLabel" type="string" default="Regenerate">
-    Label for the regenerate action.
+    重新生成操作的标签。
   </PropertyReference>
   <PropertyReference name="userMessageToolbarCopyMessageLabel" type="string" default="Copy">
-    Label for the copy-message action on a user message.
+    用户消息上复制消息操作的标签。
   </PropertyReference>
   <PropertyReference name="userMessageToolbarEditMessageLabel" type="string" default="Edit">
-    Label for the edit-message action on a user message.
+    用户消息上编辑消息操作的标签。
   </PropertyReference>
   <PropertyReference name="userMessageToolbarPreviousBranchLabel" type="string" default="Previous message branch">
-    Accessible name of the button that shows the previous branch of a user message.
+    显示用户消息上一分支的按钮的无障碍名称。
   </PropertyReference>
   <PropertyReference name="userMessageToolbarNextBranchLabel" type="string" default="Next message branch">
-    Accessible name of the button that shows the next branch of a user message.
+    显示用户消息下一分支的按钮的无障碍名称。
   </PropertyReference>
   <PropertyReference name="chatDisclaimerText" type="string" default="AI can make mistakes. Please verify important information.">
-    Disclaimer text shown beneath the chat.
+    显示在聊天下方的免责声明文本。
   </PropertyReference>
   <PropertyReference name="chatScrollToBottomLabel" type="string" default="Scroll to bottom">
-    Accessible name of the scroll-to-bottom button.
+    滚动到底部按钮的无障碍名称。
   </PropertyReference>
   <PropertyReference name="welcomeMessageText" type="string" default="How can I help you today?">
-    The welcome message shown before the conversation starts.
+    对话开始前显示的欢迎消息。
   </PropertyReference>
   <PropertyReference name="reasoningMessageThinkingLabel" type="string" default="Thinking…">
-    Reasoning header text while the model is reasoning.
+    模型推理期间显示的推理标题文本。
   </PropertyReference>
   <PropertyReference name="attachmentRemoveButtonLabel" type="string" default="Remove attachment">
-    Accessible name of the button that removes a queued attachment.
+    移除排队附件按钮的无障碍名称。
   </PropertyReference>
 </PropertyReference>
 
-## Return Value
+## 返回值
 
-Returns an Angular `Provider` that binds the merged labels to the `COPILOT_CHAT_LABELS` injection token.
+返回一个 Angular `Provider`，它将合并后的标签绑定到 `COPILOT_CHAT_LABELS` 注入令牌。
 
-## Usage
+## 用法
 
-Override a few labels in your application config. Everything you do not list keeps its default.
+在应用配置中覆盖几个标签。你没有列出的内容都保留默认值。
 
 ```ts title="src/app/app.config.ts"
 import { ApplicationConfig } from "@angular/core";
@@ -125,19 +124,19 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-You can also scope labels to part of your app by adding the provider to a feature component's `providers` array instead of the application config.
+你也可以不把提供器加进应用配置，而是加入功能组件的 `providers` 数组，从而将标签的作用域限定在应用的一部分。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="injectChatLabels"
-    description="Read the merged chat labels from within an injection context."
+    description="在注入上下文中读取合并后的聊天标签。"
     href="/reference/angular/functions/injectChatLabels"
   />
   <Card
     title="CopilotChat"
-    description="The prebuilt chat component whose text these labels customize."
+    description="这些标签所自定义文字对应的预构建聊天组件。"
     href="/reference/angular/components/CopilotChat"
   />
 </Cards>

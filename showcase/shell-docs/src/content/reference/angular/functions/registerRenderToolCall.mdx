@@ -1,24 +1,29 @@
 ---
 title: "registerRenderToolCall"
-description: "Angular function for registering a renderer component for a tool call with CopilotKit, with access to streaming arguments, status, and result"
+description: "Angular 函数，用于向 CopilotKit 注册工具调用的渲染器组件，可访问流式参数、状态与结果"
 ---
 
-## Overview
+## 概览
 
-`registerRenderToolCall` registers a renderer for a tool call. It does not run a handler. It tells CopilotKit which standalone Angular component to render whenever a tool call with a matching `name` appears in the conversation. Use it to visualize tool calls that execute somewhere other than the browser, for example a server-side tool or an agentic (long-running) tool, where you only want to show progress and results in the chat.
+`registerRenderToolCall` 为工具调用注册一个渲染器。它不会运行 handler，而是告诉
+CopilotKit：当会话中出现 `name` 匹配的工具调用时，应渲染哪个独立的 Angular
+组件。用它来可视化那些不在浏览器中执行的工具调用，例如服务端工具或智能体化（长时间运行）工具，此时你只需要在聊天中展示进度与结果。
 
-You call `registerRenderToolCall` inside an Angular injection context (a component or service constructor, or a field initializer). The renderer registers immediately. When the owning injector is destroyed, CopilotKit removes tool and renderer registrations with the same name and optional agent id.
+你需要在一个 Angular 注入上下文（组件或服务的构造函数，或字段初始化器）中调用
+`registerRenderToolCall`。渲染器会立即注册。当所属的 injector 被销毁时，CopilotKit
+会移除同名（以及可选 agent id）的工具与渲染器注册。
 
-If you want to run a browser handler and render UI, use [`registerFrontendTool`](/reference/angular/functions/registerFrontendTool) with its `component` field instead. If the agent does not already have the tool and you only want it to display one of your components, use [`registerComponent`](/reference/angular/functions/registerComponent), which declares the tool from the frontend so nothing has to be added on the agent side.
+如果你想既运行浏览器 handler 又渲染 UI，请改用 [`registerFrontendTool`](/reference/angular/functions/registerFrontendTool)
+及其 `component` 字段。如果智能体还没有这个工具，而你只想让它展示你的某个组件，请使用
+[`registerComponent`](/reference/angular/functions/registerComponent)，它会从前端声明该工具，智能体侧无需任何改动。
 
 <Callout type="info">
-  Import from the package root, `@copilotkit/angular`. There is no `/v2`
-  subpath. `registerRenderToolCall` must run in an injection context that has
-  [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit) in
-  scope.
+  从包根路径 `@copilotkit/angular` 导入，不存在 `/v2`
+  子路径。`registerRenderToolCall` 必须在作用域内包含
+  [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit) 的注入上下文中运行。
 </Callout>
 
-## Signature
+## 签名
 
 ```ts
 import { registerRenderToolCall } from "@copilotkit/angular";
@@ -28,48 +33,46 @@ function registerRenderToolCall<Args extends Record<string, unknown>>(
 ): void;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="renderToolCall" type="RenderToolCallConfig<Args>" required>
-  The renderer definition object.
+  渲染器定义对象。
 
   <PropertyReference name="name" type="string" required>
-    The name of the tool call to render. Use the literal `"*"` to register a
-    catch-all renderer that handles any tool call that has no more specific
-    renderer registered.
+    要渲染的工具调用的名称。使用字面量 `"*"`
+    可注册一个兜底渲染器，处理所有没有注册更具体渲染器的工具调用。
   </PropertyReference>
 
   <PropertyReference name="args" type="StandardSchemaV1<unknown, Args>" required>
-    A [Standard Schema](https://standardschema.dev) (for example a Zod object)
-    that describes the tool call arguments. It is used to type the `args`
-    exposed to your component.
+    一个 [Standard Schema](https://standardschema.dev)（例如 Zod
+    对象），描述工具调用的参数。它用于为暴露给你组件的 `args` 提供类型。
   </PropertyReference>
 
   <PropertyReference name="component" type="Type<ToolRenderer<Args>>" required>
-    The standalone Angular component class to render for this tool call.
-    CopilotKit instantiates it and binds a `toolCall` signal input.
+    为该工具调用渲染的独立 Angular 组件类。CopilotKit
+    会实例化它并绑定一个 `toolCall` signal 输入。
   </PropertyReference>
 
   <PropertyReference name="agentId" type="string">
-    Optional agent scope. When set, the renderer only applies to tool calls
-    emitted by the agent with this id. When omitted, the renderer applies across
-    agents.
+    可选的智能体作用域。设置后，渲染器只作用于具有此 id
+    的智能体发出的工具调用。省略时，渲染器作用于所有智能体。
   </PropertyReference>
 
   <PropertyReference name="passAgent" type="boolean" default="false">
-    When `true`, CopilotKit also binds an `agent` signal input on the component
-    with the agent instance that emitted the tool call. Leave it `false` (the
-    default) if your renderer does not need the agent.
+    设为 `true` 时，CopilotKit 还会在组件上绑定一个 `agent` signal
+    输入，值为发出该工具调用的智能体实例。如果你的渲染器不需要智能体实例，请保持 `false`（默认值）。
   </PropertyReference>
 </PropertyReference>
 
-## Return Value
+## 返回值
 
-`registerRenderToolCall` returns `void`. It registers the renderer as a side effect and wires up name-and-agent-id cleanup for the owning injector. Frontend tools, human-in-the-loop tools, and renderer registrations sharing that key are removed together.
+`registerRenderToolCall` 返回 `void`。它以副作用的方式注册渲染器，并为所属 injector
+建立按名称与 agent id 的清理逻辑。共享该键的前端工具、人机协同工具与渲染器注册会被一并移除。
 
-## The renderer component
+## 渲染器组件
 
-Your `component` implements the `ToolRenderer<Args>` interface. CopilotKit binds the inputs by name, so declare them with Angular's `input()`:
+你的 `component` 实现 `ToolRenderer<Args>` 接口。CopilotKit
+按名称绑定输入，因此请使用 Angular 的 `input()` 声明它们：
 
 ```ts
 import { Signal } from "@angular/core";
@@ -85,7 +88,8 @@ interface ToolRenderer<Args extends Record<string, unknown>> {
 
 ### AngularToolCall
 
-`toolCall()` returns a discriminated union keyed on `status`. The shape of `args` and `result` depends on the status:
+`toolCall()` 返回一个以 `status` 为判别键的可辨识联合类型。`args` 与 `result`
+的形状取决于状态：
 
 ```ts
 type AngularToolCall<Args extends Record<string, unknown>> =
@@ -109,15 +113,16 @@ type AngularToolCall<Args extends Record<string, unknown>> =
     };
 ```
 
-- **`in-progress`** means the arguments are still streaming in, so `args` is `Partial<Args>` and `result` is `undefined`.
-- **`executing`** means the arguments have fully arrived and the tool is running, so `args` is the complete `Args` and `result` is still `undefined`.
-- **`complete`** means the tool finished, so `args` is complete and `result` holds the string result.
+- **`in-progress`** 表示参数仍在流式传入，因此 `args` 为 `Partial<Args>`，`result` 为 `undefined`。
+- **`executing`** 表示参数已完整到达且工具正在运行，因此 `args` 为完整的 `Args`，`result` 仍为 `undefined`。
+- **`complete`** 表示工具已执行完毕，因此 `args` 为完整值，`result` 中保存字符串结果。
 
-## Usage
+## 用法
 
-### A renderer component for a server-side tool
+### 服务端工具的渲染器组件
 
-This renderer shows a spinner while the tool runs and then renders the result. It narrows on `status` so the template only reads `result` once it is available.
+该渲染器在工具运行期间显示加载指示，然后渲染结果。它按 `status`
+进行收窄，因此模板只有在 `result` 可用之后才会读取它。
 
 ```ts title="src/app/search-tool-view.component.ts"
 import { Component, input } from "@angular/core";
@@ -148,7 +153,7 @@ export class SearchToolViewComponent implements ToolRenderer<SearchArgs> {
 }
 ```
 
-Register it for the tool name your agent emits:
+为你的智能体发出的工具名称注册它：
 
 ```ts title="src/app/chat.component.ts"
 import { Component } from "@angular/core";
@@ -172,9 +177,10 @@ export class ChatComponent {
 }
 ```
 
-### Receiving the agent instance
+### 接收智能体实例
 
-Set `passAgent: true` to have CopilotKit bind the `agent` signal input as well. Declare it on the component as an optional `input()`.
+设置 `passAgent: true` 后，CopilotKit 还会绑定 `agent` signal 输入。请在组件上将其声明为可选的
+`input()`。
 
 ```ts title="src/app/handoff-tool-view.component.ts"
 import { Component, input } from "@angular/core";
@@ -203,27 +209,27 @@ registerRenderToolCall({
 });
 ```
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="registerComponent"
-    description="Let the agent display one of your components, with no handler and nothing to add on the agent side."
+    description="让智能体展示你的某个组件，无需 handler，智能体侧也无需任何附加逻辑。"
     href="/reference/angular/functions/registerComponent"
   />
   <Card
     title="registerFrontendTool"
-    description="Register a client-side tool with an async handler and an optional renderer component."
+    description="注册一个带异步 handler 和可选渲染器组件的客户端工具。"
     href="/reference/angular/functions/registerFrontendTool"
   />
   <Card
     title="registerHumanInTheLoop"
-    description="Register a tool that pauses the agent and waits for the user to respond from a rendered component."
+    description="注册一个会暂停智能体、等待用户在渲染组件中响应的工具。"
     href="/reference/angular/functions/registerHumanInTheLoop"
   />
   <Card
-    title="CopilotKit service"
-    description="The central service that holds agents, tools, and the runtime connection."
+    title="CopilotKit 服务"
+    description="持有智能体、工具与运行时连接的中心服务。"
     href="/reference/angular/services/CopilotKit"
   />
 </Cards>

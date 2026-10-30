@@ -1,12 +1,11 @@
 ---
-title: Transcripts
-description: Append, query, retain, and delete an application-owned transcript keyed by a stable user identity.
+title: "Transcripts"
+description: "以稳定的用户身份为键，追加、查询、保留与删除应用自有的会话记录。"
 ---
 
-`Transcripts` stores an optional SDK-owned record on the Channel's
-`StateStore`. Configure top-level `identifyUser` and `store.transcripts`.
+`Transcripts` 在渠道的 `StateStore` 上存储一条可选的、由 SDK 管理的记录。需配置顶层的 `identifyUser` 与 `store.transcripts`。
 
-## Configuration
+## 配置
 
 ```ts
 const channel = createChannel({
@@ -23,8 +22,7 @@ const channel = createChannel({
 });
 ```
 
-`retention` accepts milliseconds or a duration string. Entries are stored on
-the `list` facet, so that facet must be durable for production transcripts.
+`retention` 接受毫秒数或时长字符串。条目存储在 `list` 部分上，因此该部分必须持久化才能支撑生产环境的会话记录。
 
 ## append
 
@@ -39,7 +37,7 @@ await channel.transcripts.append(
 );
 ```
 
-Append silently does nothing when `userId` is `null`.
+当 `userId` 为 `null` 时，追加会静默地不执行任何操作。
 
 ## list
 
@@ -51,10 +49,7 @@ const entries = await channel.transcripts.list({
 });
 ```
 
-Entries are oldest-first and can be filtered by platform, `threadId`, or role.
-On managed Channels, `platform` is the native provider (`"slack"` or
-`"teams"`). Use the stable application `userId` to carry context between
-providers, and filter by platform only when you want one provider's entries.
+条目按最旧在前排列，可按平台、`threadId` 或角色过滤。在托管渠道上，`platform` 是原生提供方（`"slack"` 或 `"teams"`）。请使用稳定的应用 `userId` 在提供方之间携带上下文，只有当你只想要某一个提供方的条目时才按平台过滤。
 
 ## delete
 
@@ -64,14 +59,10 @@ const { deleted } = await channel.transcripts.delete({
 });
 ```
 
-This deletes only the SDK-owned transcript. It does not delete provider history
-or a separate Intelligence record.
+这只会删除由 SDK 管理的会话记录。它不会删除提供方历史或单独的 Intelligence 记录。
 
-## Automatic bridge
+## 自动桥接
 
-`thread.runAgent({ transcript: true })` injects prior entries, appends the
-current user turn, runs the agent, and appends its response. Do not manually
-append those same turns.
+`thread.runAgent({ transcript: true })` 会注入既有条目、追加当前用户轮次、运行智能体，并追加其响应。不要手动追加这些相同的轮次。
 
-`channel.transcripts` becomes available after the runtime starts the Channel.
-See [History and transcripts](/slack/history-and-transcripts).
+`channel.transcripts` 在运行时启动渠道之后可用。参见[历史与会话记录](/slack/history-and-transcripts)。

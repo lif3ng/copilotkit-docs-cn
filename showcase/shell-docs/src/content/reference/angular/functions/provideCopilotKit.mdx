@@ -1,17 +1,17 @@
 ---
 title: "provideCopilotKit"
-description: "Angular provider that configures CopilotKit through dependency injection: runtime URL, agents, tools, headers, and more"
+description: "Angular 提供器，通过依赖注入配置 CopilotKit：运行时 URL、智能体、工具、请求头等"
 ---
 
-## Overview
+## 概览
 
-`provideCopilotKit` is the primary setup entry point for `@copilotkit/angular`. It returns an Angular [`Provider`](https://angular.dev/guide/di/dependency-injection-providers) that you add to your application providers. The provider stores your [`CopilotKitConfig`](#parameters) behind the `COPILOT_KIT_CONFIG` injection token, where the root [`CopilotKit`](/reference/angular/services/CopilotKit) service reads it.
+`provideCopilotKit` 是 `@copilotkit/angular` 的主要配置入口。它返回一个 Angular [`Provider`](https://angular.dev/guide/di/dependency-injection-providers)，由你添加到应用提供器中。该提供器把你的 [`CopilotKitConfig`](#参数) 存储在 `COPILOT_KIT_CONFIG` 注入令牌之后，根 [`CopilotKit`](/reference/angular/services/CopilotKit) 服务会从这里读取它。
 
-Register it once in `app.config.ts`. A component-local config provider alone does not configure the root `CopilotKit` service.
+在 `app.config.ts` 中注册一次即可。仅靠组件级配置提供器无法配置根 `CopilotKit` 服务。
 
-You typically configure the connection one of two ways: point at a CopilotKit runtime with `runtimeUrl`, or connect directly to one or more AG-UI agents with `selfManagedAgents`.
+你通常以两种方式之一配置连接：用 `runtimeUrl` 指向一个 CopilotKit 运行时，或用 `selfManagedAgents` 直连一个或多个 AG-UI 智能体。
 
-## Signature
+## 签名
 
 ```ts
 import { provideCopilotKit } from "@copilotkit/angular";
@@ -20,55 +20,37 @@ import type { Provider } from "@angular/core";
 function provideCopilotKit(config: CopilotKitConfig): Provider;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="config" type="CopilotKitConfig" required>
-  The CopilotKit configuration object.
+  CopilotKit 配置对象。
 
 <PropertyReference name="runtimeUrl" type="string">
-  The URL of your CopilotKit runtime endpoint. Set this to route agent traffic
-  through a runtime (for example a Next.js, Express, or Hono backend).
+  CopilotKit 运行时端点的 URL。设置此项可让智能体流量经由运行时路由（例如 Next.js、Express 或 Hono 后端）。
 </PropertyReference>
 
 <PropertyReference name="headers" type="Record<string, string> | (() => Record<string, string>) | (() => Promise<Record<string, string>>)">
-  Extra HTTP headers sent with every runtime request, for example an
-  `Authorization` header. Pass an object for static headers, or a function
-  (sync or async) to build them fresh. A builder runs when each request is
-  sent, so a refreshed token is always used.
+  随每个运行时请求一起发送的额外 HTTP 请求头，例如 `Authorization` 请求头。传对象表示静态请求头，或传函数（同步或异步）来即时构建。构建函数会在每次请求发送时执行，因此始终使用刷新后的令牌。
 
-  Cache inside the builder — a builder that calls the network every time adds
-  one call per request. If the builder throws or rejects, that request is not
-  sent and `onError` gets `header_resolution_failed`.
+  请在构建函数内部做缓存——每次都调用网络的构建函数会让每个请求多出一次调用。如果构建函数抛出异常或被拒绝，该请求不会发送，`onError` 会收到 `header_resolution_failed`。
 
-  Re-passing the same builder function is a no-op. On a user switch, pass a
-  new function (or a record) to `copilotKit.updateRuntime({ headers })` (see
-  the [`CopilotKit`](/reference/angular/services/CopilotKit) service), or
-  remount, so Inspector metadata and thread lists reload for the new user.
-  This does not refetch the runtime's `/info`.
+  重复传入同一个构建函数不会产生任何效果。切换用户时，请向 `copilotKit.updateRuntime({ headers })` 传入新函数（或一个记录对象）（参见 [`CopilotKit`](/reference/angular/services/CopilotKit) 服务），或重新挂载组件，以便为新用户重新加载 Inspector 元数据和线程列表。这不会重新拉取运行时的 `/info`。
 
-  Core headers are also sent to any `selfManagedAgents` /
-  `agents__unsafe_dev_only` agent, including ones on other origins. Don't put
-  a bearer token in core headers if those agents point at a third party.
+  核心请求头也会发送到任何 `selfManagedAgents` / `agents__unsafe_dev_only` 智能体，包括位于其他来源（origin）的智能体。如果这些智能体指向第三方，请不要在核心请求头中放入 bearer 令牌。
 
-  If you pass a format-valid `licenseKey`, a `X-CopilotCloud-Public-Api-Key`
-  header is merged in automatically unless you already set one here.
+  如果你传入格式有效的 `licenseKey`，会自动合并进一个 `X-CopilotCloud-Public-Api-Key` 请求头，除非你已在此处设置。
 </PropertyReference>
 
 <PropertyReference name="credentials" type="RequestCredentials">
-  Credentials mode for runtime fetch requests. Use `"include"` for HTTP-only
-  cookies in cross-origin requests. When omitted, the browser Fetch default
-  applies.
+  运行时 fetch 请求的凭据模式。跨域请求中携带 HTTP-only cookie 时使用 `"include"`。省略时采用浏览器 Fetch 的默认行为。
 </PropertyReference>
 
 <PropertyReference name="messageFilter" type="(messages: Message[], context: { agentId: string }) => Message[]">
-  Rewrites the message list sent to the agent on every run.
+  改写每次运行时发送给智能体的消息列表。
 
-CopilotKit sends the whole thread with each request. When your agent already
-stores the conversation — a LangGraph checkpointer, a Mastra memory store, a
-Strands `SessionManager` — most of that payload is waste, and an agent that
-merges the inbound list with its own store can show the model every turn twice.
+CopilotKit 会在每次请求中发送整个线程。当你的智能体已经自己存储对话时——例如 LangGraph checkpointer、Mastra memory store 或 Strands `SessionManager`——这些负载大部分是浪费，而且会把入站列表与自己存储合并的智能体可能让模型把每一轮对话看到两次。
 
-Return the messages to send:
+返回要发送的消息：
 
 ```ts
 provideCopilotKit({
@@ -77,177 +59,121 @@ provideCopilotKit({
 });
 ```
 
-The filter changes the request body only. The transcript the UI renders is
-untouched, so the chat still shows the full conversation. Broken tool-call pairs
-are repaired before the request goes out, so a filter this blunt cannot strand a
-tool result mid-approval.
+该过滤器只改变请求体。UI 渲染的会话记录不受影响，因此聊天中仍显示完整对话。不完整的工具调用对会在请求发出前被修复，因此再粗暴的过滤器也不会把工具结果卡在审批中间。
 
-Agents reached through your CopilotRuntime honor this. An agent your app
-constructs itself and passes in directly does not. CopilotKit Intelligence runs
-and suggestion runs are never filtered.
+经由你的 CopilotRuntime 访问的智能体会遵守此设置。应用自行构造并直接传入的智能体则不会。CopilotKit Intelligence 运行和建议运行永远不会被过滤。
 
-Change it later with `updateRuntime({ messageFilter })`, and turn it off by
-passing the key explicitly as `undefined`.
+之后可用 `updateRuntime({ messageFilter })` 更改它，并通过显式传入 `undefined` 作为该键的值来关闭它。
 
 </PropertyReference>
 
 <PropertyReference name="licenseKey" type="string">
-  Your CopilotCloud public key. A value matching `ck_pub_` followed by 32
-  hexadecimal characters is sent as the `X-CopilotCloud-Public-Api-Key` header
-  unless that header is already set. Watermark rendering and missing-key
-  warnings are disabled in the current package.
+  你的 CopilotCloud 公钥。形如 `ck_pub_` 后接 32 个十六进制字符的值会作为 `X-CopilotCloud-Public-Api-Key` 请求头发送，除非该请求头已设置。当前包中水印渲染和缺少密钥警告均已被禁用。
 </PropertyReference>
 
 <PropertyReference name="properties" type="Record<string, unknown>">
-  Arbitrary key/value properties forwarded to the runtime with each request. Use
-  this for request-scoped metadata such as a user id or tenant.
+  随每个请求转发给运行时的任意键值属性。用于请求范围的元数据，例如用户 id 或租户。
 </PropertyReference>
 
 <PropertyReference name="enableInspector" type="boolean">
-  Controls the CopilotKit Inspector in development browser builds. It is shown
-  by default unless set to `false`, and is never loaded in production or during
-  server-side rendering, even when explicitly set to `true`.
+  控制开发浏览器构建中的 CopilotKit Inspector。默认显示，除非设为 `false`；在生产环境或服务端渲染期间从不加载，即使显式设为 `true` 也是如此。
 </PropertyReference>
 
 <PropertyReference name="agents" type="Record<string, AbstractAgent>">
-  A map of agent id to AG-UI agent instance. Use this to register agents
-  directly in the client. These are merged with `selfManagedAgents` when the
-  underlying core is constructed.
+  智能体 id 到 AG-UI 智能体实例的映射。用于在客户端直接注册智能体。在底层核心构建时，它们会与 `selfManagedAgents` 合并。
 </PropertyReference>
 
 <PropertyReference
   name="selfManagedAgents"
   type="Record<string, AbstractAgent>"
 >
-  A map of agent id to AG-UI agent instance that connect directly to an agent
-  endpoint without a CopilotKit runtime. Provide an `@ag-ui/client` agent such
-  as `HttpAgent` here to talk to an agent server directly.
+  智能体 id 到 AG-UI 智能体实例的映射，这些实例不经过 CopilotKit 运行时、直接连接智能体端点。在此提供 `@ag-ui/client` 智能体（例如 `HttpAgent`）即可直接与智能体服务器通信。
 </PropertyReference>
 
 <PropertyReference name="tools" type="ClientTool[]">
-  Client tools registered at startup. Each `ClientTool` is a frontend tool
-  definition without a `handler`, plus an optional `renderer` component. When a
-  tool supplies both a `renderer` and `parameters`, its renderer is registered
-  as a tool call renderer automatically.
+  启动时注册的客户端工具。每个 `ClientTool` 是一个不带 `handler` 的前端工具定义，外加一个可选的 `renderer` 组件。当工具同时提供 `renderer` 和 `parameters` 时，其渲染器会自动注册为工具调用渲染器。
 </PropertyReference>
 
 <PropertyReference name="renderToolCalls" type="RenderToolCallConfig[]">
-  Renderers for tool calls. Each entry maps a tool `name` and a `args` [Standard
-  Schema](https://standardschema.dev) to a `component` that visualizes the call.
-  Optional `agentId` scopes the renderer to one agent and `passAgent` exposes
-  the agent to the renderer.
+  工具调用的渲染器。每个条目将工具 `name` 和 `args` 的 [Standard Schema](https://standardschema.dev) 映射到可视化该调用的 `component`。可选的 `agentId` 将渲染器限定于单个智能体，`passAgent` 则把智能体暴露给渲染器。
 </PropertyReference>
 
 <PropertyReference
   name="renderActivityMessages"
   type="RenderActivityMessageConfig[]"
 >
-  Renderers for agent activity messages. Each entry maps an `activityType` and a
-  `content` schema to a `component`. Optional `agentId` scopes the renderer to
-  one agent.
+  智能体活动消息的渲染器。每个条目将 `activityType` 和 `content` 模式映射到一个 `component`。可选的 `agentId` 将渲染器限定于单个智能体。
 </PropertyReference>
 
 <PropertyReference name="suggestionsConfig" type="SuggestionsConfig[]">
-  Suggestion configurations. Each entry is either a dynamic config
-  (`instructions` plus optional `minSuggestions`, `maxSuggestions`, `available`,
-  `providerAgentId`, `consumerAgentId`) or a static config (an explicit
-  `suggestions` array plus optional `available` and `consumerAgentId`).
+  建议配置。每个条目要么是动态配置（`instructions` 加可选的 `minSuggestions`、`maxSuggestions`、`available`、`providerAgentId`、`consumerAgentId`），要么是静态配置（显式的 `suggestions` 数组加可选的 `available` 和 `consumerAgentId`）。
 </PropertyReference>
 
 <PropertyReference name="frontendTools" type="FrontendToolConfig[]">
-  Client-side tools registered at startup, each with a `name`, `description`,
-  `parameters` schema, async `handler`, and optional `component` renderer,
-  `followUp`, and `agentId`. Handlers run inside the root injection context, so
-  they can use `inject()`. Prefer
-  [`registerFrontendTool`](/reference/angular/functions/registerFrontendTool)
-  for tools scoped to a component.
+  启动时注册的客户端工具，每个都包含 `name`、`description`、`parameters` 模式、异步 `handler`，以及可选的 `component` 渲染器、`followUp` 和 `agentId`。处理器在根注入上下文中运行，因此可以使用 `inject()`。限定于组件的工具请优先使用 [`registerFrontendTool`](/reference/angular/functions/registerFrontendTool)。
 </PropertyReference>
 
 <PropertyReference name="humanInTheLoop" type="HumanInTheLoopConfig[]">
-  Human-in-the-loop tools registered at startup. Each entry has a `name`,
-  `description`, `parameters` schema, a `component` renderer that collects the
-  user's response, and an optional `agentId`. Prefer
-  [`registerHumanInTheLoop`](/reference/angular/functions/registerHumanInTheLoop)
-  for tools scoped to a component.
+  启动时注册的人机协同（human-in-the-loop）工具。每个条目包含 `name`、`description`、`parameters` 模式、一个收集用户响应的 `component` 渲染器，以及可选的 `agentId`。限定于组件的工具请优先使用 [`registerHumanInTheLoop`](/reference/angular/functions/registerHumanInTheLoop)。
 </PropertyReference>
 
 <PropertyReference name="defaultToolRendering" type="boolean" default="false">
-  Opts into the text-only fallback renderer for otherwise unknown tool calls.
-  Unknown tools are hidden when this is omitted or `false`.
+  为其他情况下未知的工具调用启用纯文本回退渲染器。省略或设为 `false` 时，未知工具将被隐藏。
 </PropertyReference>
 
   <PropertyReference name="a2ui" type="A2UIConfig">
-    Configuration for A2UI (agent-to-UI declarative surfaces). A runtime may
-    advertise A2UI through `/info`; supplying a catalog also enables the
-    frontend renderers and agent context without that runtime capability.
+    A2UI（agent 到 UI 的声明式界面）的配置。运行时可通过 `/info` 宣告支持 A2UI；提供 catalog 也能在没有该运行时能力的情况下启用前端渲染器与智能体上下文。
 
     <PropertyReference name="theme" type="Record<string, unknown>">
-      The A2UI theme used to style rendered surfaces.
+      用于为渲染界面设置样式的 A2UI 主题。
     </PropertyReference>
     <PropertyReference name="catalog" type="A2UICatalog">
-      The catalog surfaces render with: `basicCatalog` or one from
-      `createAngularCatalog`, both in `@copilotkit/angular/a2ui`. Providing it
-      enables A2UI even when the runtime does not advertise A2UI through
-      `/info`. Without a catalog, A2UI stays off, even when the runtime
-      enables it, and CopilotKit logs a warning.
+      界面渲染所用的 catalog：`basicCatalog` 或来自 `createAngularCatalog` 的 catalog，两者都位于 `@copilotkit/angular/a2ui`。提供它后，即使运行时未通过 `/info` 宣告支持 A2UI，也能启用 A2UI。没有 catalog 时，即使运行时启用了 A2UI，它也会保持关闭，并且 CopilotKit 会记录一条警告。
     </PropertyReference>
     <PropertyReference name="loadingComponent" type="Type<unknown>">
-      An Angular component shown while a surface is loading.
+      界面加载期间显示的 Angular 组件。
     </PropertyReference>
     <PropertyReference name="includeSchema" type="boolean" default="true">
-      Whether to send the catalog component schemas to the agent as context. Set
-      to `false` to omit the schema context: the agent still receives the
-      catalog ID and the names of the catalog's custom components, without
-      their JSON schemas or the A2UI generation and design guidelines. A
-      LangGraph agent that uses the CopilotKit middleware's injected A2UI tool
-      then gives its A2UI subagent the component names only. To give the
-      subagent more detail, pass a composition guide through the middleware's
-      A2UI guidelines: `a2uiParams.guidelines.compositionGuide` in TypeScript,
-      or `a2ui_params["guidelines"]["composition_guide"]` in Python.
+      是否将 catalog 组件模式作为上下文发送给智能体。设为 `false` 可省略模式上下文：智能体仍会收到 catalog ID 和 catalog 自定义组件的名称，但不会收到它们的 JSON 模式以及 A2UI 生成与设计指南。使用 CopilotKit 中间件注入的 A2UI 工具的 LangGraph 智能体此时只会向其 A2UI 子智能体提供组件名称。要给子智能体更多细节，请通过中间件的 A2UI 指南传入组合指南：TypeScript 中为 `a2uiParams.guidelines.compositionGuide`，Python 中为 `a2ui_params["guidelines"]["composition_guide"]`。
     </PropertyReference>
     <PropertyReference name="recovery" type="A2UIRecoveryOptions">
-      Controls when A2UI retry and diagnostic state becomes visible.
+      控制 A2UI 重试与诊断状态何时可见。
 
       <PropertyReference name="showAfterMs" type="number" default="2000">
-        Delay before revealing a transient retry.
+        显示瞬时重试状态前的延迟。
       </PropertyReference>
       <PropertyReference name="showAfterAttempts" type="number" default="2">
-        Attempt number that reveals retry state immediately.
+        从此尝试次数起立即显示重试状态。
       </PropertyReference>
       <PropertyReference name="debugExposure" type='"hidden" | "collapsed" | "verbose"'>
-        Client diagnostic visibility. Authoritative server lifecycle content may
-        override it.
+        客户端诊断可见性。权威的服务端生命周期内容可能会覆盖它。
       </PropertyReference>
     </PropertyReference>
 
   </PropertyReference>
 
   <PropertyReference name="openGenerativeUI" type="OpenGenerativeUIConfig">
-    Configuration for open generative UI (the `generateSandboxedUi` tool).
-    Providing this object enables the feature.
+    开放式生成式 UI（`generateSandboxedUi` 工具）的配置。提供此对象即启用该特性。
 
     <PropertyReference name="sandboxFunctions" type="SandboxFunction[]">
-      Functions the sandboxed UI can call back into the host application via
-      `Websandbox.connection.remote.<functionName>(args)`. Each has a `name`,
-      `description`, `parameters` schema, and a `handler`.
+      沙箱 UI 可通过 `Websandbox.connection.remote.<functionName>(args)` 回调宿主应用的函数。每个都包含 `name`、`description`、`parameters` 模式和 `handler`。
     </PropertyReference>
     <PropertyReference name="designSkill" type="string">
-      Design guidelines passed to the agent for generated UI. Defaults to the
-      built-in shadcn-inspired design skill.
+      传递给智能体的生成式 UI 设计指南。默认为内置的 shadcn 风格设计技能。
     </PropertyReference>
 
   </PropertyReference>
 </PropertyReference>
 
-## Return Value
+## 返回值
 
-Returns an Angular `Provider` that binds your (header-augmented) config to the `COPILOT_KIT_CONFIG` injection token. Add it to the application providers.
+返回一个 Angular `Provider`，它把你的（已补充请求头的）配置绑定到 `COPILOT_KIT_CONFIG` 注入令牌。请将其添加到应用提供器中。
 
-## Usage
+## 用法
 
-### Connect through a runtime
+### 通过运行时连接
 
-Point `runtimeUrl` at your CopilotKit runtime endpoint and register the provider in your application config.
+把 `runtimeUrl` 指向你的 CopilotKit 运行时端点，并在应用配置中注册该提供器。
 
 ```ts title="src/app/app.config.ts"
 import { ApplicationConfig } from "@angular/core";
@@ -268,9 +194,9 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-### Connect directly to an AG-UI agent
+### 直接连接 AG-UI 智能体
 
-To talk to an agent server without a CopilotKit runtime, pass `selfManagedAgents` with an `@ag-ui/client` agent such as `HttpAgent`.
+要在没有 CopilotKit 运行时的情况下与智能体服务器通信，请传入 `selfManagedAgents`，其中放置 `@ag-ui/client` 智能体（例如 `HttpAgent`）。
 
 ```ts title="src/app/app.config.ts"
 import { ApplicationConfig } from "@angular/core";
@@ -288,9 +214,9 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-### Register startup tools
+### 注册启动工具
 
-Pass `frontendTools` to register client tools when the application starts. Their handlers run inside the root injection context, so they can use `inject()`.
+传入 `frontendTools` 即可在应用启动时注册客户端工具。它们的处理器在根注入上下文中运行，因此可以使用 `inject()`。
 
 ```ts title="src/app/app.config.ts"
 import { ApplicationConfig } from "@angular/core";
@@ -314,33 +240,29 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-## Behavior
+## 行为
 
-- The provided config is bound to the `COPILOT_KIT_CONFIG` injection token. Read it with [`injectCopilotKitConfig`](/reference/angular/functions/injectCopilotKitConfig).
-- A format-valid `licenseKey` is merged into the
-  `X-CopilotCloud-Public-Api-Key` header unless that header is already present.
-  The current package does not render a watermark or log a missing-key warning.
-- `agents` and `selfManagedAgents` are merged together when the underlying core is created, so an id present in both resolves to the `selfManagedAgents` entry.
-- The Inspector receives that same core instance. Angular reuses an existing
-  `cpk-web-inspector` element when present and removes only an element it created
-  when the root service is destroyed.
+- 提供的配置会绑定到 `COPILOT_KIT_CONFIG` 注入令牌。可用 [`injectCopilotKitConfig`](/reference/angular/functions/injectCopilotKitConfig) 读取它。
+- 格式有效的 `licenseKey` 会合并进 `X-CopilotCloud-Public-Api-Key` 请求头，除非该请求头已存在。当前包不会渲染水印，也不会记录缺少密钥的警告。
+- 创建底层核心时，`agents` 与 `selfManagedAgents` 会合并在一起，因此同时出现在两者中的 id 会解析为 `selfManagedAgents` 条目。
+- Inspector 接收同一个核心实例。Angular 会复用已存在的 `cpk-web-inspector` 元素，并且在根服务销毁时只移除自己创建的元素。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="injectCopilotKitConfig"
-    description="Read the CopilotKitConfig you provided here from within an injection context."
+    description="在注入上下文中读取你在此提供的 CopilotKitConfig。"
     href="/reference/angular/functions/injectCopilotKitConfig"
   />
   <Card
     title="CopilotKit"
-    description="The service that consumes this configuration and exposes agents, tools, and runtime state."
+    description="使用该配置并暴露智能体、工具与运行时状态的服务。"
     href="/reference/angular/services/CopilotKit"
   />
   <Card
     title="CopilotChat"
-    description="The prebuilt chat component to drop into a template once the provider is registered."
+    description="注册该提供器后即可放入模板的预构建聊天组件。"
     href="/reference/angular/components/CopilotChat"
   />
 </Cards>

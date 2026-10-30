@@ -1,69 +1,58 @@
 ---
-title: Thread
-description: Reference for replying, running and resuming agents, reading managed history, and storing per-conversation state.
+title: "Thread"
+description: "回复、运行与恢复智能体、读取托管历史以及存储会话级状态的参考。"
 ---
 
-A Channels `Thread` is the SDK handle for one native conversation. Handlers,
-tools, and JSX callbacks receive it.
+Channels 的 `Thread` 是单个原生会话的 SDK 句柄。处理函数、工具与 JSX 回调都会收到它。
 
-## Properties
+## 属性
 
-| Property                 | Type                   | Description                                                                    |
-| ------------------------ | ---------------------- | ------------------------------------------------------------------------------ |
-| `conversationKey`        | `string`               | Stable managed conversation key. Also passed to the `agent(threadId)` factory. |
-| `platform`               | `string`               | Native delivery provider. Managed Channels report `"slack"` or `"teams"`.      |
-| `supportsBlockingChoice` | `boolean \| undefined` | `false` on the managed path. Use post-and-resume instead of `awaitChoice`.     |
+| 属性                     | 类型                   | 说明                                                                            |
+| ------------------------ | ---------------------- | ------------------------------------------------------------------------------- |
+| `conversationKey`        | `string`               | 稳定的托管会话键。也会传给 `agent(threadId)` 工厂。                             |
+| `platform`               | `string`               | 原生投递提供方。托管渠道报告 `"slack"` 或 `"teams"`。                           |
+| `supportsBlockingChoice` | `boolean \| undefined` | 在托管路径上为 `false`。请改用发布后恢复（post-and-resume）模式，而非 `awaitChoice`。 |
 
-## Post and update
+## 发布与更新
 
-| Method                                      | Returns                            | Description                                                                                                     |
-| ------------------------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `post(ui)`                                  | `Promise<MessageRef>`              | Send text or portable JSX.                                                                                      |
-| `update(ref, ui)`                           | `Promise<MessageRef>`              | Replace a prior message.                                                                                        |
-| `delete(ref)`                               | `Promise<void>`                    | Remove a prior message when supported.                                                                          |
-| `stream(source)`                            | `Promise<MessageRef>`              | Stream text where the adapter supports streaming.                                                               |
-| `postFile(args)`                            | `Promise<{ ok, fileId?, assetId?, error? }>` | Upload bytes with a filename when supported.                                                        |
-| `postEphemeral(user, ui, { fallbackToDM })` | `Promise<EphemeralResult \| null>` | Provider-capability-gated private reply. The required boolean chooses whether to fall back to a direct message. |
+| 方法                                        | 返回值                             | 说明                                                                                                            |
+| ------------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `post(ui)`                                  | `Promise<MessageRef>`              | 发送文本或可移植 JSX。                                                                                           |
+| `update(ref, ui)`                           | `Promise<MessageRef>`              | 替换先前的一条消息。                                                                                             |
+| `delete(ref)`                               | `Promise<void>`                    | 在受支持时移除先前的一条消息。                                                                                   |
+| `stream(source)`                            | `Promise<MessageRef>`              | 在适配器支持流式传输时流式输出文本。                                                                             |
+| `postFile(args)`                            | `Promise<{ ok, fileId?, assetId?, error? }>` | 在受支持时上传带文件名的字节数据。                                                                     |
+| `postEphemeral(user, ui, { fallbackToDM })` | `Promise<EphemeralResult \| null>` | 受提供方能力门控的私密回复。必填的布尔值决定是否回退到私信。                                                     |
 
 ```tsx title="handler.tsx"
 const ref = await thread.post("Working…");
 await thread.update(ref, "Done.");
 ```
 
-The `MessageRef` returned by `thread.post()` is updateable or deletable only
-during the current managed delivery. Do not persist arbitrary refs and reuse
-them to update or delete messages across deliveries.
+`thread.post()` 返回的 `MessageRef` 仅在当前托管投递期间可更新或可删除。不要持久化任意的 ref 并跨投递复用它来更新或删除消息。
 
-In a later interaction, use the interaction-provided `message.ref`, which
-Intelligence stamps for that delivery. Only attempt an update when
-`message.ref.id` is non-empty, and treat that update as best-effort.
+在后续交互中，请使用交互提供的 `message.ref`，它由 Intelligence 为该次投递打上标记。只有当 `message.ref.id` 非空时才尝试更新，并将该更新视为尽力而为（best-effort）。
 
-Capability-result methods such as `postFile`, `react`, and
-`setSuggestedPrompts` can return `{ ok: false }` when unavailable. Message
-operations such as `update`, `delete`, and `stream` can reject when the current
-adapter or provider cannot perform them, so catch failures when they are not
-allowed to fail the workflow.
+诸如 `postFile`、`react` 与 `setSuggestedPrompts` 这类返回能力结果的方法，在不可用时可能返回 `{ ok: false }`。诸如 `update`、`delete` 与 `stream` 这类消息操作，在当前适配器或提供方无法执行时可能拒绝（reject），因此在不容许其破坏工作流的场合要捕获这些失败。
 
-On managed delivery, `assetId` identifies the canonical Intelligence asset.
-`fileId` may identify the provider's uploaded file. Treat both as optional and
-branch first on `ok`.
+在托管投递中，`assetId` 标识规范的 Intelligence 资产。`fileId` 可能标识提供方上传的文件。两者都按可选项对待，并优先依据 `ok` 分支。
 
-## Run and resume the agent
+## 运行与恢复智能体
 
-| Method                    | Returns                            | Description                                                      |
+| 方法                      | 返回值                             | 说明                                                             |
 | ------------------------- | ---------------------------------- | ---------------------------------------------------------------- |
-| `runAgent(input?)`        | `Promise<MessageRef \| undefined>` | Run the thread's agent and render its output.                    |
-| `resume(value, options?)` | `Promise<MessageRef \| undefined>` | Consume the action continuation and re-enter an interrupted run. |
+| `runAgent(input?)`        | `Promise<MessageRef \| undefined>` | 运行该线程的智能体并渲染其输出。                                 |
+| `resume(value, options?)` | `Promise<MessageRef \| undefined>` | 消费操作续接凭证，重新进入被中断的运行。                         |
 
-`runAgent` accepts:
+`runAgent` 接受：
 
-| Field        | Type                            | Description                                                                                                             |
-| ------------ | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `prompt`     | `string \| AgentContentPart[]`  | Explicit user turn. When omitted in a message handler, the SDK injects the inbound text or content parts automatically. |
-| `context`    | `ContextEntry[]`                | Context for this run only.                                                                                              |
-| `tools`      | `ChannelTool[]`                 | Tools for this run only.                                                                                                |
-| `transcript` | `boolean \| { limit?: number }` | Optional SDK transcript bridge when `identifyUser` resolves a user and transcripts are configured.                      |
-| `memory`     | `{ user?, project? }`           | Per-run Intelligence Memory access. Each scope is `"none"`, `"read"`, or `"read-write"`; omission disables Memory.      |
+| 字段         | 类型                            | 说明                                                                                                                    |
+| ------------ | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `prompt`     | `string \| AgentContentPart[]`  | 显式的用户轮次。在消息处理函数中省略时，SDK 会自动注入入站文本或内容部分。                                                |
+| `context`    | `ContextEntry[]`                | 仅本次运行使用的上下文。                                                                                                  |
+| `tools`      | `ChannelTool[]`                 | 仅本次运行使用的工具。                                                                                                    |
+| `transcript` | `boolean \| { limit?: number }` | 可选的 SDK 会话记录桥接，要求 `identifyUser` 能解析出用户且已配置会话记录。                                               |
+| `memory`     | `{ user?, project? }`           | 按次授予的 Intelligence Memory 访问。每个作用域取 `"none"`、`"read"` 或 `"read-write"`；省略则禁用 Memory。               |
 
 ```ts title="channel.ts"
 channel.onMessage(async ({ thread, message }) => {
@@ -81,12 +70,9 @@ channel.onMessage(async ({ thread, message }) => {
 });
 ```
 
-For managed approvals, post a registered component, return from the interrupt
-handler, and call `resume(value)` when a later click arrives. Do not call
-`awaitChoice`; see the interactive messages guide for
-[Slack](/slack/interactive) or [Teams](/teams/interactive).
+对于托管审批：发布一个已注册组件，从中断处理函数返回，并在稍后的点击到达时调用 `resume(value)`。不要调用 `awaitChoice`；参见 [Slack](/slack/interactive)或 [Teams](/teams/interactive)的交互式消息指南。
 
-Personal Memory on resume needs a trusted subject selector:
+在恢复时使用个人 Memory 需要一个可信的主体选择器：
 
 ```ts
 await thread.resume(value, {
@@ -95,51 +81,38 @@ await thread.resume(value, {
 });
 ```
 
-`initiator` keeps the application user that started this HITL chain. `actor`
-uses the application user resolved for the current interaction. Project-only
-Memory needs no subject and carries no made-up user. A continuation expires
-with action retention and can start only one resumed run.
+`initiator` 保留发起这条人机协同（human-in-the-loop）链路的应用用户。`actor` 使用为当前交互解析出的应用用户。仅项目级 Memory 无需主体，也不会携带虚构的用户。续接凭证会随操作保留期一起过期，且只能启动一次恢复运行。
 
-For the complete identity, group-conversation, and per-run Memory workflow, see
-[Identity and Memory for Slack](/slack/identity-and-memory) or
-[Identity and Memory for Teams](/teams/identity-and-memory).
+完整的身份、群聊会话与按次 Memory 工作流，参见 [Slack 的身份与 Memory](/slack/identity-and-memory)或 [Teams 的身份与 Memory](/teams/identity-and-memory)。
 
-Memory and continuation failures expose stable codes:
+Memory 与续接失败会暴露稳定的错误码：
 
-- `channel_memory_grant_invalid`, `channel_memory_user_required`, and
-  `channel_memory_unavailable`
-- `channel_memory_subject_required`, `channel_continuation_required`,
-  `channel_continuation_mismatch`, and `channel_action_expired`
+- `channel_memory_grant_invalid`、`channel_memory_user_required` 与 `channel_memory_unavailable`
+- `channel_memory_subject_required`、`channel_continuation_required`、`channel_continuation_mismatch` 与 `channel_action_expired`
 
-## Conversation history and users
+## 会话历史与用户
 
-| Method              | Returns                               | Description                                                          |
-| ------------------- | ------------------------------------- | -------------------------------------------------------------------- |
-| `getMessages()`     | `Promise<ThreadMessage[]>`            | Managed history in chronological order; returns `[]` if unavailable. |
-| `lookupUser(query)` | `Promise<ProviderActor \| undefined>` | Provider lookup where supported.                                     |
+| 方法                | 返回值                                | 说明                                                                   |
+| ------------------- | ------------------------------------- | ---------------------------------------------------------------------- |
+| `getMessages()`     | `Promise<ThreadMessage[]>`            | 按时间顺序排列的托管历史；不可用时返回 `[]`。                          |
+| `lookupUser(query)` | `Promise<ProviderActor \| undefined>` | 在受支持时进行提供方查询。                                             |
 
-## Per-conversation state
+## 会话级状态
 
-| Method               | Returns                   | Description                                                                |
+| 方法                 | 返回值                    | 说明                                                                       |
 | -------------------- | ------------------------- | -------------------------------------------------------------------------- |
-| `state<T>()`         | `Promise<T \| undefined>` | Read the value stored for this conversation.                               |
-| `setState<T>(value)` | `Promise<void>`           | Replace the full stored value. Validated when `store.state` is configured. |
+| `state<T>()`         | `Promise<T \| undefined>` | 读取为该会话存储的值。                                                     |
+| `setState<T>(value)` | `Promise<void>`           | 整体替换存储的值。配置了 `store.state` 时会进行校验。                      |
 
-State uses the Channel's `StateStore`. Without a durable `store.adapter`, the
-default MemoryStore keeps it only in the current process. See the threads and
-state guide for [Slack](/slack/threads-and-state) or
-[Teams](/teams/threads-and-state).
+状态使用该渠道的 `StateStore`。没有持久化的 `store.adapter` 时，默认的 MemoryStore 只会将其保存在当前进程中。参见 [Slack](/slack/threads-and-state)或 [Teams](/teams/threads-and-state)的线程与状态指南。
 
-## Provider-capability methods
+## 提供方能力方法
 
-| Method                                             | Purpose                                                                         |
-| -------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `react(ref, emoji)` / `unreact(ref, emoji)`        | Add or remove the bot's reaction.                                               |
-| `setSuggestedPrompts(prompts, options?)`           | Set prompts on surfaces such as an assistant pane.                              |
-| `setTitle(title)`                                  | Name the conversation.                                                          |
-| `subscribe()` / `unsubscribe()` / `isSubscribed()` | Store a subscription flag. Proactive routing from that flag is not implemented. |
+| 方法                                               | 用途                                                                             |
+| -------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `react(ref, emoji)` / `unreact(ref, emoji)`        | 添加或移除机器人的表情回应。                                                      |
+| `setSuggestedPrompts(prompts, options?)`           | 在助手面板等入口上设置建议提示。                                                  |
+| `setTitle(title)`                                  | 为会话命名。                                                                      |
+| `subscribe()` / `unsubscribe()` / `isSubscribed()` | 存储一个订阅标志。基于该标志的主动路由尚未实现。                                  |
 
-Managed Slack and Teams support `react` and `unreact` for the portable reaction
-set: `thumbs_up`, `thumbs_down`, `heart`, `fire`, `eyes`, `refresh`, `thinking`,
-and `tada`. Other methods remain provider-capability dependent; check `{ ok }`
-when the method returns a capability result.
+托管 Slack 与 Teams 对可移植表情回应集合支持 `react` 与 `unreact`：`thumbs_up`、`thumbs_down`、`heart`、`fire`、`eyes`、`refresh`、`thinking` 与 `tada`。其余方法仍取决于提供方能力；当方法返回能力结果时，请检查 `{ ok }`。

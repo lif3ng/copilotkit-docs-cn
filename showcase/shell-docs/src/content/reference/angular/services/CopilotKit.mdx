@@ -1,17 +1,27 @@
 ---
 title: "CopilotKit"
-description: "The root Angular service that exposes CopilotKit agents, tools, runtime state, and suggestions as signals"
+description: "Angular 根级服务，将 CopilotKit 的智能体、工具、运行时状态与建议以 signal 形式暴露"
 ---
 
-## Overview
+## 概览
 
-`CopilotKit` is the central injectable service for `@copilotkit/angular`. It is `providedIn: "root"`, so a single instance is shared across your application. It builds and owns the underlying `CopilotKitCore` from the [`CopilotKitConfig`](/reference/angular/functions/provideCopilotKit#parameters) you registered with [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit), exposes reactive runtime state as Angular [signals](https://angular.dev/guide/signals), and provides methods to register tools, manage suggestions, and update the runtime connection.
+`CopilotKit` 是 `@copilotkit/angular` 的中心可注入服务。它以 `providedIn: "root"`
+方式提供，因此整个应用共享同一个实例。它根据你通过
+[`provideCopilotKit`](/reference/angular/functions/provideCopilotKit)
+注册的 [`CopilotKitConfig`](/reference/angular/functions/provideCopilotKit#parameters)
+构建并持有底层的 `CopilotKitCore`，把响应式的运行时状态以 Angular
+[signal](https://angular.dev/guide/signals) 的形式暴露出来，并提供注册工具、管理建议与更新运行时连接的方法。
 
-In most apps you do not call its methods directly. The injectable functions such as [`registerFrontendTool`](/reference/angular/functions/registerFrontendTool), [`registerRenderToolCall`](/reference/angular/functions/registerRenderToolCall), and [`registerHumanInTheLoop`](/reference/angular/functions/registerHumanInTheLoop) register against the current injector and remove registrations with the same name and optional agent id when that injector is destroyed. Inject the service when you need direct access to its signals or the `core` instance.
+在大多数应用中，你不需要直接调用它的方法。[`registerFrontendTool`](/reference/angular/functions/registerFrontendTool)、
+[`registerRenderToolCall`](/reference/angular/functions/registerRenderToolCall)、
+[`registerHumanInTheLoop`](/reference/angular/functions/registerHumanInTheLoop)
+等可注入函数会针对当前 injector 进行注册，并在该 injector
+被销毁时移除同名（及可选 agent id）的注册。当你需要直接访问它的 signal 或 `core`
+实例时，再注入该服务。
 
-## Accessing the service
+## 访问该服务
 
-Inject it from any injection context, for example a component or service.
+从任意注入上下文注入它，例如组件或服务。
 
 ```ts title="src/app/status.component.ts"
 import { Component, inject } from "@angular/core";
@@ -29,181 +39,159 @@ export class StatusComponent {
 
 ## Signals
 
-All reactive state is exposed as read-only Angular signals. Read a signal by calling it, for example `copilotKit.agents()`.
+所有响应式状态都以只读 Angular signal 的形式暴露。通过调用 signal 来读取它，例如 `copilotKit.agents()`。
 
 <PropertyReference name="agents" type="Signal<Record<string, AbstractAgent>>">
-  The agents currently registered, keyed by agent id. Updated when the core's
-  agents change.
+  当前已注册的智能体，以 agent id 为键。核心层的智能体变化时更新。
 </PropertyReference>
 
 <PropertyReference name="runtimeConnectionStatus" type="Signal<CopilotKitCoreRuntimeConnectionStatus>">
-  The current runtime connection status: `Disconnected`, `Connecting`,
-  `Connected`, or `Error`.
+  当前的运行时连接状态：`Disconnected`、`Connecting`、`Connected` 或 `Error`。
 </PropertyReference>
 
 <PropertyReference name="runtimeUrl" type="Signal<string | undefined>">
-  The current runtime URL, or `undefined` when none is configured.
+  当前的运行时 URL，未配置时为 `undefined`。
 </PropertyReference>
 
 <PropertyReference name="runtimeTransport" type="Signal<CopilotRuntimeTransport>">
-  The active runtime transport: `"rest"`, `"single"`, or `"auto"`. Defaults to
-  `"auto"`.
+  当前生效的运行时传输方式："rest"、"single" 或 "auto"。默认为 "auto"。
 </PropertyReference>
 
 <PropertyReference name="headers" type="Signal<Record<string, string>>">
-  The headers as of the last header source change (a `setHeaders`-style call
-  through `updateRuntime`), not necessarily current when `headers` is a
-  builder. It updates from `onHeadersChanged`, which fires only on a real
-  source change — never when a builder merely resolves a fresh token for a
-  request. With a builder this can read `{}` (or a stale record) between
-  source changes even though requests already carry the current token. For
-  the value a builder would resolve right now, call
-  `copilotKit.core.resolveHeaders()`.
+  自上一次 header 源变更（通过 `updateRuntime` 进行的 `setHeaders`
+  风格调用）之后的 headers；当 `headers` 是一个 builder 时，它不一定是当前值。它通过
+  `onHeadersChanged` 更新，该回调只在发生真正的源变更时触发——builder 仅为某个请求解析出新 token
+  时绝不会触发。使用 builder 时，在两次源变更之间它可能读到 `{}`（或过期的记录），尽管请求已经携带了当前
+  token。要获取 builder 此刻会解析出的值，请调用 `copilotKit.core.resolveHeaders()`。
 </PropertyReference>
 
 <PropertyReference name="credentials" type="Signal<RequestCredentials | undefined>">
-  The current Fetch credentials mode, or `undefined` when none is configured.
+  当前的 Fetch credentials 模式，未配置时为 `undefined`。
 </PropertyReference>
 
 <PropertyReference name="threadEndpoints" type="Signal<ThreadEndpointRuntimeInfo | undefined>">
-  Thread endpoint support advertised by the connected runtime's `/info`
-  response. It is `undefined` until the runtime reports the capability.
+  所连接运行时的 `/info` 响应宣告的线程端点支持。在运行时上报该能力之前为 `undefined`。
 </PropertyReference>
 
 <PropertyReference name="audioFileTranscriptionEnabled" type="Signal<boolean>">
-  Whether the connected runtime's `/info` response advertises audio file
-  transcription support. It remains `false` until the runtime reports the
-  capability.
+  所连接运行时的 `/info` 响应是否宣告支持音频文件转写。在运行时上报该能力之前保持为 `false`。
 </PropertyReference>
 
 <PropertyReference name="intelligence" type="Signal<IntelligenceRuntimeInfo | undefined>">
-  Intelligence runtime information advertised by `/info`, including the
-  realtime WebSocket URL when available.
+  `/info` 宣告的 Intelligence 运行时信息，包括（可用时的）实时 WebSocket URL。
 </PropertyReference>
 
 <PropertyReference name="licenseStatus" type="Signal<RuntimeLicenseStatus | undefined>">
-  License status reported by the connected runtime, or `undefined` before the
-  runtime reports it.
+  所连接运行时报告的许可证状态，运行时上报之前为 `undefined`。
 </PropertyReference>
 
 <PropertyReference name="suggestionsByAgent" type="Signal<Record<string, CopilotKitCoreGetSuggestionsResult>>">
-  Suggestions keyed by agent id. Each value is
-  `{ suggestions: Suggestion[]; isLoading: boolean }`.
+  以 agent id 为键的建议。每个值为
+  `{ suggestions: Suggestion[]; isLoading: boolean }`。
 </PropertyReference>
 
 <PropertyReference name="toolCallRenderConfigs" type="Signal<RenderToolCallConfig[]>">
-  All registered tool call renderers, including built-in renderers (for example
-  A2UI).
+  所有已注册的工具调用渲染器，包括内置渲染器（例如 A2UI）。
 </PropertyReference>
 
 <PropertyReference name="clientToolCallRenderConfigs" type="Signal<FrontendToolConfig[]>">
-  All registered client (frontend) tools, including built-in tools (for example
-  the open generative UI tool when enabled).
+  所有已注册的客户端（前端）工具，包括内置工具（例如启用时的 open generative UI 工具）。
 </PropertyReference>
 
 <PropertyReference name="humanInTheLoopToolRenderConfigs" type="Signal<HumanInTheLoopConfig[]>">
-  All registered human-in-the-loop tool configs.
+  所有已注册的人机协同（human-in-the-loop）工具配置。
 </PropertyReference>
 
 <PropertyReference name="activityMessageRenderConfigs" type="Signal<RenderActivityMessageConfig[]>">
-  All registered activity message renderers, including built-in renderers.
+  所有已注册的活动消息渲染器，包括内置渲染器。
 </PropertyReference>
 
-## Properties
+## 属性
 
 <PropertyReference name="core" type="CopilotKitCore">
-  The underlying `CopilotKitCore` instance from `@copilotkit/core`. Use it for
-  lower-level operations that the service does not wrap, such as adding context
-  or subscribing to core events.
+  来自 `@copilotkit/core` 的底层 `CopilotKitCore` 实例。当服务未封装某些更底层的操作（例如添加上下文或订阅核心事件）时，可以使用它。
 </PropertyReference>
 
 <PropertyReference name="defaultToolRenderingEnabled" type="boolean">
-  Whether the text-only fallback renderer for otherwise unknown tools was
-  enabled with `defaultToolRendering: true`.
+  是否通过 `defaultToolRendering: true`
+  启用了针对其他未知工具的纯文本兜底渲染器。
 </PropertyReference>
 
-## Methods
+## 方法
 
 <PropertyReference name="addFrontendTool" type="(tool: FrontendToolConfig & { injector: Injector }) => void">
-  Register a client-side tool. The handler is rebound to run inside the provided
-  `injector`, so it can use `inject()`. Prefer
-  [`registerFrontendTool`](/reference/angular/functions/registerFrontendTool),
-  which supplies the injector and removes registrations with the same name and
-  optional agent id on destroy.
+  注册一个客户端工具。handler 会被重新绑定到提供的 `injector`
+  内运行，因此可以使用 `inject()`。优先使用
+  [`registerFrontendTool`](/reference/angular/functions/registerFrontendTool)，
+  它会提供 injector 并在销毁时移除同名（及可选 agent id）的注册。
 </PropertyReference>
 
 <PropertyReference name="addRenderToolCall" type="(renderConfig: RenderToolCallConfig) => void">
-  Register a renderer for a tool call. Prefer
-  [`registerRenderToolCall`](/reference/angular/functions/registerRenderToolCall)
-  for injector-scoped, name-based cleanup.
+  为工具调用注册一个渲染器。需要 injector 作用域、按名称的清理时，优先使用
+  [`registerRenderToolCall`](/reference/angular/functions/registerRenderToolCall)。
 </PropertyReference>
 
 <PropertyReference name="addRenderActivityMessage" type="(renderConfig: RenderActivityMessageConfig) => void">
-  Register a renderer for an agent activity message type.
+  为某个智能体活动消息类型注册一个渲染器。
 </PropertyReference>
 
 <PropertyReference name="removeRenderActivityMessage" type="(renderConfig: RenderActivityMessageConfig) => void">
-  Remove a dynamically registered activity renderer by object identity.
+  按对象身份移除动态注册的活动渲染器。
 </PropertyReference>
 
 <PropertyReference name="addHumanInTheLoop" type="(humanInTheLoopTool: HumanInTheLoopConfig) => void">
-  Register a human-in-the-loop tool. The tool pauses the run until the user
-  responds. Prefer
-  [`registerHumanInTheLoop`](/reference/angular/functions/registerHumanInTheLoop)
-  for injector-scoped, name-based cleanup.
+  注册一个人机协同工具。该工具会暂停运行，直到用户响应。需要 injector
+  作用域、按名称的清理时，优先使用
+  [`registerHumanInTheLoop`](/reference/angular/functions/registerHumanInTheLoop)。
 </PropertyReference>
 
 <PropertyReference name="addSuggestionsConfig" type="(config: SuggestionsConfig) => string">
-  Add a suggestions configuration and return its id.
+  添加一条建议配置并返回其 id。
 </PropertyReference>
 
 <PropertyReference name="removeSuggestionsConfig" type="(id: string) => void">
-  Remove a previously added suggestions configuration by id.
+  按 id 移除先前添加的建议配置。
 </PropertyReference>
 
 <PropertyReference name="getSuggestions" type="(agentId: string) => CopilotKitCoreGetSuggestionsResult">
-  Return the current suggestions for an agent as
-  `{ suggestions, isLoading }`. Reads from `suggestionsByAgent` first, falling
-  back to the core.
+  以 `{ suggestions, isLoading }`
+  的形式返回某个智能体当前的建议。优先读取 `suggestionsByAgent`，读不到时回退到核心层。
 </PropertyReference>
 
 <PropertyReference name="reloadSuggestions" type="(agentId: string) => void">
-  Regenerate the suggestions for an agent.
+  为某个智能体重新生成建议。
 </PropertyReference>
 
 <PropertyReference name="clearSuggestions" type="(agentId: string) => void">
-  Clear the current suggestions for an agent.
+  清除某个智能体当前的建议。
 </PropertyReference>
 
 <PropertyReference name="removeTool" type="(toolName: string, agentId?: string) => void">
-  Remove a tool by name (optionally scoped to an `agentId`) and drop its
-  matching client tool, human-in-the-loop, and tool call render configs.
+  按名称移除工具（可选用 `agentId`
+  限定作用域），并移除与之匹配的客户端工具、人机协同与工具调用渲染配置。
 </PropertyReference>
 
 <PropertyReference name="getAgent" type="(agentId: string) => AbstractAgent | undefined">
-  Return the agent registered under `agentId`, or `undefined`.
+  返回注册在 `agentId` 下的智能体，不存在则返回 `undefined`。
 </PropertyReference>
 
 <PropertyReference name="updateRuntime" type="(options) => void">
-  Update the runtime connection at runtime. `options` may include `runtimeUrl`,
-  `runtimeTransport`, `headers`, `credentials`, `messageFilter`, `properties`,
-  `agents`, and `selfManagedAgents`. Only the fields you pass are applied;
-  `runtimeUrl`, `runtimeTransport`, `headers`, and `credentials` also update the
-  corresponding signals. `credentials` and `messageFilter` are applied whenever
-  the key is present, so passing either as `undefined` clears it.
+  在运行时更新运行时连接。`options` 可包含 `runtimeUrl`、`runtimeTransport`、`headers`、
+  `credentials`、`messageFilter`、`properties`、`agents` 与
+  `selfManagedAgents`。只有你传入的字段会被应用；`runtimeUrl`、`runtimeTransport`、`headers`
+  与 `credentials` 还会同步更新对应的 signal。只要键存在，`credentials` 与
+  `messageFilter` 就会被应用，因此把它们传成 `undefined` 即可清除。
 
-  `headers` accepts a record, a sync builder, or an async builder — the same
-  as [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit).
-  Re-passing the same builder function is a no-op. On a user switch, call
-  `updateRuntime({ headers })` with a new function (or a record), or remount,
-  so Inspector metadata and thread lists reload for the new user (this does
-  not refetch the runtime's `/info`). Passing a record equal (by value) to
-  the currently applied one is also a no-op.
+  `headers` 接受一个记录、同步 builder 或异步 builder——与
+  [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit) 相同。重复传入同一个
+  builder 函数是空操作。切换用户时，请用新函数（或记录）调用 `updateRuntime({ headers })`，或者重新挂载组件，这样新用户的
+  Inspector 元数据与线程列表才会重新加载（这不会重新获取运行时的
+  `/info`）。传入与当前已应用值相等的记录（按值比较）同样是空操作。
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Read agents and connection status in a template
+### 在模板中读取智能体与连接状态
 
 ```ts title="src/app/agents-panel.component.ts"
 import { Component, inject } from "@angular/core";
@@ -227,7 +215,7 @@ export class AgentsPanelComponent {
 }
 ```
 
-### Switch the runtime URL at runtime
+### 在运行时切换运行时 URL
 
 ```ts title="src/app/runtime-switcher.component.ts"
 import { Component, inject } from "@angular/core";
@@ -249,7 +237,7 @@ export class RuntimeSwitcherComponent {
 }
 ```
 
-### Reload suggestions for an agent
+### 为智能体重新加载建议
 
 ```ts title="src/app/suggestions.component.ts"
 import { Component, inject } from "@angular/core";
@@ -269,22 +257,22 @@ export class SuggestionsComponent {
 }
 ```
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="provideCopilotKit"
-    description="Register the configuration that this service reads to build its core."
+    description="注册本服务读取以构建其 core 的配置。"
     href="/reference/angular/functions/provideCopilotKit"
   />
   <Card
     title="registerFrontendTool"
-    description="Register a client-side tool from an injection context, with name-based cleanup on destroy."
+    description="从注入上下文注册客户端工具，销毁时按名称清理。"
     href="/reference/angular/functions/registerFrontendTool"
   />
   <Card
     title="injectAgentStore"
-    description="Subscribe to a single agent's reactive state (messages, running status, and more)."
+    description="订阅单个智能体的响应式状态（消息、运行状态等）。"
     href="/reference/angular/functions/injectAgentStore"
   />
 </Cards>

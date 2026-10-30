@@ -1,9 +1,9 @@
 ---
 title: Image
-description: Render an image URL inside a portable Slack or Microsoft Teams message.
+description: 在可移植的 Slack 或 Microsoft Teams 消息中渲染一个图片 URL。
 ---
 
-`Image` adds an externally reachable image to a rich message.
+`Image` 向富文本消息中添加一张可从外部访问的图片。
 
 ```tsx
 import { Image, Message } from "@copilotkit/channels/ui";
@@ -16,12 +16,9 @@ import { Image, Message } from "@copilotkit/channels/ui";
 </Message>;
 ```
 
-| Prop | Type | Description |
+| Prop | 类型 | 说明 |
 | --- | --- | --- |
-| `url` | `string` | Required image URL. |
-| `alt` | `string` | Accessible alternative text. |
+| `url` | `string` | 必填的图片 URL。 |
+| `alt` | `string` | 无障碍替代文本。 |
 
-Managed Slack renders an image block. Managed Teams renders an Adaptive Card
-image. The provider client must be able to fetch the URL without your
-application's private cookies or headers. Use `thread.postFile()` when the
-image must be uploaded as bytes.
+托管 Slack 会渲染一个图片块。托管 Teams 则渲染一个 Adaptive Card 图像。提供方客户端必须能够在不携带你应用私有 cookie 或请求头的情况下抓取该 URL。当图片必须以字节形式上传时，请使用 `thread.postFile()`。

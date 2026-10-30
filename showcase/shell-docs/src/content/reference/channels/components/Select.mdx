@@ -1,9 +1,9 @@
 ---
 title: Select
-description: Render a portable single- or multi-select control and understand its current managed-provider limits.
+description: 渲染可移植的单选或多选控件，并了解其在各托管提供方上的当前限制。
 ---
 
-`Select` describes a list of string choices.
+`Select` 用于描述一组字符串选项。
 
 ```tsx
 import { Actions, Button, Select } from "@copilotkit/channels/ui";
@@ -34,18 +34,14 @@ import { Actions, Button, Select } from "@copilotkit/channels/ui";
 </Actions>;
 ```
 
-## Props
+## 属性
 
-| Prop          | Type                                 | Description                                                                 |
-| ------------- | ------------------------------------ | --------------------------------------------------------------------------- |
-| `name`        | `string`                             | Stable field key used in Teams `ctx.values` when a Button submits the card. |
-| `options`     | `{ label: string; value: string }[]` | Required choices.                                                           |
-| `placeholder` | `string`                             | Native placeholder text.                                                    |
-| `multi`       | `boolean`                            | Allows multiple selections where the provider supports them.                |
-| `onSelect`    | `ClickHandler<string \| string[]>`   | Selection callback. `multi` selections use a string array.                  |
+| 属性          | 类型                                 | 说明                                                                 |
+| ------------- | ------------------------------------ | -------------------------------------------------------------------- |
+| `name`        | `string`                             | 稳定的字段键；当 Button 提交卡片时，会作为 Teams `ctx.values` 中的键使用。 |
+| `options`     | `{ label: string; value: string }[]` | 必填的选项列表。                                                       |
+| `placeholder` | `string`                             | 原生占位文本。                                                         |
+| `multi`       | `boolean`                            | 在提供方支持多选时允许选择多个选项。                                     |
+| `onSelect`    | `ClickHandler<string \| string[]>`   | 选择回调。`multi` 多选时使用字符串数组。                                 |
 
-Managed Slack emits a dispatching static select; `multi` becomes a
-`multi_static_select` input block. Managed Teams renders an Adaptive Card
-`Input.ChoiceSet`. Slack invokes `Select.onSelect` when the selection is
-dispatched; Teams sends the selected field to the submitting Button in
-`ctx.values[name]`. Teams does not dispatch `Select.onSelect` independently.
+托管 Slack 会发出一个可触发分发的静态下拉选择；`multi` 会变成 `multi_static_select` 输入块。托管 Teams 则会渲染 Adaptive Card 的 `Input.ChoiceSet`。Slack 在选择被分发时调用 `Select.onSelect`；Teams 则把所选字段随提交的 Button 一起放进 `ctx.values[name]` 传递，Teams 不会独立触发 `Select.onSelect`。

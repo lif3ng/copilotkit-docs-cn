@@ -1,10 +1,10 @@
 ---
 title: "registerRenderActivityMessage"
-description: "Register a typed Angular renderer for AG-UI activity messages."
+description: "为 AG-UI 活动消息注册一个带类型的 Angular 渲染器。"
 ---
 
-`registerRenderActivityMessage` registers a standalone component for one AG-UI
-activity type for the lifetime of the current injector.
+`registerRenderActivityMessage` 为某个 AG-UI 活动类型注册一个独立组件，有效期贯穿当前
+injector 的生命周期。
 
 ```ts
 function registerRenderActivityMessage<TContent>(
@@ -54,9 +54,6 @@ export class ActivityRegistration {
 }
 ```
 
-Content must pass `safeParse` before the component renders. `agentId` scopes a
-renderer to one agent. Application registrations take precedence over
-CopilotKit built-ins such as A2UI, Open Generative UI, and MCP Apps. The helper
-must run in an injection context and removes the exact registration on destroy.
-Renderer components should be standalone, OnPush- or zoneless-compatible, and
-must guard their own browser-only work for SSR and hydration.
+content 必须先通过 `safeParse`，组件才会渲染。`agentId` 可将渲染器限定到单个智能体。应用侧的注册优先于
+CopilotKit 内置渲染器，例如 A2UI、Open Generative UI 与 MCP Apps。该辅助函数必须在注入上下文中运行，并会在销毁时移除对应的注册。渲染器组件应为 standalone
+组件、兼容 OnPush 或 zoneless，并且必须自行防护仅限浏览器的逻辑，以正确应对 SSR 与 hydration。

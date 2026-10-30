@@ -1,9 +1,9 @@
 ---
 title: Divider
-description: Add a portable visual separator to a rich Channels message.
+description: 在富文本 Channels 消息中添加一个可移植的视觉分隔线。
 ---
 
-`Divider` takes no props or children.
+`Divider` 不接受任何 props 或子元素。
 
 ```tsx
 import { Divider, Message, Section } from "@copilotkit/channels/ui";
@@ -15,6 +15,4 @@ import { Divider, Message, Section } from "@copilotkit/channels/ui";
 </Message>;
 ```
 
-Managed Slack renders a divider block. Adaptive Cards have no standalone rule
-element, so managed Teams renders an empty separated text block to create the
-visual boundary.
+托管 Slack 会渲染一个分隔线块。Adaptive Cards 没有独立的分隔元素，因此托管 Teams 会渲染一个空的分隔文本块来形成视觉边界。

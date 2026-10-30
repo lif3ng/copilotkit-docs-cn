@@ -1,9 +1,9 @@
 ---
-title: Table, Row, and Cell
-description: Render tabular data with portable Channels table primitives.
+title: Table、Row 与 Cell
+description: 使用可移植的 Channels 表格原语渲染表格数据。
 ---
 
-`Table` groups `Row` and `Cell` children.
+`Table` 用于组织 `Row` 与 `Cell` 子元素。
 
 ```tsx
 import { Cell, Row, Table } from "@copilotkit/channels/ui";
@@ -21,16 +21,13 @@ import { Cell, Row, Table } from "@copilotkit/channels/ui";
 </Table>;
 ```
 
-## Props
+## 属性
 
-| Component | Prop | Type | Description |
+| 组件 | 属性 | 类型 | 说明 |
 | --- | --- | --- | --- |
-| `Table` | `columns` | `{ header: string; align?: "left" \| "center" \| "right" }[]` | Optional header and alignment metadata. |
-| `Table` | `children` | `BotChildren` | `Row` children. |
-| `Row` | `children` | `BotChildren` | `Cell` children. |
-| `Cell` | `children` | `BotChildren` | Cell text. |
+| `Table` | `columns` | `{ header: string; align?: "left" \| "center" \| "right" }[]` | 可选的表头与对齐元数据。 |
+| `Table` | `children` | `BotChildren` | `Row` 子元素。 |
+| `Row` | `children` | `BotChildren` | `Cell` 子元素。 |
+| `Cell` | `children` | `BotChildren` | 单元格文本。 |
 
-Managed Slack renders a native table block. Managed Teams renders an Adaptive
-Card 1.5 table. Both renderers clamp rows, columns, and cell text to provider
-budgets. Keep a short textual summary outside the table for clients that cannot
-display the native structure.
+托管 Slack 会渲染原生表格块；托管 Teams 则会渲染 Adaptive Card 1.5 表格。两种渲染器都会按提供方的预算限制行数、列数与单元格文本长度。对于无法显示原生表格结构的客户端，请在表格外保留一段简短的文字摘要。

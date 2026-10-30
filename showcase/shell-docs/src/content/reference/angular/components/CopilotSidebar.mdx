@@ -1,11 +1,9 @@
 ---
 title: "CopilotSidebar"
-description: "Responsive docked or overlay Copilot chat sidebar for Angular."
+description: "面向 Angular 的响应式停靠或覆盖模式 Copilot 聊天侧边栏。"
 ---
 
-`CopilotSidebar` renders a left- or right-positioned assistant in docked or
-overlay mode. It is a standalone, OnPush component with the selector
-`copilot-sidebar`.
+`CopilotSidebar` 以停靠（docked）或覆盖（overlay）模式渲染一个位于左侧或右侧的助手。它是一个 standalone、OnPush 组件，选择器为 `copilot-sidebar`。
 
 ```ts
 import { Component, signal } from "@angular/core";
@@ -28,27 +26,19 @@ export class WorkspaceAssistant {
 }
 ```
 
-## Inputs and model
+## 输入与模型
 
-| Name                  | Type                         | Default       | Behavior                             |
-| --------------------- | ---------------------------- | ------------- | ------------------------------------ |
-| `open`                | `ModelSignal<boolean>`       | `true`        | Two-way bindable open state          |
-| `mode`                | `"docked" \| "overlay"`      | `"docked"`    | Desktop presentation mode            |
-| `position`            | `"left" \| "right"`          | `"right"`     | Logical side of the viewport         |
-| `width`               | `number \| string`           | `480`         | Pixel number or CSS dimension        |
-| `title`               | `string`                     | `"Copilot"`   | Landmark/dialog name and header text |
-| `clickOutsideToClose` | `boolean`                    | `false`       | Opts into overlay backdrop closing   |
-| `chatComponent`       | `Type<unknown>`              | `CopilotChat` | Replacement chat body component      |
-| `headerComponent`     | `Type<unknown> \| undefined` | `undefined`   | Replacement header component         |
+| 名称                  | 类型                         | 默认值        | 行为                           |
+| --------------------- | ---------------------------- | ------------- | ------------------------------ |
+| `open`                | `ModelSignal<boolean>`       | `true`        | 可双向绑定的打开状态           |
+| `mode`                | `"docked" \| "overlay"`      | `"docked"`    | 桌面端呈现模式                 |
+| `position`            | `"left" \| "right"`          | `"right"`     | 视口的逻辑侧                   |
+| `width`               | `number \| string`           | `480`         | 像素数值或 CSS 尺寸            |
+| `title`               | `string`                     | `"Copilot"`   | 地标/对话框名称与标题文本      |
+| `clickOutsideToClose` | `boolean`                    | `false`       | 启用覆盖模式下的点击遮罩关闭   |
+| `chatComponent`       | `Type<unknown>`              | `CopilotChat` | 用于替换的聊天主体组件         |
+| `headerComponent`     | `Type<unknown> \| undefined` | `undefined`   | 用于替换的头部组件             |
 
-Overlay mode uses modal dialog semantics, focus trapping, Escape closing, and
-launcher-focus restoration. Docked mode uses a complementary landmark and
-adjusts the document's logical body margin. Compact viewports always use the
-modal presentation.
+覆盖模式采用模态对话框语义、焦点陷阱、Escape 关闭以及启动器焦点还原。停靠模式使用 complementary 地标，并调整文档 body 的逻辑边距。紧凑视口始终采用模态呈现。
 
-Only one docked sidebar may own document layout at a time. A second open docked
-sidebar is rejected and logs a clear warning; independent overlay sidebars are
-allowed. On close or destroy, the owner restores the exact prior body margin
-and removes its media-query listener. DOM and media-query work is browser-only
-and begins after render, so SSR remains inert. Keep `open`, `mode`, and
-`position` stable through hydration.
+同一时刻只允许一个停靠侧边栏接管文档布局。第二个打开的停靠侧边栏会被拒绝并记录一条明确的警告；独立的覆盖侧边栏则不受限制。关闭或销毁时，持有者会精确恢复之前的 body 边距，并移除其媒体查询监听器。DOM 与媒体查询操作仅在浏览器中进行，且在渲染之后才开始，因此 SSR 保持无副作用。在水合完成之前，请保持 `open`、`mode` 和 `position` 稳定不变。

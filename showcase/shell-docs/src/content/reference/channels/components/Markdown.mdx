@@ -1,9 +1,9 @@
 ---
 title: Markdown
-description: Render an explicit portable Markdown text block.
+description: 渲染一个显式的可移植 Markdown 文本块。
 ---
 
-`Markdown` is an explicit body-text block for formatted content.
+`Markdown` 是一个用于承载格式化内容的显式正文文本块。
 
 ```tsx
 import { Markdown, Message } from "@copilotkit/channels/ui";
@@ -13,11 +13,8 @@ import { Markdown, Message } from "@copilotkit/channels/ui";
 </Message>;
 ```
 
-| Prop | Type | Description |
+| Prop | 类型 | 说明 |
 | --- | --- | --- |
-| `children` | `BotChildren` | Markdown text and portable child content. |
+| `children` | `BotChildren` | Markdown 文本与可移植的子内容。 |
 
-It currently maps to the same provider primitives as
-[`Section`](/reference/channels/components/Section): Slack `mrkdwn` and a
-wrapping Teams `TextBlock`. Use it when the semantic intent of the source is
-formatted text.
+它目前映射到与 [`Section`](/reference/channels/components/Section) 相同的提供方原语：Slack `mrkdwn` 以及一个可换行的 Teams `TextBlock`。当源内容的语义意图是格式化文本时，请使用它。

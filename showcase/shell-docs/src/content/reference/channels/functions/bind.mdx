@@ -1,12 +1,11 @@
 ---
 title: bind
-description: Reuse a Channels interaction handler while binding a serializable value into action.value.
+description: 复用 Channels 交互处理器，并将一个可序列化的值绑定到 action.value 中。
 ---
 
-`bind(handler, args)` returns a click handler that replaces
-`ctx.action.value` with `args`.
+`bind(handler, args)` 返回一个点击处理器，会用 `args` 替换 `ctx.action.value`。
 
-## Signature
+## 签名
 
 ```ts
 function bind(handler: ClickHandler, args: unknown): ClickHandler;
@@ -31,7 +30,7 @@ export function IssueActions({ issueId }: { issueId: string }) {
 }
 ```
 
-For a one-off button, the `value` prop is usually clearer:
+对于一次性的按钮，`value` prop 通常更直观：
 
 ```tsx
 <Button value={issueId} onClick={assign}>
@@ -39,6 +38,4 @@ For a one-off button, the `value` prop is usually clearer:
 </Button>
 ```
 
-Bound values and registered component props must be JSON-serializable if the
-callback must survive a restart. Register the named component and configure a
-durable `StateStore`.
+如果回调需要在重启后依然可用，绑定的值和已注册组件的 props 都必须是可 JSON 序列化的。请注册具名组件，并配置一个持久化的 `StateStore`。

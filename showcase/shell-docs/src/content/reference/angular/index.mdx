@@ -1,35 +1,40 @@
 ---
 title: "Angular"
-description: "API reference for @copilotkit/angular: the CopilotKit providers, prebuilt chat components, services, and functions for building CopilotKit into an Angular app."
+description: "@copilotkit/angular 的 API 参考：用于在 Angular 应用中构建 CopilotKit 的提供方、预构建聊天组件、服务与函数。"
 ---
 
-`@copilotkit/angular` provides [providers](/reference/angular/functions/provideCopilotKit), prebuilt chat components, a `CopilotKit` service, and standalone functions for Angular applications. Everything is built on the [AG-UI](https://docs.ag-ui.com) agent protocol.
+`@copilotkit/angular` 为 Angular 应用提供[提供方](/reference/angular/functions/provideCopilotKit)、预构建聊天组件、一个 `CopilotKit`
+服务以及独立函数。一切均构建于 [AG-UI](https://docs.ag-ui.com)
+智能体协议之上。
 
 <Callout type="info">
-  The package targets Angular 22, and ships as standalone components and
-  providers. Import the main API from `@copilotkit/angular`. MCP Apps uses the
-  `@copilotkit/angular/mcp-apps` entry point. There is no `/v2` subpath.
+  该包面向 Angular 22，以 standalone 组件与提供方的形式发布。主 API 从
+  `@copilotkit/angular` 导入。MCP Apps 使用 `@copilotkit/angular/mcp-apps`
+  入口。不存在 `/v2` 子路径。
 </Callout>
 
-## Installation
+## 安装
 
 ```sh
 npm install @copilotkit/angular @angular/cdk
 ```
 
-`@angular/cdk` and `rxjs` are peer dependencies. If your agent connects directly over AG-UI, also install `@ag-ui/client`.
+`@angular/cdk` 与 `rxjs` 是 peer 依赖。如果你的智能体通过 AG-UI
+直连，还需安装 `@ag-ui/client`。
 
-## Styling
+## 样式
 
-When using the prebuilt UI components, import the stylesheet once in your global styles. It is self-contained, so the chat renders without any other CSS.
+使用预构建 UI 组件时，请在全局样式中引入一次样式表。它是自包含的，因此聊天无需任何其他 CSS 即可渲染。
 
 ```css title="src/styles.css"
 @import "@copilotkit/angular/styles.css";
 ```
 
-## Provider setup
+## 提供方配置
 
-Add [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit) to your application providers and configure the runtime connection there. The root `CopilotKit` service reads this application-level configuration.
+将 [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit)
+添加到你的应用提供方列表，并在此处配置运行时连接。根级 `CopilotKit`
+服务会读取这份应用级配置。
 
 ```ts title="src/app/app.config.ts"
 import { ApplicationConfig } from "@angular/core";
@@ -44,7 +49,7 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-To connect directly to an AG-UI agent without a runtime, pass `selfManagedAgents` instead of `runtimeUrl`:
+要在没有运行时的情况下直连 AG-UI 智能体，请传入 `selfManagedAgents` 而不是 `runtimeUrl`：
 
 ```ts title="src/app/app.config.ts"
 import { ApplicationConfig } from "@angular/core";
@@ -62,7 +67,7 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-Then drop the chat into a standalone component's template:
+然后把聊天组件放入一个 standalone 组件的模板中：
 
 ```ts title="src/app/app.component.ts"
 import { Component } from "@angular/core";
@@ -77,78 +82,72 @@ import { CopilotChat } from "@copilotkit/angular";
 export class AppComponent {}
 ```
 
-## Angular conventions
+## Angular 约定
 
-CopilotKit follows Angular's dependency-injection and signal patterns:
+CopilotKit 遵循 Angular 的依赖注入与 signal 模式：
 
-- Register [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit) in application providers.
-- Read reactive state by calling signals such as `agentStore().messages()`.
-- Call injectable helpers from a constructor, field initializer, or another injection context.
-- Import standalone components in the component `imports` array.
-- Customize UI with component inputs, templates, directives, and content projection.
+- 在应用提供方列表中注册 [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit)。
+- 通过调用 signal 读取响应式状态，例如 `agentStore().messages()`。
+- 从构造函数、字段初始化器或其他注入上下文中调用可注入的辅助函数。
+- 在组件的 `imports` 数组中导入 standalone 组件。
+- 通过组件输入、模板、指令与内容投影自定义 UI。
 
-## Lifecycle and rendering environments
+## 生命周期与渲染环境
 
-Injectable helpers bind their effects, subscriptions, runtime registrations,
-timers, and observers to the owning Angular `DestroyRef`. Call them from a
-field initializer, constructor, or explicit injection context. Do not cache an
-injected controller beyond that injector's lifetime. Application-owned work
-started inside a tool handler, such as a fetch, remains the application's
-responsibility to cancel.
+可注入的辅助函数会把自己的 effects、订阅、运行时注册、定时器与观察者绑定到所属 Angular 的
+`DestroyRef` 上。请从字段初始化器、构造函数或显式注入上下文中调用它们。不要让被注入的控制器存活得比该
+injector 的生命周期更久。在工具 handler 内启动的应用自有工作（例如一次
+fetch）仍由应用自己负责取消。
 
-CopilotKit's main chat components use signals and support zoneless change
-detection. Browser-only behavior is inert during server rendering and
-activates after hydration. Keep configuration and
-initial model/input values identical for the server and the first client
-render, avoid running agents or tools on the server, and place
-application-owned DOM work behind an Angular platform guard or
-`afterNextRender`.
+CopilotKit 的主要聊天组件基于 signal，并支持 zoneless
+变更检测。仅限浏览器的行为在服务端渲染期间保持惰性，在 hydration
+之后激活。请保证服务端与客户端首次渲染使用完全相同的配置与初始模型/输入值，避免在服务端运行智能体或工具，并把应用自有的 DOM
+操作置于 Angular 平台守卫或 `afterNextRender` 之后。
 
-A2UI, Open Generative UI, audio capture, and MCP Apps can be present in an SSR
-tree, but their custom elements, media APIs, sandboxes, and iframes become
-interactive only in the browser. See [Angular production and lifecycle](/reference/angular/production-lifecycle)
-for the full setup, cleanup, error, SSR, hydration, and zoneless contract.
+A2UI、Open Generative UI、音频采集与 MCP Apps 可以出现在 SSR
+树中，但它们的自定义元素、媒体 API、沙箱与 iframe 只有在浏览器中才会变为可交互。完整的配置、清理、错误处理、SSR、hydration 与
+zoneless 契约见 [Angular 生产与生命周期](/reference/angular/production-lifecycle)。
 
-## API Reference
+## API 参考
 
 <Callout type="info">
-  Looking for tool rendering? Start with
-  [`registerComponent`](/reference/angular/functions/registerComponent) to let
-  the agent display one of your components,
-  [`registerFrontendTool`](/reference/angular/functions/registerFrontendTool),
-  [`registerRenderToolCall`](/reference/angular/functions/registerRenderToolCall),
-  and
-  [`registerHumanInTheLoop`](/reference/angular/functions/registerHumanInTheLoop).
+  在找工具渲染相关内容？从
+  [`registerComponent`](/reference/angular/functions/registerComponent)
+  开始，它能让智能体展示你的某个组件；还有
+  [`registerFrontendTool`](/reference/angular/functions/registerFrontendTool)、
+  [`registerRenderToolCall`](/reference/angular/functions/registerRenderToolCall)
+  与
+  [`registerHumanInTheLoop`](/reference/angular/functions/registerHumanInTheLoop)。
 </Callout>
 
 <Cards>
   <Card
-    title="UI Components"
-    description="Prebuilt chat, popup, sidebar, and supported component-slot primitives."
+    title="UI 组件"
+    description="预构建的聊天、弹窗、侧边栏与受支持的组件插槽原语。"
     href="/reference/angular/components/CopilotChat"
     icon={<LinkIcon />}
   />
   <Card
-    title="Functions"
-    description="Setup providers and injectable functions for agents, tools, context, and chat labels."
+    title="函数"
+    description="用于智能体、工具、上下文与聊天标签的配置提供方与可注入函数。"
     href="/reference/angular/functions/provideCopilotKit"
     icon={<LinkIcon />}
   />
   <Card
-    title="Services"
-    description="The CopilotKit service: the central handle on agents, tools, runtime connection, and suggestions."
+    title="服务"
+    description="CopilotKit 服务：掌控智能体、工具、运行时连接与建议的中心句柄。"
     href="/reference/angular/services/CopilotKit"
     icon={<LinkIcon />}
   />
   <Card
-    title="Directives"
-    description="The CopilotKitAgentContext directive for sharing application state with the agent from a template."
+    title="指令"
+    description="CopilotKitAgentContext 指令，用于从模板向智能体共享应用状态。"
     href="/reference/angular/directives/CopilotKitAgentContext"
     icon={<LinkIcon />}
   />
   <Card
-    title="Public API Inventory"
-    description="The complete root and MCP Apps export contract, including the explicitly internal extension token."
+    title="公开 API 清单"
+    description="完整的根入口与 MCP Apps 导出契约，包括显式标记为内部的扩展 token。"
     href="/reference/angular/public-api"
     icon={<LinkIcon />}
   />

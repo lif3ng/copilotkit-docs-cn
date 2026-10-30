@@ -1,9 +1,9 @@
 ---
-title: Actions
-description: Group portable buttons and Slack-select controls in one message action area.
+title: "Actions"
+description: "在一条消息的操作区中组合可移植按钮与 Slack 选择控件。"
 ---
 
-`Actions` groups interactive controls.
+`Actions` 用于组合交互控件。
 
 ```tsx
 import { Actions, Button, Message, Section } from "@copilotkit/channels/ui";
@@ -21,12 +21,8 @@ import { Actions, Button, Message, Section } from "@copilotkit/channels/ui";
 </Message>;
 ```
 
-| Prop       | Type          | Description                      |
-| ---------- | ------------- | -------------------------------- |
-| `children` | `BotChildren` | Interactive Channels components. |
+| Prop       | 类型          | 说明                              |
+| ---------- | ------------- | --------------------------------- |
+| `children` | `BotChildren` | 交互式 Channels 组件。            |
 
-Managed Slack renders an actions block. Managed Teams lifts `Button` children
-to the Adaptive Card's top-level actions. Use buttons for cross-provider managed
-workflows. A Teams Button callback receives named Adaptive Card input fields in
-`ctx.values`; Teams does not dispatch `Select.onSelect` or `Input.onSubmit` as
-independent callbacks.
+托管 Slack 会渲染一个操作块（actions block）。托管 Teams 会将 `Button` 子元素提升到 Adaptive Card 的顶层操作。跨提供方的托管工作流请使用按钮。Teams 的 Button 回调会在 `ctx.values` 中收到具名的 Adaptive Card 输入字段；Teams 不会将 `Select.onSelect` 或 `Input.onSubmit` 作为独立回调分发。

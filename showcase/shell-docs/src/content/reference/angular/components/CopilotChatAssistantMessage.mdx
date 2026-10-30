@@ -1,19 +1,19 @@
 ---
 title: "CopilotChatAssistantMessage"
-description: "Angular standalone component that renders a single assistant message with markdown content, tool calls, and a toolbar of copy, thumbs, read-aloud, and regenerate actions."
+description: "Angular standalone 组件，渲染单条助手消息，包含 Markdown 内容、工具调用，以及复制、点赞/点踩、朗读和重新生成等操作的工具栏。"
 ---
 
-## Overview
+## 概览
 
-`CopilotChatAssistantMessage` renders one assistant message. It shows the message content through a markdown renderer, renders attached tool calls, and shows a toolbar with copy, thumbs up/down, read-aloud, and regenerate actions.
+`CopilotChatAssistantMessage` 渲染单条助手消息。它通过 Markdown 渲染器展示消息内容，渲染附带的工具调用，并显示一个包含复制、点赞/点踩、朗读与重新生成操作的工具栏。
 
-The toolbar appears only when the message has non-empty text content. The copy button always renders; the thumbs up and thumbs down buttons render when you provide a custom slot for them or when a thumbs handler is available from a surrounding [`CopilotChatView`](/reference/angular/components/CopilotChatView). The read-aloud and regenerate buttons render only when you provide a custom slot for them.
+只有当消息具有非空文本内容时工具栏才会出现。复制按钮始终渲染；当你为点赞/点踩按钮提供了自定义插槽，或周边的 [`CopilotChatView`](/reference/angular/components/CopilotChatView) 提供了点赞处理函数时，点赞与点踩按钮才会渲染。朗读与重新生成按钮仅在你提供自定义插槽时才渲染。
 
-The component is standalone and uses `OnPush` change detection. Reactive inputs are Angular [signals](https://angular.dev/guide/signals).
+该组件是 standalone 组件，使用 `OnPush` 变更检测。响应式输入基于 Angular 的 [signals](https://angular.dev/guide/signals)。
 
-## Usage
+## 用法
 
-Import the component class and use its `copilot-chat-assistant-message` selector. The `message` input is required.
+导入该组件类并使用其 `copilot-chat-assistant-message` 选择器。`message` 输入为必填。
 
 ```ts title="src/app/assistant.component.ts"
 import { Component, signal } from "@angular/core";
@@ -37,120 +37,120 @@ export class AssistantComponent {
 }
 ```
 
-## Inputs
+## 输入
 
 <PropertyReference name="message" type="AssistantMessage" required>
-  The assistant message to render. Its `content` is passed to the markdown renderer and its `toolCalls` drive the tool calls view.
+  要渲染的助手消息。其 `content` 会传给 Markdown 渲染器，其 `toolCalls` 驱动工具调用视图。
 </PropertyReference>
 
 <PropertyReference name="messages" type="Message[]" default="[]">
-  The surrounding message list. Forwarded to the tool calls view so a tool render can read prior context.
+  周边的消息列表。转发给工具调用视图，使工具渲染可以读取先前上下文。
 </PropertyReference>
 
 <PropertyReference name="agentId" type="string">
-  ID of the agent that produced the message. Forwarded to the tool calls view for resolving the matching tool renderer.
+  产生该消息的智能体 ID。转发给工具调用视图，用于解析匹配的工具渲染器。
 </PropertyReference>
 
 <PropertyReference name="isLoading" type="boolean" default="false">
-  Whether the agent is currently streaming. Forwarded to the tool calls view.
+  智能体当前是否正在流式输出。转发给工具调用视图。
 </PropertyReference>
 
 <PropertyReference name="toolbarVisible" type="boolean" default="true">
-  Whether the toolbar may be shown. Even when `true`, the toolbar only renders if the message has non-empty text content.
+  是否允许显示工具栏。即使为 `true`，工具栏也只在消息具有非空文本内容时才渲染。
 </PropertyReference>
 
 <PropertyReference name="additionalToolbarItems" type="TemplateRef<any>">
-  A template appended to the end of the default toolbar, after the built-in buttons.
+  一个模板，追加在默认工具栏的末尾、内置按钮之后。
 </PropertyReference>
 
-### Slot class inputs
+### 插槽类名输入
 
-The current release applies `markdownRendererClass`, `toolbarClass`, and `copyButtonClass` to their default parts.
+当前版本会将 `markdownRendererClass`、`toolbarClass` 和 `copyButtonClass` 应用到各自的默认部件上。
 
 <PropertyReference name="markdownRendererClass" type="string">
-  Classes for the default markdown renderer.
+  默认 Markdown 渲染器的类。
 </PropertyReference>
 
 <PropertyReference name="toolbarClass" type="string">
-  Classes for the default toolbar.
+  默认工具栏的类。
 </PropertyReference>
 
 <PropertyReference name="copyButtonClass" type="string">
-  Classes for the default copy button.
+  默认复制按钮的类。
 </PropertyReference>
 
 <Callout type="warn">
-  `inputClass`, the thumbs, read-aloud, regenerate class inputs, and `toolCallsViewClass` are declared but do not affect rendering in the current release. Use component or template overrides for those parts.
+  `inputClass`、点赞/朗读/重新生成的类输入以及 `toolCallsViewClass` 已声明但在当前版本中不影响渲染。请对这些部件使用组件或模板覆盖。
 </Callout>
 
-### Slot component inputs
+### 插槽组件输入
 
-Each of these replaces the corresponding default sub-component with a component class of your own. Content-projection templates (see below) take precedence over these.
+其中每一项都会用你自己的组件类替换对应的默认子组件。内容投影模板（见下文）的优先级高于这些输入。
 
 <PropertyReference name="markdownRendererComponent" type="Type<any>">
-  Replaces the default markdown renderer.
+  替换默认的 Markdown 渲染器。
 </PropertyReference>
 
 <PropertyReference name="toolbarComponent" type="Type<any>">
-  Replaces the default toolbar.
+  替换默认的工具栏。
 </PropertyReference>
 
 <PropertyReference name="copyButtonComponent" type="Type<any>">
-  Replaces the default copy button.
+  替换默认的复制按钮。
 </PropertyReference>
 
 <PropertyReference name="thumbsUpButtonComponent" type="Type<any>">
-  Replaces the default thumbs-up button.
+  替换默认的点赞按钮。
 </PropertyReference>
 
 <PropertyReference name="thumbsDownButtonComponent" type="Type<any>">
-  Replaces the default thumbs-down button.
+  替换默认的点踩按钮。
 </PropertyReference>
 
 <PropertyReference name="readAloudButtonComponent" type="Type<any>">
-  Replaces the default read-aloud button.
+  替换默认的朗读按钮。
 </PropertyReference>
 
 <PropertyReference name="regenerateButtonComponent" type="Type<any>">
-  Replaces the default regenerate button.
+  替换默认的重新生成按钮。
 </PropertyReference>
 
 <PropertyReference name="toolCallsViewComponent" type="Type<any>">
-  Replaces the default tool calls view.
+  替换默认的工具调用视图。
 </PropertyReference>
 
-## Outputs
+## 输出
 
 <PropertyReference name="thumbsUp" type="CopilotChatAssistantMessageOnThumbsUpProps">
-  Emitted when a configured thumbs-up component or template is clicked. The payload is `{ message: AssistantMessage }`.
+  当配置的点赞组件或模板被点击时触发。载荷为 `{ message: AssistantMessage }`。
 </PropertyReference>
 
 <PropertyReference name="thumbsDown" type="CopilotChatAssistantMessageOnThumbsDownProps">
-  Emitted when a configured thumbs-down component or template is clicked. The payload is `{ message: AssistantMessage }`.
+  当配置的点踩组件或模板被点击时触发。载荷为 `{ message: AssistantMessage }`。
 </PropertyReference>
 
 <PropertyReference name="readAloud" type="CopilotChatAssistantMessageOnReadAloudProps">
-  Emitted when a configured read-aloud component or template is clicked. The payload is `{ message: AssistantMessage }`.
+  当配置的朗读组件或模板被点击时触发。载荷为 `{ message: AssistantMessage }`。
 </PropertyReference>
 
 <PropertyReference name="regenerate" type="CopilotChatAssistantMessageOnRegenerateProps">
-  Emitted when a configured regenerate component or template is clicked. The payload is `{ message: AssistantMessage }`.
+  当配置的重新生成组件或模板被点击时触发。载荷为 `{ message: AssistantMessage }`。
 </PropertyReference>
 
-## Slots and content projection
+## 插槽与内容投影
 
-You can override any piece of the message by projecting a named template. A projected template takes precedence over the matching `*Component` input. Each template receives a typed context object.
+你可以通过投影命名模板来覆盖消息的任意部分。投影模板的优先级高于对应的 `*Component` 输入。每个模板都会收到一个带类型的上下文对象。
 
-| Template name | Context type | Replaces |
+| 模板名 | 上下文类型 | 替换对象 |
 | --- | --- | --- |
-| `markdownRenderer` | `AssistantMessageMarkdownRendererContext` (`{ content: string }`) | The markdown content renderer |
-| `toolbar` | `AssistantMessageToolbarContext` (`{ children?: any }`) | The whole toolbar |
-| `copyButton` | `AssistantMessageCopyButtonContext` (`{ content?: string }`) | The copy button |
-| `thumbsUpButton` | `ThumbsUpButtonContext` (empty; click via outputs) | The thumbs-up button |
-| `thumbsDownButton` | `ThumbsDownButtonContext` (empty; click via outputs) | The thumbs-down button |
-| `readAloudButton` | `ReadAloudButtonContext` (empty; click via outputs) | The read-aloud button |
-| `regenerateButton` | `RegenerateButtonContext` (empty; click via outputs) | The regenerate button |
-| `toolCallsView` | `any` | The tool calls view |
+| `markdownRenderer` | `AssistantMessageMarkdownRendererContext`（`{ content: string }`） | Markdown 内容渲染器 |
+| `toolbar` | `AssistantMessageToolbarContext`（`{ children?: any }`） | 整个工具栏 |
+| `copyButton` | `AssistantMessageCopyButtonContext`（`{ content?: string }`） | 复制按钮 |
+| `thumbsUpButton` | `ThumbsUpButtonContext`（空；通过输出处理点击） | 点赞按钮 |
+| `thumbsDownButton` | `ThumbsDownButtonContext`（空；通过输出处理点击） | 点踩按钮 |
+| `readAloudButton` | `ReadAloudButtonContext`（空；通过输出处理点击） | 朗读按钮 |
+| `regenerateButton` | `RegenerateButtonContext`（空；通过输出处理点击） | 重新生成按钮 |
+| `toolCallsView` | `any` | 工具调用视图 |
 
 ```html title="src/app/assistant.component.html"
 <copilot-chat-assistant-message [message]="message()">
@@ -160,24 +160,24 @@ You can override any piece of the message by projecting a named template. A proj
 </copilot-chat-assistant-message>
 ```
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="CopilotChatMessageView"
-    description="Renders a list of messages, routing each to assistant, user, reasoning, or activity rendering."
+    description="渲染消息列表，将每条消息分流到助手、用户、推理或活动渲染。"
     href="/reference/angular/components/CopilotChatMessageView"
     icon={<LinkIcon />}
   />
   <Card
     title="CopilotChatUserMessage"
-    description="Renders a single user message with copy, edit, and branch navigation."
+    description="渲染单条用户消息，带复制、编辑与分支导航。"
     href="/reference/angular/components/CopilotChatUserMessage"
     icon={<LinkIcon />}
   />
   <Card
     title="CopilotChatView"
-    description="The full chat layout: scroll container, message view, and input."
+    description="完整的聊天布局：滚动容器、消息视图与输入。"
     href="/reference/angular/components/CopilotChatView"
     icon={<LinkIcon />}
   />

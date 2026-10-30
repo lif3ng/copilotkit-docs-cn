@@ -1,19 +1,19 @@
 ---
 title: "CopilotChatUserMessage"
-description: "Angular standalone component that renders a single user message with attachments, copy and edit actions, and branch navigation."
+description: "Angular standalone 组件，用于渲染单条用户消息，支持附件、复制与编辑操作以及分支导航。"
 ---
 
-## Overview
+## 概览
 
-`CopilotChatUserMessage` renders one user message. It shows image or file attachments, renders the message text, and shows a toolbar with copy and edit actions. When the message belongs to a set of regenerated branches, a branch control lets you move between them.
+`CopilotChatUserMessage` 渲染单条用户消息。它会显示图片或文件附件，渲染消息文本，并展示一个带有复制与编辑操作的工具栏。当该消息属于一组重新生成的分支时，分支控件可让你在它们之间切换。
 
-The copy and edit buttons always render. The branch navigation control renders only when `numberOfBranches` is greater than 1.
+复制和编辑按钮始终渲染。只有当 `numberOfBranches` 大于 1 时，才会渲染分支导航控件。
 
-The component is standalone and uses `OnPush` change detection. Reactive inputs are Angular [signals](https://angular.dev/guide/signals).
+该组件是 standalone 组件，并使用 `OnPush` 变更检测。响应式输入基于 Angular 的 [signals](https://angular.dev/guide/signals)。
 
-## Usage
+## 用法
 
-Import the component class and use its `copilot-chat-user-message` selector.
+导入该组件类，并使用其 `copilot-chat-user-message` 选择器。
 
 ```ts title="src/app/user-message.component.ts"
 import { Component, signal } from "@angular/core";
@@ -44,97 +44,97 @@ export class UserMessageComponent {
 }
 ```
 
-## Inputs
+## 输入
 
 <PropertyReference name="message" type="UserMessage">
-  The user message to render. Its content is flattened to text for the renderer, and any media parts are shown as attachments above it.
+  要渲染的用户消息。其内容会被展平为文本交给渲染器，任何媒体部分则以附件形式显示在其上方。
 </PropertyReference>
 
 <PropertyReference name="branchIndex" type="number" default="0">
-  Zero-based index of the currently shown branch. Used by the branch navigation control.
+  当前显示分支的从零开始的索引。由分支导航控件使用。
 </PropertyReference>
 
 <PropertyReference name="numberOfBranches" type="number" default="1">
-  Total number of regenerated branches for this message. Branch navigation renders only when this is greater than 1.
+  此消息重新生成分支的总数。只有当该值大于 1 时，才会渲染分支导航。
 </PropertyReference>
 
 <PropertyReference name="additionalToolbarItems" type="TemplateRef<any>">
-  A template prepended to the default toolbar, before the copy and edit buttons.
+  一个前置于默认工具栏的模板，位于复制和编辑按钮之前。
 </PropertyReference>
 
 <PropertyReference name="inputClass" type="string">
-  Extra CSS classes merged onto the message container.
+  合并到消息容器上的额外 CSS 类。
 </PropertyReference>
 
-### Slot class inputs
+### 插槽类名输入
 
-Each of these passes extra CSS classes to the corresponding default sub-component.
+其中每一项都会向对应的默认子组件传递额外的 CSS 类。
 
 <PropertyReference name="messageRendererClass" type="string">
-  Classes for the default message renderer.
+  用于默认消息渲染器的类。
 </PropertyReference>
 
 <PropertyReference name="toolbarClass" type="string">
-  Classes for the default toolbar.
+  用于默认工具栏的类。
 </PropertyReference>
 
 <PropertyReference name="copyButtonClass" type="string">
-  Classes for the default copy button.
+  用于默认复制按钮的类。
 </PropertyReference>
 
 <PropertyReference name="editButtonClass" type="string">
-  Classes for the default edit button.
+  用于默认编辑按钮的类。
 </PropertyReference>
 
 <PropertyReference name="branchNavigationClass" type="string">
-  Classes for the default branch navigation control.
+  用于默认分支导航控件的类。
 </PropertyReference>
 
-### Slot component inputs
+### 插槽组件输入
 
-Each of these replaces the corresponding default sub-component with a component class of your own. Content-projection templates (see below) take precedence over these.
+其中每一项都会用你自己的组件类替换对应的默认子组件。内容投影模板（见下文）优先于这些输入。
 
 <PropertyReference name="messageRendererComponent" type="Type<any>">
-  Replaces the default message renderer.
+  替换默认的消息渲染器。
 </PropertyReference>
 
 <PropertyReference name="toolbarComponent" type="Type<any>">
-  Replaces the default toolbar.
+  替换默认的工具栏。
 </PropertyReference>
 
 <PropertyReference name="copyButtonComponent" type="Type<any>">
-  Replaces the default copy button.
+  替换默认的复制按钮。
 </PropertyReference>
 
 <PropertyReference name="editButtonComponent" type="Type<any>">
-  Replaces the default edit button.
+  替换默认的编辑按钮。
 </PropertyReference>
 
 <PropertyReference name="branchNavigationComponent" type="Type<any>">
-  Replaces the default branch navigation control.
+  替换默认的分支导航控件。
 </PropertyReference>
 
-## Outputs
+## 输出
 
 <PropertyReference name="editMessage" type="CopilotChatUserMessageOnEditMessageProps">
-  Emitted when the edit button is clicked. The payload is `{ message: UserMessage }`.
+  点击编辑按钮时触发。载荷为 `{ message: UserMessage }`。
 </PropertyReference>
 
 <PropertyReference name="switchToBranch" type="CopilotChatUserMessageOnSwitchToBranchProps">
-  Emitted when a different branch is selected through the branch navigation control. The payload is `{ message: UserMessage; branchIndex: number; numberOfBranches: number }`.
+  通过分支导航控件选择其他分支时触发。载荷为 `{ message: UserMessage; branchIndex: number; numberOfBranches: number }`。
 </PropertyReference>
 
-## Slots and content projection
+## 插槽与内容投影
 
-You can override any piece of the message by projecting a named template. A projected template takes precedence over the matching `*Component` input. Each template receives a typed context object.
+你可以通过投影具名模板来覆盖消息的任何部分。投影模板优先于匹配的 `*Component` 输入。每个模板都会接收一个带类型的上下文对象。
 
-| Template name | Context type | Replaces |
+| 模板名 | 上下文类型 | 替换对象 |
 | --- | --- | --- |
-| `messageRenderer` | `MessageRendererContext` (`{ content: string }`) | The message text renderer |
-| `toolbar` | `UserMessageToolbarContext` (`{ children?: any }`) | The whole toolbar |
-| `copyButton` | `CopyButtonContext` (`{ content?: string; copied?: boolean }`) | The copy button |
-| `editButton` | `EditButtonContext` (empty; click via outputs) | The edit button |
-| `branchNavigation` | `BranchNavigationContext` (`{ currentBranch, numberOfBranches, onSwitchToBranch?, message }`) | The branch navigation control |
+| `messageRenderer` | `MessageRendererContext` (`{ content: string }`) | 消息文本渲染器 |
+| `toolbar` | `UserMessageToolbarContext` (`{ children?: any }`) | 整个工具栏 |
+| `copyButton` | `CopyButtonContext` (`{ content?: string; copied?: boolean }`) | 复制按钮 |
+| `editButton` | `EditButtonContext`（空；通过输出处理点击） | 编辑按钮 |
+| `branchNavigation` | `BranchNavigationContext` (`{ currentBranch, numberOfBranches, onSwitchToBranch?, message }`) | 分支导航控件 |
 
 ```html title="src/app/user-message.component.html"
 <copilot-chat-user-message [message]="message()">
@@ -144,24 +144,24 @@ You can override any piece of the message by projecting a named template. A proj
 </copilot-chat-user-message>
 ```
 
-## Related
+## 另请参阅
 
 <Cards>
   <Card
     title="CopilotChatMessageView"
-    description="Renders a list of messages, routing each to assistant, user, reasoning, or activity rendering."
+    description="渲染消息列表，并将每条消息分派给助手、用户、推理或活动渲染。"
     href="/reference/angular/components/CopilotChatMessageView"
     icon={<LinkIcon />}
   />
   <Card
     title="CopilotChatAssistantMessage"
-    description="Renders a single assistant message with markdown content, a toolbar, and tool calls."
+    description="渲染单条助手消息，包含 markdown 内容、工具栏和工具调用。"
     href="/reference/angular/components/CopilotChatAssistantMessage"
     icon={<LinkIcon />}
   />
   <Card
     title="CopilotChatView"
-    description="The full chat layout: scroll container, message view, and input."
+    description="完整的聊天布局：滚动容器、消息视图和输入框。"
     href="/reference/angular/components/CopilotChatView"
     icon={<LinkIcon />}
   />

@@ -1,10 +1,9 @@
 ---
-title: Channel
-description: Reference for createChannel options, managed providers, handlers, tools, storage, and runtime lifecycle.
+title: "Channel"
+description: "createChannel 选项、托管提供方、处理函数、工具、存储与运行时生命周期的参考。"
 ---
 
-`createChannel(options)` returns the Channel you declare on
-`CopilotRuntime({ channels })`.
+`createChannel(options)` 会返回你在 `CopilotRuntime({ channels })` 上声明的 Channel。
 
 ```ts title="channel.ts"
 import { createChannel } from "@copilotkit/channels";
@@ -17,53 +16,47 @@ const channel = createChannel({
 });
 ```
 
-Use the project-unique Intelligence Channel Code. The managed runtime declares
-both Slack and Teams for this Channel and keeps each delivery provider-scoped.
+使用项目内唯一的 Intelligence Channel Code。托管运行时会为该渠道同时声明 Slack 和 Microsoft Teams，并确保每路投递都按提供方隔离。
 
-## createChannel options
+## createChannel 选项
 
-| Option           | Type                                                   | Description                                                                                                                 |
-| ---------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| `name`           | `string`                                               | Project-unique Intelligence Code. Required for managed Channels; lowercase kebab-case, 3–64 characters, and not `channels`. |
-| `identifyUser`   | `"platform" \| ChannelIdentifyUser`                    | Required identity policy. Returns one application user or `null` for each provider event.                                   |
-| `showToolStatus` | `boolean`                                              | Controls managed Slack tool-call progress. It is hidden by default; set `true` to show it.                                  |
-| `replyContinuation` | `ReplyContinuationOptions`                         | Managed Slack long-reply limits: `messageByteLimit`, `maxMessages`, and `truncationMarker`.                                 |
-| `agent`          | `AbstractAgent \| (threadId: string) => AbstractAgent` | Agent instance or factory. Factory preferred; every turn clones the configured result.                                     |
-| `sanitizeAgentEvents` | `boolean`                                         | Defaults to `true`; repairs a known malformed AG-UI parent-message field in HTTP event streams.                             |
-| `tools`          | `ChannelTool[]`                                        | Typed tools forwarded to the agent.                                                                                         |
-| `context`        | `ContextEntry[]`                                       | Stable `{ description, value }` context sent on each run.                                                                   |
-| `components`     | `ChannelComponent[]`                                   | Named JSX components whose callbacks can be reconstructed from stored snapshots.                                            |
-| `commands`       | `ChannelCommand[]`                                     | Declared commands for providers that support them.                                                                          |
-| `store`          | `StoreConfig`                                          | State schema, persistence, turn concurrency (`parallel` default), dedup, and optional transcript bridge.                    |
-| `adapters`       | `PlatformAdapter[]`                                    | Low-level direct transports. They may coexist with the cloud-hosted Intelligence adapter on this Channel.                        |
+| 选项                | 类型                                                   | 说明                                                                                                                        |
+| ------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| `name`              | `string`                                               | 项目内唯一的 Intelligence Code。托管渠道必填；小写 kebab-case，3–64 个字符，且不能是 `channels`。                            |
+| `identifyUser`      | `"platform" \| ChannelIdentifyUser`                    | 必填的身份策略。针对每个提供方事件返回一个应用用户或 `null`。                                                                |
+| `showToolStatus`    | `boolean`                                              | 控制托管 Slack 的工具调用进度展示。默认隐藏；设为 `true` 可显示。                                                            |
+| `replyContinuation` | `ReplyContinuationOptions`                             | 托管 Slack 的长回复限制：`messageByteLimit`、`maxMessages` 与 `truncationMarker`。                                           |
+| `agent`             | `AbstractAgent \| (threadId: string) => AbstractAgent` | 智能体实例或工厂。优先使用工厂；每一轮都会克隆配置的结果。                                                                   |
+| `sanitizeAgentEvents` | `boolean`                                            | 默认为 `true`；修复 HTTP 事件流中一个已知格式错误的 AG-UI 父消息字段。                                                       |
+| `tools`             | `ChannelTool[]`                                        | 转发给智能体的带类型工具。                                                                                                   |
+| `context`           | `ContextEntry[]`                                       | 每次运行都会发送的稳定 `{ description, value }` 上下文。                                                                      |
+| `components`        | `ChannelComponent[]`                                   | 具名 JSX 组件，其回调可从存储的快照中重建。                                                                                   |
+| `commands`          | `ChannelCommand[]`                                     | 为支持命令的提供方声明的命令。                                                                                                |
+| `store`             | `StoreConfig`                                          | 状态 schema、持久化、轮次并发（默认 `parallel`）、去重，以及可选的会话记录桥接。                                              |
+| `adapters`          | `PlatformAdapter[]`                                    | 底层直连传输。它们可与该渠道上的云托管 Intelligence 适配器共存。                                                              |
 
-One Channel may receive managed Slack and Teams deliveries. Names must be
-unique inside one `CopilotRuntime`.
+一个渠道可以接收托管的 Slack 和 Teams 投递。名称在同一个 `CopilotRuntime` 内必须唯一。
 
-For long-reply defaults, event sanitization, and agent clone requirements, see
-the detailed [`createChannel` options](/reference/channels/functions/createChannel).
+关于长回复默认值、事件清理与智能体克隆要求的更多细节，参见详细的 [`createChannel` 选项](/reference/channels/functions/createChannel)。
 
 ## StoreConfig
 
-| Option              | Type                               | Description                                                                                                                                    |
+| 选项                | 类型                               | 说明                                                                                                                                           |
 | ------------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `state`             | `StandardSchema`                   | Types `thread.state()` and validates every `setState(value)`.                                                                                  |
-| `adapter`           | `StateStore`                       | Persistence implementation for SDK state. Without it, the current managed realtime path falls back to process memory.                          |
-| `transcripts`       | `TranscriptsConfig`                | SDK-owned cross-platform transcript configuration keyed by the application user from top-level `identifyUser`.                                 |
-| `actionRetentionMs` | `number`                           | Durable callback and one-use HITL continuation retention. Default: seven days.                                                                 |
-| `concurrency`       | `"parallel" \| "serial" \| "drop"` | How overlapping turns on the same conversation are handled. Default: `"parallel"`. See [`StoreConfig`](/reference/channels/types/StoreConfig). |
-| `onLockConflict`    | `"drop" \| "force" \| callback`    | **Deprecated.** Prefer `concurrency`. Maps to drop/parallel when static.                                                                       |
-| `lockTtl`           | `number`                           | Conversation lock TTL in milliseconds (drop / legacy paths). Default: `60_000`.                                                                |
-| `dedupTtl`          | `number`                           | Inbound event deduplication window in milliseconds. Default: `300_000`.                                                                        |
+| `state`             | `StandardSchema`                   | 为 `thread.state()` 提供类型，并校验每一次 `setState(value)`。                                                                                  |
+| `adapter`           | `StateStore`                       | SDK 状态的持久化实现。缺省时，当前的托管实时路径会回退到进程内存。                                                                              |
+| `transcripts`       | `TranscriptsConfig`                | 由 SDK 管理的跨平台会话记录配置，以顶层 `identifyUser` 得出的应用用户为键。                                                                     |
+| `actionRetentionMs` | `number`                           | 持久化回调与一次性人机协同（human-in-the-loop）续接的保留期。默认：七天。                                                                       |
+| `concurrency`       | `"parallel" \| "serial" \| "drop"` | 同一会话上重叠轮次的处理方式。默认：`"parallel"`。参见 [`StoreConfig`](/reference/channels/types/StoreConfig)。                                 |
+| `onLockConflict`    | `"drop" \| "force" \| callback`    | **已弃用**。请改用 `concurrency`。取静态值时映射为 drop/parallel。                                                                              |
+| `lockTtl`           | `number`                           | 会话锁 TTL，单位毫秒（drop / 旧版路径）。默认：`60_000`。                                                                                      |
+| `dedupTtl`          | `number`                           | 入站事件去重窗口，单位毫秒。默认：`300_000`。                                                                                                  |
 
-`StateStore` contains `kv`, `list`, `lock`, `dedup`, and `queue` facets. Remote
-implementations must preserve JSON-serializable values.
+`StateStore` 包含 `kv`、`list`、`lock`、`dedup` 与 `queue` 五个部分。远程实现必须保持值可经 JSON 序列化。
 
-### StateStore contract
+### StateStore 契约
 
-A production adapter implements this asynchronous contract. Locks,
-deduplication, and queue operations must remain atomic when multiple runner
-instances share the same backend.
+生产级适配器需要实现这一异步契约。当多个 runner 实例共享同一后端时，锁、去重与队列操作必须保持原子性。
 
 ```ts title="state-store.ts"
 interface StateStore {
@@ -109,24 +102,22 @@ interface StateStore {
 }
 ```
 
-All values must round-trip through JSON. A distributed implementation must
-release a lock only when the supplied token still owns it.
+所有值都必须能经 JSON 往返不失真。分布式实现只有在传入的 token 仍持有该锁时才允许释放锁。
 
-## Properties
+## 属性
 
-| Property         | Type                         | Description                                                                                                   |
-| ---------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `name`           | `string \| undefined`        | Declared Intelligence Code.                                                                                   |
-| `showToolStatus` | `boolean \| undefined`       | Managed Slack tool-call visibility preference from `createChannel()`.                                         |
-| `replyContinuation` | `ReplyContinuationOptions \| undefined` | Managed Slack continuation preference from `createChannel()`.                                      |
-| `adapters`       | `readonly PlatformAdapter[]` | Attached transport snapshot. Managed Channels start empty and receive the Intelligence adapter at activation. |
-| `commandNames`   | `string[]`                   | Normalized names declared through `commands` or `onCommand`.                                                  |
-| `transcripts`    | `Transcripts`                | Optional SDK transcript API. It is not the managed provider-history store.                                    |
+| 属性                | 类型                         | 说明                                                                                                          |
+| ------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `name`              | `string \| undefined`        | 声明的 Intelligence Code。                                                                                    |
+| `showToolStatus`    | `boolean \| undefined`       | 来自 `createChannel()` 的托管 Slack 工具调用可见性偏好。                                                       |
+| `replyContinuation` | `ReplyContinuationOptions \| undefined` | 来自 `createChannel()` 的托管 Slack 续接偏好。                                                      |
+| `adapters`          | `readonly PlatformAdapter[]` | 已挂载传输的快照。托管渠道初始为空，在激活时获得 Intelligence 适配器。                                         |
+| `commandNames`      | `string[]`                   | 通过 `commands` 或 `onCommand` 声明的规范化名称。                                                              |
+| `transcripts`       | `Transcripts`                | 可选的 SDK 会话记录 API。它不是托管提供方的历史存储。                                                          |
 
-The `transcripts` getter is only available after Channel activation and throws
-if it is read before the runtime listener starts the Channel.
+`transcripts` getter 只有在渠道激活之后才可用；若在运行时监听器启动渠道之前读取，它会抛出异常。
 
-## Message handlers
+## 消息处理函数
 
 ```ts title="channel.ts"
 channel.onMessage(async ({ thread, message }) => {
@@ -143,64 +134,52 @@ channel.onMessage(async ({ thread, message }) => {
 });
 ```
 
-| Method                     | Handler input                       | Notes                                                                                                                          |
+| 方法                       | 处理函数入参                        | 说明                                                                                                                           |
 | -------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `onMessage(handler)`       | `{ thread, message }`               | Use this for managed Slack and Teams turns.                                                                                    |
-| `onMention(handler)`       | `{ thread, message }`               | A bot mention selects this handler when registered; otherwise it falls back to `onMessage`. Other content selects `onMessage`. |
-| `onWelcome(handler)`       | `{ thread, user, actor, platform }` | Runs once for a supported provider installation or conversation activation. No handler means no welcome output.                |
-| `onThreadStarted(handler)` | `{ thread, user, actor }`           | Fires for provider surfaces that report a conversation-open event.                                                             |
+| `onMessage(handler)`       | `{ thread, message }`               | 托管 Slack 与 Teams 轮次使用此处理函数。                                                                                       |
+| `onMention(handler)`       | `{ thread, message }`               | 注册后，机器人提及（mention）会路由到此处理函数；否则回退到 `onMessage`。其余内容一律由 `onMessage` 处理。                      |
+| `onWelcome(handler)`       | `{ thread, user, actor, platform }` | 对于受支持的提供方安装或会话激活，运行一次。未注册处理函数即不输出欢迎语。                                                      |
+| `onThreadStarted(handler)` | `{ thread, user, actor }`           | 在会上报会话开启事件的提供方入口上触发。                                                                                       |
 
-`message.platform` is the native provider (`"slack"` or `"teams"`).
-`thread.platform` carries that same native provider on a managed Channel.
+`message.platform` 是原生提供方（`"slack"` 或 `"teams"`）。在托管渠道上，`thread.platform` 携带相同的原生提供方。
 
-## Interaction and interrupt handlers
+## 交互与中断处理函数
 
-| Method                               | Purpose                                                            | Managed Slack/Teams                                                 |
+| 方法                                 | 用途                                                               | 托管 Slack/Teams                                                    |
 | ------------------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------- |
-| `onInteraction(id, handler)`         | Handle a specific opaque action id.                                | Supported for delivered actions. JSX callbacks are usually simpler. |
-| `onInterrupt(eventName, handler)`    | Post UI for an agent interrupt; later call `thread.resume(value)`. | Use `eventName: "on_interrupt"` for the current managed renderer.   |
-| `onReaction(emoji?, handler)`        | Handle delivered reaction events.                                  | Inbound support is provider-dependent.                              |
-| `onCommand(command)`                 | Register a typed or free-text command.                             | Provider-dependent.                                                 |
-| `onModalSubmit(callbackId, handler)` | Handle a modal form submission.                                    | Not delivered by the managed realtime path.                         |
-| `onModalClose(callbackId, handler)`  | Handle a modal dismissal.                                          | Not delivered by the managed realtime path.                         |
+| `onInteraction(id, handler)`         | 处理某个特定的不透明操作 id。                                       | 已投递的操作支持此方式。JSX 回调通常更简单。                        |
+| `onInterrupt(eventName, handler)`    | 为智能体中断发布 UI；稍后调用 `thread.resume(value)`。             | 当前托管渲染器使用 `eventName: "on_interrupt"`。                    |
+| `onReaction(emoji?, handler)`        | 处理已投递的表情回应事件。                                         | 入站支持取决于提供方。                                              |
+| `onCommand(command)`                 | 注册带类型或自由文本的命令。                                       | 取决于提供方。                                                      |
+| `onModalSubmit(callbackId, handler)` | 处理模态框表单提交。                                               | 托管实时路径不会投递。                                              |
+| `onModalClose(callbackId, handler)`  | 处理模态框关闭。                                                   | 托管实时路径不会投递。                                              |
 
-See the [Slack interactive messages guide](/slack/interactive), the
-[Teams interactive messages guide](/teams/interactive), and the
-[JSX callback reference](/reference/channels/types/JSXCallbacks).
+参见 [Slack 交互式消息指南](/slack/interactive)、[Teams 交互式消息指南](/teams/interactive)与 [JSX 回调参考](/reference/channels/types/JSXCallbacks)。
 
-## Register a tool
+## 注册工具
 
-Pass tools in `createChannel({ tools })`, or add one before activation:
+在 `createChannel({ tools })` 中传入工具，或在激活之前添加：
 
 ```ts title="channel.ts"
 channel.tool(getIncident);
 ```
 
-See [Tools and context for Slack](/slack/tools) or
-[Tools and context for Teams](/teams/tools).
+参见 [Slack 的工具与上下文](/slack/tools)或 [Teams 的工具与上下文](/teams/tools)。
 
-## Runtime lifecycle
+## 运行时生命周期
 
-A Channel has no public `start()` method. Node and Express listeners own a
-long-running process lifetime, so creating either listener starts the managed
-Channel automatically. On those mounts, `ready()` is optional: await it when
-startup must observe the initial managed status before the rest of the process
-continues.
+Channel 没有公开的 `start()` 方法。Node 与 Express 监听器拥有长期运行的进程生命周期，因此创建任一监听器都会自动启动托管渠道。在这类挂载上，`ready()` 是可选的：当启动过程必须在其余逻辑继续之前观察到初始托管状态时，再 await 它。
 
-Hono and generic Fetch mounts are request-oriented and remain lazy. Call and
-await `ready()` during an explicit long-running startup path before expecting
-managed traffic; creating one of those handlers alone does not open the
-Realtime Gateway connection.
+Hono 与通用 Fetch 挂载面向请求，保持惰性。在预期接收托管流量之前，请在显式的长期运行启动路径中调用并 await `ready()`；仅创建这类处理函数并不会打开 Realtime Gateway 连接。
 
-| Runtime mount | Start behavior | Role of `ready()` |
-| ------------- | -------------- | ----------------- |
-| Node listener | Starts when the listener is created | Optional readiness wait and initial status check |
-| Express listener | Starts when the listener is created | Optional readiness wait and initial status check |
-| Hono mount | Lazy | Explicitly await before expecting managed traffic |
-| Generic Fetch mount | Lazy | Explicitly await before expecting managed traffic |
+| 运行时挂载      | 启动行为                   | `ready()` 的作用                     |
+| --------------- | -------------------------- | ------------------------------------ |
+| Node 监听器     | 创建监听器时即启动         | 可选的就绪等待与初始状态检查         |
+| Express 监听器  | 创建监听器时即启动         | 可选的就绪等待与初始状态检查         |
+| Hono 挂载       | 惰性                       | 在预期托管流量之前显式 await         |
+| 通用 Fetch 挂载 | 惰性                       | 在预期托管流量之前显式 await         |
 
-Install shutdown handlers before waiting for readiness so a slow or incomplete
-provider setup cannot prevent graceful teardown:
+在等待就绪之前先安装关闭处理函数，这样缓慢或不完整的提供方配置也不会阻碍优雅关闭：
 
 ```ts title="channel.ts"
 const listener = createCopilotNodeListener({ runtime });
@@ -223,17 +202,13 @@ if (status.overall !== "online") {
 }
 ```
 
-`ready()` observes the first `online` or `setup_required` outcome; it does not
-initiate Node or Express activation. Inspect `status()` before accepting managed
-traffic. A configured direct adapter still starts when managed setup is
-incomplete, while the Channel remains `setup_required` until its managed
-providers are configured. Observe later drops and reconnects through `status()`.
+`ready()` 会观察第一个 `online` 或 `setup_required` 结果；它不会主动发起 Node 或 Express 的激活。在接收托管流量之前请先检查 `status()`。即使托管配置不完整，已配置的直连适配器仍会启动，但渠道会保持 `setup_required`，直到其托管提供方配置完成。后续的掉线与重连可通过 `status()` 观察。
 
-| Status           | Meaning                                                                    |
+| 状态             | 含义                                                                       |
 | ---------------- | -------------------------------------------------------------------------- |
-| `connecting`     | Activation is in progress, or a lazy mount has not started the Channel yet. |
-| `online`         | The managed session is healthy and can receive delivery invitations.       |
-| `setup_required` | The runtime declaration exists but provider setup is incomplete.           |
-| `reconnecting`   | The gateway connection dropped and is retrying.                            |
-| `error`          | Activation or bounded reconnect failed.                                    |
-| `stopped`        | The listener was torn down.                                                |
+| `connecting`     | 激活正在进行，或惰性挂载尚未启动渠道。                                     |
+| `online`         | 托管会话健康，可以接收投递邀请。                                           |
+| `setup_required` | 运行时声明已存在，但提供方配置未完成。                                     |
+| `reconnecting`   | 网关连接已断开，正在重试。                                                 |
+| `error`          | 激活或有界重连失败。                                                       |
+| `stopped`        | 监听器已被拆除。                                                           |

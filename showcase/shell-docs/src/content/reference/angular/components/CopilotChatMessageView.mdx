@@ -1,19 +1,19 @@
 ---
 title: "CopilotChatMessageView"
-description: "Angular standalone component that renders a list of chat messages, routing each message to assistant, user, reasoning, or activity rendering with slot customization."
+description: "Angular standalone 组件，渲染聊天消息列表，按插槽自定义将每条消息分流到助手、用户、推理或活动渲染。"
 ---
 
-## Overview
+## 概览
 
-`CopilotChatMessageView` renders an array of messages and routes each one to the correct renderer based on its `role`: assistant messages go to [`CopilotChatAssistantMessage`](/reference/angular/components/CopilotChatAssistantMessage), user messages to [`CopilotChatUserMessage`](/reference/angular/components/CopilotChatUserMessage), reasoning messages to the reasoning renderer, and activity messages to [`CopilotActivity`](/reference/angular/components/CopilotActivity), which resolves the registered activity renderer. It optionally renders a typing cursor at the end of the list while the agent is streaming.
+`CopilotChatMessageView` 渲染一个消息数组，并根据每条消息的 `role` 将其路由到正确的渲染器：助手消息交给 [`CopilotChatAssistantMessage`](/reference/angular/components/CopilotChatAssistantMessage)，用户消息交给 [`CopilotChatUserMessage`](/reference/angular/components/CopilotChatUserMessage)，推理消息交给推理渲染器，活动消息交给 [`CopilotActivity`](/reference/angular/components/CopilotActivity)，由它解析已注册的活动渲染器。在智能体流式输出期间，它还可以在列表末尾渲染一个输入中的光标。
 
-This is the message-list layer used by [`CopilotChatView`](/reference/angular/components/CopilotChatView). Use it directly when you manage your own `messages` array and want the list without the surrounding scroll container and input.
+这是 [`CopilotChatView`](/reference/angular/components/CopilotChatView) 所使用的消息列表层。当你自己管理 `messages` 数组、只想要列表而不想要外围的滚动容器与输入时，可以直接使用它。
 
-The component is standalone and uses `OnPush` change detection. Reactive inputs are Angular [signals](https://angular.dev/guide/signals).
+该组件是 standalone 组件，使用 `OnPush` 变更检测。响应式输入基于 Angular 的 [signals](https://angular.dev/guide/signals)。
 
-## Usage
+## 用法
 
-Import the component class and use its `copilot-chat-message-view` selector in your template.
+导入该组件类，并在模板中使用其 `copilot-chat-message-view` 选择器。
 
 ```ts title="src/app/messages.component.ts"
 import { Component, signal } from "@angular/core";
@@ -38,129 +38,129 @@ export class MessagesComponent {
 }
 ```
 
-## Inputs
+## 输入
 
 <PropertyReference name="messages" type="Message[]" default="[]">
-  The messages to render. Each entry is routed by its `role` (`assistant`, `user`, `reasoning`, or `activity`). Entries with any other role are skipped.
+  要渲染的消息。每条消息按其 `role`（`assistant`、`user`、`reasoning` 或 `activity`）路由。其他 role 的条目会被跳过。
 </PropertyReference>
 
 <PropertyReference name="showCursor" type="boolean" default="false">
-  Whether to show the typing cursor at the end of the list. The cursor is suppressed when the last message is a reasoning message.
+  是否在列表末尾显示输入中的光标。当最后一条消息是推理消息时，光标会被隐藏。
 </PropertyReference>
 
 <PropertyReference name="isLoading" type="boolean" default="false">
-  Whether the agent is currently streaming. Forwarded to assistant and reasoning renderers.
+  智能体当前是否正在流式输出。转发给助手与推理渲染器。
 </PropertyReference>
 
 <PropertyReference name="state" type="unknown" default="{}">
-  Current agent state passed to the content rendered after the message list.
+  传递给消息列表之后所渲染内容的当前智能体状态。
 </PropertyReference>
 
 <PropertyReference name="inputClass" type="string">
-  Extra CSS classes merged onto the default list container (`flex flex-col`).
+  合并到默认列表容器（`flex flex-col`）上的额外 CSS 类。
 </PropertyReference>
 
 <PropertyReference name="agentId" type="string">
-  ID of the agent whose messages are being rendered. Used to resolve the matching activity-message renderer and the agent instance passed to it.
+  正在渲染其消息的智能体 ID。用于解析匹配的活动消息渲染器，以及传递给它的智能体实例。
 </PropertyReference>
 
-### Assistant message slot inputs
+### 助手消息插槽输入
 
 <PropertyReference name="assistantMessageComponent" type="Type<any>">
-  A component class to render each assistant message in place of the default [`CopilotChatAssistantMessage`](/reference/angular/components/CopilotChatAssistantMessage).
+  用于渲染每条助手消息的组件类，替代默认的 [`CopilotChatAssistantMessage`](/reference/angular/components/CopilotChatAssistantMessage)。
 </PropertyReference>
 
 <PropertyReference name="assistantMessageTemplate" type="TemplateRef<any>">
-  A template to render each assistant message. Takes precedence over `assistantMessageComponent` when both are set.
+  用于渲染每条助手消息的模板。两者同时设置时优先于 `assistantMessageComponent`。
 </PropertyReference>
 
 <PropertyReference name="assistantMessageClass" type="string">
-  Extra CSS classes forwarded to each assistant message renderer.
+  转发给每个助手消息渲染器的额外 CSS 类。
 </PropertyReference>
 
-### User message slot inputs
+### 用户消息插槽输入
 
 <PropertyReference name="userMessageComponent" type="Type<any>">
-  A component class to render each user message in place of the default [`CopilotChatUserMessage`](/reference/angular/components/CopilotChatUserMessage).
+  用于渲染每条用户消息的组件类，替代默认的 [`CopilotChatUserMessage`](/reference/angular/components/CopilotChatUserMessage)。
 </PropertyReference>
 
-### Reasoning message slot inputs
+### 推理消息插槽输入
 
 <PropertyReference name="reasoningMessageComponent" type="Type<any>">
-  Component class used for reasoning messages.
+  用于推理消息的组件类。
 </PropertyReference>
 
 <PropertyReference name="reasoningMessageTemplate" type="TemplateRef<any>">
-  Template used for reasoning messages. Takes precedence over `reasoningMessageComponent`.
+  用于推理消息的模板。优先级高于 `reasoningMessageComponent`。
 </PropertyReference>
 
 <PropertyReference name="reasoningMessageClass" type="string">
-  CSS classes forwarded to the reasoning-message slot.
+  转发给推理消息插槽的 CSS 类。
 </PropertyReference>
 
-### Content after the message list
+### 消息列表后的内容
 
 <PropertyReference name="childrenComponent" type="Type<any>">
-  Component rendered after the messages and before the streaming cursor.
+  渲染在消息之后、流式光标之前的组件。
 </PropertyReference>
 
 <PropertyReference name="childrenTemplate" type="TemplateRef<any>">
-  Template rendered after the messages. Takes precedence over `childrenComponent`.
+  渲染在消息之后的模板。优先级高于 `childrenComponent`。
 </PropertyReference>
 
 <PropertyReference name="childrenClass" type="string">
-  CSS classes forwarded to the children slot.
+  转发给子内容插槽的 CSS 类。
 </PropertyReference>
 
 <PropertyReference name="userMessageTemplate" type="TemplateRef<any>">
-  A template to render each user message. Takes precedence over `userMessageComponent` when both are set.
+  用于渲染每条用户消息的模板。两者同时设置时优先于 `userMessageComponent`。
 </PropertyReference>
 
 <PropertyReference name="userMessageClass" type="string">
-  Extra CSS classes forwarded to each user message renderer.
+  转发给每个用户消息渲染器的额外 CSS 类。
 </PropertyReference>
 
-### Cursor slot inputs
+### 光标插槽输入
 
 <PropertyReference name="cursorComponent" type="Type<any>">
-  A component class to render the typing cursor in place of the default cursor.
+  用于渲染输入中光标的组件类，替代默认光标。
 </PropertyReference>
 
 <PropertyReference name="cursorTemplate" type="TemplateRef<any>">
-  A template to render the typing cursor. Takes precedence over `cursorComponent` when both are set.
+  用于渲染输入中光标的模板。两者同时设置时优先于 `cursorComponent`。
 </PropertyReference>
 
 <PropertyReference name="cursorClass" type="string">
-  Extra CSS classes forwarded to the cursor renderer.
+  转发给光标渲染器的额外 CSS 类。
 </PropertyReference>
 
-## Outputs
+## 输出
 
-Assistant actions bubble up from the assistant-message child component. Each payload is `{ message: Message }`.
+助手消息操作会从助手消息子组件向上冒泡。每个载荷都是 `{ message: Message }`。
 
 <PropertyReference name="assistantMessageThumbsUp" type="{ message: Message }">
-  Emitted when the thumbs-up action is triggered on an assistant message.
+  在助手消息上触发点赞操作时发出。
 </PropertyReference>
 
 <PropertyReference name="assistantMessageThumbsDown" type="{ message: Message }">
-  Emitted when the thumbs-down action is triggered on an assistant message.
+  在助手消息上触发点踩操作时发出。
 </PropertyReference>
 
 <PropertyReference name="assistantMessageReadAloud" type="{ message: Message }">
-  Emitted when the read-aloud action is triggered on an assistant message.
+  在助手消息上触发朗读操作时发出。
 </PropertyReference>
 
 <PropertyReference name="assistantMessageRegenerate" type="{ message: Message }">
-  Emitted when the regenerate action is triggered on an assistant message.
+  在助手消息上触发重新生成操作时发出。
 </PropertyReference>
 
 <Callout type="warn">
-  The current release declares `userMessageCopy` and `userMessageEdit`, but the default user-message child does not forward those events. Listen on a custom user-message component when you need them.
+  当前版本声明了 `userMessageCopy` 和 `userMessageEdit`，但默认的用户消息子组件不会转发这些事件。需要时请在自定义的用户消息组件上监听。
 </Callout>
 
-## Custom layout
+## 自定义布局
 
-For full control over how the list is laid out, project a template named `customLayout`. It receives a context object with the current `messages`, the `isLoading` and `showCursor` flags, and `messageElements` (the messages filtered to the renderable roles). When this template is present, the default list rendering is replaced entirely.
+若要完全控制列表的布局方式，可投影一个名为 `customLayout` 的模板。它会收到一个上下文对象，包含当前的 `messages`、`isLoading` 与 `showCursor` 标志，以及 `messageElements`（过滤为可渲染 role 的消息）。该模板存在时，默认的列表渲染会被完全替换。
 
 ```html title="src/app/messages.component.html"
 <copilot-chat-message-view [messages]="messages()" [showCursor]="isLoading()">
@@ -177,9 +177,9 @@ For full control over how the list is laid out, project a template named `custom
 </copilot-chat-message-view>
 ```
 
-## Customizing message rendering
+## 自定义消息渲染
 
-To swap out how a whole role is rendered without rebuilding the layout, pass a slot input. The slot accepts either a component class or a template, with the template taking precedence.
+要在不重做布局的情况下更换整个 role 的渲染方式，传入一个插槽输入即可。该插槽既接受组件类也接受模板，模板优先。
 
 ```ts title="src/app/messages.component.ts"
 import { Component, signal } from "@angular/core";
@@ -204,24 +204,24 @@ export class MessagesComponent {
 }
 ```
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="CopilotChatAssistantMessage"
-    description="Renders a single assistant message with markdown content, a toolbar, and tool calls."
+    description="渲染单条助手消息，包含 Markdown 内容、工具栏与工具调用。"
     href="/reference/angular/components/CopilotChatAssistantMessage"
     icon={<LinkIcon />}
   />
   <Card
     title="CopilotChatUserMessage"
-    description="Renders a single user message with copy, edit, and branch navigation."
+    description="渲染单条用户消息，带复制、编辑与分支导航。"
     href="/reference/angular/components/CopilotChatUserMessage"
     icon={<LinkIcon />}
   />
   <Card
     title="CopilotChatView"
-    description="The full chat layout: scroll container, message view, and input."
+    description="完整的聊天布局：滚动容器、消息视图与输入。"
     href="/reference/angular/components/CopilotChatView"
     icon={<LinkIcon />}
   />

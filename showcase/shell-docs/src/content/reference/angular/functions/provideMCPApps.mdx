@@ -1,10 +1,9 @@
 ---
 title: "provideMCPApps"
-description: "Configure the opt-in MCP Apps activity renderer for Angular."
+description: "为 Angular 配置可选启用的 MCP Apps 活动渲染器。"
 ---
 
-Import MCP Apps from the secondary entry point so applications that do not use
-it do not load its host and sandbox code.
+MCP Apps 需从二级入口点导入，这样不使用它的应用就不会加载其宿主与沙箱代码。
 
 ```ts
 import { ApplicationConfig } from "@angular/core";
@@ -34,24 +33,10 @@ interface MCPAppsConfig {
 }
 ```
 
-`provideMCPApps` contributes a lower-precedence built-in renderer for
-`activityType: "mcp-apps"`; an explicit application activity renderer still
-wins. It deliberately accepts no MCP server URL. Resource loads, tool calls,
-and follow-up messages travel through the selected AG-UI agent.
+`provideMCPApps` 为 `activityType: "mcp-apps"` 贡献一个优先级较低的内置渲染器；应用显式提供的活动渲染器仍然优先生效。它有意不接受 MCP 服务器 URL。资源加载、工具调用和后续消息都经由所选的 AG-UI 智能体传输。
 
-Widgets run in a sandbox with an opaque origin, so they can't reach your
-page's cookies, storage or DOM. `allowSameOriginFallback: true` restores
-`allow-same-origin` for trusted widgets that need `localStorage`, `IndexedDB`
-or cookies. It is unsafe: every widget then runs with your page's origin. See
-[Sandbox and widget storage](/generative-ui/mcp-apps#sandbox-and-widget-storage).
+小组件（widget）运行在不透明来源（opaque origin）的沙箱中，因此无法访问你页面的 cookie、存储或 DOM。`allowSameOriginFallback: true` 会为需要 `localStorage`、`IndexedDB` 或 cookie 的受信任小组件恢复 `allow-same-origin`。这并不安全：此后每个小组件都会以你页面的来源运行。参见 [沙箱与小组件存储](/generative-ui/mcp-apps#sandbox-and-widget-storage)。
 
-Each widget owns an abortable FIFO queue and iframe listener. Destroying one
-widget cancels only its work; changing threads drops queued stale work. Busy
-agents and initialization handshakes use the configured timeouts. Snapshot
-content, JSON-RPC messages, and exact iframe event sources are validated before
-use. Host context is browser-visible and must not contain secrets.
+每个小组件都拥有自己的可中止 FIFO 队列和 iframe 监听器。销毁某个小组件只会取消它自己的工作；切换线程会丢弃队列中过时的工作。忙碌的智能体与初始化握手使用配置的超时时间。快照内容、JSON-RPC 消息和精确的 iframe 事件来源在使用前都会经过校验。宿主上下文对浏览器可见，不得包含机密信息。
 
-During SSR the widget is inert. Its sandbox and message listener initialize in
-the browser after hydration. `CopilotMCPAppsWidget`, schemas, tokens, and the
-ready-made activity config are also public from the secondary entry point for
-advanced custom hosts; see the [public API inventory](/reference/angular/public-api).
+在 SSR 期间小组件处于静止状态。它的沙箱和消息监听器会在浏览器端水合（hydration）之后初始化。`CopilotMCPAppsWidget`、模式、令牌以及现成的活动配置也都从二级入口点公开，供高级自定义宿主使用；参见[公开 API 清单](/reference/angular/public-api)。

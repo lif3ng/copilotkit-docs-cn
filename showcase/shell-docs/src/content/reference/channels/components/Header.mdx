@@ -1,9 +1,9 @@
 ---
 title: Header
-description: Render a portable title row in a Slack Block Kit message or Teams Adaptive Card.
+description: 在 Slack Block Kit 消息或 Teams Adaptive Card 中渲染一个可移植的标题行。
 ---
 
-`Header` renders prominent text near the top of a message.
+`Header` 在消息顶部附近渲染醒目的文本。
 
 ```tsx
 import { Header, Message } from "@copilotkit/channels/ui";
@@ -13,10 +13,8 @@ import { Header, Message } from "@copilotkit/channels/ui";
 </Message>;
 ```
 
-| Prop | Type | Description |
+| Prop | 类型 | 说明 |
 | --- | --- | --- |
-| `children` | `BotChildren` | Text and nested portable content. |
+| `children` | `BotChildren` | 文本与嵌套的可移植内容。 |
 
-Managed Slack renders a plain-text header block. Managed Teams renders a large,
-bold, wrapping `TextBlock`. Keep the header short; each provider clamps text to
-its native payload budget.
+托管 Slack 会渲染一个纯文本 header 块。托管 Teams 则渲染一个加大、加粗、可换行的 `TextBlock`。标题请保持简短；各提供方都会将文本截断至其原生负载预算之内。

@@ -1,26 +1,25 @@
 ---
 title: "registerFrontendTool"
-description: "Angular function for registering a client-side frontend tool with CopilotKit, with an optional Angular renderer component, that runs in the browser when an agent calls it"
+description: "Angular 函数，用于向 CopilotKit 注册一个客户端前端工具，可附带可选的 Angular 渲染组件，在智能体调用时于浏览器中运行"
 ---
 
-## Overview
+## 概览
 
-`registerFrontendTool` registers a client-side tool with CopilotKit. When the agent decides to call the tool, the provided `handler` function executes in the browser, and the value it resolves to is surfaced back to the agent as the tool result. Optionally, you can supply a `component` (a standalone Angular component) to render custom UI in the chat that shows the tool call's progress and result.
+`registerFrontendTool` 向 CopilotKit 注册一个客户端工具。当智能体决定调用该工具时，传入的 `handler` 函数会在浏览器中执行，其解析出的值会作为工具结果返回给智能体。你还可以选择提供一个 `component`（一个独立的 Angular 组件），在聊天中渲染自定义 UI，展示该工具调用的进度与结果。
 
-You call `registerFrontendTool` inside an Angular injection context (a component or service constructor, or a field initializer). The tool registers immediately. When the owning injector is destroyed, CopilotKit removes tool and renderer registrations with the same name and optional agent id. Parameter schemas use a [Standard Schema](https://standardschema.dev), such as a [Zod](https://zod.dev) object, for the advertised tool schema and TypeScript inference. Runtime arguments are JSON-parsed but are not validated against that schema.
+你需要在一个 Angular 注入上下文（组件或服务的构造函数，或字段初始化器）中调用 `registerFrontendTool`。工具会立即注册。当所属的 injector 被销毁时，CopilotKit 会移除同名（以及可选 agent id）的工具与渲染器注册。参数 schema 采用 [Standard Schema](https://standardschema.dev)，例如 [Zod](https://zod.dev) 对象，用于对外宣告的工具 schema 与 TypeScript 类型推断。运行时参数会被 JSON 解析，但不会依据该 schema 进行校验。
 
-The handler runs inside the same injector that registered the tool, so it can call `inject()` to reach your other Angular services.
+handler 在注册该工具的同一个 injector 内运行，因此可以调用 `inject()` 来访问你的其他 Angular 服务。
 
-If there is nothing to run in the browser and you only want the agent to display a component with the arguments it supplies, use [`registerComponent`](/reference/angular/functions/registerComponent) instead of a stub handler.
+如果浏览器端没有任何逻辑需要执行，只是想让智能体展示一个组件并带上它提供的参数，请使用 [`registerComponent`](/reference/angular/functions/registerComponent)，而不要写一个空壳 handler。
 
 <Callout type="info">
-  Import from the package root, `@copilotkit/angular`. There is no `/v2`
-  subpath. `registerFrontendTool` must run in an injection context that has
-  [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit) in
-  scope.
+  从包根路径 `@copilotkit/angular` 导入，不存在 `/v2`
+  子路径。`registerFrontendTool` 必须在作用域内包含
+  [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit) 的注入上下文中运行。
 </Callout>
 
-## Signature
+## 签名
 
 ```ts
 import { registerFrontendTool } from "@copilotkit/angular";
@@ -30,29 +29,25 @@ function registerFrontendTool<Args extends Record<string, unknown>>(
 ): void;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="frontendTool" type="FrontendToolConfig<Args>" required>
-  The tool definition object.
+  工具定义对象。
 
   <PropertyReference name="name" type="string" required>
-    A unique name for the tool. The agent references this name when it decides
-    to call the tool. Core skips a second tool with the same name and `agentId`,
-    although Angular still appends its frontend-tool render config. Avoid
-    duplicate keys.
+    工具的唯一名称。智能体在决定调用工具时会引用该名称。核心层会跳过第二个同名且
+    `agentId` 相同的工具，但 Angular 仍会追加其前端工具渲染配置。请避免重复的键。
   </PropertyReference>
 
   <PropertyReference name="description" type="string" required>
-    A natural-language description that tells the agent what the tool does and
-    when to use it.
+    一段自然语言描述，告诉智能体这个工具做什么、何时使用。
   </PropertyReference>
 
   <PropertyReference name="parameters" type="StandardSchemaV1<unknown, Args>" required>
-    A [Standard Schema](https://standardschema.dev) (for example a Zod object)
-    that defines the advertised tool input schema and drives type inference for
-    the `handler` arguments. Runtime arguments are JSON-parsed and cast to
-    `Args`; this helper does not validate them against the schema. For a tool
-    that takes no parameters, pass an empty object schema such as `z.object({})`.
+    一个 [Standard Schema](https://standardschema.dev)（例如 Zod 对象），定义对外宣告的
+    工具输入 schema，并为 `handler` 参数提供类型推断。运行时参数会被 JSON 解析并断言为
+    `Args`；此辅助函数不会依据 schema 校验它们。对于不接受参数的工具，传入空对象
+    schema，例如 `z.object({})`。
   </PropertyReference>
 
   <PropertyReference
@@ -60,84 +55,79 @@ function registerFrontendTool<Args extends Record<string, unknown>>(
     type="(args: Args, context: FrontendToolHandlerContext) => Promise<unknown>"
     required
   >
-    An async function that runs when the agent calls the tool. It receives the
-    parsed `args` cast to the inferred type and a `context` object, and runs inside the
-    injection context that registered the tool, so you can call `inject()`
-    inside it. The resolved value is returned to the agent as the tool result.
+    一个异步函数，在智能体调用工具时运行。它接收解析后并断言为推断类型的 `args` 以及一个
+    `context` 对象；它运行在注册该工具的注入上下文内，因此可以在其中调用 `inject()`。其解析值会作为工具结果返回给智能体。
 
     <PropertyReference name="context.toolCall" type="ToolCall">
-      The raw AG-UI tool call metadata, including the tool call `id`.
+      原始的 AG-UI 工具调用元数据，包括工具调用的 `id`。
     </PropertyReference>
 
     <PropertyReference name="context.agent" type="AbstractAgent | undefined">
-      The agent instance that invoked the tool. Absent when the tool is invoked
-      through WebMCP.
+      调用该工具的智能体实例。通过 WebMCP 调用工具时无此值。
     </PropertyReference>
 
     <PropertyReference name="context.signal" type="AbortSignal | undefined">
-      An optional `AbortSignal` for the active run. When present, it is aborted
-      when the user stops the agent. Check that it exists before reading
-      `signal.aborted` or pass it as an optional `fetch` signal.
+      当前运行的可选 `AbortSignal`。存在时，用户停止智能体会中止它。读取
+      `signal.aborted` 前请先确认其存在，或将其作为可选的 `fetch` signal 传入。
     </PropertyReference>
 
     <PropertyReference name="context.isReplay" type="boolean | undefined">
-      `true` when the call is run while the thread's history is restored (see
-      `reconnectBehavior`). Absent for a call from a live run.
+      当该调用在线程历史恢复期间执行时为 `true`（见
+      `reconnectBehavior`）。来自实时运行的调用无此值。
     </PropertyReference>
   </PropertyReference>
 
   <PropertyReference name="component" type="Type<ToolRenderer<Args>>">
-    An optional standalone Angular component class used to visualize the tool
-    call in the chat. CopilotKit instantiates it and binds a `toolCall` signal
-    input that exposes the streaming `args`, the `status`, and the `result`. See
-    [`registerRenderToolCall`](/reference/angular/functions/registerRenderToolCall)
-    for the full `ToolRenderer` and `AngularToolCall` shapes.
+    可选的独立 Angular 组件类，用于在聊天中可视化该工具调用。CopilotKit
+    会实例化它并绑定一个 `toolCall` signal 输入，暴露流式的 `args`、`status` 与
+    `result`。完整的 `ToolRenderer` 与 `AngularToolCall` 结构见
+    [`registerRenderToolCall`](/reference/angular/functions/registerRenderToolCall)。
   </PropertyReference>
 
   <PropertyReference name="followUp" type="boolean">
-    Whether the agent should automatically continue the run after the tool
-    result is returned.
+    工具结果返回后，智能体是否自动继续本次运行。
   </PropertyReference>
 
   <PropertyReference name="reconnectBehavior" type='"passive" | "resume-pending"' default='"passive"'>
-    What happens to a call of this tool that is still unanswered when the thread's history is restored, for example after a page reload. With `"passive"`, the call is shown but the handler does not run. With `"resume-pending"`, the handler runs for that call with `isReplay: true` in its context, and the run then continues as usual. Opt in only for a handler that is safe to run more than once. A call does not start twice at the same time on one page, but it can run again after a stop or a thread switch if its result never reached the agent, and two tabs that restore the same thread can each run it. If the agent calls this tool together with a tool that stays passive, the follow-up run sends the passive call without a result, which some model providers reject.
+    当线程历史恢复（例如页面重新加载）时，对该工具仍未应答的调用会如何处理。设为
+    `"passive"` 时，调用仅显示，handler 不会运行。设为 `"resume-pending"`
+    时，handler 会以 `isReplay: true` 的上下文为该调用运行，随后运行照常继续。仅当
+    handler 可以安全地多次运行时才应启用此项。同一页面上一个调用不会同时启动两次，但如果其结果从未到达智能体，它可能在停止或切换线程后再次运行，且恢复同一线程的两个标签页可能各自运行一次。如果智能体在调用该工具的同时还调用了一个保持
+    passive 的工具，后续运行会发送不带结果的 passive 调用，某些模型提供方会拒绝这种情况。
   </PropertyReference>
 
   <PropertyReference name="agentId" type="string">
-    Optional agent scope. When set, the tool is only offered to the agent with
-    this id. Cleanup on destroy is scoped to the same `agentId`.
+    可选的智能体作用域。设置后，该工具只提供给具有此 id 的智能体。销毁时的清理也限定在同一
+    `agentId`。
   </PropertyReference>
 
   <PropertyReference name="webmcp" type="boolean | { annotations?: { readOnlyHint?: boolean; untrustedContentHint?: boolean } }">
-    Also expose the tool to browser agents through the WebMCP API
-    (`document.modelContext`). Pass `true` to register with default
-    annotations, or an object to register with WebMCP annotations. The same
-    `handler` runs when a browser agent calls the tool; the context then has
-    no `agent`. This is a no-op where WebMCP is not available (browsers
-    without the API enabled).
+    同时通过 WebMCP API（`document.modelContext`）将该工具暴露给浏览器智能体。传
+    `true` 以默认 annotations 注册，或传一个对象以指定的 WebMCP annotations
+    注册。浏览器智能体调用该工具时运行的是同一个 `handler`；此时上下文中没有
+    `agent`。在 WebMCP 不可用（浏览器未启用该 API）的环境下这是空操作。
   </PropertyReference>
 </PropertyReference>
 
-## Return Value
+## 返回值
 
-`registerFrontendTool` returns `void`. It performs the registration as a side effect and wires up name-and-agent-id cleanup for the owning injector.
+`registerFrontendTool` 返回 `void`。它以副作用的方式完成注册，并为所属 injector 建立按名称与 agent id 的清理逻辑。
 
-## Behavior
+## 行为
 
-- **Immediate registration.** The tool is added to CopilotKit as soon as the function runs, so call it during construction or field initialization, not inside an event handler.
-- **Runs in the injection context.** The `handler` is invoked with `runInInjectionContext` using the injector that registered the tool, so `inject()` works inside it.
-- **Cleanup by key.** When the owning component or service is destroyed,
-  CopilotKit removes frontend tools, human-in-the-loop tools, and tool-call
-  renderers with the same `name` and optional `agentId`. Registrations sharing
-  that key are removed together.
-- **Optional renderer.** When you pass a `component`, it is registered alongside the tool so the chat can render the tool call's progress and result.
-- **WebMCP registration.** With `webmcp` set, the tool is also registered on `document.modelContext` for as long as the owning injector is alive. The tool needs a `description` for this (WebMCP rejects tools without one).
+- **立即注册**。函数一运行，工具就会被添加到 CopilotKit，因此请在构造或字段初始化时调用，而不要在事件处理器中调用。
+- **在注入上下文中运行**。`handler` 通过 `runInInjectionContext` 使用注册该工具的 injector 调用，因此 `inject()` 在其中可用。
+- **按键清理**。当所属组件或服务被销毁时，CopilotKit
+  会移除具有相同 `name` 和可选 `agentId` 的前端工具、人机协同（human-in-the-loop）工具与工具调用渲染器。共享该键的注册会被一并移除。
+- **可选渲染器**。传入 `component` 时，它会随工具一同注册，聊天便能渲染工具调用的进度与结果。
+- **WebMCP 注册**。设置 `webmcp` 后，只要所属 injector 仍然存活，工具还会注册到
+  `document.modelContext` 上。为此工具需要一个 `description`（WebMCP 会拒绝没有描述的工具）。
 
-## Usage
+## 用法
 
-### Basic tool with a Zod schema and async handler
+### 带 Zod schema 与异步 handler 的基础工具
 
-Register the tool in the component constructor. The handler reads and writes a local signal, then returns a string result for the agent.
+在组件构造函数中注册工具。handler 读写一个本地 signal，然后为智能体返回一个字符串结果。
 
 ```ts title="src/app/todo.component.ts"
 import { Component, signal } from "@angular/core";
@@ -175,7 +165,7 @@ export class TodoComponent {
 }
 ```
 
-Because the handler runs in the injection context, you can call `inject()` for a service instead of capturing it from the component:
+由于 handler 运行在注入上下文中，你可以通过 `inject()` 获取服务，而不必从组件中捕获它：
 
 ```ts title="src/app/weather.component.ts"
 import { Component, inject } from "@angular/core";
@@ -207,9 +197,11 @@ export class WeatherComponent {
 }
 ```
 
-### Tool with a custom Angular renderer component
+### 带自定义 Angular 渲染组件的工具
 
-Pass a standalone component as `component` to visualize the tool call in chat. The renderer implements `ToolRenderer<Args>`, so it exposes a `toolCall` signal input that carries the `status`, the (possibly partial) `args`, and the `result`.
+将一个独立组件作为 `component` 传入，即可在聊天中可视化该工具调用。渲染器实现
+`ToolRenderer<Args>`，因此暴露一个 `toolCall` signal 输入，携带 `status`、（可能不完整的）
+`args` 与 `result`。
 
 ```ts title="src/app/weather-tool-view.component.ts"
 import { Component, input } from "@angular/core";
@@ -243,7 +235,7 @@ export class WeatherToolViewComponent implements ToolRenderer<WeatherArgs> {
 }
 ```
 
-Register the tool with that component:
+连同该组件一起注册工具：
 
 ```ts title="src/app/weather.component.ts"
 import { Component, inject } from "@angular/core";
@@ -276,27 +268,27 @@ export class WeatherComponent {
 }
 ```
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="registerComponent"
-    description="Let the agent display one of your components, with no handler and nothing to add on the agent side."
+    description="让智能体展示你的某个组件，无需 handler，智能体侧也无需任何附加逻辑。"
     href="/reference/angular/functions/registerComponent"
   />
   <Card
     title="registerRenderToolCall"
-    description="Register a renderer for a tool call (including server-side and agentic tools) with full access to status and results."
+    description="为工具调用（包括服务端与智能体化工具）注册渲染器，可完整访问状态与结果。"
     href="/reference/angular/functions/registerRenderToolCall"
   />
   <Card
     title="registerHumanInTheLoop"
-    description="Register a tool that pauses the agent and waits for the user to respond from a rendered component."
+    description="注册一个会暂停智能体、等待用户在渲染组件中响应的工具。"
     href="/reference/angular/functions/registerHumanInTheLoop"
   />
   <Card
-    title="CopilotKit service"
-    description="The central service that holds agents, tools, and the runtime connection."
+    title="CopilotKit 服务"
+    description="持有智能体、工具与运行时连接的中心服务。"
     href="/reference/angular/services/CopilotKit"
   />
 </Cards>

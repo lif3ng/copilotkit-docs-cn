@@ -1,9 +1,9 @@
 ---
-title: Chart
-description: Render Teams chart extensions with a portable Channels chart node and a Slack-safe fallback.
+title: "Chart"
+description: "用可移植的 Channels 图表节点渲染 Teams 图表扩展，并提供对 Slack 安全的回退。"
 ---
 
-`Chart` describes a small numeric series.
+`Chart` 描述一个小型数值序列。
 
 ```tsx
 import { Chart, Message, Section } from "@copilotkit/channels/ui";
@@ -24,14 +24,12 @@ import { Chart, Message, Section } from "@copilotkit/channels/ui";
 
 ## Props
 
-| Prop | Type | Description |
-| --- | --- | --- |
-| `type` | `"verticalBar" \| "horizontalBar" \| "line" \| "pie" \| "donut"` | Chart kind. Defaults to `verticalBar`. |
-| `title` | `string` | Optional chart title. |
-| `xAxisTitle` | `string` | Cartesian x-axis title. |
-| `yAxisTitle` | `string` | Cartesian y-axis title. |
-| `data` | `{ label: string; value: number }[]` | Required data points. |
+| Prop         | 类型                                                                  | 说明                                        |
+| ------------ | --------------------------------------------------------------------- | ------------------------------------------- |
+| `type`       | `"verticalBar" \| "horizontalBar" \| "line" \| "pie" \| "donut"`      | 图表种类。默认为 `verticalBar`。            |
+| `title`      | `string`                                                              | 可选的图表标题。                            |
+| `xAxisTitle` | `string`                                                              | 直角坐标 x 轴标题。                         |
+| `yAxisTitle` | `string`                                                              | 直角坐标 y 轴标题。                         |
+| `data`       | `{ label: string; value: number }[]`                                  | 必需的数据点。                              |
 
-Managed Teams renders Teams chart extensions in clients that support them.
-Managed Slack currently omits `Chart` entirely. Always include the important
-result in a `Section`, `Fields`, or `Table`, as the example does.
+托管 Teams 会在支持的客户端中渲染 Teams 图表扩展。托管 Slack 目前会完全省略 `Chart`。请始终像示例那样，把重要结果同时放进 `Section`、`Fields` 或 `Table` 中。

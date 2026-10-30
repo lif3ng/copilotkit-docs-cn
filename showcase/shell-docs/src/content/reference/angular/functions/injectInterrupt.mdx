@@ -1,11 +1,10 @@
 ---
 title: "injectInterrupt"
-description: "Signal-based standard and legacy AG-UI interrupt handling for Angular."
+description: "Angular 中基于 signal 的标准与旧版 AG-UI 中断处理。"
 ---
 
-`injectInterrupt` creates an injector-scoped controller for AG-UI interrupts.
-It supports standard interrupt arrays and the legacy `on_interrupt` custom
-event, including multiple simultaneous decisions.
+`injectInterrupt` 会创建一个注入器作用域的控制器，用于处理 AG-UI 中断。
+它同时支持标准中断数组与旧版的 `on_interrupt` 自定义事件，并可处理多个并发决策。
 
 ```ts
 function injectInterrupt<TValue = unknown, TResult = never>(
@@ -34,37 +33,23 @@ export class ApprovalView {
 }
 ```
 
-## Parameters
+## 参数
 
-- `agentId`: string or signal; defaults to the ambient chat agent.
-- `enabled(event)`: synchronous or asynchronous filter. `false` leaves the
-  event available for another controller.
-- `handler(props)`: synchronous or asynchronous preprocessing whose result is
-  exposed through the controller's `result` signal.
+- `agentId`：字符串或 signal；默认为当前上下文中的聊天智能体。
+- `enabled(event)`：同步或异步过滤器。返回 `false` 时，该事件仍可供其他控制器使用。
+- `handler(props)`：同步或异步预处理，其结果通过控制器的 `result` signal 暴露。
 
-The previous `injectInterrupt({ agentId, enabled, handler })` form remains
-supported.
+先前的 `injectInterrupt({ agentId, enabled, handler })` 调用形式仍然受支持。
 
-The controller exposes `event`, `interrupt`, `interrupts`, `result`, `error`,
-`hasInterrupt`, and `view` signals plus `resolve(payload?, interruptId?)` and
-`cancel(interruptId?)`. When several standard interrupts are pending, resolve
-or cancel every ID before the agent resumes. Tool-backed decisions persist a
-tool-result message before resumption.
+该控制器暴露 `event`、`interrupt`、`interrupts`、`result`、`error`、`hasInterrupt` 和 `view` 这些 signal，以及 `resolve(payload?, interruptId?)` 与 `cancel(interruptId?)` 方法。当有多个标准中断同时挂起时，必须先对每个 ID 执行 resolve 或 cancel，智能体才能恢复运行。由工具支撑的决策会在恢复前持久化一条工具结果消息。
 
-Every store already exposes an unfiltered controller as
-[`AgentStore.interruptController`](/reference/angular/functions/injectAgentStore).
-Reach for `injectInterrupt` when a decision needs a typed value, an `enabled`
-filter, or a `handler`.
+每个 store 都已经通过 [`AgentStore.interruptController`](/reference/angular/functions/injectAgentStore) 暴露了一个未过滤的控制器。当决策需要类型化的值、`enabled` 过滤器或 `handler` 时，再使用 `injectInterrupt`。
 
 <Callout type="warn">
-  Controllers do not claim interrupts from one another. A store controller and
-  a filtered controller for the same agent can both expose the same decision.
-  If both UIs call `resolve` before the next run starts, both can attempt to
-  resume it. Render only one controller for a given decision.
+  各控制器之间不会互相认领中断。同一个智能体的 store 控制器与过滤控制器可能同时暴露同一个决策。如果两个 UI 都在下一轮运行开始前调用 `resolve`，二者都可能尝试恢复它。同一个决策只应渲染一个控制器。
 </Callout>
 
-For example, a matching refund interrupt is visible through both properties in
-this component:
+例如，在这个组件中，匹配的退款中断会同时通过两个属性可见：
 
 ```ts
 type RefundRequest = { type: "refund"; amount: number };
@@ -81,14 +66,6 @@ export class RefundPage {
 }
 ```
 
-Render `refunds` for this decision and do not also render
-`store().interruptController`. The unrendered store controller only observes
-the interrupt; it cannot resume anything unless application code calls its
-`resolve` or `cancel` method.
+针对该决策应渲染 `refunds`，不要再渲染 `store().interruptController`。未渲染的 store 控制器只会观察该中断；除非应用代码调用它的 `resolve` 或 `cancel` 方法，否则它无法恢复任何内容。
 
-The agent subscription is disconnected when the owning injector is destroyed.
-Thread changes and new or failed runs clear stale decisions. Predicate and
-handler failures are captured by `error`; expired decisions use
-`InterruptExpiredError`. A resume failure clears pending state and rejects—it
-is never retried automatically. The controller performs no DOM work and is SSR
-safe, but applications should not resume an agent during server rendering.
+当所属注入器被销毁时，智能体订阅会随之断开。线程变更以及新的或失败的运行会清除过期的决策。谓词与处理器的失败会被 `error` 捕获；已过期的决策使用 `InterruptExpiredError`。恢复失败会清除挂起状态并触发拒绝（reject）——绝不会自动重试。该控制器不执行任何 DOM 操作且对 SSR 安全，但应用不应在服务端渲染期间恢复智能体。

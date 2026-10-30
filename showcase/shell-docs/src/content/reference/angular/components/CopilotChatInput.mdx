@@ -1,17 +1,17 @@
 ---
 title: "CopilotChatInput"
-description: "Angular standalone component for chat input, tools, file upload, and audio transcription"
+description: "Angular standalone 组件，提供聊天输入、工具菜单、文件上传与语音转写"
 ---
 
-## Overview
+## 概览
 
-`CopilotChatInput` is the input area of the chat. It renders the textarea, the send button, an optional tools menu, an add-file button, and the audio transcription controls. It has three modes: `"input"` (the default textarea), `"transcribe"` (records audio and shows transcription controls), and `"processing"` (disables the textarea and send button while the agent runs).
+`CopilotChatInput` 是聊天的输入区域。它渲染文本框、发送按钮、可选的工具菜单、添加文件按钮以及语音转写控件。它有三种模式：`"input"`（默认文本框）、`"transcribe"`（录制音频并显示转写控件）和 `"processing"`（智能体运行期间禁用文本框与发送按钮）。
 
-`CopilotChatInput` requires a parent injector to provide `ChatState`. It reads that state through `injectChatState` and wires submission, value changes, transcription, and file uploads to it. Its outputs fire in addition to that built-in behavior, so you can observe interactions without disabling them.
+`CopilotChatInput` 需要父注入器提供 `ChatState`。它通过 `injectChatState` 读取该状态，并把提交、值变化、转写与文件上传接到了该状态上。它的输出会在这些内置行为之外额外触发，因此你可以在不禁用内置行为的情况下观察交互。
 
-## Usage
+## 用法
 
-`CopilotChatInput` is a standalone component with the selector `copilot-chat-input`. The example below provides the required `ChatState`. Use [`CopilotChat`](/reference/angular/components/CopilotChat) when you want CopilotKit to manage this state for you.
+`CopilotChatInput` 是一个 standalone 组件，选择器为 `copilot-chat-input`。下面的示例提供了所需的 `ChatState`。如果希望由 CopilotKit 替你管理该状态，请使用 [`CopilotChat`](/reference/angular/components/CopilotChat)。
 
 ```ts title="src/app/chat.component.ts"
 import { Component, forwardRef, signal } from "@angular/core";
@@ -48,165 +48,165 @@ export class ChatComponent extends ChatState {
 }
 ```
 
-## Inputs
+## 输入
 
-### Behavior inputs
+### 行为输入
 
 <PropertyReference name="mode" type='"input" | "transcribe" | "processing"'>
-  Controlled input mode. When omitted, the component starts in `"input"` mode and manages later transitions itself.
+  受控的输入模式。省略时组件以 `"input"` 模式启动，并自行管理后续的模式切换。
 </PropertyReference>
 
 <PropertyReference name="toolsMenu" type='(ToolsMenuItem | "-")[]'>
-  Items for the input's tools menu. Each `ToolsMenuItem` has a `label` and either an `action` callback or nested `items`. Use the string `"-"` for a separator. When empty, the tools menu is hidden unless the add-file action is available.
+  输入工具菜单的条目。每个 `ToolsMenuItem` 都有一个 `label`，以及 `action` 回调或嵌套的 `items`。使用字符串 `"-"` 表示分隔符。为空时，除非添加文件操作可用，否则工具菜单会隐藏。
 </PropertyReference>
 
 <PropertyReference name="autoFocus" type="boolean" default="true">
-  Whether the textarea focuses automatically after the view initializes. Defaults to `true` when omitted.
+  视图初始化后文本框是否自动聚焦。省略时默认为 `true`。
 </PropertyReference>
 
 <PropertyReference name="value" type="string">
-  Controlled value for the textarea. When omitted, the component reads the value held in `ChatState`. An explicit empty string keeps the textarea empty.
+  文本框的受控值。省略时组件读取 `ChatState` 中保存的值。显式传入空字符串会使文本框保持为空。
 </PropertyReference>
 
 <PropertyReference name="inputClass" type="string">
-  Declared by the component, but the current release does not apply it. Use the host `class` or a slot override.
+  已由组件声明，但当前版本并未应用它。请使用宿主 `class` 或插槽覆盖。
 </PropertyReference>
 
 <PropertyReference name="additionalToolbarItems" type="TemplateRef<any>">
-  A template rendered after the leading toolbar items, for adding your own controls to the toolbar.
+  一个模板，渲染在工具栏前置条目之后，用于向工具栏添加你自己的控件。
 </PropertyReference>
 
-### Textarea inputs
+### 文本框输入
 
 <PropertyReference name="textAreaClass" type="string">
-  Class applied to the default textarea.
+  应用于默认文本框的类。
 </PropertyReference>
 
 <PropertyReference name="textAreaMaxRows" type="number">
-  Maximum number of rows the textarea grows to before scrolling.
+  文本框滚动前可增长到的最大行数。
 </PropertyReference>
 
 <PropertyReference name="textAreaPlaceholder" type="string">
-  Placeholder text for the textarea.
+  文本框的占位文本。
 </PropertyReference>
 
-### Slot override inputs
+### 插槽覆盖输入
 
-Each interactive piece can be replaced with a component class (`*Component`). Templates for the same slots are read from content projection.
+每个交互部件都可以用组件类（`*Component`）替换。同一插槽的模板会从内容投影中读取。
 
 <PropertyReference name="sendButtonComponent" type="Type<any>">
-  Component class for the send button. Style the default with `sendButtonClass`.
+  发送按钮的组件类。可用 `sendButtonClass` 为默认按钮设置样式。
 </PropertyReference>
 
 <PropertyReference name="toolbarComponent" type="Type<any>">
-  Component class for the toolbar.
+  工具栏的组件类。
 </PropertyReference>
 
 <PropertyReference name="textAreaComponent" type="Type<any>">
-  Component class for the textarea.
+  文本框的组件类。
 </PropertyReference>
 
 <PropertyReference name="audioRecorderComponent" type="Type<any>">
-  Component class for the audio recorder shown in transcribe mode.
+  转写模式下显示的录音器的组件类。
 </PropertyReference>
 
 <PropertyReference name="startTranscribeButtonComponent" type="Type<any>">
-  Component class for the start-transcribe button.
+  开始转写按钮的组件类。
 </PropertyReference>
 
 <PropertyReference name="cancelTranscribeButtonComponent" type="Type<any>">
-  Component class for the cancel-transcribe button.
+  取消转写按钮的组件类。
 </PropertyReference>
 
 <PropertyReference name="finishTranscribeButtonComponent" type="Type<any>">
-  Component class for the finish-transcribe button.
+  完成转写按钮的组件类。
 </PropertyReference>
 
 <PropertyReference name="addFileButtonComponent" type="Type<any>">
-  Component class for the add-file button.
+  添加文件按钮的组件类。
 </PropertyReference>
 
 <PropertyReference name="toolsButtonComponent" type="Type<any>">
-  Component class for the tools menu button.
+  工具菜单按钮的组件类。
 </PropertyReference>
 
 <Callout type="warn">
-  The current release declares class inputs for the toolbar, audio recorder, transcription buttons, add-file button, and tools button, but does not apply them. `sendButtonClass` and `textAreaClass` do apply.
+  当前版本为工具栏、录音器、转写按钮、添加文件按钮和工具按钮声明了类输入，但并未应用它们。`sendButtonClass` 和 `textAreaClass` 则会生效。
 </Callout>
 
-## Outputs
+## 输出
 
-These events fire in addition to the input's built-in handling, so you can observe interactions without replacing default behavior.
+这些事件会在输入组件内置处理之外额外触发，因此你可以在不替换默认行为的情况下观察交互。
 
 <PropertyReference name="submitMessage" type="string">
-  Emitted with the trimmed message text when the user sends a message (Enter without Shift, or the send button).
+  用户发送消息时（按 Enter 而非 Shift+Enter，或点击发送按钮）触发，携带去除首尾空白后的消息文本。
 </PropertyReference>
 
 <PropertyReference name="valueChange" type="string">
-  Emitted whenever the textarea value changes.
+  文本框值每次变化时触发。
 </PropertyReference>
 
 <PropertyReference name="startTranscribe" type="void">
-  Emitted when audio transcription starts (the input switches to transcribe mode).
+  语音转写开始时触发（输入组件切换到 transcribe 模式）。
 </PropertyReference>
 
 <PropertyReference name="cancelTranscribe" type="void">
-  Emitted when audio transcription is cancelled (the input returns to input mode).
+  语音转写被取消时触发（输入组件返回 input 模式）。
 </PropertyReference>
 
 <PropertyReference name="finishTranscribe" type="void">
-  Emitted when audio transcription finishes (the input returns to input mode).
+  语音转写完成时触发（输入组件返回 input 模式）。
 </PropertyReference>
 
 <PropertyReference name="finishTranscribeWithAudio" type="Blob">
-  Emitted with the recorded audio blob when transcription finishes with a recording. The blob is also handed to the surrounding `ChatState` for transcription.
+  转写完成且带有录音时触发，携带录制的音频 blob。该 blob 也会交给周边的 `ChatState` 进行转写。
 </PropertyReference>
 
 <PropertyReference name="addFile" type="void">
-  Emitted when the add-file action is triggered. Only active when attachments are enabled in the surrounding chat.
+  添加文件操作被触发时触发。仅在周边聊天启用了附件功能时可用。
 </PropertyReference>
 
-## Slots
+## 插槽
 
-For deep customization, provide named `<ng-template>` elements inside `<copilot-chat-input>`. Each is read with `contentChild` and takes precedence over the corresponding `*Component` input. The send button and toolbar templates receive a typed context.
+要进行深度定制，可在 `<copilot-chat-input>` 内提供具名的 `<ng-template>` 元素。每个模板都通过 `contentChild` 读取，且优先级高于对应的 `*Component` 输入。发送按钮与工具栏模板会收到带类型的上下文。
 
 <PropertyReference name="sendButton" type="TemplateRef<SendButtonContext>">
-  Custom send button. Context: `send: () => void`, `disabled: boolean`, `value: string`.
+  自定义发送按钮。上下文：`send: () => void`、`disabled: boolean`、`value: string`。
 </PropertyReference>
 
 <PropertyReference name="toolbar" type="TemplateRef<ToolbarContext>">
-  Custom toolbar. Context: `mode: CopilotChatInputMode`, `value: string`.
+  自定义工具栏。上下文：`mode: CopilotChatInputMode`、`value: string`。
 </PropertyReference>
 
 <PropertyReference name="textArea" type="TemplateRef<any>">
-  Custom textarea.
+  自定义文本框。
 </PropertyReference>
 
 <PropertyReference name="audioRecorder" type="TemplateRef<any>">
-  Custom audio recorder for transcribe mode.
+  转写模式的自定义录音器。
 </PropertyReference>
 
 <PropertyReference name="startTranscribeButton" type="TemplateRef<any>">
-  Custom start-transcribe button.
+  自定义开始转写按钮。
 </PropertyReference>
 
 <PropertyReference name="cancelTranscribeButton" type="TemplateRef<any>">
-  Custom cancel-transcribe button.
+  自定义取消转写按钮。
 </PropertyReference>
 
 <PropertyReference name="finishTranscribeButton" type="TemplateRef<any>">
-  Custom finish-transcribe button.
+  自定义完成转写按钮。
 </PropertyReference>
 
 <PropertyReference name="addFileButton" type="TemplateRef<any>">
-  Custom add-file button.
+  自定义添加文件按钮。
 </PropertyReference>
 
 <PropertyReference name="toolsButton" type="TemplateRef<any>">
-  Custom tools menu button.
+  自定义工具菜单按钮。
 </PropertyReference>
 
-### Tools menu example
+### 工具菜单示例
 
 ```ts title="src/app/chat.component.ts"
 import { Component, forwardRef, signal } from "@angular/core";
@@ -248,22 +248,22 @@ export class ChatComponent extends ChatState {
 }
 ```
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="CopilotChat"
-    description="The all-in-one component that wires an agent and renders this input through the chat view."
+    description="一站式组件，接入智能体并通过聊天视图渲染此输入组件。"
     href="/reference/angular/components/CopilotChat"
   />
   <Card
     title="CopilotChatView"
-    description="The layout-only chat view that renders this input by default."
+    description="仅负责布局的聊天视图，默认渲染此输入组件。"
     href="/reference/angular/components/CopilotChatView"
   />
   <Card
     title="provideCopilotKit"
-    description="Configures the runtime connection and agents that power the chat."
+    description="配置为聊天提供动力的运行时连接与智能体。"
     href="/reference/angular/functions/provideCopilotKit"
   />
 </Cards>

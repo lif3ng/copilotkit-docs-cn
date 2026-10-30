@@ -1,9 +1,9 @@
 ---
 title: Section
-description: Render a portable body-text section in Slack or Microsoft Teams.
+description: 在 Slack 或 Microsoft Teams 中渲染可移植的正文区块。
 ---
 
-`Section` renders the main body text of a rich message.
+`Section` 用于渲染富消息的主体正文。
 
 ```tsx
 import { Message, Section } from "@copilotkit/channels/ui";
@@ -13,10 +13,8 @@ import { Message, Section } from "@copilotkit/channels/ui";
 </Message>;
 ```
 
-| Prop | Type | Description |
+| 属性 | 类型 | 说明 |
 | --- | --- | --- |
-| `children` | `BotChildren` | Text and nested portable content. |
+| `children` | `BotChildren` | 文本与嵌套的可移植内容。 |
 
-Managed Slack converts GitHub-flavored Markdown to Slack `mrkdwn`. Managed Teams
-renders a wrapping Adaptive Card `TextBlock`. Provider Markdown dialects are
-not identical, so verify complex tables, mentions, and links in both clients.
+托管 Slack 会将 GitHub 风格 Markdown 转换为 Slack 的 `mrkdwn`；托管 Teams 则会渲染外层包裹的 Adaptive Card `TextBlock`。各提供方的 Markdown 方言并不完全一致，因此复杂表格、提及（mention）和链接请在两个客户端中分别验证。
