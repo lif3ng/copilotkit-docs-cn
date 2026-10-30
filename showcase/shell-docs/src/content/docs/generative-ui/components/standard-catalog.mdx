@@ -1,16 +1,20 @@
 ---
-title: "Standard catalog"
+title: "标准组件目录"
 icon: "lucide/Blocks"
-description: "Use the 69 standard components, drop the ones you do not want, and replace any of them with your own."
+description: "使用 69 个标准组件，去掉不想要的，并用你自己的组件替换其中任何一个。"
 ---
 
 import { StandardCatalog } from "@/components/standard-catalog/standard-catalog";
 
-## What is this?
+## 这是什么？
 
-You want the agent to answer with tables, charts, and forms today, not after you build a component library. `standardUI` is a catalog of 69 ready-made components that the agent already knows how to use. The 18 components of the A2UI 1.0 basic catalog are in it under their A2UI names and props (`Image.url`, `CheckBox.value`, `Row.justify: "spaceBetween"`, `weight` for flex-grow); the rest extend the catalog.
+你希望智能体今天就能用表格、图表和表单来回答，而不是等你先建好一套组件
+库。`standardUI` 是一个包含 69 个现成组件的目录，智能体已经知道怎么用
+它们。A2UI 1.0 基础目录的 18 个组件都在其中，沿用 A2UI 的名称和 props
+（`Image.url`、`CheckBox.value`、`Row.justify: "spaceBetween"`、
+`weight` 对应 flex-grow）；其余组件则是对该目录的扩展。
 
-Use it as it is:
+直接照原样使用：
 
 ```tsx
 import { standardUI } from "@copilotkit/react-core/v2/generative-ui";
@@ -18,42 +22,70 @@ import { standardUI } from "@copilotkit/react-core/v2/generative-ui";
 <CopilotKitProvider runtimeUrl="/api/copilotkit" generativeUI={{ ui: standardUI }}>
 ```
 
-## What is in it
+## 里面有什么
 
-| Group | Components |
+| 分组 | 组件 |
 | --- | --- |
-| <span id="catalog-layout" className="block scroll-mt-24" /> [Layout](#catalog-layout) | [`Box`](/generative-ui/components/standard-catalog/box), [`Column`](/generative-ui/components/standard-catalog/column), [`Row`](/generative-ui/components/standard-catalog/row), [`Grid`](/generative-ui/components/standard-catalog/grid), [`GridItem`](/generative-ui/components/standard-catalog/grid#grid-item), [`Card`](/generative-ui/components/standard-catalog/card), [`Flow`](/generative-ui/components/standard-catalog/flow), [`FlowItem`](/generative-ui/components/standard-catalog/flow#flow-item), [`Carousel`](/generative-ui/components/standard-catalog/carousel), [`CarouselItem`](/generative-ui/components/standard-catalog/carousel#carousel-item), [`CarouselMediaItem`](/generative-ui/components/standard-catalog/carousel#carousel-media-item), [`Spacer`](/generative-ui/components/standard-catalog/spacer), [`Divider`](/generative-ui/components/standard-catalog/divider), [`Tabs`](/generative-ui/components/standard-catalog/tabs) |
-| <span id="catalog-text" className="block scroll-mt-24" /> [Text](#catalog-text) | [`Title`](/generative-ui/components/standard-catalog/title), [`Text`](/generative-ui/components/standard-catalog/text), [`Caption`](/generative-ui/components/standard-catalog/caption), [`Label`](/generative-ui/components/standard-catalog/label), [`Bold`](/generative-ui/components/standard-catalog/bold), [`Italic`](/generative-ui/components/standard-catalog/italic), [`Underline`](/generative-ui/components/standard-catalog/underline), [`Strikethrough`](/generative-ui/components/standard-catalog/strikethrough), [`Badge`](/generative-ui/components/standard-catalog/badge), [`Blockquote`](/generative-ui/components/standard-catalog/blockquote), [`Code`](/generative-ui/components/standard-catalog/code), [`Markdown`](/generative-ui/components/standard-catalog/markdown), [`Math`](/generative-ui/components/standard-catalog/math), [`ShimmerText`](/generative-ui/components/standard-catalog/shimmer-text), [`Link`](/generative-ui/components/standard-catalog/link), [`Tooltip`](/generative-ui/components/standard-catalog/tooltip) |
-| <span id="catalog-inputs" className="block scroll-mt-24" /> [Inputs](#catalog-inputs) | [`Button`](/generative-ui/components/standard-catalog/button), [`Pressable`](/generative-ui/components/standard-catalog/pressable), [`Form`](/generative-ui/components/standard-catalog/form), [`TextField`](/generative-ui/components/standard-catalog/text-field), [`TextArea`](/generative-ui/components/standard-catalog/text-area), [`Select`](/generative-ui/components/standard-catalog/select), [`CheckBox`](/generative-ui/components/standard-catalog/check-box), [`Radio`](/generative-ui/components/standard-catalog/radio), [`RadioGroup`](/generative-ui/components/standard-catalog/radio-group), [`Slider`](/generative-ui/components/standard-catalog/slider), [`SegmentedControl`](/generative-ui/components/standard-catalog/segmented-control), [`ChoicePicker`](/generative-ui/components/standard-catalog/choice-picker), [`DateTimeInput`](/generative-ui/components/standard-catalog/date-time-input) |
-| <span id="catalog-data" className="block scroll-mt-24" /> [Data](#catalog-data) | [`Table`](/generative-ui/components/standard-catalog/table), [`TableSection`](/generative-ui/components/standard-catalog/table#table-section), [`TableRow`](/generative-ui/components/standard-catalog/table#table-row), [`TableCell`](/generative-ui/components/standard-catalog/table#table-cell), [`List`](/generative-ui/components/standard-catalog/list), [`ListItem`](/generative-ui/components/standard-catalog/list#list-item), [`Chart`](/generative-ui/components/standard-catalog/chart), [`Map`](/generative-ui/components/standard-catalog/map) |
-| <span id="catalog-media" className="block scroll-mt-24" /> [Media](#catalog-media) | [`Image`](/generative-ui/components/standard-catalog/image), [`Icon`](/generative-ui/components/standard-catalog/icon), [`Favicon`](/generative-ui/components/standard-catalog/favicon), [`Svg`](/generative-ui/components/standard-catalog/svg), [`Video`](/generative-ui/components/standard-catalog/video), [`AudioPlayer`](/generative-ui/components/standard-catalog/audio-player), [`HtmlView`](/generative-ui/components/standard-catalog/html-view) |
-| <span id="catalog-feedback" className="block scroll-mt-24" /> [Feedback and overlay](#catalog-feedback) | [`PulseIndicator`](/generative-ui/components/standard-catalog/pulse-indicator), [`FlashcardFlip`](/generative-ui/components/standard-catalog/flashcard-flip), [`Popover`](/generative-ui/components/standard-catalog/popover), [`PopoverTrigger`](/generative-ui/components/standard-catalog/popover#popover-trigger), [`PopoverContent`](/generative-ui/components/standard-catalog/popover#popover-content), [`Modal`](/generative-ui/components/standard-catalog/modal) |
-| <span id="catalog-composites" className="block scroll-mt-24" /> [Composites](#catalog-composites) | [`LinkCard`](/generative-ui/components/standard-catalog/link-card), [`Citation`](/generative-ui/components/standard-catalog/citation), [`FollowUp`](/generative-ui/components/standard-catalog/follow-up), [`EntityCard`](/generative-ui/components/standard-catalog/entity-card), [`ImageGrid`](/generative-ui/components/standard-catalog/image-grid) |
+| <span id="catalog-layout" className="block scroll-mt-24" /> [布局](#catalog-layout) | [`Box`](/generative-ui/components/standard-catalog/box), [`Column`](/generative-ui/components/standard-catalog/column), [`Row`](/generative-ui/components/standard-catalog/row), [`Grid`](/generative-ui/components/standard-catalog/grid), [`GridItem`](/generative-ui/components/standard-catalog/grid#grid-item), [`Card`](/generative-ui/components/standard-catalog/card), [`Flow`](/generative-ui/components/standard-catalog/flow), [`FlowItem`](/generative-ui/components/standard-catalog/flow#flow-item), [`Carousel`](/generative-ui/components/standard-catalog/carousel), [`CarouselItem`](/generative-ui/components/standard-catalog/carousel#carousel-item), [`CarouselMediaItem`](/generative-ui/components/standard-catalog/carousel#carousel-media-item), [`Spacer`](/generative-ui/components/standard-catalog/spacer), [`Divider`](/generative-ui/components/standard-catalog/divider), [`Tabs`](/generative-ui/components/standard-catalog/tabs) |
+| <span id="catalog-text" className="block scroll-mt-24" /> [文本](#catalog-text) | [`Title`](/generative-ui/components/standard-catalog/title), [`Text`](/generative-ui/components/standard-catalog/text), [`Caption`](/generative-ui/components/standard-catalog/caption), [`Label`](/generative-ui/components/standard-catalog/label), [`Bold`](/generative-ui/components/standard-catalog/bold), [`Italic`](/generative-ui/components/standard-catalog/italic), [`Underline`](/generative-ui/components/standard-catalog/underline), [`Strikethrough`](/generative-ui/components/standard-catalog/strikethrough), [`Badge`](/generative-ui/components/standard-catalog/badge), [`Blockquote`](/generative-ui/components/standard-catalog/blockquote), [`Code`](/generative-ui/components/standard-catalog/code), [`Markdown`](/generative-ui/components/standard-catalog/markdown), [`Math`](/generative-ui/components/standard-catalog/math), [`ShimmerText`](/generative-ui/components/standard-catalog/shimmer-text), [`Link`](/generative-ui/components/standard-catalog/link), [`Tooltip`](/generative-ui/components/standard-catalog/tooltip) |
+| <span id="catalog-inputs" className="block scroll-mt-24" /> [输入](#catalog-inputs) | [`Button`](/generative-ui/components/standard-catalog/button), [`Pressable`](/generative-ui/components/standard-catalog/pressable), [`Form`](/generative-ui/components/standard-catalog/form), [`TextField`](/generative-ui/components/standard-catalog/text-field), [`TextArea`](/generative-ui/components/standard-catalog/text-area), [`Select`](/generative-ui/components/standard-catalog/select), [`CheckBox`](/generative-ui/components/standard-catalog/check-box), [`Radio`](/generative-ui/components/standard-catalog/radio), [`RadioGroup`](/generative-ui/components/standard-catalog/radio-group), [`Slider`](/generative-ui/components/standard-catalog/slider), [`SegmentedControl`](/generative-ui/components/standard-catalog/segmented-control), [`ChoicePicker`](/generative-ui/components/standard-catalog/choice-picker), [`DateTimeInput`](/generative-ui/components/standard-catalog/date-time-input) |
+| <span id="catalog-data" className="block scroll-mt-24" /> [数据](#catalog-data) | [`Table`](/generative-ui/components/standard-catalog/table), [`TableSection`](/generative-ui/components/standard-catalog/table#table-section), [`TableRow`](/generative-ui/components/standard-catalog/table#table-row), [`TableCell`](/generative-ui/components/standard-catalog/table#table-cell), [`List`](/generative-ui/components/standard-catalog/list), [`ListItem`](/generative-ui/components/standard-catalog/list#list-item), [`Chart`](/generative-ui/components/standard-catalog/chart), [`Map`](/generative-ui/components/standard-catalog/map) |
+| <span id="catalog-media" className="block scroll-mt-24" /> [媒体](#catalog-media) | [`Image`](/generative-ui/components/standard-catalog/image), [`Icon`](/generative-ui/components/standard-catalog/icon), [`Favicon`](/generative-ui/components/standard-catalog/favicon), [`Svg`](/generative-ui/components/standard-catalog/svg), [`Video`](/generative-ui/components/standard-catalog/video), [`AudioPlayer`](/generative-ui/components/standard-catalog/audio-player), [`HtmlView`](/generative-ui/components/standard-catalog/html-view) |
+| <span id="catalog-feedback" className="block scroll-mt-24" /> [反馈与浮层](#catalog-feedback) | [`PulseIndicator`](/generative-ui/components/standard-catalog/pulse-indicator), [`FlashcardFlip`](/generative-ui/components/standard-catalog/flashcard-flip), [`Popover`](/generative-ui/components/standard-catalog/popover), [`PopoverTrigger`](/generative-ui/components/standard-catalog/popover#popover-trigger), [`PopoverContent`](/generative-ui/components/standard-catalog/popover#popover-content), [`Modal`](/generative-ui/components/standard-catalog/modal) |
+| <span id="catalog-composites" className="block scroll-mt-24" /> [复合组件](#catalog-composites) | [`LinkCard`](/generative-ui/components/standard-catalog/link-card), [`Citation`](/generative-ui/components/standard-catalog/citation), [`FollowUp`](/generative-ui/components/standard-catalog/follow-up), [`EntityCard`](/generative-ui/components/standard-catalog/entity-card), [`ImageGrid`](/generative-ui/components/standard-catalog/image-grid) |
 
 <StandardCatalog />
 
-A few things to know:
+几点需要知道：
 
-- **Every input validates.** `checks` holds the `Checkable` rules of A2UI 1.0: `[{ "condition": { "@call": "email", "args": { "value": { "@path": "/form/email" } } }, "message": "Enter a valid email" }]`. An input shows the first failed message once the user has been in it, and a `Button` with the same checks is disabled while one fails. A result carries the A2UI `ValidationResult` fields: the built-in validators set a `code` (`required`, `pattern`, `tooShort`, `tooLong`, `notANumber`, `tooSmall`, `tooLarge`, `email`), and a `severity` of `"warning"` or `"info"` (from a bound result or your own validator) shows the message in its own colour without making the input invalid or holding the `Button` back.
-- **`Video` takes any URL.** A video file plays in the native player, with `captions` as WebVTT tracks; a YouTube link shows a poster until the user presses play, then loads the privacy-enhanced embed. A page on another video site (Vimeo, Loom, TikTok, …) and a file that fails to load show a link card instead of a dead player. YouTube is the only provider that embeds; to embed another one, [replace the component](#replace-a-component). `Tabs` takes `tabs: [{ "title", "child" }]` with the id of each panel.
-- **Inputs keep what users type.** When the agent binds an input to a value, what the user types stays. A later agent update cannot write over it.
-- **`Button` and `Pressable` can act in the browser.** `href` opens a URL, and `Button` with `copy` copies text, with no message to the agent.
-- **`Map` needs one package.** Run `npm install maplibre-gl` if your agent draws maps. Without it, the map shows a list of the places.
-- **`Chart` works out of the box.** It uses `recharts`, which comes with CopilotKit.
+- **所有输入都可校验**。`checks` 保存 A2UI 1.0 的 `Checkable` 规则：
+  `[{ "condition": { "@call": "email", "args": { "value": { "@path": "/form/email" } } }, "message": "Enter a valid email" }]`。
+  用户一旦碰过某个输入框，它就会显示第一条未通过的校验消息；带相同
+  checks 的 `Button` 在有规则未通过时保持禁用。校验结果携带 A2UI 的
+  `ValidationResult` 字段：内置校验器会设置 `code`（`required`、
+  `pattern`、`tooShort`、`tooLong`、`notANumber`、`tooSmall`、`tooLarge`、
+  `email`）；`severity` 为 `"warning"` 或 `"info"`（来自绑定结果或你自己的
+  校验器）时，消息以其对应的颜色显示，但不会把输入标记为无效，也不会
+  卡住 `Button`。
+- **`Video` 接受任何 URL**。视频文件用原生播放器播放，`captions` 作为
+  WebVTT 轨道加载；YouTube 链接在用户按下播放前显示封面图，之后加载
+  增强隐私的嵌入播放器。其他视频网站（Vimeo、Loom、TikTok 等）的页面和
+  加载失败的文件会显示为链接卡片，而不是一个播不了的播放器。YouTube 是
+  唯一支持内嵌的平台；要内嵌其他平台，请[替换该组件](#替换组件)。
+  `Tabs` 接受 `tabs: [{ "title", "child" }]`，并带每个面板的 id。
+- **输入框保留用户输入**。智能体把输入框绑定到某个值后，用户键入的内容
+  会保留下来，后续的智能体更新覆盖不了它。
+- **`Button` 和 `Pressable` 可以在浏览器里直接行动**。`href` 打开一个
+  URL，带 `copy` 的 `Button` 复制文本，都不会给智能体发消息。
+- **`Map` 需要一个包**。如果你的智能体会画地图，请运行
+  `npm install maplibre-gl`。没有它，地图会以列表形式展示这些地点。
+- **`Chart` 开箱即用**。它使用 `recharts`，CopilotKit 已自带。
 
-Each standalone component has a dedicated page with the existing live examples, copyable surface operations, and API reference. Structural parts are documented on their parent component's page. Previews use local sample data and do not require a model connection.
+每个独立组件都有专属页面，包含现有的实时示例、可复制的界面操作和 API
+参考。结构性部件记录在其父组件的页面上。预览使用本地示例数据，不需要
+连接模型。
 
-## Express calling conventions
+## Express 调用约定
 
-The standard catalog exports content, children, labels/values and common actions before presentation parameters. For example, the short prefixes are `Text(text?, children?)`, `Column(children?)`, `Button(label?, onClick?)`, `TextField(label?, value?)` and `Chart(data?, xKey?, series?, chartType?)`. Other component-specific fields follow, then shared layout and typography fields. Optional styling is easiest to pass by name.
+标准组件目录在导出时，会把内容、子组件、标签/取值和常见操作排在展示
+参数之前。例如，短前缀是 `Text(text?, children?)`、`Column(children?)`、
+`Button(label?, onClick?)`、`TextField(label?, value?)` 和
+`Chart(data?, xKey?, series?, chartType?)`。其他组件特有字段跟在后面，
+然后是共享的布局与排版字段。可选样式用命名参数传最省事。
 
-This is CopilotKit's catalog design, not a prescribed list of signatures from A2UI. The official Express specification defines how JSON property order becomes argument order. The standard catalog applies that rule through [`exportA2UICatalog`](/generative-ui/components/catalogs#positional-parameter-order), so agents consuming the exported catalog receive the same calling convention regardless of framework.
+这是 CopilotKit 的组件目录设计，不是 A2UI 规定的签名清单。官方 Express
+规范定义了 JSON 属性顺序如何变成参数顺序。标准组件目录通过
+[`exportA2UICatalog`](/generative-ui/components/catalogs#positional-parameter-order)
+应用这条规则，因此消费导出目录的智能体无论用什么框架，拿到的调用约定
+都一样。
 
-Compared with the initial experimental style-first catalog, this changes positional meanings. Start a fresh conversation when moving to this catalog and regenerate saved positional Express source against its signatures. Named arguments and JSON property values keep their meaning.
+与最初实验性的样式优先目录相比，这改变了位置参数的含义。迁移到该目录时
+请开启全新会话，并按其签名重新生成已保存的位置式 Express 源码。命名参数
+和 JSON 属性值的含义保持不变。
 
-## Add your own components
+## 添加你自己的组件
 
-Put your components on top of the standard ones with `extends`:
+用 `extends` 把你的组件叠在标准组件之上：
 
 ```ts
 import { createGenerativeUI, standardUI } from "@copilotkit/react-core/v2/generative-ui";
@@ -67,11 +99,12 @@ export const appUI = createGenerativeUI({
 });
 ```
 
-See [Catalogs](/generative-ui/components/catalogs) for how to declare a component.
+如何声明组件，参见[组件目录](/generative-ui/components/catalogs)。
 
-## Drop components
+## 去掉组件
 
-Every component makes the prompt a little longer. If your app never needs a map or a video, remove them. `omit` returns a copy of the catalog without them, and the agent no longer sees them:
+每个组件都会让提示词变长一点。如果你的应用永远用不到地图或视频，就把
+它们去掉。`omit` 返回一份不含它们的目录副本，智能体从此看不到它们：
 
 ```ts
 export const appUI = createGenerativeUI({
@@ -81,11 +114,12 @@ export const appUI = createGenerativeUI({
 });
 ```
 
-The names are typed, so a typo is a type error. Call `omit` once, at module level.
+名称是带类型的，拼错就是类型错误。`omit` 只调用一次，放在模块级别。
 
-## Replace a component
+## 替换组件
 
-Your app has its own card, with your shadows and spacing. `overrides` swaps the React component of a standard component. The agent sees the same component as before, with the same props:
+你的应用有自己的卡片样式，带自己的阴影和间距。`overrides` 会替换标准
+组件的 React 组件。智能体看到的组件与之前一样，props 也一样：
 
 ```tsx
 import {
@@ -106,8 +140,10 @@ export const appUI = createGenerativeUI({
 });
 ```
 
-- Your component gets the props of the component it replaces. The types check this.
-- Only components of the catalogs in `extends` can be overridden. An unknown name is a type error.
-- You can combine both: `extends: [standardUI.omit(["Map"])]` with `overrides: { Card: ... }`.
+- 你的组件会拿到被替换组件的 props。类型系统会检查这一点。
+- 只有 `extends` 中各目录的组件才能被覆盖。未知的名称是类型错误。
+- 两者可以组合使用：`extends: [standardUI.omit(["Map"])]` 搭配
+  `overrides: { Card: ... }`。
 
-Next: make the standard components match your brand with a [theme](/generative-ui/components/theming).
+下一步：用[主题](/generative-ui/components/theming)让标准组件匹配你的
+品牌。

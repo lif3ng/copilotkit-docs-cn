@@ -1,7 +1,7 @@
 ---
-title: Add AG-UI Streams to ADK Sessions
+title: 将 AG-UI 流添加到 ADK 会话
 nav_title: Add to Existing Threads
-description: "Add Intelligence’s AG-UI streams to your existing agent conversations, with optional historical import for supported stores."
+description: "将 Intelligence 的 AG-UI 流添加到你现有的智能体对话中，并可选地对支持的存储进行历史导入。"
 icon: "lucide/Repeat"
 doc_type: how-to
 ---
@@ -10,46 +10,46 @@ import { Tabs, Tab } from "fumadocs-ui/components/tabs";
 
 <span id="what-is-this" />
 
-## Add Intelligence to your existing app
+## 为现有应用接入 Intelligence
 
-Give users reconnection, catch-up, and delivery across devices around your ADK agent. Follow the [Intelligence quickstart](/intelligence/quickstart) to connect your existing CopilotKit app and Runtime, then verify that a new conversation is saved. This enables AG-UI streams for runs through CopilotKit; no historical import is required.
+围绕你的 ADK 智能体，为用户提供跨设备的重连、追赶与消息送达能力。按照 [Intelligence 快速开始](/intelligence/quickstart) 连接你现有的 CopilotKit 应用与 Runtime，然后验证新对话能够被保存。这会为通过 CopilotKit 运行的会话启用 AG-UI 流；无需任何历史导入。
 
-Keep your ADK agent and its durable storage connected so you can continue the same conversations after importing them. See [how streams work with framework storage](/intelligence/threads-explained#how-threads-work-with-framework-storage).
+保持你的 ADK 智能体及其持久化存储处于连接状态，以便在导入对话之后能够继续这些对话。参见[流如何与框架存储协同工作](/intelligence/threads-explained#how-threads-work-with-framework-storage)。
 
-## Include earlier conversations (optional)
+## 纳入更早的对话（可选）
 
-To let users reopen conversations recorded before Intelligence was connected, use the importer below to copy supported historical content. Importing does not enable live delivery or establish ongoing database replication, and it cannot recover history the source no longer exposes.
+要让用户能够重新打开接入 Intelligence 之前记录的对话，请使用下方的导入器复制受支持的历史内容。导入不会启用实时送达，也不会建立持续的数据库复制，并且无法恢复源端已不再暴露的历史。
 
-The ADK importer reads persisted sessions from ADK database session stores and Vertex/Agent Engine session history. It brings over saved messages, rich tool results, attachments, and agent state where available. Some interactive content, such as MCP app views, may not have been saved in the original history.
+ADK 导入器从 ADK 数据库会话存储和 Vertex/Agent Engine 会话历史中读取持久化的会话。在可用的情况下，它会一并带来已保存的消息、富工具结果、附件以及智能体状态。某些交互式内容（例如 MCP 应用视图）可能没有保存在原始历史中。
 
-The following prerequisites and commands apply only to that historical import. Use Threads Drawer or [Headless Threads](/headless-threads) to open imported and new conversations through the same UI.
+以下前置条件与命令仅适用于该历史导入。使用 Threads Drawer 或 [Headless Threads](/headless-threads)，通过同一个 UI 打开已导入的对话和新对话。
 
-## Prerequisites
+## 前置条件
 
-- An existing CopilotKit app with Intelligence connected.
-- Persisted ADK sessions. In-memory ADK sessions cannot be exported.
-- ADK source credentials in environment variables.
-- An agent map from ADK `app_name` values to your live CopilotKit `agentId`s.
+- 一个已接入 Intelligence 的现有 CopilotKit 应用。
+- 已持久化的 ADK 会话。内存中的 ADK 会话无法导出。
+- 环境变量中的 ADK 源凭据。
+- 一份从 ADK `app_name` 值映射到你线上 CopilotKit `agentId` 的智能体映射。
 
-<Callout type="warning" title="Legacy ADK pickle stores">
-  Legacy ADK pickle stores are not parsed by the importer. Migrate those sessions with ADK's session migration command first, then re-run the import against the migrated store.
+<Callout type="warning" title="旧版 ADK pickle 存储">
+  导入器不会解析旧版 ADK pickle 存储。请先使用 ADK 的会话迁移命令迁移这些会话，然后针对迁移后的存储重新运行导入。
 </Callout>
 
-## Confirm the target project
+## 确认目标项目
 
-Choose the Intelligence project that will receive the history. Its app-api URL and project-scoped runtime key select the destination. You will export those values before importing.
+选择将接收这些历史的 Intelligence 项目。其 app-api URL 与项目级 runtime 密钥共同确定目的地。你需要在导入前导出这些值。
 
-For a CLI-created app, you can select a cloud-hosted project:
+对于由 CLI 创建的应用，你可以选择一个云端托管的项目：
 
 ```bash title="Terminal"
 npx copilotkit@latest project select
 ```
 
-The command updates the project selected for the current directory and writes its project-scoped runtime key to the app's generated `.env`.
+该命令会更新当前目录所选的项目，并把其项目级 runtime 密钥写入应用生成的 `.env`。
 
-## Configure the source
+## 配置源
 
-Choose the ADK backend to read from.
+选择要读取的 ADK 后端。
 
 <Tabs groupId="adk_import_backend" items={['Database', 'Vertex / Agent Engine']}>
   <Tab value="Database">
@@ -59,7 +59,7 @@ Choose the ADK backend to read from.
     export ADK_IMPORT_SCOPES="support:user-123"
     ```
 
-    `ADK_IMPORT_SCOPES` accepts comma-separated selectors such as `app:user`, `app:*`, `*:user`, or `*`.
+    `ADK_IMPORT_SCOPES` 接受逗号分隔的选择器，例如 `app:user`、`app:*`、`*:user` 或 `*`。
   </Tab>
   <Tab value="Vertex / Agent Engine">
     ```bash title="Terminal"
@@ -70,11 +70,11 @@ Choose the ADK backend to read from.
     export ADK_IMPORT_SCOPES="support:*"
     ```
 
-    The importer uses your Google application default credentials or service account credentials in the same way ADK does.
+    导入器以与 ADK 相同的方式使用你的 Google 应用默认凭据或服务账号凭据。
   </Tab>
 </Tabs>
 
-You can also pass the backend and scopes as CLI flags:
+你也可以通过 CLI 标志传递后端与作用域：
 
 ```bash title="Terminal"
 npx copilotkit@latest import \
@@ -84,19 +84,19 @@ npx copilotkit@latest import \
   --dry-run
 ```
 
-## Run a dry run
+## 进行试运行
 
-Preview the import before writing anything.
+在写入任何内容之前预览导入。
 
 ```bash title="Terminal"
 npx copilotkit@latest import --source adk --dry-run
 ```
 
-The dry run discovers ADK app names, counts sessions, reports sessions that cannot be imported, and estimates upload size. It does not need a CopilotKit Intelligence URL or API key.
+试运行会发现 ADK 应用名、统计会话数量、报告无法导入的会话，并估算上传大小。它不需要 CopilotKit Intelligence 的 URL 或 API 密钥。
 
-## Map ADK app names to CopilotKit agent IDs
+## 将 ADK 应用名映射到 CopilotKit 智能体 ID
 
-The source agent key for ADK is `app_name`. Map each discovered app name to the `agentId` your live CopilotKit runtime uses.
+ADK 的源智能体键是 `app_name`。将发现的每个应用名映射到你线上 CopilotKit 运行时所使用的 `agentId`。
 
 ```json title="agent-map.json"
 {
@@ -105,24 +105,24 @@ The source agent key for ADK is `app_name`. Map each discovered app name to the 
 }
 ```
 
-Using the same `agentId` as live traffic keeps imported sessions and future conversations grouped together.
+与线上流量使用相同的 `agentId`，可以让导入的会话与未来的对话归为一组。
 
-## Prepare the CopilotKit Intelligence destination
+## 准备 CopilotKit Intelligence 目的地
 
-A real import needs the destination app-api URL and project-scoped runtime key. A CLI-created starter writes them to `.env`, but the importer reads the current process environment and does not load `.env` or `.copilotkit/project.json` automatically.
+真正的导入需要目的地的 app-api URL 与项目级 runtime 密钥。由 CLI 创建的起步模板会把它们写入 `.env`，但导入器读取的是当前进程环境，不会自动加载 `.env` 或 `.copilotkit/project.json`。
 
-Copy the generated values into your shell before importing:
+导入前，请把生成的值复制到你的 shell 中：
 
 ```bash title="Terminal"
 export INTELLIGENCE_API_URL="https://..."
 export CPK_INTELLIGENCE_API_KEY="cpk-..."
 ```
 
-You can also pass the destination directly with `--api-url` and `--api-key` instead.
+你也可以改为用 `--api-url` 与 `--api-key` 直接传递目的地。
 
-## Import the sessions
+## 导入会话
 
-Run the import after the dry run and agent map look right.
+在试运行结果与智能体映射确认无误后再运行导入。
 
 ```bash title="Terminal"
 npx copilotkit@latest import \
@@ -130,7 +130,7 @@ npx copilotkit@latest import \
   --agent-map ./agent-map.json
 ```
 
-For self-hosted CopilotKit Intelligence, pass the target connection explicitly:
+对于自托管的 CopilotKit Intelligence，请显式传递目标连接信息：
 
 ```bash title="Terminal"
 npx copilotkit@latest import \
@@ -141,17 +141,17 @@ npx copilotkit@latest import \
   --yes
 ```
 
-ADK user attribution defaults to `session.user_id`. This value must match the application user ID returned by your runtime's `identifyUser`. Sessions without a recoverable user are omitted by default; use `--unrecoverable imported-unknown` only when you intentionally want to place those sessions under an imported fallback user.
+ADK 的用户归属默认取自 `session.user_id`。该值必须与你运行时的 `identifyUser` 返回的应用用户 ID 一致。默认情况下，无法恢复用户的会话会被跳过；只有当你有意把这些会话归入某个导入的兜底用户时，才使用 `--unrecoverable imported-unknown`。
 
-## Verify the imported sessions
+## 验证已导入的会话
 
-Sign in as the application user whose ID you imported. Open the conversation from the Threads Drawer and make sure that its earlier messages appear. Send a message and make sure that ADK updates the same native session.
+以你导入其 ID 的应用用户身份登录。从 Threads Drawer 打开该对话，确认更早的消息能够显示。发送一条消息，确认 ADK 更新的是同一个原生会话。
 
-## Re-run or replace
+## 重新运行或替换
 
-Already-imported sessions are skipped by default.
+已导入的会话默认会被跳过。
 
-Use `--replace` to refresh them; running or continued sessions are left unchanged:
+使用 `--replace` 刷新它们；正在运行或已继续的会话保持不变：
 
 ```bash title="Terminal"
 npx copilotkit@latest import \
@@ -160,13 +160,13 @@ npx copilotkit@latest import \
   --replace
 ```
 
-## Continue using ADK persistence
+## 继续使用 ADK 持久化
 
-Importing copies supported history; it does not establish ongoing database replication. Intelligence rename, archive, and delete operations affect only Intelligence records, leaving the native ADK session records unchanged.
+导入会复制受支持的历史，但不会建立持续的数据库复制。Intelligence 的重命名、归档与删除操作只影响 Intelligence 记录，原生 ADK 会话记录保持不变。
 
-Your app sends future conversations through CopilotKit to CopilotKit Intelligence. Keep the original ADK agent and its durable storage connected, and reopen the imported conversation from the Threads Drawer to pick up where you left off, including supported pending approvals and requests for input.
+你的应用会通过 CopilotKit 把未来的对话发送到 CopilotKit Intelligence。保持原始 ADK 智能体及其持久化存储处于连接状态，并从 Threads Drawer 重新打开已导入的对话，即可从上次中断的地方继续，包括受支持的待审批事项与输入请求。
 
-- **Threads Drawer:** already included in CLI-created starters. Use the [Threads Drawer guide](/prebuilt-components/copilot-threads-drawer) to customize its ready-made thread UI.
-- **Headless Threads:** use the [Headless Threads guide](/headless-threads) only when you need a custom UI. Select a thread with `useThreads`, store its `thread.id`, and pass that value to your chat component as `threadId`.
+- **Threads Drawer**：由 CLI 创建的起步模板已内置。使用 [Threads Drawer 指南](/prebuilt-components/copilot-threads-drawer)自定义其现成的线程 UI。
+- **Headless Threads**：仅在你需要自定义 UI 时使用 [Headless Threads 指南](/headless-threads)。用 `useThreads` 选择一个线程，保存其 `thread.id`，并把该值作为 `threadId` 传给你的聊天组件。
 
-Open an imported conversation and send a follow-up to continue it.
+打开一个已导入的对话并发送后续消息，即可继续它。

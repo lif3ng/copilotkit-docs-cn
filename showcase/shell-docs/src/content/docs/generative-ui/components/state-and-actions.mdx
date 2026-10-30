@@ -1,22 +1,24 @@
 ---
-title: "State and actions"
+title: "状态与操作"
 icon: "lucide/MousePointerClick"
-description: "Show live app data in generated UI, run your code when users click, and keep what they type."
+description: "在生成的 UI 中展示实时应用数据，在用户点击时运行你的代码，并保留他们的输入。"
 ---
 
-## What is this?
+## 这是什么？
 
-You want a product card that the agent rendered to act like the rest of your app. It must show how many of the product are in the cart, add to the cart when the user clicks, and keep what the user types into a form.
+你希望智能体渲染的商品卡片表现得像应用的其他部分一样。它要能显示该商品
+在购物车里的数量，在用户点击时加入购物车，并保留用户在表单里键入的内容。
 
-Three tools connect generated UI to your app:
+三个工具把生成的 UI 连到你的应用：
 
-- **App state** fills props with live values from your app.
-- **Functions** run your code when a component calls an event.
-- **Writable props** keep what the user types.
+- **应用状态**：用应用中的实时取值填充 props。
+- **函数**：组件触发事件时运行你的代码。
+- **可写 props**：保留用户键入的内容。
 
-## Show live app state
+## 展示实时应用状态
 
-The agent does not know how many items are in the cart, and it must not guess. Declare the state in the catalog, and the library fills the prop:
+智能体不知道购物车里有多少件商品，也不许它猜。在组件目录里声明状态，
+由库来填充 prop：
 
 ```tsx title="app/catalog.tsx"
 const cartSchema = z.object({
@@ -39,7 +41,7 @@ export const shopUI = createGenerativeUI({
 });
 ```
 
-Then give the state its value from your app:
+然后在你的应用里为状态赋值：
 
 ```tsx
 import { useGenerativeUIState } from "@copilotkit/react-core/v2/generative-ui";
@@ -50,17 +52,19 @@ function CartState({ cart }: { cart: Cart }) {
 }
 ```
 
-How props get their values:
+props 如何拿到取值：
 
-- A prop with the name of a state key reads that key. A prop named `cart` gets `state.cart`.
-- `bind` gives a prop a selector. The selector gets the state and the props that the agent set.
-- The agent never sets a bound prop and does not see it.
+- prop 与状态键同名时读取该键。名为 `cart` 的 prop 拿到 `state.cart`。
+- `bind` 为 prop 提供一个选择器。选择器能拿到状态和智能体设置的 props。
+- 智能体永远不会设置绑定的 prop，也看不到它。
 
-The agent does not see the state either. To let it answer "what is in my cart?", also give it the data with [`useAgentContext`](/reference/hooks/useAgentContext).
+智能体同样看不到状态。要让它能回答“我的购物车里有什么？”，还要用
+[`useAgentContext`](/reference/hooks/useAgentContext) 把数据给它。
 
-## Run your code on a click
+## 在点击时运行你的代码
 
-"Add to cart" must add to the cart, with no message to the agent. Declare a function, give the component an event with a matching name, and mount a handler:
+“加入购物车”就必须真的加入购物车，不给智能体发消息。声明一个函数，给
+组件一个同名事件，再挂载一个处理器：
 
 ```tsx title="app/catalog.tsx"
 export const shopUI = createGenerativeUI({
@@ -93,7 +97,8 @@ function CartActions({ cart }: { cart: Cart }) {
 }
 ```
 
-In the component, the event is a typed prop. It gives back a result, so you can show progress and errors:
+在组件里，事件是一个带类型的 prop。它会返回结果，因此你可以展示进度和
+错误：
 
 ```tsx
 import { useState } from "react";
@@ -118,11 +123,17 @@ function ProductCard({ productId, name, onAddToCart }: GenerativeUIComponentProp
 }
 ```
 
-An event matches the function with its name, or the name without `on`: `onAddToCart` calls `addToCart`.
+事件按名称匹配函数，或匹配去掉 `on` 的名称：`onAddToCart` 调用
+`addToCart`。
 
-### Who may call a function
+### 谁可以调用函数
 
-A declaration can carry the A2UI 1.0 interface fields. `allowedCallers` is `"rendererOnly"` (event bindings and prop values), `"agentOnly"` (`callRendererFunction`) or `"rendererOrAgent"`. `requiresUserActivation: true` limits a function to a user gesture, like `openUrl`, which makes it `rendererOnly`. `returnType` names what the handler gives back, with the A2UI names (`"string"`, `"number"`, `"boolean"`, `"array"`, `"object"`, `"validationResult"`, `"any"`, `"void"`).
+声明可以携带 A2UI 1.0 的接口字段。`allowedCallers` 取 `"rendererOnly"`
+（事件绑定和 prop 取值）、`"agentOnly"`（`callRendererFunction`）或
+`"rendererOrAgent"`。`requiresUserActivation: true` 把函数限制在用户手势
+之内，`openUrl` 就是如此，因此它是 `rendererOnly`。`returnType` 说明处理
+器返回什么，使用 A2UI 的名称（`"string"`、`"number"`、`"boolean"`、
+`"array"`、`"object"`、`"validationResult"`、`"any"`、`"void"`）。
 
 ```ts
 functions: {
@@ -132,13 +143,20 @@ functions: {
 },
 ```
 
-Left out, only the UI may call the function, as in A2UI 1.0. The manifest and the exported catalog always write the value out, so a 1.0 reader sees the same thing. An event cannot match an `"agentOnly"` function, and the built-in functions are value functions of the UI.
+省略时只有 UI 能调用该函数，与 A2UI 1.0 一致。manifest 和导出的组件目录
+总会把这个值写出来，因此 1.0 的读取方看到的是同样的东西。事件不能匹配
+`"agentOnly"` 函数，内置函数都是 UI 的取值函数。
 
-In this version the agent cannot call renderer functions at all, whatever `allowedCallers` says: a `callRendererFunction` operation is rejected and never mentioned to the model, because its result would travel back as a developer message, and not every backend keeps that message where the model reads it in order. The declaration fields are kept for the catalog export and for when the path is on.
+在本版本中，无论 `allowedCallers` 怎么写，智能体都完全不能调用渲染器
+函数：`callRendererFunction` 操作会被拒绝，也不会向模型提及，因为它的
+结果要以 developer 消息的形式传回，而并非所有后端都会把这类消息保存在
+模型能按序读到的地方。这些声明字段会保留在组件目录导出里，等该通路开启
+后即可使用。
 
-## Send a click to the agent
+## 把点击发给智能体
 
-Some clicks need the agent. For example, "Show me the Team plan" needs a new answer. An event that matches no function does that. Give it `parameters`:
+有些点击需要智能体。例如“给我看 Team 套餐”需要一条新的回答。匹配不到
+任何函数的事件就会这么做。给它 `parameters`：
 
 ```ts
 events: {
@@ -149,19 +167,40 @@ events: {
 },
 ```
 
-When the user clicks, the click becomes a visible user message, and the agent answers it. The agent can also choose the text of that message (its `userMessage`), for example "Show me the Team plan".
+用户点击时，这次点击会变成一条可见的用户消息，智能体会回答它。智能体
+也可以自己选这条消息的文本（即它的 `userMessage`），例如“给我看 Team
+套餐”。
 
-The run that the click starts also carries the structured A2UI 1.0 action message, in `forwardedProps.copilotkit.ui.metadata.extensions.copilotkit_action`: `{ "version": "v1.0", "action": { "name": "choose", "surfaceId": "plans", "sourceComponentId": "team-button", "timestamp": "2026-10-20T10:00:00.000Z", "userMessage": "Show me the Team plan", "context": { "plan": "team" } } }`. An agent that wants the structured event reads it from there instead of parsing the message; `envelopeToManifest` from `@copilotkit/shared` gives it back as `action`.
+这次点击启动的运行还会携带结构化的 A2UI 1.0 操作消息，位于
+`forwardedProps.copilotkit.ui.metadata.extensions.copilotkit_action`：
+`{ "version": "v1.0", "action": { "name": "choose", "surfaceId": "plans", "sourceComponentId": "team-button", "timestamp": "2026-10-20T10:00:00.000Z", "userMessage": "Show me the Team plan", "context": { "plan": "team" } } }`。
+想要结构化事件的智能体从这里读取，而不是解析消息文本；来自
+`@copilotkit/shared` 的 `envelopeToManifest` 会把它作为 `action` 还给你。
 
-## Compute values in the browser
+## 在浏览器中计算值
 
-A prop can be a function value as well as a literal or a binding, at any depth: `{ "@call": "formatCurrency", "args": { "value": { "@path": "/total" }, "currency": "EUR" } }`. It recomputes when the data it reads changes, with no round trip to the agent. The functions of the A2UI 1.0 basic catalog are built in: `formatString` (with `${/path}` and `${fn(arg: value)}` interpolation), `formatNumber`, `formatCurrency`, `formatDate`, `pluralize`, `and`, `or`, `not`, the validators `required`, `regex`, `length`, `numeric` and `email`, `@index` in a template, and `openUrl`, which runs only as the `functionCall` of an event.
+prop 除了字面量和绑定，还可以是函数值，且可以在任意深度：
+`{ "@call": "formatCurrency", "args": { "value": { "@path": "/total" }, "currency": "EUR" } }`。
+它读取的数据一变就重新计算，不需要与智能体往返。A2UI 1.0 基础目录的
+函数都是内置的：`formatString`（支持 `${/path}` 和 `${fn(arg: value)}`
+插值）、`formatNumber`、`formatCurrency`、`formatDate`、`pluralize`、
+`and`、`or`、`not`，校验器 `required`、`regex`、`length`、`numeric` 和
+`email`，模板中的 `@index`，以及只在事件的 `functionCall` 中运行的
+`openUrl`。
 
-A2UI 1.0 has no arithmetic, so CopilotKit adds two catalog functions. `calc` evaluates an expression over named args: `{ "@call": "calc", "args": { "expression": "seats * 29 * (annual ? 0.8 : 1)", "seats": { "@path": "/seats" }, "annual": { "@path": "/annual" } } }`, with `+ - * / %`, comparisons, `&& || !`, `?:`, `min`, `max`, `round`, `floor`, `ceil`, `abs` and text concatenation. `series` builds a list of `count` items from an item template with `${...}` expressions over a loop variable, for chart data. Both appear to the model as regular catalog functions; a renderer without them rejects the call. The built-ins run only in the browser: the agent cannot call them with `callRendererFunction`.
+A2UI 1.0 没有算术运算，所以 CopilotKit 加了两个组件目录函数。`calc`
+基于命名参数求表达式的值：
+`{ "@call": "calc", "args": { "expression": "seats * 29 * (annual ? 0.8 : 1)", "seats": { "@path": "/seats" }, "annual": { "@path": "/annual" } } }`，
+支持 `+ - * / %`、比较运算、`&& || !`、`?:`、`min`、`max`、`round`、
+`floor`、`ceil`、`abs` 和文本拼接。`series` 用一个条目模板配合对循环
+变量的 `${...}` 表达式，构建包含 `count` 个条目的列表，用于图表数据。
+两者对模型来说都是普通的组件目录函数；没有它们的渲染器会拒绝调用。这些
+内置函数只在浏览器中运行：智能体无法用 `callRendererFunction` 调用它们。
 
-## Keep what the user types
+## 保留用户输入
 
-A checkout form that the agent filled in must keep the user's edits. List the props that the component can change in `writable`. Each one gets a setter:
+智能体填过的结账表单必须保留用户的修改。在 `writable` 里列出组件可以
+修改的 props，每个都会得到一个 setter：
 
 ```tsx
 CheckoutForm: {
@@ -177,6 +216,8 @@ function CheckoutForm({ email, setEmail }: GenerativeUIComponentProps<typeof sho
 }
 ```
 
-When the agent binds `email` to a value of the surface, what the user types is written there. From then on, that value belongs to the user: a later agent update cannot write over it. The agent still sees the value on its next run.
+智能体把 `email` 绑定到界面的某个值后，用户键入的内容就会写进那里。从
+那时起，这个值就属于用户了：后续的智能体更新覆盖不了它。智能体在下一次
+运行时仍然能看到这个值。
 
-Now the card shows live cart data, its button runs your code, and the form keeps the user's input.
+至此，卡片展示实时购物车数据，按钮运行你的代码，表单保留用户的输入。

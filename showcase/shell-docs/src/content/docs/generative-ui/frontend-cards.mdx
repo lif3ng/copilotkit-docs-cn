@@ -1,38 +1,30 @@
 ---
-title: Frontend-Driven Cards
+title: 前端驱动的卡片
 icon: "lucide/MousePointerClick"
-description: Insert a card into the chat transcript from frontend code, without a tool call and without adding to the conversation.
+description: 从前端代码向聊天会话记录插入卡片，无需工具调用，也不会加入对话。
 ---
 
-## What is this?
+## 这是什么？
 
-Sometimes your application, not your agent, has something to show in the chat.
-A background job finishes, a websocket pushes an alert, or the user clicks a
-button. You want a card in the transcript, but there is no agent turn to hang it
-on, and you do not want to add a fake message to the conversation.
+有时想在聊天中展示内容的是你的应用，而不是智能体。后台任务完成、WebSocket 推来一条告警，或者用户点击了一个按钮。你希望在会话记录里出现一张卡片，却没有可以挂靠的智能体回合，也不想往对话里塞一条假消息。
 
-Activity messages solve this. An activity message is a message with
-`role: "activity"`. It renders in the transcript like any other message, and it
-is stripped from the payload sent to your agent on every run. The agent and the
-model never see it.
+活动消息（activity message）解决了这个问题。活动消息是 `role: "activity"` 的消息。它像其他消息一样渲染在会话记录中，但每次运行发送给智能体的负载里都会被剔除。智能体和模型永远看不到它。
 
-## When should I use this?
+## 何时使用？
 
-Use a frontend-driven card when:
+在以下情况下使用前端驱动的卡片：
 
-- A frontend event, not the agent, is the source of the card.
-- The card must not become part of the conversation the model reads.
-- Session-only is acceptable. The card is not persisted with the thread.
+- 卡片的来源是前端事件，而不是智能体。
+- 卡片不能成为模型读取的对话的一部分。
+- 仅限当前会话是可以接受的。卡片不会随线程持久化。
 
-Use [tool-based generative UI](/generative-ui/tool-based) instead when the
-agent decides to show the card, or when the card must survive a page reload.
+如果卡片由智能体决定展示，或者卡片必须在页面刷新后仍然存在，请改用[基于工具的生成式 UI](/generative-ui/tool-based)。
 
-## How it works in code
+## 代码中的工作方式
 
-### 1. Write the renderer
+### 1. 编写渲染器
 
-A renderer pairs an `activityType` with a component and a schema for the card's
-content.
+渲染器把一个 `activityType` 与一个组件以及卡片内容的 schema 配成一对。
 
 ```tsx title="app/event-card.tsx"
 import { z } from "zod";
@@ -57,7 +49,7 @@ export const eventCardRenderer: ReactActivityMessageRenderer<
 };
 ```
 
-### 2. Register it on the provider
+### 2. 在 provider 上注册
 
 ```tsx title="app/page.tsx"
 import { CopilotKit, CopilotChat } from "@copilotkit/react-core/v2";
@@ -75,10 +67,9 @@ export default function Page() {
 }
 ```
 
-### 3. Add the card from frontend code
+### 3. 从前端代码添加卡片
 
-Get the live agent with `useAgent()`, then call `addMessage` with
-`role: "activity"`.
+用 `useAgent()` 获取当前生效的 agent 实例，然后以 `role: "activity"` 调用 `addMessage`。
 
 ```tsx title="app/deployment-watcher.tsx"
 import { useEffect } from "react";
@@ -106,35 +97,25 @@ export function DeploymentWatcher() {
 ```
 
 <Callout type="warn">
-  Use the agent returned by `useAgent()`. An agent instance you construct and
-  hold yourself is not the instance the chat renders, so messages added to it
-  never appear.
+  请使用 `useAgent()` 返回的 agent。你自己构造并持有的 agent 实例并不是聊天渲染的那个实例，因此添加到它上面的消息永远不会出现。
 </Callout>
 
-The same works inside an `agent.subscribe` handler, a button `onClick`, or any
-other frontend code that can reach the agent.
+同样的做法也适用于 `agent.subscribe` 处理器、按钮的 `onClick`，或其他任何能访问到 agent 的前端代码。
 
-## What the agent receives
+## 智能体收到什么
 
-Activity messages stay in `agent.messages` so the transcript renders them, and
-`prepareRunAgentInput` removes them before the run payload leaves the browser.
+活动消息会保留在 `agent.messages` 中，因此会话记录可以渲染它们；而 `prepareRunAgentInput` 会在运行负载离开浏览器之前移除它们。
 
-Given a transcript of one user message and one card:
+假设会话记录中有一条用户消息和一张卡片：
 
-| Where | Roles present |
+| 位置 | 存在的角色 |
 | --- | --- |
-| `agent.messages` (what the chat renders) | `user`, `activity` |
-| Run payload (what your agent receives) | `user` |
+| `agent.messages`（聊天渲染的内容） | `user`、`activity` |
+| 运行负载（你的智能体收到的内容） | `user` |
 
-A `MESSAGES_SNAPSHOT` from the backend does not remove your card either. The
-snapshot merge preserves activity messages, so a card added in the browser
-survives a server-side history replay.
+来自后端的 `MESSAGES_SNAPSHOT` 也不会移除你的卡片。快照合并会保留活动消息，因此在浏览器中添加的卡片能在服务端历史回放后依然存在。
 
-## Limitations
+## 局限性
 
-- **Not persisted.** The card never reaches the backend, so it is gone after a
-  reload. If you need the card to come back, emit it from the agent as an
-  activity event instead.
-- **One renderer per activity type.** Register a renderer whose `activityType`
-  matches, or use `"*"` as a wildcard. An activity message with no matching
-  renderer renders nothing.
+- **不会持久化**。卡片永远不会到达后端，因此页面刷新后就会消失。如果你需要卡片在刷新后恢复，可以改为由智能体以活动事件的形式发出。
+- **每种活动类型一个渲染器**。注册一个 `activityType` 相匹配的渲染器，或使用 `"*"` 作为通配符。没有匹配渲染器的活动消息将不会渲染任何内容。

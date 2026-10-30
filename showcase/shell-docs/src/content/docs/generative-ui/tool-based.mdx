@@ -1,89 +1,63 @@
 ---
-title: Components as Tools
+title: 组件即工具
 icon: "lucide/LayoutDashboard"
-description: Let your agent render rich React components directly in the chat by calling them as tools.
+description: 让智能体通过将 React 组件作为工具调用，直接在聊天中渲染富组件。
 snippet_cell: gen-ui-tool-based
 ---
 
 <InlineDemo demo="gen-ui-tool-based" />
 
-## What is this?
+## 这是什么？
 
-Tool-based Generative UI is the simplest form of Generative UI: you register
-a React component with `useComponent`, and CopilotKit exposes it to the
-agent as a tool. When the agent calls the tool, CopilotKit renders your
-component inline in the chat, passing the tool's arguments straight through
-as typed props.
+基于工具的生成式 UI（Tool-based Generative UI）是生成式 UI 最简单的形式：你用 `useComponent` 注册一个 React 组件，CopilotKit 就会把它作为一个工具暴露给智能体。当智能体调用该工具时，CopilotKit 会把你的组件内联渲染在聊天中，并把工具参数原封不动地作为类型化的 props 传入。
 
-Unlike [tool rendering](/generative-ui/tool-rendering), which wraps a
-real backend tool in a custom UI, tool-based GenUI is the component. There
-is no handler, no user interaction, no server-side execution. The agent
-decides when to show it, populates the data, and CopilotKit paints it.
+[工具渲染](/generative-ui/tool-rendering)是用自定义 UI 包装一个真实的后端工具；与之不同，基于工具的 GenUI 本身就是组件。没有处理函数，没有用户交互，也没有服务端执行。智能体决定何时展示它、填入数据，然后由 CopilotKit 把它画出来。
 
-## When should I use this?
+## 什么时候应该使用？
 
-Use `useComponent` when you want to:
+当你想要以下效果时，就使用 `useComponent`：
 
-- Display rich UI (cards, charts, tables, dashboards) inline in the chat
-- Show structured data the agent has derived from its reasoning
-- Render previews, status indicators, or visual summaries
-- Let the agent present information beyond plain text
+- 在聊天中内联展示富 UI（卡片、图表、表格、仪表盘）
+- 展示智能体从推理中得出的结构化数据
+- 渲染预览、状态指示器或可视化摘要
+- 让智能体以超出纯文本的方式呈现信息
 
-For components that need user interaction, see
-[Human-in-the-loop](/human-in-the-loop). For operational transparency
-around a real backend tool, see [Tool rendering](/generative-ui/tool-rendering).
+需要用户交互的组件，请参阅[人机协同（Human-in-the-loop）](/human-in-the-loop)。要围绕真实的后端工具获得操作透明度，请参阅[工具渲染](/generative-ui/tool-rendering)。
 
-## How it works in code
+## 代码中的工作方式
 
 <FrameworkSetup concept="frontend-tools-setup" />
 
-Import the React hook and Zod in the component that registers the tool. This also
-applies to the built-in agent, which needs no backend tool-registration step.
+在注册工具的组件中导入 React 钩子和 Zod。这也适用于内置智能体——它不需要后端工具注册步骤。
 
 ```tsx
 import { useComponent } from "@copilotkit/react-core/v2";
 import { z } from "zod";
 ```
 
-`useComponent` takes a name, a Zod schema for its props, and the component
-to render. The runtime registers it as a frontend tool so the agent can
-discover it, and the schema becomes that tool's parameter definition — it is
-what tells the model which arguments to send.
+`useComponent` 接受一个名称、一个描述其 props 的 Zod schema，以及要渲染的组件。运行时会把它注册为前端工具，让智能体能够发现它；该 schema 则成为这个工具的参数定义——正是它告诉模型应当发送哪些参数。
 
 <Callout type="warn">
-  `parameters` is optional, but leaving it out advertises the tool with an
-  empty parameter schema (`{ "type": "object", "properties": {} }`). The model
-  then has nothing to fill in, so it calls the tool with no arguments and your
-  component renders with no props. Pass a schema for any component that needs
-  data.
+  `parameters` 是可选的，但省略它会让这个工具以空的参数 schema（`{ "type": "object", "properties": {} }`）对外暴露。模型于是没有任何可填的内容，就会不带参数调用工具，你的组件也就渲染不出任何 props。凡是需要数据的组件，都请传入 schema。
 </Callout>
 
 <Snippet
   region="bar-chart-renderer"
-  title="frontend/src/app/page.tsx — bar chart component"
+  title="frontend/src/app/page.tsx —— 柱状图组件"
   highlight="1-6"
 />
 
-The component itself is ordinary React: it reads only its props and can
-stream in as the agent fills the payload. The example above uses
-[Recharts](https://recharts.org) for the bar chart; it doesn't know
-anything about CopilotKit.
+组件本身就是普通的 React：它只读取自己的 props，并且可以随着智能体填充载荷而流式传入。上面的示例用 [Recharts](https://recharts.org) 画柱状图；它对 CopilotKit 一无所知。
 
 <Callout type="info">
-  The `name` you pass to `useComponent` is what the agent sees as the tool
-  name. Make it a verb like `render_bar_chart` or `show_weather` so the LLM
-  reliably picks it when the user asks for that visualization.
+  你传给 `useComponent` 的 `name` 就是智能体看到的工具名。请用动词形式命名，比如 `render_bar_chart` 或 `show_weather`，这样当用户要求相应的可视化时，LLM 才能可靠地选中它。
 </Callout>
 
-## Rendering in a headless chat
+## 在无头聊天中渲染
 
-CopilotKit's built-in chat components paint registered components for you. A
-headless or custom chat renders the message list itself, so nothing paints a
-tool call unless you render it — the component is registered and the agent
-calls it, but the chat stays empty.
+CopilotKit 内置的聊天组件会替你把注册的组件画出来。无头（headless）或自定义聊天则自己渲染消息列表，因此除非你亲自渲染，否则工具调用不会被画出来——组件已注册、智能体也会调用它，但聊天界面依然空空如也。
 
-Render the tool calls on each assistant message with
-`CopilotChatToolCallsView`:
+用 `CopilotChatToolCallsView` 渲染每条助手消息上的工具调用：
 
 ```tsx
 import { CopilotChatToolCallsView } from "@copilotkit/react-core/v2";
@@ -91,9 +65,6 @@ import { CopilotChatToolCallsView } from "@copilotkit/react-core/v2";
 <CopilotChatToolCallsView message={assistantMessage} messages={allMessages} />;
 ```
 
-It looks up the sibling `tool`-role message for each tool call and hands both
-to the registered renderer. For finer placement, call `useRenderToolCall()` and
-paint each tool call yourself — see
-[Headless UI](/custom-look-and-feel/headless-ui).
+它会为每个工具调用查找同级的 `tool` 角色消息，并把两者一起交给已注册的渲染器。若要更精细地控制位置，可以调用 `useRenderToolCall()` 自己绘制每个工具调用——参见[无头 UI](/custom-look-and-feel/headless-ui)。
 
 <IntegrationGrid path="generative-ui/tool-based" />

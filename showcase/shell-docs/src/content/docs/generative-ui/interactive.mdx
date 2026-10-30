@@ -1,42 +1,39 @@
 ---
-title: Interactive components
+title: 交互式组件
 icon: "lucide/CirclePause"
-description: Create approval flows where the agent pauses and waits for human input.
+description: 构建智能体暂停并等待人工输入的审批流程。
 hideTOC: true
 snippet_cell: gen-ui-interrupt
 ---
 
 <InlineDemo demo="gen-ui-interrupt" />
 
-## What is this?
+## 这是什么？
 
-Interactive generative UI creates flows where the agent pauses execution and waits for user input before continuing. This enables approval workflows, confirmation dialogs, and any scenario where human judgment is needed mid-execution.
+交互式的生成式 UI 可以构建这样的流程：智能体暂停执行，等待用户输入后再继续。它适用于审批工作流、确认对话框，以及任何需要在执行中途引入人工判断的场景。
 
-## When should I use this?
+## 何时使用？
 
-Use interactive generative UI when you need:
+当你需要以下能力时，可使用交互式的生成式 UI：
 
-- Approval/rejection flows (e.g. "Run this command?")
-- User decisions that the agent should know about
-- Confirmation dialogs with structured responses
-- Any flow where the agent pauses for human judgment
+- 审批/驳回流程（例如“要运行这条命令吗？”）
+- 智能体应当知晓的用户决策
+- 带结构化响应的确认对话框
+- 任何需要智能体暂停以等待人工判断的流程
 
-## How it works in code
+## 代码中的工作方式
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="native">
 
 <FrameworkSetup concept="human-in-the-loop-setup" />
 
-On the frontend, register an interrupt renderer with `useInterrupt`. When the
-agent pauses, your component mounts inline in the chat, captures the user's
-choice, and resumes the run with that input.
+在前端，用 `useInterrupt` 注册一个中断渲染器。当智能体暂停时，你的组件会内联挂载在聊天中，捕获用户的选择，并携带该输入恢复运行。
 
 <Snippet region="frontend-useinterrupt-render" title="frontend/src/app/page.tsx — useInterrupt" />
 
-On the backend, the agent calls into the interrupt primitive and waits for
-the resumed response before continuing the graph.
+在后端，智能体会调用中断原语，并等待恢复后的响应，然后才继续执行图。
 
-<Snippet region="backend-interrupt-tool" title="backend — interrupt tool" />
+<Snippet region="backend-interrupt-tool" title="backend — 中断工具" />
 
 </WhenFrameworkHas>
 
@@ -44,23 +41,17 @@ the resumed response before continuing the graph.
 
 <FrameworkSetup concept="human-in-the-loop-setup" />
 
-This framework implements the same interactive pause shape with a
-Promise-based frontend tool. The agent calls `schedule_meeting`, the client
-renders the picker, and the tool result resolves only after the user chooses a
-slot or cancels.
+该框架用基于 Promise 的前端工具实现了同样的交互式暂停形态。智能体调用 `schedule_meeting`，客户端渲染选择器，只有当用户选定时段或取消后，工具结果才会 resolve。
 
-<Snippet region="frontend-promise-handler" title="frontend/src/app/page.tsx — Promise-based frontend tool" />
+<Snippet region="frontend-promise-handler" title="frontend/src/app/page.tsx — 基于 Promise 的前端工具" />
 
-<Snippet region="backend-tool-call" title="backend — agent instructed to call schedule_meeting" />
+<Snippet region="backend-tool-call" title="backend — 指示智能体调用 schedule_meeting" />
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="interrupt_pattern" absent>
 
-> **Not available on this framework.** Interactive generative UI requires
-> either a native interrupt primitive or a Promise-resolving frontend tool.
-> For tool-call-based approval flows, use
-> [Human-in-the-loop](../human-in-the-loop) instead.
+> **该框架不支持此特性**。交互式的生成式 UI 需要原生中断原语，或能 resolve 的基于 Promise 的前端工具。若要构建基于工具调用的审批流程，请改用[人机协同（Human-in-the-loop）](../human-in-the-loop)。
 
 </WhenFrameworkHas>
 

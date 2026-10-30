@@ -1,50 +1,60 @@
 ---
-title: "Components and surfaces"
+title: "组件与界面"
 icon: "lucide/LayoutTemplate"
-description: "Let your agent render your React components, in the chat and in areas of your page."
+description: "让你的智能体在聊天中以及页面各区域渲染你的 React 组件。"
 ---
 
 import InspectorPaneGenerativeUI from "@/snippets/shared/inspector/open-inspector-pane-generative-ui.mdx";
 
-<Callout type="warn" title="Experimental">
-  Components and surfaces implements [A2UI 1.0](https://a2ui.org) as of spec revision [`cbaa5ee`](https://github.com/a2ui-project/a2ui/tree/cbaa5ee62c737b50d0695c1e5794d0f648b61dca/specification/v1_0) (October 2026). Upstream still calls 1.0 a candidate, and the API of this feature can change. What the [support matrix](/generative-ui/components/from-a2ui#support-matrix) lists is the supported scope; anything it does not list is not supported, rather than partly supported.
+<Callout type="warn" title="实验性">
+  组件与界面实现的是规范修订版
+  [`cbaa5ee`](https://github.com/a2ui-project/a2ui/tree/cbaa5ee62c737b50d0695c1e5794d0f648b61dca/specification/v1_0)
+  （2026 年 10 月）时的 [A2UI 1.0](https://a2ui.org)。上游仍把 1.0 称为
+  候选版，本特性的 API 也可能变化。[支持矩阵](/generative-ui/components/from-a2ui#support-matrix)所列内容即为支持范围；凡未列出的均不受支持，而不是部分支持。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-A text answer is often the wrong answer. "Compare these three plans" wants a table. "Show me cheap running shoes" wants product cards, and maybe in the product row of your page, not in the chat.
+文本回答往往不是对的答案。“对比这三个套餐”想要的是一张表格。“给我看看
+便宜的跑鞋”想要的是商品卡片，而且也许该出现在页面的商品栏里，而不是
+聊天里。
 
-With components and surfaces, the agent renders real React components while it answers:
+借助组件与界面，智能体在回答的同时渲染真正的 React 组件：
 
-- **In the chat**, inside its reply.
-- **In areas of your page**, outside the chat. Asking the chat changes the page.
+- **在聊天中**：出现在它的回复里。
+- **在页面各区域**：聊天之外。对聊天提问就能改变页面。
 
-You decide what the agent can render. The agent decides what to show and fills in the values. Users can type into the UI, press its buttons, and ask follow-up questions about it.
+智能体能渲染什么由你决定。展示什么、填入什么值由智能体决定。用户可以在
+UI 里输入、点它的按钮，并就它追问。
 
-## Try it
+## 试试看
 
-These steps add generative UI to a Next.js app, with an OpenAI model through TanStack AI.
+以下步骤为 Next.js 应用添加生成式 UI，通过 TanStack AI 使用 OpenAI 模型。
 
-Already have CopilotKit running? Do step 3 only. Your runtime needs no change: when the provider sends a catalog, the runtime gives that run a `render_ui` tool and a short guide. Your agent must pass the run's tools and context to its model, as in step 2. For a LangGraph Python agent, add `CopilotKitMiddleware`.
+已经在跑 CopilotKit 了？只需做第 3 步。你的运行时无需改动：provider 传入
+组件目录时，运行时会给该次运行一个 `render_ui` 工具和一份简短指南。你的
+智能体必须把该次运行的工具和 context 传给它的模型，做法见第 2 步。
+LangGraph Python 智能体则要加上 `CopilotKitMiddleware`。
 
 <Steps>
   <Step>
-  ### Install the packages
+  ### 安装依赖包
 
   ```bash
   npm install @copilotkit/react-core @copilotkit/runtime @tanstack/ai @tanstack/ai-openai
   ```
 
-  Put your OpenAI key in `.env.local`:
+  把你的 OpenAI 密钥放进 `.env.local`：
 
   ```bash title=".env.local"
   OPENAI_API_KEY=sk-...
   ```
   </Step>
   <Step>
-  ### Add the runtime and an agent
+  ### 添加运行时和智能体
 
-  The agent is a built-in agent in factory mode: you call the model yourself with [TanStack AI](https://tanstack.com/ai).
+  该智能体是工厂模式的内置智能体：模型由你自己通过
+  [TanStack AI](https://tanstack.com/ai) 调用。
 
   ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
   import { chat } from "@tanstack/ai";
@@ -85,17 +95,19 @@ Already have CopilotKit running? Do step 3 only. Your runtime needs no change: w
   export const POST = handler;
   ```
 
-  Pass on both values from `convertInputToTanStackAI`:
+  把 `convertInputToTanStackAI` 返回的两个值都传下去：
 
-  - `tools` has the `render_ui` tool. Without it, the model cannot render.
-  - `systemPrompts` has the guide: the components, their props, and how to call `render_ui`. Without it, the model does not know what to render.
+  - `tools` 里有 `render_ui` 工具。没有它，模型无法渲染。
+  - `systemPrompts` 里有那份指南：有哪些组件、各自的 props，以及如何调用
+    `render_ui`。没有它，模型不知道该渲染什么。
 
-  Add your own tools and prompts next to them. Do not replace them.
+  把你自己的工具和提示词加在它们旁边。不要替换它们。
   </Step>
   <Step>
-  ### Turn on generative UI
+  ### 开启生成式 UI
 
-  Give the provider the standard catalog. It has 69 ready-made components: layout, text, inputs, tables, charts, maps, and more.
+  把标准组件目录交给 provider。它自带 69 个现成组件：布局、文本、输入、
+  表格、图表、地图等等。
 
   ```tsx title="app/providers.tsx"
   "use client";
@@ -112,7 +124,8 @@ Already have CopilotKit running? Do step 3 only. Your runtime needs no change: w
   }
   ```
 
-  The catalog holds React components, so the provider must be created in a client component. Wrap your layout in it, so every page shares one provider, and put a chat on a page:
+  组件目录里是 React 组件，因此 provider 必须在客户端组件中创建。用它包住
+  你的 layout，让每个页面共享同一个 provider，并在某个页面上放一个聊天：
 
   ```tsx title="app/layout.tsx"
   import { Providers } from "./providers";
@@ -138,50 +151,63 @@ Already have CopilotKit running? Do step 3 only. Your runtime needs no change: w
   ```
   </Step>
   <Step>
-  ### Ask for something visual
+  ### 要点可视化的东西
 
-  Run `npm run dev`, open the page, and send:
+  运行 `npm run dev`，打开页面，发送：
 
   ```text
   Compare the Starter, Team, and Enterprise plans in a table
   ```
 
-  The table fills in while the agent writes it. It is a real component, so a follow-up such as "add a column for support" changes it in place.
+  智能体写的时候表格就逐渐填上了。它是真正的组件，所以像“给客服加一列”
+  这样的追问会原地修改它。
   </Step>
 </Steps>
 
-That is a working setup. The agent now renders standard components in the chat.
+这就是一套能跑起来的配置。智能体现在可以在聊天里渲染标准组件了。
 
 <InspectorPaneGenerativeUI components={props.components} />
 
-## When something does not render
+## 没渲染出来时怎么办
 
-The agent answered, but the UI did not show, or it shows the wrong thing. Open Inspector, go to **Generative UI**, and open the tab for what you see:
+智能体回答了，但 UI 没出现，或者显示的内容不对。打开 Inspector，进入
+**Generative UI**，按你看到的情况打开对应标签页：
 
-| What you see | Open | What to look for |
+| 你看到的 | 打开 | 要看什么 |
 | --- | --- | --- |
-| The pane says "No generative UI" | Nothing to open | The provider has no `generativeUI` config. Pass `generativeUI={{ ui }}` to `CopilotKitProvider`. |
-| The surface stays empty, or shows its fallback | **Surfaces** | Find the surface and open its card. **Rejected operations** gives the reason for each dropped operation, for example an unknown component. |
-| A component shows wrong or missing values | **Surfaces** | The component tree shows each rendered component with the props that the agent sent. |
-| The agent never uses a component or a function | **Catalog** | Search for its name. A component that is not in the list is not sent to the model. A function with no mounted handler gets a warning. |
-| You want to see what the model got | **Prompt** | The envelope and the `render_ui` guide of the last run, and of the next run. |
+| 面板显示 “No generative UI” | 无需打开 | provider 没有 `generativeUI` 配置。把 `generativeUI={{ ui }}` 传给 `CopilotKitProvider`。 |
+| 界面一直为空，或显示了它的后备内容 | **Surfaces** | 找到该界面并打开它的卡片。**Rejected operations** 会给出每个被丢弃操作的原因，例如未知组件。 |
+| 某个组件显示错误或缺失的值 | **Surfaces** | 组件树会显示每个已渲染组件以及智能体发送的 props。 |
+| 智能体从不使用某个组件或函数 | **Catalog** | 按名字搜索。不在列表里的组件不会发送给模型。没有挂载处理器的函数会有警告。 |
+| 想看模型收到了什么 | **Prompt** | 上一次运行以及下一次运行的信封和 `render_ui` 指南。 |
 
-## Learn the ideas
+## 理解核心概念
 
-Three ideas carry the whole feature:
+三个概念支撑起整个特性：
 
-- **[Surfaces](/generative-ui/components/surfaces)**: a place where generated UI renders. The chat is one. Any area of your page can be one.
-- **[Catalogs](/generative-ui/components/catalogs)**: the components that the agent can use, with their props. Use the standard one, or add your own.
-- **[Transports](/generative-ui/components/transports)**: how the UI reaches the browser. The agent calls a tool, or it writes the UI in its markdown reply.
+- **[界面（Surfaces）](/generative-ui/components/surfaces)**：生成式 UI
+  渲染的地方。聊天是一个，页面的任何区域也可以是。
+- **[组件目录（Catalogs）](/generative-ui/components/catalogs)**：智能体
+  可以使用的组件及其 props。可以直接用标准目录，或添加你自己的。
+- **[传输方式（Transports）](/generative-ui/components/transports)**：UI
+  如何到达浏览器。智能体可以调用工具，也可以在 Markdown 回复里直接写出
+  UI。
 
-## Build with it
+## 用它来构建
 
-- [Use the standard catalog](/generative-ui/components/standard-catalog): what is in it, and how to drop or replace components.
-- [Connect app state and actions](/generative-ui/components/state-and-actions): show live app data, run your code on a click, and keep what users type.
-- [Theme the components](/generative-ui/components/theming): your colors and fonts, and dark mode.
-- [Markdown mode](/generative-ui/components/markdown-mode): the agent writes the UI inside its reply, with no tool call.
-- [Adopt from A2UI](/generative-ui/components/from-a2ui): move from the `a2ui` renderer, with the v0.9 to 1.0 mapping and a support matrix.
+- [使用标准组件目录](/generative-ui/components/standard-catalog)：里面有
+  什么，以及如何去掉或替换组件。
+- [连接应用状态与操作](/generative-ui/components/state-and-actions)：展示
+  实时应用数据、点击时运行你的代码，并保留用户输入的内容。
+- [为组件定制主题](/generative-ui/components/theming)：你的颜色与字体，
+  以及深色模式。
+- [Markdown 模式](/generative-ui/components/markdown-mode)：智能体在回复里
+  直接写出 UI，无需工具调用。
+- [从 A2UI 迁移](/generative-ui/components/from-a2ui)：从 `a2ui` 渲染器
+  迁移过来，附 v0.9 到 1.0 的对照和支持矩阵。
 
-## See it in an app
+## 在应用里看效果
 
-[`examples/v2/generative-ui-shop`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/v2/generative-ui-shop) is a shop where the chat changes the page. Ask for "top rated" products, and the featured row on the home page swaps to what the agent picked.
+[`examples/v2/generative-ui-shop`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/v2/generative-ui-shop)
+是一个聊天能改变页面的商店应用。让它找“评分最高”的商品，首页的精选一栏
+就会换成智能体挑选的结果。

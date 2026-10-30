@@ -1,38 +1,38 @@
 ---
-title: Quickstart
-description: Turn your A2A Agents into an agent-native application in 10 minutes.
+title: 快速开始
+description: 10 分钟内将你的 A2A 智能体变成智能体原生应用。
 icon: "lucide/Play"
 hideTOC: true
 ---
 
 import OpenInspectorStep from "@/snippets/shared/inspector/open-inspector-step.mdx";
 
-## Start with your coding agent
+## 从你的编码智能体开始
 
-Use this prompt to connect your A2A agent to CopilotKit and verify a working conversation. Your coding agent will follow this guide in your project, or you can work through the manual steps below.
+使用此提示词将你的 A2A 智能体接入 CopilotKit，并验证对话可以正常工作。你的编码智能体会按照本指南在你的项目中操作，你也可以按下面的手动步骤逐步完成。
 
 <PageAgentPrompt />
 
-## Prerequisites
+## 前置条件
 
-Before you begin, you'll need the following:
+开始之前，你需要准备以下内容：
 
-- A Google Gemini API key
+- 一个 Google Gemini API 密钥
 - Node.js 20+
 - Python 3.9+
-- Your favorite package manager
+- 你顺手的包管理器
 
-## Getting started
+## 开始使用
 
 <Steps>
     <Step>
-        ### Set up CopilotKit Intelligence
+        ### 设置 CopilotKit Intelligence
 
-        <SignupLink surface="docs_a2a_quickstart_step1">Sign in to cloud-hosted Intelligence</SignupLink>. Cloud-hosted setup uses a server-side project API key and does not issue `COPILOTKIT_LICENSE_TOKEN`. You will connect the app after you clone it below.
+        <SignupLink surface="docs_a2a_quickstart_step1">登录云托管版 Intelligence</SignupLink>。云托管配置使用服务端项目 API 密钥，不会签发 `COPILOTKIT_LICENSE_TOKEN`。你将在下文克隆应用后再完成连接。
     </Step>
 
     <Step>
-        ### Clone the A2A starter template
+        ### 克隆 A2A 起步模板
 
         ```bash
         git clone https://github.com/copilotkit/with-a2a-a2ui.git
@@ -40,30 +40,30 @@ Before you begin, you'll need the following:
         npx copilotkit@latest project select
         ```
 
-        `project select` creates or selects an Intelligence project and writes its server-side API key to `.env` as `CPK_INTELLIGENCE_API_KEY`.
+        `project select` 会创建或选择一个 Intelligence 项目，并将其服务端 API 密钥以 `CPK_INTELLIGENCE_API_KEY` 的形式写入 `.env`。
     </Step>
     <Step>
-        ### Install dependencies
+        ### 安装依赖
 
         ```
         pnpm install
         ```
     </Step>
     <Step>
-        ### Configure your environment
+        ### 配置环境
 
-        Create a `.env` file in your agent directory and add your Google API key:
+        在你的智能体目录中创建 `.env` 文件，并添加你的 Google API 密钥：
 
         ```plaintext title="agent/.env"
         GEMINI_API_KEY=your_gemini_api_key
         ```
 
-        <Callout type="info" title="What about other models?">
-          The starter template is configured to use Google's Gemini by default, but you can modify it to use any language model supported by ADK.
+        <Callout type="info" title="其他模型呢？">
+          起步模板默认配置使用 Google 的 Gemini，但你可以修改它，改用 ADK 支持的任意语言模型。
         </Callout>
     </Step>
     <Step>
-        ### Start the development server
+        ### 启动开发服务器
 
         <Tabs groupId="package-manager" items={['npm', 'pnpm', 'yarn', 'bun']}>
             <Tab value="npm">
@@ -88,22 +88,22 @@ Before you begin, you'll need the following:
             </Tab>
         </Tabs>
 
-        This will start both the UI and agent servers concurrently.
+        这会同时启动 UI 服务器与智能体服务器。
     </Step>
     <Step>
-        ### 🎉 Start chatting!
+        ### 🎉 开始对话！
 
-        Your AI agent is now ready to use! Navigate to `localhost:3000` and start prompting it:
+        你的 AI 智能体现在已经可以使用了！访问 `localhost:3000`，开始向它提问：
 
         ```
         Show me chinese restaurants in NYC
         ```
 
         <Accordions className="mb-4">
-            <Accordion title="Troubleshooting">
-                - If you're having connection issues, try using `0.0.0.0` or `127.0.0.1` instead of `localhost`
-                - Make sure your agent is running on port 10002
-                - Check that your Google API key is correctly set
+            <Accordion title="故障排查">
+                - 如果遇到连接问题，尝试用 `0.0.0.0` 或 `127.0.0.1` 代替 `localhost`
+                - 确保你的智能体运行在 10002 端口
+                - 检查你的 Google API 密钥是否已正确设置
             </Accordion>
         </Accordions>
 
@@ -116,14 +116,14 @@ Before you begin, you'll need the following:
 
 </Steps>
 
-## What's next?
+## 下一步
 
-Now that you have your basic agent setup, explore these advanced features:
+基础智能体已经配置完成，接下来可以探索这些高级特性：
 
 <Cards>
   <Card
-    title="Add some generative UI"
-    description="Render declarative UI components with A2UI."
+    title="添加一些生成式 UI"
+    description="使用 A2UI 渲染声明式 UI 组件。"
     href="/docs/integrations/a2a/generative-ui/declarative-a2ui"
     icon={<PaintbrushIcon />}
   />

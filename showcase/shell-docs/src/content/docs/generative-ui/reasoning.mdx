@@ -1,65 +1,51 @@
 ---
-title: Reasoning
+title: 推理
 icon: "lucide/Brain"
-description: Surface the agent's thinking chain in the chat — default or fully custom.
+description: 在聊天中呈现智能体的思考链——默认或完全自定义。
 hideTOC: true
 snippet_cell: reasoning-custom
 ---
 
 <InlineDemo demo="reasoning-custom" />
 
-## What is this?
+## 这是什么？
 
-Some models (OpenAI's `o1`, `o3`, and `o4-mini`, Anthropic's thinking
-variants) emit **reasoning tokens**, internal chain-of-thought traces that
-explain how the model is working toward its answer. CopilotKit surfaces
-these as first-class messages: when a `REASONING_MESSAGE_*` event arrives
-from the agent, the chat renders it inline so the user can follow the
-agent's thinking.
+一些模型（OpenAI 的 `o1`、`o3` 和 `o4-mini`，以及 Anthropic 的 thinking 变体）会发出**推理标记（reasoning tokens）**，即解释模型如何一步步得出答案的内部思维链轨迹。CopilotKit 将其呈现为一等公民消息：当 `REASONING_MESSAGE_*` 事件从智能体到达时，聊天会将其内联渲染，让用户能够跟随智能体的思考。
 
-Reasoning isn't a custom-renderer plumb-in; it's a dedicated message type
-on the chat view. You can either accept the built-in rendering or override
-the `reasoningMessage` slot with your own component.
+推理并不是接一根自定义渲染器的管线，而是聊天视图上一种专门的消息类型。你既可以接受内置的渲染，也可以用自己的组件覆盖 `reasoningMessage` 插槽。
 
-## When should I use this?
+## 什么时候应该使用？
 
-Expose reasoning in the UI when you want to:
+当你想要以下效果时，就在 UI 中展示推理：
 
-- Give users real-time insight into the agent's thought process
-- Show progress on long or multi-step problems
-- Debug prompt behavior during development
-- Brand the reasoning card to match the rest of your product
+- 让用户实时了解智能体的思考过程
+- 展示长问题或多步骤问题的进度
+- 在开发过程中调试提示词行为
+- 为推理卡片定制品牌样式，与产品的其他部分保持一致
 
-## Default reasoning rendering (zero-config)
+## 默认推理渲染（零配置）
 
-Out of the box, reasoning events render inside CopilotKit's built-in
-`CopilotChatReasoningMessage` card:
+开箱即用，推理事件会渲染在 CopilotKit 内置的 `CopilotChatReasoningMessage` 卡片中：
 
-- A **"Thinking…"** label with a pulsing indicator while the model reasons.
-- Auto-expanded content so users can follow the chain of thought live.
-- Collapses to **"Thought for X seconds"** once reasoning finishes, with a
-  chevron to re-expand.
-- Reasoning text rendered as Markdown.
+- 模型推理期间，显示带脉动指示器的 **“Thinking…”**（思考中）标签。
+- 内容自动展开，用户可以实时跟随思维链。
+- 推理结束后折叠为 **“Thought for X seconds”**（思考了 X 秒），并带有可重新展开的箭头。
+- 推理文本以 Markdown 渲染。
 
-No configuration is needed; if your model emits reasoning tokens, the card
-appears automatically:
+无需任何配置；只要你的模型发出推理标记，卡片就会自动出现：
 
 <Snippet
   cell="reasoning-default"
   region="default-reasoning-zero-config"
 />
 
-Here's what the built-in card looks like while the model thinks through a multi-step problem:
+下面是模型思考多步骤问题时内置卡片的样子：
 
 <InlineDemo demo="reasoning-default" />
 
-## Custom reasoning rendering
+## 自定义推理渲染
 
-For full control over the reasoning card, pass a component to the
-`reasoningMessage` slot on `messageView`. Your component receives the
-`ReasoningMessage` object (`.content` holds the streaming text), the full
-`messages` list, and `isRunning`, enough to decide whether this block is
-still streaming and whether it's the active trailing message:
+要完全掌控推理卡片，请向 `messageView` 上的 `reasoningMessage` 插槽传入一个组件。你的组件会收到 `ReasoningMessage` 对象（`.content` 保存流式文本）、完整的 `messages` 列表以及 `isRunning`，足以判断该块是否仍在流式输出、它是否是当前位于末尾的活动消息：
 
 <Tabs items={['page.tsx', 'reasoning-block.tsx']}>
   <Tab value="page.tsx">
@@ -70,16 +56,10 @@ still streaming and whether it's the active trailing message:
   </Tab>
 </Tabs>
 
-The `ReasoningBlock` (imported above) renders the reasoning as an
-amber-tagged inline banner, intentionally louder than the default card
-so the thinking chain is the focal UI of the demo. Swap in your own
-component to match your product's tone.
+`ReasoningBlock`（上文导入）把推理渲染成一个琥珀色标签的内联横幅，刻意比默认卡片更醒目，让思考链成为演示的视觉焦点。换成你自己的组件，以匹配产品的调性。
 
 <Callout type="info">
-  The `messageView.reasoningMessage` slot accepts either a full component
-  (as shown) or a sub-slot object like
-  `{ header, contentView, toggle }` if you just want to tweak parts of the
-  default card. See the reference docs for sub-slot props.
+  `messageView.reasoningMessage` 插槽既可以接受完整组件（如上所示），也可以接受形如 `{ header, contentView, toggle }` 的子插槽对象——如果你只想微调默认卡片的部分内容。子插槽 props 请参阅参考文档。
 </Callout>
 
 <IntegrationGrid path="generative-ui/reasoning" />

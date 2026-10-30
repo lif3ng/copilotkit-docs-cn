@@ -1,16 +1,16 @@
 ---
-title: Display components
+title: 仅展示组件
 icon: "lucide/Eye"
-description: Register React components that your agent can render in the chat.
+description: 注册你的智能体可在聊天中渲染的 React 组件。
 hideTOC: true
 snippet_cell: gen-ui-tool-based
 ---
 
 <InlineDemo demo="gen-ui-tool-based" />
 
-## What is this?
+## 这是什么？
 
-Render-only generative UI lets you register React components as tools your agent can invoke. When the agent calls the tool, CopilotKit renders your component directly in the chat with the tool's arguments as props; no handler logic or user interaction required.
+仅展示（render-only）的生成式 UI 允许你把 React 组件注册为智能体可调用的工具。当智能体调用该工具时，CopilotKit 会把工具参数作为 props 直接在聊天中渲染你的组件，无需处理逻辑，也无需用户交互。
 
 <Tabs items={['page.tsx', 'chart.tsx']}>
   <Tab value="page.tsx">
@@ -51,26 +51,24 @@ export function Chart({ title, data }: z.infer<typeof ChartProps>) {
   </Tab>
 </Tabs>
 
-## When should I use this?
+## 何时使用？
 
-Use render-only generative UI when you want to:
+当你想要以下效果时，可使用仅展示的生成式 UI：
 
-- Display rich UI (cards, charts, tables) inline in the chat
-- Show structured data from agent responses
-- Render previews, status indicators, or visual feedback
-- Let the agent present information beyond plain text
+- 在聊天中内联展示富 UI（卡片、图表、表格）
+- 展示来自智能体响应的结构化数据
+- 渲染预览、状态指示器或可视化反馈
+- 让智能体以纯文本之外的形式呈现信息
 
-## How it works in code
+## 代码中的工作方式
 
 <FrameworkSetup concept="frontend-tools-setup" />
 
-The renderer component receives the tool's arguments as typed props and
-mounts inline in the chat. Below is the chart renderer wired up in the
-canonical demo — the agent emits the data, the component draws it.
+渲染器组件以带类型的 props 接收工具参数，并内联挂载在聊天中。下面是标准示例中接好线的图表渲染器——智能体产出数据，组件负责绘制。
 
 <Snippet
   region="bar-chart-renderer"
-  title="frontend/src/app/page.tsx — bar chart renderer"
+  title="frontend/src/app/page.tsx — 柱状图渲染器"
   highlight="1-6"
 />
 

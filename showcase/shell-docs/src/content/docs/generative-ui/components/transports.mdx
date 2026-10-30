@@ -1,45 +1,45 @@
 ---
-title: "Transports"
+title: "传输层"
 icon: "lucide/ArrowLeftRight"
-description: "Choose how the agent sends generated UI: with the render_ui tool, or inside its markdown reply."
+description: "选择智能体发送生成式 UI 的方式：通过 render_ui 工具，或嵌在 markdown 回复中。"
 ---
 
-## What is this?
+## 这是什么？
 
-The agent must send the UI to the browser somehow. Some agents are good at tool calls. Others only stream text, or you build their prompt yourself. A **transport** is the way the UI travels:
+智能体必须以某种方式把 UI 发送到浏览器。有些智能体擅长工具调用，有些只会流式输出文本，还有些由你自己构建提示。**传输层**（transport）就是 UI 传递的途径：
 
-- **Tool** (the default): the agent calls a `render_ui` tool.
-- **Markdown**: the agent writes the UI in `a2ui` code blocks inside its reply.
+- **工具**（默认）：智能体调用 `render_ui` 工具。
+- **Markdown**：智能体在回复中用 `a2ui` 代码块书写 UI。
 
-Both transports use the same catalogs, surfaces, and components. Only the path between the agent and the browser changes.
+两种传输层使用相同的目录、界面载体和组件。改变的只是智能体与浏览器之间的通路。
 
-## Which one to use
+## 如何选择
 
-| | Tool | Markdown |
+| | 工具 | Markdown |
 | --- | --- | --- |
-| The agent writes UI | as `render_ui` tool calls | in `a2ui` code blocks in its reply |
-| Checked before the browser gets it | yes, by the runtime, and again in the browser | in the browser |
-| Text around the UI | a separate message | the same reply, before and after the UI |
-| Works with | agents that use the run's tools and context | any agent that streams text |
+| 智能体如何书写 UI | 以 `render_ui` 工具调用的形式 | 在回复的 `a2ui` 代码块中 |
+| 浏览器收到前是否校验 | 是，由运行时校验，浏览器中再次校验 | 在浏览器中校验 |
+| UI 周围的文本 | 单独的消息 | 同一条回复中，UI 的前后 |
+| 适用对象 | 会使用本次运行的工具与上下文的智能体 | 任何能流式输出文本的智能体 |
 
-Start with the tool transport. If your agent cannot call client tools, or you want the UI inside the text of the reply, use markdown.
+优先使用工具传输。如果你的智能体无法调用客户端工具，或者你希望 UI 出现在回复文本之中，请使用 Markdown。
 
-## Tool transport
+## 工具传输
 
-This is the default, so the provider needs only the catalog:
+这是默认方式，因此 provider 只需要目录：
 
 ```tsx
 <CopilotKitProvider runtimeUrl="/api/copilotkit" generativeUI={{ ui: standardUI }}>
 ```
 
-When a run carries the catalog, the runtime adds the `render_ui` tool and a short guide on how to call it. The runtime checks every operation while it streams, and the browser renders the valid ones at once.
+当运行携带目录时，运行时会添加 `render_ui` 工具以及一段简短的调用指南。运行时会在流式传输过程中检查每个操作，浏览器则立即渲染其中有效的操作。
 
-The runtime option `generativeUI` controls when the tool is added:
+运行时选项 `generativeUI` 控制何时添加该工具：
 
-- Left out: for every run that carries a tool-transport catalog.
-- `true`: for every run.
-- `{ agents: ["shop"] }`: for every run of those agents.
-- `false`: never.
+- 省略：对每个携带工具传输目录的运行生效。
+- `true`：对所有运行生效。
+- `{ agents: ["shop"] }`：对这些智能体的所有运行生效。
+- `false`：从不生效。
 
 ```ts title="app/api/copilotkit/route.ts"
 const runtime = new CopilotRuntime({
@@ -48,21 +48,21 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-Your agent must use the tools and the context entries of the run. The built-in agent does this. For a LangGraph Python agent, add `CopilotKitMiddleware`.
+你的智能体必须使用本次运行的工具和上下文条目。内置智能体已经做到了这一点。对于 LangGraph Python 智能体，请添加 `CopilotKitMiddleware`。
 
-## Markdown transport
+## Markdown 传输
 
-Set `transport: "markdown"`:
+设置 `transport: "markdown"`：
 
 ```tsx
 <CopilotKitProvider runtimeUrl="/api/copilotkit" generativeUI={{ ui: standardUI, transport: "markdown" }}>
 ```
 
-The provider sends the component schemas and a writing guide as context, and the agent writes the UI in its reply. See [Markdown mode](/generative-ui/components/markdown-mode) for what the agent writes, how it streams, and how to build your own prompt.
+provider 会把组件 schema 和一份写作指南作为上下文发送，智能体随后在回复中书写 UI。关于智能体写什么、如何流式输出以及如何构建自己的提示，请参阅 [Markdown 模式](/generative-ui/components/markdown-mode)。
 
-## Only some agents
+## 仅部分智能体
 
-By default every agent gets generative UI. To give it only to some of them, list their ids:
+默认情况下，每个智能体都能使用生成式 UI。若只想开放给其中一部分，请列出它们的 id：
 
 ```tsx
 <CopilotKitProvider
@@ -71,10 +71,10 @@ By default every agent gets generative UI. To give it only to some of them, list
 >
 ```
 
-The other agents get no catalog, no guide, and no `render_ui` tool.
+其他智能体不会得到目录、指南，也没有 `render_ui` 工具。
 
-## Cost in tokens
+## Token 开销
 
-Each run carries the catalog and a guide. The guide has only the rules that your catalog needs, so a small catalog gets a short guide. The full standard catalog is the largest part. To keep runs small, drop the components that you do not need with [`omit`](/generative-ui/components/standard-catalog#drop-components).
+每次运行都会携带目录和一份指南。指南只包含你的目录所需规则，因此目录越小，指南越短。完整标准目录是其中最大的部分。要控制运行体积，请用 [`omit`](/generative-ui/components/standard-catalog#drop-components) 移除不需要的组件。
 
-Your agent now gets the UI tools it needs, in the transport that fits it.
+现在，你的智能体将以适合它的传输方式，获得所需的 UI 工具。

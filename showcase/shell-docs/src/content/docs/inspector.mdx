@@ -1,20 +1,20 @@
 ---
 title: Inspector
 icon: "lucide/SearchCheck"
-description: Verify your setup, debug agent runs, reproduce issues, and review AG-UI streams and Automatic Learning.
+description: 验证你的配置、调试智能体运行、复现问题，并查看 AG-UI 流与 Automatic Learning。
 ---
 
 
-The CopilotKit Inspector is a debugging overlay for the live connection between
-your frontend and agents. Use it while developing to follow a run from the
-application UI through the AG-UI event stream, tools, state, and saved Threads.
+CopilotKit Inspector 是一个调试浮层，面向你的前端与智能体之间的实时
+连接。开发时可以用它跟踪一次运行——从应用 UI 出发，穿过 AG-UI
+事件流、工具、状态和已保存的线程（Threads）。
 
-Reach for Inspector after a [quickstart](/quickstart) to verify that the pieces
-are connected, while adding tools or shared state, or when you need to reproduce
-an issue from a real conversation. Inspector shows what the browser received;
-[Runtime Debug Mode](/troubleshooting/debug-mode) adds the server-side view, and
-[Error Debugging & Observability](/troubleshooting/error-debugging) covers
-production error reporting.
+在完成[快速开始](/quickstart)之后、添加工具或共享状态时、或需要从
+一次真实会话复现问题时，都可以用 Inspector 来确认各部分已连通。
+Inspector 展示浏览器收到了什么；
+[Runtime Debug Mode](/troubleshooting/debug-mode)
+补充服务端视角，[Error Debugging & Observability](/troubleshooting/error-debugging)
+则覆盖生产环境的错误上报。
 
 <video
   src="https://cdn.copilotkit.ai/docs/copilotkit/videos/inspector.mp4"
@@ -26,263 +26,271 @@ production error reporting.
   muted
 />
 
-## Choose what you need to do
+## 选择你需要做的事
 
-| Your goal                                      | Start here                              |
-| ---------------------------------------------- | --------------------------------------- |
-| Confirm that CopilotKit is connected           | **Home**, then **Agent**                |
-| Find out why a run or tool failed              | The red launcher or error pill          |
-| Inspect one `CopilotChat` response             | **View in Inspector** on the message    |
-| Follow messages, events, tools, state, context | **Agent** and the **Inspect** panes     |
-| Reproduce a saved conversation safely          | **Rich Threads** → **Try from here**    |
-| Continue a saved Thread in your application    | **Rich Threads** → **View in your app** |
-| Enable or repair Intelligence                  | **Home** or a locked **Rich Threads**   |
-| Review what Learning found                     | **Automatic Learning**                  |
-| Move or hide the overlay                       | The Inspector header and settings       |
+| 你的目标 | 从这里开始 |
+| --- | --- |
+| 确认 CopilotKit 已连接 | **Home**，然后 **Agent** |
+| 查明运行或工具失败的原因 | 红色启动器或错误胶囊 |
+| 检查某条 `CopilotChat` 响应 | 消息上的 **View in Inspector** |
+| 跟踪消息、事件、工具、状态、上下文 | **Agent** 与 **Inspect** 面板 |
+| 安全地复现已保存的会话 | **Rich Threads** → **Try from here** |
+| 在你的应用中继续已保存的线程 | **Rich Threads** → **View in your app** |
+| 启用或修复 Intelligence | **Home** 或锁定的 **Rich Threads** |
+| 查看 Learning 的发现 | **Automatic Learning** |
+| 移动或隐藏浮层 | Inspector 头部与设置 |
 
-## Show Inspector and confirm your setup
+## 打开 Inspector 并确认配置
 
-Inspector appears by default in development builds of React, Vue, and Angular
-browser applications. Open your application and click the Inspector button in
-the corner. The first open lands on **Home**; later opens return to the last
-pane you used.
+在 React、Vue 和 Angular 浏览器应用的开发构建中，Inspector
+默认出现。打开你的应用，点击角落里的 Inspector
+按钮。首次打开会落在 **Home** 上；之后打开会回到你上次使用的面板。
 
-Confirm the connection before debugging anything else:
+调试任何东西之前，先确认连接：
 
-1. Open **Agent**. Your connected agent should be listed.
-2. Send a message in your application, then open **AG-UI Events**. You should
-   see events arrive while the run is active.
-3. Open **Rich Threads**. A connected Intelligence setup shows your saved Threads.
-   Without Intelligence, the pane is locked and offers a setup path instead.
+1. 打开 **Agent**。你连接的智能体应该列在其中。
+2. 在你的应用里发送一条消息，然后打开 **AG-UI
+   Events**。运行进行中时你应该能看到事件陆续到达。
+3. 打开 **Rich Threads**。已连接 Intelligence
+   的配置会显示你保存的线程。没有 Intelligence
+   时，该面板处于锁定状态，并改为提供一条配置路径。
 
-Home summarizes project, Runtime, and service status. When Intelligence is
-connected, it shows an **Intelligence connected** chip. Otherwise, choose
-**Copy setup prompt** to give the setup task to your coding agent. If the
-Runtime supplies a trusted setup URL, you can also choose **Set it up yourself**.
+**Home** 汇总项目、Runtime 与服务状态。Intelligence
+已连接时，它会显示一个 **Intelligence connected**
+徽标。否则，选择 **Copy setup prompt**，把配置任务交给你的编码
+智能体。如果 Runtime 提供了受信任的配置
+URL，你也可以选择 **Set it up yourself**。
 
-If the agent is missing or no events arrive, first confirm the
-[Copilot Runtime](/backend/copilot-runtime) connection. If Threads is the only
-missing piece, follow the [Intelligence quickstart](/intelligence/quickstart)
-instead of changing the agent connection.
+如果智能体缺失或没有事件到达，先确认
+[Copilot Runtime](/backend/copilot-runtime)
+连接。如果唯一缺的是 Threads，请按照
+[Intelligence 快速开始](/intelligence/quickstart)
+操作，而不要改动智能体连接。
 
-## Find the cause of a failed run
+## 找到运行失败的原因
 
-When CopilotKit reports an error, the Inspector launcher turns red. When there
-is room, an error pill briefly names the failure. Click either one to open the
-pane with the most useful evidence:
+当 CopilotKit 报告错误时，Inspector
+启动器会变红。空间足够时，一个错误胶囊会简要标出失败原因。点击任意
+一个，即可打开证据最充分的面板：
 
-| Failure                      | Where Inspector takes you | What to check                                |
-| ---------------------------- | ------------------------- | -------------------------------------------- |
-| Runtime or connection        | **Home**                  | Runtime and service status                   |
-| Loading the Thread list      | **Rich Threads**          | The list error and Intelligence state        |
-| Agent run or `RUN_ERROR`     | **AG-UI Events**          | The highlighted event, agent name, and error |
-| Tool handler or missing tool | **Agent**                 | The agent, tool, call, and error             |
-| Loading Learning data        | **Automatic Learning**    | The pane error and setup state               |
+| 失败类型 | Inspector 带你去哪里 | 需要检查什么 |
+| --- | --- | --- |
+| 运行时或连接 | **Home** | Runtime 与服务状态 |
+| 加载线程列表 | **Rich Threads** | 列表错误与 Intelligence 状态 |
+| 智能体运行或 `RUN_ERROR` | **AG-UI Events** | 高亮的事件、智能体名称与错误 |
+| 工具处理器或缺失工具 | **Agent** | 智能体、工具、调用与错误 |
+| 加载 Learning 数据 | **Automatic Learning** | 面板错误与配置状态 |
 
-A `RUN_ERROR` is highlighted and expanded while it remains in the event
-buffer. A tool call is highlighted when the error includes its call id; a
-missing tool has no call to highlight.
+只要 `RUN_ERROR` 还留在事件缓冲区里，它就会被高亮并展开。当错误
+包含某个调用的 call id 时，对应工具调用会被高亮；缺失的工具没有
+调用可高亮。
 
-Learning data is fetched the first time you open **Automatic Learning**, so a Learning
-load error can only be routed there after that first visit.
+Learning 数据在你第一次打开 **Automatic Learning**
+时才拉取，因此 Learning 加载错误只有在那次访问之后才会被路由到
+那里。
 
-Inspector is best for locating the failing layer during development. If the
-event stream stops before it reaches the browser, enable [Runtime Debug
-Mode](/troubleshooting/debug-mode) to inspect the server-side pipeline. Use
-`onError` on `CopilotKit` or `CopilotChat` when the application UI or your
-production observability system should also receive the error. See [Error
-Debugging & Observability](/troubleshooting/error-debugging) for that setup.
+Inspector 最适合在开发期间定位出问题的层。如果事件流在到达浏览器
+之前就中断了，启用
+[Runtime Debug Mode](/troubleshooting/debug-mode)
+检查服务端管线。当应用 UI
+或你的生产可观测性系统也需要收到该错误时，在 `CopilotKit` 或
+`CopilotChat` 上使用 `onError`。相关配置见
+[Error Debugging & Observability](/troubleshooting/error-debugging)。
 
-## What's New
+## 新增动态（What's New）
 
-What's New lists updates that match your stable frontend SDK version and confirmed
-runtime configuration. A single preview beside the launcher highlights an update.
-Read it or close its preview to quiet the updates already available to you. They remain
-in What's New for later reading. Reading a different update does not dismiss the highlight.
+What's New 列出与你正在使用的稳定版前端 SDK 版本和已确认的运行时
+配置相匹配的更新。启动器旁边的单个预览会突出显示一条更新。阅读它，
+或关闭其预览，即可让当前可用的更新安静下来。它们仍保留在 What's
+New 里供以后阅读。阅读另一条更新不会取消当前的突出显示。
 
-New updates can show a preview later. Copy edits to an update you already read stay quiet.
-The Inspector shares recent read and dismissed updates across ports on the current host.
-It keeps the selected update and full history in storage for each origin. Updates load
-once per page and do not poll. If cookies are blocked, read and dismissed updates
-stay on the current origin.
-Production, server rendering, and disabled Inspectors do not fetch notifications.
+新更新可以稍后再显示预览。对你已读更新的文案修订保持安静。
+Inspector 在当前主机的多个端口之间共享最近的已读与已忽略更新。它把
+选中的更新与完整历史按源（origin）保存在存储里。更新在每个页面只
+加载一次，不做轮询。如果 cookie
+被阻止，已读与已忽略更新只保留在当前源上。生产环境、服务端渲染以及
+被禁用的 Inspector 不会拉取通知。
 
-React, Vue, and Angular set the notification context when they mount Inspector.
-If you mount `<cpk-web-inspector>` yourself, set its `notificationContext`
-property before connecting it to the page. Include `development: true`, your
-`framework`, and the version of that frontend SDK package as `sdkVersion`.
-Without that context, the element leaves notifications off.
+React、Vue 和 Angular 在挂载 Inspector
+时会设置通知上下文。如果你自行挂载 `<cpk-web-inspector>`，请先把
+它的 `notificationContext` 属性设置好，再把它连接到页面。上下文里要
+包含 `development: true`、你的 `framework`，以及该前端 SDK
+包的版本（作为 `sdkVersion`）。缺少该上下文时，元素会保持通知关闭。
 
-The cohort-capable Inspector reads only the versioned notification feed. Older SDK
-releases continue reading the separate legacy `announcements.json` feed. A legacy
-announcement reaches those older clients without cohort targeting; it is not a
-fallback for the updated Inspector when the cohort feed is empty or unavailable.
+支持分组（cohort）的 Inspector 只读取带版本的通知订阅源。较旧的
+SDK 版本继续读取单独的旧版 `announcements.json`
+订阅源。旧版公告不带分组定向地到达那些旧客户端；当分组订阅源为空或
+不可用时，它并不是新版 Inspector 的回退。
 
-## Follow a run from input to result
+## 跟踪一次运行：从输入到结果
 
-Send a message in your application, then use these views to answer the next
-debugging question:
+在你的应用里发送一条消息，然后用这些视图回答下一个调试问题：
 
-| Question                                                    | Open                                                                | Related guide                                               |
-| ----------------------------------------------------------- | ------------------------------------------------------------------- | ----------------------------------------------------------- |
-| Which agent ran, and what did it do?                        | **Agent**                                                           | [Agent configuration](/agent-config)                        |
-| Which events crossed the AG-UI connection?                  | **AG-UI Events**                                                    | [AG-UI protocol](/agentic-protocols/ag-ui)                  |
-| Which browser-side tools are registered?                    | **Frontend Tools**                                                  | [Frontend Tools](/frontend-tools)                           |
-| What readable or document context was shared?               | **Context**                                                         | [Agent read-only context](/shared-state/agent-readonly)     |
-| Which components can the agent render, and what did it see? | **Generative UI**                                                   | [Components and surfaces](/generative-ui/components)        |
-| What did a saved conversation contain?                      | **Rich Threads** → **Conversation**, **AG-UI Events**, or **State** | [AG-UI Streams](/AG-UI-Streams) and [Shared State](/shared-state) |
+| 问题 | 打开 | 相关指南 |
+| --- | --- | --- |
+| 哪个智能体运行了，做了什么？ | **Agent** | [Agent 配置](/agent-config) |
+| 哪些事件经过了 AG-UI 连接？ | **AG-UI Events** | [AG-UI 协议](/agentic-protocols/ag-ui) |
+| 注册了哪些浏览器侧工具？ | **Frontend Tools** | [前端工具](/frontend-tools) |
+| 共享了哪些可读或文档上下文？ | **Context** | [智能体只读上下文](/shared-state/agent-readonly) |
+| 智能体能渲染哪些组件，它看到了什么？ | **Generative UI** | [组件与表面](/generative-ui/components) |
+| 已保存的会话里有什么？ | **Rich Threads** → **Conversation**、**AG-UI Events** 或 **State** | [AG-UI Streams](/AG-UI-Streams) 与 [共享状态](/shared-state) |
 
-In an official React `CopilotChat`, open an assistant message's toolbar and
-choose **View in Inspector** to jump directly to that message in its Thread.
-This local development shortcut is useful when you already know which response
-you need to explain. See the [`CopilotChat` reference](/reference/components/CopilotChat)
-for its configuration.
+在官方 React `CopilotChat`
+中，打开一条助手消息的工具栏并选择 **View in
+Inspector**，即可直接跳到其线程中的那条消息。当你已经知道要解释的是
+哪条响应时，这个本地开发捷径很有用。配置详见
+[`CopilotChat` 参考](/reference/components/CopilotChat)。
 
-**Conversation** shows messages, expandable tool calls, and Generative UI component names. Generated interfaces render in your application, not inside Inspector. Choose **Show event timeline** for run markers and state changes, or **AG-UI Events** for raw events. **Hide thread list** gives the conversation more room; the title and conversation actions stay visible while scrolling.
+**Conversation** 显示消息、可展开的工具调用和生成式 UI
+组件名。生成的界面在你的应用里渲染，而不是在 Inspector
+里。选择 **Show event timeline** 查看运行标记与状态变化，或选择
+**AG-UI Events** 查看原始事件。**Hide thread list**
+给会话腾出更多空间；滚动时标题与会话操作保持可见。
 
-**Frontend Tools** appears only after your application registers a frontend
-tool. **Capabilities** appears only when an A2UI catalog is present; use it to
-toggle tools and catalog components while experimenting.
+**Frontend Tools** 只有在你的应用注册了前端工具之后才会出现。
+**Capabilities** 只有在存在 A2UI
+目录时才出现；试验时可以用它开关工具和目录组件。
 
-**Generative UI** appears only when the provider has a `generativeUI` config.
-It has three tabs:
+**Generative UI** 只有在提供方配置了 `generativeUI`
+时才出现。它有三个标签页：
 
-- **Surfaces**: the targets on the page, and each surface with its status, data
-  model, user values, operations, and rejected operations. A tree shows the
-  components that rendered, with their props. Hover over the card of a page
-  surface to outline the surface and scroll to it.
-- **Catalog**: the components and functions with their schemas, grouped by the
-  catalog that declared them. The search filters both lists. A function with
-  no handler gets a warning.
-- **Prompt**: the envelope and the generative UI text of the last run, or of
-  the next run.
+- **Surfaces**：页面上的目标，以及每个 surface
+  的状态、数据模型、用户值、操作和被拒操作。一棵树展示渲染出的组件
+  及其 props。悬停在页面 surface
+  的卡片上，可以勾出该 surface 并滚动到它。
+- **Catalog**：组件与函数及其 schema，按声明它们的目录分组。搜索会
+  同时过滤两个列表。没有处理器的函数会显示警告。
+- **Prompt**：上一次运行（或下一次运行）的信封与生成式 UI 文本。
 
-If a surface does not render, see
-[When something does not render](/generative-ui/components#when-something-does-not-render)
-for the tab to open.
+如果某个 surface 没有渲染，请看
+[有内容不渲染时](/generative-ui/components#when-something-does-not-render)，
+了解该打开哪个标签页。
 
-On narrow windows, or when Inspector is docked left, the sidebar collapses to
-icons. **Talk to an Engineer** remains in the sidebar footer.
+在窄窗口下，或 Inspector 停靠在左侧时，侧边栏会折叠成图标。
+**Talk to an Engineer** 仍保留在侧边栏页脚。
 
-## Reproduce an issue without changing the saved Thread
+## 在不改动已存线程的情况下复现问题
 
-Use **Playground** when you have already observed a problem and want to vary the
-prompt, state, or next message without touching the original [Rich
-Thread](/AG-UI-Streams). Its messages and state stay separate from your application
-chat and stored Threads, so you can run, stop, retry, and continue an experiment
-safely.
+当你已经观察到问题，想在不碰原始
+[Rich Thread](/AG-UI-Streams)
+的前提下调整提示、状态或下一条消息时，使用 **Playground**。它的消息
+与状态和你的应用聊天及存储的线程相互隔离，因此可以安全地运行、停止、
+重试和继续实验。
 
-To reproduce a problem from a real conversation:
+要从一次真实会话复现问题：
 
-1. Open **Rich Threads** and select the saved Thread.
-2. Choose **Try from here**.
-3. Continue the copied conversation in **Playground**.
+1. 打开 **Rich Threads** 并选择已保存的线程。
+2. 选择 **Try from here**。
+3. 在 **Playground** 中继续这份复制的会话。
 
-Inspector copies the Thread's messages and state but leaves the original
-untouched. If the copy fails, neither the saved Thread nor the existing
-Playground session changes.
+Inspector 复制线程的消息与状态，但保持原件不动。如果复制失败，
+已保存的线程和现有的 Playground 会话都不会改变。
 
-When Threads has no real rows, or when it is locked, Inspector shows an overview
-video, three local example Threads, their detail tabs, and a guided tour. These
-examples do not send real Thread requests. With reduced motion enabled, the
-video starts paused. If the video fails, the examples and tour still work.
+当 Threads 没有真实数据行，或处于锁定状态时，Inspector
+会显示一段概览视频、三个本地示例线程及其详情标签页，并附带一次引导
+之旅。这些示例不会发送真实的线程请求。开启“减弱动态效果”时，视频
+默认暂停。即使视频加载失败，示例与引导仍然可用。
 
-## Continue a saved Thread in your application
+## 在你的应用中继续已保存的线程
 
-Selecting a Thread in Inspector does not change the live chat. To continue the
-conversation in an official `CopilotChat`, sidebar, or popup:
+在 Inspector 中选中一个线程不会改变实时聊天。要在官方
+`CopilotChat`、侧边栏或弹窗中继续该会话：
 
-1. Open a real saved Thread.
-2. Choose **View in your app** in its detail header.
-3. Send messages in the application chat on that Thread.
-4. Choose **Stop viewing** to restore the previous application Thread.
+1. 打开一个真实保存的线程。
+2. 在其详情头部选择 **View in your app**。
+3. 在该线程上的应用聊天里发送消息。
+4. 选择 **Stop viewing** 恢复之前的应用线程。
 
-The Thread list marks the conversation currently open in the application. If
-you select another Thread in the application, the Inspector override ends.
-Example Threads do not offer this action.
+线程列表会标出当前在应用中打开的会话。如果你在应用里选择了另一个
+线程，Inspector 的接管即告结束。示例线程不提供此操作。
 
-If no official chat for the agent is present, Inspector shows an error. The
-action addresses the chat by `agentId`, regardless of the backend framework.
+如果该智能体没有官方聊天组件在场，Inspector
+会显示错误。该操作通过 `agentId`
+定位聊天，与后端框架无关。
 
-A custom chat can use the bridge exported by `@copilotkit/core`. Return `true`
-from `onInspectorViewThread` only when the chat accepts the request, and include
-the same `requestId` in every lifecycle event:
+自定义聊天可以使用 `@copilotkit/core`
+导出的桥接。只有当聊天接受该请求时才从 `onInspectorViewThread`
+返回 `true`，并在每个生命周期事件中带上同一个 `requestId`：
 
-- `onInspectorViewThread` receives `{ requestId, threadId, agentId }`
-- `onInspectorStopViewing` receives `{ requestId, agentId }`
-- `emitInspectorActiveThread` sends `{ requestId, threadId, agentId, source }`
-- `emitInspectorViewThreadResult` sends `{ requestId, threadId, agentId, ok }`
+- `onInspectorViewThread` 接收 `{ requestId, threadId, agentId }`
+- `onInspectorStopViewing` 接收 `{ requestId, agentId }`
+- `emitInspectorActiveThread` 发送 `{ requestId, threadId, agentId, source }`
+- `emitInspectorViewThreadResult` 发送 `{ requestId, threadId, agentId, ok }`
 
-If you are building the Thread picker and conversation surface yourself, see
-[Headless Threads](/headless-threads) for the persistence and lifecycle APIs.
+如果你要自己构建线程选择器与会话界面，持久化与生命周期
+API 请看 [Headless Threads](/headless-threads)。
 
-## Enable or repair Intelligence
+## 启用或修复 Intelligence
 
-Intelligence unlocks real Threads and Learning. When it is not connected, open
-**Home** and choose **Copy setup prompt**. Give that prompt to your coding agent,
-then return to Inspector to follow setup through the first eligible Thread. The
-[Intelligence quickstart](/intelligence/quickstart) explains the project,
-credentials, and Runtime routes that prompt configures.
+Intelligence 解锁真实线程与 Learning。未连接时，打开 **Home**
+并选择 **Copy setup prompt**。把这段提示交给你的编码智能体，然后
+回到 Inspector，跟着配置走完第一个符合条件的线程。
+[Intelligence 快速开始](/intelligence/quickstart)
+解释了该提示所配置的项目、凭据与 Runtime 路由。
 
-If Threads remains locked, Inspector shows one Rich Threads setup view with
-**Copy setup prompt** and **Talk to an Engineer**. The view is based on Runtime
-Threads capability rather than license metadata. To configure incomplete
-routes, use the Runtime route guide.
-[Enable AG-UI Streams routes](/backend/runtime-endpoints#enable-rich-threads-routes)
-explains how to configure application-user identity, mount every required HTTP
-method, and verify the capability response.
+如果 Threads 仍处于锁定状态，Inspector
+会显示一个 Rich Threads 配置视图，带有 **Copy setup prompt** 与
+**Talk to an Engineer**。该视图依据的是 Runtime 的 Threads
+能力，而不是许可元数据。要配置不完整的路由，请使用 Runtime
+路由指南。
+[启用 AG-UI Streams 路由](/backend/runtime-endpoints#enable-rich-threads-routes)
+说明了如何配置应用用户身份、挂载每个必需的 HTTP
+方法，并验证能力响应。
 
-## Review what Learning found
+## 查看 Learning 的发现
 
-Open **Automatic Learning** to trace completed Threads into evidence-backed Insights and
-reviewed Skills. A configured pane shows:
+打开 **Automatic Learning**，把已完成的线程追溯为有证据支撑的
+Insight 与经过评审的 Skill。配置完成的面板会显示：
 
-- new Threads ready for analysis;
-- published Skills and their `SKILL.md` content;
-- the Insights supporting each Skill; and
-- the source Thread evidence behind each pattern.
+- 已准备好分析的新线程；
+- 已发布的 Skill 及其 `SKILL.md` 内容；
+- 支撑每个 Skill 的 Insight；以及
+- 每个模式背后的源线程证据。
 
-Select evidence to open the matching Thread and message. Use **Open Intelligence**
-in the results header to open the Intelligence app in a new tab. The analysis
-and Skill-review links open the selected Learning Space in Intelligence.
-Inspector lets you inspect the evidence, but does not approve or publish a candidate.
+选择证据即可打开对应的线程与消息。使用结果头部的 **Open
+Intelligence** 在新标签页中打开 Intelligence
+应用。分析与 Skill 评审链接会在 Intelligence
+中打开所选的学习空间（Learning Space）。Inspector
+让你检视证据，但不会批准或发布候选。
 
-If Learning is not configured, choose **Copy setup prompt**. If the Runtime
-cannot select one Learning Space for the active agent, Inspector sends you
-to the web app to choose it. See [Automatic Learning](/learning) for the complete workflow.
+Learning 未配置时，选择 **Copy setup prompt**。如果 Runtime
+无法为当前智能体选定唯一的学习空间，Inspector
+会把你带到 Web 应用中去选择。完整流程见
+[Automatic Learning](/learning)。
 
-## Control when Inspector appears
+## 控制 Inspector 何时出现
 
-Use the option that matches what you are trying to do:
+根据你想做的事选择对应的选项：
 
-| Goal                                       | Action                                                                                                    |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| Close the current view                     | Use the close control; reopen it from the Inspector button                                                |
-| See your application without an overlay    | Use the pop-out control in the Inspector header                                                           |
-| Hide chat message shortcuts until reload   | Open a message's Inspector shortcut menu and choose **Hide this icon**                                    |
-| Hide Inspector temporarily on this domain  | Choose **Hide Inspector for a day** from the launcher HUD, or **Hide Inspector for one week** in settings |
-| Hide Inspector indefinitely on this domain | Choose **Always hide Inspector** in settings; see below to bring it back                                  |
-| Disable Inspector for the development app  | Set `enableInspector` to `false`                                                                          |
+| 目标 | 操作 |
+| --- | --- |
+| 关闭当前视图 | 使用关闭控件；之后从 Inspector 按钮重新打开 |
+| 不带浮层地查看你的应用 | 使用 Inspector 头部中的弹出控件 |
+| 在重新加载前隐藏聊天消息快捷入口 | 打开消息的 Inspector 快捷菜单并选择 **Hide this icon** |
+| 在此域名上临时隐藏 Inspector | 从启动器 HUD 中选择 **Hide Inspector for a day**，或在设置中选择 **Hide Inspector for one week** |
+| 在此域名上无限期隐藏 Inspector | 在设置中选择 **Always hide Inspector**；恢复方法见下文 |
+| 为开发应用禁用 Inspector | 将 `enableInspector` 设为 `false` |
 
-Pop-out opens the same live Inspector session in a separate browser window and
-hides the overlay and floating button on the application page. Close the extra
-window to return Inspector to its previous floating or docked position. If no
-window opens, allow popups and try again. Refreshing closes the extra window;
-Inspector does not restore pop-out mode after a refresh.
+Pop-out（弹出）在单独的浏览器窗口中打开同一个实时 Inspector
+会话，并隐藏应用页面上的浮层和浮动按钮。关闭那个额外窗口即可让
+Inspector 回到之前的浮动或停靠位置。如果没有窗口弹出，请允许弹窗后
+重试。刷新会关闭额外窗口；刷新后 Inspector
+不会恢复弹出模式。
 
-A temporary hide removes the overlay and launcher only on the current domain.
-They return automatically after the selected period.
+临时隐藏只在当前域名上移除浮层和启动器。所选时段过后它们会自动
+回来。
 
-**Always hide Inspector** keeps the overlay and launcher hidden on the current
-domain until you bring them back. To restore Inspector, run this in the browser
-console on the page where you hid it, then reload:
+**Always hide Inspector**
+会让浮层和启动器在当前域名上保持隐藏，直到你手动恢复。要恢复
+Inspector，在你隐藏它的那个页面的浏览器控制台里运行以下代码，然后
+刷新：
 
 ```js
 document.cookie = "cpk_inspector_dismissed_until=; Path=/; Max-Age=0";
 localStorage.removeItem("cpk:inspector:dismissed_until");
 ```
 
-To disable Inspector in a React development build:
+在 React 开发构建中禁用 Inspector：
 
 ```tsx
 <CopilotKit
@@ -293,72 +301,72 @@ To disable Inspector in a React development build:
 </CopilotKit>
 ```
 
-For cloud-hosted Intelligence, keep `CPK_INTELLIGENCE_API_KEY` on the runtime server.
-The runtime reports Intelligence access to the browser. Do not expose the project
-API key in a `NEXT_PUBLIC_` environment variable.
+对于云端托管的 Intelligence，把 `CPK_INTELLIGENCE_API_KEY`
+保留在 runtime 服务器上。运行时会把 Intelligence
+访问权报告给浏览器。不要把项目 API 密钥暴露在 `NEXT_PUBLIC_`
+环境变量里。
 
-Vue uses the template prop `:enable-inspector="false"`. Angular uses
-`provideCopilotKit({ enableInspector: false })`. An explicit `true` keeps
-Inspector enabled in development but cannot override production or
-server-rendering guards. Legacy `showDevConsole` props no longer control it.
+Vue 使用模板 prop `:enable-inspector="false"`。Angular 使用
+`provideCopilotKit({ enableInspector: false })`。显式传 `true`
+能让 Inspector 在开发环境保持启用，但不能覆盖生产或服务端渲染的
+保护。旧版 `showDevConsole` prop 不再控制它。
 
-See the [`CopilotKit` provider reference](/reference/components/CopilotKit) for
-the complete React provider API.
+完整的 React provider API 见
+[`CopilotKit` provider 参考](/reference/components/CopilotKit)。
 
-Inspector is never loaded or rendered in a production build or during
-server-side rendering.
+在生产构建或服务端渲染期间，Inspector 永远不会被加载或渲染。
 
-## Understand project and usage information
+## 理解项目与用量信息
 
-An Intelligence-backed Runtime can send trusted organization, project, plan,
-Thread usage, retention, and action metadata. Home shows valid project context;
-the Threads footer shows valid usage and relevant actions. Missing identity data
-does not hide valid usage, and missing usage does not hide a valid action.
+有 Intelligence 支撑的 Runtime
+可以发送受信任的组织、项目、计划、线程用量、保留与操作元数据。
+**Home** 显示有效的项目上下文；Threads
+页脚显示有效的用量与相关操作。身份数据缺失不会隐藏有效的用量，
+用量缺失也不会隐藏有效的操作。
 
-Inspector opens only action URLs supplied by the Runtime. It never constructs a
-project URL or uses a fixed signup fallback. If metadata and Runtime license
-states conflict, Runtime status wins and Inspector hides the incompatible
-action.
+Inspector 只打开 Runtime 提供的操作 URL。它从不自行构造项目
+URL，也不使用固定的注册回退。当元数据与 Runtime
+许可状态冲突时，以 Runtime 状态为准，Inspector
+会隐藏不兼容的操作。
 
-| Usage state                 | What Inspector shows                                     |
-| --------------------------- | -------------------------------------------------------- |
-| Finite limit                | `used / limit Threads` and a progress bar                |
-| Over the finite limit       | `limit+ / limit Threads`, with the bar capped at 100%    |
-| Unlimited                   | The used count and **Unlimited**, without a progress bar |
-| Unknown limit               | The used count and **Limit unavailable**                 |
-| Known expiry count          | The count, including `0 Expiring Soon`                   |
-| Missing or malformed expiry | No expiry value                                          |
+| 用量状态 | Inspector 显示什么 |
+| --- | --- |
+| 有限上限 | `used / limit Threads` 和一个进度条 |
+| 超出有限上限 | `limit+ / limit Threads`，进度条封顶在 100% |
+| 无上限 | 已用计数与 **Unlimited**，无进度条 |
+| 上限未知 | 已用计数与 **Limit unavailable** |
+| 到期计数已知 | 计数，包括 `0 Expiring Soon` |
+| 到期信息缺失或格式错误 | 无到期值 |
 
-**Expiring Soon** means a Thread is within a retention threshold in the next 24
-hours. It does not mean Inspector locked or deleted that Thread.
+**Expiring Soon** 表示某个线程将在未来 24
+小时内进入保留阈值。并不表示 Inspector 锁定或删除了那个线程。
 
-Older Runtime, Core, and Inspector versions remain compatible without a
-synchronized deployment. Newer components feature-detect optional metadata;
-older components ignore fields they do not understand. Explicit
-`threadEndpoints` remain authoritative, and metadata never enables Thread work.
+较旧版本的 Runtime、Core 与 Inspector
+无需同步部署即可保持兼容。较新的组件对可选元数据做特性检测；较旧的
+组件忽略它们不认识的字段。显式配置的 `threadEndpoints`
+仍然是权威来源，元数据永远不会启用线程功能。
 
-## Where Inspector runs
+## Inspector 的运行位置
 
-Inspector is a browser overlay: it mounts a custom element into the page's DOM.
-It runs on React, Next.js, React SPA, Vue, and Angular.
+Inspector 是一个浏览器浮层：它把一个自定义元素挂载进页面的 DOM。
+它运行在 React、Next.js、React SPA、Vue 和 Angular 上。
 
-There is no React Native build of Inspector, and `@copilotkit/react-native` does
-not ship it. Channels such as Slack and Teams do not have a browser surface
-either.
+Inspector 没有 React Native 版本，`@copilotkit/react-native`
+也不提供它。Slack、Teams 之类的渠道同样没有浏览器界面。
 
-Use these alternatives for React Native:
+React Native 请改用以下方式：
 
-| What you need to debug      | Use                                                                                                      |
-| --------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Whether the Runtime answers | `npx copilotkit verify --round-trip`. See [Proving it works](/react-native#proving-it-works).            |
-| Errors and tool calls       | Runtime [Debug Mode](/troubleshooting/debug-mode) beside the device log, such as `adb logcat` on Android |
-| Saved Threads               | The Thread view in [CopilotKit Intelligence](/intelligence/overview)                                     |
+| 需要调试什么 | 使用 |
+| --- | --- |
+| Runtime 是否有响应 | `npx copilotkit verify --round-trip`。见 [Proving it works](/react-native#proving-it-works)。 |
+| 错误与工具调用 | 设备日志旁的 Runtime [Debug Mode](/troubleshooting/debug-mode)，例如 Android 上的 `adb logcat` |
+| 已保存的线程 | [CopilotKit Intelligence](/intelligence/overview) 中的线程视图 |
 
-Inspector telemetry has its own browser identity and direct delivery path. It
-works whether or not the Runtime has `CPK_TELEMETRY_ID` and follows the existing
-telemetry opt-outs.
+Inspector 遥测有自己的浏览器身份和直传通道。无论 Runtime
+是否配置了 `CPK_TELEMETRY_ID`
+它都能工作，并遵循现有的遥测退出选项。
 
 <Callout type="info">
-  Want to preview A2UI catalog components directly in your editor? See the [VS
-  Code Extension](/vs-code-extension) for live preview with hot reload.
+  想直接在你的编辑器里预览 A2UI 目录组件？查看
+  [VS Code Extension](/vs-code-extension)，获得带热重载的实时预览。
 </Callout>

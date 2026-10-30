@@ -1,29 +1,29 @@
 ---
-title: "Authentication"
+title: "身份验证"
 icon: "lucide/Shield"
-description: "Secure your AG2 backend with user authentication on /chat"
+description: "通过 /chat 上的用户身份验证保护你的 AG2 后端"
 ---
 
-## Overview
+## 概览
 
-CopilotKit supports user authentication for AG2 backends in two deployment modes:
+CopilotKit 支持两种部署模式下的 AG2 后端用户身份验证：
 
-- **LangGraph Platform equivalent**: cloud-hosted runtime forwarding to your AG2 `/chat` endpoint
-- **Self-hosted runtime**: your own CopilotKit runtime forwarding to your AG2 `/chat` endpoint
+- **LangGraph Platform 等价模式**：云托管运行时，转发到你的 AG2 `/chat` 端点
+- **自托管运行时**：你自己的 CopilotKit 运行时，转发到你的 AG2 `/chat` 端点
 
-Both approaches let your AG2 backend access authenticated user context and enforce authorization.
+两种方式都能让你的 AG2 后端访问已认证的用户上下文并执行授权。
 
-This pattern enables your backend to:
+这种模式让你的后端能够：
 
-- Validate user tokens before dispatching the agent
-- Attach authenticated user context to agent state/tools
-- Enforce authorization decisions server-side
+- 在分发智能体之前校验用户令牌
+- 将已认证的用户上下文附加到智能体状态/工具上
+- 在服务端执行授权决策
 
 <Callout type="info">
-  CopilotKit consumes AG-UI protocol events streamed by AG2 over <code>/chat</code>. See the <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/" target="_blank">AG2 AG-UI integration docs</a>.
+  CopilotKit 消费由 AG2 通过 <code>/chat</code> 流式传输的 AG-UI 协议事件。参见 <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/" target="_blank">AG2 AG-UI 集成文档</a>。
 </Callout>
 
-## How It Works
+## 工作原理
 
 ```mermaid
 sequenceDiagram
@@ -39,9 +39,9 @@ sequenceDiagram
     Agent->>Agent: Access authenticated user context
 ```
 
-## Frontend Setup
+## 前端配置
 
-Pass your authentication token via the `properties` prop:
+通过 `properties` prop 传递你的身份验证令牌：
 
 ```tsx
 <CopilotKit
@@ -54,13 +54,13 @@ Pass your authentication token via the `properties` prop:
 </CopilotKit>
 ```
 
-**Note**: The `authorization` property is forwarded to your AG2 `/chat` endpoint as a request header.
+**注意**：`authorization` 属性会作为请求头转发到你的 AG2 `/chat` 端点。
 
-## LangGraph Platform Deployment
+## LangGraph Platform 部署
 
-**For cloud-hosted deployments**, protect your AG2 `/chat` endpoint with token-header validation.
+**对于云托管部署**，请使用令牌请求头校验来保护你的 AG2 `/chat` 端点。
 
-### Setup Authentication Handler
+### 配置身份验证处理器
 
 ```python
 from fastapi import FastAPI, Header, HTTPException
@@ -111,9 +111,9 @@ async def run_agent(
     )
 ```
 
-### Access User in Agent
+### 在智能体中访问用户
 
-Use validated user identity to scope tool calls and data access:
+使用已校验的用户身份来限定工具调用与数据访问的范围：
 
 ```python
 from typing import Annotated
@@ -134,7 +134,7 @@ def get_account_data(
     return {"account_id": account_id, "owner": auth_user["user_id"]}
 ```
 
-The `Inject("auth_user")` annotation pulls the dependency you passed to `stream.dispatch(...)` — it is invisible to the LLM and never leaves the server. Register the tool on the agent so the LLM can call it:
+`Inject("auth_user")` 注解会提取你传递给 `stream.dispatch(...)` 的依赖项——它对 LLM 不可见，也永远不会离开服务器。将该工具注册到智能体上，以便 LLM 能够调用它：
 
 ```python
 agent = Agent(
@@ -145,11 +145,11 @@ agent = Agent(
 )
 ```
 
-## Self-hosted Deployment
+## 自托管部署
 
-**For self-hosted deployments**, use the same `/chat` header-validation pattern in your own FastAPI service.
+**对于自托管部署**，请在你自己的 FastAPI 服务中使用相同的 `/chat` 请求头校验模式。
 
-### Setup Dynamic Agent Configuration
+### 配置动态智能体
 
 ```python
 from fastapi import FastAPI, Header, HTTPException
@@ -187,15 +187,13 @@ async def run_agent(
     )
 ```
 
-### Access User in Agent
+### 在智能体中访问用户
 
-The identity travels as a request-scoped dependency, so the same `Inject("auth_user")` tools
-shown above work unchanged here — nothing about a tool has to know whether the deployment is
-managed or self-hosted.
+该身份以请求作用域的依赖项形式传递，因此上文展示的 `Inject("auth_user")` 工具在此无需任何改动即可工作——工具本身完全不需要知道部署是托管式还是自托管式。
 
-## Universal Authentication Pattern
+## 通用身份验证模式
 
-For backends that run in both cloud-hosted and self-hosted modes, use this pattern:
+对于同时在云托管和自托管模式下运行的后端，请使用以下模式：
 
 ```python
 def extract_user_from_auth_header(authorization: str | None) -> dict | None:
@@ -205,51 +203,51 @@ def extract_user_from_auth_header(authorization: str | None) -> dict | None:
     return validate_your_token(token)
 ```
 
-Then:
+然后：
 
-- Read `authorization` on `/chat`
-- Validate token before `stream.dispatch(...)`
-- Attach the user as a dependency (`dependencies={"auth_user": ...}`) for tool authorization
-- Deny unauthorized or out-of-scope access
-- Apply the same check to the capabilities `GET` route if you expose one (`stream.capabilities()`), so it does not describe your agent to anonymous callers
+- 在 `/chat` 上读取 `authorization`
+- 在 `stream.dispatch(...)` 之前校验令牌
+- 将用户作为依赖项附加（`dependencies={"auth_user": ...}`），用于工具授权
+- 拒绝未授权或越权的访问
+- 如果你暴露了 capabilities `GET` 路由（`stream.capabilities()`），也对其应用相同的校验，以免向匿名调用者描述你的智能体
 
-## Security Notes
+## 安全注意事项
 
 ### LangGraph Platform
 
-- **Token Validation**: Validate tokens on your AG2 `/chat` endpoint
-- **User Scoping**: Scope data access by authenticated user identity
+- **令牌校验**：在你的 AG2 `/chat` 端点上校验令牌
+- **用户范围限定**：按已认证的用户身份限定数据访问范围
 
-### Self-hosted
+### 自托管
 
-- **Manual Validation**: Implement and maintain your own validation logic
-- **Header Forwarding**: Ensure your runtime forwards `authorization` to AG2
+- **手动校验**：自行实现并维护校验逻辑
+- **请求头转发**：确保你的运行时将 `authorization` 转发给 AG2
 
-### General Best Practices
+### 通用最佳实践
 
-- **Permission Checks**: Enforce role-based checks in AG2 tools
-- **Transport Security**: Serve `/chat` over HTTPS
-- **Least Privilege**: Return only data needed for the current user/task
+- **权限检查**：在 AG2 工具中执行基于角色的检查
+- **传输安全**：通过 HTTPS 提供 `/chat` 服务
+- **最小权限**：只返回当前用户/任务所需的数据
 
-## Troubleshooting
+## 故障排查
 
-### Common Issues
+### 常见问题
 
-**Token not reaching backend**:
+**令牌未到达后端**：
 
-- Ensure you're passing `authorization` in `properties`
-- Confirm your runtime forwards headers to AG2 `/chat`
+- 确保你在 `properties` 中传入了 `authorization`
+- 确认你的运行时将请求头转发到了 AG2 `/chat`
 
-**Invalid token format**:
+**令牌格式无效**：
 
-- Handle both raw tokens and `Bearer <token>` formats consistently
+- 以一致的方式同时处理原始令牌和 `Bearer <token>` 两种格式
 
-**Unexpected anonymous access**:
+**意外的匿名访问**：
 
-- Verify `authorization` checks happen before calling `stream.dispatch(...)`
+- 确认 `authorization` 校验发生在调用 `stream.dispatch(...)` 之前
 
-## Next Steps
+## 后续步骤
 
-- [Configure chat UI with AG2 backend ->](/ag2/prebuilt-components)
-- [Learn about shared state ->](/ag2/shared-state)
-- [Implement human-in-the-loop workflows ->](/ag2/human-in-the-loop)
+- [使用 AG2 后端配置聊天 UI ->](/ag2/prebuilt-components)
+- [了解共享状态 ->](/ag2/shared-state)
+- [实现人机协同（human-in-the-loop）工作流 ->](/ag2/human-in-the-loop)

@@ -1,139 +1,100 @@
 ---
-title: "Open Generative UI"
+title: "开放式生成式 UI"
 icon: "lucide/Code"
-description: "Let agents generate fully interactive HTML/CSS/JS UIs that stream live into the chat."
+description: "让智能体生成完全可交互的 HTML/CSS/JS UI，并实时流式输出到聊天中。"
 snippet_cell: open-gen-ui
 ---
 
 <InlineDemo demo="open-gen-ui" />
 
-## What is this?
+## 这是什么？
 
-Open Generative UI lets the agent generate complete, sandboxed UI on the fly
-(HTML, CSS, and JavaScript) and stream it live into the chat. The user sees
-the interface build in real time: styles apply first, then HTML streams in
-progressively, and finally JavaScript expressions execute one by one.
+开放式生成式 UI（Open Generative UI）让智能体即时生成完整的沙箱化 UI（HTML、CSS 和 JavaScript），并实时流式输出到聊天中。用户可以看到界面实时构建的过程：先应用样式，然后 HTML 逐步流入，最后 JavaScript 表达式逐一执行。
 
 <Callout type="info">
-  **Free course:** See this pattern built end-to-end in [Build Interactive Agents with Generative UI](https://www.deeplearning.ai/short-courses/build-interactive-agents-with-generative-ui/) — a free DeepLearning.AI short course taught by CopilotKit's CEO covering the full Generative UI spectrum (Controlled, Declarative, and Open-Ended).
+  **免费课程**：在 [Build Interactive Agents with Generative UI](https://www.deeplearning.ai/short-courses/build-interactive-agents-with-generative-ui/) 中查看此模式的端到端构建——这是由 CopilotKit CEO 讲授的 DeepLearning.AI 免费短课程，涵盖生成式 UI 的全部形态（受控式、声明式和开放式）。
 </Callout>
 
-Key benefits:
+主要优势：
 
-- **No predefined components** — the agent creates any UI it needs, on demand
-- **Live streaming** — HTML streams into a preview as it's generated
-- **CDN libraries** — the generated UI can load Chart.js, D3, Three.js, etc. via `<script>` tags
-- **Secure sandboxing** — content runs in an isolated iframe without same-origin access
-- **Sandbox functions** — optionally expose host functions to the generated UI for two-way communication
+- **无需预定义组件**——智能体按需创建所需的任何 UI
+- **实时流式传输**——HTML 在生成的同时流入预览
+- **CDN 库**——生成的 UI 可以通过 `<script>` 标签加载 Chart.js、D3、Three.js 等
+- **安全沙箱**——内容运行在隔离的 iframe 中，没有同源访问权限
+- **沙箱函数**——可选择向生成的 UI 暴露宿主函数，实现双向通信
 
-## Minimal setup
+## 最小配置
 
-Turning on Open Generative UI takes one flag in the runtime plus a plain
-`<CopilotChat />` on the frontend; the built-in activity renderer is
-auto-registered by `CopilotKit`, so no extra frontend wiring is needed. Your
-agent must still give the run's frontend tools to its model (see the warning
-below).
+启用开放式生成式 UI 只需在运行时加一个开关，再加上前端一个普通的 `<CopilotChat />`；内置的 activity 渲染器由 `CopilotKit` 自动注册，因此无需额外的前端接线。不过你的智能体仍须把本次运行的前端工具交给它的模型（参见下方警告）。
 
-### Enable it in the runtime
+### 在运行时中启用
 
-Add `OpenGenerativeUIMiddleware` to your runtime configuration:
+在你的运行时配置中添加 `OpenGenerativeUIMiddleware`：
 
 <Snippet region="minimal-runtime-flag" />
 
-The `OpenGenerativeUIMiddleware` then converts the agent's streamed
-`generateSandboxedUi` tool call into `open-generative-ui` activity events,
-which the built-in `OpenGenerativeUIActivityRenderer` mounts inside a
-sandboxed iframe.
+随后，`OpenGenerativeUIMiddleware` 会把智能体流式输出的 `generateSandboxedUi` 工具调用转换为 `open-generative-ui` activity 事件，由内置的 `OpenGenerativeUIActivityRenderer` 挂载到沙箱化 iframe 中。
 
-<Callout type="warn" title="Your agent must pass frontend tools to its model">
-  `generateSandboxedUi` reaches the agent as a frontend tool in the run input.
-  The agent calls it only if it gives the run's frontend tools to its model.
-  If it binds only its own tools, the model never sees `generateSandboxedUi`,
-  so nothing renders and no error appears.
+<Callout type="warn" title="你的智能体必须把前端工具传给它的模型">
+  `generateSandboxedUi` 作为运行输入中的前端工具到达智能体。只有当智能体把本次运行的前端工具交给它的模型时，它才会调用该工具。如果它只绑定自己的工具，模型就永远看不到 `generateSandboxedUi`，于是什么都渲染不出来，也不会报错。
 
-  - The built-in agent passes frontend tools already.
-  - A LangGraph agent built with `create_agent` (Python) or `createAgent`
-    (TypeScript) adds `CopilotKitMiddleware()` (Python, from `copilotkit`) or
-    `copilotkitMiddleware` (TypeScript, from `@copilotkit/sdk-js/langgraph`)
-    to its `middleware`. A hand-built graph binds the frontend tools with its
-    own tools: in Python, use `CopilotKitState` and bind
-    `state["copilotkit"]["actions"]`; in TypeScript, spread
-    `CopilotKitStateAnnotation.spec` into the state and bind
-    `state.copilotkit.actions` (convert them with
-    `convertActionsToDynamicStructuredTools` from `@copilotkit/sdk-js/langgraph`).
-  - Other agents forward the frontend tools from the run input. See
-    [Frontend Tools](/frontend-tools).
+  - 内置智能体已经会传递前端工具。
+  - 用 `create_agent`（Python）或 `createAgent`（TypeScript）构建的 LangGraph 智能体，会在其 `middleware` 中添加 `CopilotKitMiddleware()`（Python，来自 `copilotkit`）或 `copilotkitMiddleware`（TypeScript，来自 `@copilotkit/sdk-js/langgraph`）。手工搭建的图则需要把前端工具与自己的工具绑定在一起：Python 中使用 `CopilotKitState` 并绑定 `state["copilotkit"]["actions"]`；TypeScript 中把 `CopilotKitStateAnnotation.spec` 展开进 state 并绑定 `state.copilotkit.actions`（用 `@copilotkit/sdk-js/langgraph` 的 `convertActionsToDynamicStructuredTools` 转换它们）。
+  - 其他智能体则从运行输入转发前端工具。参见[前端工具](/frontend-tools)。
 </Callout>
 
-### Drop `<CopilotChat />` into the page
+### 把 `<CopilotChat />` 放进页面
 
-Wrap your app in `CopilotKit` and render `<CopilotChat>` — no extra props needed:
+用 `CopilotKit` 包裹你的应用并渲染 `<CopilotChat>`——不需要任何额外的 prop：
 
 <Snippet region="minimal-provider-setup" />
 
-That's it. Ask the agent "build me a simple greeting card" to see HTML
-stream into a sandboxed preview live.
+大功告成。让智能体“给我做一张简单的问候卡片”，就能看到 HTML 实时流入沙箱化预览。
 
-## Advanced: With app tool calling
+## 进阶：结合应用工具调用
 
-Sandbox functions let the generated UI call back into your host application
-— a generated settings panel can toggle your app's theme, a product card can
-push items into your cart, or a data view can ask the host to fetch data the
-iframe can't reach directly.
+沙箱函数让生成的 UI 能回调你的宿主应用——生成的设置面板可以切换应用的主题，产品卡片可以把商品加入购物车，数据视图也可以请求宿主去获取 iframe 无法直接访问的数据。
 
 <InlineDemo demo="open-gen-ui-advanced" />
 
-### Runtime is unchanged
+### 运行时保持不变
 
-The server-side flag is identical to the minimal cell; the advanced
-behaviour is a pure frontend addition.
+服务端开关与最小示例完全相同；进阶行为纯粹是前端的增量添加。
 
 <Snippet region="advanced-runtime-config" cell="open-gen-ui-advanced" />
 
-### Register sandbox functions on the provider
+### 在 Provider 上注册沙箱函数
 
-Each sandbox function is a Zod-validated, host-side bridge the agent can
-invoke from inside the generated iframe via
-`Websandbox.connection.remote.<name>(args)`. The handler runs in the host
-page and its description is appended to the agent's context, so the agent
-knows which bridges are available when generating HTML/JS.
+每个沙箱函数都是一座经过 Zod 校验的宿主侧桥接，智能体可以在生成的 iframe 内部通过 `Websandbox.connection.remote.<name>(args)` 调用它。处理函数运行在宿主页面中，其描述会附加到智能体的上下文里，因此智能体在生成 HTML/JS 时知道有哪些桥接可用。
 
 <Snippet region="sandbox-function-registration" cell="open-gen-ui-advanced" />
 
-<Callout type="info" title="How the sandbox calls you back">
-  Inside the generated UI, the agent writes JS that calls
-  `await Websandbox.connection.remote.notifyHost({ message: "hi" })`.
-  The call is proxied back to the host page, where your `handler` runs
-  with the validated args.
+<Callout type="info" title="沙箱如何回调你">
+  在生成的 UI 内部，智能体会写出调用 `await Websandbox.connection.remote.notifyHost({ message: "hi" })` 的 JS 代码。该调用被代理回宿主页面，由你的 `handler` 携带经过校验的参数执行。
 </Callout>
 
-### Common use cases
+### 常见用例
 
-- **Theme toggling** — generated UI controls your app's appearance
-- **Cart / state management** — product cards push items into host state
-- **Navigation** — generated UI triggers route changes in the host app
-- **Data fetching** — sandbox asks the host to fetch data the iframe can't reach directly
+- **主题切换**——生成的 UI 控制应用的外观
+- **购物车 / 状态管理**——产品卡片把商品推入宿主状态
+- **导航**——生成的 UI 触发宿主应用的路由变化
+- **数据获取**——沙箱请求宿主获取 iframe 无法直接访问的数据
 
-## How streaming works
+## 流式传输的工作原理
 
-The agent generates the tool call's parameters in an order optimized for the
-user experience:
+智能体按照针对用户体验优化的顺序生成工具调用的参数：
 
-1. **`placeholderMessages`** — shown immediately while generating
-2. **`css`** — all styles first; the preview starts once CSS is complete
-3. **`html`** — streams live into the preview as it's generated
-4. **`jsFunctions`** — reusable helpers injected before expressions
-5. **`jsExpressions`** — executed one by one; the user sees each take effect
+1. **`placeholderMessages`**——生成期间立即显示
+2. **`css`**——先输出全部样式；CSS 完成后预览即启动
+3. **`html`**——生成的同时实时流入预览
+4. **`jsFunctions`**——在表达式之前注入的可复用辅助函数
+5. **`jsExpressions`**——逐一执行；用户能看到每一条生效
 
-The middleware parses the tool-call arguments incrementally and emits
-activity events as each parameter completes, so the preview updates
-progressively.
+中间件会增量解析工具调用参数，并在每个参数完成时发出 activity 事件，预览因此得以渐进更新。
 
-## Using CDN libraries
+## 使用 CDN 库
 
-The sandboxed iframe can load external libraries from CDNs; just include
-`<script>` or `<link>` tags in the generated HTML `<head>`. Chart.js, D3,
-Three.js, and any other CDN-hosted library work out of the box.
+沙箱化 iframe 可以从 CDN 加载外部库；只需在生成的 HTML `<head>` 中包含 `<script>` 或 `<link>` 标签即可。Chart.js、D3、Three.js 以及任何其他托管在 CDN 上的库都开箱即用。
 
 ```html
 <head>

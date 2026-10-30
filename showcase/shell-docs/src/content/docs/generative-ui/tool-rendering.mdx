@@ -1,7 +1,7 @@
 ---
-title: Tool Call Rendering
+title: 工具调用渲染
 icon: "lucide/Server"
-description: Render your agent's tool calls with custom UI components.
+description: 用自定义 UI 组件渲染智能体的工具调用。
 snippet_cell: tool-rendering
 ---
 
@@ -9,106 +9,79 @@ import ToolRenderingPerToolExample from "@/snippets/shared/generative-ui/tool-re
 
 <InlineDemo demo="tool-rendering" />
 
-## What is this?
+## 这是什么？
 
-Tools are how an LLM invokes predefined, typically-deterministic functions.
-Tool rendering lets you decide how each of those tool calls appears in the
-chat. Instead of showing raw JSON, you register a React component that draws
-a branded card for the call (arguments, live status, and the eventual
-result). This is the **Generative UI** variant CopilotKit calls **tool
-rendering**.
+工具是 LLM 调用预定义（通常是确定性）函数的方式。工具渲染让你决定每个工具调用在聊天中的呈现方式。你不必展示原始 JSON，而是注册一个 React 组件，为调用绘制一张品牌化的卡片（参数、实时状态以及最终结果）。这就是 CopilotKit 称为**工具渲染**的**生成式 UI** 变体。
 
 <Callout type="info">
-  **Free course:** See this pattern built end-to-end in [Build Interactive
-  Agents with Generative
-  UI](https://www.deeplearning.ai/short-courses/build-interactive-agents-with-generative-ui/)
-  — a free DeepLearning.AI short course taught by CopilotKit's CEO covering the
-  full Generative UI spectrum (Controlled, Declarative, and Open-Ended).
+  **免费课程**：在 [Build Interactive Agents with Generative UI](https://www.deeplearning.ai/short-courses/build-interactive-agents-with-generative-ui/) 中查看此模式的端到端构建——这是由 CopilotKit CEO 讲授的 DeepLearning.AI 免费短课程，涵盖生成式 UI 的全部形态（受控式、声明式和开放式）。
 </Callout>
 
-## When should I use this?
+## 什么时候应该使用？
 
-Render tool calls when you want to:
+当你想要以下效果时，就渲染工具调用：
 
-- Show users exactly what tools the agent is invoking and with what arguments
-- Display live progress indicators while a tool executes
-- Render rich, polished results once a tool completes
-- Give tool-heavy agents a transparent, on-brand chat experience
+- 让用户确切看到智能体正在调用哪些工具、传了哪些参数
+- 在工具执行期间展示实时进度指示器
+- 工具完成后渲染丰富、精致的结果
+- 为重度依赖工具的智能体提供透明且符合品牌的聊天体验
 
-## Default tool rendering (zero-config)
+## 默认工具渲染（零配置）
 
-The simplest entry point: call `useDefaultRenderTool()` with no arguments.
-CopilotKit registers its built-in `DefaultToolCallRenderer` as the `*`
-wildcard: every tool call renders as a tidy status card (tool name, live
-**Running → Done** pill, collapsible arguments/result) without you writing
-any UI. Calls the agent makes in a row are grouped into one card; see
-[Grouping tool calls](#grouping-tool-calls).
+最简单的入口：不带参数调用 `useDefaultRenderTool()`。CopilotKit 会把内置的 `DefaultToolCallRenderer` 注册为 `*` 通配渲染器：每个工具调用都渲染成一张整洁的状态卡片（工具名、实时的 **Running → Done**（运行中 → 完成）徽标、可折叠的参数/结果），而你无需编写任何 UI。智能体连续发起的调用会归组到一张卡片中；参见[工具调用分组](#工具调用分组)。
 
-Without this hook the runtime has no `*` renderer and tool calls are
-invisible; the user only sees the assistant's final text summary.
+没有这个钩子，运行时就没有 `*` 渲染器，工具调用便不可见；用户只能看到助手最终的文字总结。
 
 <Snippet
   cell="tool-rendering-default-catchall"
   region="default-catchall-zero-config"
-  title="frontend/src/app/page.tsx — useDefaultRenderTool()"
+  title="frontend/src/app/page.tsx —— useDefaultRenderTool()"
 />
 
-Here's what the built-in status card looks like for each tool call:
+下面是每个工具调用的内置状态卡片的样子：
 
 <InlineDemo demo="tool-rendering-default-catchall" />
 
-## Custom catch-all
+## 自定义兜底渲染
 
-Once you want on-brand chrome, pass a `render` function to
-`useDefaultRenderTool`. It's a convenience wrapper around
-`useRenderTool({ name: "*", ... })`: one wildcard renderer handles every
-tool call, named or not:
+一旦想要符合品牌的外壳，就给 `useDefaultRenderTool` 传入一个 `render` 函数。它是 `useRenderTool({ name: "*", ... })` 的便捷包装：一个通配渲染器处理所有工具调用，无论是否具名：
 
 <Snippet
   cell="tool-rendering-custom-catchall"
   region="use-default-render-tool-wildcard"
-  title="frontend/src/app/page.tsx — custom wildcard renderer"
+  title="frontend/src/app/page.tsx —— 自定义通配渲染器"
 />
 
-Here's the branded catch-all in action, where every tool call gets the same on-brand card:
+下面是品牌化兜底渲染的实际效果，每个工具调用都会得到同样符合品牌的卡片：
 
 <InlineDemo demo="tool-rendering-custom-catchall" />
 
-## Grouping tool calls
+## 工具调用分组
 
-Agents often call several tools in a row. By default, CopilotKit collapses
-each run of calls drawn by the built-in card from `useDefaultRenderTool()` into
-one card that reads "Used 3 tools". While a call runs, the card names it
-("Running read_file src/app.ts"), and opening it shows a row per call. Calls
-drawn by your own renderers always show on their own and split the group
-around them, unless the renderer opts in with `group: true`:
+智能体常常连续调用多个工具。默认情况下，CopilotKit 会把由 `useDefaultRenderTool()` 内置卡片绘制的每一轮连续调用折叠成一张卡片，上面写着“Used 3 tools”（使用了 3 个工具）。当某个调用正在运行时，卡片会点名它（“Running read_file src/app.ts”），展开后每个调用各占一行。由你自己的渲染器绘制的调用始终独立显示，并会在它们周围把组切开，除非渲染器通过 `group: true` 主动加入分组：
 
 ```tsx title="page.tsx"
 useDefaultRenderTool({ render: MyToolRow, group: true });
 ```
 
-Pick how calls show with `toolCallDisplay` on the message view:
+用消息视图上的 `toolCallDisplay` 选择调用的展示方式：
 
 ```tsx title="page.tsx"
 // "grouped" (default) | "line" | "stacked" | "turn" | "separate"
 <CopilotChat messageView={{ toolCallDisplay: "line" }} />
 ```
 
-| Display      | What the user sees                                                                        |
+| 展示方式 | 用户看到的内容 |
 | ------------ | ----------------------------------------------------------------------------------------- |
-| `"grouped"`  | One card per run of calls, collapsed to "Used 3 tools". Opens to a row per call.          |
-| `"line"`     | The same grouping as a quiet line of text, like "Thought for 4 seconds".                  |
-| `"stacked"`  | The latest call on top of a stack of the earlier ones. Opens into a card per call.        |
-| `"turn"`     | The agent works in the open, then everything before the reply folds into "Worked for 9s". |
-| `"separate"` | Every call gets its own card.                                                             |
+| `"grouped"` | 每轮连续调用一张卡片，折叠为“Used 3 tools”。展开后每个调用一行。 |
+| `"line"` | 同样的分组，但只是一行安静的文字，例如“Thought for 4 seconds”。 |
+| `"stacked"` | 最新调用叠在早前调用之上。展开后每个调用一张卡片。 |
+| `"turn"` | 智能体公开工作，回复之前的所有内容折叠为“Worked for 9s”。 |
+| `"separate"` | 每个调用一张独立卡片。 |
 
-To compare the displays side by side, run the
-[Tool call display stories](https://github.com/CopilotKit/CopilotKit/blob/main/examples/v2/react/storybook/stories/ToolCallDisplay.stories.tsx)
-in the React Storybook. They play a scripted run through the real message view,
-with a control to switch `toolCallDisplay`.
+要并排比较各种展示方式，可在 React Storybook 中运行 [Tool call display stories](https://github.com/CopilotKit/CopilotKit/blob/main/examples/v2/react/storybook/stories/ToolCallDisplay.stories.tsx)。它们会通过真实的消息视图播放一段脚本化的运行过程，并提供一个切换 `toolCallDisplay` 的控件。
 
-To restyle or replace the group, use the `group` slot of the tool-calls view
-(it applies to the grouped, line and stacked displays):
+要重新设计组的样式或替换它，请使用工具调用视图的 `group` 插槽（适用于 grouped、line 和 stacked 三种展示方式）：
 
 ```tsx title="page.tsx"
 // ToolTimeline: your component, given the group's `calls` and a `renderCall` function
@@ -119,63 +92,42 @@ To restyle or replace the group, use the `group` slot of the tool-calls view
 />
 ```
 
-See [`CopilotChatToolCallGroup`](/reference/components/CopilotChatToolCallGroup)
-for its props and an example replacement.
+其 props 与替换示例参见 [`CopilotChatToolCallGroup`](/reference/components/CopilotChatToolCallGroup)。
 
-## Per-tool renderers
+## 按工具渲染器
 
-The most expressive path is one renderer per tool name. The primary
-`tool-rendering` cell wires two: `get_weather` draws a branded
-`WeatherCard`, `search_flights` draws a `FlightListCard`. Each renderer
-receives the tool's parsed arguments, a live `status`, and (once the agent
-returns) the `result`:
+最富表现力的方式是为每个工具名配一个渲染器。主 `tool-rendering` 演示单元格接了两个：`get_weather` 绘制品牌化的 `WeatherCard`，`search_flights` 绘制 `FlightListCard`。每个渲染器都会收到工具解析后的参数、实时的 `status`，以及（智能体返回后的）`result`：
 
-### Tool inputs and results are separate
+### 工具输入与结果是分开的
 
-In `useRenderTool`, `parameters` contains the **inputs** the agent sent to the
-tool. It does not change into the tool's return value when `status` becomes
-`"complete"`. The completed output arrives separately as `result`, a string.
-For a tool that returns JSON, parse that string before reading its fields.
+在 `useRenderTool` 中，`parameters` 包含的是智能体发给工具的**输入**。当 `status` 变为 `"complete"` 时，它并不会变成工具的返回值。完成后的输出会单独作为 `result`（一个字符串）到达。对于返回 JSON 的工具，请先解析该字符串再读取其字段。
 
-For example, `get_weather` might receive `{ "location": "Paris" }` and return
-`{ "temperature": 22 }`. Read `parameters.location` for the requested city and
-the parsed `result.temperature` for the temperature. Adding `temperature` to
-the renderer's `parameters` schema does not copy it from the result.
+例如，`get_weather` 可能收到 `{ "location": "Paris" }` 并返回 `{ "temperature": 22 }`。用 `parameters.location` 读取请求的城市，用解析后的 `result.temperature` 读取温度。把 `temperature` 加进渲染器的 `parameters` schema 并不会把它从结果中复制过来。
 
-If a card says **complete** but still shows placeholder details, check whether
-those details come from `parameters` instead of the parsed `result`. Completion
-reports that the tool returned; it does not fill the card's props for you.
+如果卡片显示 **complete** 却仍在展示占位内容，请检查这些内容是否来自 `parameters` 而非解析后的 `result`。完成只表示工具已返回；它不会替你填充卡片的 props。
 
-The frontend pattern is the same for every backend. This shared, docs-only
-example includes every component, type, and helper that its renderers use:
+无论后端是什么，前端模式都相同。这个共享的、仅用于文档的示例包含了其渲染器用到的每一个组件、类型和辅助函数：
 
 <ToolRenderingPerToolExample />
 
 <Callout type="info">
-  The `name` you pass to `useRenderTool` must match the tool name the agent
-  exposes; that's how the runtime routes the call to your component.
+  你传给 `useRenderTool` 的 `name` 必须与智能体暴露的工具名一致；运行时正是据此把调用路由到你的组件。
 </Callout>
 
-Per-tool renderers compose with a catch-all: named renderers claim the
-"interesting" tools and a wildcard handles everything else. In the primary
-cell, the same `CustomCatchallRenderer` from above catches `get_stock_price`
-and `roll_dice`:
+按工具渲染器可以与兜底渲染组合使用：具名渲染器认领“值得关注的”工具，通配渲染器处理其余一切。在主演示单元格中，上文同一个 `CustomCatchallRenderer` 会接住 `get_stock_price` 和 `roll_dice`：
 
 <Snippet
   region="catchall-renderer"
-  title="frontend/src/app/page.tsx — per-tool + catch-all"
+  title="frontend/src/app/page.tsx —— 按工具 + 兜底"
 />
 
-## The backend tool definition
+## 后端工具定义
 
-The frontend renderer only sees what the agent sends down. Here's the
-matching backend definition for `get_weather`: expose a tool named
-`get_weather`, return structured data, and let the frontend renderer with
-the same name paint the card.
+前端渲染器只能看到智能体下发的内容。下面是与 `get_weather` 匹配的后端定义：暴露一个名为 `get_weather` 的工具，返回结构化数据，让同名的前端渲染器绘制卡片。
 
 <Snippet
   region="weather-tool-backend"
-  title="backend/agent.py — weather tool"
+  title="backend/agent.py —— 天气工具"
 />
 
 <FrameworkSetup concept="tool-rendering-setup" />

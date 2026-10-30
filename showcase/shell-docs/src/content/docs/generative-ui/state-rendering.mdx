@@ -1,46 +1,40 @@
 ---
-title: State Rendering
+title: 状态渲染
 icon: "lucide/Bot"
-description: Render your agent's state with custom UI components in real-time.
+description: 用自定义 UI 组件实时渲染智能体的状态。
 snippet_cell: shared-state-streaming
 ---
 
 <InlineDemo demo="shared-state-streaming" />
 
-## What is this?
+## 这是什么？
 
-State rendering lets you build UI that reflects your agent's state in real-time. As your agent progresses through nodes and emits state updates, your frontend renders those changes, showing progress, drafts, or intermediate results.
+状态渲染让你能构建实时反映智能体状态的 UI。当你的智能体在各节点间推进并发出状态更新时，前端会渲染这些变化，展示进度、草稿或中间结果。
 
 <Callout type="info">
-  **Free course:** See this pattern built end-to-end in [Build Interactive Agents with Generative UI](https://www.deeplearning.ai/short-courses/build-interactive-agents-with-generative-ui/) — a free DeepLearning.AI short course taught by CopilotKit's CEO covering the full Generative UI spectrum (Controlled, Declarative, and Open-Ended).
+  **免费课程**：在 [Build Interactive Agents with Generative UI](https://www.deeplearning.ai/short-courses/build-interactive-agents-with-generative-ui/) 中查看此模式的端到端构建——这是由 CopilotKit CEO 讲授的 DeepLearning.AI 免费短课程，涵盖生成式 UI 的全部形态（受控式、声明式和开放式）。
 </Callout>
 
-## When should I use this?
+## 什么时候应该使用？
 
-Use state rendering when you want to:
+当你想要以下效果时，就使用状态渲染：
 
-- Show real-time progress (e.g. "Researching... 2/5 complete")
-- Display drafts that update as the agent works
-- Build dashboards that reflect agent state
-- Render structured output outside of the chat
+- 展示实时进度（例如“正在研究…… 已完成 2/5”）
+- 展示随智能体工作而更新的草稿
+- 构建反映智能体状态的仪表盘
+- 在聊天之外渲染结构化输出
 
-## How it works in code
+## 代码中的工作方式
 
-On the frontend, subscribe to the agent's state. Each time the backend
-forwards a fresh value, your component re-renders with the latest partial
-output.
+在前端，订阅智能体的状态。每当后端转发来一个新值，你的组件就会带着最新的部分输出重新渲染。
 
-<Snippet region="frontend-use-coagent-state" title="frontend/src/app/page.tsx — agent state subscription" />
+<Snippet region="frontend-use-coagent-state" title="frontend/src/app/page.tsx —— 智能体状态订阅" />
 
-On the backend, a state-streaming mapping forwards a specific tool argument
-straight into a state key *as it's being generated*. Some frameworks provide
-that as middleware; direct SDK adapters can emit `STATE_SNAPSHOT` events from
-their streaming loop. Either way, the UI can watch the answer assemble
-token-by-token rather than appearing in one burst between checkpoints.
+在后端，状态流式映射会在某个工具参数*生成的过程中*把它直接转发进一个状态键。一些框架以中间件的形式提供这一能力；直接集成的 SDK 适配器则可以在其流式循环中发出 `STATE_SNAPSHOT` 事件。无论哪种方式，UI 都能看到答案逐 token 拼装成型，而不是在检查点之间一次性蹦出来。
 
 <FrameworkSetup concept="state-streaming-setup" />
 
-<Snippet region="state-streaming-middleware" title="backend — state streaming mapping" />
+<Snippet region="state-streaming-middleware" title="后端 —— 状态流式映射" />
 
 <IntegrationGrid
   path="generative-ui/state-rendering"

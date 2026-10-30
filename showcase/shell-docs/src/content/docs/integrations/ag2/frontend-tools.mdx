@@ -1,7 +1,7 @@
 ---
-title: Frontend Tools
+title: 前端工具
 icon: "lucide/Wrench"
-description: Create frontend actions and use them within your agent.
+description: 创建前端操作并在你的智能体中使用它们。
 ---
 
 <video
@@ -14,45 +14,44 @@ description: Create frontend actions and use them within your agent.
   muted
 />
 <Callout>
-  This video shows the result of `npx copilotkit@latest init` with the [implementation](#implementation) section applied to it.
+  该视频展示了 `npx copilotkit@latest init` 的结果，并应用了[实现](#实现)一节中的内容。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-Frontend actions are powerful tools that allow your AI agents to directly interact with and update your application's user interface. Think of them as bridges that connect your agent's decision-making capabilities with your frontend's interactive elements.
+前端操作是功能强大的工具，能让你的 AI 智能体直接与应用的用户界面交互并更新它。可以把它们想象成一座座桥梁，将智能体的决策能力与前端的交互元素连接起来。
 
 <Callout type="info">
-  CopilotKit consumes AG-UI protocol events streamed by AG2 over <code>/chat</code>. See the <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/" target="_blank">AG2 AG-UI integration docs</a>.
+  CopilotKit 消费由 AG2 通过 <code>/chat</code> 流式传输的 AG-UI 协议事件。参见 <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/" target="_blank">AG2 AG-UI 集成文档</a>。
 </Callout>
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Frontend actions are essential when you want to create truly interactive AI applications where your agent needs to:
+当你想创建真正可交互的 AI 应用、且智能体需要完成以下事情时，前端操作必不可少：
 
-- Dynamically update UI elements
-- Trigger frontend animations or transitions
-- Show alerts or notifications
-- Modify application state
-- Handle user interactions programmatically
+- 动态更新 UI 元素
+- 触发前端动画或过渡效果
+- 显示提醒或通知
+- 修改应用状态
+- 以编程方式处理用户交互
 
-Without frontend actions, agents are limited to just processing and returning data. By implementing frontend actions, you can create rich, interactive experiences where your agent actively drives the user interface.
+没有前端操作时，智能体只能处理并返回数据。通过实现前端操作，你可以构建丰富的交互式体验，让智能体主动驱动用户界面。
 
-## Implementation
+## 实现
 
 <Steps>
     <Step>
-        ### Setup CopilotKit
+        ### 配置 CopilotKit
 
-        To use frontend actions, you'll need to setup CopilotKit first. For the sake of brevity, we won't cover it here.
+        要使用前端操作，你需要先配置 CopilotKit。为节省篇幅，此处不再展开。
 
-        Check out our [getting started guide](/ag2/quickstart) and come back here when you're setup.
+        请查看我们的[快速开始指南](/ag2/quickstart)，完成配置后再回到这里。
     </Step>
 
     <Step>
-        ### Create a frontend action
+        ### 创建前端操作
 
-        First, you'll need to create a frontend action using the [useFrontendTool](/reference/v2/hooks/useFrontendTool) hook. Here's a simple one to get you started
-        that says hello to the user.
+        首先，你需要使用 [useFrontendTool](/reference/v2/hooks/useFrontendTool) hook 创建一个前端操作。下面这个简单示例会向用户问好，可供入门。
 
         ```tsx title="page.tsx"
         import { z } from "zod";
@@ -79,13 +78,13 @@ Without frontend actions, agents are limited to just processing and returning da
         ```
     </Step>
     <Step>
-        ###  Modify your agent
-        Now, we'll need to modify the agent to access these frontend actions. Open your AG2 backend file and continue from there.
+        ### 修改你的智能体
+        接下来，我们需要修改智能体以访问这些前端操作。打开你的 AG2 后端文件，从那里继续。
     </Step>
     <Step>
-        ### Setup your AG2 backend over AG-UI
+        ### 通过 AG-UI 配置你的 AG2 后端
 
-        AG2 can call frontend actions through AG-UI tool events with a standard `/chat` endpoint:
+        AG2 可以通过 AG-UI 工具事件，经由标准的 `/chat` 端点调用前端操作：
 
         <Tabs groupId="language" items={['Python']} default="Python">
             <Tab value="Python">
@@ -119,11 +118,11 @@ Without frontend actions, agents are limited to just processing and returning da
             </Tab>
         </Tabs>
 
-        That's it. Your AG2 backend can now receive frontend action tool definitions emitted by CopilotKit through AG-UI.
+        大功告成。现在你的 AG2 后端已经能够接收 CopilotKit 通过 AG-UI 发出的前端操作工具定义。
     </Step>
     <Step>
-        ### Give it a try
-        You've now given your agent the ability to directly call any CopilotActions you've defined. These actions will be available as tools to the agent where they can be used as needed.
+        ### 试一试
+        现在你的智能体已经可以直接调用你定义的任何 CopilotAction。这些操作会作为工具提供给智能体，供其按需使用。
     </Step>
 
 </Steps>

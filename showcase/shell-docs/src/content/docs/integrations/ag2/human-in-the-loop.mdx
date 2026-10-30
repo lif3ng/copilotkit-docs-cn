@@ -1,7 +1,7 @@
 ---
-title: Human-in-the-Loop
+title: 人机协同
 icon: "lucide/Wrench"
-description: Create frontend tools and use them within your AG2 agent for human-in-the-loop interactions.
+description: 创建前端工具并在 AG2 智能体中使用它们，实现人机协同交互。
 ---
 <video
   src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/human-in-the-loop-example.mp4"
@@ -13,48 +13,45 @@ description: Create frontend tools and use them within your AG2 agent for human-
   muted
 />
 <Callout>
-  This video shows the result of `npx copilotkit@latest init` with the [implementation](#implementation) section applied to it.
+  这段视频展示的是 `npx copilotkit@latest init` 的结果，并应用了[实现步骤](#实现步骤)一节的内容。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-Frontend tools enable you to define client-side functions that your AG2 agent can invoke, with execution happening entirely in the user's browser. When your agent calls a frontend tool,
-the logic runs on the client side, giving you direct access to the frontend environment.
+前端工具让你能够定义 AG2 智能体可以调用的客户端函数，其执行完全发生在用户的浏览器中。当你的智能体调用前端工具时，逻辑在客户端运行，你可以直接访问前端环境。
 
-This can be utilized to let [your agent control the UI](/ag2/frontend-tools), [generative UI](/ag2/frontend-tools), or for Human-in-the-loop interactions.
+它可以用来[让智能体控制 UI](/ag2/frontend-tools)、实现[生成式 UI](/ag2/frontend-tools)，或用于人机协同（human-in-the-loop）交互。
 
-In this guide, we cover the use of frontend tools for Human-in-the-loop.
+本指南将介绍如何将前端工具用于人机协同。
 
 <Callout type="info">
-  CopilotKit consumes AG-UI protocol events streamed by AG2 over <code>/chat</code>. See the <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/" target="_blank">AG2 AG-UI integration docs</a>.
+  CopilotKit 会消费 AG2 通过 <code>/chat</code> 流式传输的 AG-UI 协议事件。参见 <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/" target="_blank">AG2 AG-UI 集成文档</a>。
 </Callout>
 
-## When should I use this?
+## 什么时候应该使用？
 
-Use frontend tools when you need your agent to interact with client-side primitives such as:
-- Reading or modifying React component state
-- Accessing browser APIs like localStorage, sessionStorage, or cookies
-- Triggering UI updates or animations
-- Interacting with third-party frontend libraries
-- Performing actions that require the user's immediate browser context
+当你需要智能体与客户端原语交互时，请使用前端工具，例如：
+- 读取或修改 React 组件状态
+- 访问 localStorage、sessionStorage 或 cookies 等浏览器 API
+- 触发 UI 更新或动画
+- 与第三方前端库交互
+- 执行需要用户当前浏览器上下文的操作
 
-## Implementation
+## 实现步骤
 
 <Steps>
     <Step>
-      ### Run and connect your agent
+      ### 运行并连接你的智能体
 
-      Start your AG2 backend on a `/chat` endpoint and connect your frontend to it with CopilotKit.
+      在 `/chat` 端点上启动你的 AG2 后端，并使用 CopilotKit 将前端连接到它。
     </Step>
 
     <Step>
-        ### Create a frontend human-in-the-loop tool
+        ### 创建前端人机协同工具
 
-        Frontend tools can be leveraged in a variety of ways. One of those ways is to have a human-in-the-loop flow where the response
-        of the tool is gated by a user's decision.
+        前端工具可以以多种方式加以利用。其中一种方式是构建人机协同流程，让工具的响应由用户的决定来把关。
 
-        In this example we will simulate an "approval" flow for executing a command. First, use the `useHumanInTheLoop` hook to create a tool that
-        prompts the user for approval.
+        在本例中，我们将模拟一个执行命令的“审批”流程。首先，使用 `useHumanInTheLoop` hook 创建一个提示用户进行审批的工具。
 
         ```tsx title="page.tsx"
         import { useHumanInTheLoop } from "@copilotkit/react-core/v2" // [!code highlight]
@@ -87,9 +84,9 @@ Use frontend tools when you need your agent to interact with client-side primiti
         ```
     </Step>
     <Step>
-        ###  Set up your AG2 backend
+        ### 配置你的 AG2 后端
 
-        The frontend tool emits AG-UI tool events. AG2 can consume those events, then persist the user decision to shared state:
+        前端工具会发出 AG-UI 工具事件。AG2 可以消费这些事件，然后将用户的决定持久化到共享状态中：
 
         ```python title="agent.py"
         from typing import Annotated
@@ -135,12 +132,12 @@ Use frontend tools when you need your agent to interact with client-side primiti
             )
         ```
 
-        The frontend tools are automatically populated by CopilotKit through the AG-UI protocol and are available to your AG2 backend. When a tool updates `context.variables`, `AGUIStream` automatically emits a `STATE_SNAPSHOT` event at the end of the run — no manual event construction needed.
+        前端工具会由 CopilotKit 通过 AG-UI 协议自动注入，供你的 AG2 后端使用。当工具更新 `context.variables` 时，`AGUIStream` 会在运行结束时自动发出 `STATE_SNAPSHOT` 事件——无需手动构造事件。
     </Step>
     <Step>
-        ### Try it out
+        ### 试一试
 
-        You've now given your agent the ability to show the user two options and have them select one. The agent will then be aware of the user's choice and can use it in subsequent steps.
+        现在你的智能体已经能够向用户展示两个选项并让用户选择其一。之后智能体会感知到用户的选择，并在后续步骤中使用它。
 
         ```
         Can you show me two good options for a restaurant name?
@@ -148,13 +145,13 @@ Use frontend tools when you need your agent to interact with client-side primiti
     </Step>
 </Steps>
 
-## Approve a tool call with interrupts
+## 通过中断审批工具调用
 
-Frontend tools put the decision in the browser. AG-UI 1.0 also lets the **backend** pause a run and ask: a tool wrapped in `ApprovalRequired` is held until the user approves or rejects the call. AG2 sends the held call to the client as an AG-UI interrupt, and CopilotKit's `useInterrupt` renders it.
+前端工具把决定权放在浏览器中。AG-UI 1.0 还允许**后端**暂停一次运行并发起询问：被 `ApprovalRequired` 包装的工具会被挂起，直到用户批准或拒绝该调用。AG2 会将被挂起的调用作为 AG-UI 中断发送给客户端，由 CopilotKit 的 `useInterrupt` 进行渲染。
 
 <Steps>
     <Step>
-        ### Gate the tool in AG2
+        ### 在 AG2 中拦截工具
 
         ```python title="tools.py"
         from typing import Annotated
@@ -181,12 +178,12 @@ Frontend tools put the decision in the browser. AG-UI 1.0 also lets the **backen
             return favorites
         ```
 
-        Serve the agent with `AGUIStream` as usual. Don't set a `hitl_hook` on the agent: with one, AG2 asks in-process and no interrupt reaches the browser.
+        像往常一样使用 `AGUIStream` 来伺服智能体。不要在智能体上设置 `hitl_hook`：一旦设置了，AG2 会在进程内直接询问，中断就不会到达浏览器。
     </Step>
     <Step>
-        ### Answer it with `useInterrupt`
+        ### 用 `useInterrupt` 响应中断
 
-        The run ends with an interrupt of reason `tool_call`. The backend reads the answer as a boolean, so `resolve(true)` approves the call and `resolve(false)` refuses it. A refusal does not fail the run: the model is told the call was refused and carries on.
+        这次运行会以一个 reason 为 `tool_call` 的中断结束。后端将应答读取为布尔值，因此 `resolve(true)` 表示批准该调用，`resolve(false)` 表示拒绝。拒绝不会导致运行失败：模型会被告知该调用已被拒绝，然后继续执行。
 
         ```tsx title="page.tsx"
         import { useInterrupt } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -208,18 +205,18 @@ Frontend tools put the decision in the browser. AG-UI 1.0 also lets the **backen
         ```
     </Step>
     <Step>
-        ### Try it out
+        ### 试一试
 
         ```
         Save Lisbon to my favorites
         ```
 
-        The approval card appears in the chat. Approve it and the city shows up in the [shared state](/ag2/shared-state).
+        审批卡片会出现在聊天中。批准之后，这个城市就会出现在[共享状态](/ag2/shared-state)中。
     </Step>
 </Steps>
 
 <Callout type="warn">
-  `useInterrupt().resolve()` and `.cancel()` send no `metadata` in the resume entry. That is enough for a gated tool call like the one above, but not for an AG2 server built with `require_resume_proof=True`, which needs the interrupt's `metadata` copied into the resume entry. See <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/overview#asking-the-human-a-question" target="_blank">Asking the human a question</a> in the AG2 docs.
+  `useInterrupt().resolve()` 和 `.cancel()` 在恢复条目中不会发送 `metadata`。对于上面这样的受拦截工具调用来说已经足够，但对于使用 `require_resume_proof=True` 构建的 AG2 服务器则不够——它需要把中断的 `metadata` 复制进恢复条目。参见 AG2 文档中的 <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/overview#asking-the-human-a-question" target="_blank">Asking the human a question</a>。
 </Callout>
 
-A held turn lives in the AG2 process that served the run, so the resuming run must reach that same process. See <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/overview#deployment-a-held-turn-lives-in-one-process" target="_blank">the AG2 deployment notes</a> before running several replicas.
+被挂起的轮次存在于伺服该次运行的 AG2 进程中，因此恢复运行必须到达同一个进程。在运行多个副本之前，请参阅 <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/overview#deployment-a-held-turn-lives-in-one-process" target="_blank">AG2 部署说明</a>。

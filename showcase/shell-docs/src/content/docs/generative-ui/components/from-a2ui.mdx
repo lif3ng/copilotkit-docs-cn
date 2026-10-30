@@ -1,45 +1,56 @@
 ---
-title: "Adopt from A2UI"
+title: "从 A2UI 迁移"
 icon: "lucide/ArrowRightLeft"
-description: "Move an app from the a2ui renderer (A2UI v0.9) to components and surfaces (A2UI 1.0): the provider, the catalog, the operations, and what the agent receives."
+description: "把应用从 a2ui 渲染器（A2UI v0.9）迁移到组件与界面（A2UI 1.0）：provider、组件目录、操作，以及智能体收到的东西。"
 ---
 
-## What is this?
+## 这是什么？
 
-The `a2ui` provider option and `@copilotkit/a2ui-renderer` render A2UI v0.9: you build a catalog with `createCatalog`, and the agent streams a fixed or a generated schema into it. Components and surfaces is the A2UI 1.0 engine. The idea is the same: the agent writes operations, and the browser renders your React components. The engine adds typed catalogs, the [standard catalog](/generative-ui/components/standard-catalog), areas of the page as targets, two transports, dynamic values that compute in the browser, and functions the agent can call. This page maps one to the other.
+provider 的 `a2ui` 选项和 `@copilotkit/a2ui-renderer` 渲染的是 A2UI v0.9：
+你用 `createCatalog` 构建组件目录，智能体把固定或生成的 schema 流式注入
+其中。组件与界面则是 A2UI 1.0 引擎。思路是一样的：智能体写出操作，浏览器
+渲染你的 React 组件。引擎新增了类型化组件目录、
+[标准组件目录](/generative-ui/components/standard-catalog)、页面区域作为
+渲染目标、两种传输方式、在浏览器中计算的动态值，以及智能体可以调用的
+函数。本页就是把两者一一对应起来。
 
-## Before and after
+## 迁移前后
 
-The provider takes a UI instead of a catalog, and the runtime needs no A2UI option:
+provider 接收的是一个 UI 而不是组件目录，运行时也不再需要 A2UI 选项：
 
-```tsx title="Before"
+```tsx title="迁移前"
 <CopilotKit runtimeUrl="/api/copilotkit" a2ui={{ catalog: myCatalog }}>
 ```
 
-```tsx title="After"
+```tsx title="迁移后"
 <CopilotKitProvider runtimeUrl="/api/copilotkit" generativeUI={{ ui: appUI }}>
 ```
 
-```ts title="Runtime, before"
+```ts title="运行时，迁移前"
 const runtime = new CopilotRuntime({
   agents,
   a2ui: { injectA2UITool: false, agents: ["shop"] },
 });
 ```
 
-```ts title="Runtime, after"
+```ts title="运行时，迁移后"
 // Nothing: a run that carries a catalog gets the render_ui tool and the guide.
 // To force or limit it: generativeUI: true, or generativeUI: { agents: ["shop"] }.
 const runtime = new CopilotRuntime({ agents });
 ```
 
-The chat renders surfaces on its own. For an area of the page, mount [`<GenerativeUISurface id="...">`](/generative-ui/components/surfaces). For an agent that cannot call tools, use the [markdown transport](/generative-ui/components/markdown-mode). The agent keeps writing A2UI operations; see [Bindings and actions](#bindings-and-actions) for what changed in them.
+聊天会自行渲染界面。要渲染页面的某个区域，请挂载
+[`<GenerativeUISurface id="...">`](/generative-ui/components/surfaces)。
+智能体无法调用工具时，请使用
+[Markdown 传输](/generative-ui/components/markdown-mode)。智能体仍然写
+A2UI 操作；其中有什么变化，参见[绑定与操作](#绑定与操作)。
 
-## Convert a custom catalog
+## 转换自定义组件目录
 
-Before, a catalog was definitions plus renderers, and a bound prop had to be declared as a union with the binding object:
+以前，组件目录是定义加渲染器，绑定的 prop 必须声明为与绑定对象的联合
+类型：
 
-```ts title="Before"
+```ts title="迁移前"
 import { createCatalog, DynamicStringSchema } from "@copilotkit/a2ui-renderer";
 
 const definitions = {
@@ -55,9 +66,9 @@ export const myCatalog = createCatalog(definitions, renderers, {
 });
 ```
 
-After, each component is one entry, with the React component, a description and plain prop types:
+现在，每个组件就是一条条目，包含 React 组件、一段描述和普通的 prop 类型：
 
-```ts title="After"
+```ts title="迁移后"
 import {
   createGenerativeUI,
   standardUI,
@@ -77,71 +88,108 @@ export const appUI = createGenerativeUI({
 });
 ```
 
-What to change:
+需要改什么：
 
-- **Prop types are plain.** Drop `DynamicStringSchema` and the unions. Any prop takes a literal, a binding `{ "@path": "/x" }` or a function value `{ "@call": ... }`, and the engine resolves it before your component renders. A component never sees a binding object.
-- **Every component gets a `description`.** The agent reads it to pick components.
-- **Children** are `slots` (`{ children: "multiple" }`, `{ child: "single" }`) or `child()` / `childList()` inside the props schema, for example `tabs: z.array(z.object({ title: z.string(), child: child() }))`. See [Catalogs](/generative-ui/components/catalogs).
-- **The basic catalog** is `extends: [standardUI]`. Drop components with `standardUI.omit([...])` and replace one with `overrides`; see [the standard catalog](/generative-ui/components/standard-catalog#replace-a-component).
-- **The catalog id** is `id`. A surface with no `catalogId` pins to it. The run also lists the ids of the catalogs in `extends`, so an operation or a component can name `copilotkit/standard@1` or the id of any other base. Any other `catalogId` is rejected.
-- **Actions and app state** become `functions` with `useGenerativeUIFunction`, and `state` with `useGenerativeUIState`; see [Connect app state and actions](/generative-ui/components/state-and-actions).
+- **prop 类型变普通了**。去掉 `DynamicStringSchema` 和各种联合类型。任何
+  prop 都可以取字面量、绑定 `{ "@path": "/x" }` 或函数值
+  `{ "@call": ... }`，引擎会在你的组件渲染前解析它。组件永远看不到绑定
+  对象。
+- **每个组件都要有 `description`**。智能体读它来挑选组件。
+- **子组件**用 `slots`（`{ children: "multiple" }`、
+  `{ child: "single" }`）或 props schema 内的 `child()` / `childList()`
+  表达，例如 `tabs: z.array(z.object({ title: z.string(), child: child() }))`。
+  参见[组件目录](/generative-ui/components/catalogs)。
+- **基础组件目录**变成了 `extends: [standardUI]`。用
+  `standardUI.omit([...])` 去掉组件，用 `overrides` 替换组件；参见
+  [标准组件目录](/generative-ui/components/standard-catalog#replace-a-component)。
+- **组件目录 id** 变成了 `id`。没有 `catalogId` 的界面会固定到它。运行还会
+  列出 `extends` 里各目录的 id，因此操作或组件可以点名
+  `copilotkit/standard@1` 或任何其他基础目录的 id。其他任何 `catalogId`
+  都会被拒绝。
+- **操作与应用状态**分别变成配合 `useGenerativeUIFunction` 使用的
+  `functions`，以及配合 `useGenerativeUIState` 使用的 `state`；参见
+  [连接应用状态与操作](/generative-ui/components/state-and-actions)。
 
-Your renderers stay as they are, apart from the props they read: a bound prop arrives resolved, and a slot or a child reference arrives as a React node.
+你的渲染器保持原样，只是读到的 props 变了：绑定的 prop 到达时已被解析，
+插槽或子组件引用到达时则是 React 节点。
 
-## Bindings and actions
+## 绑定与操作
 
-The engine takes A2UI 1.0 operations only. A v0.9 shape is rejected with a reason that names the 1.0 form, and the agent sees the reason in the next run.
+引擎只接受 A2UI 1.0 操作。v0.9 形态会被拒绝，并给出指明 1.0 形态的原因，
+智能体会在下一次运行中看到这个原因。
 
 | v0.9                                              | 1.0                                                                                                                                                               |
 | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `{ "path": "/total" }`                            | `{ "@path": "/total" }`                                                                                                                                           |
-| A literal only                                    | A literal, `{ "@path" }` or `{ "@call": "formatCurrency", "args": { ... } }`, at any depth                                                                        |
-| `"text": "Hello"` with the value elsewhere        | `{ "@call": "formatString", "args": { "value": "Hello ${/user/name}" } }`                                                                                         |
-| `"action": { "name": "buy", "context": { ... } }` | `"onClick": { "event": { "name": "buy", "userMessage": "Buy it", "context": { ... } } }` or `{ "functionCall": { "@call": "addToCart", "args": { ... } } }`       |
-| `"children": ["a", "b"]`                          | The same, or a template `{ "componentId": "row", "path": "/items" }` with `{ "@call": "@index" }` inside                                                          |
-| Validation in the agent                           | `"checks": [{ "condition": { "@call": "email", "args": { ... } }, "message": "..." }]`                                                                            |
-| An agent tool call per function                   | Not in this version: the agent cannot call renderer functions; see [Who may call a function](/generative-ui/components/state-and-actions#who-may-call-a-function) |
+| 仅字面量                                          | 字面量、`{ "@path" }` 或 `{ "@call": "formatCurrency", "args": { ... } }`，任意深度                                                                                |
+| `"text": "Hello"`，值放在别处                     | `{ "@call": "formatString", "args": { "value": "Hello ${/user/name}" } }`                                                                                         |
+| `"action": { "name": "buy", "context": { ... } }` | `"onClick": { "event": { "name": "buy", "userMessage": "Buy it", "context": { ... } } }` 或 `{ "functionCall": { "@call": "addToCart", "args": { ... } } }`       |
+| `"children": ["a", "b"]`                          | 相同写法，或使用模板 `{ "componentId": "row", "path": "/items" }` 并在其中嵌 `{ "@call": "@index" }`                                                              |
+| 由智能体侧校验                                    | `"checks": [{ "condition": { "@call": "email", "args": { ... } }, "message": "..." }]`                                                                            |
+| 每个函数对应一次智能体工具调用                    | 本版本不支持：智能体不能调用渲染器函数；参见[谁可以调用函数](/generative-ui/components/state-and-actions#who-may-call-a-function)                                  |
 
-A2UI 1.0 has no arithmetic. CopilotKit adds `calc` and `series` as catalog functions, listed like the others, so a renderer without them rejects the call rather than misrendering. See [Compute values in the browser](/generative-ui/components/state-and-actions#compute-values-in-the-browser).
+A2UI 1.0 没有算术运算。CopilotKit 把 `calc` 和 `series` 作为组件目录函数
+加入，与其他函数一样列出，这样没有它们的渲染器会拒绝调用而不是错误渲染。
+参见[在浏览器中计算值](/generative-ui/components/state-and-actions#compute-values-in-the-browser)。
 
-## What the agent receives
+## 智能体收到什么
 
-A click on an `{ "event" }` action becomes a visible user message: the `userMessage`, then the context as lines. The run also carries the structured A2UI action message (`name`, `surfaceId`, `sourceComponentId`, `timestamp`, `userMessage`, `context`) in `forwardedProps.copilotkit.ui.metadata.extensions.copilotkit_action`; `envelopeToManifest` from `@copilotkit/shared` gives it back as `action`. A second click while the agent runs is dropped, so a double click does not start two runs.
+点击一个 `{ "event" }` 操作会生成一条可见的用户消息：先是 `userMessage`，
+然后是逐行展开的 context。这次运行还会在
+`forwardedProps.copilotkit.ui.metadata.extensions.copilotkit_action` 中
+携带结构化的 A2UI 操作消息（`name`、`surfaceId`、`sourceComponentId`、
+`timestamp`、`userMessage`、`context`）；来自 `@copilotkit/shared` 的
+`envelopeToManifest` 会把它作为 `action` 还给你。智能体运行期间的第二次
+点击会被丢弃，因此双击不会启动两次运行。
 
-The agent cannot call renderer functions in this version: a `callRendererFunction` operation is rejected with a reason, and the prompts do not mention it. See [Who may call a function](/generative-ui/components/state-and-actions#who-may-call-a-function).
+本版本中智能体不能调用渲染器函数：`callRendererFunction` 操作会被拒绝并
+给出原因，提示词里也不会提到它。参见
+[谁可以调用函数](/generative-ui/components/state-and-actions#who-may-call-a-function)。
 
-## What changes in markdown mode
+## Markdown 模式下的变化
 
-In the tool transport, the browser renders what the agent wrote. In the markdown transport, the chat is a transcript, so the engine reshapes the surface of a fence before it renders:
+在工具传输中，浏览器渲染智能体写出的内容。在 Markdown 传输中，聊天是一份
+会话记录，因此引擎会在渲染前重塑代码围栏里的界面：
 
-- **Prose is lifted out.** A `Text` title or paragraph that only explains renders as chat markdown; the surface splits around it into parts that share one data model.
-- **Informational cards lose their box.** A `Card` with no control inside it (no button, input or form) becomes a `variant: "section"`: a heading plus content. A card with a control keeps its box.
-- **A new fence with the same `surfaceId`** in the same reply changes the surface in place; in a later reply it makes a new chat surface.
+- **散文内容被提取出来**。只起说明作用的 `Text` 标题或段落会以聊天
+  Markdown 的形式渲染；界面围绕它拆分成共享同一数据模型的几个部分。
+- **纯信息卡片去掉边框**。内部没有控件的 `Card`（没有按钮、输入框或表单）
+  会变成 `variant: "section"`：一个标题加内容。带控件的卡片保留边框。
+- **同一回复中 `surfaceId` 相同的新围栏**会原地更新该界面；在后续回复中
+  则会创建新的聊天界面。
 
-See [Markdown mode](/generative-ui/components/markdown-mode).
+参见 [Markdown 模式](/generative-ui/components/markdown-mode)。
 
-## Map and route
+## 地图与路线
 
-`Map` takes `markers` (a list, or a binding to one), `selected` (writable: bind it to read the user's choice), `zoom`, `center` and `route: true`, which draws a line through the markers in order. It needs `npm install maplibre-gl`; without the package it shows the places as a list.
+`Map` 接受 `markers`（一个列表，或指向列表的绑定）、`selected`（可写：
+绑定它以读取用户的选择）、`zoom`、`center` 和 `route: true`（按顺序穿过
+各标记点画一条线）。它需要 `npm install maplibre-gl`；没有这个包时会以
+列表形式展示这些地点。
 
-## Support matrix
+## 支持矩阵
 
-The integration is experimental and implements A2UI 1.0 as of spec revision [`cbaa5ee`](https://github.com/a2ui-project/a2ui/tree/cbaa5ee62c737b50d0695c1e5794d0f648b61dca/specification/v1_0) (October 2026); upstream still calls 1.0 a candidate on [a2ui.org](https://a2ui.org/), so this table can change. This table is the supported scope. A 1.0 catalog and a complete 1.0 runtime are different claims: the catalog export is conforming, the runtime covers the rows marked Yes and nothing more.
+该集成是实验性的，实现的是规范修订版
+[`cbaa5ee`](https://github.com/a2ui-project/a2ui/tree/cbaa5ee62c737b50d0695c1e5794d0f648b61dca/specification/v1_0)
+（2026 年 10 月）时的 A2UI 1.0；上游在
+[a2ui.org](https://a2ui.org/) 上仍把 1.0 称为候选版，因此这张表可能变化。
+这张表就是支持范围。1.0 组件目录与完整的 1.0 运行时是两个不同的声明：
+组件目录导出是符合规范的，运行时只覆盖标记为“是”的行，别无其他。
 
-| A2UI 1.0 | Components and surfaces |
+| A2UI 1.0 | 组件与界面 |
 | --- | --- |
-| `createSurface`, `updateComponents`, `updateDataModel`, `deleteSurface` | Yes |
-| `callRendererFunction` and `rendererFunctionResponse` | Not in this version: rejected, until results can be sent back to the model reliably |
-| `callAgentFunction` and `agentFunctionResponse` | No: a user event starts a new run, with the action message in its envelope |
-| The basic catalog (18 components) | Yes, with their 1.0 names, plus 51 more |
-| The basic functions (14) | Yes; `calc` and `series` are CopilotKit extensions |
-| Dynamic values at any depth, `formatString` with `${}`, `@index` | Yes |
-| `checks` and `ValidationResult` (`code`, `severity`) | Yes |
-| The action event message (`sourceComponentId`, `timestamp`) | Yes, in the envelope of the run, next to the visible user message |
-| Component envelope: `catalogId`, `accessibility`, `metadata` | Yes; `catalogId` must be the id of the UI or of a catalog in its `extends` |
-| Function definitions: `returnType`, `allowedCallers`, `requiresUserActivation` | Yes, written to the manifest and the export; the agent path is off regardless |
-| Catalog definition JSON | Yes, `exportA2UICatalog(ui)` |
-| Several catalogs in one surface | Partly: one UI per provider, and `supportedCatalogIds` lists the UI and every catalog in its `extends`. A component name comes from one catalog only, and a component is not checked against the catalog that the surface names |
-| `allowedParents` and `allowedChildren` | Not enforced |
-| v0.9 operations and `{ "path" }` bindings | No; rejected with a reason that names the 1.0 form |
-| Agent tools built with `@ag-ui/a2ui-toolkit` 0.0.5 | No: the toolkit writes v0.9 operations. Use the `render_ui` tool that the runtime adds |
+| `createSurface`, `updateComponents`, `updateDataModel`, `deleteSurface` | 是 |
+| `callRendererFunction` and `rendererFunctionResponse` | 本版本不支持：一律拒绝，直到结果能够可靠回传给模型为止 |
+| `callAgentFunction` and `agentFunctionResponse` | 否：用户事件会启动一次新的运行，操作消息随信封携带 |
+| 基础组件目录（18 个组件） | 是，使用它们的 1.0 名称，另加 51 个 |
+| 基础函数（14 个） | 是；`calc` 和 `series` 是 CopilotKit 扩展 |
+| 任意深度的动态值、配合 `${}` 的 `formatString`、`@index` | 是 |
+| `checks` and `ValidationResult` (`code`, `severity`) | 是 |
+| 操作事件消息（`sourceComponentId`、`timestamp`） | 是，位于运行的信封中，紧挨着可见的用户消息 |
+| 组件信封：`catalogId`、`accessibility`、`metadata` | 是；`catalogId` 必须是该 UI 的 id 或其 `extends` 中某个目录的 id |
+| 函数定义：`returnType`、`allowedCallers`、`requiresUserActivation` | 是，会写入 manifest 和导出；无论如何智能体路径都是关闭的 |
+| 组件目录定义 JSON | 是，`exportA2UICatalog(ui)` |
+| 一个界面中使用多个目录 | 部分支持：每个 provider 一个 UI，`supportedCatalogIds` 会列出该 UI 及其 `extends` 中的每个目录。组件名称只能来自一个目录，且组件不会对照界面点名的目录做校验 |
+| `allowedParents` and `allowedChildren` | 不强制 |
+| v0.9 操作和 `{ "path" }` 绑定 | 否；会拒绝并给出指明 1.0 形态的原因 |
+| 用 `@ag-ui/a2ui-toolkit` 0.0.5 构建的智能体工具 | 否：该工具包写的是 v0.9 操作。请使用运行时添加的 `render_ui` 工具 |

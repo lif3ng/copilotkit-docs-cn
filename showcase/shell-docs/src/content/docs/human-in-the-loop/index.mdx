@@ -1,7 +1,7 @@
 ---
-title: HITL Overview
+title: 人机协同概览
 icon: "lucide/User"
-description: Allow your agent and users to collaborate on complex tasks.
+description: 让智能体与用户协作完成复杂任务。
 snippet_cell: hitl-in-chat
 ---
 
@@ -11,13 +11,11 @@ import InspectorPaneFrontendTools from "@/snippets/shared/inspector/open-inspect
 
 <InspectorPaneFrontendTools components={props.components} />
 
-## What is this?
+## 这是什么？
 
-Human-in-the-loop (HITL) lets an agent pause mid-run to collect input,
-confirmation, or a choice from the user, then resume with that answer
-folded back into its reasoning. It's what turns an autonomous workflow
-into a collaborative one: the agent keeps its context, the user keeps
-the steering wheel.
+人机协同（human-in-the-loop，HITL）让智能体在运行中途暂停，向用户
+收集输入、确认或选择，然后把答案并回推理继续运行。正是它把自主式
+工作流变成协作式工作流：智能体保留自己的上下文，用户握住方向盘。
 
 <video
   src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/human-in-the-loop-example.mp4"
@@ -29,73 +27,69 @@ the steering wheel.
   muted
 />
 
-## When should I use this?
+## 何时使用人机协同？
 
-Use HITL when you need:
+以下情况适合使用人机协同：
 
-- **Quality control** — a human gate at high-stakes decision points
-- **Edge cases** — graceful fallbacks when the agent's confidence is low
-- **Expert input** — lean on the user for domain knowledge the model lacks
-- **Reliability** — a more robust loop for real-world, production traffic
+- **质量控制** —— 在高风险决策点上设一道人工闸门
+- **边缘情况** —— 智能体置信度不高时给出优雅的回退
+- **专家输入** —— 借助用户补足模型缺乏的领域知识
+- **可靠性** —— 为真实生产流量构建更稳健的循环
 
-## Two patterns for HITL in CopilotKit
+## CopilotKit 中人机协同的两种模式
 
 <FrameworkSetup concept="human-in-the-loop-setup" />
 
-CopilotKit ships two complementary ways to pause an agent turn and ask
-the human something. They look similar from the outside (the chat
-pauses, a custom component appears, the user answers, the run resumes)
-but they're wired differently on the backend, and each has its own niche.
+CopilotKit 提供两种互补的方式来暂停智能体回合并向人提问。从外面看
+它们很相似（聊天暂停、出现一个自定义组件、用户作答、运行恢复），
+但它们在后端的接线不同，各有各的适用面。
 
-| Pattern | Who decides to pause? | Backend surface |
+| 模式 | 由谁决定暂停？ | 后端形态 |
 | --- | --- | --- |
-| `useHumanInTheLoop` | The **LLM**, by calling a registered client-side tool | A frontend-only tool description (Zod schema + `render`) |
-| `useInterrupt` | The **graph**, by calling `interrupt(...)` during a node | A server-side `interrupt()` call in your LangGraph agent |
+| `useHumanInTheLoop` | **LLM**，通过调用一个已注册的客户端工具 | 仅前端的工具描述（Zod schema + `render`） |
+| `useInterrupt` | **图**，通过在节点中调用 `interrupt(...)` | LangGraph 智能体里的服务端 `interrupt()` 调用 |
 
-**Pick `useHumanInTheLoop`** when the pause is an _agent-initiated_
-decision — the model chose to ask the user — and you want the picker UI
-inlined into the normal tool-call flow.
+**选 `useHumanInTheLoop`**，当暂停是一次_由智能体发起_的决策——
+模型自己选择向用户提问——并且你想把选择器 UI
+内联进常规的工具调用流程。
 
-**Pick `useInterrupt`** when the pause is a _graph-enforced_ checkpoint —
-the code path deterministically requires a human answer — and you want
-`langgraph.interrupt()` as the server-side contract.
+**选 `useInterrupt`**，当暂停是一个_由图强制_的检查点——代码路径
+确定性地需要人给出答案——并且你想以 `langgraph.interrupt()`
+作为服务端契约。
 
-## Pattern 1 — `useHumanInTheLoop` (tool-based)
+## 模式 1 —— `useHumanInTheLoop`（基于工具）
 
-The agent registers a HITL tool on the client with `useHumanInTheLoop`.
-When the LLM calls that tool, CopilotKit routes the call through your
-`render` function, which shows a custom component and calls `respond`
-with the user's answer. The agent sees the answer as the tool result and
-continues from there.
+智能体在客户端用 `useHumanInTheLoop` 注册一个人机协同工具。当 LLM
+调用该工具时，CopilotKit 把这次调用路由进你的 `render`
+函数，后者显示一个自定义组件，并带着用户的答案调用 `respond`。
+智能体把答案当作工具结果看到，并从这里继续。
 
 <Snippet region="hitl-hook" title="frontend/src/app/page.tsx — useHumanInTheLoop" />
 
-The picker UI is fed a static list of candidate slots — this is just
-data the demo page owns, so you can swap in real availability, a
-calendar API, or anything else:
+选择器 UI 接收的是一个静态的候选时段列表——这只是演示页面自有的
+数据，你可以换成真实可用性、日历 API 或任何其他来源：
 
 <Snippet region="time-slots" title="frontend/src/app/page.tsx — candidate slots" />
 
-## Pattern 2 — `useInterrupt` (graph-paused)
+## 模式 2 —— `useInterrupt`（由图暂停）
 
-With LangGraph's `interrupt()` the pause is enforced by the graph
-itself: a node calls `interrupt({...})`, the run suspends, the client
-receives the payload, renders a UI, and resumes the run with the user's
-answer. CopilotKit's `useInterrupt` hook is the render contract.
+用 LangGraph 的 `interrupt()` 时，暂停由图本身强制执行：节点调用
+`interrupt({...})`，运行挂起，客户端收到载荷、渲染一个 UI，并带着
+用户的答案恢复运行。CopilotKit 的 `useInterrupt` hook
+就是这份渲染契约。
 
-See the [`useInterrupt` deep dive](/human-in-the-loop/useInterrupt) for
-the full walkthrough, including the backend tool and render-prop wiring.
+完整走一遍（包括后端工具与 render-prop 接线）请看
+[`useInterrupt` 深度解析](/human-in-the-loop/useInterrupt)。
 
 <InlineDemo demo="gen-ui-interrupt" />
 
-## Going headless
+## 走向无头
 
-Both patterns above ship with a `render` prop — CopilotKit handles the
-"when to show the picker" logic for you. If you want to drive
-interrupt resolution from a custom UI that lives anywhere in the tree
-(not necessarily inside a chat), see the
-[headless interrupts guide](/human-in-the-loop/headless) — it shows
-how to compose `useAgent`, `agent.subscribe`, and `copilotkit.runAgent`
-to build your own `useInterrupt` equivalent.
+上面两种模式都带 `render` prop——CopilotKit
+替你处理“何时显示选择器”的逻辑。如果你想从一个位于树中任意位置的
+自定义 UI（不一定在聊天里）来驱动中断的解析，请看
+[无头中断指南](/human-in-the-loop/headless)——它展示了如何组合
+`useAgent`、`agent.subscribe` 与 `copilotkit.runAgent`，
+构建你自己的 `useInterrupt` 等价物。
 
 <IntegrationGrid path="human-in-the-loop" />

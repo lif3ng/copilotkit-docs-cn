@@ -1,53 +1,51 @@
 ---
-title: Human-in-the-Loop
+title: 人机协同
 icon: "lucide/User"
-description: Create frontend tools and use them within your ADK agent for human-in-the-loop interactions.
+description: 创建前端工具并在你的 ADK 智能体中使用它们，实现人机协同交互。
 ---
 
 <IframeSwitcher
   id="frontend-tools-based-hitl-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/adk-middleware/feature/human_in_the_loop?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/adk-middleware/feature/human_in_the_loop?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
-## What is this?
+## 这是什么？
 
-Frontend tools enable you to define client-side functions that your ADK agent can invoke, with execution happening entirely in the user's browser. When your agent calls a frontend tool,
-the logic runs on the client side, giving you direct access to the frontend environment.
+前端工具让你能够定义 ADK 智能体可以调用的客户端函数，其执行完全发生在用户的浏览器中。当你的智能体调用前端工具时，
+逻辑在客户端运行，让你可以直接访问前端环境。
 
-This can be utilized to let [your agent control the UI](/adk/frontend-tools), [generative UI](/adk/frontend-tools), or for Human-in-the-loop interactions.
+它可以用来[让你的智能体控制 UI](/adk/frontend-tools)、实现[生成式 UI](/adk/frontend-tools)，或用于人机协同（human-in-the-loop）交互。
 
-In this guide, we cover the use of frontend tools for Human-in-the-loop.
+本指南介绍如何将前端工具用于人机协同。
 
-## When should I use this?
+## 什么时候该用它？
 
-Use frontend tools when you need your agent to interact with client-side primitives such as:
+当你需要智能体与以下客户端原语交互时，可以使用前端工具：
 
-- Reading or modifying React component state
-- Accessing browser APIs like localStorage, sessionStorage, or cookies
-- Triggering UI updates or animations
-- Interacting with third-party frontend libraries
-- Performing actions that require the user's immediate browser context
+- 读取或修改 React 组件状态
+- 访问 localStorage、sessionStorage 或 cookie 等浏览器 API
+- 触发 UI 更新或动画
+- 与第三方前端库交互
+- 执行需要用户当前浏览器上下文的操作
 
-## Implementation
+## 实现
 
 <Steps>
     <Step>
-      ### Run and connect your agent
+      ### 运行并连接你的智能体
       <RunAndConnect />
     </Step>
 
     <Step>
-        ### Create a frontend human-in-the-loop tool
+        ### 创建前端人机协同工具
 
-        Frontend tools can be leveraged in a variety of ways. One of those ways is to have a human-in-the-loop flow where the response
-        of the tool is gated by a user's decision.
+        前端工具可以用在多种场景中。其中之一是人机协同流程——工具的响应由用户的决定来把关。
 
-        In this example we will simulate an "approval" flow for executing a command. First, use the `useHumanInTheLoop` hook to create a tool that
-        prompts the user for approval.
+        在本例中，我们将模拟一个执行命令的“审批”流程。首先，使用 `useHumanInTheLoop` 钩子创建一个提示用户进行批准的工具。
 
         ```tsx title="page.tsx"
         import { useHumanInTheLoop } from "@copilotkit/react-core/v2" // [!code highlight]
@@ -79,16 +77,16 @@ Use frontend tools when you need your agent to interact with client-side primiti
         }
         ```
 
-        That's it! Your agent will automatically have access to all human-in-the-loop tools you've defined using `useHumanInTheLoop` in your React components.
+        就这些！你的智能体会自动获得对你在 React 组件中用 `useHumanInTheLoop` 定义的所有人机协同工具的访问能力。
 
         <Callout type="info">
-          Human-in-the-loop tools registered with `useHumanInTheLoop` are automatically forwarded to your agent through the AG-UI protocol.
+          通过 `useHumanInTheLoop` 注册的人机协同工具会经由 AG-UI 协议自动转发给你的智能体。
         </Callout>
     </Step>
     <Step>
-        ### Try it out!
+        ### 试试看！
 
-        You've now given your agent the ability to show the user two options and have them select one. The agent will then be aware of the user's choice and can use it in subsequent steps.
+        现在，你的智能体已经能够向用户展示两个选项并让用户选择其一。随后智能体会知晓用户的选择，并能在后续步骤中使用它。
 
         ```
         Can you show me two good options for a restaurant name?

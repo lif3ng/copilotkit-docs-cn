@@ -1,92 +1,86 @@
 ---
-title: Headless Interrupts
+title: 无头中断
 icon: "lucide/SquareDashedBottomCode"
-description: Resolve agent interrupts from any UI, without a useInterrupt render slot.
+description: 不用 useInterrupt 的渲染插槽，从任意 UI 解析智能体中断。
 hideTOC: true
 snippet_cell: interrupt-headless
 ---
 
 <InlineDemo demo="interrupt-headless" />
 
-## What is this?
+## 这是什么？
 
-`useInterrupt`'s `render` callback is the 80% path: it keeps the UI
-glued to a `<CopilotChat>` transcript and handles "when to show the
-picker" logic for you. This page covers the escape hatch: a
-**render-less** interrupt resolver you assemble from the same
-primitives `useInterrupt` uses internally — a pattern that lives
-anywhere in your React tree, takes any shape you like (button grid,
-form, modal, keyboard shortcut), and resolves the interrupt without
-mounting a chat at all.
+`useInterrupt` 的 `render` 回调是那条 80% 的常规路径：它让 UI
+贴着 `<CopilotChat>` 的会话记录走，并替你处理“何时显示选择器”的
+逻辑。本页讲的是另一条出路：一个**无渲染（render-less）**的中断
+解析器，由 `useInterrupt` 内部使用的同一批原语组装而成——这种模式
+可以放在 React 树的任何位置，可以呈现你喜欢的任何形态（按钮组、
+表单、弹窗、快捷键），并且完全不挂载聊天也能解析中断。
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="native">
 
-The underlying primitive is the framework's own interrupt call. How it
-reaches the client depends on the bridge, and there are two headless shapes
-to match:
+底层原语就是框架自己的中断调用。它如何到达客户端取决于桥接层，
+对应两种无头形态：
 
-- A bridge that surfaces the pause as an `on_interrupt` custom event
-  (LangGraph): subscribe to that event and resume the run by calling
-  `copilotkit.runAgent({...})` with the matching `resume` payload.
-- A bridge that finishes the run with a standard AG-UI interrupt outcome
-  (AWS Strands): the run's final `RUN_FINISHED` carries
-  `outcome: { type: "interrupt", interrupts: [...] }`. Call `useInterrupt` with
-  `renderInChat: false` and place the element it returns wherever you like;
-  `resolve(...)` resumes the run.
+- 桥接层把暂停作为 `on_interrupt` 自定义事件暴露出来
+  （LangGraph）：订阅该事件，然后带上匹配的 `resume`
+  载荷调用 `copilotkit.runAgent({...})` 来恢复运行。
+- 桥接层以标准的 AG-UI 中断结局结束运行（AWS
+  Strands）：运行最终的 `RUN_FINISHED` 事件带有
+  `outcome: { type: "interrupt", interrupts: [...] }`。调用
+  `useInterrupt` 时传入 `renderInChat: false`，把它返回的元素放到
+  任何你喜欢的地方；`resolve(...)` 会恢复运行。
 
-Either way, no chat surface is required.
+无论哪种方式，都不需要聊天界面。
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="promise-based">
 
-For promise-based integrations there is no native interrupt primitive,
-so the headless variant uses `useFrontendTool` with a Promise-based
-handler. The handler exposes its pending payload via React state — so
-a separate "app surface" can render the picker outside the chat — and
-resolves the Promise once the user interacts. Same UX, different
-mechanism.
+对于基于 Promise 的集成，没有原生中断原语可用，因此无头变体使用
+带 Promise 处理器的 `useFrontendTool`。处理器通过 React
+状态暴露其待处理载荷——这样一个独立的“应用界面”就能在聊天之外
+渲染选择器——并在用户交互后兑现该 Promise。同样的 UX，
+不同的机制。
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="interrupt_pattern" absent>
 
-> **Not available on this framework.** Headless interrupts are built on
-> top of `useInterrupt` / `useFrontendTool` patterns that require the
-> runtime to expose either a native `interrupt(...)` primitive
-> (LangGraph) or a Promise-resolving frontend-tool path. For all other
-> integrations, use
-> [`useHumanInTheLoop`](../human-in-the-loop) instead — it's the
-> standard hook for tool-call-based pause/resume flows and works on
-> every framework that supports tool calls.
+> **此框架不可用**。无头中断建立在 `useInterrupt` /
+> `useFrontendTool` 模式之上，要求运行时暴露原生 `interrupt(...)`
+> 原语（LangGraph）或可兑现 Promise 的前端工具路径。对于其他所有
+> 集成，请改用
+> [`useHumanInTheLoop`](../human-in-the-loop)——它是基于工具调用的
+> 暂停/恢复流程的标准 hook，可用于所有支持工具调用的框架。
 
 </WhenFrameworkHas>
 
-## When should I use this?
+## 何时使用无头中断？
 
-- **Testing / Playwright fixtures** — a deterministic, chat-less button
-  grid is easier to drive than a chat surface where the picker only
-  appears after an LLM call.
-- **Non-chat UIs** — dashboards, side panels, inspector surfaces, or
-  any place where you want the _agent's interrupt_ without the _chat
-  transcript_.
-- **Custom flow control** — when you need to know exactly when the
-  interrupt arrived (e.g. to gate other UI) and when it was resolved.
-- **Research / debugging** — when you want to observe the raw AG-UI
-  custom events without the abstraction layer.
+- **测试 / Playwright 夹具（fixture）** ——
+  确定性的、不带聊天的按钮组比聊天界面更容易驱动——后者里选择器
+  要等一次 LLM 调用之后才出现。
+- **非聊天 UI** —— 仪表盘、侧边面板、Inspector
+  界面，或任何你想要智能体中断而不要聊天记录的地方。
+- **自定义流程控制** ——
+  当你需要确切知道中断何时到达（例如为其他 UI
+  加闸门）、何时被解析时。
+- **研究 / 调试** ——
+  当你想绕开抽象层直接观察原始 AG-UI 自定义事件时。
 
-If you just want "a picker in chat", just use
-[`useInterrupt`](./useInterrupt).
+如果你只想要“聊天里的选择器”，直接用
+[`useInterrupt`](./useInterrupt) 就好。
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="native">
 
-## The primitives
+## 底层原语
 
 <FrameworkSetup concept="programmatic-control-setup" />
 
-The simplest headless pattern uses `useInterrupt` with `renderInChat: false`.
-Instead of publishing the element into `<CopilotChat>`, the hook returns the
-interrupt element directly so you can place it anywhere in your tree:
+最简单的无头模式是配合 `renderInChat: false` 使用
+`useInterrupt`。hook 不再把元素发布进 `<CopilotChat>`，而是直接
+返回中断元素，你可以把它放到树里的任何位置：
 
 ```tsx
 function ApprovalPanel() {
@@ -108,74 +102,71 @@ function ApprovalPanel() {
 }
 ```
 
-`interrupt` carries the primary AG-UI `Interrupt` object
-(`{ id, reason, message?, responseSchema?, expiresAt?, ... }`).
-`resolve(payload)` submits the user's response and resumes the agent.
-`cancel()` cancels the interrupt and resumes. Both return a
-`Promise<RunAgentResult | void>` — void while waiting on further interrupts
-when more than one is open.
+`interrupt` 携带主要的 AG-UI `Interrupt` 对象
+（`{ id, reason, message?, responseSchema?, expiresAt?, ... }`）。
+`resolve(payload)` 提交用户的响应并恢复智能体。`cancel()`
+取消中断并恢复运行。两者都返回 `Promise<RunAgentResult | void>`——
+当有多个中断同时打开时，等待后续中断期间返回 void。
 
-Under the hood, `useInterrupt` composes two public APIs:
+在底层，`useInterrupt` 组合了两个公开 API：
 
 1. **`agent.subscribe({ onCustomEvent, onRunStartedEvent, onRunFinishedEvent, onRunFinalized, onRunFailed })`**
-   — every `AbstractAgent` exposes an AG-UI event subscription.
-   Standard interrupts arrive on `onRunFinishedEvent` with
-   `{ outcome: { type: "interrupt", interrupts: [...] } }`; legacy LangGraph
-   interrupts arrive as a custom event named `on_interrupt`.
-2. **`copilotkit.runAgent({ agent, resume })`** (standard) or
-   **`copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })`** (legacy)
-   — the same call `useInterrupt`'s `resolve()` / `cancel()` makes to resume a paused run.
+   —— 每个 `AbstractAgent` 都暴露一个 AG-UI
+   事件订阅。标准中断随 `onRunFinishedEvent` 到达，形如
+   `{ outcome: { type: "interrupt", interrupts: [...] } }`；旧版
+   LangGraph 中断则以名为 `on_interrupt` 的自定义事件到达。
+2. **`copilotkit.runAgent({ agent, resume })`**（标准）或
+   **`copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })`**（旧版）
+   —— 与 `useInterrupt` 的 `resolve()` / `cancel()`
+   恢复暂停运行时所用的是同一个调用。
 
-What that region shows depends on the framework. Where the framework pauses
-with a legacy custom event, it is a hand-rolled hook over the raw
-subscription; where it pauses with a standard AG-UI interrupt, the same
-`useInterrupt` call with `renderInChat: false` is all that is needed, and the
-snippet shows that instead. Either way, the raw primitives remain available
-when you want full control (testing fixtures, custom accumulation logic):
+该区域展示的内容取决于框架。框架以旧版自定义事件暂停时，它是一个
+手写的、直接订阅原始事件的 hook；框架以标准 AG-UI 中断暂停时，
+只需同样的 `useInterrupt` 调用加 `renderInChat: false`，代码片段
+展示的就是后者。无论哪种，当你想要完全掌控时（测试夹具、自定义
+累积逻辑），原始原语始终可用：
 
 <Snippet region="headless-useinterrupt-primitives" title="frontend/src/app/page.tsx — useHeadlessInterrupt" />
 
-A few things the hand-rolled variant is careful about:
+手写变体小心处理了几件事：
 
-- It stages the incoming event in a local ref and only commits
-  it to React state on `onRunFinalized`, mirroring `useInterrupt`,
-  which doesn't surface the interrupt until the run has actually paused
-  (not just when the event fires mid-stream).
-- `onRunStartedEvent` clears any stale pending state, so kicking off a
-  new turn always starts from a clean slate.
-- `onRunFailed` drops the staged event so a transport hiccup doesn't
-  leave the UI stuck showing a picker for a run that never paused.
+- 它把到来的事件先暂存在本地 ref 里，直到 `onRunFinalized`
+  才提交进 React 状态，与 `useInterrupt` 一致——后者在运行真正暂停
+  之前不会暴露中断（而不是事件在流中途触发时就暴露）。
+- `onRunStartedEvent` 会清掉残留的待处理状态，因此开启新一轮总是从
+  干净状态开始。
+- `onRunFailed` 会丢弃暂存的事件，这样一次传输抖动不会让 UI
+  卡在选择器上，去等一个从未暂停过的运行。
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="promise-based">
 
-## The primitives
+## 底层原语
 
-The render callback intentionally returns `null` — the picker UI lives
-in the app surface, not in the chat transcript. The handler's pending
-state drives whether the picker is shown:
+render 回调有意返回 `null`——选择器 UI 位于应用界面里，而不是聊天
+记录中。处理器的待处理状态决定选择器是否显示：
 
 <Snippet region="headless-promise-primitives" title="frontend/src/app/page.tsx — useFrontendTool (headless Promise-based)" />
 
-A few things this pattern is careful about:
+这个模式小心处理了几件事：
 
-- The handler stages its `resolve` callback in a ref keyed by tool-call
-  id, so concurrent tool calls don't trample each other's resolvers.
-- `setPending` is called from inside the handler so the app surface
-  re-renders the picker as soon as the agent calls the tool, and again
-  with `null` after the user interacts so the picker disappears.
-- `render: () => null` keeps the chat transcript clean — the headless
-  variant deliberately bypasses inline rendering.
+- 处理器把它的 `resolve` 回调暂存在以工具调用 id 为键的 ref
+  里，因此并发的工具调用不会互相踩掉对方的解析器。
+- `setPending` 从处理器内部调用，因此智能体一调用工具，应用界面
+  就会重新渲染选择器；用户交互之后再以 `null`
+  调用一次，选择器随之消失。
+- `render: () => null` 让聊天记录保持干净——无头变体有意绕开内联
+  渲染。
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="native">
 
-## Driving it from plain UI
+## 从普通 UI 驱动
 
-The preferred approach uses `useInterrupt` with `renderInChat: false` — no
-hand-rolled subscription, no `<CopilotChat>`, no render prop:
+首选做法是配合 `renderInChat: false` 使用 `useInterrupt`——不用
+手写订阅，不用 `<CopilotChat>`，不用 render prop：
 
 ```tsx
 function HeadlessInterruptPanel() {
@@ -210,9 +201,9 @@ function HeadlessInterruptPanel() {
 }
 ```
 
-If you need full control over the subscription (e.g. for a custom
-`useHeadlessInterrupt` fixture used in Playwright tests), you can still
-use the raw primitives from `useHeadlessInterrupt` defined above:
+如果你需要对订阅的完全掌控（例如用于 Playwright 测试中的自定义
+`useHeadlessInterrupt` 夹具），仍然可以使用上面定义的
+`useHeadlessInterrupt` 里的原始原语：
 
 ```tsx
 function HeadlessInterruptPanelRaw() {
@@ -245,10 +236,10 @@ function HeadlessInterruptPanelRaw() {
 
 </WhenFrameworkHas>
 
-## Going further
+## 深入了解
 
-- [Tool-based HITL with `useHumanInTheLoop`](../human-in-the-loop) — for
-  LLM-initiated pauses where the model decides on the fly to ask the
-  user, rather than the runtime forcing the pause itself.
-- [`useInterrupt`](./useInterrupt) — the render-prop version of this
-  page, with `enabled` gating and `handler` preprocessing.
+- [基于工具的人机协同：`useHumanInTheLoop`](../human-in-the-loop) ——
+  适用于由 LLM 发起的暂停：由模型临场决定何时询问用户，而不是
+  运行时强制暂停。
+- [`useInterrupt`](./useInterrupt) —— 本页的 render-prop
+  版本，带 `enabled` 门控与 `handler` 预处理。

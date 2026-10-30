@@ -1,43 +1,37 @@
 ---
-title: Agent App Context
+title: 智能体应用上下文
 icon: "lucide/BookA"
-description: Share app specific context with your ADK agent.
+description: 与你的 ADK 智能体共享应用专属上下文。
 ---
 
 import AgentContextJsonString from "@/snippets/shared/basics/agent-context-json-string.mdx";
 
-## What is this?
+## 这是什么？
 
-One of the most common use cases for CopilotKit is to register app state and context using `useAgentContext`.
-This way, you can notify your agent of what is going on in your app in real time.
+CopilotKit 最常见的用例之一，就是使用 `useAgentContext` 注册应用状态与上下文。
+这样你就能让智能体实时了解你的应用中正在发生什么。
 
-Some examples might be: the current user, the current page, the rows currently on screen.
+例如：当前用户、当前页面、当前屏幕上显示的表格行。
 
-## When should I use this?
+## 什么时候该用它？
 
-Use this when the agent's answer has to be about data your application holds rather than data the
-user retypes into the chat. A queue, a selection, a cart, a filtered table: the page already has it,
-and `useAgentContext` is how the agent gets it.
+当智能体的回答必须基于你的应用所持有的数据，而不是用户重新输入到聊天中的数据时，就使用它。队列、选区、购物车、筛选后的表格——页面里已经有了这些数据，而 `useAgentContext` 就是智能体获取它们的途径。
 
-<Callout type="warn" title="ADK needs one line on the agent side">
-    Unlike the [built-in agent](/built-in-agent/agent-app-context), an ADK agent does **not** receive
-    this context automatically. The AG-UI adapter stores it in ADK session state under
-    `CONTEXT_STATE_KEY` (`"_ag_ui_context"`) and stops there. Nothing puts it in the prompt.
+<Callout type="warn" title="ADK 需要在智能体侧补一行代码">
+    与[内置智能体](/built-in-agent/agent-app-context)不同，ADK 智能体**不会**自动接收这些上下文。AG-UI 适配器只是把它存入 ADK 会话状态的 `CONTEXT_STATE_KEY`（即 `"_ag_ui_context"`）下，到此为止。没有任何环节会把它放进提示词。
 
-    An `LlmAgent` built with a plain string `instruction` therefore never sees it. The agent still
-    answers, fluently and in the right shape, from nothing — which reads like a working integration
-    until you check the answer against your own records. Step 2 below is the step that connects them.
+    因此，用普通字符串 `instruction` 构建的 `LlmAgent` 永远看不到它。智能体依然会对着空无一物的输入流畅作答、格式正确——看起来像集成成功了，直到你拿答案与自己的数据核对才发现问题。下面的第 2 步就是把二者连接起来的关键一步。
 </Callout>
 
-## Implementation
+## 实现
 
 
 <AgentContextJsonString />
 <Steps>
     <Step>
-        ### Share data with your agent
+        ### 与智能体共享数据
 
-        The [`useAgentContext` hook](/reference/v2/hooks/useAgentContext) adds data as context to the Copilot.
+        [`useAgentContext` 钩子](/reference/v2/hooks/useAgentContext) 会把数据作为上下文添加给 Copilot。
 
         ```tsx title="YourComponent.tsx" showLineNumbers
         "use client" // only necessary if you are using Next.js with the App Router. // [!code highlight]
@@ -67,11 +61,9 @@ and `useAgentContext` is how the agent gets it.
     </Step>
 
     <Step>
-        ### Read the context in your ADK agent
+        ### 在 ADK 智能体中读取上下文
 
-        Pass an [`InstructionProvider`](https://google.github.io/adk-docs/agents/llm-agents/#instructions)
-        instead of a string. A provider receives a `ReadonlyContext`, and the adapter leaves the
-        CopilotKit context at `ctx.state[CONTEXT_STATE_KEY]`.
+        传入一个 [`InstructionProvider`](https://google.github.io/adk-docs/agents/llm-agents/#instructions) 而不是字符串。提供方会收到一个 `ReadonlyContext`，而适配器会把 CopilotKit 上下文留在 `ctx.state[CONTEXT_STATE_KEY]`。
 
         ```python title="agent.py"
         import json
@@ -125,30 +117,18 @@ and `useAgentContext` is how the agent gets it.
         ```
 
         <Callout>
-            `ctx.state` is the form to reach for because it works on every `ag-ui-adk` version. On
-            `ag-ui-adk` 0.7.0 with `google-adk` 1.22.0 or later the adapter also copies the same
-            entries into `RunConfig.custom_metadata`, so
-            `ctx.run_config.custom_metadata["ag_ui_context"]` reads them too. Neither path puts them
-            in the prompt on its own — that is still the provider's job.
+            `ctx.state` 是应当优先采用的形式，因为它在所有 `ag-ui-adk` 版本上都可用。在 `ag-ui-adk` 0.7.0 搭配 `google-adk` 1.22.0 及以上版本时，适配器还会把同样的条目复制到 `RunConfig.custom_metadata` 中，因此 `ctx.run_config.custom_metadata["ag_ui_context"]` 也能读到它们。但这两条路径本身都不会把它们放进提示词——那仍然是提供方的职责。
         </Callout>
 
         <Callout>
-            A provider is also the safer form for the braces. Under a string instruction ADK runs
-            `inject_session_state` over the text; its regex matches any `{...}` run, but substitutes
-            only when the contents are a valid state name. JSON such as `{"id": 1}` is therefore left
-            verbatim, while an identifier-shaped block — a `{status}` inside one of your context
-            values — is looked up in session state and raises `KeyError` when it is not there. A
-            provider reports `bypass_state_injection=True` from `canonical_instruction` (a string
-            reports `False`), so the rendered context is never scanned at all. Checked against
-            `google-adk` at the `>=1.28.1` floor `ag-ui-adk` 0.7.0 requires.
+            就大括号而言，提供方也是更安全的形式。在字符串 instruction 下，ADK 会对文本运行 `inject_session_state`；其正则表达式会匹配任何 `{...}` 片段，但只有当内容是有效的状态名时才会替换。因此像 `{"id": 1}` 这样的 JSON 会被原样保留，而形如标识符的片段——例如某个上下文值里的 `{status}`——则会在会话状态中查找，找不到时就抛出 `KeyError`。提供方会在 `canonical_instruction` 中报告 `bypass_state_injection=True`（字符串则报告 `False`），因此渲染出的上下文完全不会被扫描。以上结论已对照 `ag-ui-adk` 0.7.0 所要求的 `google-adk` `>=1.28.1` 下限验证过。
         </Callout>
     </Step>
 
     <Step>
-        ### Or read it inside a tool
+        ### 或在工具中读取
 
-        The same entries reach any tool through `tool_context.state`, which is the better fit when
-        only one tool needs the data rather than the whole prompt.
+        同样的条目也会通过 `tool_context.state` 到达任何工具，当只有一个工具需要这些数据、而不必污染整个提示词时，这是更合适的方式。
 
         ```python title="tools.py"
         from ag_ui_adk import CONTEXT_STATE_KEY
@@ -163,13 +143,10 @@ and `useAgentContext` is how the agent gets it.
     </Step>
 
     <Step>
-        ### Give it a try!
+        ### 试试看！
 
-        Ask your agent a question about the context. It should be able to answer.
+        就上下文中的内容向你的智能体提问，它应该能够回答。
 
-        Then check the answer against your own records, because this is the one integration that
-        fails quietly. The reliable check is a control: send the same request once with the context
-        and once with an empty context. Two answers that describe the same record mean the context
-        changed nothing, and the agent is answering from its own invention.
+        然后把答案与你自己的数据核对，因为这是唯一一种会静默失败的集成。可靠的检验方法是做对照：用相同的请求分别发送一次带上下文、一次空上下文。如果两次答案描述的是同一条记录，就说明上下文没有起任何作用，智能体是在凭空编造作答。
     </Step>
 </Steps>

@@ -1,6 +1,6 @@
 ---
 title: Hashbrown
-description: Stream a structured sales dashboard through Hashbrown's UI kit and progressive JSON parser.
+description: 通过 Hashbrown 的 UI 套件与渐进式 JSON 解析器流式呈现结构化销售仪表板。
 icon: "lucide/Component"
 snippet_framework: built-in-agent
 snippet_cell: declarative-hashbrown
@@ -12,27 +12,27 @@ snippet_cell: declarative-hashbrown
   llmFiles="src/app/demos/declarative-hashbrown/page.tsx,src/app/demos/declarative-hashbrown/chat.tsx,src/app/demos/declarative-hashbrown/hashbrown-renderer.tsx"
 />
 
-Hashbrown renders a dashboard while the assistant streams JSON. For frameworks with this demo, the **Code** tab shows its runnable source, and the Markdown page includes the key frontend files. The bundled demos pin `@hashbrownai/core` and `@hashbrownai/react` to `0.5.0-beta.4`; the chart components also need `recharts` and `zod`. Use the versions in your integration's `package.json` when copying the files.
+在助手流式输出 JSON 的同时，Hashbrown 就能渲染出仪表板。对于提供此演示的框架，**Code** 标签页会显示可运行的源码，Markdown 页面则包含关键前端文件。内置演示将 `@hashbrownai/core` 和 `@hashbrownai/react` 锁定在 `0.5.0-beta.4`；图表组件还需要 `recharts` 和 `zod`。复制文件时请使用你的集成 `package.json` 中的版本。
 
-## When to use this
+## 何时使用
 
-- **Streaming dashboards** that should appear before the full response arrives.
-- **Agent-authored UI** constrained to components you expose in a UI kit.
-- **Apps already using Hashbrown** for progressive JSON rendering.
+- **流式仪表板**：需要在完整响应到达之前就呈现出来。
+- **智能体生成的 UI**：限定在你通过 UI 套件暴露的组件之内。
+- **已在用 Hashbrown** 做渐进式 JSON 渲染的应用。
 
-For a validated `{ root, elements }` spec that renders as one tree, see [JSON Render](/generative-ui/json-render). Its agent output and React API are different from Hashbrown's.
+如果你需要经过校验、能渲染成单棵树的 `{ root, elements }` 规范，请参阅 [JSON Render](/generative-ui/json-render)。它的智能体输出和 React API 与 Hashbrown 的不同。
 
-## Frontend
+## 前端
 
-The page wraps the chat in `HashBrownDashboard`. That provider creates the UI kit once and shares it with the assistant-message renderer. The chat registers `HashBrownRenderMessage` in the `assistantMessage` slot.
+该页面把聊天包裹在 `HashBrownDashboard` 中。这个 provider 只创建一次 UI 套件，并与助手消息渲染器共享。聊天在 `assistantMessage` 插槽中注册了 `HashBrownRenderMessage`。
 
-The renderer exposes `metric`, `pieChart`, `barChart`, `dealCard`, and Markdown with their prop schemas. It passes `kit.schema` to `useJsonParser`, reads the parser's `value`, and calls `kit.render(value)`. Chart `data` is a JSON-encoded **string**; the chart wrappers parse it before passing an array to the chart components.
+渲染器暴露了 `metric`、`pieChart`、`barChart`、`dealCard` 和 Markdown 及其各自的 prop schema。它把 `kit.schema` 传给 `useJsonParser`，读取解析器的 `value`，再调用 `kit.render(value)`。图表的 `data` 是 JSON 编码的**字符串**；图表包装器会先解析它，再把数组传给图表组件。
 
-Where available, the Code tab also includes the imported `metric-card.tsx`, chart components, `types.ts`, suggestion setup, runtime route, and agent source.
+在可用的框架中，Code 标签页还会包含所导入的 `metric-card.tsx`、图表组件、`types.ts`、建议（suggestion）配置、运行时路由以及智能体源码。
 
-## Backend
+## 后端
 
-The agent sends **one JSON object** as the assistant message, without a Markdown fence or prose before it. Its top-level `ui` array contains component names from the kit. Each component has a `props` object matching its schema. For example:
+智能体会以**单个 JSON 对象**作为助手消息发送，前面没有 Markdown 代码围栏，也没有铺垫文字。其顶层的 `ui` 数组包含来自 UI 套件的组件名。每个组件都有一个符合其 schema 的 `props` 对象。例如：
 
 ```json title="example assistant message"
 {
@@ -50,6 +50,6 @@ The agent sends **one JSON object** as the assistant message, without a Markdown
 }
 ```
 
-The bundled agents use this envelope and the same component names. The parser can render finished parts of `ui` while the rest of the JSON is still streaming.
+内置智能体使用同样的信封结构和相同的组件名。在 JSON 其余部分仍在流式传输时，解析器就能渲染 `ui` 中已完成的部分。
 
 <IntegrationGrid path="declarative-hashbrown" />

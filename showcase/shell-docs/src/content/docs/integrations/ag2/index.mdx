@@ -1,7 +1,7 @@
 ---
-title: Introduction
+title: 简介
 icon: "custom/ag2"
-description: Bring your AG2 agents to your users with CopilotKit via AG-UI.
+description: 通过 AG-UI，借助 CopilotKit 将你的 AG2 智能体带给你的用户。
 hideHeader: true
 # The landing page carries its own prompt button in the hero; the page-tools
 # row above the title would put a second one on the page, which the data-record
@@ -12,42 +12,42 @@ hidePageActions: true
 <FrameworkOverview
   frameworkName="AG2"
   frameworkIcon={<Ag2Icon className="h-12 w-12" />}
-  header="Bring your AG2 agents to your users"
-  subheader="AG2 runs your agents. CopilotKit gives them a surface your users can see, interrupt and steer."
+  header="把你的 AG2 智能体带给你的用户"
+  subheader="AG2 负责运行你的智能体，CopilotKit 则为它们提供一个用户可以查看、中断和引导的界面。"
   guideLink="/ag2/quickstart"
   initCommand="npx copilotkit@latest init"
-  lede="AG2 gives you the conversation between your agents: roles, turns and the tools they call. What it does not give you is the surface a person joins it through. Each capability below builds on something your agents already do."
+  lede="AG2 为你呈现智能体之间的对话：角色、轮次以及它们调用的工具。它没有提供的，是人参与其中的界面。下面的每一项能力都建立在你的智能体已有的行为之上。"
   supportedFeatures={[
     {
-      title: "Generative UI",
+      title: "生成式 UI",
       iconKey: "paintbrush",
       description:
-        "Your agents call tools as the conversation runs. CopilotKit streams those calls to the browser and renders each one as a React component, instead of leaving the user with a spinner.",
+        "智能体会在对话进行时调用工具。CopilotKit 将这些调用流式传输到浏览器，并把每一次调用渲染成 React 组件，而不是让用户对着加载图标干等。",
       documentationLink: "/ag2/generative-ui"
     },
     {
-      title: "Human-in-the-loop",
+      title: "人机协同",
       iconKey: "user",
       description:
-        "A frontend tool registered with useHumanInTheLoop renders your own UI, waits for the user's answer, and hands it back to the agent as the tool result.",
+        "通过 useHumanInTheLoop 注册的前端工具会渲染你自己的 UI，等待用户作答，并把答案作为工具结果交还给智能体。",
       documentationLink: "/ag2/human-in-the-loop"
     },
     {
-      title: "Shared state",
+      title: "共享状态",
       iconKey: "repeat",
       description:
-        "Your agents carry state across turns. CopilotKit mirrors it into your app and back, so a user edit and an agent write land in the same place.",
+        "你的智能体会跨轮次携带状态。CopilotKit 将该状态双向同步到你的应用中，让用户编辑与智能体写入落在同一处。",
       documentationLink: "/ag2/shared-state"
     }
   ]}
   capabilitiesFootnote={{
-    text: "Chat surfaces, headless UI, frontend tools and multi-agent flows work with AG2 too.",
-    linkLabel: "And more",
+    text: "聊天界面、无头 UI、前端工具与多智能体流程同样适用于 AG2。",
+    linkLabel: "还有更多",
     href: "/ag2/build-with-agents"
   }}
   connect={{
     intro:
-      "Your agents keep running as their own Python service, with AGUIStream from ag2.ag_ui in front of them. CopilotKit reaches that service over HTTP, so nothing inside AG2 changes.",
+      "你的智能体继续作为独立的 Python 服务运行，前面套一层 ag2.ag_ui 中的 AGUIStream。CopilotKit 通过 HTTP 访问该服务，因此 AG2 内部无需任何改动。",
     filename: "app/api/copilotkit/route.ts",
     language: "ts",
     guideLink: "/ag2/quickstart"
@@ -55,12 +55,12 @@ hidePageActions: true
   showcase={{
     integration: "ag2",
     intro:
-      "AG2 and CopilotKit running together, in the React frontend. Every demo below is the same integration with one capability turned on.",
+      "AG2 与 CopilotKit 在 React 前端中协同运行。下面的每个演示都是同一个集成，只是开启了一项不同的能力。",
     demos: [
-      { slug: "agentic-chat", title: "Pre-Built: CopilotChat" },
-      { slug: "hitl-in-chat", title: "Human In the Loop: In-chat" },
-      { slug: "shared-state-read-write", title: "Shared State: Read + Write" },
-      { slug: "gen-ui-agent", title: "Generative UI: Agent State" }
+      { slug: "agentic-chat", title: "预构建：CopilotChat" },
+      { slug: "hitl-in-chat", title: "人机协同：聊天内" },
+      { slug: "shared-state-read-write", title: "共享状态：读 + 写" },
+      { slug: "gen-ui-agent", title: "生成式 UI：智能体状态" }
     ]
   }}
 >

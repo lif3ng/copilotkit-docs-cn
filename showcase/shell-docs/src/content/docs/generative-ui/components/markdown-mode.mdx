@@ -1,14 +1,17 @@
 ---
-title: "Markdown mode"
+title: "Markdown 模式"
 icon: "lucide/Code"
-description: "Let the agent write UI inside its markdown reply, in a2ui code blocks, with no tool call."
+description: "让智能体在 Markdown 回复里以 a2ui 代码块的形式直接写出 UI，无需工具调用。"
 ---
 
-## What is this?
+## 这是什么？
 
-Your agent streams text well, but tool calls are a pain: the framework does not pass client tools, or you build the prompt yourself. You still want the reply to contain real UI.
+你的智能体流式输出文本没问题，但工具调用很麻烦：框架不透传客户端工具，
+或者提示词得你自己拼。可你还是希望回复里有真正的 UI。
 
-In markdown mode, the agent writes the UI inside its reply, in a code block tagged `a2ui`. The chat renders each block as a live surface, and the text around it as normal markdown:
+在 Markdown 模式下，智能体把 UI 写在回复里一个标记为 `a2ui` 的代码块中。
+聊天把每个代码块渲染成一个可交互的界面，其周围的文本则按普通 Markdown
+渲染：
 
 ````markdown
 Here is an estimate you can play with:
@@ -21,11 +24,12 @@ Here is an estimate you can play with:
 Move the slider to change the seat count.
 ````
 
-Each line is one [A2UI v1.0](https://a2ui.org) operation. The UI is plain text, so this works with any AG-UI agent that streams text.
+每一行就是一个 [A2UI v1.0](https://a2ui.org) 操作。UI 就是纯文本，所以
+任何能流式输出文本的 AG-UI 智能体都能用。
 
-## Turn it on
+## 开启方式
 
-Set the markdown transport on the provider:
+在 provider 上设置 Markdown 传输：
 
 ```tsx title="app/providers.tsx"
 import { CopilotKitProvider } from "@copilotkit/react-core/v2";
@@ -36,37 +40,47 @@ import { standardUI } from "@copilotkit/react-core/v2/generative-ui";
 </CopilotKitProvider>;
 ```
 
-On every run, the provider then sends the agent two context entries:
+之后每次运行，provider 都会向智能体发送两条 context 条目：
 
-- A compact schema of the components: their names, props, events, and slots.
-- A guide on how to write the code blocks. It has only the rules that your catalog needs.
+- 一份精简的组件 schema：包含组件名、props、事件和插槽。
+- 一份如何编写这些代码块的指南。只包含你的组件目录需要的规则。
 
-The runtime adds no `render_ui` tool to these runs. The built-in agent puts the context entries into its system prompt. For a LangGraph Python agent, add `CopilotKitMiddleware`. Any other agent needs one thing: put the run's context entries into its system prompt.
+运行时不会给这些运行添加 `render_ui` 工具。内置智能体会把 context 条目
+放进自己的 system prompt。LangGraph Python 智能体请加
+`CopilotKitMiddleware`。任何其他智能体只需要做一件事：把该次运行的
+context 条目放进它的 system prompt。
 
-## How it streams
+## 流式渲染方式
 
-The UI paints while the reply is still streaming:
+回复还在流式输出时，UI 就已经开始绘制：
 
-- Each component renders as soon as its line has fully arrived, so a surface fills in one component at a time.
-- A child that has not arrived yet takes no space. There is no placeholder.
-- Components fade in once, when they appear.
-- If the stream stops halfway, the surface keeps what already painted.
+- 某一行的内容一到全，对应组件立刻渲染，因此界面是一个组件一个组件地
+  补齐的。
+- 尚未到达的子组件不占空间，没有占位符。
+- 组件在出现时淡入一次。
+- 如果流中途断了，界面会保留已经画出来的部分。
 
-## Where the UI renders
+## UI 渲染在哪里
 
-- **In the reply.** A code block renders where it is in the text.
-- **In the same surface again.** A later block in the same reply with the same `surfaceId` updates that surface instead of adding a second one.
-- **On the page.** A block with a target, ```` ```a2ui target=featured ````, renders in `<GenerativeUISurface id="featured">`. A later reply can update it. See [Surfaces](/generative-ui/components/surfaces).
+- **在回复里**：代码块在文本中的位置就地渲染。
+- **更新同一个界面**：同一回复中靠后的代码块若 `surfaceId` 相同，会更新
+  那个界面，而不是再添一个。
+- **在页面上**：带 target 的代码块（```` ```a2ui target=featured ````）
+  会渲染进 `<GenerativeUISurface id="featured">`。后续回复可以更新它。
+  参见[界面](/generative-ui/components/surfaces)。
 
-If the agent leaves out `createSurface`, CopilotKit adds one.
+如果智能体漏了 `createSurface`，CopilotKit 会补一个。
 
-## Text inside a block
+## 代码块内的文本
 
-The agent sometimes puts a title or a paragraph inside a block. That text is lifted out and renders as chat markdown, so only real UI ends up in a surface. The surface splits around the text into parts. The parts share their values, so a slider in one part still updates a value in another.
+智能体有时会把一个标题或一段说明放进代码块。这些文本会被提取出来，按
+聊天 Markdown 渲染，因此最终进入界面的只有真正的 UI。界面会围绕文本
+拆分成几个部分。这些部分共享取值，所以一个部分里的滑杆仍会更新另一个
+部分里的值。
 
-## Build your own prompt
+## 自行构建提示词
 
-Some backends build the prompt themselves. Turn the context entries off, and read the same data from the run instead:
+有些后端自己拼提示词。把 context 条目关掉，改为从运行中读取同样的数据：
 
 ```tsx
 <CopilotKitProvider
@@ -75,7 +89,8 @@ Some backends build the prompt themselves. Turn the context entries off, and rea
 >
 ```
 
-Every run carries it at `forwardedProps.copilotkit.ui`, in the A2UI v1.0 renderer capabilities shape:
+每次运行都会在 `forwardedProps.copilotkit.ui` 携带这些数据，形态是
+A2UI v1.0 渲染器能力（renderer capabilities）：
 
 ```json
 {
@@ -109,27 +124,38 @@ catalog = ui["v1.0"]["inlineCatalogs"][0]
 system = f"{MY_PROMPT}\n\n{catalog['instructions']}\n\nComponents:\n{json.dumps(catalog['components'])}"
 ```
 
-What the parts hold:
+各部分的含义：
 
-- `components`: the JSON Schema of each component, with its events and slots.
-- `instructions`: the guide text.
-- `copilotkit_targets`: the targets on screen.
-- `copilotkit_surfaces`: the surfaces of the thread, with the values the user typed and the operations the browser rejected. A surface that was deleted has `"status": "deleted"`, and its id cannot be used again. A surface whose `createSurface` the browser rejected has `"status": "failed"`.
-- `copilotkit_contextSent`: `true` when the context entries were also sent, so a backend never adds the schema twice.
+- `components`：每个组件的 JSON Schema，含事件和插槽。
+- `instructions`：指南文本。
+- `copilotkit_targets`：屏幕上的渲染目标。
+- `copilotkit_surfaces`：该线程的各个界面，包括用户输入的值和浏览器拒绝
+  的操作。被删除的界面带 `"status": "deleted"`，其 id 不能再使用。
+  `createSurface` 被浏览器拒绝的界面带 `"status": "failed"`。
+- `copilotkit_contextSent`：context 条目也已发送时为 `true`，后端因此
+  绝不会重复添加 schema。
 
-Two more options for these backends:
+针对这类后端还有两个选项：
 
-- `includeCatalog: false` leaves `components` out, for a backend that already has them.
-- `agentIds: ["chat"]` sends the context and this data to those agents only.
+- `includeCatalog: false` 不发送 `components`，适用于已经有这些信息的
+  后端。
+- `agentIds: ["chat"]` 只向这些智能体发送 context 和这份数据。
 
-## The v1 chat
+## v1 聊天组件
 
-The v1 chat components in `@copilotkit/react-ui` (`CopilotChat`, `CopilotSidebar`, `CopilotPopup`) render `a2ui` blocks too. Give the v1 `<CopilotKit>` provider the same `generativeUI` prop. Without it, a block renders as plain code.
+`@copilotkit/react-ui` 中的 v1 聊天组件（`CopilotChat`、`CopilotSidebar`、
+`CopilotPopup`）同样能渲染 `a2ui` 代码块。给 v1 的 `<CopilotKit>` provider
+传同样的 `generativeUI` prop 即可。不传的话，代码块会按普通代码渲染。
 
-## Limits
+## 限制
 
-- A block must start at the beginning of a line. A block that is indented inside a list item renders as code.
-- Values are literals, bindings (`{"@path": "/seats"}`) or function values (`{"@call": "calc", "args": { "expression": "seats * 29", "seats": {"@path": "/seats"} }}`); see [function values](/generative-ui/components/state-and-actions#compute-values-in-the-browser). There are no operators outside `calc`, and no function that maps over a list.
-- A `surfaceId` is never used twice, also after `deleteSurface`.
+- 代码块必须顶行开头。缩进在列表项内的代码块会按普通代码渲染。
+- 取值可以是字面量、绑定（`{"@path": "/seats"}`）或函数值
+  （`{"@call": "calc", "args": { "expression": "seats * 29", "seats": {"@path": "/seats"} }}`）；
+  参见[函数值](/generative-ui/components/state-and-actions#compute-values-in-the-browser)。
+  `calc` 之外没有运算符，也没有能对列表做映射的函数。
+- 一个 `surfaceId` 绝不重复使用，`deleteSurface` 之后也一样。
 
-To run it, start [`examples/v2/a2ui-markdown`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/v2/a2ui-markdown) with the built-in agent or the LangGraph Python agent, and open `/?transport=markdown`.
+要跑起来，用内置智能体或 LangGraph Python 智能体启动
+[`examples/v2/a2ui-markdown`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/v2/a2ui-markdown)，
+然后打开 `/?transport=markdown`。
