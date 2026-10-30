@@ -14,8 +14,28 @@ import { onboardingFrontendFor } from "@/lib/docs-onboarding-frontend";
 import { loadDoc } from "@/lib/docs-render";
 import { ROOT_FRAMEWORK } from "@/lib/registry";
 import { buildDocMetadata } from "@/lib/seo-metadata";
+import { STATIC_EXPORT } from "@/lib/export-mode";
 
 export const dynamic = "force-dynamic";
+
+export async function generateStaticParams(): Promise<
+  { slug: string[] }[]
+> {
+  if (!STATIC_EXPORT) return [];
+  const { default: sitemap } = await import("@/app/sitemap");
+  const { getBaseUrl } = await import("@/lib/sitemap-helpers");
+  const base = getBaseUrl();
+  const params: { slug: string[] }[] = [];
+  for (const entry of sitemap() as { url: string }[]) {
+    const pathName = entry.url.startsWith(base)
+      ? entry.url.slice(base.length)
+      : entry.url;
+    const segments = pathName.split("/").filter(Boolean);
+    if (segments[0] !== "cookbook" || segments.length < 2) continue;
+    params.push({ slug: segments.slice(1) });
+  }
+  return params;
+}
 
 export async function generateMetadata({
   params,

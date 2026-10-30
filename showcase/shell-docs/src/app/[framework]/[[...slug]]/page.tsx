@@ -18,7 +18,11 @@ import React from "react";
 import { DocsSetupWizard } from "@/components/docs-setup-wizard";
 import { partnerShowcaseDemos } from "@/lib/partner-showcase-demos";
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+// Static-export mode has no server hop for redirect(); collapse to 404.
+// (Lib navigation-stub mirrors the next/navigation signature.)
+import { redirect } from "@/lib/navigation-stub";
+import { STATIC_EXPORT } from "@/lib/export-mode";
 import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
@@ -471,10 +475,41 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  // Rely on the catch-all's dynamic behaviour at runtime; returning an
+  // Dynamic mode relies on the catch-all's runtime behaviour; returning an
   // empty array keeps build times short since there are ~17 frameworks
   // × ~60 doc pages, all cheap to render on demand.
-  return [];
+  //
+  // Static-export mode prerenders every canonical URL the sitemap publishes
+  // (the mirror has no runtime to render on demand). Params are derived from
+  // the sitemap entries themselves — the same expansion that decides which
+  // URLs exist decides which pages get built. Route segments owned by
+  // dedicated app routes (reference, cookbook, frontends) are excluded so
+  // they don't double-render here as soft-404s.
+  if (!STATIC_EXPORT) return [];
+  const { default: sitemap } = await import("@/app/sitemap");
+  const { getBaseUrl } = await import("@/lib/sitemap-helpers");
+  const base = getBaseUrl();
+  const reserved = new Set<string>([
+    ...RESERVED_ROUTE_SLUGS,
+    // Owned by app/cookbook/*; not in RESERVED_ROUTE_SLUGS but equally
+    // rendered by its dedicated route.
+    "cookbook",
+  ]);
+  const params: { framework: string; slug?: string[] }[] = [];
+  const seen = new Set<string>();
+  for (const entry of sitemap() as { url: string }[]) {
+    const pathName = entry.url.startsWith(base)
+      ? entry.url.slice(base.length)
+      : entry.url;
+    const segments = pathName.split("/").filter(Boolean);
+    if (segments.length < 2) continue; // bare/root pages belong to [[...slug]]
+    const [framework] = segments;
+    if (reserved.has(framework)) continue;
+    if (seen.has(pathName)) continue;
+    seen.add(pathName);
+    params.push({ framework, slug: segments.slice(1) });
+  }
+  return params;
 }
 
 // Force dynamic rendering so paths NOT in generateStaticParams are
@@ -484,6 +519,9 @@ export async function generateStaticParams() {
 // `force-dynamic`, the runtime notFound() call sets the response
 // status to 404 every time. The data fetches here are filesystem
 // reads of MDX, so per-request rendering is cheap.
+//
+// Static export replaces on-demand rendering entirely: every sitemap URL
+// is enumerated above, and anything off that list is a genuine 404.
 export const dynamic = "force-dynamic";
 
 interface DemoRecord {

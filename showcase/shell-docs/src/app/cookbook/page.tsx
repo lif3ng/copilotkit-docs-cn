@@ -6,6 +6,7 @@ import { onboardingFrontendFor } from "@/lib/docs-onboarding-frontend";
 import { loadDoc } from "@/lib/docs-render";
 import { ROOT_FRAMEWORK } from "@/lib/registry";
 import { buildDocMetadata } from "@/lib/seo-metadata";
+import { STATIC_EXPORT } from "@/lib/export-mode";
 
 export const dynamic = "force-dynamic";
 

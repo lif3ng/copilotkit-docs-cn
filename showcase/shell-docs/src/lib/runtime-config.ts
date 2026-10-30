@@ -15,6 +15,7 @@
 // window.__SHOWCASE_CONFIG__ which the root layout injects.
 
 import { unstable_noStore as noStore } from "next/cache";
+import { STATIC_EXPORT } from "@/lib/export-mode";
 import { PRODUCTION_DOCS_ORIGIN } from "./production-docs-origin";
 
 export interface RuntimeConfig {
@@ -75,7 +76,9 @@ const PROD_DEFAULT_POSTHOG_HOST = "https://eu.i.posthog.com";
 export function getRuntimeConfig(
   opts: { noStore?: boolean } = {},
 ): RuntimeConfig {
-  if (opts.noStore !== false) noStore();
+  // Static export has no request-time cache to opt out of; the values are
+  // frozen at build time regardless.
+  if (!STATIC_EXPORT && opts.noStore !== false) noStore();
   const isProd = process.env.NODE_ENV === "production";
 
   const baseUrl = readBaseUrl(isProd);
@@ -171,6 +174,18 @@ function readEnvPair(envKey: string): string | undefined {
  * deployment value loudly and ignore it.
  */
 function readBaseUrl(isProd: boolean): string {
+  // Mirror deployments build with NEXT_STATIC_EXPORT=1 and pass the real
+  // published origin through the env (e.g. a GitHub Pages project URL).
+  // The canonical-origin lock below is an upstream identity invariant for
+  // the production dynamic deploy; the mirror's identity is its own.
+  if (STATIC_EXPORT) {
+    return readUrl(
+      "NEXT_PUBLIC_BASE_URL",
+      "http://localhost:3003",
+      false,
+      "fatal",
+    );
+  }
   if (!isProd) {
     return readUrl(
       "NEXT_PUBLIC_BASE_URL",

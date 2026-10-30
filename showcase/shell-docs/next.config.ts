@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 import path from "node:path";
 
+// Static-export mode for the Chinese mirror (see src/lib/export-mode.ts).
+// `output: "export"` cannot serve rewrites/redirects, so both tables are
+// dropped in this mode; the mirror only exposes canonical URLs anyway.
+const STATIC_EXPORT = process.env.NEXT_STATIC_EXPORT === "1";
+
 interface PermanentRedirect {
   readonly source: string;
   readonly destination: string;
@@ -525,6 +530,14 @@ const AG_UI_MIRROR_REDIRECTS: MovedPermanentlyRedirect[] = [
 // `console.error` from `runtime-config.ts` instead.
 
 const nextConfig: NextConfig = {
+  ...(STATIC_EXPORT
+    ? {
+        output: "export" as const,
+        // Export prerendering of ~4k pages crashes silently at default
+        // worker counts on this build host; run it low-and-slow instead.
+        experimental: { cpus: 2, workerThreads: false },
+      }
+    : {}),
   // The raw-MDX route intentionally traces runtime-readable content. Next
   // 16.2.10 also reports this config file as an "unexpected" NFT entry even
   // though the config has no application imports. Keep the filter exact so
@@ -532,7 +545,15 @@ const nextConfig: NextConfig = {
   turbopack: {
     // The standalone Docker build has no monorepo lockfile. Include sibling
     // shared sources explicitly instead of relying on local root inference.
-    root: path.resolve(__dirname, ".."),
+    //
+    // Static export overrides this to shell-docs itself: the export build
+    // only compiles bundled data already generated into src/data, and
+    // rooting Turbopack at showcase/ drags 20k+ sibling files (integrations,
+    // harness, demo sources) into the compilation context, which crashed
+    // the build host with silently-exiting workers.
+    ...(STATIC_EXPORT
+      ? { root: __dirname }
+      : { root: path.resolve(__dirname, "..") }),
     ignoreIssue: [
       {
         path: /showcase\/shell-docs\/next\.config\.ts$/,
@@ -563,6 +584,9 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
+    if (STATIC_EXPORT) {
+      return { beforeFiles: [], afterFiles: [], fallback: [] };
+    }
     return {
       beforeFiles: [
         // PostHog reverse proxy — routes analytics through this host so
@@ -595,6 +619,9 @@ const nextConfig: NextConfig = {
     };
   },
   async redirects() {
+    if (STATIC_EXPORT) {
+      return [];
+    }
     return [
       ...AG_UI_STREAMS_REDIRECTS,
       // Open-JSON-UI is retired. Keep every previously published HTML and

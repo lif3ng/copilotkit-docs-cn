@@ -31,6 +31,8 @@ import {
   ROOT_FRAMEWORK,
 } from "@/lib/registry";
 import { buildDocMetadata } from "@/lib/seo-metadata";
+import { STATIC_EXPORT } from "@/lib/export-mode";
+import { RESERVED_ROUTE_SLUGS } from "@/lib/reserved-route-slugs";
 import { catalogReferenceNameFromPath } from "@/components/standard-catalog/catalog-reference";
 
 // Force dynamic rendering so unknown slugs reliably return HTTP 404
@@ -39,7 +41,42 @@ import { catalogReferenceNameFromPath } from "@/components/standard-catalog/cata
 // and known unscoped docs are still cheap to render — they're
 // filesystem reads of MDX content — and Railway / upstream CDN caches
 // successful responses at the edge anyway.
+//
+// Static export swaps on-demand rendering for full prerendering: the
+// sitemap enumerates every bare (single-segment) URL this surface owns.
 export const dynamic = "force-dynamic";
+
+export async function generateStaticParams(): Promise<
+  { slug?: string[] }[]
+> {
+  if (!STATIC_EXPORT) return [];
+  const { default: sitemap } = await import("@/app/sitemap");
+  const { getBaseUrl } = await import("@/lib/sitemap-helpers");
+  const { FRONTEND_PAGE_IDS } = await import("@/lib/frontend-page-content");
+  const base = getBaseUrl();
+  const ownedElsewhere = new Set<string>([
+    ...RESERVED_ROUTE_SLUGS,
+    "cookbook",
+    // Frontend landings (/vue, /angular, /slack, …) are served by
+    // app/frontends/[frontend]; the framework-scoped deep pages stay here.
+    ...FRONTEND_PAGE_IDS,
+  ]);
+  const params: { slug?: string[] }[] = [{ slug: [] }]; // home page
+  const seen = new Set<string>([""]);
+  for (const entry of sitemap() as { url: string }[]) {
+    const pathName = entry.url.startsWith(base)
+      ? entry.url.slice(base.length)
+      : entry.url;
+    const segments = pathName.split("/").filter(Boolean);
+    if (segments.length !== 1) continue; // deep pages live on other surfaces
+    const [slug] = segments;
+    if ((ownedElsewhere as ReadonlySet<string>).has(slug)) continue;
+    if (seen.has(slug)) continue;
+    seen.add(slug);
+    params.push({ slug: [slug] });
+  }
+  return params;
+}
 
 // Soft-default framework rendered on the bare `/` URL — the same
 // framework whose docs are served at the root surface, so the sidebar

@@ -5,6 +5,13 @@ import { loadDoc } from "@/lib/docs-render";
 import { resolveFrontendDocPage } from "@/lib/frontend-doc-policy";
 import { buildDocMetadata } from "@/lib/seo-metadata";
 
+// Redirect-only route: nothing canonical lives under /frontends/<frontend>/<slug>
+// (the sitemap never publishes those URLs), so export mode prerenders zero
+// pages and the redirect-only body below never executes.
+export function generateStaticParams() {
+  return [];
+}
+
 type FrontendDocPageParams = {
   frontend: string;
   slug?: string[];

@@ -4,9 +4,11 @@
 
 import type { MetadataRoute } from "next";
 import { getBaseUrl } from "@/lib/sitemap-helpers";
+import { STATIC_EXPORT } from "@/lib/export-mode";
 
 // Force-dynamic so non-production overrides are read at request time. In
 // production getBaseUrl() locks this to the public canonical docs origin.
+// Static export resolves the base URL at build time instead.
 export const dynamic = "force-dynamic";
 
 export default function robots(): MetadataRoute.Robots {

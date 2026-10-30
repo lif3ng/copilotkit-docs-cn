@@ -48,10 +48,12 @@ import {
   ROOT_FRAMEWORK,
 } from "@/lib/registry";
 import { isGlobalDocsPath } from "@/lib/reserved-route-slugs";
+import { STATIC_EXPORT } from "@/lib/export-mode";
 
 // Force-dynamic so non-production base-URL overrides are read at request time.
 // In production getRuntimeConfig() locks generated URLs to the public
 // canonical docs origin, independent of build-time or runtime env drift.
+// Static export resolves the base URL at build time instead.
 export const dynamic = "force-dynamic";
 
 export default function sitemap(): MetadataRoute.Sitemap {
