@@ -1,19 +1,19 @@
 ---
 title: "ProxiedCopilotRuntimeAgentConfig"
-description: "Configuration object for constructing a ProxiedCopilotRuntimeAgent."
+description: "用于构造 ProxiedCopilotRuntimeAgent 的配置对象。"
 ---
 
-## Overview
+## 概览
 
-`ProxiedCopilotRuntimeAgentConfig` is the constructor argument for [`ProxiedCopilotRuntimeAgent`](/reference/core/classes/ProxiedCopilotRuntimeAgent). It extends AG-UI's `HttpAgentConfig` (omitting `url`, which is derived from `runtimeUrl`) and adds the routing, transport, and runtime-mode fields the proxy needs to reach a CopilotRuntime.
+`ProxiedCopilotRuntimeAgentConfig` 是 [`ProxiedCopilotRuntimeAgent`](/reference/core/classes/ProxiedCopilotRuntimeAgent) 的构造函数参数。它扩展了 AG-UI 的 `HttpAgentConfig`（省略了 `url`，它由 `runtimeUrl` 推导得出），并添加了代理访问 CopilotRuntime 所需的路由、传输方式和运行时模式字段。
 
-## Import
+## 导入
 
 ```ts
 import type { ProxiedCopilotRuntimeAgentConfig } from "@copilotkit/core";
 ```
 
-## Definition
+## 定义
 
 ```ts
 interface ProxiedCopilotRuntimeAgentConfig
@@ -29,41 +29,41 @@ interface ProxiedCopilotRuntimeAgentConfig
 }
 ```
 
-## Properties
+## 属性
 
 <PropertyReference name="runtimeUrl" type="string">
-  Base URL of the CopilotRuntime. The agent's request URL is derived from this value and the resolved transport.
+  CopilotRuntime 的基础 URL。智能体的请求 URL 由该值和解析出的传输方式推导得出。
 </PropertyReference>
 
 <PropertyReference name="transport" type='"rest" | "single" | "auto"' default="auto">
-  Transport style used to reach the runtime. `"auto"` probes REST first, then falls back to the single-endpoint envelope.
+  用于访问运行时的传输方式。`"auto"` 会先探测 REST，然后回退到单端点信封格式。
 </PropertyReference>
 
 <PropertyReference name="credentials" type="RequestCredentials">
-  Credentials mode applied to runtime fetch requests (e.g. `"include"`).
+  应用于运行时 fetch 请求的凭据模式（例如 `"include"`）。
 </PropertyReference>
 
 <PropertyReference name="runtimeMode" type='"sse" | "intelligence" | "pending"' default="sse">
-  Runtime mode. `"sse"` and `"intelligence"` are the resolved modes; `"pending"` marks the mode as not-yet-resolved (resolved via a runtime-info fetch on the Intelligence delegate path).
+  运行时模式。`"sse"` 和 `"intelligence"` 是已解析的模式；`"pending"` 表示模式尚未解析（在 Intelligence 委托路径上通过一次运行时信息获取来解析）。
 </PropertyReference>
 
 <PropertyReference name="intelligence" type="IntelligenceRuntimeInfo">
-  Intelligence runtime metadata (e.g. the websocket URL) used when running in Intelligence mode.
+  以 Intelligence 模式运行时使用的运行时元数据（例如 websocket URL）。
 </PropertyReference>
 
 <PropertyReference name="capabilities" type="AgentCapabilities">
-  Declared agent capabilities returned by `getCapabilities()`.
+  由 `getCapabilities()` 返回的已声明的智能体能力。
 </PropertyReference>
 
 <PropertyReference name="debug" type="ResolvedDebugConfig">
-  Resolved debug configuration for the client-side event pipeline.
+  客户端事件管线的已解析调试配置。
 </PropertyReference>
 
 <PropertyReference name="runtimeAgentId" type="string">
-  When set, runtime requests are routed to this agent on the runtime instead of `agentId`. The local `agentId` remains the registry key used for subscriber bookkeeping; only outbound routing is overridden.
+  设置后，运行时请求会被路由到运行时上的这个智能体，而不是 `agentId`。本地的 `agentId` 仍作为注册表键，用于订阅者的内部记录；只有出站路由会被覆盖。
 </PropertyReference>
 
-## Usage
+## 用法
 
 ```ts
 import { ProxiedCopilotRuntimeAgent } from "@copilotkit/core";
@@ -76,7 +76,7 @@ const agent = new ProxiedCopilotRuntimeAgent({
 });
 ```
 
-## Related
+## 相关内容
 
 - [ProxiedCopilotRuntimeAgent](/reference/core/classes/ProxiedCopilotRuntimeAgent)
 - [CopilotKitCore](/reference/core/classes/CopilotKitCore)

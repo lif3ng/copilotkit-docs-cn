@@ -1,19 +1,19 @@
 ---
 title: "FrontendTool"
-description: "Definition of a frontend tool the agent can call in the browser."
+description: "智能体可在浏览器中调用的前端工具的定义。"
 ---
 
-## Overview
+## 概览
 
-`FrontendTool` describes a tool that runs in the browser and can be invoked by an agent. You register frontend tools via [`CopilotKitCoreConfig.tools`](/reference/core/types/CopilotKitCoreConfig) (or at runtime on [`CopilotKitCore`](/reference/core/classes/CopilotKitCore)). A tool has a name, an optional parameter schema, and a handler that receives the parsed arguments and an execution context.
+`FrontendTool` 描述一种在浏览器中运行、可由智能体调用的工具。你通过 [`CopilotKitCoreConfig.tools`](/reference/core/types/CopilotKitCoreConfig)（或在运行时于 [`CopilotKitCore`](/reference/core/classes/CopilotKitCore) 上）注册前端工具。工具包含一个名称、一个可选的参数 schema，以及一个接收解析后参数和执行上下文的处理器。
 
-## Import
+## 导入
 
 ```ts
 import type { FrontendTool } from "@copilotkit/core";
 ```
 
-## Definition
+## 定义
 
 ```ts
 type FrontendTool<T extends Record<string, unknown> = Record<string, unknown>> = {
@@ -35,59 +35,57 @@ type FrontendToolHandlerContext = {
 };
 ```
 
-## Properties
+## 属性
 
 <PropertyReference name="name" type="string" required>
-  Unique name of the tool. This is the name the agent uses to call it.
+  工具的唯一名称。智能体就是用这个名称来调用它的。
 </PropertyReference>
 
 <PropertyReference name="description" type="string">
-  Human-readable description of what the tool does. Helps the model decide when to call it.
+  对工具功能的可读描述。帮助模型决定何时调用它。
 </PropertyReference>
 
 <PropertyReference name="parameters" type="StandardSchemaV1<any, T>">
-  Standard Schema describing the tool's arguments. It defines the advertised
-  tool schema and types the `args` passed to `handler`. Runtime arguments are
-  JSON-parsed but are not validated against that schema.
+  描述工具参数的 Standard Schema。它定义了对外的工具 schema，并为传给 `handler` 的 `args` 提供类型。运行时参数会经过 JSON 解析，但不会针对该 schema 做校验。
 </PropertyReference>
 
 <PropertyReference name="handler" type="(args: T, context: FrontendToolHandlerContext) => Promise<unknown>">
-  Function executed when the agent calls the tool. Receives the parsed `args` and an execution context.
+  智能体调用该工具时执行的函数。接收解析后的 `args` 和一个执行上下文。
 
   <PropertyReference name="context.toolCall" type="ToolCall">
-    The AG-UI tool call that triggered this handler.
+    触发此处理器的 AG-UI 工具调用。
   </PropertyReference>
 
   <PropertyReference name="context.agent" type="AbstractAgent">
-    The agent instance that issued the tool call.
+    发出该工具调用的智能体实例。
   </PropertyReference>
 
   <PropertyReference name="context.signal" type="AbortSignal">
-    Aborted when `stopAgent()` is called. Handlers can check `signal.aborted` or pass the signal to `fetch`/`setTimeout` to cooperatively cancel.
+    在调用 `stopAgent()` 时被中止。处理器可以检查 `signal.aborted`，或将该 signal 传给 `fetch`/`setTimeout` 以实现协作式取消。
   </PropertyReference>
 
   <PropertyReference name="context.isReplay" type="boolean">
-    `true` when the call is run while the thread's history is restored (see `reconnectBehavior`). Absent for a call from a live run.
+    当该调用是在线程历史被恢复时执行则为 `true`（见 `reconnectBehavior`）。来自实时运行的调用则没有该字段。
   </PropertyReference>
 </PropertyReference>
 
 <PropertyReference name="followUp" type="boolean">
-  Whether the agent should run again after the tool result is returned.
+  在工具结果返回后，智能体是否应再次运行。
 </PropertyReference>
 
 <PropertyReference name="reconnectBehavior" type='"passive" | "resume-pending"' default='"passive"'>
-  What happens to a call of this tool that is still unanswered when the thread's history is restored, for example after a page reload. With `"passive"`, the call is shown but the handler does not run. With `"resume-pending"`, the handler runs for that call with `isReplay: true` in its context, and the run then continues as usual. Opt in only for a handler that is safe to run more than once. A call does not start twice at the same time on one page, but it can run again after a stop or a thread switch if its result never reached the agent, and two tabs that restore the same thread can each run it. If the agent calls this tool together with a tool that stays passive, the follow-up run sends the passive call without a result, which some model providers reject.
+  当线程历史被恢复时（例如页面刷新后），该工具仍未得到响应的调用会如何处理。使用 `"passive"` 时，调用会被显示，但处理器不会运行。使用 `"resume-pending"` 时，处理器会为该调用运行一次，其上下文中带有 `isReplay: true`，随后运行照常继续。只有能安全地多次运行的处理器才应启用此项。在同一个页面上，一个调用不会同时启动两次；但如果它的结果从未到达智能体，它可以在停止或切换线程之后再次运行；而恢复同一线程的两个标签页也可能各自运行一次它。如果智能体在调用此工具的同时还调用了一个保持 passive 的工具，后续运行会发送那个没有结果的 passive 调用，某些模型提供方会拒绝这种请求。
 </PropertyReference>
 
 <PropertyReference name="agentId" type="string">
-  Optional agent ID to constrain this tool to a specific agent. If specified, the tool is only available to that agent.
+  可选的智能体 ID，用于将此工具限定给特定智能体。如果指定，该工具只对那个智能体可用。
 </PropertyReference>
 
 <PropertyReference name="available" type="boolean" default="true">
-  Whether this tool is available to the agent. Set to `false` to hide the tool without unregistering it.
+  此工具是否对智能体可用。设为 `false` 可以在不注销工具的情况下将其隐藏。
 </PropertyReference>
 
-## Usage
+## 用法
 
 ```ts
 import type { FrontendTool } from "@copilotkit/core";
@@ -105,7 +103,7 @@ const setThemeTool: FrontendTool<{ theme: "light" | "dark" }> = {
 };
 ```
 
-## Related
+## 相关内容
 
 - [CopilotKitCore](/reference/core/classes/CopilotKitCore)
 - [CopilotKitCoreConfig](/reference/core/types/CopilotKitCoreConfig)

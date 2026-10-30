@@ -1,13 +1,13 @@
 ---
 title: "CopilotChatAssistantMessage"
-description: "Component for displaying assistant messages with Markdown, tool calls, and an action toolbar"
+description: "用于展示助手消息的组件，支持 Markdown、工具调用与操作工具栏"
 ---
 
-## Overview
+## 概览
 
-`CopilotChatAssistantMessage` displays assistant messages with Markdown support, tool call rendering, and an action toolbar. The Markdown renderer uses `remark-gfm`, `remark-math`, syntax highlighting via `rehype-pretty-code`, and KaTeX support for mathematical expressions. The toolbar provides copy, rating (thumbs up/down), read aloud, and regenerate buttons with localized tooltips sourced from `CopilotChatConfigurationProvider`.
+`CopilotChatAssistantMessage` 用于展示助手消息，支持 Markdown、工具调用渲染与操作工具栏。Markdown 渲染器使用 `remark-gfm`、`remark-math`、通过 `rehype-pretty-code` 实现的语法高亮，以及面向数学表达式的 KaTeX 支持。工具栏提供复制、评分（点赞/点踩）、朗读与重新生成按钮，其本地化提示文本来自 `CopilotChatConfigurationProvider`。
 
-## Import
+## 导入
 
 ```tsx
 import { CopilotChatAssistantMessage } from "@copilotkit/react-core/v2";
@@ -17,86 +17,62 @@ import "@copilotkit/react-core/v2/styles.css";
 ## Props
 
 <PropertyReference name="message" type="AssistantMessage" required>
-  The assistant message object to render. Contains the message `content`, `id`,
-  `role`, and any associated tool calls.
+  要渲染的助手消息对象。包含消息的 `content`、`id`、`role` 以及所有关联的工具调用。
 </PropertyReference>
 
 <PropertyReference name="messages" type="Message[]">
-  The full array of conversation messages. Passed through to the `toolCallsView`
-  slot for context-aware tool call rendering.
+  完整的会话消息数组。透传给 `toolCallsView` 插槽，用于具备上下文感知的工具调用渲染。
 </PropertyReference>
 
 <PropertyReference name="isRunning" type="boolean" default="false">
-  Whether the agent is currently executing. Can be used by slot components to
-  adjust their behavior during streaming.
+  智能体当前是否正在执行。插槽组件可用它在流式输出期间调整自身行为。
 </PropertyReference>
 
 <PropertyReference name="isLatest" type="boolean">
-  Whether this is the last message the chat renders. While `isRunning` is
-  `true`, the latest message hides its toolbar. `CopilotChatMessageView` passes
-  it, because its rendered list can differ from `messages` when
-  `transformMessages` drops, replaces or reorders messages. When omitted, the
-  component compares `message.id` with the last entry of `messages`.
+  这是否是聊天渲染的最后一条消息。当 `isRunning` 为 `true` 时，最新消息会隐藏其工具栏。`CopilotChatMessageView` 会传入该属性，因为当 `transformMessages` 丢弃、替换或重排消息时，其实际渲染的列表可能与 `messages` 不同。省略时，组件会比较 `message.id` 与 `messages` 的最后一项。
 </PropertyReference>
 
 <PropertyReference name="onThumbsUp" type="(message: AssistantMessage) => void">
-  Callback invoked when the user clicks the thumbs-up button; while ratings are
-  recorded, only when the click gives a rating. When not provided,
-  the thumbs-up button is hidden from the toolbar, unless `thumbsUpButton` is
-  set or, inside `CopilotChatMessageView` under a `CopilotChatConfigurationProvider`, Automatic Learning capture has started
-  (see [Reply ratings](#reply-ratings)). When this component is used
-  as the assistant slot of `CopilotChatMessageView`, the callback can receive a
-  callback-only `rawEvent` value for a live direct AG-UI `TEXT_MESSAGE_START`.
-  Direct use of this component receives the canonical assistant message.
+  用户点击点赞按钮时调用的回调；在记录评分期间，仅当点击产生了评分时才会触发。未提供时，工具栏会隐藏点赞按钮，除非设置了 `thumbsUpButton`，或者（在 `CopilotChatMessageView` 内且处于 `CopilotChatConfigurationProvider` 之下时）Automatic Learning 捕获已启动（参见[回复评分](#回复评分)）。当此组件被用作 `CopilotChatMessageView` 的助手插槽时，回调可以收到一个仅用于回调的 `rawEvent` 值，对应实时直接的 AG-UI `TEXT_MESSAGE_START`。直接使用此组件时，收到的是规范化的助手消息。
 </PropertyReference>
 
 <PropertyReference
   name="onThumbsDown"
   type="(message: AssistantMessage) => void"
 >
-  Callback invoked when the user clicks the thumbs-down button; while ratings
-  are recorded, only when the click gives a rating. When not
-  provided, the thumbs-down button is hidden from the toolbar, unless
-  `thumbsDownButton` is set or, inside `CopilotChatMessageView` under a
-  `CopilotChatConfigurationProvider`, Automatic Learning capture has started. The
-  `CopilotChatMessageView` callback-only `rawEvent` behavior applies only when
-  this component is used through that parent path.
+  用户点击点踩按钮时调用的回调；在记录评分期间，仅当点击产生了评分时才会触发。未提供时，工具栏会隐藏点踩按钮，除非设置了 `thumbsDownButton`，或者（在 `CopilotChatMessageView` 内且处于 `CopilotChatConfigurationProvider` 之下时）Automatic Learning 捕获已启动。仅当此组件通过 `CopilotChatMessageView` 这一父级路径使用时，才适用其仅用于回调的 `rawEvent` 行为。
 </PropertyReference>
 
 <PropertyReference
   name="onReadAloud"
   type="(message: AssistantMessage) => void"
 >
-  Callback invoked when the user clicks the read-aloud button. When not
-  provided, the read-aloud button is hidden from the toolbar.
+  用户点击朗读按钮时调用的回调。未提供时，工具栏会隐藏朗读按钮。
 </PropertyReference>
 
 <PropertyReference
   name="onRegenerate"
   type="(message: AssistantMessage) => void"
 >
-  Callback invoked when the user clicks the regenerate button. When not
-  provided, the regenerate button is hidden from the toolbar.
+  用户点击重新生成按钮时调用的回调。未提供时，工具栏会隐藏重新生成按钮。
 </PropertyReference>
 
 <PropertyReference name="additionalToolbarItems" type="React.ReactNode">
-  Additional React elements appended to the toolbar alongside the default action
-  buttons.
+  追加到工具栏上的额外 React 元素，与默认操作按钮并列。
 </PropertyReference>
 
 <PropertyReference name="toolbarVisible" type="boolean">
-  Controls whether the action toolbar is visible. When set to `false`, the
-  toolbar is hidden entirely regardless of which callback props are provided.
+  控制操作工具栏是否可见。设为 `false` 时，无论提供了哪些回调 props，工具栏都会完全隐藏。
 </PropertyReference>
 
-## Slots
+## 插槽
 
-All slot props follow the CopilotKit slot system: each accepts a replacement React component, a `className` string that is merged into the default component's classes, or a partial props object that extends the default component.
+所有插槽 props 都遵循 CopilotKit 插槽系统：每个插槽都接受一个替换用的 React 组件、一个合并进默认组件 class 的 `className` 字符串，或一个用于扩展默认组件的局部 props 对象。
 
 <PropertyReference name="markdownRenderer" type="SlotProp<typeof CopilotChatAssistantMessage.MarkdownRenderer>">
-  Slot for the Markdown rendering engine. Defaults to `CopilotChatAssistantMessage.MarkdownRenderer`, which supports GFM tables, math expressions via KaTeX, and syntax-highlighted code blocks via `rehype-pretty-code`.
+  Markdown 渲染引擎的插槽。默认为 `CopilotChatAssistantMessage.MarkdownRenderer`，支持 GFM 表格、通过 KaTeX 呈现的数学表达式，以及通过 `rehype-pretty-code` 实现语法高亮的代码块。
 
-**As a replacement component:**
+**作为替换组件**：
 
 ```tsx
 <CopilotChatAssistantMessage
@@ -110,9 +86,9 @@ All slot props follow the CopilotKit slot system: each accepts a replacement Rea
 </PropertyReference>
 
 <PropertyReference name="toolbar" type="SlotProp<typeof CopilotChatAssistantMessage.Toolbar>">
-  Slot for the action toolbar container. Defaults to `CopilotChatAssistantMessage.Toolbar`, which renders a horizontal row of action buttons below the message content.
+  操作工具栏容器的插槽。默认为 `CopilotChatAssistantMessage.Toolbar`，它在消息内容下方渲染一行水平排列的操作按钮。
 
-**As a className:**
+**作为 className**：
 
 ```tsx
 <CopilotChatAssistantMessage message={msg} toolbar="border-t pt-2 mt-2" />
@@ -124,88 +100,58 @@ All slot props follow the CopilotKit slot system: each accepts a replacement Rea
   name="copyButton"
   type="SlotProp<typeof CopilotChatAssistantMessage.CopyButton>"
 >
-  Slot for the copy-to-clipboard button in the toolbar. Defaults to
-  `CopilotChatAssistantMessage.CopyButton`. The tooltip label is sourced from
-  `CopilotChatLabels.assistantMessageToolbarCopyMessageLabel`.
+  工具栏中复制到剪贴板按钮的插槽。默认为 `CopilotChatAssistantMessage.CopyButton`。提示文本标签来自 `CopilotChatLabels.assistantMessageToolbarCopyMessageLabel`。
 </PropertyReference>
 
 <PropertyReference
   name="thumbsUpButton"
   type="SlotProp<typeof CopilotChatAssistantMessage.ThumbsUpButton>"
 >
-  Slot for the thumbs-up rating button. Defaults to
-  `CopilotChatAssistantMessage.ThumbsUpButton`. Rendered when this slot or
-  `onThumbsUp` is set or, inside `CopilotChatMessageView`, Automatic Learning
-  captures the chat. While ratings are recorded, a replacement receives
-  `aria-pressed` and `data-copilotkit-rating`, and on the chosen thumb
-  `aria-haspopup`, `aria-expanded`, `onPointerEnter`, `onPointerLeave`,
-  `onFocus`, `onBlur`, and `onKeyDown`, besides `onClick`. Spread the props it
-  receives onto its button and pass the click event to `onClick`, so a
-  keyboard rating moves focus into the comment. The tooltip label is sourced
-  from
-  `CopilotChatLabels.assistantMessageToolbarThumbsUpLabel`.
+  点赞评分按钮的插槽。默认为 `CopilotChatAssistantMessage.ThumbsUpButton`。当设置了此插槽或 `onThumbsUp` 时渲染，或者在 `CopilotChatMessageView` 内由 Automatic Learning 捕获该聊天时渲染。在记录评分期间，替换组件会收到 `aria-pressed` 与 `data-copilotkit-rating`，在所选拇指按钮上除 `onClick` 外还会收到 `aria-haspopup`、`aria-expanded`、`onPointerEnter`、`onPointerLeave`、`onFocus`、`onBlur` 与 `onKeyDown`。请把它收到的 props 展开到自己的按钮上，并把点击事件传给 `onClick`，这样键盘评分时焦点才能移入评论文本。提示文本标签来自 `CopilotChatLabels.assistantMessageToolbarThumbsUpLabel`。
 </PropertyReference>
 
 <PropertyReference
   name="thumbsDownButton"
   type="SlotProp<typeof CopilotChatAssistantMessage.ThumbsDownButton>"
 >
-  Slot for the thumbs-down rating button. Defaults to
-  `CopilotChatAssistantMessage.ThumbsDownButton`. Rendered when this slot or
-  `onThumbsDown` is set or, inside `CopilotChatMessageView`, Automatic Learning
-  captures the chat. A replacement receives the same props as a
-  `thumbsUpButton` replacement. The tooltip label is sourced from
-  `CopilotChatLabels.assistantMessageToolbarThumbsDownLabel`.
+  点踩评分按钮的插槽。默认为 `CopilotChatAssistantMessage.ThumbsDownButton`。当设置了此插槽或 `onThumbsDown` 时渲染，或者在 `CopilotChatMessageView` 内由 Automatic Learning 捕获该聊天时渲染。替换组件收到的 props 与 `thumbsUpButton` 替换组件相同。提示文本标签来自 `CopilotChatLabels.assistantMessageToolbarThumbsDownLabel`。
 </PropertyReference>
 
 <PropertyReference
   name="readAloudButton"
   type="SlotProp<typeof CopilotChatAssistantMessage.ReadAloudButton>"
 >
-  Slot for the read-aloud button. Defaults to
-  `CopilotChatAssistantMessage.ReadAloudButton`. Only rendered when
-  `onReadAloud` is provided. The tooltip label is sourced from
-  `CopilotChatLabels.assistantMessageToolbarReadAloudLabel`.
+  朗读按钮的插槽。默认为 `CopilotChatAssistantMessage.ReadAloudButton`。仅在提供 `onReadAloud` 时渲染。提示文本标签来自 `CopilotChatLabels.assistantMessageToolbarReadAloudLabel`。
 </PropertyReference>
 
 <PropertyReference
   name="regenerateButton"
   type="SlotProp<typeof CopilotChatAssistantMessage.RegenerateButton>"
 >
-  Slot for the regenerate button. Defaults to
-  `CopilotChatAssistantMessage.RegenerateButton`. Only rendered when
-  `onRegenerate` is provided. The tooltip label is sourced from
-  `CopilotChatLabels.assistantMessageToolbarRegenerateLabel`.
+  重新生成按钮的插槽。默认为 `CopilotChatAssistantMessage.RegenerateButton`。仅在提供 `onRegenerate` 时渲染。提示文本标签来自 `CopilotChatLabels.assistantMessageToolbarRegenerateLabel`。
 </PropertyReference>
 
 <PropertyReference
   name="toolCallsView"
   type="SlotProp<typeof CopilotChatToolCallsView>"
 >
-  Slot for rendering tool calls embedded in the assistant message. Defaults to
-  [`CopilotChatToolCallsView`](#copilotchattoolcallsview), which renders each
-  call with the closest registered tool renderer and groups calls made in a row.
+  渲染助手消息内嵌工具调用的插槽。默认为 [`CopilotChatToolCallsView`](#copilotchattoolcallsview)，它会用最匹配的已注册工具渲染器渲染每个调用，并将连续发起的调用分组。
 </PropertyReference>
 
 <PropertyReference
   name="feedbackComment"
   type="SlotProp<typeof CopilotChatAssistantMessage.FeedbackComment>"
 >
-  Slot for the comment field of a [reply rating](#reply-ratings), shown in a
-  popover next to the chosen thumb. Defaults to
-  `CopilotChatAssistantMessage.FeedbackComment`. A replacement receives
-  `value`, `savedComment`, `inputRef`, `onChange`, `onSubmit`,
-  `onEditingChange`, and `onLeave`. It renders after `children`, so a
-  `children` layout does not need to place it.
+  [回复评分](#回复评分)评论输入框的插槽，显示在所选拇指按钮旁的弹层中。默认为 `CopilotChatAssistantMessage.FeedbackComment`。替换组件会收到 `value`、`savedComment`、`inputRef`、`onChange`、`onSubmit`、`onEditingChange` 与 `onLeave`。它渲染在 `children` 之后，因此 `children` 布局无需自行放置它。
 </PropertyReference>
 
 ## CopilotChatToolCallsView
 
-A companion component that renders the tool calls contained in an assistant message. Each call is drawn by the closest registered tool renderer (registered via `useFrontendTool`, `useHumanInTheLoop`, `useRenderTool` or `renderToolCalls` on the provider).
+一个配套组件，用于渲染助手消息中包含的工具调用。每个调用都由最匹配的已注册工具渲染器绘制（通过 `useFrontendTool`、`useHumanInTheLoop`、`useRenderTool` 或 provider 上的 `renderToolCalls` 注册）。
 
-Calls the agent makes in a row are collapsed into one group, drawn by the `group` slot, when their renderer opts into grouping. The built-in card from `useDefaultRenderTool()` does; a custom renderer opts in with `group: true`. Any other call always shows on its own. Inside a [`CopilotChatMessageView`](/reference/components/CopilotChatMessageView), groups span messages and follow the view's `toolCallDisplay`; used on its own, this component groups the calls of `message`.
+当渲染器选择启用分组时，智能体连续发起的调用会折叠成一个组，由 `group` 插槽绘制。`useDefaultRenderTool()` 的内置卡片即如此；自定义渲染器用 `group: true` 启用。任何其他调用始终单独显示。在 [`CopilotChatMessageView`](/reference/components/CopilotChatMessageView) 内，分组会跨越消息并遵循视图的 `toolCallDisplay`；单独使用时，此组件对 `message` 的调用进行分组。
 
-### Import
+### 导入
 
 ```tsx
 import { CopilotChatToolCallsView } from "@copilotkit/react-core/v2";
@@ -214,37 +160,26 @@ import { CopilotChatToolCallsView } from "@copilotkit/react-core/v2";
 ### Props
 
 <PropertyReference name="message" type="AssistantMessage" required>
-  The assistant message whose tool calls should be rendered.
+  要渲染其工具调用的助手消息。
 </PropertyReference>
 
 <PropertyReference name="messages" type="Message[]">
-  The full conversation message array. Provides context for tool call renderers
-  that need to reference other messages (e.g., to find the corresponding tool
-  result message).
+  完整的会话消息数组。为需要引用其他消息的工具调用渲染器提供上下文（例如查找对应的工具结果消息）。
 </PropertyReference>
 
 <PropertyReference
   name="display"
   type='"grouped" | "line" | "stacked" | "turn" | "separate"'
 >
-  How to show the calls. Inside a message view it defaults to the view's
-  [`toolCallDisplay`](/reference/components/CopilotChatMessageView#toolcalldisplay);
-  on its own it defaults to `"grouped"`. `"separate"` renders every call on its
-  own, without a group.
+  调用的展示方式。在消息视图内默认取视图的 [`toolCallDisplay`](/reference/components/CopilotChatMessageView#toolcalldisplay)；单独使用时默认为 `"grouped"`。`"separate"` 会将每个调用单独渲染，不分组。
 </PropertyReference>
 
-### Slots
+### 插槽
 
 <PropertyReference name="group" type="SlotProp<typeof CopilotChatToolCallGroup>">
-  Draws a group of calls made in a row in the `"grouped"`, `"line"` and
-  `"stacked"` displays. The `"turn"` display draws its calls as rows inside the
-  reply and doesn't use it. Defaults to
-  [`CopilotChatToolCallGroup`](/reference/components/CopilotChatToolCallGroup).
-  Like every slot, it accepts a className, props for the default, or a
-  replacement component, which receives the group's `calls` and a
-  `renderCall` function.
+  在 `"grouped"`、`"line"` 与 `"stacked"` 展示方式下绘制一组连续发起的调用。`"turn"` 展示方式会把调用绘制为回复内的行，不使用此插槽。默认为 [`CopilotChatToolCallGroup`](/reference/components/CopilotChatToolCallGroup)。与所有插槽一样，它接受一个 className、传给默认组件的 props，或一个替换组件——后者会收到该组的 `calls` 与一个 `renderCall` 函数。
 
-**Through `CopilotChat`:**
+**通过 `CopilotChat`**：
 
 ```tsx
 <CopilotChat
@@ -256,7 +191,7 @@ import { CopilotChatToolCallsView } from "@copilotkit/react-core/v2";
 />
 ```
 
-**As props for the default group:**
+**作为默认分组的 props**：
 
 ```tsx
 <CopilotChatToolCallsView
@@ -266,7 +201,7 @@ import { CopilotChatToolCallsView } from "@copilotkit/react-core/v2";
 />
 ```
 
-**As a replacement component:**
+**作为替换组件**：
 
 ```tsx
 <CopilotChatToolCallsView
@@ -285,9 +220,9 @@ import { CopilotChatToolCallsView } from "@copilotkit/react-core/v2";
 
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Basic Assistant Message
+### 基本助手消息
 
 ```tsx
 function AssistantBubble({ message }) {
@@ -301,7 +236,7 @@ function AssistantBubble({ message }) {
 }
 ```
 
-### Customizing the Toolbar
+### 自定义工具栏
 
 ```tsx
 function CustomToolbarMessage({ message }) {
@@ -319,7 +254,7 @@ function CustomToolbarMessage({ message }) {
 }
 ```
 
-### Hiding the Toolbar
+### 隐藏工具栏
 
 ```tsx
 function MinimalMessage({ message }) {
@@ -329,7 +264,7 @@ function MinimalMessage({ message }) {
 }
 ```
 
-### Custom Markdown Renderer
+### 自定义 Markdown 渲染器
 
 ```tsx
 function CustomRendererMessage({ message }) {
@@ -344,7 +279,7 @@ function CustomRendererMessage({ message }) {
 }
 ```
 
-### Standalone Tool Calls View
+### 独立的工具调用视图
 
 ```tsx
 function ToolCallsList({ message, allMessages }) {
@@ -356,28 +291,28 @@ function ToolCallsList({ message, allMessages }) {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Markdown Support**: The default Markdown renderer supports GitHub Flavored Markdown (tables, strikethrough, task lists), math expressions rendered with KaTeX, and syntax-highlighted code blocks via `rehype-pretty-code`.
-- **Toolbar Visibility**: The toolbar appears on hover or focus by default, except on the latest message while `isRunning` is `true`. Individual buttons are only rendered when their corresponding callback prop (`onThumbsUp`, `onThumbsDown`, `onReadAloud`, `onRegenerate`) is provided. The thumbs also render when their slot is set or, inside `CopilotChatMessageView` under a `CopilotChatConfigurationProvider`, once Automatic Learning capture has started. The copy button is always visible when the toolbar is shown.
-- **Localized Labels**: All toolbar button tooltips are sourced from the nearest `CopilotChatConfigurationProvider`. See [`useCopilotChatConfiguration`](/reference/hooks/useCopilotChatConfiguration) for the full list of label keys.
-- **Tool Call Rendering**: Tool calls embedded in the assistant message are rendered by the `toolCallsView` slot. Each tool call is resolved using the `useRenderToolCall` hook, which looks up registered renderers by tool name.
-- **Slot System**: Each slot prop accepts three forms -- a replacement component, a className string merged into the default, or a partial props object that extends the default component's props.
+- **Markdown 支持**：默认 Markdown 渲染器支持 GitHub Flavored Markdown（表格、删除线、任务列表）、用 KaTeX 渲染的数学表达式，以及通过 `rehype-pretty-code` 实现语法高亮的代码块。
+- **工具栏可见性**：默认情况下工具栏在悬停或聚焦时出现，但当 `isRunning` 为 `true` 时，最新消息除外。只有提供了对应的回调 prop（`onThumbsUp`、`onThumbsDown`、`onReadAloud`、`onRegenerate`）时，各按钮才会渲染。当设置了对应插槽时，或在 `CopilotChatMessageView` 内处于 `CopilotChatConfigurationProvider` 之下且 Automatic Learning 捕获已启动时，两个拇指按钮也会渲染。工具栏显示时，复制按钮始终可见。
+- **本地化标签**：所有工具栏按钮的提示文本都来自最近的 `CopilotChatConfigurationProvider`。完整的标签键列表见 [`useCopilotChatConfiguration`](/reference/hooks/useCopilotChatConfiguration)。
+- **工具调用渲染**：助手消息内嵌的工具调用由 `toolCallsView` 插槽渲染。每个工具调用通过 `useRenderToolCall` hook 解析，该 hook 按工具名称查找已注册的渲染器。
+- **插槽系统**：每个插槽 prop 接受三种形式——替换组件、合并进默认组件的 className 字符串，或扩展默认组件 props 的局部 props 对象。
 
-## Reply ratings
+## 回复评分
 
-When this component renders inside `CopilotChatMessageView` under a `CopilotChatConfigurationProvider` and Automatic Learning capture has started, the thumbs record ratings, also while capture reconnects or is stopped:
+当此组件渲染在 `CopilotChatMessageView` 内、处于 `CopilotChatConfigurationProvider` 之下且 Automatic Learning 捕获已启动时，两个拇指按钮会记录评分，在捕获重连或停止期间也同样如此：
 
-- A click rates the reply and opens a field for an optional comment next to the thumb.
-- Pointing at or keyboard-focusing the chosen thumb opens its comment again. On a touch screen, tapping the chosen thumb removes the rating instead.
-- Clicking the chosen thumb again removes the rating.
-- The rating shows while the page is open and is sent to the active Trajectory as a `message.feedback` event. Like any Trajectory event, a rating given while no Trajectory captures is not sent.
+- 点击即为回复评分，并在拇指按钮旁打开一个可填写可选评论的输入框。
+- 指向或用键盘聚焦所选拇指按钮会再次打开其评论。在触屏上，轻点所选拇指按钮则会移除评分。
+- 再次点击所选拇指按钮会移除评分。
+- 评分会在页面打开期间显示，并作为 `message.feedback` 事件发送到当前活动的 Trajectory。与任何 Trajectory 事件一样，在没有 Trajectory 捕获时给出的评分不会被发送。
 
-`onThumbsUp` and `onThumbsDown` run when a rating is given, not when it is removed. The comment field is the `feedbackComment` slot, `CopilotChatAssistantMessage.FeedbackComment` by default; its placeholder and send button use the `assistantMessageFeedbackCommentPlaceholder` and `assistantMessageFeedbackCommentSubmitLabel` labels. See [Collect reply ratings](/intelligence/capture-interactions#collect-reply-ratings) for the event and how ratings reach Intelligence.
+`onThumbsUp` 与 `onThumbsDown` 在给出评分时运行，移除评分时不运行。评论输入框就是 `feedbackComment` 插槽，默认为 `CopilotChatAssistantMessage.FeedbackComment`；其占位符与发送按钮使用 `assistantMessageFeedbackCommentPlaceholder` 与 `assistantMessageFeedbackCommentSubmitLabel` 标签。事件详情以及评分如何到达 Intelligence，参见[收集回复评分](/intelligence/capture-interactions#collect-reply-ratings)。
 
-## Related
+## 相关内容
 
-- [`CopilotChatMessageView`](/reference/components/CopilotChatMessageView) -- Parent component that uses this as the default assistant message slot
-- [`CopilotChatUserMessage`](/reference/components/CopilotChatUserMessage) -- Companion component for user messages
-- [`useRenderToolCall`](/reference/hooks/useRenderToolCall) -- Hook used internally for resolving tool call renderers
-- [`useCopilotChatConfiguration`](/reference/hooks/useCopilotChatConfiguration) -- Provider for localized toolbar labels
+- [`CopilotChatMessageView`](/reference/components/CopilotChatMessageView)——将此组件用作默认助手消息插槽的父组件
+- [`CopilotChatUserMessage`](/reference/components/CopilotChatUserMessage)——用户消息的配套组件
+- [`useRenderToolCall`](/reference/hooks/useRenderToolCall)——内部用于解析工具调用渲染器的 hook
+- [`useCopilotChatConfiguration`](/reference/hooks/useCopilotChatConfiguration)——提供本地化工具栏标签的 Provider

@@ -1,19 +1,19 @@
 ---
 title: "CopilotKitCoreConfig"
-description: "Configuration object passed to the CopilotKitCore constructor."
+description: "传给 CopilotKitCore 构造函数的配置对象。"
 ---
 
-## Overview
+## 概览
 
-`CopilotKitCoreConfig` is the configuration object accepted by the [`CopilotKitCore`](/reference/core/classes/CopilotKitCore) constructor. It wires the core to a CopilotRuntime endpoint and seeds it with frontend tools, suggestions, request headers, and forwarded properties.
+`CopilotKitCoreConfig` 是 [`CopilotKitCore`](/reference/core/classes/CopilotKitCore) 构造函数接受的配置对象。它将核心连接到 CopilotRuntime 端点，并为它预置前端工具、建议、请求头和转发的属性。
 
-## Import
+## 导入
 
 ```ts
 import type { CopilotKitCoreConfig } from "@copilotkit/core";
 ```
 
-## Definition
+## 定义
 
 ```ts
 interface CopilotKitCoreConfig {
@@ -33,64 +33,53 @@ interface CopilotKitCoreConfig {
 }
 ```
 
-## Properties
+## 属性
 
 <PropertyReference name="runtimeUrl" type="string">
-  The endpoint of the CopilotRuntime.
+  CopilotRuntime 的端点。
 </PropertyReference>
 
 <PropertyReference name="runtimeTransport" type='"rest" | "single" | "auto"' default="auto">
-  Transport style for CopilotRuntime endpoints. `"auto"` probes REST and falls back to single-route.
+  CopilotRuntime 端点的传输方式。`"auto"` 会先探测 REST，失败时回退到单路由模式。
 </PropertyReference>
 
 <PropertyReference name="agents__unsafe_dev_only" type="Record<string, AbstractAgent>">
-  Mapping from agent name to its `AbstractAgent` instance. For development only — production requires a CopilotRuntime.
+  智能体名称到其 `AbstractAgent` 实例的映射。仅供开发使用——生产环境需要 CopilotRuntime。
 </PropertyReference>
 
 <PropertyReference name="headers" type="Record<string, string> | (() => Record<string, string>) | (() => Promise<Record<string, string>>)" default="{}">
-  Headers appended to every HTTP request made by `CopilotKitCore`. Pass a
-  record for static headers, or a function (sync or async) to build them
-  fresh. A builder runs when each request is sent, so a refreshed token is
-  always used. Cache inside the builder — a builder that calls the network
-  every time adds one call per request.
+  附加到 `CopilotKitCore` 发出的每个 HTTP 请求上的请求头。传入一个 record 表示静态请求头，或传入一个函数（同步或异步）来即时构建它们。构建器会在每次请求发送时运行，因此总能用到刷新后的 token。请在构建器内部做缓存——每次都发起网络调用的构建器会给每个请求额外增加一次调用。
 
-  If the builder throws or rejects, the request is not sent and `onError`
-  gets [`HEADER_RESOLUTION_FAILED`](/reference/core/enums/CopilotKitCoreErrorCode).
+  如果构建器抛出异常或返回 rejected，请求将不会被发送，`onError` 会收到 [`HEADER_RESOLUTION_FAILED`](/reference/core/enums/CopilotKitCoreErrorCode)。
 
-  See `setHeaders` and `resolveHeaders` on
-  [`CopilotKitCore`](/reference/core/classes/CopilotKitCore).
+  参见 [`CopilotKitCore`](/reference/core/classes/CopilotKitCore) 上的 `setHeaders` 与 `resolveHeaders`。
 </PropertyReference>
 
 <PropertyReference name="credentials" type="RequestCredentials">
-  Credentials mode for fetch requests (e.g. `"include"` for HTTP-only cookies).
+  fetch 请求的凭据模式（例如设为 `"include"` 以发送 HTTP-only cookie）。
 </PropertyReference>
 
 <PropertyReference name="messageFilter" type="CopilotKitMessageFilter">
-  Rewrites the message list sent to runtime agents on every run. Use it when the
-  agent already stores the conversation and re-sending it is waste or
-  duplication. The filter changes the request body only — the transcript the UI
-  renders is untouched — and broken tool-call pairs are repaired before the
-  request goes out. Intelligence runs and suggestion runs are never filtered.
-  Change it later with `setMessageFilter`.
+  在每次运行时重写发送给运行时智能体的消息列表。当智能体已经自行保存了会话、重新发送只会造成浪费或重复时，可以使用它。该过滤器只改变请求体——UI 渲染的会话记录不受影响——并且在请求发出前会修复损坏的工具调用配对。智能推理运行与建议运行永远不会被过滤。之后可通过 `setMessageFilter` 修改。
 </PropertyReference>
 
 <PropertyReference name="properties" type="Record<string, unknown>" default="{}">
-  Properties sent as `forwardedProps` to the AG-UI agent.
+  以 `forwardedProps` 形式发送给 AG-UI 智能体的属性。
 </PropertyReference>
 
 <PropertyReference name="tools" type="FrontendTool<any>[]" default="[]">
-  Ordered collection of [frontend tools](/reference/core/types/FrontendTool) available to the core.
+  核心可用的[前端工具](/reference/core/types/FrontendTool)的有序集合。
 </PropertyReference>
 
 <PropertyReference name="suggestionsConfig" type="SuggestionsConfig[]" default="[]">
-  [Suggestions configuration](/reference/core/types/SuggestionsConfig) for the core.
+  核心的[建议配置](/reference/core/types/SuggestionsConfig)。
 </PropertyReference>
 
 <PropertyReference name="debug" type="DebugConfig">
-  Enable debug logging for the client-side event pipeline.
+  为客户端事件管线启用调试日志。
 </PropertyReference>
 
-## Usage
+## 用法
 
 ```ts
 import { CopilotKitCore } from "@copilotkit/core";
@@ -111,7 +100,7 @@ const copilotkit = new CopilotKitCore({
 });
 ```
 
-## Related
+## 相关内容
 
 - [CopilotKitCore](/reference/core/classes/CopilotKitCore)
 - [FrontendTool](/reference/core/types/FrontendTool)

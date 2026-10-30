@@ -1,19 +1,19 @@
 ---
 title: "CopilotKitCoreErrorCode"
-description: "Stable error codes surfaced through the onError subscriber callback."
+description: "通过订阅者的 onError 回调暴露的稳定错误代码。"
 ---
 
-## Overview
+## 概览
 
-`CopilotKitCoreErrorCode` enumerates the stable, machine-readable codes that `CopilotKitCore` attaches to errors. You encounter it in the `onError` callback of a subscriber, where you can branch on `code` to handle specific failures.
+`CopilotKitCoreErrorCode` 枚举了 `CopilotKitCore` 附加到错误上的稳定、可机读的错误代码。它出现在订阅者的 `onError` 回调中，你可以基于 `code` 做分支判断，以处理特定的失败场景。
 
-## Import
+## 导入
 
 ```ts
 import { CopilotKitCoreErrorCode } from "@copilotkit/core";
 ```
 
-## Definition
+## 定义
 
 ```ts
 enum CopilotKitCoreErrorCode {
@@ -38,82 +38,81 @@ enum CopilotKitCoreErrorCode {
 }
 ```
 
-## Members
+## 成员
 
 <PropertyReference name="RUNTIME_INFO_FETCH_FAILED" type="runtime_info_fetch_failed">
-  Fetching runtime info (agents, version, capabilities) from the runtime URL failed.
+  从 runtime URL 获取运行时信息（智能体、版本、能力）失败。
 </PropertyReference>
 
 <PropertyReference name="AGENT_CONNECT_FAILED" type="agent_connect_failed">
-  Connecting an agent to the runtime failed.
+  将智能体连接到运行时失败。
 </PropertyReference>
 
 <PropertyReference name="AGENT_RUN_FAILED" type="agent_run_failed">
-  An agent run threw before or while starting.
+  智能体运行在启动前或启动过程中抛出了异常。
 </PropertyReference>
 
 <PropertyReference name="AGENT_RUN_FAILED_EVENT" type="agent_run_failed_event">
-  The agent emitted a `RUN_FAILED` event during execution.
+  智能体在执行期间发出了 `RUN_FAILED` 事件。
 </PropertyReference>
 
 <PropertyReference name="AGENT_RUN_ERROR_EVENT" type="agent_run_error_event">
-  The agent emitted a `RUN_ERROR` event during execution.
+  智能体在执行期间发出了 `RUN_ERROR` 事件。
 </PropertyReference>
 
 <PropertyReference name="TOOL_ARGUMENT_PARSE_FAILED" type="tool_argument_parse_failed">
-  A tool call's arguments could not be parsed against the tool's schema.
+  无法按照工具的 schema 解析工具调用的参数。
 </PropertyReference>
 
 <PropertyReference name="TOOL_HANDLER_FAILED" type="tool_handler_failed">
-  A frontend tool handler threw while executing.
+  前端工具的处理器在执行时抛出了异常。
 </PropertyReference>
 
 <PropertyReference name="TOOL_NOT_FOUND" type="tool_not_found">
-  The agent called a tool that is not registered.
+  智能体调用了一个未注册的工具。
 </PropertyReference>
 
 <PropertyReference name="AGENT_NOT_FOUND" type="agent_not_found">
-  An operation referenced an agent ID that is not registered.
+  某个操作引用了未注册的智能体 ID。
 </PropertyReference>
 
 <PropertyReference name="AGENT_THREAD_LOCKED" type="agent_thread_locked">
-  An agent run failed because the thread is already locked by another active run.
+  智能体运行失败，因为该线程已被另一个活跃的运行锁定。
 </PropertyReference>
 
 <PropertyReference name="TRANSCRIPTION_FAILED" type="transcription_failed">
-  Audio transcription failed for an unspecified reason.
+  音频转写因未指明的原因而失败。
 </PropertyReference>
 
 <PropertyReference name="TRANSCRIPTION_SERVICE_NOT_CONFIGURED" type="transcription_service_not_configured">
-  Transcription was requested but no transcription service is configured.
+  请求了转写，但尚未配置任何转写服务。
 </PropertyReference>
 
 <PropertyReference name="TRANSCRIPTION_INVALID_AUDIO" type="transcription_invalid_audio">
-  The supplied audio could not be transcribed because it was invalid.
+  提供的音频无效，无法完成转写。
 </PropertyReference>
 
 <PropertyReference name="TRANSCRIPTION_RATE_LIMITED" type="transcription_rate_limited">
-  The transcription service rejected the request due to rate limiting.
+  转写服务因速率限制拒绝了请求。
 </PropertyReference>
 
 <PropertyReference name="TRANSCRIPTION_AUTH_FAILED" type="transcription_auth_failed">
-  Authentication with the transcription service failed.
+  与转写服务的身份验证失败。
 </PropertyReference>
 
 <PropertyReference name="TRANSCRIPTION_NETWORK_ERROR" type="transcription_network_error">
-  A network error occurred while contacting the transcription service.
+  联系转写服务时发生了网络错误。
 </PropertyReference>
 
 <PropertyReference name="SUBSCRIBER_CALLBACK_FAILED" type="subscriber_callback_failed">
-  A subscriber callback threw while handling an event.
+  订阅者回调在处理事件时抛出了异常。
 </PropertyReference>
 
 <PropertyReference name="HEADER_RESOLUTION_FAILED" type="header_resolution_failed">
-  The `headers` builder threw, rejected, or returned something other than an
-  object. The request was not sent. `error.cause` is the builder's error.
+  `headers` 构建器抛出了异常、产生了 rejection，或返回了对象以外的值。请求未被发送。`error.cause` 是该构建器的错误。
 </PropertyReference>
 
-## Usage
+## 用法
 
 ```ts
 copilotkit.subscribe({
@@ -127,7 +126,7 @@ copilotkit.subscribe({
 });
 ```
 
-## Related
+## 相关内容
 
-- [CopilotKitCoreSubscriber](/reference/core/types/CopilotKitCoreSubscriber) — the `onError` callback receives this code.
+- [CopilotKitCoreSubscriber](/reference/core/types/CopilotKitCoreSubscriber) ——`onError` 回调会接收到该错误代码。
 - [CopilotKitCore](/reference/core/classes/CopilotKitCore)

@@ -1,21 +1,21 @@
 ---
 title: "CopilotKitCoreRuntimeConnectionStatus"
-description: "Connection states between CopilotKitCore and the CopilotRuntime."
+description: "`CopilotKitCore` 与 CopilotRuntime 之间的连接状态。"
 ---
 
-## Overview
+## 概览
 
-`CopilotKitCoreRuntimeConnectionStatus` represents the state of the connection between `CopilotKitCore` and its runtime. You encounter it via `copilotkit.runtimeConnectionStatus` and the `onRuntimeConnectionStatusChanged` subscriber callback.
+`CopilotKitCoreRuntimeConnectionStatus` 表示 `CopilotKitCore` 与其运行时之间连接的状态。你可以通过 `copilotkit.runtimeConnectionStatus` 以及订阅者的 `onRuntimeConnectionStatusChanged` 回调来获取它。
 
-**The status reports the outcome of the last actual contact with the runtime.** It is not a claim about the present moment. A failed runtime request moves it to `Error`, a successful one moves it back — and nothing else moves it. There is no polling and no heartbeat, so an outage that begins while your application is idle is not noticed until something is sent.
+**该状态反映的是最近一次与运行时实际接触的结果**。它并不代表当下的实时状态。一次失败的运行时请求会将它置为 `Error`，一次成功的请求会将它置回来——除此之外没有任何东西会改变它。这里没有轮询，也没有心跳，因此如果你的应用处于空闲状态时运行时发生故障，在真正发送请求之前是察觉不到的。
 
-## Import
+## 导入
 
 ```ts
 import { CopilotKitCoreRuntimeConnectionStatus } from "@copilotkit/core";
 ```
 
-## Definition
+## 定义
 
 ```ts
 enum CopilotKitCoreRuntimeConnectionStatus {
@@ -26,30 +26,30 @@ enum CopilotKitCoreRuntimeConnectionStatus {
 }
 ```
 
-## Members
+## 成员
 
 <PropertyReference name="Disconnected" type="disconnected">
-  No connection to the runtime has been established. This is the initial state when no `runtimeUrl` is set.
+  尚未建立与运行时的连接。这是未设置 `runtimeUrl` 时的初始状态。
 </PropertyReference>
 
 <PropertyReference name="Connected" type="connected">
-  The runtime responded successfully and the client is ready to run agents.
+  运行时成功响应，客户端已准备好运行智能体。
 </PropertyReference>
 
 <PropertyReference name="Connecting" type="connecting">
-  A connection attempt is in flight — runtime info is being fetched.
+  连接尝试正在进行中——正在获取运行时信息。
 </PropertyReference>
 
 <PropertyReference name="Error" type="error">
-  The last contact with the runtime did not succeed. This covers two situations:
+  最近一次与运行时的接触没有成功。这涵盖两种情况：
 
-  - **The first contact never succeeded.** There are no runtime agents, because none were ever obtained.
-  - **Contact was lost during the session.** The runtime answered at load and stopped answering later — you stopped your dev server, a container restarted, a deploy switched over, a tunnel dropped. Your runtime agents are still there, with their messages and threads intact, and sending stays possible. That is deliberate: sending is what restores the status, so an error state that disabled it would be one you could never leave.
+  - **首次接触从未成功过**。此时没有任何运行时智能体，因为从未获取到过。
+  - **会话期间失去了联系**。运行时在加载时有响应，但之后停止了响应——比如你停掉了 dev server、某个容器重启了、一次部署完成了切换、隧道断开了。你的运行时智能体仍在，消息和线程完好无损，发送也依然可用。这是有意为之：正是发送才会恢复该状态，如果错误状态会禁用发送，你将永远无法走出这个状态。
 
-  So `Error` with agents present is a working state, not a bug. The next successful runtime request returns the status to `Connected` and re-syncs what the runtime reports.
+  因此，在智能体仍存在的情况下出现 `Error` 是一种可正常工作的状态，而不是 bug。下一次成功的运行时请求会将状态恢复为 `Connected`，并重新同步运行时报告的内容。
 </PropertyReference>
 
-## Usage
+## 用法
 
 ```ts
 copilotkit.subscribe({
@@ -69,7 +69,7 @@ copilotkit.subscribe({
 });
 ```
 
-## Related
+## 相关内容
 
-- [CopilotKitCore](/reference/core/classes/CopilotKitCore) — exposes the connection lifecycle via `runtimeConnectionStatus`.
-- [CopilotKitCoreSubscriber](/reference/core/types/CopilotKitCoreSubscriber) — `onRuntimeConnectionStatusChanged` receives this status.
+- [CopilotKitCore](/reference/core/classes/CopilotKitCore) ——通过 `runtimeConnectionStatus` 暴露连接生命周期。
+- [CopilotKitCoreSubscriber](/reference/core/types/CopilotKitCoreSubscriber) ——`onRuntimeConnectionStatusChanged` 回调会接收到该状态。

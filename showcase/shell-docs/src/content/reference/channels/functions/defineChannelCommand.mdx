@@ -1,12 +1,11 @@
 ---
 title: defineChannelCommand
-description: Define a normalized direct-adapter command and its free-text or structured arguments.
+description: 定义一个归一化的直连适配器命令，及其自由文本或结构化参数。
 ---
 
-`defineChannelCommand` preserves a command definition and infers structured
-options when the provider supplies them.
+`defineChannelCommand` 用于保留命令定义，并在提供方提供结构化选项时推导出它们。
 
-## Signature
+## 签名
 
 ```ts
 function defineChannelCommand<Schema extends ObjectSchema>(
@@ -25,7 +24,7 @@ interface ChannelCommand<Schema extends ObjectSchema> {
 }
 ```
 
-## Example
+## 示例
 
 ```ts title="commands.ts"
 import { defineChannelCommand } from "@copilotkit/channels";
@@ -48,25 +47,21 @@ export const triage = defineChannelCommand({
 });
 ```
 
-Register it with `createChannel({ commands: [triage] })` or
-`channel.onCommand(triage)` before startup.
+在启动前通过 `createChannel({ commands: [triage] })` 或 `channel.onCommand(triage)` 注册它。
 
-Managed Slack and Teams do not dispatch commands: leading-slash content remains
-a normal message. This API applies when a developer-owned direct adapter emits
-an `IncomingCommand`.
+托管 Slack 和 Teams 不会分发命令：以斜杠开头的内容仍作为普通消息处理。此 API 适用于开发者自有的直连适配器发出 `IncomingCommand` 的场景。
 
 ## CommandContext
 
-| Field       | Type                      | Notes                                                                                     |
-| ----------- | ------------------------- | ----------------------------------------------------------------------------------------- |
-| `thread`    | `Thread`                  | Conversation where the command was invoked.                                               |
-| `command`   | `string`                  | Normalized name: no leading slash, lowercase, hyphens and underscores route equivalently. |
-| `text`      | `string`                  | Raw argument text supplied by the direct adapter.                                         |
-| `options`   | `TOptions`                | Structured options when the adapter supplies them.                                        |
-| `user`      | `ApplicationUser \| null` | Application user selected by `identifyUser`.                                              |
-| `actor`     | `ProviderActor`           | Provider account that invoked the command.                                                |
-| `platform`  | `string`                  | Native provider reported by the direct adapter.                                           |
-| `openModal` | function or `undefined`   | Present only when the adapter supports modal opening.                                     |
+| 字段        | 类型                      | 说明                                                                                     |
+| ----------- | ------------------------- | ---------------------------------------------------------------------------------------- |
+| `thread`    | `Thread`                  | 调用该命令的会话。                                               |
+| `command`   | `string`                  | 归一化名称：不含前导斜杠，统一小写；连字符与下划线路由等价。 |
+| `text`      | `string`                  | 直连适配器提供的原始参数文本。                                         |
+| `options`   | `TOptions`                | 适配器提供时的结构化选项。                                        |
+| `user`      | `ApplicationUser \| null` | 由 `identifyUser` 选出的应用用户。                                              |
+| `actor`     | `ProviderActor`           | 调用该命令的提供方账号。                                                |
+| `platform`  | `string`                  | 直连适配器报告的原生提供方。                                           |
+| `openModal` | function 或 `undefined`   | 仅当适配器支持打开模态框时才存在。                                     |
 
-See [Commands and reactions](/slack/commands-and-reactions) for the managed
-provider boundary.
+托管提供方的边界限制参见 [Commands and reactions](/slack/commands-and-reactions)。

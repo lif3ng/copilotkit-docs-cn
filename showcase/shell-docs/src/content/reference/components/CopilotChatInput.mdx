@@ -1,15 +1,15 @@
 ---
 title: "CopilotChatInput"
-description: "Primary text input and control surface for chat interactions"
+description: "聊天交互的主文本输入框与控制面板"
 ---
 
-## Overview
+## 概览
 
-`CopilotChatInput` is the primary text input and control surface for chat interactions. It provides a multi-line textarea that auto-grows up to a configurable maximum number of rows (default 5), action buttons for sending messages, voice transcription, and file attachment, and an optional tools menu for declarative command surfaces.
+`CopilotChatInput` 是聊天交互的主文本输入框与控制面板。它提供一个可自动增高、最大行数可配置（默认 5 行）的多行文本域，以及发送消息、语音转写与文件附件的操作按钮，还有一个面向声明式命令入口的可选工具菜单。
 
-The component operates in three modes: `"input"` (default text entry), `"transcribe"` (replaces the textarea with an audio recorder), and `"processing"` (indicates background processing is underway). When text spans multiple rows, the layout stacks the textarea above the control row.
+该组件有三种运行模式：`"input"`（默认文本输入）、`"transcribe"`（用录音组件替换文本域）和 `"processing"`（表示后台处理正在进行中）。当文本跨越多行时，布局会把文本域堆叠到控制行上方。
 
-## Import
+## 导入
 
 ```tsx
 import { CopilotChatInput } from "@copilotkit/react-core/v2";
@@ -23,92 +23,75 @@ import "@copilotkit/react-core/v2/styles.css";
   type='"input" | "transcribe" | "processing"'
   default='"input"'
 >
-  The current operating mode of the input component. - `"input"` -- Standard
-  text entry mode with textarea and send button. - `"transcribe"` -- Replaces
-  the textarea with the audio recorder component for voice input. -
-  `"processing"` -- Indicates that background processing is underway.
+  输入组件当前的运行模式。- `"input"`——带文本域和发送按钮的标准文本输入模式。- `"transcribe"`——用录音组件替换文本域以进行语音输入。- `"processing"`——表示后台处理正在进行中。
 </PropertyReference>
 
 <PropertyReference name="value" type="string">
-  The current text value of the input. Use together with `onChange` for
-  controlled mode.
+  输入框当前的文本值。与 `onChange` 配合使用可实现受控模式。
 </PropertyReference>
 
 <PropertyReference name="onChange" type="(value: string) => void">
-  Callback invoked when the input text changes. Use together with `value` for
-  controlled mode.
+  输入文本变化时调用的回调。与 `value` 配合使用可实现受控模式。
 </PropertyReference>
 
 <PropertyReference name="autoFocus" type="boolean">
-  When `true`, the textarea receives focus automatically on mount.
+  为 `true` 时，文本域在挂载时自动获得焦点。
 </PropertyReference>
 
 <PropertyReference name="isRunning" type="boolean" default="false">
-  Whether the agent is currently executing. When `true`, the send button may be
-  replaced with a stop button, and the input may show a processing state.
+  智能体当前是否正在执行。为 `true` 时，发送按钮可能被替换为停止按钮，输入框也可能显示处理中状态。
 </PropertyReference>
 
 <PropertyReference name="onSubmitMessage" type="(value: string) => void">
-  Callback invoked when the user submits a message (by pressing Enter or
-  clicking the send button). Receives the current text value.
+  用户提交消息时（按 Enter 或点击发送按钮）调用的回调。接收当前文本值。
 </PropertyReference>
 
 <PropertyReference name="onStop" type="() => void">
-  Callback invoked when the user clicks the stop button during agent execution.
+  在智能体执行期间用户点击停止按钮时调用的回调。
 </PropertyReference>
 
 <PropertyReference name="onStartTranscribe" type="() => void">
-  Callback invoked when the user initiates voice transcription. Typically
-  switches the component to `"transcribe"` mode.
+  用户发起语音转写时调用的回调。通常会将组件切换到 `"transcribe"` 模式。
 </PropertyReference>
 
 <PropertyReference name="onCancelTranscribe" type="() => void">
-  Callback invoked when the user cancels an in-progress voice transcription.
+  用户取消进行中的语音转写时调用的回调。
 </PropertyReference>
 
 <PropertyReference name="onFinishTranscribe" type="() => void">
-  Callback invoked when the user finishes voice transcription (text-only
-  result).
+  用户完成语音转写时（仅文本结果）调用的回调。
 </PropertyReference>
 
 <PropertyReference
   name="onFinishTranscribeWithAudio"
   type="(audioBlob: Blob) => Promise<void>"
 >
-  Callback invoked when the user finishes voice transcription with an audio
-  recording. Receives the recorded audio as a `Blob`. Use this when you need to
-  send the raw audio for server-side speech-to-text processing.
+  用户带着录音完成语音转写时调用的回调。以 `Blob` 形式接收录制的音频。当你需要把原始音频发送到服务端做语音转文字处理时，使用此回调。
 </PropertyReference>
 
 <PropertyReference name="onAddFile" type="() => void">
-  Callback invoked when the user clicks the file attachment button. When not
-  provided, the file attachment button is hidden.
+  用户点击文件附件按钮时调用的回调。未提供时，文件附件按钮会隐藏。
 </PropertyReference>
 
 <PropertyReference name="toolsMenu" type="(ToolsMenuItem | '-')[]">
-  Declarative configuration for a tools menu. Each entry is either a
-  `ToolsMenuItem` object or a separator string `"-"`. See
-  [ToolsMenuItem](#toolsmenuitem) for the item structure. When not provided, the
-  tools menu button is hidden.
+  工具菜单的声明式配置。每个条目要么是一个 `ToolsMenuItem` 对象，要么是分隔符字符串 `"-"`。条目结构见 [ToolsMenuItem](#toolsmenuitem)。未提供时，工具菜单按钮会隐藏。
 </PropertyReference>
 
 <PropertyReference
   name="children"
   type="(props: { isMultiline: boolean }) => React.ReactElement"
 >
-  Optional render-prop function that receives layout state. The `isMultiline`
-  flag is `true` when the textarea content spans multiple rows, which triggers
-  the stacked layout (textarea above the control row).
+  可选的 render-prop 函数，接收布局状态。当文本域内容跨越多行时 `isMultiline` 标志为 `true`，从而触发堆叠布局（文本域位于控制行上方）。
 </PropertyReference>
 
-## Slots
+## 插槽
 
-All slot props follow the CopilotKit slot system: each accepts a replacement React component, a `className` string that is merged into the default component's classes, or a partial props object that extends the default component.
+所有插槽 props 都遵循 CopilotKit 插槽系统：每个插槽都接受一个替换用的 React 组件、一个合并进默认组件 class 的 `className` 字符串，或一个用于扩展默认组件的局部 props 对象。
 
 <PropertyReference name="textArea" type="SlotProp">
-  Slot for the text input area. Defaults to an auto-growing textarea that expands up to 5 rows (configurable via `maxRows`).
+  文本输入区的插槽。默认为可自动增高的文本域，最多扩展到 5 行（可通过 `maxRows` 配置）。
 
-**As a className:**
+**作为 className**：
 
 ```tsx
 <CopilotChatInput textArea="font-mono text-sm" />
@@ -117,9 +100,9 @@ All slot props follow the CopilotKit slot system: each accepts a replacement Rea
 </PropertyReference>
 
 <PropertyReference name="sendButton" type="SlotProp">
-  Slot for the send/submit button. Defaults to an arrow icon button that submits the current message.
+  发送/提交按钮的插槽。默认为提交当前消息的箭头图标按钮。
 
-**As a replacement component:**
+**作为替换组件**：
 
 ```tsx
 <CopilotChatInput
@@ -137,33 +120,28 @@ All slot props follow the CopilotKit slot system: each accepts a replacement Rea
 </PropertyReference>
 
 <PropertyReference name="startTranscribeButton" type="SlotProp">
-  Slot for the button that initiates voice transcription. Only rendered when
-  `onStartTranscribe` is provided.
+  发起语音转写的按钮插槽。仅在提供 `onStartTranscribe` 时渲染。
 </PropertyReference>
 
 <PropertyReference name="cancelTranscribeButton" type="SlotProp">
-  Slot for the button that cancels an in-progress voice transcription. Only
-  rendered during `"transcribe"` mode.
+  取消进行中语音转写的按钮插槽。仅在 `"transcribe"` 模式下渲染。
 </PropertyReference>
 
 <PropertyReference name="finishTranscribeButton" type="SlotProp">
-  Slot for the button that completes voice transcription. Only rendered during
-  `"transcribe"` mode.
+  完成语音转写的按钮插槽。仅在 `"transcribe"` 模式下渲染。
 </PropertyReference>
 
 <PropertyReference name="addMenuButton" type="SlotProp">
-  Slot for the file attachment button. Only rendered when `onAddFile` is
-  provided.
+  文件附件按钮的插槽。仅在提供 `onAddFile` 时渲染。
 </PropertyReference>
 
 <PropertyReference name="audioRecorder" type="SlotProp">
-  Slot for the audio recorder component displayed during `"transcribe"` mode.
-  Defaults to [`CopilotChatAudioRecorder`](#copilotchataudiorecorder).
+  `"transcribe"` 模式下显示的录音组件插槽。默认为 [`CopilotChatAudioRecorder`](#copilotchataudiorecorder)。
 </PropertyReference>
 
 ## ToolsMenuItem
 
-The `ToolsMenuItem` type defines items in the tools menu. Items can trigger actions directly or contain nested submenus.
+`ToolsMenuItem` 类型定义工具菜单中的条目。条目可以直接触发操作，也可以包含嵌套的子菜单。
 
 ```ts
 type ToolsMenuItem = { label: string } & (
@@ -173,21 +151,20 @@ type ToolsMenuItem = { label: string } & (
 ```
 
 <PropertyReference name="label" type="string" required>
-  The display text for the menu item.
+  菜单条目的显示文本。
 </PropertyReference>
 
 <PropertyReference name="action" type="() => void">
-  Callback invoked when the item is selected. Mutually exclusive with `items`.
+  选中该条目时调用的回调。与 `items` 互斥。
 </PropertyReference>
 
 <PropertyReference name="items" type="(ToolsMenuItem | '-')[]">
-  Nested submenu items. Each entry is either another `ToolsMenuItem` or a
-  separator string `"-"`. Mutually exclusive with `action`.
+  嵌套的子菜单条目。每个条目要么是另一个 `ToolsMenuItem`，要么是分隔符字符串 `"-"`。与 `action` 互斥。
 </PropertyReference>
 
-### Separators
+### 分隔符
 
-Use the string `"-"` as an array entry to render a visual separator between menu items:
+将字符串 `"-"` 作为数组条目使用，即可在菜单条目之间渲染一个视觉分隔线：
 
 ```tsx
 toolsMenu={[
@@ -197,9 +174,9 @@ toolsMenu={[
 ]}
 ```
 
-### Nested Submenus
+### 嵌套子菜单
 
-Menu items with an `items` array render as expandable submenus:
+带 `items` 数组的菜单条目会渲染为可展开的子菜单：
 
 ```tsx
 toolsMenu={[
@@ -217,37 +194,35 @@ toolsMenu={[
 
 ## CopilotChatAudioRecorder
 
-A visual audio waveform component used during transcription mode. It displays a real-time waveform visualization of the microphone input and exposes an imperative API via `ref`.
+转写模式下使用的音频波形可视化组件。它显示麦克风输入的实时波形可视化效果，并通过 `ref` 暴露命令式 API。
 
-### Import
+### 导入
 
 ```tsx
 
 ```
 
-### Imperative API
+### 命令式 API
 
-The component exposes the following imperative methods via React `ref`:
+该组件通过 React `ref` 暴露以下命令式方法：
 
 <PropertyReference name="state" type="string">
-  The current state of the recorder (e.g., `"idle"`, `"recording"`,
-  `"stopped"`).
+  录音器当前的状态（如 `"idle"`、`"recording"`、`"stopped"`）。
 </PropertyReference>
 
 <PropertyReference name="start" type="() => void">
-  Begins audio recording and starts the waveform visualization.
+  开始录音并启动波形可视化。
 </PropertyReference>
 
 <PropertyReference name="stop" type="() => void">
-  Stops the current recording session.
+  停止当前录音会话。
 </PropertyReference>
 
 <PropertyReference name="dispose" type="() => void">
-  Cleans up all resources (media stream, audio context, etc.) used by the
-  recorder.
+  清理录音器使用的所有资源（媒体流、音频上下文等）。
 </PropertyReference>
 
-### Usage
+### 用法
 
 ```tsx
 function CustomRecorder() {
@@ -263,9 +238,9 @@ function CustomRecorder() {
 }
 ```
 
-## Usage
+## 用法
 
-### Basic Chat Input
+### 基本聊天输入框
 
 ```tsx
 function ChatInput() {
@@ -285,7 +260,7 @@ function ChatInput() {
 }
 ```
 
-### With Voice Transcription
+### 带语音转写
 
 ```tsx
 function VoiceInput() {
@@ -310,7 +285,7 @@ function VoiceInput() {
 }
 ```
 
-### With Tools Menu
+### 带工具菜单
 
 ```tsx
 function InputWithTools() {
@@ -334,7 +309,7 @@ function InputWithTools() {
 }
 ```
 
-### With Stop Button During Execution
+### 执行期间带停止按钮
 
 ```tsx
 function ChatInputWithAgent() {
@@ -361,7 +336,7 @@ function ChatInputWithAgent() {
 }
 ```
 
-### Custom Layout with Children Render Prop
+### 用 Children Render Prop 自定义布局
 
 ```tsx
 function AdaptiveInput() {
@@ -383,7 +358,7 @@ function AdaptiveInput() {
 }
 ```
 
-### Styled Slots
+### 样式化插槽
 
 ```tsx
 function StyledInput() {
@@ -397,17 +372,17 @@ function StyledInput() {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Auto-Growing Textarea**: The default textarea automatically expands as the user types, up to a maximum of 5 rows. After reaching the maximum, the textarea becomes scrollable.
-- **Layout Stacking**: When the input text spans multiple rows, the layout switches from inline (textarea and buttons side by side) to stacked (textarea above the control row containing the action buttons).
-- **Mode Switching**: Setting `mode` to `"transcribe"` replaces the textarea with the `audioRecorder` slot component. The transcription control buttons (`cancelTranscribeButton`, `finishTranscribeButton`) replace the standard send button.
-- **Controlled and Uncontrolled**: The component supports both controlled mode (via `value` and `onChange`) and uncontrolled mode (internal state management).
-- **Tools Menu**: The `toolsMenu` prop enables a declarative menu with support for flat items, separators (`"-"`), and nested submenus. The menu button is only rendered when `toolsMenu` is provided.
-- **Slot System**: Each slot prop accepts three forms -- a replacement component, a className string merged into the default, or a partial props object that extends the default component's props.
+- **自动增高文本域**：默认文本域随用户输入自动增高，最多 5 行。达到上限后，文本域变为可滚动。
+- **布局堆叠**：当输入文本跨越多行时，布局从行内（文本域与按钮并排）切换为堆叠（文本域位于包含操作按钮的控制行上方）。
+- **模式切换**：将 `mode` 设为 `"transcribe"` 会用 `audioRecorder` 插槽组件替换文本域。转写控制按钮（`cancelTranscribeButton`、`finishTranscribeButton`）会替换标准发送按钮。
+- **受控与非受控**：组件同时支持受控模式（通过 `value` 与 `onChange`）和非受控模式（内部状态管理）。
+- **工具菜单**：`toolsMenu` prop 启用一个声明式菜单，支持平铺条目、分隔符（`"-"`）与嵌套子菜单。仅在提供 `toolsMenu` 时才渲染菜单按钮。
+- **插槽系统**：每个插槽 prop 接受三种形式——替换组件、合并进默认组件的 className 字符串，或扩展默认组件 props 的局部 props 对象。
 
-## Related
+## 相关内容
 
-- [`CopilotChatView`](/reference/components/CopilotChatView) -- Higher-level chat view that composes this component
-- [`CopilotChatAudioRecorder`](#copilotchataudiorecorder) -- Audio recorder used during transcription mode
-- [`useCopilotChatConfiguration`](/reference/hooks/useCopilotChatConfiguration) -- Provider for localized input labels
+- [`CopilotChatView`](/reference/components/CopilotChatView)——组合此组件的更高层聊天视图
+- [`CopilotChatAudioRecorder`](#copilotchataudiorecorder)——转写模式下使用的录音组件
+- [`useCopilotChatConfiguration`](/reference/hooks/useCopilotChatConfiguration)——提供本地化输入标签的 Provider

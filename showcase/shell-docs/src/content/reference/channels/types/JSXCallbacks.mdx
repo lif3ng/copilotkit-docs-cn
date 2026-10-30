@@ -1,73 +1,61 @@
 ---
-title: JSX callbacks
-description: Reference for portable component handlers and their managed Slack and Teams interaction context.
+title: JSX 回调
+description: 可移植组件处理器及其托管 Slack 与 Teams 交互上下文的参考。
 ---
 
-Portable Channels components can carry callbacks. Slack and Teams receive
-opaque action ids; the SDK resolves the original handler when the interaction
-returns.
+可移植的 Channels 组件可以携带回调。Slack 与 Teams 收到的是不透明的操作 id；当交互返回时，SDK 会解析出原始处理器。
 
-Slack renders the controls as Block Kit. With Slack app Interactivity enabled,
-clicks arrive as `block_actions` through the signed managed webhook.
+Slack 将这些控件渲染为 Block Kit。在启用 Slack 应用的 Interactivity 后，点击会作为 `block_actions` 经由已签名的托管 webhook 到达。
 
-Teams renders the controls in Adaptive Cards. Buttons use `Action.Submit`, and
-clicks return through the managed connection as message activities. A Teams
-`Action.Submit` activity can arrive without a source message ref; in that case,
-`message.ref.id` is empty.
+Teams 将这些控件渲染在 Adaptive Cards 中。按钮使用 `Action.Submit`，点击会作为消息 activity 经由托管连接返回。Teams 的 `Action.Submit` activity 可能不带源消息 ref 到达；此时 `message.ref.id` 为空。
 
-## Callback props
+## 回调 props
 
-| Component | Prop         | Handler value                                                                 |
+| 组件 | Prop         | 处理器取值                                                                  |
 | --------- | ------------ | ----------------------------------------------------------------------------- |
-| `Button`  | `onClick`    | `InteractionContext<TValue>`; read the Button's `value` from `action.value`   |
-| `Select`  | `onSelect`   | `InteractionContext<string \| string[]>`; arrays are used when `multi` is set |
-| `Input`   | `onSubmit`   | `InteractionContext<string>` containing the submitted text                    |
+| `Button`  | `onClick`    | `InteractionContext<TValue>`；从 `action.value` 读取 Button 的 `value`   |
+| `Select`  | `onSelect`   | `InteractionContext<string \| string[]>`；设置了 `multi` 时为数组 |
+| `Input`   | `onSubmit`   | 包含提交文本的 `InteractionContext<string>`                    |
 | `Message` | `onReaction` | `(emoji, reaction)`                                                           |
 
-<Callout type="warn" title="Managed Teams control boundary">
-  Managed Teams dispatches `Button` submissions. Named `Select` and `Input`
-  fields from the same Adaptive Card are available on that Button callback as
-  `ctx.values`, but Teams does not dispatch their `onSelect` or `onSubmit`
-  callbacks independently.
+<Callout type="warn" title="托管 Teams 的控件边界">
+  托管 Teams 会分发 `Button` 的提交。同一 Adaptive Card 中具名的 `Select` 与 `Input` 字段会在该 Button 回调上以 `ctx.values` 提供，但 Teams 不会独立分发它们的 `onSelect` 或 `onSubmit` 回调。
 </Callout>
 
-## Portable component props
+## 可移植组件的 props
 
-Import these components from `@copilotkit/channels/ui`. Renderers may simplify
-or omit a component when the native provider has no equivalent.
+这些组件请从 `@copilotkit/channels/ui` 导入。当原生提供方没有对应物时，渲染器可能会简化或省略某个组件。
 
-| Component                                             | Key props                                                                  |
+| 组件                                             | 关键 props                                                                  |
 | ----------------------------------------------------- | -------------------------------------------------------------------------- |
-| `Message`                                             | `accent?`, `onReaction?`, `children?`                                      |
-| `Header`, `Section`, `Markdown`, `Context`, `Actions` | `children?`                                                                |
-| `Fields` / `Field`                                    | `children?`; `Field` also accepts `label?`                                 |
-| `Button`                                              | `value?`, `onClick?`, `url?`, `style?: "primary" \| "danger"`, `children?` |
-| `Select`                                              | `name?`, `options`, `placeholder?`, `multi?`, `onSelect?`                  |
-| `Input`                                               | `name?`, `placeholder?`, `multiline?`, `onSubmit?`                         |
-| `Image`                                               | `url`, `alt?`                                                              |
-| `Divider`                                             | No props or children                                                       |
-| `Table` / `Row` / `Cell`                              | `Table.columns?`; nested rows and cells are children                       |
-| `Chart`                                               | `data`, plus optional `type`, `title`, `xAxisTitle`, and `yAxisTitle`      |
+| `Message`                                             | `accent?`、`onReaction?`、`children?`                                      |
+| `Header`、`Section`、`Markdown`、`Context`、`Actions` | `children?`                                                                |
+| `Fields` / `Field`                                    | `children?`；`Field` 还接受 `label?`                                 |
+| `Button`                                              | `value?`、`onClick?`、`url?`、`style?: "primary" \| "danger"`、`children?` |
+| `Select`                                              | `name?`、`options`、`placeholder?`、`multi?`、`onSelect?`                  |
+| `Input`                                               | `name?`、`placeholder?`、`multiline?`、`onSubmit?`                         |
+| `Image`                                               | `url`、`alt?`                                                              |
+| `Divider`                                             | 无 props 或子内容                                                       |
+| `Table` / `Row` / `Cell`                              | `Table.columns?`；嵌套的行与单元格作为子内容                       |
+| `Chart`                                               | `data`，外加可选的 `type`、`title`、`xAxisTitle` 与 `yAxisTitle`      |
 
-`Button.url` creates a link button and ignores `value` and `onClick`.
-`Select.options` is an array of `{ label, value }`. `Chart.data` is an array of
-`{ label, value }`; unsupported native chart surfaces omit the chart.
+`Button.url` 会创建链接按钮，并忽略 `value` 与 `onClick`。`Select.options` 是 `{ label, value }` 数组。`Chart.data` 是 `{ label, value }` 数组；不支持原生图表的界面会直接省略图表。
 
 ## InteractionContext
 
-`Button`, `Select`, and `Input` callbacks receive:
+`Button`、`Select` 与 `Input` 的回调会收到：
 
-| Field          | Type                      | Description                                                                                                           |
+| 字段 | 类型                      | 说明                                                                                                           |
 | -------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `thread`       | `Thread`                  | Post, update, run, or resume the conversation.                                                                        |
-| `message`      | `IncomingMessage`         | Message containing the control. Its ref is updateable only when the interaction carries a non-empty `message.ref.id`. |
-| `action.id`    | `string`                  | Opaque action identifier.                                                                                             |
-| `action.value` | `TValue \| undefined`     | The control's round-tripped value. Guard it before use even when the component declares `value`.                      |
-| `values`       | `Record<string, unknown>` | Submitted form values.                                                                                                |
-| `user`         | `ApplicationUser \| null` | Application user selected by `identifyUser`.                                                                          |
-| `actor`        | `ProviderActor`           | Provider account that caused the interaction.                                                                         |
-| `platform`     | `string`                  | Normalized source provider, such as `"slack"` or `"teams"`.                                                           |
-| `openModal`    | function or `undefined`   | Capability-gated modal opener. Not part of the managed Slack/Teams realtime path.                                     |
+| `thread`       | `Thread`                  | 发布、更新、运行或恢复对话。                                                                        |
+| `message`      | `IncomingMessage`         | 包含该控件的消息。只有当交互带有非空的 `message.ref.id` 时，其 ref 才可更新。 |
+| `action.id`    | `string`                  | 不透明的操作标识符。                                                                                             |
+| `action.value` | `TValue \| undefined`     | 控件原样带回的值。即使组件声明了 `value`，使用前也要加以防御。                      |
+| `values`       | `Record<string, unknown>` | 提交的表单值。                                                                                                |
+| `user`         | `ApplicationUser \| null` | 由 `identifyUser` 选出的应用用户。                                                                          |
+| `actor`        | `ProviderActor`           | 触发该交互的提供方账户。                                                                         |
+| `platform`     | `string`                  | 规范化的来源提供方，如 `"slack"` 或 `"teams"`。                                                           |
+| `openModal`    | function or `undefined`   | 受能力开关控制的模态框打开器。不属于托管的 Slack/Teams 实时路径。                                     |
 
 ```tsx title="decision.tsx"
 import { Actions, Button, Message, Section } from "@copilotkit/channels/ui";
@@ -101,22 +89,15 @@ export function Decision({ id }: { id: string }) {
 }
 ```
 
-An interaction ref is updateable only when `message.ref.id` is non-empty.
-Always resume outside the update guard and error handler so an omitted ref or
-failed card update cannot strand the interrupted run.
+只有当 `message.ref.id` 非空时，交互 ref 才可更新。请始终在更新守卫与错误处理之外执行 resume，这样即使 ref 缺失或卡片更新失败，也不会让被中断的运行搁浅。
 
-## Reaction callback
+## 表情回应回调
 
-`Message.onReaction` receives `(emoji, reaction)`. The reaction contains
-`added`, `user`, `messageId`, `messageRef`, and `thread`. Managed reaction
-delivery is provider-dependent; do not require it for a cross-platform
-approval. An output-free managed callback is finalized and acknowledged, but
-application side effects should remain idempotent because managed delivery is
-at-least-once.
+`Message.onReaction` 收到 `(emoji, reaction)`。reaction 对象包含 `added`、`user`、`messageId`、`messageRef` 与 `thread`。托管的表情回应投递取决于具体提供方；跨平台审批不要依赖它。没有输出的托管回调会被终结并确认，但应用副作用仍应保持幂等，因为托管投递是至少一次（at-least-once）语义。
 
-## Registration and persistence
+## 注册与持久化
 
-Register every named component that carries a callback:
+为每个携带回调的具名组件进行注册：
 
 ```tsx title="channel.tsx"
 import { createChannel } from "@copilotkit/channels";
@@ -139,12 +120,8 @@ const channel = createChannel({
 });
 ```
 
-The same Channel declaration handles managed Slack and Teams deliveries.
+同一个 Channel 声明即可处理托管的 Slack 与 Teams 投递。
 
-Registration allows the action registry to rebuild the callback from the
-component name and serializable props. A durable `StateStore` is still required
-for clicks on messages posted before a process restart.
+注册后，操作注册表就能根据组件名与可序列化的 props 重建回调。对于点击进程重启前发布的消息，仍然需要持久化的 `StateStore`。
 
-See the interactive messages and approvals guide for
-[Slack](/slack/interactive) or [Teams](/teams/interactive) for the full
-post-and-resume flow.
+完整的发布与恢复流程请参阅 [Slack](/slack/interactive) 或 [Teams](/teams/interactive) 的交互消息与审批指南。

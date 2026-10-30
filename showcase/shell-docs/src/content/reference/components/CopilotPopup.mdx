@@ -1,115 +1,102 @@
 ---
 title: "CopilotPopup"
-description: "Popup variant of CopilotChat that renders in a floating panel with a toggle button"
+description: "CopilotChat 的弹窗变体，以浮动面板形式呈现，并带有切换按钮"
 ---
 
-## Overview
+## 概览
 
-`CopilotPopup` renders a floating chat popup with a toggle button. It wraps [`CopilotChat`](/reference/components/CopilotChat) and provides popup-specific layout, sizing, and open/close behavior. The popup includes a header with a title and close button, and can be dismissed by clicking outside.
+`CopilotPopup` 渲染一个带切换按钮的浮动聊天弹窗。它包裹了 [`CopilotChat`](/reference/components/CopilotChat)，并提供弹窗专属的布局、尺寸与打开/关闭行为。弹窗包含一个带标题和关闭按钮的头部，点击弹窗外部即可将其关闭。
 
-See [`CopilotSidebar`](/reference/components/CopilotSidebar) for a sidebar variant of this component.
+本组件的侧边栏变体请参见 [`CopilotSidebar`](/reference/components/CopilotSidebar)。
 
-## Import
+## 导入
 
 ```tsx
 import { CopilotPopup } from "@copilotkit/react-core/v2";
 import "@copilotkit/react-core/v2/styles.css";
 ```
 
-## Props
+## 属性
 
-### Own Props
+### 自身属性
 
 <PropertyReference name="header" type="SlotValue<typeof CopilotModalHeader>">
-  Slot override for the popup header. Accepts a replacement component, a
-  `className` string merged into the default, or a partial props object. The
-  default header displays a title and a close button.
+  弹窗头部的插槽覆盖。接受替换组件、合并进默认样式的 `className` 字符串或部分 props 对象。默认头部显示一个标题和一个关闭按钮。
 </PropertyReference>
 
 <PropertyReference name="defaultOpen" type="boolean" default="true">
-  Whether the popup is open when the component first mounts. After that the
-  popup owns the state. Use `open` instead to keep control.
+  组件首次挂载时弹窗是否打开。此后弹窗自行持有该状态。若要始终保持控制，请改用 `open`。
 </PropertyReference>
 
 <PropertyReference name="open" type="boolean">
-  Controlled open state. When supplied, your component owns whether the popup is
-  open: the popup renders this value and never changes it on its own. Pair it
-  with `onOpenChange`. When both `open` and `defaultOpen` are passed, `open`
-  wins. See [Open, close, and
-  feedback](/prebuilt-components/chat-controls).
+  受控的打开状态。提供该属性后，弹窗是否打开由你的组件决定：弹窗只渲染该值，绝不会自行更改。请与 `onOpenChange` 搭配使用。同时传入 `open` 和 `defaultOpen` 时，`open` 优先。参见 [打开、关闭与反馈](/prebuilt-components/chat-controls)。
 </PropertyReference>
 
 <PropertyReference name="onOpenChange" type="(open: boolean) => void">
-  Called with the requested state whenever the popup asks to open or close (the
-  toggle button, click-outside, Escape, or the thread drawer on mobile). It
-  reports a request, not a change: in controlled mode nothing moves until you
-  update `open`.
+  每当弹窗请求打开或关闭时（切换按钮、点击外部、Escape 键或移动端上的线程抽屉），都会以目标状态调用该回调。它报告的是一次请求而非已发生的变化：在受控模式下，在你更新 `open` 之前不会有任何变化。
 </PropertyReference>
 
 <PropertyReference name="width" type="number | string">
-  Width of the popup panel. Accepts a number (pixels) or a CSS string (e.g.
-  `"400px"`, `"30vw"`).
+  弹窗面板的宽度。接受数字（像素）或 CSS 字符串（例如 `"400px"`、`"30vw"`）。
 </PropertyReference>
 
 <PropertyReference name="height" type="number | string">
-  Height of the popup panel. Accepts a number (pixels) or a CSS string (e.g.
-  `"600px"`, `"80vh"`).
+  弹窗面板的高度。接受数字（像素）或 CSS 字符串（例如 `"600px"`、`"80vh"`）。
 </PropertyReference>
 
 <PropertyReference name="clickOutsideToClose" type="boolean" default="true">
-  Whether clicking outside the popup panel closes it.
+  点击弹窗面板外部时是否关闭弹窗。
 </PropertyReference>
 
-### Inherited CopilotChat Props
+### 继承自 CopilotChat 的属性
 
-`CopilotPopup` accepts all props from [`CopilotChatProps`](/reference/components/CopilotChat) **except** `chatView`, which is set internally to `CopilotPopupView`. This includes:
+`CopilotPopup` 接受 [`CopilotChatProps`](/reference/components/CopilotChat) 的**全部** props，**唯一例外**是 `chatView`——它在内部被设为 `CopilotPopupView`。其中包括：
 
 <PropertyReference name="agentId" type="string">
-  ID of the agent to use. Must match an agent configured in
-  `CopilotKit`.
+  要使用的智能体 ID。必须与 `CopilotKit` 中配置的某个智能体匹配。
 </PropertyReference>
 
 <PropertyReference name="threadId" type="string">
-  ID of the conversation thread.
+  会话线程的 ID。
 </PropertyReference>
 
 <PropertyReference name="labels" type="Partial<CopilotChatLabels>">
-  Partial label overrides for all text strings rendered inside the chat.
+  对聊天中渲染的所有文本字符串的部分标签覆盖。
 </PropertyReference>
 
 <PropertyReference name="autoScroll" type="boolean" default="true">
-  Whether the chat scrolls to the bottom automatically when new messages arrive.
+  新消息到达时聊天是否自动滚动到底部。
 </PropertyReference>
 
 <PropertyReference
   name="inputProps"
   type="Partial<Omit<CopilotChatInputProps, 'children'>>"
 >
-  Additional props forwarded to the inner `CopilotChatInput` component.
+  转发给内部 `CopilotChatInput` 组件的额外 props。
 </PropertyReference>
 
 <PropertyReference
   name="welcomeScreen"
   type="SlotValue<React.FC<WelcomeScreenProps>> | boolean"
 >
-  Controls the welcome screen shown when no messages exist.
+  控制没有消息时显示的欢迎屏。
 </PropertyReference>
 
-All `CopilotChatView` slot props (`messageView`, `input`, `scrollView`, `inputContainer`, `feather`, `disclaimer`, `suggestionView`) are also accepted and forwarded through.
+所有 `CopilotChatView` 插槽 props（`messageView`、`input`、`scrollView`、`inputContainer`、`feather`、`disclaimer`、`suggestionView`）也都被接受并透传。
 
-## Slot System
+## 插槽系统
 
-All slot props follow the same override pattern used across CopilotKit v2 components. Each slot accepts one of three value types:
+所有插槽 props 都遵循 CopilotKit v2 组件通用的覆盖模式。每个插槽接受以下三种取值之一：
 
-| Value                    | Behavior                                                                            |
+| 取值                     | 行为                                                                                |
 | ------------------------ | ----------------------------------------------------------------------------------- |
-| **Component**            | Replaces the default component entirely. Receives the same props the default would. |
-| **`className` string**   | Merged into the default component's class list via `twMerge`.                       |
-| **Partial props object** | Spread into the default component as additional or overriding props.                |
+| **Component**            | 完全替换默认组件，接收与默认组件相同的 props。                                       |
+| **`className` string**   | 通过 `twMerge` 合并进默认组件的类名列表。                                            |
+| **Partial props object** | 以附加或覆盖 props 的形式展开传入默认组件。                                          |
 
-## Usage
+## 用法
 
-### Basic Usage
+### 基础用法
 
 ```tsx
 function App() {
@@ -122,7 +109,7 @@ function App() {
 }
 ```
 
-### Custom Size and Default Open
+### 自定义尺寸与默认打开
 
 ```tsx
 function App() {
@@ -138,7 +125,7 @@ function App() {
 }
 ```
 
-### Custom Header
+### 自定义头部
 
 ```tsx
 function App() {
@@ -146,16 +133,16 @@ function App() {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Toggle button**: Renders a floating toggle button (typically in the bottom-right corner) that opens and closes the popup. The button uses `CopilotChatToggleButton` internally.
-- **Modal state**: Open/close state is managed via the chat configuration context. The `defaultOpen` prop sets the initial state; after that, state changes come from user interaction (toggle button, close button, clicking outside). Pass `open` and `onOpenChange` to own the state yourself, and to open or close the popup from your own UI.
-- **Click outside**: When `clickOutsideToClose` is `true` (the default), clicking anywhere outside the popup panel closes it.
-- **Layout**: The popup uses `CopilotPopupView` internally, which provides a popup-specific welcome screen layout with the welcome message centered vertically and suggestions just above the input.
-- **Agent connection**: All agent wiring (messages, running state, suggestions) is handled by the parent `CopilotChat` logic.
+- **切换按钮**：渲染一个浮动切换按钮（通常位于右下角），用于打开和关闭弹窗。该按钮在内部使用 `CopilotChatToggleButton`。
+- **弹层状态**：打开/关闭状态通过聊天配置上下文管理。`defaultOpen` prop 设置初始状态；此后的状态变化来自用户交互（切换按钮、关闭按钮、点击外部）。传入 `open` 和 `onOpenChange` 可自行持有状态，并从你自己的 UI 打开或关闭弹窗。
+- **点击外部**：当 `clickOutsideToClose` 为 `true`（默认值）时，点击弹窗面板外的任意位置都会关闭弹窗。
+- **布局**：弹窗在内部使用 `CopilotPopupView`，它提供弹窗专属的欢迎屏布局，欢迎消息垂直居中，建议紧挨输入框上方。
+- **智能体连接**：所有智能体接线（消息、运行状态、建议）都由父级 `CopilotChat` 逻辑处理。
 
-## Related
+## 相关内容
 
-- [`CopilotChat`](/reference/components/CopilotChat) -- the base chat component used internally
-- [`CopilotSidebar`](/reference/components/CopilotSidebar) -- sidebar variant
-- [`CopilotChatView`](/reference/components/CopilotChatView) -- the layout component used internally
+- [`CopilotChat`](/reference/components/CopilotChat) —— 内部使用的基础聊天组件
+- [`CopilotSidebar`](/reference/components/CopilotSidebar) —— 侧边栏变体
+- [`CopilotChatView`](/reference/components/CopilotChatView) —— 内部使用的布局组件

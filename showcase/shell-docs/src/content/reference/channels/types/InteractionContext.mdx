@@ -1,11 +1,11 @@
 ---
 title: InteractionContext
-description: The thread, message reference, typed action value, user, and capabilities passed to a component callback.
+description: 传递给组件回调的线程、消息引用、带类型的操作值、用户与能力。
 ---
 
-Buttons, selects, and inputs receive an `InteractionContext<TValue>`.
+按钮、下拉选择与输入框会收到一个 `InteractionContext<TValue>`。
 
-## Shape
+## 结构
 
 ```ts
 interface InteractionContext<TValue = unknown> {
@@ -23,17 +23,17 @@ interface InteractionContext<TValue = unknown> {
 }
 ```
 
-| Field          | Notes                                                                                                  |
+| 字段 | 说明                                                                                                  |
 | -------------- | ------------------------------------------------------------------------------------------------------ |
-| `thread`       | Post, update, or resume the current conversation.                                                      |
-| `message`      | Message containing the control. Check `message.ref.id` before updating it.                             |
-| `action.id`    | Opaque SDK action id.                                                                                  |
-| `action.value` | Round-tripped `Button.value`, selected value, or submitted text. Guard `undefined`.                    |
-| `values`       | Other submitted form values. Teams `Action.Submit` callbacks include named Adaptive Card input values. |
-| `user`         | Nullable application user selected by `identifyUser`.                                                  |
-| `actor`        | Provider account that caused the interaction.                                                          |
-| `platform`     | Native provider; managed callbacks report `"slack"` or `"teams"`.                                      |
-| `openModal`    | Capability-gated and omitted on the managed Slack and Teams path.                                      |
+| `thread`       | 发布、更新或恢复当前对话。                                                      |
+| `message`      | 包含该控件的消息。更新前请先检查 `message.ref.id`。                             |
+| `action.id`    | 不透明的 SDK 操作 id。                                                                                  |
+| `action.value` | 原样带回的 `Button.value`、所选值或提交的文本。需防御 `undefined`。                    |
+| `values`       | 其他提交的表单值。Teams `Action.Submit` 回调会包含具名的 Adaptive Card 输入值。 |
+| `user`         | 由 `identifyUser` 选出的、可为 null 的应用用户。                                                  |
+| `actor`        | 触发该交互的提供方账户。                                                          |
+| `platform`     | 原生提供方；托管回调报告为 `"slack"` 或 `"teams"`。                                      |
+| `openModal`    | 受能力开关控制，在托管的 Slack 与 Teams 路径上省略。                                      |
 
 ```tsx
 <Button
@@ -56,6 +56,4 @@ interface InteractionContext<TValue = unknown> {
 </Button>
 ```
 
-Managed interactions arrive as a later delivery. Return after posting the
-original control and use `resume()` in its callback; do not block with
-`awaitChoice()`.
+托管交互会作为稍后的一次投递到达。发布原始控件后即返回，并在其回调中使用 `resume()`；不要用 `awaitChoice()` 阻塞等待。

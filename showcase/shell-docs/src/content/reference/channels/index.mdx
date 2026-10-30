@@ -1,55 +1,51 @@
 ---
-title: Channels SDK
-description: API reference for managed and direct provider agents built with @copilotkit/channels.
+title: 渠道 SDK（Channels SDK）
+description: 基于 @copilotkit/channels 构建的托管与直连提供方智能体的 API 参考。
 ---
 
 import ChannelsInstall from "@/snippets/shared/channels/install.mdx";
 
-The Channels SDK connects an agent to chat providers through a long-running
-`@copilotkit/channels` process. In the managed Slack and Microsoft Teams path,
-CopilotKit Intelligence owns the provider connection while your process owns
-the agent, tools, approvals, state, and deployment. The package also exports
-developer-operated direct adapters for Slack, Teams, Discord, and WhatsApp.
+Channels SDK 通过一个长驻的 `@copilotkit/channels` 进程将智能体连接到聊天提供方。在托管的 Slack 与 Microsoft Teams 路径中，提供方连接由 CopilotKit Intelligence 负责，而你的进程则负责智能体、工具、审批、状态与部署。该包还导出了由开发者自运营的直连适配器，覆盖 Slack、Teams、Discord 与 WhatsApp。
 
 <ChannelsInstall />
 
-## API reference
+## API 参考
 
 <Cards>
   <Card
     title="createChannel"
-    description="Declare a managed provider or developer-operated direct adapter and attach the Channel to CopilotRuntime."
+    description="声明托管提供方或开发者自运营的直连适配器，并将 Channel 挂载到 CopilotRuntime。"
     href="/reference/channels/functions/createChannel"
     icon={<LinkIcon />}
   />
   <Card
     title="Channel"
-    description="Configure managed or direct delivery, register handlers and tools, configure storage, and inspect the Channel declaration."
+    description="配置托管或直连投递、注册处理器与工具、配置存储，并查看 Channel 声明。"
     href="/reference/channels/classes/Channel"
     icon={<LinkIcon />}
   />
   <Card
     title="Thread"
-    description="Post and update messages, run or resume the agent, read history, and manage conversation state."
+    description="发布与更新消息、运行或恢复智能体、读取历史记录，并管理会话状态。"
     href="/reference/channels/classes/Thread"
     icon={<LinkIcon />}
   />
   <Card
     title="StateStore"
-    description="Persist workflow state, callback snapshots, transcripts, locks, deduplication, and queues."
+    description="持久化工作流状态、回调快照、会话记录、锁、去重与队列。"
     href="/reference/channels/types/StateStore"
     icon={<LinkIcon />}
   />
 </Cards>
 
-### Classes
+### 类
 
 - [`Channel`](/reference/channels/classes/Channel)
 - [`Thread`](/reference/channels/classes/Thread)
 - [`MemoryStore`](/reference/channels/classes/MemoryStore)
 - [`Transcripts`](/reference/channels/classes/Transcripts)
 
-### Functions
+### 函数
 
 - [`createChannel`](/reference/channels/functions/createChannel)
 - [`defineChannelTool`](/reference/channels/functions/defineChannelTool)
@@ -57,30 +53,29 @@ developer-operated direct adapters for Slack, Teams, Discord, and WhatsApp.
 - [`bind`](/reference/channels/functions/bind)
 - [`renderToIR`](/reference/channels/functions/renderToIR)
 
-### Message components
+### 消息组件
 
 - [`Message`](/reference/channels/components/Message)
 - [`Header`](/reference/channels/components/Header)
-- [`Section`](/reference/channels/components/Section) and
+- [`Section`](/reference/channels/components/Section) 与
   [`Markdown`](/reference/channels/components/Markdown)
-- [`Fields` and `Field`](/reference/channels/components/Fields)
+- [`Fields` 和 `Field`](/reference/channels/components/Fields)
 - [`Context`](/reference/channels/components/Context)
-- [`Image`](/reference/channels/components/Image) and
+- [`Image`](/reference/channels/components/Image) 与
   [`Divider`](/reference/channels/components/Divider)
-- [`Table`, `Row`, and `Cell`](/reference/channels/components/Table)
+- [`Table`、`Row` 与 `Cell`](/reference/channels/components/Table)
 - [`Chart`](/reference/channels/components/Chart)
 
-### Interactive components
+### 交互组件
 
 - [`Actions`](/reference/channels/components/Actions)
 - [`Button`](/reference/channels/components/Button)
 - [`Select`](/reference/channels/components/Select)
 - [`Input`](/reference/channels/components/Input)
-- [`Modal components`](/reference/channels/components/Modal) — exported for
-  direct adapters; unavailable on managed Slack and Teams
+- [`Modal components`](/reference/channels/components/Modal) — 为直连适配器导出；在托管的 Slack 与 Microsoft Teams 上不可用
 - [`JSX callbacks`](/reference/channels/types/JSXCallbacks)
 
-### Types
+### 类型
 
 - [`IncomingMessage`](/reference/channels/types/IncomingMessage)
 - [`AgentContentPart`](/reference/channels/types/AgentContentPart)
@@ -89,21 +84,17 @@ developer-operated direct adapters for Slack, Teams, Discord, and WhatsApp.
 - [`StoreConfig`](/reference/channels/types/StoreConfig)
 - [`StateStore`](/reference/channels/types/StateStore)
 - [`ChannelNode`](/reference/channels/types/ChannelNode)
-- [`ActionStore`](/reference/channels/types/ActionStore) — deprecated migration
-  reference
+- [`ActionStore`](/reference/channels/types/ActionStore) — 已弃用的迁移参考
 
-### Provider SDKs
+### 提供方 SDK
 
-- [`Direct provider adapters`](/reference/channels/sdk/direct-adapters) —
-  public entry points, required options, and the boundary between managed and
-  developer-operated delivery
+- [`Direct provider adapters`](/reference/channels/sdk/direct-adapters) — 公开入口、必需选项，以及托管与开发者自运营投递方式之间的边界
 
-## Provider guides
+## 提供方指南
 
-Start with the provider and agent framework you are deploying:
+从你正在部署的提供方与智能体框架入手：
 
-- [Connect and run your agent in Slack](/slack/connect)
-- [Connect and run your agent in Microsoft Teams](/teams/connect)
+- [在 Slack 中连接并运行你的智能体](/slack/connect)
+- [在 Microsoft Teams 中连接并运行你的智能体](/teams/connect)
 
-The provider picker in those guides keeps the same task and selected agent
-framework when you switch between Slack and Teams.
+在这些指南之间切换 Slack 与 Teams 时，提供方选择器会保留当前任务与已选的智能体框架。

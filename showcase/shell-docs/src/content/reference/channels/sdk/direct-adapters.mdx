@@ -1,39 +1,32 @@
 ---
-title: Direct provider adapters
-description: Public Slack, Teams, Discord, and WhatsApp adapter entry points in @copilotkit/channels.
+title: 直连提供方适配器
+description: @copilotkit/channels 中公开的 Slack、Teams、Discord 与 WhatsApp 适配器入口。
 ---
 
 import ChannelsInstall from "@/snippets/shared/channels/install.mdx";
 
-`@copilotkit/channels` supports two provider-connection models:
+`@copilotkit/channels` 支持两种提供方连接模型：
 
-| Model                | Channel declaration                                      | Provider connection                                                                       | Available providers                                     |
+| 模型 | Channel 声明 | 提供方连接 | 可用提供方 |
 | -------------------- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| Cloud-hosted Intelligence | `createChannel({ name, identifyUser, agent })`           | CopilotKit Intelligence stores provider credentials and owns ingress and egress           | Slack and Microsoft Teams                               |
-| Direct adapter       | `createChannel({ name, adapters, identifyUser, agent })` | Your Channels process stores provider credentials and owns the provider socket or webhook | Slack, Microsoft Teams, Discord, and WhatsApp           |
+| 云托管 Intelligence | `createChannel({ name, identifyUser, agent })`           | CopilotKit Intelligence 存储提供方凭据，并掌管入站与出站流量 | Slack 与 Microsoft Teams                               |
+| 直连适配器 | `createChannel({ name, adapters, identifyUser, agent })` | 你的 Channels 进程存储提供方凭据，并掌管提供方套接字或 webhook | Slack、Microsoft Teams、Discord 与 WhatsApp           |
 
-Cloud-hosted Intelligence support for Discord and WhatsApp is coming soon. Their
-direct adapters already ship in `@copilotkit/channels`.
+对 Discord 与 WhatsApp 的云托管 Intelligence 支持即将推出。它们的直连适配器已随 `@copilotkit/channels` 发布。
 
-<Callout type="info" title="Direct does not mean standalone">
-  A direct adapter moves the provider connection into your process. The
-  `CopilotRuntime` still owns the Channel lifecycle and uses an Intelligence
-  connection. Direct provider traffic does not traverse the managed Realtime
-  Gateway or its canonical delivery, retry, and durability layer, so your
-  process owns transport reliability. There is no public `channel.start()`
-  method.
+<Callout type="info" title="直连不等于独立运行">
+  直连适配器将提供方连接移入你的进程。`CopilotRuntime` 仍掌管 Channel 生命周期，并通过 Intelligence 连接工作。直连的提供方流量不会经过托管 Realtime 网关及其规范的投递、重试与持久化层，因此传输可靠性由你的进程负责。不存在公开的 `channel.start()` 方法。
 </Callout>
 
-## Declare a direct adapter
+## 声明直连适配器
 
-Install the umbrella package and its tested runtime version:
+安装该总包（umbrella package）及其经过测试的运行时版本：
 
 <ChannelsInstall />
 
-The package and all provider subpaths are ESM-only public exports. Use
-`import`; CommonJS `require()` is not supported.
+该包与所有提供方子路径均为仅 ESM 的公开导出。请使用 `import`；不支持 CommonJS 的 `require()`。
 
-Import adapters from the package's provider subpaths:
+从该包的提供方子路径导入适配器：
 
 ```ts title="channel.ts"
 import { createChannel } from "@copilotkit/channels";
@@ -66,16 +59,11 @@ channel.onMessage(async ({ thread }) => {
 });
 ```
 
-Pass this Channel to `new CopilotRuntime({ channels: [channel], ... })` and
-start it through the runtime's Channels control, just as in the managed
-quickstarts. Intelligence-attached Slack and Teams connections select the
-managed provider; there is no `provider` option on `createChannel`. Direct
-adapters may coexist on the same Channel and keep their own provider traffic.
+将此 Channel 传给 `new CopilotRuntime({ channels: [channel], ... })`，并通过运行时的 Channels 控制启动它，与托管快速开始中的做法一致。挂接到 Intelligence 的 Slack 与 Teams 连接会选择托管提供方；`createChannel` 上没有 `provider` 选项。多个直连适配器可以共存于同一个 Channel，并各自保留自己的提供方流量。
 
-One direct Channel may contain multiple direct adapters. Its `name` must still
-be present and unique among the Channels declared on that `CopilotRuntime`.
+一个直连 Channel 可以包含多个直连适配器。其 `name` 仍必须存在，且在该 `CopilotRuntime` 声明的各 Channel 中保持唯一。
 
-## Provider entry points
+## 提供方入口
 
 ### Slack
 
@@ -87,17 +75,9 @@ import {
 } from "@copilotkit/channels/slack";
 ```
 
-`SlackAdapterOptions` requires `botToken` and `appToken`. Socket Mode is on by
-default. HTTP mode requires `socketMode: false` and a `signingSecret`.
-`replyContinuation` accepts `messageByteLimit`, `maxMessages`, and
-`truncationMarker` for long replies; the defaults are 11,000 UTF-8 bytes and 20
-messages with a visible truncation notice.
+`SlackAdapterOptions` 要求提供 `botToken` 与 `appToken`。Socket Mode 默认开启。HTTP 模式需要设置 `socketMode: false` 并提供 `signingSecret`。对于长回复，`replyContinuation` 接受 `messageByteLimit`、`maxMessages` 与 `truncationMarker`；默认值为 11,000 个 UTF-8 字节和 20 条消息，并在截断时显示可见的截断提示。
 
-The Slack entry point also exports its listener, renderers, codec, streaming
-helpers, conversation store, built-in context and tools, file helpers, and
-`SLACK_LIMITS`. Lower-level render and codec entry points are available from
-`@copilotkit/channels/slack/render` and
-`@copilotkit/channels/slack/codec`.
+Slack 入口还导出其监听器、渲染器、编解码器、流式辅助工具、会话存储、内置上下文与工具、文件辅助工具以及 `SLACK_LIMITS`。更底层的渲染与编解码入口可从 `@copilotkit/channels/slack/render` 与 `@copilotkit/channels/slack/codec` 获取。
 
 ### Microsoft Teams
 
@@ -109,37 +89,13 @@ import {
 } from "@copilotkit/channels/teams";
 ```
 
-`TeamsAdapterOptions` accepts `clientId`, `clientSecret`, `tenantId`,
-`port`, `host`, and `allowedServiceUrls`. `clientId` and `clientSecret` are required for real Teams;
-`tenantId` may be omitted for a multi-tenant deployment. These values fall
-back to the lowercase `clientId`, `clientSecret`, and `tenantId` environment
-variables. All three may be omitted only for anonymous local development with
-the Microsoft 365 Agents Playground. The adapter serves
-`POST /api/messages` on port `3978` by default.
+`TeamsAdapterOptions` 接受 `clientId`、`clientSecret`、`tenantId`、`port`、`host` 与 `allowedServiceUrls`。对接真实 Teams 时必须提供 `clientId` 与 `clientSecret`；多租户部署可以省略 `tenantId`。这些值会回退到小写的 `clientId`、`clientSecret` 与 `tenantId` 环境变量。只有在使用 Microsoft 365 Agents Playground 进行匿名本地开发时，才可以同时省略这三者。适配器默认在端口 `3978` 上服务 `POST /api/messages`。
 
-With a `clientId`, every request to `POST /api/messages` must carry a valid
-Bot Framework or Azure AD token for the app, from an issuer configured for it,
-or it is rejected with `401`. The activity's `serviceUrl` must be a Microsoft
-connector host (Teams commercial, GCC, GCC High, DoD and 21Vianet,
-`*.botframework.com`, `*.botframework.azure.us`) and, when the token has a
-`serviceurl` claim, match it, or it is rejected with `403`; the bot sends its app token
-to that URL. Use `allowedServiceUrls` to add other connector origins, such as
-`http://localhost:<port>` for the Bot Framework Emulator. Plain `http` is
-accepted only for loopback hosts. A Bot Framework token's signing key must
-also be endorsed for the activity's `channelId`.
+配置了 `clientId` 后，发往 `POST /api/messages` 的每个请求都必须携带该应用的有效 Bot Framework 或 Azure AD 令牌，且来自为其配置的签发方，否则将以 `401` 拒绝。activity 的 `serviceUrl` 必须是 Microsoft 连接器主机（Teams 商业版、GCC、GCC High、DoD 与 21Vianet 世纪互联，`*.botframework.com`、`*.botframework.azure.us`），并且当令牌带有 `serviceurl` 声明时与之匹配，否则将以 `403` 拒绝；机器人会向该 URL 发送其应用令牌。可使用 `allowedServiceUrls` 添加其他连接器来源，例如供 Bot Framework Emulator 使用的 `http://localhost:<port>`。仅环回主机接受纯 `http`。Bot Framework 令牌的签名密钥还必须已为该 activity 的 `channelId` 背书。
 
-Without a `clientId` the endpoint is unauthenticated, so it listens on
-`127.0.0.1` only. Setting `host` to a non-loopback address such as `0.0.0.0`
-exposes that unauthenticated endpoint to the network. Startup fails when the
-configured `clientId` conflicts with the `Connections__*` environment settings,
-or when only the Bot Framework SDK's `MicrosoftAppId` / `MicrosoftAppPassword`
-variables are set; use `clientId` / `clientSecret` / `tenantId` or
-`Connections__<id>__Settings__*` instead.
+未配置 `clientId` 时，该端点不做身份验证，因此只监听 `127.0.0.1`。若把 `host` 设为 `0.0.0.0` 之类的非环回地址，就会把这个未经验证的端点暴露到网络中。当配置的 `clientId` 与 `Connections__*` 环境设置冲突，或仅设置了 Bot Framework SDK 的 `MicrosoftAppId` / `MicrosoftAppPassword` 变量时，启动会失败；请改用 `clientId` / `clientSecret` / `tenantId` 或 `Connections__<id>__Settings__*`。
 
-The Teams entry point also exports its server, Adaptive Card renderer,
-conversation store, message stream, interaction helpers, file helpers, and
-`TEAMS_LIMITS`. Renderer exports are also available from
-`@copilotkit/channels/teams/render`.
+Teams 入口还导出其服务器、Adaptive Card 渲染器、会话存储、消息流、交互辅助工具、文件辅助工具以及 `TEAMS_LIMITS`。渲染器导出也可从 `@copilotkit/channels/teams/render` 获取。
 
 ### Discord
 
@@ -151,15 +107,9 @@ import {
 } from "@copilotkit/channels/discord";
 ```
 
-`DiscordAdapterOptions` requires `botToken` and `appId`; set `guildId` to
-register slash commands immediately in one development guild. The entry point
-also exports its listener, renderer, command registration, conversation store,
-streaming helpers, built-in context and tools, file helpers, and
-`DISCORD_LIMITS`.
+`DiscordAdapterOptions` 要求提供 `botToken` 与 `appId`；设置 `guildId` 可立即在某个开发服务器（guild）中注册斜杠命令。该入口还导出其监听器、渲染器、命令注册、会话存储、流式辅助工具、内置上下文与工具、文件辅助工具以及 `DISCORD_LIMITS`。
 
-Enable the privileged **Message Content Intent** and **Server Members Intent**
-for the bot in the Discord Developer Portal. The adapter requests
-`MessageContent` and `GuildMembers` on every connection.
+在 Discord Developer Portal 中为机器人启用特权 **Message Content Intent** 与 **Server Members Intent**。适配器会在每次连接时请求 `MessageContent` 与 `GuildMembers`。
 
 ### WhatsApp
 
@@ -171,23 +121,10 @@ import {
 } from "@copilotkit/channels/whatsapp";
 ```
 
-`WhatsAppAdapterOptions` requires `accessToken`, `phoneNumberId`, `appSecret`,
-and `verifyToken`. The webhook server uses port `3000` and path `/webhook` by
-default. The entry point also exports its client, renderer, conversation and
-history stores, built-in context and tools, file helpers, and `WA_LIMITS`.
+`WhatsAppAdapterOptions` 要求提供 `accessToken`、`phoneNumberId`、`appSecret` 与 `verifyToken`。webhook 服务器默认使用端口 `3000` 与路径 `/webhook`。该入口还导出其客户端、渲染器、会话与历史存储、内置上下文与工具、文件辅助工具以及 `WA_LIMITS`。
 
-## Capability boundaries
+## 能力边界
 
-Direct and managed adapters do not have identical capabilities. For example,
-the direct Slack adapter supports modals, reactions, incremental streaming, and
-ephemeral messages. Managed Slack accepts the streaming API but buffers the
-stream and posts it once instead of updating incrementally; it does not support
-the other three capabilities. Check
-the direct adapter instance's read-only `capabilities` property when you own
-the adapter. Capability-result Thread methods can also return `{ ok: false }`;
-handle that result instead of assuming a provider name guarantees one
-behavior.
+直连与托管适配器的能力并不完全相同。例如，直连 Slack 适配器支持模态框（modal）、表情回应、增量流式与临时消息。托管 Slack 接受流式 API，但会先缓冲整个流再一次性发布，而不是增量更新；其余三项能力它均不支持。当你自己持有适配器实例时，可查看该直连适配器实例的只读 `capabilities` 属性。返回能力结果的 Thread 方法也可能返回 `{ ok: false }`；请处理该结果，不要以为提供方名称就必然保证某种行为。
 
-The provider guides document the managed contract and each provider's release
-status. Use this page when your deployment intentionally owns provider
-credentials, sockets, webhooks, and provider-specific operations.
+提供方指南记录了托管契约与各提供方的发布状态。当你的部署有意自行掌管提供方凭据、套接字、webhook 与提供方专属操作时，请使用本页。

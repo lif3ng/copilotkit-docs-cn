@@ -1,19 +1,19 @@
 ---
 title: "ToolCallStatus"
-description: "Lifecycle states of a tool call as it streams in and executes."
+description: "工具调用在流入与执行过程中的生命周期状态。"
 ---
 
-## Overview
+## 概览
 
-`ToolCallStatus` describes where a tool call is in its lifecycle, from arguments still streaming in to a fully executed result. You encounter it when rendering or reacting to tool calls in a frontend tool handler or custom render logic.
+`ToolCallStatus` 描述工具调用在其生命周期中所处的阶段——从参数仍在流式传入，到结果完整执行完毕。当你在前端工具处理器或自定义渲染逻辑中渲染或响应工具调用时会遇到它。
 
-## Import
+## 导入
 
 ```ts
 import { ToolCallStatus } from "@copilotkit/core";
 ```
 
-## Definition
+## 定义
 
 ```ts
 enum ToolCallStatus {
@@ -23,21 +23,21 @@ enum ToolCallStatus {
 }
 ```
 
-## Members
+## 成员
 
 <PropertyReference name="InProgress" type="inProgress">
-  The tool call is still being received — its arguments are streaming in and are not yet complete.
+  工具调用仍在接收中——它的参数正在流式传入，尚未完整。
 </PropertyReference>
 
 <PropertyReference name="Executing" type="executing">
-  Arguments have fully arrived and the tool handler is running.
+  参数已完整到达，工具处理器正在运行。
 </PropertyReference>
 
 <PropertyReference name="Complete" type="complete">
-  The handler has finished and a result is available.
+  处理器已执行完毕，结果可用。
 </PropertyReference>
 
-## Usage
+## 用法
 
 ```ts
 import { ToolCallStatus } from "@copilotkit/core";
@@ -54,7 +54,7 @@ function renderToolCall(status: ToolCallStatus) {
 }
 ```
 
-## Related
+## 相关内容
 
-- [FrontendTool](/reference/core/types/FrontendTool) — tool handlers observe these statuses as a call progresses.
+- [FrontendTool](/reference/core/types/FrontendTool) ——随着调用的推进，工具处理器会观察到这些状态。
 - [CopilotKitCore](/reference/core/classes/CopilotKitCore)

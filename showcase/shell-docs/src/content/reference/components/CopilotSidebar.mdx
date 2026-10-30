@@ -1,105 +1,94 @@
 ---
 title: "CopilotSidebar"
-description: "Sidebar variant of CopilotChat that renders in a fixed side panel"
+description: "CopilotChat 的侧边栏变体，以固定的侧边面板呈现"
 ---
 
-## Overview
+## 概览
 
-`CopilotSidebar` renders a fixed sidebar panel for chat interaction. It wraps [`CopilotChat`](/reference/components/CopilotChat) and provides sidebar-specific layout and open/close behavior. The sidebar includes a header with a title and close button, and can be toggled via a floating button.
+`CopilotSidebar` 渲染一个用于聊天交互的固定侧边栏面板。它包裹了 [`CopilotChat`](/reference/components/CopilotChat)，并提供侧边栏专属的布局与打开/关闭行为。侧边栏包含一个带标题和关闭按钮的头部，并可通过浮动按钮切换显示。
 
-See [`CopilotPopup`](/reference/components/CopilotPopup) for a popup variant of this component.
+本组件的弹窗变体请参见 [`CopilotPopup`](/reference/components/CopilotPopup)。
 
-## Import
+## 导入
 
 ```tsx
 import { CopilotSidebar } from "@copilotkit/react-core/v2";
 import "@copilotkit/react-core/v2/styles.css";
 ```
 
-## Props
+## 属性
 
-### Own Props
+### 自身属性
 
 <PropertyReference name="header" type="SlotValue<typeof CopilotModalHeader>">
-  Slot override for the sidebar header. Accepts a replacement component, a
-  `className` string merged into the default, or a partial props object. The
-  default header displays a title and a close button.
+  侧边栏头部的插槽覆盖。接受替换组件、合并进默认样式的 `className` 字符串或部分 props 对象。默认头部显示一个标题和一个关闭按钮。
 </PropertyReference>
 
 <PropertyReference name="defaultOpen" type="boolean" default="true">
-  Whether the sidebar is open when the component first mounts. After that the
-  sidebar owns the state. Use `open` instead to keep control.
+  组件首次挂载时侧边栏是否打开。此后侧边栏自行持有该状态。若要始终保持控制，请改用 `open`。
 </PropertyReference>
 
 <PropertyReference name="open" type="boolean">
-  Controlled open state. When supplied, your component owns whether the sidebar
-  is open: the sidebar renders this value and never changes it on its own. Pair
-  it with `onOpenChange`. When both `open` and `defaultOpen` are passed, `open`
-  wins. See [Open, close, and
-  feedback](/prebuilt-components/chat-controls).
+  受控的打开状态。提供该属性后，侧边栏是否打开由你的组件决定：侧边栏只渲染该值，绝不会自行更改。请与 `onOpenChange` 搭配使用。同时传入 `open` 和 `defaultOpen` 时，`open` 优先。参见 [打开、关闭与反馈](/prebuilt-components/chat-controls)。
 </PropertyReference>
 
 <PropertyReference name="onOpenChange" type="(open: boolean) => void">
-  Called with the requested state whenever the sidebar asks to open or close
-  (the toggle button, or the thread drawer on mobile). It reports a request, not
-  a change: in controlled mode nothing moves until you update `open`.
+  每当侧边栏请求打开或关闭时（切换按钮或移动端上的线程抽屉），都会以目标状态调用该回调。它报告的是一次请求而非已发生的变化：在受控模式下，在你更新 `open` 之前不会有任何变化。
 </PropertyReference>
 
 <PropertyReference name="width" type="number | string">
-  Width of the sidebar panel. Accepts a number (pixels) or a CSS string (e.g.
-  `"400px"`, `"30vw"`).
+  侧边栏面板的宽度。接受数字（像素）或 CSS 字符串（例如 `"400px"`、`"30vw"`）。
 </PropertyReference>
 
-### Inherited CopilotChat Props
+### 继承自 CopilotChat 的属性
 
-`CopilotSidebar` accepts all props from [`CopilotChatProps`](/reference/components/CopilotChat) **except** `chatView`, which is set internally to `CopilotSidebarView`. This includes:
+`CopilotSidebar` 接受 [`CopilotChatProps`](/reference/components/CopilotChat) 的**全部** props，**唯一例外**是 `chatView`——它在内部被设为 `CopilotSidebarView`。其中包括：
 
 <PropertyReference name="agentId" type="string">
-  ID of the agent to use. Must match an agent configured in
-  `CopilotKit`.
+  要使用的智能体 ID。必须与 `CopilotKit` 中配置的某个智能体匹配。
 </PropertyReference>
 
 <PropertyReference name="threadId" type="string">
-  ID of the conversation thread.
+  会话线程的 ID。
 </PropertyReference>
 
 <PropertyReference name="labels" type="Partial<CopilotChatLabels>">
-  Partial label overrides for all text strings rendered inside the chat.
+  对聊天中渲染的所有文本字符串的部分标签覆盖。
 </PropertyReference>
 
 <PropertyReference name="autoScroll" type="boolean" default="true">
-  Whether the chat scrolls to the bottom automatically when new messages arrive.
+  新消息到达时聊天是否自动滚动到底部。
 </PropertyReference>
 
 <PropertyReference
   name="inputProps"
   type="Partial<Omit<CopilotChatInputProps, 'children'>>"
 >
-  Additional props forwarded to the inner `CopilotChatInput` component.
+  转发给内部 `CopilotChatInput` 组件的额外 props。
 </PropertyReference>
 
 <PropertyReference
   name="welcomeScreen"
   type="SlotValue<React.FC<WelcomeScreenProps>> | boolean"
 >
-  Controls the welcome screen shown when no messages exist.
+  控制没有消息时显示的欢迎屏。
 </PropertyReference>
 
-All `CopilotChatView` slot props (`messageView`, `input`, `scrollView`, `inputContainer`, `feather`, `disclaimer`, `suggestionView`) are also accepted and forwarded through.
+所有 `CopilotChatView` 插槽 props（`messageView`、`input`、`scrollView`、`inputContainer`、`feather`、`disclaimer`、`suggestionView`）也都被接受并透传。
 
-## Slot System
+## 插槽系统
 
-All slot props follow the same override pattern used across CopilotKit v2 components. Each slot accepts one of three value types:
+所有插槽 props 都遵循 CopilotKit v2 组件通用的覆盖模式。每个插槽接受以下三种取值之一：
 
-| Value                    | Behavior                                                                            |
+| 取值                     | 行为                                                                                |
 | ------------------------ | ----------------------------------------------------------------------------------- |
-| **Component**            | Replaces the default component entirely. Receives the same props the default would. |
-| **`className` string**   | Merged into the default component's class list via `twMerge`.                       |
-| **Partial props object** | Spread into the default component as additional or overriding props.                |
+| **Component**            | 完全替换默认组件，接收与默认组件相同的 props。                                       |
+| **`className` string**   | 通过 `twMerge` 合并进默认组件的类名列表。                                            |
+| **Partial props object** | 以附加或覆盖 props 的形式展开传入默认组件。                                          |
 
-## Usage
+## 用法
 
-### Basic Usage
+### 基础用法
 
 ```tsx
 function App() {
@@ -112,7 +101,7 @@ function App() {
 }
 ```
 
-### Default Open with Custom Width
+### 默认打开并自定义宽度
 
 ```tsx
 function App() {
@@ -120,7 +109,7 @@ function App() {
 }
 ```
 
-### Custom Header
+### 自定义头部
 
 ```tsx
 function App() {
@@ -130,16 +119,16 @@ function App() {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Toggle button**: Renders a floating toggle button that opens and closes the sidebar. The button uses `CopilotChatToggleButton` internally.
-- **Modal state**: Open/close state is managed via the chat configuration context. The `defaultOpen` prop sets the initial state; after that, state changes come from user interaction (toggle button, close button in the header). Pass `open` and `onOpenChange` to own the state yourself, and to open or close the sidebar from your own UI.
-- **Layout**: The sidebar uses `CopilotSidebarView` internally, which provides a sidebar-specific welcome screen layout with suggestions at the top, the welcome message in the middle, and the input fixed at the bottom.
-- **Fixed positioning**: The sidebar renders as a fixed panel on one side of the viewport, pushing or overlaying content depending on CSS.
-- **Agent connection**: All agent wiring (messages, running state, suggestions) is handled by the parent `CopilotChat` logic.
+- **切换按钮**：渲染一个浮动切换按钮，用于打开和关闭侧边栏。该按钮在内部使用 `CopilotChatToggleButton`。
+- **弹层状态**：打开/关闭状态通过聊天配置上下文管理。`defaultOpen` prop 设置初始状态；此后的状态变化来自用户交互（切换按钮、头部中的关闭按钮）。传入 `open` 和 `onOpenChange` 可自行持有状态，并从你自己的 UI 打开或关闭侧边栏。
+- **布局**：侧边栏在内部使用 `CopilotSidebarView`，它提供侧边栏专属的欢迎屏布局：建议位于顶部，欢迎消息居中，输入框固定在底部。
+- **固定定位**：侧边栏以固定面板的形式渲染在视口的一侧，根据 CSS 不同会推挤或覆盖页面内容。
+- **智能体连接**：所有智能体接线（消息、运行状态、建议）都由父级 `CopilotChat` 逻辑处理。
 
-## Related
+## 相关内容
 
-- [`CopilotChat`](/reference/components/CopilotChat) -- the base chat component used internally
-- [`CopilotPopup`](/reference/components/CopilotPopup) -- popup variant
-- [`CopilotChatView`](/reference/components/CopilotChatView) -- the layout component used internally
+- [`CopilotChat`](/reference/components/CopilotChat) —— 内部使用的基础聊天组件
+- [`CopilotPopup`](/reference/components/CopilotPopup) —— 弹窗变体
+- [`CopilotChatView`](/reference/components/CopilotChatView) —— 内部使用的布局组件

@@ -1,9 +1,9 @@
 ---
 title: ChannelNode
-description: The serializable intermediate representation between Channels JSX and native provider renderers.
+description: 介于 Channels JSX 与提供方原生渲染器之间的可序列化中间表示。
 ---
 
-`ChannelNode` is the intermediate representation produced by Channels JSX.
+`ChannelNode` 是由 Channels JSX 生成的中间表示。
 
 ```ts
 interface ChannelNode {
@@ -19,16 +19,10 @@ type Renderable =
   | { raw: unknown; provider?: "slack" | "teams" };
 ```
 
-Before `renderToIR`, `type` can be a named component or Fragment. After
-expansion, intrinsic string types such as `message`, `section`, and `button`
-remain. Strings and numbers become `text` nodes.
+在 `renderToIR` 之前，`type` 可以是具名组件或 Fragment。展开之后，只会保留 `message`、`section`、`button` 这类内在的字符串类型。字符串与数字会变成 `text` 节点。
 
-Callbacks stay in the tree until the action registry replaces them with opaque
-ids. Provider credentials and handler source are never embedded in the native
-message.
+回调会留在树中，直到操作注册表用不透明的 id 替换它们。提供方凭据与处理器源码绝不会内嵌到原生消息中。
 
-Most applications should use components rather than constructing nodes
-directly. Reach for `ChannelNode` when writing component tests, a custom
-renderer, or a direct platform adapter.
+大多数应用应使用组件，而不是直接构造节点。在编写组件测试、自定义渲染器或直连平台适配器时，才需要用到 `ChannelNode`。
 
-See [`renderToIR`](/reference/channels/functions/renderToIR).
+参见 [`renderToIR`](/reference/channels/functions/renderToIR)。

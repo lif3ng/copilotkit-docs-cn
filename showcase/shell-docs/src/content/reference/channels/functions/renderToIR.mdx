@@ -1,12 +1,11 @@
 ---
 title: renderToIR
-description: Lower Channels JSX or text into the serializable ChannelNode intermediate representation.
+description: 将 Channels JSX 或文本转换为可序列化的 ChannelNode 中间表示。
 ---
 
-`renderToIR(renderable)` expands fragments and function components into an
-array of intrinsic `ChannelNode` values.
+`renderToIR(renderable)` 会把片段（fragment）与函数组件展开为由原生（intrinsic）`ChannelNode` 值构成的数组。
 
-## Signature
+## 签名
 
 ```ts
 function renderToIR(ui: Renderable): ChannelNode[];
@@ -20,7 +19,7 @@ type Renderable =
   | { raw: unknown; provider?: "slack" | "teams" };
 ```
 
-## Example
+## 示例
 
 ```tsx
 import { Header, Message, renderToIR } from "@copilotkit/channels/ui";
@@ -32,15 +31,8 @@ const ir = renderToIR(
 );
 ```
 
-The runtime calls this automatically before binding callbacks and rendering a
-message. Use it directly for component tests or a custom adapter.
+运行时会在绑定回调与渲染消息之前自动调用它。组件测试或自定义适配器场景可以直接使用它。
 
-Strings—and numbers used as component children—become `text` nodes. `false`,
-`null`, and `undefined` render nothing. Function components are evaluated
-immediately, so keep them pure and free of provider side effects.
+字符串，以及用作组件子元素的数字，会成为 `text` 节点。`false`、`null` 和 `undefined` 不会渲染任何内容。函数组件会被立即求值，因此请保持其纯净，避免包含提供方相关的副作用。
 
-The `{ raw, provider }` escape hatch produces a provider-specific `raw` node.
-Use `provider: "slack"` for native blocks and `provider: "teams"` for one
-Adaptive Card object. Omitting `provider` defaults to Slack. A raw node sent
-through the wrong active provider fails explicitly before that effect reaches
-the provider; it is never translated or silently dropped.
+`{ raw, provider }` 逃生舱口会生成特定提供方的 `raw` 节点。原生块使用 `provider: "slack"`，单个 Adaptive Card 对象使用 `provider: "teams"`。省略 `provider` 时默认为 Slack。若把 raw 节点发送给不匹配的活跃提供方，会在该效果真正触达提供方之前显式报错；它绝不会被转换改写或静默丢弃。

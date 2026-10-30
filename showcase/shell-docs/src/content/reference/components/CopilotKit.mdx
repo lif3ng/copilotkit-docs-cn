@@ -1,35 +1,27 @@
 ---
 title: "CopilotKit"
-description: "The CopilotKit provider component, wrapping your application."
+description: "CopilotKit 提供方组件，用于包裹你的应用。"
 ---
 
-<Callout type="info" title="This is the v1 provider, re-exported for back-compat">
-  `<CopilotKit>` is the v1 provider. It is re-exported from
-  `@copilotkit/react-core/v2` so that a v1 application keeps working after the
-  import path changes, and it renders `<CopilotKitProvider>` internally. **The
-  v2 provider is `<CopilotKitProvider>`** — reach for that one in new v2 code.
+<Callout type="info" title="这是 v1 Provider，为向后兼容而重新导出">
+  `<CopilotKit>` 是 v1 Provider。它从 `@copilotkit/react-core/v2` 重新导出，以便 v1 应用在导入路径变化后仍能正常工作，并且它在内部渲染 `<CopilotKitProvider>`。**v2 的 Provider 是 `<CopilotKitProvider>`**——新的 v2 代码请使用后者。
 </Callout>
 
-The two are not aliases: they name the agent with different props.
+两者并不是别名：它们用不同的 prop 指定智能体。
 
 |                | v1 `<CopilotKit>`  | v2 `<CopilotKitProvider>` |
 | -------------- | ------------------ | ------------------------- |
-| Name the agent | `agent="my_agent"` | `agentId="my_agent"`      |
+| 指定智能体     | `agent="my_agent"` | `agentId="my_agent"`      |
 
-You can also name the agent per chat with `<CopilotChat agentId="my_agent">`, or
-for a subtree with `<CopilotChatConfigurationProvider agentId="my_agent">`. Both
-of those override the provider-level default. See [Provider and handler
-pairs](/backend/runtime-endpoints#provider-and-handler-pairs).
+你也可以用 `<CopilotChat agentId="my_agent">` 为单个聊天指定智能体，或用 `<CopilotChatConfigurationProvider agentId="my_agent">` 为某个子树指定。这两者都会覆盖 Provider 层级的默认值。参见 [Provider 与 handler 配对](/backend/runtime-endpoints#provider-and-handler-pairs)。
 
-Both providers treat an omitted `useSingleEndpoint` the same way: the transport
-is negotiated from the Runtime info response. Versions before 1.70.2 pinned
-`<CopilotKit>` to the single-route transport.
+两个 Provider 对省略 `useSingleEndpoint` 的处理方式相同：传输方式会根据 Runtime info 响应协商确定。1.70.2 之前的版本会把 `<CopilotKit>` 固定为单路由传输。
 
-This component will typically wrap your entire application (or a sub-tree of your application where you want to have a copilot). It provides the copilot context to all other components and hooks.
+该组件通常会包裹你的整个应用（或应用中你希望加入 copilot 的某个子树）。它为所有其他组件和 hooks 提供 copilot 上下文。
 
-## Example
+## 示例
 
-You can find more information about self-hosting CopilotKit [here](/direct-to-llm/guides/self-hosting).
+关于自托管 CopilotKit 的更多信息请见[这里](/direct-to-llm/guides/self-hosting)。
 
 ```tsx
 import { CopilotKit } from "@copilotkit/react-core/v2";
@@ -37,68 +29,58 @@ import { CopilotKit } from "@copilotkit/react-core/v2";
 <CopilotKit runtimeUrl="<your-runtime-url>">// ... your app ...</CopilotKit>;
 ```
 
-## Properties
+## 属性
 
 <PropertyReference name="publicApiKey" type="string"  >
-Your Copilot Cloud API key.
+你的 Copilot Cloud API 密钥。
 
-Don't have it yet? Go to https://dashboard.operations.copilotkit.ai and get one for free.
+还没有？前往 https://dashboard.operations.copilotkit.ai 免费获取一个。
 
 </PropertyReference>
 
 <PropertyReference name="publicLicenseKey" type="string"  >
-Your public license key for accessing CopilotKit Intelligence features.
+用于访问 CopilotKit Intelligence 功能的公开许可证密钥。
 
-Don't have it yet? Go to https://dashboard.operations.copilotkit.ai and get one for free.
+还没有？前往 https://dashboard.operations.copilotkit.ai 免费获取一个。
 
 </PropertyReference>
 
 <PropertyReference name="licenseToken" type="string">
-  Signed license token for offline verification of CopilotKit Intelligence features.
+  用于离线校验 CopilotKit Intelligence 功能的签名许可证令牌。
 </PropertyReference>
 
 <PropertyReference name="guardrails_c" type="{ validTopics?: string[]; invalidTopics?: string[]; }"  >
-Restrict input to specific topics using guardrails.
+使用护栏（guardrails）将输入限制到特定主题。
   @remarks
 
-This feature is only available when using CopilotKit's cloud-hosted service. To use this feature, sign up at https://dashboard.operations.copilotkit.ai to get your publicApiKey. The feature allows restricting chat conversations to specific topics.
+该功能仅在使用 CopilotKit 云托管服务时可用。要使用该功能，请在 https://dashboard.operations.copilotkit.ai 注册以获取你的 publicApiKey。该功能允许将聊天对话限制在特定主题内。
 
 </PropertyReference>
 
 <PropertyReference name="runtimeUrl" type="string">
-  The endpoint for the Copilot Runtime instance. See the Copilot Runtime API
-  documentation.
+  Copilot Runtime 实例的端点。参见 Copilot Runtime API 文档。
 </PropertyReference>
 
 <PropertyReference name="transcribeAudioUrl" type="string">
-  The endpoint for the Copilot transcribe audio service.
+  Copilot 语音转写服务的端点。
 </PropertyReference>
 
 <PropertyReference name="textToSpeechUrl" type="string">
-  The endpoint for the Copilot text to speech service.
+  Copilot 文字转语音服务的端点。
 </PropertyReference>
 
 <PropertyReference name="headers" type="Record<string, string> | (() => Record<string, string>) | (() => Promise<Record<string, string>>)"  >
-Additional headers to be sent with runtime requests. Pass an object for static
-headers, or a function (sync or async) that builds them fresh. The function
-runs when each request is sent, so a refreshed token is always used.
+随运行时请求一起发送的额外请求头。传对象表示静态请求头，或传一个（同步或异步）函数来实时构建请求头。该函数会在每次请求发送时运行，因此始终使用刷新后的令牌。
 
-Cache inside the builder. Clerk's and Auth0's `getToken()` already cache. A
-builder that calls the network every time adds one call per request.
+在构建函数内部做好缓存。Clerk 和 Auth0 的 `getToken()` 本身已带缓存。每次都发起网络调用的构建函数会给每个请求增加一次额外调用。
 
-If the builder throws or rejects, that request is not sent and `onError` gets
-`header_resolution_failed`.
+如果构建函数抛出异常或 Promise 被拒绝，该请求将不会发送，并且 `onError` 会收到 `header_resolution_failed`。
 
-The legacy v1 `CopilotTask` / GraphQL path doesn't await an async builder: it
-sends that request without the builder's headers, and logs a one-time dev
-warning. A sync builder and a plain object both reach `CopilotTask` as
-expected.
+旧版 v1 的 `CopilotTask` / GraphQL 路径不会等待异步构建函数：它会在不带该构建函数请求头的情况下发送请求，并记录一次性的开发警告。同步构建函数和普通对象都会按预期到达 `CopilotTask`。
 
-Core headers are also sent to any `selfManagedAgents` /
-`agents__unsafe_dev_only` agent, including ones on other origins. Don't put a
-bearer token in core headers if those agents point at a third party.
+核心请求头也会发送给任何 `selfManagedAgents` / `agents__unsafe_dev_only` 智能体，包括位于其他源（origin）上的智能体。如果这些智能体指向第三方，请不要在核心请求头中放入 bearer 令牌。
 
-For example:
+例如：
 
 ```tsx
 const { getToken } = useAuth();
@@ -114,13 +96,13 @@ const { getToken } = useAuth();
 </PropertyReference>
 
 <PropertyReference name="children" type="ReactNode" required>
-  The children to be rendered within the CopilotKit.
+  要在 CopilotKit 内渲染的子元素。
 </PropertyReference>
 
 <PropertyReference name="properties" type="Record<string, any>"  >
-Custom properties to be sent with the request.
-  Can include threadMetadata for thread creation and authorization for LangGraph Platform authentication.
-  For example:
+随请求一起发送的自定义属性。
+  可包含用于创建线程的 threadMetadata，以及用于 LangGraph Platform 身份验证的 authorization。
+  例如：
   ```js
   {
     'user_id': 'users_id',
@@ -132,16 +114,14 @@ Custom properties to be sent with the request.
   }
   ```
 
-Note: The `authorization` property is automatically forwarded to LangGraph agents. See the LangGraph Agent Authentication Guide (see code examples above) for details.
+注意：`authorization` 属性会自动转发给 LangGraph 智能体。详情请参阅 LangGraph 智能体身份验证指南（见上方代码示例）。
 
 </PropertyReference>
 
 <PropertyReference name="credentials" type="RequestCredentials"  >
-Indicates whether the user agent should send or receive cookies from the other domain
-  in the case of cross-origin requests.
+指示在跨源请求的情况下，用户代理是否应向另一个域发送或从其接收 cookie。
 
-To enable HTTP-only cookie authentication, set `credentials="include"` and configure
-CORS on your runtime endpoint:
+要启用 HTTP-only cookie 身份验证，请设置 `credentials="include"`，并在运行时端点上配置 CORS：
 
 ```tsx
 // Frontend (https://myapp.com)
@@ -165,48 +145,31 @@ const handler = createCopilotRuntimeHandler({
 </PropertyReference>
 
 <PropertyReference name="showDevConsole" type="boolean"  >
-Whether to show the dev console.
+是否显示开发者控制台。
 
-Set to `true` to show error banners and toasts, `false` to hide all error UI.
-Defaults to `false` for production safety.
+设为 `true` 显示错误横幅和 toast，设为 `false` 隐藏所有错误 UI。出于生产环境安全考虑，默认为 `false`。
 
 </PropertyReference>
 
 <PropertyReference name="showIntelligenceIndicator" type="boolean">
-Whether to automatically mount the built-in CopilotKit Intelligence indicator
-in chat. Set to `false` when your application renders its own Intelligence
-status UI. Defaults to `true`.
+  是否在聊天中自动挂载内置的 CopilotKit Intelligence 指示器。当你的应用自行渲染 Intelligence 状态 UI 时，请设为 `false`。默认为 `true`。
 
 </PropertyReference>
 
 <PropertyReference name="selfManagedAgents" type="Record<string, AbstractAgent>">
-  AG-UI agents managed by your app and registered directly with CopilotKit.
-  Use this when you connect to agents without routing through a Copilot Runtime.
+  由你的应用管理并直接注册到 CopilotKit 的 AG-UI 智能体。当你不经过 Copilot Runtime 而直连智能体时使用。
 </PropertyReference>
 
 <PropertyReference name="agents__unsafe_dev_only" type="Record<string, AbstractAgent>">
-  Preconfigured local agents for development and tests. Use `selfManagedAgents`
-  for production direct-agent setups.
+  用于开发和测试的预配置本地智能体。生产环境的直连智能体方案请使用 `selfManagedAgents`。
 </PropertyReference>
 
 <PropertyReference name="a2ui" type="{ theme?: Theme; catalog?: any; loadingComponent?: React.ComponentType; includeSchema?: boolean; recovery?: A2UIRecoveryRendererOptions }">
-Configuration for the A2UI (Agent-to-UI) renderer.
+A2UI（Agent-to-UI）渲染器的配置。
 
-The built-in A2UI renderer is activated automatically when the runtime reports
-that `a2ui` is configured in `CopilotRuntime`. This prop is optional and only
-needed to override the theme, supply a custom component `catalog`, set a
-`loadingComponent`, toggle whether the schema is included (`includeSchema`), or
-tune the error-recovery status UI (`recovery`).
+当运行时报告 `CopilotRuntime` 中已配置 `a2ui` 时，内置的 A2UI 渲染器会自动激活。该 prop 是可选的，仅在需要覆盖主题、提供自定义组件 `catalog`、设置 `loadingComponent`、切换是否包含 schema（`includeSchema`）或调整错误恢复状态 UI（`recovery`）时才需要。
 
-`includeSchema` defaults to `true`, which sends the catalog's component schemas
-and the A2UI generation and design guidelines to the agent as context. With
-`includeSchema: false`, the agent still receives the catalog ID and the names of
-the catalog's custom components, without their JSON schemas or the guidelines.
-A LangGraph agent that uses the CopilotKit middleware's injected A2UI tool then
-gives its A2UI subagent the component names only. To give the subagent more
-detail, pass a composition guide through the middleware's A2UI guidelines:
-`a2uiParams.guidelines.compositionGuide` in TypeScript, or
-`a2ui_params["guidelines"]["composition_guide"]` in Python.
+`includeSchema` 默认为 `true`，会把目录（catalog）的组件 schema 以及 A2UI 生成与设计指南作为上下文发送给智能体。设为 `includeSchema: false` 时，智能体仍会收到目录 ID 和目录中自定义组件的名称，但不会收到它们的 JSON schema 和指南。此时，使用 CopilotKit 中间件注入的 A2UI 工具的 LangGraph 智能体只会把组件名称交给它的 A2UI 子智能体。若要给子智能体更多细节，可通过中间件的 A2UI 指南传入组合指南：TypeScript 中为 `a2uiParams.guidelines.compositionGuide`，Python 中为 `a2ui_params["guidelines"]["composition_guide"]`。
 
 ```tsx
 <CopilotKit runtimeUrl="/api/copilotkit" a2ui={{ theme: myCustomTheme }}>
@@ -217,60 +180,49 @@ detail, pass a composition guide through the middleware's A2UI guidelines:
 </PropertyReference>
 
 <PropertyReference name="mcpApps" type="{ allowSameOriginFallback?: boolean }">
-Configuration for the built-in MCP Apps renderer.
+内置 MCP Apps 渲染器的配置。
 
-`allowSameOriginFallback` restores `allow-same-origin` on the MCP App sandbox.
-By default widgets get an opaque origin. **Unsafe:** with it set, a widget runs
-with your page's origin and can read your cookies, storage and DOM. Only use it
-for widgets you trust that need `localStorage`, `IndexedDB` or cookies. See
-[Sandbox and widget storage](/generative-ui/mcp-apps#sandbox-and-widget-storage).
+`allowSameOriginFallback` 会在 MCP App 沙箱上恢复 `allow-same-origin`。默认情况下，小部件（widget）使用不透明的源。**不安全**：设置后，小部件将以你页面的源运行，可以读取你的 cookie、存储和 DOM。只对你信任的、确实需要 `localStorage`、`IndexedDB` 或 cookie 的小部件使用它。参见 [沙箱与小部件存储](/generative-ui/mcp-apps#sandbox-and-widget-storage)。
 
 </PropertyReference>
 
 <PropertyReference name="openGenerativeUI" type="{ sandboxFunctions?: SandboxFunction[]; designSkill?: string }">
-  Configuration for Open Generative UI. Use `sandboxFunctions` to expose host
-  functions to generated sandboxed iframes, and `designSkill` to override the
-  design guidance injected as agent context for `generateSandboxedUi`.
+  Open Generative UI 的配置。用 `sandboxFunctions` 将宿主函数暴露给生成的沙箱化 iframe，用 `designSkill` 覆盖注入给 `generateSandboxedUi` 的、作为智能体上下文的设计指南。
 </PropertyReference>
 
 <PropertyReference name="defaultThrottleMs" type="number">
-  Default throttle interval, in milliseconds, for `useAgent` re-renders caused
-  by message and state updates. Individual `useAgent` calls and prebuilt chat
-  components can override it with their own `throttleMs`.
+  由消息和状态更新触发的 `useAgent` 重渲染的默认节流间隔（毫秒）。单个 `useAgent` 调用和预构建聊天组件可以用各自的 `throttleMs` 覆盖它。
 </PropertyReference>
 
 <PropertyReference name="agent" type="string">
-  The agent to talk to, named by its **key in the runtime's `agents` map** — not the
-  agent's own `name` or `id`. See [Which name identifies an
-  agent](/backend/copilot-runtime#which-name-identifies-an-agent).
+  要对话的智能体，用**它在运行时 `agents` 映射中的键**来指定——而不是智能体自身的 `name` 或 `id`。参见 [哪个名称标识智能体](/backend/copilot-runtime#which-name-identifies-an-agent)。
 </PropertyReference>
 
 <PropertyReference
   name="forwardedParameters"
   type="Pick<ForwardedParametersInput, 'temperature'>"
 >
-  The forwarded parameters to use for the task.
+  任务要使用的转发参数。
 </PropertyReference>
 
 <PropertyReference name="authConfig_c" type="{ SignInComponent: React.ComponentType<{ onSignInComplete: (authState: AuthState) => void; }>; }"  >
-The auth config to use for the CopilotKit.
+CopilotKit 使用的身份验证配置。
   @remarks
 
-This feature is only available when using CopilotKit's cloud-hosted service. To use this feature, sign up at https://dashboard.operations.copilotkit.ai to get your publicApiKey. The feature allows restricting chat conversations to specific topics.
+该功能仅在使用 CopilotKit 云托管服务时可用。要使用该功能，请在 https://dashboard.operations.copilotkit.ai 注册以获取你的 publicApiKey。该功能允许将聊天对话限制在特定主题内。
 
 </PropertyReference>
 
 <PropertyReference name="threadId" type="string">
-  The thread id to use for the CopilotKit.
+  CopilotKit 使用的线程 ID。
 </PropertyReference>
 
 <PropertyReference name="onError" type="CopilotErrorHandler"  >
-Optional error handler for comprehensive debugging and observability.
+可选的错误处理函数，用于全面的调试与可观测性。
 
-Requires publicApiKey: Error handling only works when publicApiKey is provided.
-This is a CopilotKit Intelligence feature.
+需要 publicApiKey：只有提供了 publicApiKey，错误处理才会生效。这是一项 CopilotKit Intelligence 功能。
 
-@param errorEvent - Structured error event with rich debugging context
+@param errorEvent - 带有丰富调试上下文的结构化错误事件
 
 @example
 
@@ -288,15 +240,9 @@ This is a CopilotKit Intelligence feature.
 </PropertyReference>
 
 <PropertyReference name="enableInspector" type="boolean">
-  Enable or disable the CopilotKit Inspector, letting you inspect AG-UI events,
-  view agent messages, check agent state, and visualize agent context. It is
-  enabled by default in development browser builds on localhost or loopback
-  hosts, and is always disabled on remote hosts, in production, and during
-  server rendering.
+  启用或禁用 CopilotKit Inspector，可用于检查 AG-UI 事件、查看智能体消息、检查智能体状态以及可视化智能体上下文。在 localhost 或回环地址上的开发浏览器构建中默认启用；在远程主机、生产环境以及服务器端渲染时始终禁用。
 </PropertyReference>
 
 <PropertyReference name="debug" type="DebugConfig">
-  Enable client-side debug logging for the AG-UI transport and event pipeline.
-  Pass `true` for event and lifecycle summaries, or a config object with
-  `verbose: true` to include full event payloads.
+  为 AG-UI 传输层和事件管线启用客户端调试日志。传 `true` 可获得事件与生命周期摘要；传带有 `verbose: true` 的配置对象则包含完整的事件载荷。
 </PropertyReference>

@@ -1,9 +1,9 @@
 ---
 title: AgentContentPart
-description: Provider-neutral text, image, audio, video, and document content passed from Channel attachments to an agent.
+description: 与提供方无关的文本、图片、音频、视频与文档内容，从 Channel 附件传递给智能体。
 ---
 
-`AgentContentPart` is the multimodal prompt union used by Channels.
+`AgentContentPart` 是 Channels 使用的多模态提示联合类型。
 
 ```ts
 type MediaDataSource = {
@@ -20,11 +20,8 @@ type AgentContentPart =
   | { type: "document"; source: MediaDataSource };
 ```
 
-Binary `value` is base64. Managed ingress maps image, audio, video, and PDF
-files to binary parts, decodes `text/*` as text, and represents other binary
-types with a text note.
+二进制的 `value` 采用 base64。托管入站（ingress）会把图片、音频、视频与 PDF 文件映射为二进制部分，将 `text/*` 解码为文本，并用文本说明表示其他二进制类型。
 
-Pass parts through `thread.runAgent({ prompt })`. The selected agent framework
-and model decide which media kinds they can consume.
+通过 `thread.runAgent({ prompt })` 传入这些内容部分。所选的智能体框架与模型决定了它们能消费哪些媒体类型。
 
-See [Files and multimodal input](/slack/files-and-multimodality).
+参见[文件与多模态输入](/slack/files-and-multimodality)。

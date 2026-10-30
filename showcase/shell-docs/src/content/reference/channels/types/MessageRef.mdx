@@ -1,9 +1,9 @@
 ---
 title: MessageRef
-description: The opaque provider message handle returned by post and supplied to managed interaction callbacks.
+description: post 返回的不透明提供方消息句柄，会传给托管交互回调。
 ---
 
-`MessageRef` identifies a provider message:
+`MessageRef` 标识一条提供方消息：
 
 ```ts
 interface MessageRef {
@@ -12,20 +12,18 @@ interface MessageRef {
 }
 ```
 
-Use a ref with `thread.update()` or `thread.delete()`:
+将 ref 与 `thread.update()` 或 `thread.delete()` 配合使用：
 
 ```ts
 const ref = await thread.post("Working…");
 await thread.update(ref, "Done.");
 ```
 
-## Managed lifetime
+## 托管生命周期
 
-A ref returned by `thread.post()` carries routing for the current managed
-delivery. Do not persist it and assume it can be edited in a later delivery.
+`thread.post()` 返回的 ref 携带当次托管投递的路由信息。不要把它持久化下来，并指望在后续投递中仍能用它进行编辑。
 
-For a later component callback, use `ctx.message.ref`. Intelligence stamps the
-source provider message onto that interaction delivery when available:
+对于后续的组件回调，请使用 `ctx.message.ref`。在可用时，Intelligence 会将源提供方消息标记到该次交互投递上：
 
 ```ts
 if (message.ref.id) {
@@ -37,6 +35,4 @@ if (message.ref.id) {
 }
 ```
 
-Teams `Action.Submit` can arrive without `replyToId`, producing an empty ref.
-Slack and Teams delete capabilities also differ; see
-[`Thread`](/reference/channels/classes/Thread).
+Teams 的 `Action.Submit` 可能不带 `replyToId` 就到达，从而产生空 ref。Slack 与 Teams 的删除能力也各有差异；参见 [`Thread`](/reference/channels/classes/Thread)。

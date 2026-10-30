@@ -1,12 +1,9 @@
 ---
 title: ActionStore
-description: Deprecated callback snapshot store and migration path to the current StateStore configuration.
+description: 已弃用的回调快照存储，以及迁移到当前 StateStore 配置的路径。
 ---
 
-`ActionStore` and `InMemoryActionStore` remain exported for compatibility, but
-both are deprecated. New Channels code should configure
-`createChannel({ store: { adapter } })`; callback snapshots use the
-`StateStore.kv` facet.
+`ActionStore` 与 `InMemoryActionStore` 为兼容起见仍会导出，但两者均已弃用。新的 Channels 代码应配置 `createChannel({ store: { adapter } })`；回调快照使用 `StateStore.kv` 门面。
 
 ```ts title="channel.ts"
 import { createChannel } from "@copilotkit/channels";
@@ -21,11 +18,9 @@ const channel = createChannel({
 });
 ```
 
-The same Channel declaration receives managed Slack and Teams deliveries. The
-registered component lets the SDK rebuild its callback, while the durable store
-preserves the snapshot across process restarts.
+同一个 Channel 声明即可接收托管的 Slack 与 Teams 投递。注册的组件让 SDK 能够重建其回调，而持久化存储可在进程重启后保留快照。
 
-## Deprecated contract
+## 已弃用的契约
 
 ```ts
 interface ActionStore {
@@ -36,9 +31,6 @@ interface ActionStore {
 }
 ```
 
-`consume` must atomically return and delete one snapshot so a HITL
-continuation can start at most one resumed run.
+`consume` 必须以原子方式返回并删除一条快照，从而确保一次 HITL（人机协同）续接最多启动一次恢复运行。
 
-`InMemoryActionStore` never survives a process restart. Do not introduce it in
-new managed Slack or Teams runners. See [`StateStore`](/reference/channels/types/StateStore)
-and [persistence and scaling](/slack/persistence-and-scaling).
+`InMemoryActionStore` 无法在进程重启后留存。不要在新的托管 Slack 或 Teams 运行器中引入它。参见 [`StateStore`](/reference/channels/types/StateStore) 与[持久化与扩展](/slack/persistence-and-scaling)。

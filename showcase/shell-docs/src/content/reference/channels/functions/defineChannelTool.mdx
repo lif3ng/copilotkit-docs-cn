@@ -1,12 +1,11 @@
 ---
 title: defineChannelTool
-description: Define a Standard Schema-validated tool with inferred arguments and Channels thread context.
+description: 定义一个经 Standard Schema 校验的工具，自动推导参数类型并提供 Channels 线程上下文。
 ---
 
-`defineChannelTool` preserves a tool definition while inferring the handler
-argument type from its Standard Schema.
+`defineChannelTool` 用于保留工具定义，同时从其 Standard Schema 推导出处理器参数类型。
 
-## Signature
+## 签名
 
 ```ts
 function defineChannelTool<Schema extends ObjectSchema>(
@@ -26,7 +25,7 @@ interface ChannelTool<Schema extends ObjectSchema> {
 }
 ```
 
-## Example
+## 示例
 
 ```ts title="tools.ts"
 import { defineChannelTool } from "@copilotkit/channels";
@@ -45,22 +44,19 @@ export const getIncident = defineChannelTool({
 });
 ```
 
-Register tools in `createChannel({ tools })`, add one with `channel.tool(tool)`
-before startup, or pass turn-scoped tools to `thread.runAgent({ tools })`.
+在 `createChannel({ tools })` 中注册工具，在启动前用 `channel.tool(tool)` 添加单个工具，或把回合级作用域的工具传给 `thread.runAgent({ tools })`。
 
-## Handler context
+## 处理器上下文
 
-| Field      | Type                           | Managed behavior                                                          |
+| 字段       | 类型                           | 托管行为                                                          |
 | ---------- | ------------------------------ | ------------------------------------------------------------------------- |
-| `thread`   | `Thread`                       | Current conversation handle.                                              |
-| `message`  | `IncomingMessage \| undefined` | Current inbound message when the run began from a message trigger.        |
-| `user`     | `ApplicationUser \| null`      | Application user selected for this event.                                 |
-| `actor`    | `ProviderActor`                | Provider account that caused this event.                                  |
-| `signal`   | `AbortSignal \| undefined`     | Reserved optional field; the current SDK tool runner leaves it undefined. |
-| `platform` | `string`                       | Normalized source provider, such as `"slack"` or `"teams"`.               |
+| `thread`   | `Thread`                       | 当前会话的句柄。                                              |
+| `message`  | `IncomingMessage \| undefined` | 当运行由消息触发开始时，为当前入站消息。        |
+| `user`     | `ApplicationUser \| null`      | 为此事件选出的应用用户。                                 |
+| `actor`    | `ProviderActor`                | 触发此事件的提供方账号。                                  |
+| `signal`   | `AbortSignal \| undefined`     | 保留的可选字段；当前 SDK 工具运行器不为其赋值（保持 undefined）。 |
+| `platform` | `string`                       | 归一化的来源提供方，例如 `"slack"` 或 `"teams"`。               |
 
-Return raw objects or arrays for data. The SDK JSON-serializes non-string
-results for the model. A tool that already posted UI should return a short
-natural-language confirmation so the model does not repeat the card.
+数据类工具可直接返回原始对象或数组。SDK 会把非字符串结果 JSON 序列化后交给模型。已经发送过 UI 的工具应返回一句简短的自然语言确认，以免模型重复渲染同一张卡片。
 
-See [Tools and context](/slack/tools) for a complete managed example.
+完整的托管示例参见 [Tools and context](/slack/tools)。

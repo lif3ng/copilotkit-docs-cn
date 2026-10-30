@@ -1,12 +1,11 @@
 ---
 title: IncomingMessage
-description: The normalized provider message passed to Channels handlers, including user, multimodal parts, and managed correlation ids.
+description: 传递给 Channels 处理器的规范化提供方消息，包括用户、多模态内容部分与托管关联 id。
 ---
 
-`IncomingMessage` is the normalized inbound turn passed to `onMessage`,
-`onMention`, tools, and interaction contexts.
+`IncomingMessage` 是传递给 `onMessage`、`onMention`、工具与交互上下文的规范化入站回合。
 
-## Shape
+## 结构
 
 ```ts
 interface IncomingMessage {
@@ -22,19 +21,19 @@ interface IncomingMessage {
 }
 ```
 
-| Field          | Managed Slack and Teams behavior                                                                        |
+| 字段 | 托管 Slack 与 Teams 下的行为                                                                        |
 | -------------- | ------------------------------------------------------------------------------------------------------- |
-| `text`         | Provider text after ingress normalization.                                                              |
-| `user`         | Nullable application user returned by the Channel's `identifyUser` policy.                              |
-| `actor`        | Provider account that caused the event. It includes a required actor kind.                              |
-| `ref`          | In ordinary message handlers this may have an empty id; do not assume every inbound turn can be edited. |
-| `platform`     | Native source: `"slack"` or `"teams"` for message deliveries.                                           |
-| `contentParts` | Hydrated file/media parts when attachments were retrieved.                                              |
-| `eventId`      | Stable provider-event id for application idempotency.                                                   |
-| `turnId`       | Managed turn correlation id.                                                                            |
-| `deliveryId`   | Managed lease/delivery correlation id.                                                                  |
+| `text`         | 经过入站规范化处理后的提供方文本。                                                              |
+| `user`         | 由 Channel 的 `identifyUser` 策略返回、可为 null 的应用用户。                              |
+| `actor`        | 触发该事件的提供方账户，其中包含必需的 actor 种类。                              |
+| `ref`          | 在普通消息处理器中，它的 id 可能为空；不要假设每个入站回合都可以编辑。 |
+| `platform`     | 原生来源：消息投递为 `"slack"` 或 `"teams"`。                                           |
+| `contentParts` | 已检索到附件时填充好的文件/媒体部分。                                                              |
+| `eventId`      | 用于应用幂等的稳定提供方事件 id。                                                   |
+| `turnId`       | 托管回合的关联 id。                                                                            |
+| `deliveryId`   | 托管租约/投递的关联 id。                                                                  |
 
-## Multimodal prompt
+## 多模态提示
 
 ```ts
 const prompt = message.contentParts?.length
@@ -47,7 +46,4 @@ const prompt = message.contentParts?.length
 await thread.runAgent({ prompt });
 ```
 
-Managed history excludes the current inbound turn. `runAgent()` injects the
-message automatically when `prompt` is omitted; use the explicit combined
-prompt above when a turn can contain both text and attachments. See
-[Files and multimodal input](/slack/files-and-multimodality).
+托管历史不包含当前入站回合。省略 `prompt` 时，`runAgent()` 会自动注入该消息；当回合可能同时包含文本与附件时，请使用上面的显式组合提示。参见[文件与多模态输入](/slack/files-and-multimodality)。

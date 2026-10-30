@@ -1,9 +1,9 @@
 ---
 title: StoreConfig
-description: Configure per-thread state, the StateStore backend, transcripts, and turn concurrency controls.
+description: 配置每线程状态、StateStore 后端、会话记录与轮次并发控制。
 ---
 
-`StoreConfig` is the `createChannel({ store })` value.
+`StoreConfig` 是 `createChannel({ store })` 的取值。
 
 ```ts
 interface StoreConfig<TStateSchema> {
@@ -25,26 +25,26 @@ interface StoreConfig<TStateSchema> {
 }
 ```
 
-| Option              | Default                   | Behavior                                                                                                                                           |
+| 选项                | 默认值                    | 行为                                                                                                                                               |
 | ------------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `adapter`           | `MemoryStore`             | Persistence backend for SDK state.                                                                                                                 |
-| `state`             | none                      | Standard Schema that types and validates `thread.state()` and `setState()`.                                                                        |
-| `transcripts`       | none                      | Optional retention and per-user cap, keyed by the application user from top-level `identifyUser`.                                                  |
-| `actionRetentionMs` | `604_800_000`             | Retention for durable callbacks and one-use HITL continuations.                                                                                    |
-| `concurrency`       | `"parallel"`              | How overlapping turns on the same conversation are handled (see below).                                                                            |
-| `onLockConflict`    | (maps into `concurrency`) | **Deprecated.** Prefer `concurrency`. Static `"drop"` / `"force"` map to `"drop"` / `"parallel"`. A callback keeps the legacy exclusive-lock path. |
-| `lockTtl`           | `60_000`                  | Per-conversation turn-lock TTL in milliseconds (used by `drop` / legacy lock paths).                                                               |
-| `dedupTtl`          | `300_000`                 | Inbound event deduplication window in milliseconds.                                                                                                |
+| `adapter`           | `MemoryStore`             | SDK 状态的持久化后端。                                                                                                                             |
+| `state`             | 无                        | 对 `thread.state()` 与 `setState()` 进行类型定义和校验的 Standard Schema。                                                                         |
+| `transcripts`       | 无                        | 可选的保留策略与每用户上限，以顶层 `identifyUser` 得到的应用用户为键。                                                                             |
+| `actionRetentionMs` | `604_800_000`             | 持久回调与一次性 HITL 延续的保留时长。                                                                                                             |
+| `concurrency`       | `"parallel"`              | 同一会话上重叠轮次的处理方式（见下文）。                                                                                                           |
+| `onLockConflict`    | （映射进 `concurrency`）  | **已弃用**。请改用 `concurrency`。静态值 `"drop"` / `"force"` 分别映射为 `"drop"` / `"parallel"`。使用回调则保留旧版独占锁路径。                    |
+| `lockTtl`           | `60_000`                  | 每会话轮次锁的 TTL（毫秒），供 `drop` / 旧版锁路径使用。                                                                                           |
+| `dedupTtl`          | `300_000`                 | 入站事件的去重窗口（毫秒）。                                                                                                                       |
 
-### Turn concurrency
+### 轮次并发
 
-| Mode                   | Behavior                                                                                                                                   |
+| 模式                   | 行为                                                                                                                                       |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `"parallel"` (default) | Overlapping turns on the same conversation run together. Multiple people asking questions in one Slack thread each get a concurrent reply. |
-| `"serial"`             | Later turns on the same conversation wait until the in-flight turn finishes (per-conversation queue).                                      |
-| `"drop"`               | Later turns are discarded while a turn is already in flight.                                                                               |
+| `"parallel"`（默认）   | 同一会话上重叠的轮次一起运行。多人在同一个 Slack 线程中提问，每人都会得到并发回复。                                                        |
+| `"serial"`             | 同一会话上的后续轮次会等待进行中的轮次完成（每会话队列）。                                                                                 |
+| `"drop"`               | 当已有轮次在进行中时，后续轮次将被丢弃。                                                                                                   |
 
-A configured **singleton** agent (`agent: sharedInstance`) is isolated per run via `agent.clone()` under the hood, so parallel mode does not mutate one shared agent object. Prefer an agent factory when you want explicit control:
+配置为**单例**的智能体（`agent: sharedInstance`）会在底层通过 `agent.clone()` 按次运行隔离，因此并行模式不会修改同一个共享智能体对象。若想显式掌控，建议改用智能体工厂：
 
 ```ts
 agent: (threadId) => {
@@ -72,13 +72,6 @@ const channel = createChannel({
 });
 ```
 
-`thread.setState(value)` replaces the entire stored value and validates it
-against `state`. It does not merge patches. Under `"parallel"`, concurrent
-turns that both call `setState` can race — use `"serial"` for workflows that
-depend on exclusive state updates.
+`thread.setState(value)` 会替换整个已存储的值，并依据 `state` 对其进行校验。它不会合并补丁。在 `"parallel"` 下，同时调用 `setState` 的并发轮次可能产生竞态——对于依赖独占式状态更新的工作流，请使用 `"serial"`。
 
-On the managed path, Intelligence owns cross-instance delivery claims and
-ordered provider effects. Managed admission also keeps one canonical Thread
-delivery active at a time on a Runtime, so `"parallel"` does not raise that
-delivery limit. The SDK store still owns application state and callback
-snapshots.
+在托管路径上，Intelligence 负责跨实例的投递认领与有序的提供方副作用。托管准入还会保证一个 Runtime 上同一时间只有一个规范 Thread 投递处于活动状态，因此 `"parallel"` 并不会提高该投递上限。SDK 存储仍然掌管应用状态与回调快照。

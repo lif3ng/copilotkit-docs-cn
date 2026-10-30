@@ -1,13 +1,13 @@
 ---
 title: "CopilotChatMessageView"
-description: "Component for rendering a list of chat messages"
+description: "用于渲染聊天消息列表的组件"
 ---
 
-## Overview
+## 概览
 
-`CopilotChatMessageView` renders a list of chat messages and, optionally, a typing cursor while the agent is running. It delegates rendering of individual messages to slot components (`assistantMessage` and `userMessage`) and supports a render-prop `children` function for full control over layout.
+`CopilotChatMessageView` 渲染聊天消息列表，并可在智能体运行时渲染一个输入中的光标。它把单条消息的渲染委托给插槽组件（`assistantMessage` 与 `userMessage`），并支持 render-prop 形式的 `children` 函数，以便完全掌控布局。
 
-## Import
+## 导入
 
 ```tsx
 import { CopilotChatMessageView } from "@copilotkit/react-core/v2";
@@ -17,91 +17,49 @@ import "@copilotkit/react-core/v2/styles.css";
 ## Props
 
 <PropertyReference name="isRunning" type="boolean" default="false">
-  Whether the agent is currently executing. When `true`, the cursor slot is
-  rendered after the last message to indicate ongoing activity.
+  智能体当前是否正在执行。为 `true` 时，光标插槽会渲染在最后一条消息之后，表示仍有活动在进行。
 </PropertyReference>
 
 <PropertyReference name="messages" type="Message[]" default="[]">
-  The array of chat messages to render. Each message object contains at minimum
-  an `id`, `role` (`"user"` or `"assistant"`), and `content`.
+  要渲染的聊天消息数组。每个消息对象至少包含 `id`、`role`（`"user"` 或 `"assistant"`）与 `content`。
 </PropertyReference>
 
 <PropertyReference name="transformMessages" type="(messages: Message[]) => Message[]">
-  Reshapes the list before it renders: drop, replace or reorder messages with
-  the whole list in view. Receives the messages after duplicate ids are merged
-  and returns the list to render. Virtualization, row keys, scroll-to-bottom
-  and the "latest message" all follow the returned list, so a dropped message
-  takes no row. Tool-call cards still look up their results in the full
-  `messages`, so hiding tool-result messages does not empty them. Return each
-  id at most once, and give any message you build an id that stays the same
-  while the thread streams. The transform reruns when `messages` or the
-  function change, so pass a stable function (for example with `useCallback`).
-  See [Reshaping the Message List](/custom-look-and-feel/slots#reshaping-the-message-list).
+  在渲染前重塑列表：可以基于完整列表丢弃、替换或重排消息。它接收已合并重复 id 后的消息，并返回要渲染的列表。虚拟化、行键、滚动到底部与“最新消息”都以返回的列表为准，因此被丢弃的消息不会占据任何行。工具调用卡片仍会在完整的 `messages` 中查找其结果，因此隐藏工具结果消息不会使卡片变空。每个 id 最多返回一次，并且你自行构造的消息要使用在线程流式输出期间保持不变的 id。当 `messages` 或该函数变化时，transform 会重新运行，因此请传入稳定的函数（例如用 `useCallback`）。参见[重塑消息列表](/custom-look-and-feel/slots#reshaping-the-message-list)。
 </PropertyReference>
 
 <PropertyReference name="groupMessages" type="(messages: Message[]) => MessageRow[]">
-  Splits the list into rows. Return `messageRow(message)` for a message that
-  renders on its own and `messageGroup({ key, messages, wrapper })` for messages
-  that render together inside `wrapper`, which receives `groupKey`, `messages`,
-  `children` (the default rendering of those messages), and `state` /
-  `setState`. Each row is one virtualized row. The chat keeps a group's state
-  under its `key`, so it survives the row leaving the window; it is dropped
-  when the key stops appearing and cleared when the thread changes. Receives
-  the list after `transformMessages`. Place each message in at most one row,
-  keep keys stable while the thread streams, define wrappers at module level,
-  and pass a stable function.
-  See [Grouping messages into one row](/custom-look-and-feel/slots#grouping-messages-into-one-row).
+  把列表拆分成行。对单独渲染的消息返回 `messageRow(message)`；对一起渲染在 `wrapper` 内的消息返回 `messageGroup({ key, messages, wrapper })`，`wrapper` 会收到 `groupKey`、`messages`、`children`（这些消息的默认渲染）以及 `state` / `setState`。每一行就是一个虚拟化行。聊天会把组的状态保存在其 `key` 之下，因此该行离开窗口后状态仍然保留；当 key 不再出现时状态被丢弃，线程变化时被清除。它接收 `transformMessages` 之后的列表。每条消息至多放入一行，在线程流式输出期间保持 key 稳定，在模块层级定义 wrapper，并传入稳定的函数。参见[把消息分组到一行](/custom-look-and-feel/slots#grouping-messages-into-one-row)。
 </PropertyReference>
 
 <PropertyReference name="messageFeedback" type="boolean" default="true">
-  Whether reply thumbs record ratings for Automatic Learning once a Trajectory
-  has started. Set `false` to keep the thumbs to your own `onThumbsUp` /
-  `onThumbsDown` handlers and slots. See
-  [Collect reply ratings](/intelligence/capture-interactions#collect-reply-ratings).
+  Trajectory 启动后，回复的拇指按钮是否为 Automatic Learning 记录评分。设为 `false` 可让拇指按钮只使用你自己的 `onThumbsUp` / `onThumbsDown` 处理器与插槽。参见[收集回复评分](/intelligence/capture-interactions#collect-reply-ratings)。
 </PropertyReference>
 
 <PropertyReference name="toolCallDisplay" type='"grouped" | "line" | "stacked" | "turn" | "separate"' default='"grouped"'>
-  How tool calls show in the list.
+  工具调用在列表中的展示方式。
 
-- `"grouped"` (default): calls the agent makes in a row share one card,
-  collapsed to a summary ("Used 3 tools · run_command ×2, read_file"). While a
-  call runs, the summary names it. Opening the card shows a row per call, and
-  each row opens to its arguments and result.
-- `"line"`: the same grouping as a quiet line of text, like the reasoning
-  message's "Thought for 4 seconds". It opens to a list of rows.
-- `"stacked"`: the latest call on top of a stack of the earlier ones. Clicking
-  the stack fans it out into a card per call.
-- `"turn"`: the agent works in the open. A "Working" line sits at the top of
-  the reply, narration fades to muted once a call follows it, and calls appear
-  as rows. When the reply is done, everything before it folds into "Worked for
-  9s", leaving only the reply. The line is the
-  [`workSummary`](#worksummary) slot.
-- `"separate"`: every call gets its own card. This was the behavior before
-  grouping.
+- `"grouped"`（默认）：智能体连续发起的调用共用一张卡片，折叠为一条摘要（"Used 3 tools · run_command ×2, read_file"）。当某个调用正在运行时，摘要会点名它。展开卡片可以看到每个调用一行，每行再展开可查看其参数与结果。
+- `"line"`：同样的分组，呈现为一行安静的文本，类似推理消息的"Thought for 4 seconds"。展开后是一个行列表。
+- `"stacked"`：最新的调用叠在先前调用堆栈的顶部。点击堆栈会把它们展开为每个调用一张卡片。
+- `"turn"`：智能体公开工作。回复顶部有一行"Working"，当其后跟有调用时，叙述文字会淡化为弱化样式，调用以行的形式出现。回复完成后，之前的一切折叠为"Worked for 9s"，只留下回复正文。该行就是 [`workSummary`](#worksummary) 插槽。
+- `"separate"`：每个调用都有自己的卡片。这是引入分组之前的行为。
 
-Grouping applies to calls drawn by a renderer that opts into it, which the
-built-in card from [`useDefaultRenderTool()`](/reference/hooks/useDefaultRenderTool)
-does. A custom catch-all opts in with `group: true`; until then its calls show
-on their own, since the chat can't tell what it draws (it may draw nothing).
-Any call that isn't grouped splits the group around it, and so do text,
-reasoning and activity messages. Calls with no renderer at all still render
-nothing. To restyle or replace the group itself, use the `group` slot of
-[`CopilotChatToolCallsView`](/reference/components/CopilotChatAssistantMessage#copilotchattoolcallsview).
-See [Grouping tool calls](/generative-ui/tool-rendering#grouping-tool-calls).
+分组仅适用于其渲染器选择加入分组的调用，[`useDefaultRenderTool()`](/reference/hooks/useDefaultRenderTool) 的内置卡片即属此类。自定义的兜底渲染器用 `group: true` 加入分组；在此之前，它的调用会单独显示，因为聊天无法判断它绘制了什么（也可能什么都没画）。任何未分组的调用都会把组从它所在处切开，文本、推理与活动消息也是如此。完全没有渲染器的调用依旧什么都不渲染。要重新设计样式或替换分组本身，请使用 [`CopilotChatToolCallsView`](/reference/components/CopilotChatAssistantMessage#copilotchattoolcallsview) 的 `group` 插槽。参见[工具调用分组](/generative-ui/tool-rendering#grouping-tool-calls)。
 </PropertyReference>
 
 <PropertyReference name="children" type="(props: { isRunning: boolean; messages: Message[]; messageElements: React.ReactElement[] }) => React.ReactElement">
-Optional render-prop function that receives the resolved state and pre-built message elements. When provided, the component calls this function instead of rendering the default message list layout. The callback receives `isRunning` (current running state), `messages` (the raw message array), and `messageElements` (an array of React elements built from the `assistantMessage` and `userMessage` slots). Providing `children` turns virtualization off, so every message is mounted; for list-level changes, prefer `transformMessages`.
+可选的 render-prop 函数，接收解析后的状态与预构建的消息元素。提供该函数时，组件会调用它而不是渲染默认的消息列表布局。回调接收 `isRunning`（当前运行状态）、`messages`（原始消息数组）与 `messageElements`（由 `assistantMessage` 与 `userMessage` 插槽构建的 React 元素数组）。提供 `children` 会关闭虚拟化，因此每条消息都会被挂载；对于列表层面的调整，优先使用 `transformMessages`。
 </PropertyReference>
 
-## Slots
+## 插槽
 
-All slot props follow the CopilotKit slot system: each accepts a replacement React component, a `className` string that is merged into the default component's classes, or a partial props object that extends the default component.
+所有插槽 props 都遵循 CopilotKit 插槽系统：每个插槽都接受一个替换用的 React 组件、一个合并进默认组件 class 的 `className` 字符串，或一个用于扩展默认组件的局部 props 对象。
 
 <PropertyReference name="assistantMessage" type="SlotProp<typeof CopilotChatAssistantMessage>">
-  Slot for rendering assistant messages. Defaults to [`CopilotChatAssistantMessage`](/reference/components/CopilotChatAssistantMessage), which provides Markdown rendering, tool call display, and an action toolbar.
+  渲染助手消息的插槽。默认为 [`CopilotChatAssistantMessage`](/reference/components/CopilotChatAssistantMessage)，提供 Markdown 渲染、工具调用展示与操作工具栏。
 
-**As a replacement component:**
+**作为替换组件**：
 
 ```tsx
 <CopilotChatMessageView
@@ -111,13 +69,13 @@ All slot props follow the CopilotKit slot system: each accepts a replacement Rea
 />
 ```
 
-**As a className:**
+**作为 className**：
 
 ```tsx
 <CopilotChatMessageView assistantMessage="bg-blue-50 rounded-lg" />
 ```
 
-**As partial props:**
+**作为局部 props**：
 
 ```tsx
 <CopilotChatMessageView assistantMessage={{ toolbarVisible: false }} />
@@ -126,9 +84,9 @@ All slot props follow the CopilotKit slot system: each accepts a replacement Rea
 </PropertyReference>
 
 <PropertyReference name="userMessage" type="SlotProp<typeof CopilotChatUserMessage>">
-  Slot for rendering user messages. Defaults to [`CopilotChatUserMessage`](/reference/components/CopilotChatUserMessage), which provides right-aligned message display with optional branch navigation.
+  渲染用户消息的插槽。默认为 [`CopilotChatUserMessage`](/reference/components/CopilotChatUserMessage)，提供右对齐的消息展示与可选的分支导航。
 
-**As a replacement component:**
+**作为替换组件**：
 
 ```tsx
 <CopilotChatMessageView
@@ -138,7 +96,7 @@ All slot props follow the CopilotKit slot system: each accepts a replacement Rea
 />
 ```
 
-**As a className:**
+**作为 className**：
 
 ```tsx
 <CopilotChatMessageView userMessage="bg-gray-100 rounded-lg" />
@@ -147,9 +105,9 @@ All slot props follow the CopilotKit slot system: each accepts a replacement Rea
 </PropertyReference>
 
 <PropertyReference name="cursor" type="SlotProp<typeof CopilotChatMessageView.Cursor>">
-  Slot for the typing indicator displayed while `isRunning` is `true`. Defaults to `CopilotChatMessageView.Cursor`, which renders a pulsing dot animation.
+  `isRunning` 为 `true` 时显示的输入中指示器插槽。默认为 `CopilotChatMessageView.Cursor`，渲染一个脉动圆点动画。
 
-**As a replacement component:**
+**作为替换组件**：
 
 ```tsx
 <CopilotChatMessageView
@@ -157,7 +115,7 @@ All slot props follow the CopilotKit slot system: each accepts a replacement Rea
 />
 ```
 
-**As a className:**
+**作为 className**：
 
 ```tsx
 <CopilotChatMessageView cursor="text-blue-500" />
@@ -166,20 +124,15 @@ All slot props follow the CopilotKit slot system: each accepts a replacement Rea
 </PropertyReference>
 
 <PropertyReference name="workSummary" type="SlotProp<typeof CopilotChatWorkSummary>">
-  Slot for the line at the top of each reply in the `"turn"` tool-call
-  display. Defaults to
-  [`CopilotChatWorkSummary`](/reference/components/CopilotChatToolCallGroup#copilotchatworksummary).
-  It reads "Working" with a timer while the agent works, then "Worked for 9s"
-  once the reply is done, and toggles the work it folded away. Only rendered
-  when `toolCallDisplay` is `"turn"`.
+  `"turn"` 工具调用展示方式下每条回复顶部那一行的插槽。默认为 [`CopilotChatWorkSummary`](/reference/components/CopilotChatToolCallGroup#copilotchatworksummary)。智能体工作时它显示"Working"并伴随计时，回复完成后变为"Worked for 9s"，并可切换展开/收起已折叠的工作内容。仅在 `toolCallDisplay` 为 `"turn"` 时渲染。
 
-**As a className:**
+**作为 className**：
 
 ```tsx
 <CopilotChatMessageView toolCallDisplay="turn" workSummary="text-xs" />
 ```
 
-**As a replacement component:**
+**作为替换组件**：
 
 ```tsx
 <CopilotChatMessageView
@@ -194,9 +147,9 @@ All slot props follow the CopilotKit slot system: each accepts a replacement Rea
 
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Basic Message List
+### 基本消息列表
 
 ```tsx
 function MessageList() {
@@ -211,7 +164,7 @@ function MessageList() {
 }
 ```
 
-### Customizing Message Slots
+### 自定义消息插槽
 
 ```tsx
 function CustomMessages() {
@@ -231,7 +184,7 @@ function CustomMessages() {
 }
 ```
 
-### Render-Prop Children for Custom Layout
+### 用 Render-Prop Children 自定义布局
 
 ```tsx
 function CustomLayout() {
@@ -260,7 +213,7 @@ function CustomLayout() {
 }
 ```
 
-### Choosing How Tool Calls Show
+### 选择工具调用的展示方式
 
 ```tsx
 function AgentChat() {
@@ -276,20 +229,19 @@ function AgentChat() {
 }
 ```
 
-From `CopilotChat`, `CopilotSidebar` or `CopilotPopup`, set it through the
-`messageView` slot:
+在 `CopilotChat`、`CopilotSidebar` 或 `CopilotPopup` 中，通过 `messageView` 插槽设置：
 
 ```tsx
 <CopilotChat messageView={{ toolCallDisplay: "line" }} />
 ```
 
-To give every call its own card again:
+要让每个调用重新拥有自己的卡片：
 
 ```tsx
 <CopilotChat messageView={{ toolCallDisplay: "separate" }} />
 ```
 
-### Hiding the Toolbar on Assistant Messages
+### 隐藏助手消息上的工具栏
 
 ```tsx
 function MinimalChat() {
@@ -305,20 +257,20 @@ function MinimalChat() {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Message Rendering**: Each message in the `messages` array is rendered using the corresponding slot component based on its `role`. Assistant messages use the `assistantMessage` slot; user messages use the `userMessage` slot.
-- **Cursor Display**: The `cursor` slot is only rendered when `isRunning` is `true`. It appears after the last message in the list, and is hidden when the last rendered message is a reasoning message, which shows its own indicator.
-- **Virtualization**: Inside a chat scroll container, once more than 50 messages render, only the rows on screen are mounted. The count is of the messages that render: the ones `transformMessages` returns or, with `groupMessages`, the ones in the rows it returns. The window itself moves by rows, and each group is one row. Providing `children` turns virtualization off; in development the component warns once when that is what keeps a long thread mounted in full.
-- **Latest Message**: The last rendered message is passed to its slot as `isLatest`. While `isRunning` is `true`, the latest assistant message hides its toolbar and a latest reasoning message shows as streaming.
-- **Tool-Call Groups**: Groups can span messages, since agents often send each call as its own assistant message. The group belongs to the message where it starts, and the later messages whose calls joined it render no tool calls of their own. While the agent is running and nothing follows a group, its summary names the call in progress.
-- **Work Summary**: In the `"turn"` display, the summary replaces the cursor while the reply is in progress. "Worked for 9s" adds up the agent's runs on the reply, so waiting between them (for an approval, say) doesn't count. It needs a reply this component watched start, so a restored thread shows the tool count ("Used 7 tools") instead. Text that ends the reply stays visible after the fold, even when its message also calls a tool. Opening or closing a reply's work sticks, even when later runs update it.
-- **Render-Prop Override**: When `children` is provided as a function, the component delegates all layout to that function. The `messageElements` array is pre-built from the slot components, so custom layouts still benefit from slot customization.
-- **Slot System**: Each slot prop accepts three forms -- a replacement component, a className string merged into the default, or a partial props object that extends the default component's props.
+- **消息渲染**：`messages` 数组中的每条消息都会根据其 `role` 用对应的插槽组件渲染。助手消息使用 `assistantMessage` 插槽；用户消息使用 `userMessage` 插槽。
+- **光标显示**：仅当 `isRunning` 为 `true` 时才渲染 `cursor` 插槽。它出现在列表最后一条消息之后；当最后渲染的消息是推理消息时它会隐藏，因为推理消息会显示自己的指示器。
+- **虚拟化**：在聊天滚动容器内，一旦渲染的消息超过 50 条，就只挂载屏幕上的行。统计的是实际渲染的消息数：即 `transformMessages` 返回的消息，或使用 `groupMessages` 时其返回行中的消息。窗口本身按行移动，每个组就是一行。提供 `children` 会关闭虚拟化；在开发环境下，如果正是这一点导致长线程被完整挂载，组件会警告一次。
+- **最新消息**：最后渲染的消息会以 `isLatest` 传给其插槽。当 `isRunning` 为 `true` 时，最新的助手消息会隐藏工具栏，最新的推理消息则以流式方式显示。
+- **工具调用分组**：分组可以跨越消息，因为智能体常常把每个调用作为独立的助手消息发送。组归属于它开始的那条消息，而调用并入了该组的后续消息则不再渲染自己的工具调用。当智能体正在运行且组后面没有别的内容时，其摘要会点名正在进行的调用。
+- **工作摘要**：在 `"turn"` 展示方式下，回复进行期间摘要会取代光标。"Worked for 9s" 累计的是智能体在该回复上的运行时间，因此中间的等待（比如等待批准）不计入。它需要本组件亲眼看到该回复启动，因此恢复的线程会改为显示工具数量（"Used 7 tools"）。结束回复的文本在折叠后仍然可见，即使其所在消息还调用了工具。回复工作的展开/收起状态会被记住，即使后续运行更新了它。
+- **Render-Prop 覆盖**：当 `children` 以函数形式提供时，组件把所有布局委托给该函数。`messageElements` 数组由插槽组件预构建，因此自定义布局仍能受益于插槽定制。
+- **插槽系统**：每个插槽 prop 接受三种形式——替换组件、合并进默认组件的 className 字符串，或扩展默认组件 props 的局部 props 对象。
 
-## Related
+## 相关内容
 
-- [`CopilotChatAssistantMessage`](/reference/components/CopilotChatAssistantMessage) -- Default assistant message slot component
-- [`CopilotChatUserMessage`](/reference/components/CopilotChatUserMessage) -- Default user message slot component
-- [`CopilotChatToolCallGroup`](/reference/components/CopilotChatToolCallGroup) -- Default group for tool calls made in a row
-- [`CopilotChatView`](/reference/components/CopilotChatView) -- Higher-level chat view that composes this component
+- [`CopilotChatAssistantMessage`](/reference/components/CopilotChatAssistantMessage)——默认的助手消息插槽组件
+- [`CopilotChatUserMessage`](/reference/components/CopilotChatUserMessage)——默认的用户消息插槽组件
+- [`CopilotChatToolCallGroup`](/reference/components/CopilotChatToolCallGroup)——连续发起的工具调用的默认分组
+- [`CopilotChatView`](/reference/components/CopilotChatView)——组合此组件的更高层聊天视图

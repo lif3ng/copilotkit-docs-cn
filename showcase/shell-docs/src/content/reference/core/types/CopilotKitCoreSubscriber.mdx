@@ -1,24 +1,21 @@
 ---
 title: "CopilotKitCoreSubscriber"
-description: "Set of optional callbacks notified of CopilotKitCore lifecycle events."
+description: "一组可选的回调，会在 CopilotKitCore 生命周期事件发生时得到通知。"
 ---
 
-## Overview
+## 概览
 
-`CopilotKitCoreSubscriber` is the object passed to [`CopilotKitCore.subscribe`](/reference/core/classes/CopilotKitCore). Every callback is optional, receives an event object that always includes the `copilotkit` instance, and may return `void` or a `Promise<void>`. Use it to react to connection status, tool execution, suggestions, configuration changes, and errors.
+`CopilotKitCoreSubscriber` 是传给 [`CopilotKitCore.subscribe`](/reference/core/classes/CopilotKitCore) 的对象。每个回调都是可选的，会接收一个始终包含 `copilotkit` 实例的事件对象，并可以返回 `void` 或 `Promise<void>`。可以用它来响应连接状态、工具执行、建议、配置变更和错误。
 
-## Import
+## 导入
 
 ```ts
 import type { CopilotKitCoreSubscriber } from "@copilotkit/core";
 ```
 
-## Definition
+## 定义
 
-Every callback is optional, receives an event object that always includes the
-`copilotkit` instance, and returns `void` or `Promise<void>`. The shape below
-shows the representative `onRuntimeConnectionStatusChanged` callback; the
-[Properties](#properties) section documents each callback's exact event shape.
+每个回调都是可选的，会接收一个始终包含 `copilotkit` 实例的事件对象，并返回 `void` 或 `Promise<void>`。下面的结构展示了具有代表性的 `onRuntimeConnectionStatusChanged` 回调；[属性](#属性)一节记录了每个回调的确切事件结构。
 
 ```ts
 interface CopilotKitCoreSubscriber {
@@ -33,76 +30,69 @@ interface CopilotKitCoreSubscriber {
 }
 ```
 
-## Properties
+## 属性
 
 <PropertyReference name="onRuntimeConnectionStatusChanged" type="(event) => void | Promise<void>">
-  Fired when the runtime connection status changes. Event: `{ copilotkit, status }` where `status` is a [`CopilotKitCoreRuntimeConnectionStatus`](/reference/core/enums/CopilotKitCoreRuntimeConnectionStatus).
+  在运行时连接状态变化时触发。事件为 `{ copilotkit, status }`，其中 `status` 是一个 [`CopilotKitCoreRuntimeConnectionStatus`](/reference/core/enums/CopilotKitCoreRuntimeConnectionStatus)。
 </PropertyReference>
 
 <PropertyReference name="onToolExecutionStart" type="(event) => void | Promise<void>">
-  Fired when a frontend tool starts executing. Event: `{ copilotkit, toolCallId, agentId, toolName, args }`.
+  在前端工具开始执行时触发。事件为 `{ copilotkit, toolCallId, agentId, toolName, args }`。
 </PropertyReference>
 
 <PropertyReference name="onToolExecutionEnd" type="(event) => void | Promise<void>">
-  Fired when a frontend tool finishes executing. Event: `{ copilotkit, toolCallId, agentId, toolName, result, error? }`, where `result` is the stringified tool result.
+  在前端工具执行结束时触发。事件为 `{ copilotkit, toolCallId, agentId, toolName, result, error? }`，其中 `result` 是字符串化后的工具结果。
 </PropertyReference>
 
 <PropertyReference name="onAgentsChanged" type="(event) => void | Promise<void>">
-  Fired when the registered agents change. Event: `{ copilotkit, agents }`.
+  在已注册智能体发生变化时触发。事件为 `{ copilotkit, agents }`。
 </PropertyReference>
 
 <PropertyReference name="onContextChanged" type="(event) => void | Promise<void>">
-  Fired when the shared context changes. Event: `{ copilotkit, context }`.
+  在共享上下文变化时触发。事件为 `{ copilotkit, context }`。
 </PropertyReference>
 
 <PropertyReference name="onSuggestionsConfigChanged" type="(event) => void | Promise<void>">
-  Fired when the suggestions configuration changes. Event: `{ copilotkit, suggestionsConfig }`.
+  在建议配置变化时触发。事件为 `{ copilotkit, suggestionsConfig }`。
 </PropertyReference>
 
 <PropertyReference name="onSuggestionsChanged" type="(event) => void | Promise<void>">
-  Fired when the generated suggestions for an agent change. Event: `{ copilotkit, agentId, suggestions }`.
+  在为某个智能体生成的建议变化时触发。事件为 `{ copilotkit, agentId, suggestions }`。
 </PropertyReference>
 
 <PropertyReference name="onSuggestionsStartedLoading" type="(event) => void | Promise<void>">
-  Fired when suggestion generation begins for an agent. Event: `{ copilotkit, agentId }`.
+  在某个智能体的建议生成开始时触发。事件为 `{ copilotkit, agentId }`。
 </PropertyReference>
 
 <PropertyReference name="onSuggestionsFinishedLoading" type="(event) => void | Promise<void>">
-  Fired when suggestion generation completes for an agent. Event: `{ copilotkit, agentId }`.
+  在某个智能体的建议生成完成时触发。事件为 `{ copilotkit, agentId }`。
 </PropertyReference>
 
 <PropertyReference name="onPropertiesChanged" type="(event) => void | Promise<void>">
-  Fired when the forwarded properties change. Event: `{ copilotkit, properties }`.
+  在转发属性变化时触发。事件为 `{ copilotkit, properties }`。
 </PropertyReference>
 
 <PropertyReference name="onHeadersChanged" type="(event) => void | Promise<void>">
-  Fired when `setHeaders` accepts a real change — a record whose normalized
-  values differ, a new builder function, or a record↔builder switch. Not
-  fired when a builder merely resolves a fresh token for a request (a token
-  rotation on its own never triggers this callback). Event:
-  `{ copilotkit, headers }`.
+  在 `setHeaders` 接受了一个真正变化时触发——归一化后值不同的 record、新的构建器函数，或 record 与构建器之间的切换。构建器仅为某次请求解析出新 token 时不会触发（单纯的 token 轮换绝不会触发此回调）。事件为 `{ copilotkit, headers }`。
 </PropertyReference>
 
 <PropertyReference name="onInspectorMetadataChanged" type="(event) => void | Promise<void>">
-  Fired when optional trusted Inspector metadata changes or is cleared. Event:
-  `{ copilotkit, inspectorMetadata }`, where `inspectorMetadata` is an
-  `InspectorMetadataV1 | undefined` snapshot. Metadata notifications are ordered,
-  and a callback failure does not block later subscribers or refreshes.
+  在可选的受信任 Inspector 元数据变化或被清除时触发。事件为 `{ copilotkit, inspectorMetadata }`，其中 `inspectorMetadata` 是一个 `InspectorMetadataV1 | undefined` 快照。元数据通知是有序的，某个回调失败不会阻塞后续的订阅者或刷新。
 </PropertyReference>
 
 <PropertyReference name="onError" type="(event) => void | Promise<void>">
-  Fired when an error occurs. Event: `{ copilotkit, error, code, context }` where `code` is a [`CopilotKitCoreErrorCode`](/reference/core/enums/CopilotKitCoreErrorCode).
+  在发生错误时触发。事件为 `{ copilotkit, error, code, context }`，其中 `code` 是一个 [`CopilotKitCoreErrorCode`](/reference/core/enums/CopilotKitCoreErrorCode)。
 </PropertyReference>
 
 <PropertyReference name="onThreadStoreRegistered" type="(event) => void | Promise<void>">
-  Fired when a thread store is registered. Event: `{ copilotkit, agentId, store }`.
+  在线程存储注册时触发。事件为 `{ copilotkit, agentId, store }`。
 </PropertyReference>
 
 <PropertyReference name="onThreadStoreUnregistered" type="(event) => void | Promise<void>">
-  Fired when a thread store is removed (by explicit unregister or by a replacing register). The previous store is delivered via `prevStore`. Event: `{ copilotkit, agentId, prevStore }`.
+  在线程存储被移除时触发（通过显式注销，或被替代性的注册所替换）。先前的存储会通过 `prevStore` 传递。事件为 `{ copilotkit, agentId, prevStore }`。
 </PropertyReference>
 
-## Usage
+## 用法
 
 ```ts
 const subscription = copilotkit.subscribe({
@@ -121,7 +111,7 @@ const subscription = copilotkit.subscribe({
 subscription.unsubscribe();
 ```
 
-## Related
+## 相关内容
 
 - [CopilotKitCore](/reference/core/classes/CopilotKitCore)
 - [CopilotKitCoreErrorCode](/reference/core/enums/CopilotKitCoreErrorCode)

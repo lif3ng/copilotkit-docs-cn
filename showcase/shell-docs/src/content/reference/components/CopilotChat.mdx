@@ -1,15 +1,15 @@
 ---
 title: "CopilotChat"
-description: "High-level chat component that connects an agent to a chat view"
+description: "将智能体接入聊天视图的高层聊天组件"
 ---
 
-## Overview
+## 概览
 
-`CopilotChat` is a high-level chat container that wires an agent into `CopilotChatView` while providing configuration context. It obtains the agent via `useAgent`, triggers an initial `runAgent` when mounting CopilotKit agents, manages pending state, and auto-clears the input after submission. Override any of the internal slots by passing `CopilotChatView` props directly.
+`CopilotChat` 是一个高层聊天容器，负责把智能体接入 `CopilotChatView` 并提供配置上下文。它通过 `useAgent` 获取智能体，在挂载 CopilotKit 智能体时触发一次初始 `runAgent`，管理挂起状态，并在提交后自动清空输入框。直接传入 `CopilotChatView` 的 props 即可覆盖任意内部插槽。
 
-`CopilotChat` manages messages, running state, and suggestions automatically -- you only need to specify which agent to connect and, optionally, customise labels or slot overrides.
+`CopilotChat` 会自动管理消息、运行状态和建议——你只需指定要连接哪个智能体，并可选地自定义标签或插槽覆盖。
 
-## Import
+## 导入
 
 ```tsx
 import { CopilotChat } from "@copilotkit/react-core/v2";
@@ -18,43 +18,30 @@ import "@copilotkit/react-core/v2/styles.css";
 
 ## Props
 
-### Own Props
+### 自身 Props
 
 <PropertyReference name="agentId" type="string">
-  ID of the agent to use. Must match an agent configured in
-  `CopilotKit`. Defaults to the provider-level default agent when
-  omitted.
+  要使用的智能体 ID。必须与 `CopilotKit` 中配置的某个智能体匹配。省略时默认使用 provider 层级的默认智能体。
 </PropertyReference>
 
 <PropertyReference name="threadId" type="string">
-  ID of the conversation thread. Pass a specific thread ID to resume an existing
-  conversation or let the agent create a new one.
+  会话线程的 ID。传入具体的线程 ID 可恢复既有会话，也可以让智能体创建一个新线程。
 </PropertyReference>
 
 <PropertyReference name="labels" type="Partial<CopilotChatLabels>">
-  Partial label overrides for all text strings rendered inside the chat (input
-  placeholder, toolbar buttons, disclaimer text, etc.). Any label you omit falls
-  back to the built-in default.
+  聊天内渲染的所有文本字符串（输入框占位符、工具栏按钮、免责声明文本等）的部分标签覆盖。省略的任何标签都会回退到内置默认值。
 </PropertyReference>
 
 <PropertyReference name="chatView" type="SlotValue<typeof CopilotChatView>">
-  Slot override for the inner `CopilotChatView` component. Accepts a replacement
-  component, a `className` string merged into the default, or a partial props
-  object to extend the default.
+  内部 `CopilotChatView` 组件的插槽覆盖。接受一个替换组件、一个合并进默认值的 `className` 字符串，或一个用于扩展默认值的局部 props 对象。
 </PropertyReference>
 
 <PropertyReference name="inspectorTools" type="boolean" default="true">
-  Controls Inspector message shortcuts for this chat. An explicit
-  `enableInspector` value on the `CopilotKit` provider takes priority: provider
-  `true` overrides chat `false`, and provider `false` overrides chat `true`.
-  When the provider omits the prop, `inspectorTools={false}` hides this chat's
-  shortcuts. Shortcuts only appear on localhost/loopback in development and
-  remain hidden while Inspector is temporarily dismissed. This prop does not
-  control the shared Inspector launcher.
+  控制此聊天的 Inspector 消息快捷方式。`CopilotKit` provider 上显式设置的 `enableInspector` 值具有更高优先级：provider 为 `true` 时覆盖聊天的 `false`，provider 为 `false` 时覆盖聊天的 `true`。当 provider 未设置该 prop 时，`inspectorTools={false}` 会隐藏此聊天的快捷方式。快捷方式仅在开发环境的 localhost/回环地址上显示，并且在 Inspector 被暂时关闭时保持隐藏。该 prop 不控制共享的 Inspector 启动器。
 </PropertyReference>
 
 <PropertyReference name="onError" type="(event: { error: Error; code: CopilotKitCoreErrorCode; context: Record<string, any> }) => void | Promise<void>">
-  Error handler scoped to this chat's agent. Fires in addition to the provider-level `onError` (does not suppress it). Only receives errors whose `context.agentId` matches this chat's agent, plus errors without an `agentId` context.
+  作用于此聊天智能体的错误处理器。它在 provider 层级的 `onError` 之外触发（不会抑制后者）。只接收 `context.agentId` 与此聊天智能体匹配的错误，以及没有 `agentId` 上下文的错误。
 
 ```tsx
 <CopilotChat
@@ -70,54 +57,48 @@ import "@copilotkit/react-core/v2/styles.css";
 </PropertyReference>
 
 <PropertyReference name="isModalDefaultOpen" type="boolean">
-  When used inside `CopilotPopup` or `CopilotSidebar`, controls whether the
-  modal starts in the open state. Stored in the chat configuration context so
-  child components can read it.
+  在 `CopilotPopup` 或 `CopilotSidebar` 内使用时，控制模态框是否以展开状态启动。该值存储在聊天配置上下文中，供子组件读取。
 </PropertyReference>
 
-### Inherited CopilotChatView Props
+### 继承自 CopilotChatView 的 Props
 
-`CopilotChat` accepts all props from [`CopilotChatViewProps`](/reference/components/CopilotChatView) **except** `messages`, `isRunning`, `suggestions`, `suggestionLoadingIndexes`, and `onSelectSuggestion`, which are managed internally by the agent connection.
+`CopilotChat` 接受 [`CopilotChatViewProps`](/reference/components/CopilotChatView) 的全部 props，**但以下各项除外**：`messages`、`isRunning`、`suggestions`、`suggestionLoadingIndexes` 与 `onSelectSuggestion`——它们由智能体连接在内部管理。
 
-This means you can pass slot overrides such as `messageView`, `input`, `scrollView`, `inputContainer`, `feather`, `disclaimer`, `suggestionView`, and `welcomeScreen` directly to `CopilotChat`.
+这意味着你可以把 `messageView`、`input`、`scrollView`、`inputContainer`、`feather`、`disclaimer`、`suggestionView`、`welcomeScreen` 等插槽覆盖直接传给 `CopilotChat`。
 
 <PropertyReference name="autoScroll" type="boolean" default="true">
-  Whether the chat scrolls to the bottom automatically when new messages arrive.
+  有新消息到达时，聊天是否自动滚动到底部。
 </PropertyReference>
 
 <PropertyReference
   name="inputProps"
   type="Partial<Omit<CopilotChatInputProps, 'children'>>"
 >
-  Additional props forwarded to the inner `CopilotChatInput` component. Use this
-  to configure auto-focus, custom submission handlers, transcription callbacks,
-  or tools menus.
+  转发给内部 `CopilotChatInput` 组件的额外 props。用它来配置自动聚焦、自定义提交处理器、语音转写回调或工具菜单。
 </PropertyReference>
 
 <PropertyReference
   name="welcomeScreen"
   type="SlotValue<React.FC<WelcomeScreenProps>> | boolean"
 >
-  Controls the welcome screen shown when no messages exist. Pass `true` for the
-  default, `false` to disable, a `className` to style the default, or a
-  replacement component.
+  控制在没有任何消息时显示的欢迎屏。传 `true` 使用默认欢迎屏，传 `false` 禁用，传一个 `className` 为默认欢迎屏设置样式，或传入一个替换组件。
 </PropertyReference>
 
-## Slot System
+## 插槽系统
 
-All slot props inherited from `CopilotChatView` follow the same override pattern. Each slot accepts one of three value types:
+从 `CopilotChatView` 继承的所有插槽 props 都遵循同一覆盖模式。每个插槽接受以下三种取值类型之一：
 
-| Value                    | Behavior                                                                            |
+| 取值                     | 行为                                                                                |
 | ------------------------ | ----------------------------------------------------------------------------------- |
-| **Component**            | Replaces the default component entirely. Receives the same props the default would. |
-| **`className` string**   | Merged into the default component's class list via `twMerge`.                       |
-| **Partial props object** | Spread into the default component as additional or overriding props.                |
+| **组件**                 | 完全替换默认组件。接收与默认组件相同的 props。                                      |
+| **`className` 字符串**   | 通过 `twMerge` 合并进默认组件的 class 列表。                                        |
+| **局部 props 对象**      | 作为额外或覆盖 props 展开进默认组件。                                               |
 
-Additionally, a `children` render-prop can be used to receive all composed slot elements and arrange them in a custom layout.
+此外，还可以使用 `children` render-prop 接收所有组合后的插槽元素，并以自定义布局排布它们。
 
-## Usage
+## 用法
 
-### Basic Usage
+### 基本用法
 
 ```tsx
 function App() {
@@ -130,7 +111,7 @@ function App() {
 }
 ```
 
-### Custom Welcome Screen
+### 自定义欢迎屏
 
 ```tsx
 function App() {
@@ -149,7 +130,7 @@ function App() {
 }
 ```
 
-### Overriding the Chat View Slot
+### 覆盖聊天视图插槽
 
 ```tsx
 function App() {
@@ -162,17 +143,17 @@ function App() {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Agent wiring**: On mount, `CopilotChat` calls `useAgent` with the provided `agentId` and binds the agent's `messages`, `isRunning`, and suggestion state to `CopilotChatView`.
-- **Initial run**: If the agent has not been run yet, `CopilotChat` triggers `runAgent` automatically so the agent can send an initial greeting or set up state.
-- **Auto-clear input**: After a message is submitted, the input field is cleared automatically.
-- **Configuration context**: Wraps children in `CopilotChatConfigurationProvider`, making `labels`, `agentId`, `threadId`, and modal state available to all descendant components via `useCopilotChatConfiguration`.
-- **Suggestion management**: Subscribes to the agent's suggestion system and passes suggestions, loading states, and selection callbacks down to `CopilotChatView`.
+- **智能体接线**：挂载时，`CopilotChat` 用提供的 `agentId` 调用 `useAgent`，并将智能体的 `messages`、`isRunning` 与建议状态绑定到 `CopilotChatView`。
+- **初始运行**：如果智能体尚未运行过，`CopilotChat` 会自动触发 `runAgent`，让智能体可以发送初始问候或建立状态。
+- **自动清空输入**：消息提交后，输入框会自动清空。
+- **配置上下文**：将子组件包裹在 `CopilotChatConfigurationProvider` 中，使 `labels`、`agentId`、`threadId` 与模态框状态可通过 `useCopilotChatConfiguration` 供所有后代组件使用。
+- **建议管理**：订阅智能体的建议系统，并将建议、加载状态与选择回调向下传递给 `CopilotChatView`。
 
-## Related
+## 相关内容
 
-- [`CopilotChatView`](/reference/components/CopilotChatView) -- the layout component used internally
-- [`CopilotPopup`](/reference/components/CopilotPopup) -- popup variant of `CopilotChat`
-- [`CopilotSidebar`](/reference/components/CopilotSidebar) -- sidebar variant of `CopilotChat`
-- [`useAgent`](/reference/hooks/useAgent) -- hook used internally to access the agent
+- [`CopilotChatView`](/reference/components/CopilotChatView)——内部使用的布局组件
+- [`CopilotPopup`](/reference/components/CopilotPopup)——`CopilotChat` 的弹窗变体
+- [`CopilotSidebar`](/reference/components/CopilotSidebar)——`CopilotChat` 的侧边栏变体
+- [`useAgent`](/reference/hooks/useAgent)——内部用于访问智能体的 hook
