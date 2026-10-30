@@ -1,38 +1,36 @@
 ---
-title: "State Rendering"
+title: "状态渲染"
 icon: "lucide/Bot"
-description: Render the state of your agent with custom UI components.
+description: 使用自定义 UI 组件渲染智能体的状态。
 ---
 <IframeSwitcher
   id="agent-state-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/llama-index/feature/agentic_generative_ui?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/llama-index/feature/agentic_generative_ui?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
-## What is this?
+## 这是什么？
 
-LlamaIndex Agents using the AG-UI workflow router are stateful. This means that as your agent progresses through its workflow, a state object is maintained throughout
-the session. CopilotKit allows you to render this state in your application with custom UI components, which we call **Agentic Generative UI**.
+使用 AG-UI 工作流路由器的 LlamaIndex 智能体是有状态的。这意味着在智能体推进其工作流的过程中，整个会话期间都会维护一个状态对象。CopilotKit 允许你使用自定义 UI 组件在应用中渲染该状态，我们称之为**智能体化生成式 UI（Agentic Generative UI）**。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Rendering the state of your agent in the UI is useful when you want to provide the user with feedback about the overall state of a session. A great example of this
-is a situation where a user and an agent are working together to solve a problem. The agent can store a draft in its state which is then rendered in the UI.
+当你想就会话的整体状态向用户提供反馈时，在 UI 中渲染智能体状态会很有用。一个典型的例子是用户与智能体协作解决问题的场景：智能体可以把草稿存入自己的状态中，再在 UI 里渲染出来。
 
-## Implementation
+## 实现步骤
 
 <Steps>
   <Step>
-    ### Run and connect your agent
+    ### 运行并连接你的智能体
     <RunAndConnect components={props.components} />
   </Step>
   <Step>
-    ### Set up your agent with state
+    ### 为智能体配置状态
 
-    Create your LlamaIndex agent with a stateful structure using `initial_state`. Here's a complete example that tracks searches:
+    使用 `initial_state` 以有状态的结构创建你的 LlamaIndex 智能体。下面是一个跟踪搜索记录的完整示例：
 
     ```python title="agent.py"
     import asyncio
@@ -144,8 +142,8 @@ is a situation where a user and an agent are working together to solve a problem
 
   </Step>
   <Step>
-    ### Render state of the agent in the chat
-    Now we can utilize `useAgent` with a `render` function to render the state of our agent **in the chat**.
+    ### 在聊天中渲染智能体状态
+    现在我们可以使用 `useAgent` 配合 `render` 函数，**在聊天中**渲染智能体的状态。
 
     ```tsx title="app/page.tsx"
     // ...
@@ -184,15 +182,14 @@ is a situation where a user and an agent are working together to solve a problem
     }
     ```
 
-    <Callout type="warn" title="Important">
-      The `name` parameter must exactly match the agent name you defined in your CopilotRuntime configuration (e.g., `my_agent` from the quickstart).
+    <Callout type="warn" title="重要">
+      `name` 参数必须与你在 CopilotRuntime 配置中定义的智能体名称完全一致（例如快速开始中的 `my_agent`）。
     </Callout>
 
   </Step>
   <Step>
-    ### Render state outside of the chat
-    You can also render the state of your agent **outside of the chat**. This is useful when you want to render the state of your agent anywhere
-    other than the chat.
+    ### 在聊天外渲染状态
+    你也可以**在聊天外**渲染智能体的状态。当你想在聊天以外的任意位置渲染智能体状态时，这会很有用。
 
     ```tsx title="app/page.tsx"
     import { useAgent } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -232,15 +229,15 @@ is a situation where a user and an agent are working together to solve a problem
     }
     ```
 
-    <Callout type="warn" title="Important">
-      The `name` parameter must exactly match the agent name you defined in your CopilotRuntime configuration (e.g., `my_agent` from the quickstart).
+    <Callout type="warn" title="重要">
+      `name` 参数必须与你在 CopilotRuntime 配置中定义的智能体名称完全一致（例如快速开始中的 `my_agent`）。
     </Callout>
 
   </Step>
   <Step>
-    ### Give it a try!
+    ### 试一试
 
-    You've now created a component that will render the agent's state in the chat.
+    现在你已经创建了一个能在聊天中渲染智能体状态的组件。
 
     <video
       src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/agentic-generative-ui.mp4"

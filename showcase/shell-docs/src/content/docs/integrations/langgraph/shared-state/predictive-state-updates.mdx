@@ -541,7 +541,7 @@ CopilotKit 通过 **_预测性状态更新（predictive state updates）_** 这�
                     copilotkitMiddleware,
                     stateStreamingMiddleware(  // [!code highlight]
                         stateItem({ stateKey: "observed_steps", tool: "step_progress_tool", toolArgument: "steps" })  // [!code highlight]
-                    ),  # [!code highlight]
+                    ),  // [!code highlight]
                 ],
                 stateSchema: AgentStateSchema,
                 systemPrompt: "You are a task performer. Report your steps using step_progress_tool.",

@@ -1,7 +1,7 @@
 ---
-title: Frontend Tools
+title: 前端工具
 icon: "lucide/Wrench"
-description: Create frontend tools and use them within your Mastra agent.
+description: 创建前端工具并在你的 Mastra 智能体中使用它们。
 ---
 import { IframeSwitcher } from "@/components/content"
 import RunAndConnect from "@/snippets/integrations/mastra/run-and-connect.mdx"
@@ -10,44 +10,44 @@ import RunAndConnect from "@/snippets/integrations/mastra/run-and-connect.mdx"
   id="frontend-actions-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/mastra/feature/agentic_chat?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/mastra/feature/agentic_chat?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
-## What is this?
-Frontend tools enable you to define client-side functions that your Mastra agent can invoke, with execution happening entirely in the user's browser. When your agent calls a frontend tool,
-the logic runs on the client side, giving you direct access to the frontend environment.
+## 这是什么？
 
-This can be utilized to let [your agent control the UI](/mastra/frontend-tools), [generative UI](/mastra/frontend-tools), or for Human-in-the-loop interactions.
+前端工具让你能够定义 Mastra 智能体可以调用的客户端函数，其执行完全发生在用户的浏览器中。当你的智能体调用某个前端工具时，逻辑会在客户端运行，让你可以直接访问前端环境。
 
-In this guide, we cover the use of frontend tools driving and interacting with the UI.
+它可以用来[让智能体控制 UI](/mastra/frontend-tools)、实现[生成式 UI](/mastra/frontend-tools)，或用于人机协同（human-in-the-loop）交互。
 
-## When should I use this?
-Use frontend tools when you need your agent to interact with client-side primitives such as:
-- Reading or modifying React component state
-- Accessing browser APIs like localStorage, sessionStorage, or cookies
-- Triggering UI updates or animations
-- Interacting with third-party frontend libraries
-- Performing actions that require the user's immediate browser context
+在本指南中，我们将介绍如何使用前端工具来驱动 UI 并与之交互。
 
-## Implementation
+## 什么时候应该使用它？
+
+当你需要智能体与客户端原语交互时，可以使用前端工具，例如：
+- 读取或修改 React 组件状态
+- 访问 localStorage、sessionStorage 或 cookie 等浏览器 API
+- 触发 UI 更新或动画
+- 与第三方前端库交互
+- 执行需要用户当前浏览器上下文的操作
+
+## 实现步骤
 
 <Callout>
-Check out the [Frontend Tools overview](/mastra/frontend-tools) to understand what they are and when to use them.
+请查看[前端工具概览](/mastra/frontend-tools)，了解它们是什么以及何时使用。
 </Callout>
 
 <Steps>
     <Step>
-        ### Run and connect your agent
+        ### 运行并连接你的智能体
         <RunAndConnect components={props.components} />
     </Step>
 
     <Step>
-        ### Create a frontend tool
+        ### 创建一个前端工具
 
-        First, you'll need to create a frontend tool using the [useFrontendTool](/reference/v1/hooks/useFrontendTool) hook. Here's a simple one to get you started
-        that says hello to the user.
+        首先，你需要使用 [useFrontendTool](/reference/v1/hooks/useFrontendTool) hook 创建一个前端工具。下面是一个简单的入门示例，它会向用户问好。
 
         ```tsx title="page.tsx"
         import { z } from "zod";
@@ -74,14 +74,13 @@ Check out the [Frontend Tools overview](/mastra/frontend-tools) to understand wh
         ```
     </Step>
     <Step>
-        ### Accessing Frontend Tools
+        ### 访问前端工具
 
-        Since Mastra includes native support for the AG-UI protocol, frontend tools are automatically available to the agent as
-        tools.
+        由于 Mastra 原生支持 AG-UI 协议，前端工具会自动作为工具提供给智能体使用。
     </Step>
     <Step>
-        ### Give it a try!
-        You've now given your agent the ability to directly call any frontend tools you've defined. These tools will be available to the agent where they can be used as needed.
+        ### 动手试试吧！
+        现在，你的智能体已经能够直接调用你定义的任何前端工具。这些工具会提供给智能体，可在需要时使用。
 
         <video src="https://cdn.copilotkit.ai/docs/copilotkit/images/frontend-actions-demo.mp4" className="rounded-lg shadow-xl" loop playsInline controls autoPlay muted />
     </Step>

@@ -1,52 +1,41 @@
 ---
-title: Background Tasks
+title: 后台任务
 icon: "lucide/Clock"
-description: Dispatch long-running work to Mastra's BackgroundTaskManager and surface it as a live activity card in the chat.
+description: 将长时间运行的工作分派给 Mastra 的 BackgroundTaskManager，并以实时活动卡片的形式呈现在聊天中。
 ---
 
 import RunAndConnect from "@/snippets/integrations/mastra/run-and-connect.mdx"
 
-## What is this?
+## 这是什么？
 
-Mastra's [background tasks](https://mastra.ai/docs/agents/background-tasks) let a tool run
-outside the agentic loop instead of blocking it. When a tool is flagged
-`background: { enabled: true }`, Mastra dispatches it to its `BackgroundTaskManager`, emits a
-`background-task-started` lifecycle chunk, and returns a placeholder result so the conversation
-keeps flowing.
+Mastra 的[后台任务](https://mastra.ai/docs/agents/background-tasks)允许工具在智能体循环之外运行，而不是阻塞该循环。当一个工具被标记为 `background: { enabled: true }` 时，Mastra 会将它分派给自己的 `BackgroundTaskManager`，发出一个 `background-task-started` 生命周期 chunk，并返回一个占位结果，让对话继续流畅进行。
 
-`MastraAgent` (the AG-UI adapter) maps that lifecycle to an AG-UI **activity event** (activity
-type `mastra-background-task`) and **suppresses the normal tool pill** — so the work surfaces
-only as a live "working" card, never as an orphan tool call. A registered CopilotKit activity
-renderer paints that card inline in the transcript.
+`MastraAgent`（AG-UI 适配器）会将该生命周期映射为 AG-UI **活动事件**（活动类型 `mastra-background-task`），并**抑制常规的工具 pill**——这样这项工作只会以实时“working”卡片的形式呈现，绝不会显示为孤立的工具调用。已注册的 CopilotKit 活动渲染器会在会话记录中内联绘制这张卡片。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Background tasks fit any work that is too slow to hold the chat hostage:
+后台任务适合任何耗时过长、不该让对话干等的工作：
 
-- **Deep research / long lookups** — kick off a multi-step investigation and let the user keep chatting
-- **Report or artifact generation** — build something in the background and surface progress
-- **Batch or fan-out work** — dispatch several jobs without serializing the conversation
+- **深度研究 / 长耗时查询**——启动一个多步骤的调查，让用户继续聊天
+- **报告或产物生成**——在后台构建内容并展示进度
+- **批量或扇出式工作**——同时分派多个任务，而不必让对话串行等待
 
 <Callout type="info">
-  Completion is delivered **out of band**. On the dispatching turn Mastra emits only the
-  `started` lifecycle plus a placeholder result, so within that turn the card stays in the
-  "working" state; the finished result is delivered on a later turn (or retrieved from the task
-  manager). See [Completion is out of band](#completion-is-out-of-band) below.
+  完成结果是通过**带外（out of band）**方式送达的。在发起分派的那个回合中，Mastra 只会发出 `started` 生命周期外加一个占位结果，因此在该回合内卡片会一直处于“working”状态；完成的结果会在之后的回合送达（或从任务管理器中获取）。参见下文的[完成结果是带外送达的](#完成结果是带外送达的)。
 </Callout>
 
-## Implementation
+## 实现步骤
 
 <Steps>
 <Step>
-  ### Run and connect your agent
+  ### 运行并连接你的智能体
   <RunAndConnect components={props.components} />
 </Step>
 
 <Step>
-  ### Define a backgroundable tool
+  ### 定义一个支持后台执行的工具
 
-  Flag the tool with `background: { enabled: true }`. Mastra dispatches it to the
-  `BackgroundTaskManager` instead of running it inline.
+  用 `background: { enabled: true }` 标记该工具。Mastra 会将它分派给 `BackgroundTaskManager`，而不是内联执行。
 
   ```typescript title="src/mastra/tools/background-research.ts"
   import { createTool } from "@mastra/core/tools";
@@ -73,10 +62,9 @@ Background tasks fit any work that is too slow to hold the chat hostage:
 </Step>
 
 <Step>
-  ### Enable the BackgroundTaskManager on the Mastra instance
+  ### 在 Mastra 实例上启用 BackgroundTaskManager
 
-  Backgroundable tools only dispatch when the manager is enabled on the instance. A configured
-  `storage` is also required so tasks can be tracked.
+  只有在实例上启用了管理器时，支持后台执行的工具才会被分派。还需要配置 `storage`，以便追踪任务。
 
   ```typescript title="src/mastra/index.ts"
   import { Mastra } from "@mastra/core/mastra";
@@ -92,7 +80,7 @@ Background tasks fit any work that is too slow to hold the chat hostage:
 </Step>
 
 <Step>
-  ### Add the tool to your agent
+  ### 将工具添加到你的智能体
 
   ```typescript title="src/mastra/agents/index.ts"
   import { Agent } from "@mastra/core/agent";
@@ -114,13 +102,12 @@ Background tasks fit any work that is too slow to hold the chat hostage:
 </Step>
 
 <Step>
-  ### Render the activity card in your frontend
+  ### 在前端渲染活动卡片
 
-  Write an activity renderer for the `mastra-background-task` activity type. The standard chat
-  surface renders registered activity messages inline, so no custom message list is needed.
+  为 `mastra-background-task` 活动类型编写一个活动渲染器。标准聊天界面会内联渲染已注册的活动消息，因此无需自定义消息列表。
 
   <FrontendOnly frontend="react">
-  Register the renderer on `<CopilotKit>` via `renderActivityMessages`.
+  通过 `renderActivityMessages` 在 `<CopilotKit>` 上注册该渲染器。
 
   ```tsx title="ui/app/activity-card.tsx"
   import { z } from "zod";
@@ -167,69 +154,50 @@ Background tasks fit any work that is too slow to hold the chat hostage:
   </FrontendOnly>
 
   <FrontendOnly frontend="angular">
-  Implement the card as an Angular component that satisfies `ActivityRenderer`, then pair its
-  content schema and component in a `RenderActivityMessageConfig`. The Angular Showcase exports
-  ready-to-register configs for both Mastra activity types:
+  将卡片实现为满足 `ActivityRenderer` 的 Angular 组件，然后在 `RenderActivityMessageConfig` 中将其内容 schema 与组件配对。Angular Showcase 为两种 Mastra 活动类型都导出了可直接注册的配置：
 
   <AngularSnippet
     region="mastra-activity-renderer-configs"
     title="showcase/angular/src/app/features/mastra/mastra-cards.ts"
   />
 
-  Register the config in an injection context. The registration is removed automatically when
-  that injector is destroyed:
+  在注入上下文中注册该配置。当该 injector 被销毁时，注册会自动移除：
 
   <AngularSnippet
     region="mastra-activity-registration"
     title="showcase/angular/src/app/features/mastra/mastra-feature.component.ts"
   />
 
-  See the [activity renderer API](/reference/angular/functions/registerRenderActivityMessage)
-  for a compact component implementation and schema contract.
+  紧凑的组件实现和 schema 约定请参阅[活动渲染器 API](/reference/angular/functions/registerRenderActivityMessage)。
   </FrontendOnly>
 </Step>
 
 <Step>
-  ### Give it a try!
+  ### 动手试试吧！
 
-  Ask the agent to research something.
+  让智能体研究某个主题。
 
   ```
   Kick off deep research on the current landscape of AI agent frameworks.
   ```
 
-  The agent calls `run_deep_research`, Mastra dispatches it in the background, and a live
-  "working" activity card appears inline — with no blocking tool pill — while the conversation
-  stays responsive.
+  智能体会调用 `run_deep_research`，Mastra 在后台分派它，一张实时的“working”活动卡片随之内联出现——不会出现阻塞式的工具 pill——同时对话保持流畅响应。
 </Step>
 </Steps>
 
-## Completion is out of band
+## 完成结果是带外送达的
 
-By design, the dispatching run's stream carries only the `started` lifecycle plus a placeholder
-result — the tool's `execute` has not finished by the time the stream closes. So within that turn
-the card stays "working"; the finished result is delivered out of band.
+按设计，发起分派的那次运行的流只会携带 `started` 生命周期外加一个占位结果——当流关闭时，工具的 `execute` 还没有执行完。因此在该回合内卡片会一直停留在“working”状态；完成的结果以带外方式送达。
 
-Mastra exposes `untilIdle: true` (via `getLocalAgents`) to hold the run open and pipe the manager
-pubsub chunks — including `background-task-completed` — into the same stream so the card could flip
-to "Completed" in-turn. That only works when a **background worker actually executes the dispatched
-task before the idle window closes**. In a single-process app with no such worker the task is never
-executed within the run, so no completion chunk is produced and `untilIdle` only holds the stream
-open with no benefit. When you run a deployment with a real background worker, enable `untilIdle`
-and the adapter's lifecycle mapping (`running` → `completed`/`failed`/`cancelled`) flips the card
-automatically. Otherwise, retrieve results out of band via the task manager
-(`backgroundTaskManager.stream()` / `getTask(taskId)`).
+Mastra 提供了 `untilIdle: true`（通过 `getLocalAgents`），用于保持运行不被关闭，并把管理器的 pubsub chunk（包括 `background-task-completed`）接入同一条流，从而让卡片能在同一回合内切换为“Completed”。这只有在**后台工作进程真正在空闲窗口关闭之前执行了被分派的任务**时才有效。在没有这类工作进程的单进程应用中，任务永远不会在该次运行内被执行，因此不会产生完成 chunk，`untilIdle` 只会让流保持打开，毫无收益。当你的部署拥有真正的后台工作进程时，启用 `untilIdle`，适配器的生命周期映射（`running` → `completed`/`failed`/`cancelled`）就会自动翻转卡片状态。否则，请通过任务管理器（`backgroundTaskManager.stream()` / `getTask(taskId)`）以带外方式获取结果。
 
-## Observational Memory as background activity
+## 以后台活动形式呈现 Observational Memory
 
-If your agent uses Mastra's [Observational Memory](https://mastra.ai/docs/memory/observational-memory),
-you can surface its observation/buffering/activation cycles the same way — as a live activity card
-instead of invisible background work. This is opt-in and OFF by default.
+如果你的智能体使用了 Mastra 的 [Observational Memory](https://mastra.ai/docs/memory/observational-memory)，你可以用同样的方式呈现其观察/缓冲/激活循环——以实时活动卡片的形式，而不是不可见的后台工作。这是可选项，默认关闭。
 
-Two switches, both required:
+需要两个开关，二者缺一不可：
 
-1. **The agent's `Memory` must have Observational Memory enabled** (that's what makes Mastra stream
-   the OM lifecycle in the first place):
+1. **智能体的 `Memory` 必须启用 Observational Memory**（Mastra 正是因此才会对 OM 生命周期进行流式传输）：
 
    ```typescript title="src/mastra/agents/index.ts"
    memory: new Memory({
@@ -244,8 +212,7 @@ Two switches, both required:
    }),
    ```
 
-2. **The adapter must be told to forward it** — pass `observationalMemory: true` (or an array of
-   agent ids) to `getLocalAgents`:
+2. **必须告知适配器转发它**——向 `getLocalAgents` 传入 `observationalMemory: true`（或智能体 id 数组）：
 
    ```typescript title="app/api/copilotkit/route.ts"
    const localAgents = getLocalAgents({
@@ -255,9 +222,7 @@ Two switches, both required:
    });
    ```
 
-With both on, `MastraAgent` maps the OM lifecycle to AG-UI activity events under activity type
-`mastra-observational-memory`. Render them exactly like the background-task card — register a
-renderer for that activity type:
+两者都开启后，`MastraAgent` 会把 OM 生命周期映射为活动类型 `mastra-observational-memory` 下的 AG-UI 活动事件。渲染方式与后台任务卡片完全一致——为该活动类型注册一个渲染器：
 
 <FrontendOnly frontend="react">
 ```tsx title="app/page.tsx"
@@ -274,16 +239,11 @@ const observationalMemoryActivityRenderer = {
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
-Use the `observationalMemoryActivityRendererConfig` and registration shown in the Angular source
-regions above. Both background-task and observational-memory cards use the same
-`registerRenderActivityMessage` lifecycle.
+使用上文 Angular 源码区域中展示的 `observationalMemoryActivityRendererConfig` 及其注册方式。后台任务卡片与观察式记忆卡片使用相同的 `registerRenderActivityMessage` 生命周期。
 </FrontendOnly>
 
-The activity content carries the cycle (`cycleId`, `phase: "observation" | "buffering" | "activation"`,
-`status`, token counts) and advances in place as the cycle progresses, so one card tracks each OM
-cycle from start to completion.
+活动内容携带该循环的信息（`cycleId`、`phase: "observation" | "buffering" | "activation"`、`status`、token 计数），并随着循环的推进原位更新，因此一张卡片即可追踪每个 OM 循环从开始到完成的全过程。
 
 <Callout type="info">
-  OM cycles trigger on **unobserved message-token size**, not turn count — short chats may never
-  trip one. If you're testing the card, drive a few sizable messages.
+  OM 循环依据**未观察的消息 token 数量**触发，而不是回合数——短对话可能永远触发不了。如果你正在测试卡片，请发送几条内容较多的消息。
 </Callout>

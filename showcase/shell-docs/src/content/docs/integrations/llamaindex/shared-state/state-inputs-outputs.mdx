@@ -1,26 +1,26 @@
 ---
-title: Workflow Execution
+title: 工作流执行
 icon: "lucide/Play"
-description: Decide which state properties are received and returned to the frontend.
+description: 决定哪些状态属性会被接收并返回给前端。
 ---
 
-## What is this?
+## 这是什么？
 
-Not all state properties are relevant for frontend-backend sharing.
-This guide shows how to ensure only the right portion of state is communicated back and forth.
+并非所有状态属性都需要在前端与后端之间共享。
+本指南将展示如何确保只有状态中恰当的部分在前端与后端之间来回传递。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Depending on your implementation, some properties are meant to be processed internally, while some others are the way for the UI to communicate user input.
-In addition, some state properties contain a lot of information. Syncing them back and forth between the agent and UI can be costly, while it might not have any practical benefit.
+取决于你的具体实现，某些属性只在内部处理，而另一些属性则是 UI 传达用户输入的途径。
+此外，有些状态属性包含大量信息，在智能体与 UI 之间来回同步的代价可能很高，却没有什么实际收益。
 
-## Implementation
+## 实现
 
 <Steps>
   <Step>
-    ### Examine your state structure
-    LlamaIndex agents using the AG-UI workflow router are stateful. As you execute tools and process messages, that state is updated and available throughout the session. For this example,
-    let's assume that the state our agent should be using can be described like this:
+    ### 检查你的状态结构
+    使用 AG-UI workflow router 的 LlamaIndex 智能体是有状态的。当你执行工具并处理消息时，状态会被更新，并在整个会话期间可用。在本例中，
+    我们假设智能体应使用的状态可以描述如下：
 
     ```python title="agent.py"
     # Full state structure for the agent
@@ -32,13 +32,13 @@ In addition, some state properties contain a lot of information. Syncing them ba
     ```
   </Step>
   <Step>
-    ### Organize state by purpose
-    Our example case lists several state properties, each with its own purpose:
-      - The **question** is being asked by the user, expecting the LLM to answer
-      - The **answer** is what the LLM returns
-      - The **resources** list will be used by the LLM to answer the question, and should not be communicated to the user, or set by them
+    ### 按用途组织状态
+    我们的示例列出了若干状态属性，各有其用途：
+      - **question** 是用户提出的问题，期望 LLM 来回答
+      - **answer** 是 LLM 返回的内容
+      - **resources** 列表将由 LLM 用于回答问题，不应传达给用户，也不应由用户设置
 
-    Here's a complete example showing how to structure your agent with these considerations:
+    下面是一个完整示例，展示如何在组织智能体时落实上述考量：
 
     ```python title="agent.py"
     from typing import Annotated, List
@@ -146,11 +146,11 @@ In addition, some state properties contain a lot of information. Syncing them ba
     ```
   </Step>
   <Step>
-    ### Use the state in your frontend
-    Now that we know which state properties our agent uses, we can work with them in the UI:
-    - **question**: Set by the UI to ask the agent something
-    - **answer**: Read from the agent's response
-    - **resources**: Not accessible to the UI (internal agent use only)
+    ### 在前端中使用状态
+    既然我们已经知道智能体使用了哪些状态属性，就可以在 UI 中使用它们：
+    - **question**：由 UI 设置，用于向智能体提问
+    - **answer**：从智能体的响应中读取
+    - **resources**：UI 无法访问（仅供智能体内部使用）
 
     ```tsx title="ui/app/page.tsx"
     "use client";
@@ -238,16 +238,15 @@ In addition, some state properties contain a lot of information. Syncing them ba
     }
     ```
 
-    <Callout type="warn" title="Important">
-      The `name` parameter must exactly match the agent name you defined in your CopilotRuntime configuration (e.g., `my_agent` from the quickstart).
+    <Callout type="warn" title="重要">
+      `name` 参数必须与你在 CopilotRuntime 配置中定义的智能体名称完全一致（例如快速开始中的 `my_agent`）。
     </Callout>
   </Step>
   <Step>
-    ### Give it a try!
-    Now that we've organized state by purpose:
-    - The UI can set `question` and read `answer`
-    - The agent uses `resources` internally without exposing it to the frontend
-    - State updates flow efficiently between frontend and backend
+    ### 动手试一试！
+    现在我们已经按用途组织了状态：
+    - UI 可以设置 `question` 并读取 `answer`
+    - 智能体在内部使用 `resources`，不向前端暴露
+    - 状态更新在前端与后端之间高效流动
   </Step>
 </Steps>
-

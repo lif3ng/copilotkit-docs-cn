@@ -1,21 +1,17 @@
 ---
-title: "Dynamic Schema A2UI"
+title: "动态模式 A2UI"
 icon: "lucide/Sparkles"
-description: "Generate a Mastra dashboard from a client-side A2UI catalog."
+description: "通过客户端 A2UI 目录生成 Mastra 仪表盘。"
 snippet_cell: declarative-gen-ui
 ---
 
 <InlineDemo demo="declarative-gen-ui" />
 
-Dynamic Schema A2UI lets an agent draw a surface from the conversation. The
-frontend supplies the allowed components and their props through a catalog;
-the agent generates the component tree and data for each request.
+动态模式（dynamic schema）A2UI 让智能体直接从对话中绘制出界面。前端通过目录（catalog）提供可用的组件及其 props；智能体则为每次请求生成组件树与数据。
 
-## Frontend catalog
+## 前端目录
 
-Define your components, renderers, and catalog in the demo source. The same
-catalog works whether Mastra runs with the CopilotKit route or in a separate
-process.
+在演示源码中定义你的组件、渲染器与目录。无论 Mastra 是与 CopilotKit 路由同进程运行，还是在独立进程中运行，都可以使用同一份目录。
 
 <Snippet region="definitions-zod" />
 
@@ -23,32 +19,21 @@ process.
 
 <Snippet region="create-catalog" />
 
-Pass the catalog to the provider. Its `runtimeUrl` must point to a **CopilotKit
-endpoint**, and its `agent` must match a key returned by that endpoint.
+将目录传给 provider。其 `runtimeUrl` 必须指向一个 **CopilotKit 端点**，其 `agent` 必须与该端点返回的某个键相匹配。
 
 <Snippet region="provider-a2ui-prop" />
 
-## Mastra in the same process
+## 同进程中的 Mastra
 
-The live demo uses a dedicated CopilotKit runtime route and a local Mastra
-agent. Its agent already supplies its own `generate_a2ui` tool, so the route
-sets `injectA2UITool: false` to avoid registering the tool twice. The route
-also pins `defaultCatalogId` to the catalog registered by the page.
+在线演示使用了一条专用的 CopilotKit runtime 路由和一个本地 Mastra 智能体。该智能体已自带 `generate_a2ui` 工具，因此路由设置 `injectA2UITool: false` 以避免重复注册该工具。路由还将 `defaultCatalogId` 固定为页面注册的那份目录。
 
-Use this layout when the Mastra instance is imported into the same process as
-the runtime route. See the [Copilot Runtime guide](/mastra/copilot-runtime)
-for the local agent bridge.
+当 Mastra 实例被导入到与 runtime 路由相同的进程中时，请使用这种布局。本地智能体桥接请参阅 [Copilot Runtime 指南](/mastra/copilot-runtime)。
 
-## Mastra in a separate process
+## 独立进程中的 Mastra
 
-When Mastra runs as its own service, register a CopilotKit endpoint **on that
-service**. This keeps the Mastra agent local to the endpoint that injects and
-executes `generate_a2ui`, while the browser reaches it over HTTP. The example
-below is a runnable Mastra fixture under
-`showcase/integrations/mastra/tests/fixtures/remote-a2ui/mastra/index.ts`:
+当 Mastra 作为独立服务运行时，请**在该服务上**注册一个 CopilotKit 端点。这样可将 Mastra 智能体保留在注入并执行 `generate_a2ui` 的那个端点本地，而浏览器则通过 HTTP 访问它。下面的示例是位于 `showcase/integrations/mastra/tests/fixtures/remote-a2ui/mastra/index.ts` 的可运行 Mastra fixture：
 
-Use `@ag-ui/mastra` 1.1.4 or later with compatible `@ag-ui/core` and
-`@ag-ui/client` versions. The Showcase fixture uses 1.1.4 and 0.0.58.
+请使用 `@ag-ui/mastra` 1.1.4 或更高版本，并搭配兼容的 `@ag-ui/core` 与 `@ag-ui/client` 版本。Showcase fixture 使用的是 1.1.4 和 0.0.58。
 
 ```ts title="src/mastra/index.ts"
 import { Mastra } from "@mastra/core/mastra";
@@ -90,22 +75,10 @@ export const mastra = new Mastra({
 });
 ```
 
-Set the provider's `runtimeUrl` to your Mastra service's `/copilotkit` URL (or
-proxy that path through your frontend). Keep the provider's agent name
-`declarative-gen-ui` and catalog ID `declarative-gen-ui-catalog` aligned with
-the route. Use the frontend origin in `cors.origin` when calling the service
-directly from the browser. In production, derive `resourceId` from the
-authenticated caller instead of using the fixed example value.
+将 provider 的 `runtimeUrl` 设置为你的 Mastra 服务的 `/copilotkit` URL（或在前端代理该路径）。保持 provider 的智能体名 `declarative-gen-ui` 与目录 ID `declarative-gen-ui-catalog` 同路由侧保持一致。当从浏览器直接调用该服务时，请在 `cors.origin` 中使用前端来源。在生产环境中，应从经过身份验证的调用方推导 `resourceId`，而不要沿用示例中的固定值。
 
-The generic `MastraAgent.getRemoteAgents()` bridge described in the
-[runtime guide](/mastra/copilot-runtime) serves ordinary remote agent runs. For
-this A2UI configuration, use the registered endpoint so the A2UI tool runs
-beside the Mastra agent. A completed `render_a2ui` tool call alone does not
-prove that a surface rendered: check that the response contains nonempty
-`a2ui_operations` for components and data, and that the dashboard appears in
-the browser rather than remaining at “Building Interface.”
+[runtime 指南](/mastra/copilot-runtime)中介绍的通用 `MastraAgent.getRemoteAgents()` 桥接服务于普通的远程智能体运行。对于这种 A2UI 配置，请使用注册的端点，让 A2UI 工具在 Mastra 智能体旁边运行。仅仅完成一次 `render_a2ui` 工具调用并不能证明界面已渲染：请检查响应中是否包含针对组件与数据的非空 `a2ui_operations`，并确认仪表盘确实出现在浏览器中，而不是停留在“Building Interface”状态。
 
-## When to use dynamic schemas
+## 何时使用动态模式
 
-Use this approach when the user can ask for different layouts and data. If the
-shape is known ahead of time, use a [fixed schema](./fixed-schema).
+当用户可能请求不同的布局和数据时，请使用这种方式。如果结构已提前确定，请使用[固定模式](./fixed-schema)。

@@ -1,40 +1,40 @@
 ---
-title: Writing agent state
+title: 写入智能体状态
 icon: "lucide/ArrowRight"
-description: Write to agent's state from your application.
+description: 从你的应用写入智能体状态。
 ---
 <IframeSwitcher
   id="shared-state-write-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/llama-index/feature/shared_state?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/llama-index/feature/shared_state?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
 <Callout type="info">
-  This example demonstrates writing to shared state in the [CopilotKit Feature Viewer](https://feature-viewer.copilotkit.ai/llama-index/feature/shared_state).
+  本示例演示了如何在 [CopilotKit Feature Viewer](https://feature-viewer.copilotkit.ai/llama-index/feature/shared_state) 中写入共享状态。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-You can easily write to your agent's state from your native application, allowing you to update the agent's working memory from your UI.
+你可以轻松地从原生应用写入智能体状态，从而从 UI 更新智能体的工作记忆。
 
-## When should I use this?
+## 何时应该使用它？
 
-You can use this when you want to provide user input or control to your agent's working memory. As your application state changes, you can update the agent state to reflect these changes.
+当你想向智能体的工作记忆提供用户输入或控制时，可以使用它。随着应用状态变化，你可以更新智能体状态以反映这些变化。
 
-## Implementation
+## 实现
 
 <Steps>
   <Step>
-    ### Run and connect your agent
+    ### 运行并连接你的智能体
     <RunAndConnect components={props.components} />
   </Step>
   <Step>
-    ### Define the Agent State
+    ### 定义智能体状态
 
-    Create your LlamaIndex agent with a stateful structure using `initial_state`. Here's a complete example that tracks language:
+    使用 `initial_state` 创建一个带状态结构的 LlamaIndex 智能体。下面是一个跟踪语言的完整示例：
 
     ```python title="agent.py"
     from fastapi import FastAPI
@@ -81,9 +81,8 @@ You can use this when you want to provide user input or control to your agent's 
 
   </Step>
   <Step>
-    ### Use the `useAgent` Hook
-    With your agent connected and running all that is left is to call the `useAgent` hook, pass the agent's name, and
-    use `agent.setState` to update the agent state.
+    ### 使用 `useAgent` Hook
+    智能体连接并运行之后，剩下的就是调用 `useAgent` hook、传入智能体名称，并使用 `agent.setState` 更新智能体状态。
 
     ```tsx title="ui/app/page.tsx"
     "use client";
@@ -128,30 +127,29 @@ You can use this when you want to provide user input or control to your agent's 
     }
     ```
 
-    <Callout type="warn" title="Important">
-      The `name` parameter must exactly match the agent name you defined in your CopilotRuntime configuration (e.g., `my_agent` from the quickstart).
+    <Callout type="warn" title="重要">
+      `name` 参数必须与你在 CopilotRuntime 配置中定义的智能体名称完全一致（例如快速开始中的 `my_agent`）。
     </Callout>
 
     <Callout type="info">
-      The `agent.setState` function in `useAgent` will update the state and trigger a rerender when the state changes.
+      `useAgent` 中的 `agent.setState` 函数会更新状态，并在状态变化时触发重新渲染。
     </Callout>
 
   </Step>
   <Step>
-    ### Give it a try!
-    You can now use `agent.setState` to update the agent state and `agent.state` to read it. Try toggling the language button
-    and talking to your agent. You'll see the language change to match the agent's state.
+    ### 试一试！
+    现在你可以用 `agent.setState` 更新智能体状态、用 `agent.state` 读取它。试着点击语言切换按钮并与你的智能体对话，你会看到语言随智能体状态而变化。
   </Step>
 </Steps>
 
-## Advanced Usage
+## 高级用法
 
-### Re-run the agent with a hint about what's changed
+### 带着变更提示重新运行智能体
 
-The new agent state will be used next time the agent runs.
-If you want to re-run it manually, use `copilotkit.runAgent()`.
+新的智能体状态将在智能体下次运行时使用。
+如果你想手动重新运行，可以使用 `copilotkit.runAgent()`。
 
-The agent will be re-run with the latest updated state. You can also add a hint message before re-running.
+智能体会带着最新更新的状态重新运行。你也可以在重新运行前添加一条提示消息。
 
 ```tsx title="ui/app/page.tsx"
 import { useAgent, useCopilotKit } from "@copilotkit/react-core/v2";

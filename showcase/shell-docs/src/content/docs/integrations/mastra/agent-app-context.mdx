@@ -1,31 +1,30 @@
 ---
-title: Agent App Context
+title: 智能体应用上下文
 icon: "lucide/BookA"
-description: Share app specific context with your agent.
+description: 与你的智能体共享应用专属上下文。
 ---
 
 import AgentContextJsonString from "@/snippets/shared/basics/agent-context-json-string.mdx";
 
-## What is this?
+## 这是什么？
 
-One of the most common use cases for CopilotKit is to register app state and context using `useAgentContext`.
-This way, you can notify your agent of what is going on in your app in real time.
+CopilotKit 最常见的用例之一，就是使用 `useAgentContext` 注册应用状态和上下文。
+这样，你就能实时告知智能体你的应用中正在发生什么。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-You can use this when you want to provide the user with feedback about what is in your working memory. As your agent's
-state updates, you can reflect these updates natively in your application.
+当你想就工作记忆中的内容向用户提供反馈时，可以使用它。随着智能体状态的更新，你可以在应用中原生地反映这些更新。
 
-Some examples might be: the current user, the current page, etc. This can be shared with your agent in real time.
+举一些例子：当前用户、当前页面等。这些信息都可以实时共享给你的智能体。
 
-## Implementation
+## 实现步骤
 
 <AgentContextJsonString />
 <Steps>
     <Step>
-        ### Share data with your agent
+        ### 与智能体共享数据
 
-        The [`useAgentContext` hook](/reference/v2/hooks/useAgentContext) is used to add data as context to the Copilot.
+        [`useAgentContext` hook](/reference/v2/hooks/useAgentContext) 用于将数据作为上下文添加到 Copilot。
 
         ```tsx title="YourComponent.tsx" showLineNumbers
         "use client" // only necessary if you are using Next.js with the App Router. // [!code highlight]
@@ -55,11 +54,11 @@ Some examples might be: the current user, the current page, etc. This can be sha
     </Step>
 
     <Step>
-        ### Consume the data in your Mastra agent
+        ### 在 Mastra 智能体中使用这些数据
 
-        Mastra has `RuntimeContext` class that can be used to set and access the extra context at run time.
-        The context from CopilotKit is automatically injected there, and can be used immediately.
-        You can read more about it [here](https://mastra.ai/en/docs/agents/runtime-context)
+        Mastra 提供了 `RuntimeContext` 类，可用于在运行时设置和访问额外上下文。
+        来自 CopilotKit 的上下文会自动注入其中，并可以立即使用。
+        更多信息请参阅[这里](https://mastra.ai/en/docs/agents/runtime-context)。
 
         ```tsx title="agent.ts"
         import { openai } from "@ai-sdk/openai";
@@ -89,7 +88,7 @@ Some examples might be: the current user, the current page, etc. This can be sha
         ```
     </Step>
     <Step>
-        ### Give it a try!
-        Ask your agent a question about the context. It should be able to answer!
+        ### 动手试试吧！
+        向你的智能体问一个与上下文相关的问题。它应该能够回答！
     </Step>
 </Steps>

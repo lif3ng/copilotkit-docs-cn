@@ -1,7 +1,7 @@
 ---
-title: Introduction
+title: 简介
 icon: "custom/llamaindex"
-description: Bring your LlamaIndex agents to your users with CopilotKit via AG-UI.
+description: 通过 AG-UI，借助 CopilotKit 把你的 LlamaIndex 智能体带到用户面前。
 hideHeader: true
 # The landing page carries its own prompt button in the hero; the page-tools
 # row above the title would put a second one on the page, which the data-record
@@ -12,42 +12,42 @@ hidePageActions: true
 <FrameworkOverview
   frameworkName="LlamaIndex"
   frameworkIcon={<LlamaIndexIcon className="h-12 w-12" />}
-  header="Bring your LlamaIndex agents to your users"
-  subheader="LlamaIndex runs your agents. CopilotKit gives them a surface your users can see, interrupt and steer."
+  header="把你的 LlamaIndex 智能体带到用户面前"
+  subheader="LlamaIndex 负责运行你的智能体，CopilotKit 为它们提供一个用户可以看到、可以中断、可以引导的界面。"
   guideLink="/llamaindex/quickstart"
   initCommand="npx copilotkit@latest init"
-  lede="LlamaIndex gives you the agent and everything it reads: indexes, retrievers and the workflow around them. What it does not give you is the surface. Somewhere for the conversation to happen, a way to show the run while it is running, and a moment for a person to step in. Each capability below builds on something your agent already does."
+  lede="LlamaIndex 给你智能体，以及它要读取的一切：索引、检索器（retriever）和围绕它们的工作流。它没有给你的，是界面——一个让对话得以发生的地方、一种在运行过程中展示运行情况的方式，以及一个让人可以介入的时机。下面的每一项能力，都建立在你的智能体已经具备的行为之上。"
   supportedFeatures={[
     {
-      title: "Generative UI",
+      title: "生成式 UI",
       iconKey: "paintbrush",
       description:
-        "Your workflow emits events and tool calls as it runs. CopilotKit streams them to the browser and renders each one as a React component, so retrieval and reasoning are visible instead of hidden behind a spinner.",
+        "你的工作流在运行过程中会发出事件和工具调用。CopilotKit 将它们流式传输到浏览器，并把每一项渲染成 React 组件，让检索与推理清晰可见，而不是藏在加载动画背后。",
       documentationLink: "/llamaindex/generative-ui"
     },
     {
-      title: "Human-in-the-loop",
+      title: "人机协同",
       iconKey: "user",
       description:
-        "A frontend tool registered with useHumanInTheLoop renders your own UI, waits for the user's answer, and hands it back to the agent as the tool result.",
+        "用 useHumanInTheLoop 注册的前端工具会渲染你自己的 UI，等待用户作答，再把答案作为工具结果交还给智能体。",
       documentationLink: "/llamaindex/human-in-the-loop"
     },
     {
-      title: "Shared state",
+      title: "共享状态",
       iconKey: "repeat",
       description:
-        "Your workflow carries state between steps. CopilotKit mirrors it into your app and back, so a user edit and an agent write land in the same place.",
+        "你的工作流在步骤之间传递状态。CopilotKit 将其双向镜像到你的应用中，让用户的编辑和智能体的写入落在同一处。",
       documentationLink: "/llamaindex/shared-state"
     }
   ]}
   capabilitiesFootnote={{
-    text: "Chat surfaces, headless UI, frontend tools and multi-agent flows work with LlamaIndex too.",
-    linkLabel: "And more",
+    text: "聊天界面、无头 UI、前端工具与多智能体流程同样适用于 LlamaIndex。",
+    linkLabel: "以及更多",
     href: "/llamaindex/build-with-agents"
   }}
   connect={{
     intro:
-      "Your agent keeps running as its own LlamaIndex service. The LlamaIndexAgent bridge points CopilotKit at its AG-UI endpoint, so nothing inside the agent changes.",
+      "你的智能体继续作为独立的 LlamaIndex 服务运行。LlamaIndexAgent 桥接层把 CopilotKit 指向它的 AG-UI 端点，智能体内部无需任何改动。",
     filename: "app/api/copilotkit/route.ts",
     language: "ts",
     guideLink: "/llamaindex/quickstart"
@@ -55,12 +55,12 @@ hidePageActions: true
   showcase={{
     integration: "llamaindex",
     intro:
-      "LlamaIndex and CopilotKit running together, in the React frontend. Every demo below is the same integration with one capability turned on.",
+      "LlamaIndex 与 CopilotKit 在 React 前端中协同运行。下面的每个演示都是同一个集成，只是开启了一项不同的能力。",
     demos: [
-      { slug: "agentic-chat", title: "Pre-Built: CopilotChat" },
-      { slug: "hitl-in-chat", title: "Human In the Loop: In-chat" },
-      { slug: "shared-state-read-write", title: "Shared State: Read + Write" },
-      { slug: "gen-ui-agent", title: "Generative UI: Agent State" }
+      { slug: "agentic-chat", title: "预构建：CopilotChat" },
+      { slug: "hitl-in-chat", title: "人机协同：聊天中" },
+      { slug: "shared-state-read-write", title: "共享状态：读 + 写" },
+      { slug: "gen-ui-agent", title: "生成式 UI：智能体状态" }
     ]
   }}
 >

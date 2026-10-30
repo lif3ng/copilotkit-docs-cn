@@ -1,31 +1,29 @@
 ---
-title: Shared State
-description: Create a two-way connection between your UI and agent state.
+title: 共享状态
+description: 在你的 UI 与智能体状态之间建立双向连接。
 icon: "lucide/Repeat"
 ---
 <ImageZoom
   src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/SharedStateCoAgents.gif"
-  alt="Shared State Demo"
+  alt="共享状态演示"
   width={1000}
   height={1000}
   className="rounded-lg shadow-lg border mt-0"
 />
 
 
-## What is shared state?
+## 什么是共享状态？
 
-CoAgents maintain a shared state that seamlessly connects your UI with the agent's execution. This shared state system allows you to:
+CoAgents 维护一种共享状态，将你的 UI 与智能体的执行无缝连接起来。这套共享状态系统让你可以：
 
-- Display the agent's current progress and intermediate results
-- Update the agent's state through UI interactions
-- React to state changes in real-time across your application
+- 展示智能体的当前进度与中间结果
+- 通过 UI 交互更新智能体的状态
+- 在整个应用中实时响应状态变化
 
-The foundation of this system is built on LlamaIndex's AG-UI protocol integration, which provides `initial_state` support in the workflow router.
+这套系统的基础是 LlamaIndex 的 AG-UI 协议集成，它在 workflow router 中提供了 `initial_state` 支持。
 
-## When should I use this?
+## 何时应该使用它？
 
-State streaming is perfect when you want to facilitate collaboration between your agent and the user. Any state that your LlamaIndex Agent
-persists will be automatically shared by the UI. Similarly, any state that the user updates in the UI will be automatically reflected.
+当你想促进智能体与用户之间的协作时，状态流式传输非常合适。你的 LlamaIndex 智能体持久化的任何状态都会自动共享给 UI；同样，用户在 UI 中更新的任何状态也会自动反映到智能体侧。
 
-This allows for a consistent experience where both the agent and the user are on the same page.
-
+这让智能体与用户始终保持同步，带来一致的体验。

@@ -1,6 +1,6 @@
 ---
 title: "Copilot Runtime"
-description: "The Copilot Runtime is the backend that connects your frontend to your AI agents, providing authentication, middleware, routing, and more."
+description: "Copilot Runtime 是连接你的前端与 AI 智能体的后端，提供身份验证、中间件、路由等功能。"
 icon: "lucide/Server"
 ---
 
@@ -8,30 +8,20 @@ import CopilotRuntime from "@/snippets/copilot-runtime.mdx";
 
 <CopilotRuntime components={props.components} />
 
-## Local vs remote agents
+## 本地智能体与远程智能体
 
-There are two ways to mount Mastra agents on Copilot Runtime, and the choice is
-decided by where your agent runs — not by preference.
+在 Copilot Runtime 上挂载 Mastra 智能体有两种方式，选哪种取决于你的智能体运行在哪里——而不是个人偏好。
 
-- **Remote** — your Mastra instance already runs as its own process (`mastra dev`,
-  a container, a deployed service). `MastraAgent.getRemoteAgents` reaches it over
-  HTTP and leaves it exactly where it is. **Choose this for any project that
-  already runs a Mastra service.**
-- **Local** — your Mastra instance lives inside the same process as the runtime
-  route, and you import it directly. `MastraAgent.getLocalAgents` bridges it
-  in-process. This suits a greenfield single-process app, where there is no
-  separate agent to preserve.
+- **远程**——你的 Mastra 实例已经作为独立进程运行（`mastra dev`、容器或已部署的服务）。`MastraAgent.getRemoteAgents` 通过 HTTP 访问它，并让它保持在原处。**任何已经在运行 Mastra 服务的项目都应选择这种方式。**
+- **本地**——你的 Mastra 实例与 runtime 路由处于同一个进程中，你直接导入它。`MastraAgent.getLocalAgents` 在进程内桥接它。这适用于没有需要保留的独立智能体的全新单进程应用。
 
-<Callout type="warn" title="The local path collapses two processes into one">
-  Adopting the local shape in a repository that already runs a Mastra service means
-  moving that service into your frontend — which deletes the process you were trying
-  to keep. If your agent exists today, use the remote path.
+<Callout type="warn" title="本地方式会把两个进程合并成一个">
+  在已经运行 Mastra 服务的仓库中采用本地方式，意味着把该服务挪进你的前端——这会删掉你原本想保留的那个进程。如果你的智能体现已存在，请使用远程方式。
 </Callout>
 
-### Remote agents
+### 远程智能体
 
-`getRemoteAgents` is asynchronous: it calls `listAgents()` on your Mastra server
-and returns one AG-UI agent per agent that server reports, keyed by agent id.
+`getRemoteAgents` 是异步的：它会调用你的 Mastra 服务器上的 `listAgents()`，并为该服务器报告的每个智能体返回一个 AG-UI 智能体，以智能体 id 作为键。
 
 ```ts
 import { CopilotRuntime, createCopilotRuntimeHandler, InMemoryAgentRunner } from "@copilotkit/runtime/v2";
@@ -52,19 +42,11 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-Pass it as a **factory**, as above, rather than calling it at module scope. `agents`
-does accept the promise itself — `agents: MastraAgent.getRemoteAgents({ ... })` — but
-that starts the HTTP call when the module loads with nothing awaiting it yet. If the
-agent server is not up, the rejection is unhandled and Node terminates the process.
+请像上面那样以**工厂函数**的形式传入它，而不是在模块作用域直接调用。`agents` 确实也接受 promise 本身——`agents: MastraAgent.getRemoteAgents({ ... })`——但那样会在模块加载时就发起 HTTP 调用，而此时还没有任何东西在等待它。如果智能体服务器尚未启动，这个 rejection 将无人处理，Node 会终止进程。
 
-The factory has no such window. Nothing runs until a request arrives, a failure
-surfaces as a `500`, and the next request tries again — so a route that started
-before its agent server did recovers on its own once that server comes up. The cost
-is one `listAgents()` call per request; cache the result in a module-scope variable
-if that matters to you.
+工厂函数则不存在这样的窗口期。在请求到达之前什么都不会运行，失败会以 `500` 的形式呈现，下一个请求会再次尝试——因此即使路由先于智能体服务器启动，一旦该服务器就绪，路由就会自行恢复。代价是每个请求都要调用一次 `listAgents()`；如果这对你很重要，可以把结果缓存到模块作用域变量中。
 
-Resolving per request is also what lets `resourceId` follow the caller, since the
-factory receives the request:
+按请求解析还让 `resourceId` 能够跟随调用者，因为工厂函数会接收到请求：
 
 ```ts
 const runtime = new CopilotRuntime({
@@ -77,32 +59,26 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-`GetRemoteAgentsOptions`:
+`GetRemoteAgentsOptions`：
 
-| Option | Required | Purpose |
+| 选项 | 是否必填 | 用途 |
 | --- | --- | --- |
-| `mastraClient` | yes | A `MastraClient` from `@mastra/client-js`, pointed at your agent server's base URL. |
-| `resourceId` | yes | Mastra's memory *resource* — the key working memory is stored under. Falls back to the thread id when the value is unset. |
-| `observationalMemory` | no | Surface Mastra Observational Memory as AG-UI activity events. `true` for every agent, or an array of agent ids. Off by default. |
-| `tracingOptions` | no | Forwarded to each run. See [Execution tracing](#execution-tracing). |
+| `mastraClient` | 是 | 来自 `@mastra/client-js` 的 `MastraClient`，指向你的智能体服务器的 base URL。 |
+| `resourceId` | 是 | Mastra 的记忆 *resource*——工作记忆存储所用的键。未设置该值时回退到线程 id。 |
+| `observationalMemory` | 否 | 将 Mastra Observational Memory 以 AG-UI 活动事件的形式呈现。传 `true` 适用于所有智能体，或传入智能体 id 数组。默认关闭。 |
+| `tracingOptions` | 否 | 转发给每次运行。参见[执行追踪](#执行追踪)。 |
 
-**Base URL convention.** Read the address from the environment and default to the
-local Mastra dev port, so the same route works locally and against a deployed
-service:
+**Base URL 约定**。从环境变量中读取地址，并默认使用本地 Mastra 开发端口，这样同一路由既能用于本地，也能对接已部署的服务：
 
 ```ts
 baseUrl: process.env.MASTRA_BASE_URL ?? "http://127.0.0.1:4111"
 ```
 
-Prefer `127.0.0.1` over `localhost`: on machines that resolve `localhost` to IPv6
-first, the loopback name can miss an agent server bound to IPv4 only.
+优先使用 `127.0.0.1` 而不是 `localhost`：在把 `localhost` 先解析为 IPv6 的机器上，这个回环名可能会漏掉只绑定到 IPv4 的智能体服务器。
 
-### Local agents
+### 本地智能体
 
-`getLocalAgents` is synchronous and takes the `Mastra` instance itself instead of
-a client. It also accepts `requestContext` and `untilIdle`, neither of which has a
-remote equivalent — `untilIdle` is what [background tasks](/mastra/background-tasks)
-build on, so a run that needs it has to be embedded.
+`getLocalAgents` 是同步的，接受的是 `Mastra` 实例本身而不是客户端。它还接受 `requestContext` 和 `untilIdle`，这两者都没有远程等价物——[后台任务](/mastra/background-tasks)正是构建在 `untilIdle` 之上的，因此需要它的运行必须采用内嵌方式。
 
 ```ts
 const runtime = new CopilotRuntime({
@@ -111,16 +87,11 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-## Execution tracing
+## 执行追踪
 
-When you embed a Mastra agent in Copilot Runtime, its tracing is carried through
-AG-UI end to end, so runs show up in your Mastra observability backend with no
-extra wiring.
+当你把 Mastra 智能体内嵌到 Copilot Runtime 中时，它的追踪信息会通过 AG-UI 端到端传递，因此运行记录会直接出现在你的 Mastra 可观测性后端中，无需额外接线。
 
-- **Inbound** — pass `tracingOptions` alongside `mastra` in
-  `MastraAgent.getLocalAgents` to anchor each run under a caller-chosen trace.
-  `getRemoteAgents` takes the same option. The shape is
-  `{ traceId?: string; metadata?: Record<string, unknown> }`:
+- **入站**——在 `MastraAgent.getLocalAgents` 中随 `mastra` 一起传入 `tracingOptions`，把每次运行锚定到调用者选定的 trace 下。`getRemoteAgents` 也接受同样的选项。其结构为 `{ traceId?: string; metadata?: Record<string, unknown> }`：
 
   ```ts
   const runtime = new CopilotRuntime({
@@ -135,7 +106,4 @@ extra wiring.
   });
   ```
 
-- **Outbound** — the execution `traceId` Mastra assigns to a run is surfaced on
-  the `RUN_FINISHED` event's `result` field as `{ traceId }`, so you can anchor
-  feedback or scores back to the exact run (e.g. `createFeedback({ traceId })`).
-
+- **出站**——Mastra 为一次运行分配的执行 `traceId` 会以 `{ traceId }` 的形式出现在 `RUN_FINISHED` 事件的 `result` 字段上，这样你就能把反馈或评分锚定回确切的那次运行（例如 `createFeedback({ traceId })`）。
