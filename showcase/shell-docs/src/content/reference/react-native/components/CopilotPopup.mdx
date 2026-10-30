@@ -1,95 +1,89 @@
 ---
 title: "CopilotPopup"
-description: "A prebuilt floating action button that opens a CopilotChat session in a modal overlay card."
+description: "一个预构建的悬浮操作按钮，可在模态覆盖卡片中打开 CopilotChat 会话。"
 ---
 
-## Overview
+## 概览
 
-`CopilotPopup` renders a floating action button (FAB) that opens a chat in a modal overlay card with a header and a dismissible backdrop. Like [`CopilotSidebar`](/reference/react-native/components/CopilotSidebar), its chat area wraps a headless [`CopilotChat`](/reference/react-native/components/CopilotChat). Provide your chat UI as `children`, or drop in the prebuilt UI `CopilotChat` from `@copilotkit/react-native/components`.
+`CopilotPopup` 渲染一个悬浮操作按钮（FAB），点击后在模态覆盖卡片中打开聊天，卡片带有标题栏和可点击关闭的遮罩层。与 [`CopilotSidebar`](/reference/react-native/components/CopilotSidebar) 一样，它的聊天区域包装了一个无头（headless）的 [`CopilotChat`](/reference/react-native/components/CopilotChat)。你可以将聊天 UI 作为 `children` 传入，也可以直接放入来自 `@copilotkit/react-native/components` 的预构建 `CopilotChat` UI。
 
-Control it imperatively through a `CopilotPopupHandle` ref.
+可以通过 `CopilotPopupHandle` ref 以命令式方式控制它。
 
-## Import
+## 导入
 
 ```tsx
 import { CopilotPopup, type CopilotPopupHandle } from "@copilotkit/react-native";
 ```
 
-## Props
+## 属性
 
 <PropertyReference name="agentId" type="string" default='"default"'>
-  ID of the agent to connect to. Passed through to the inner `CopilotChat`.
+  要连接的智能体 ID。会透传给内部的 `CopilotChat`。
 </PropertyReference>
 
 <PropertyReference name="agentName" type="string">
-  **Deprecated**. Use `agentId`.
+  **已弃用**。请改用 `agentId`。
 </PropertyReference>
 
 <PropertyReference name="threadId" type="string">
-  Thread ID for this chat session.
+  此聊天会话的线程 ID。
 </PropertyReference>
 
 <PropertyReference name="throttleMs" type="number">
-  Throttle interval (ms) for re-renders.
+  重新渲染的节流间隔（毫秒）。
 </PropertyReference>
 
 <PropertyReference name="defaultOpen" type="boolean" default="false">
-  Whether the popup starts in the open state.
+  弹窗是否以打开状态启动。
 </PropertyReference>
 
 <PropertyReference name="height" type="number | string" default='"60%"'>
-  Height of the popup card. Accepts points (a number) or a percentage string
-  resolved against the screen height.
+  弹窗卡片的高度。接受点数（数字）或相对于屏幕高度解析的百分比字符串。
 </PropertyReference>
 
 <PropertyReference name="onError" type="(error: Error) => void">
-  Error handler scoped to this popup's chat agent.
+  作用于此弹窗聊天智能体的错误处理回调。
 </PropertyReference>
 
 <PropertyReference name="headerTitle" type="string" default='"CopilotKit"'>
-  Title displayed in the popup header bar.
+  弹窗标题栏中显示的标题。
 </PropertyReference>
 
 <PropertyReference name="attachments" type="NativeAttachmentsConfig">
-  Enable multimodal file attachments. Forwarded to the inner `CopilotChat`;
-  children read attachment state from
-  [`useCopilotChatContext`](/reference/react-native/components/CopilotChat#usecopilotchatcontext).
+  启用多模态文件附件。会转发给内部的 `CopilotChat`；子组件通过 [`useCopilotChatContext`](/reference/react-native/components/CopilotChat#usecopilotchatcontext) 读取附件状态。
 </PropertyReference>
 
 <PropertyReference name="children" type="ReactNode">
-  Content rendered below the chat content inside the popup card.
+  在弹窗卡片内、聊天内容下方渲染的内容。
 </PropertyReference>
 
 <PropertyReference name="onOpen" type="() => void">
-  Callback fired when the popup opens.
+  弹窗打开时触发的回调。
 </PropertyReference>
 
 <PropertyReference name="onClose" type="() => void">
-  Callback fired when the popup closes.
+  弹窗关闭时触发的回调。
 </PropertyReference>
 
 <PropertyReference name="dismissOnBackdropPress" type="boolean" default="true">
-  Whether tapping the semi-transparent backdrop dismisses the popup
-  (equivalent to the web SDK's `clickOutsideToClose`).
+  点击半透明遮罩层时是否关闭弹窗（等同于 Web SDK 的 `clickOutsideToClose`）。
 </PropertyReference>
 
 <PropertyReference name="showToggleButton" type="boolean" default="true">
-  Whether to show the FAB that toggles the popup. Hidden while the popup is
-  open.
+  是否显示用于切换弹窗的悬浮操作按钮。弹窗打开期间该按钮会隐藏。
 </PropertyReference>
 
 <PropertyReference name="style" type="ViewStyle">
-  Custom style applied to the popup card container.
+  应用于弹窗卡片容器的自定义样式。
 </PropertyReference>
 
-## Ref handle
+## Ref 句柄
 
 <PropertyReference name="CopilotPopupHandle" type="{ open(): void; close(): void; toggle(): void }">
-  Imperative handle exposed via `ref` for opening, closing, and toggling the
-  popup programmatically.
+  通过 `ref` 暴露的命令式句柄，用于以编程方式打开、关闭和切换弹窗。
 </PropertyReference>
 
-## Usage
+## 用法
 
 ```tsx
 import { CopilotPopup, type CopilotPopupHandle } from "@copilotkit/react-native";
@@ -107,14 +101,14 @@ export function ChatScreen() {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Overlay**: the popup opens as a modal card floating above your content, with a semi-transparent backdrop.
-- **Backdrop dismiss**: tapping the backdrop closes the popup when `dismissOnBackdropPress` is `true`.
-- **FAB**: when `showToggleButton` is `true`, a floating action button opens the popup and hides while it is open.
-- **Height**: a percentage `height` (e.g. `"60%"`) resolves against the screen height; a number is used as points.
+- **覆盖层**：弹窗以模态卡片形式打开，悬浮在你的内容之上，并带有半透明遮罩层。
+- **点击遮罩关闭**：当 `dismissOnBackdropPress` 为 `true` 时，点击遮罩层会关闭弹窗。
+- **FAB**：当 `showToggleButton` 为 `true` 时，由悬浮操作按钮打开弹窗，弹窗打开期间该按钮隐藏。
+- **高度**：百分比形式的 `height`（例如 `"60%"`）相对于屏幕高度解析；数字则作为点数使用。
 
-## Related
+## 相关内容
 
-- [`CopilotSidebar`](/reference/react-native/components/CopilotSidebar): slide-in drawer variant
-- [`CopilotChat`](/reference/react-native/components/CopilotChat): the chat primitive wrapped inside the popup
+- [`CopilotSidebar`](/reference/react-native/components/CopilotSidebar)：滑入式抽屉变体
+- [`CopilotChat`](/reference/react-native/components/CopilotChat)：弹窗内部包装的聊天原语

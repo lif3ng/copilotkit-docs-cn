@@ -1,21 +1,21 @@
 ---
 title: "useInterrupt"
-description: "React hook for handling agent interrupt events and resuming execution with user input"
+description: "用于处理智能体中断事件并携带用户输入恢复执行的 React 钩子"
 ---
 
-## Overview
+## 概览
 
-`useInterrupt` handles agent interrupts and resumes execution with user input. It supports the **AG-UI standard interrupt flow** — `RUN_FINISHED` with `outcome.type === "interrupt"` carrying an `interrupts` array — and the legacy custom-event flow (`on_interrupt`). For standard interrupts, your `render`/`handler` receive `interrupt` (the primary one) and `interrupts` (the full open set); call `resolve(payload)` to resume or `cancel()` to cancel.
+`useInterrupt` 处理智能体中断，并携带用户输入恢复执行。它支持 **AG-UI 标准中断流**——`RUN_FINISHED` 且 `outcome.type === "interrupt"`，携带一个 `interrupts` 数组——以及旧版自定义事件流（`on_interrupt`）。对于标准中断，你的 `render`/`handler` 会收到 `interrupt`（主要中断）和 `interrupts`（全部未决集合）；调用 `resolve(payload)` 恢复执行，或调用 `cancel()` 取消。
 
 <Callout type="info">
-  Re-exported from `@copilotkit/react-core/v2`. It is identical to the [React (V2) `useInterrupt`](/reference/v2/hooks/useInterrupt); only the import path differs.
+  该钩子从 `@copilotkit/react-core/v2` 重新导出。它与 [React (V2) 的 `useInterrupt`](/reference/v2/hooks/useInterrupt) 完全相同，仅导入路径不同。
 </Callout>
 
-By default, interrupt UI is rendered inside [`CopilotChat`](/reference/react-native/components/CopilotChat) automatically. If you set `renderInChat: false`, the hook returns the element so you can place it manually. The element returned by `render` is a React Native element.
+默认情况下，中断 UI 会自动渲染在 [`CopilotChat`](/reference/react-native/components/CopilotChat) 内部。如果你设置 `renderInChat: false`，该钩子会返回元素，由你手动放置。`render` 返回的元素是一个 React Native 元素。
 
-`event.value` is typed as `any` since the interrupt payload shape depends on your agent. Type-narrow it in your callbacks (e.g. `handler`, `enabled`, `render`) as needed.
+`event.value` 的类型是 `any`，因为中断负载的结构取决于你的智能体。可根据需要在回调（如 `handler`、`enabled`、`render`）中做类型收窄。
 
-## Signature
+## 签名
 
 ```tsx
 import { useInterrupt } from "@copilotkit/react-native";
@@ -32,59 +32,55 @@ function useInterrupt<
     : React.ReactElement | null | void;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="config" type="UseInterruptConfig<any, TResult, TRenderInChat>" required>
-  Interrupt configuration.
+  中断配置。
 
   <PropertyReference name="render" type="(props: InterruptRenderProps<any, TResult | null>) => React.ReactElement" required>
-    Render callback for interrupt UI. Called when an interrupt is available. The callback receives:
-    - `event`: interrupt event (`{ name, value }`). `value` is `any`; type-narrow in your callback as needed.
-    - `interrupt`: the primary standard `Interrupt` (`{ id, reason, message?, toolCallId?, responseSchema?, expiresAt?, metadata? }`), or `null` for legacy interrupts.
-    - `interrupts`: all open standard interrupts (empty array for legacy interrupts).
-    - `result`: inferred from `handler` return type, or `null`
-    - `resolve(payload?, interruptId?)`: for standard interrupts, records `{ status: "resolved", payload }` for the target interrupt (defaults to the primary) and submits once all open interrupts are addressed. For legacy interrupts, resumes immediately via `command.resume = payload`.
-    - `cancel(interruptId?)`: for standard interrupts, records `{ status: "cancelled" }` for the target interrupt and resumes once all are addressed. Not supported for legacy interrupts (dismisses without resuming).
+    中断 UI 的渲染回调。当有中断可用时调用。该回调接收：
+    - `event`：中断事件（`{ name, value }`）。`value` 为 `any`；可根据需要在回调中做类型收窄。
+    - `interrupt`：主要的标准 `Interrupt`（`{ id, reason, message?, toolCallId?, responseSchema?, expiresAt?, metadata? }`），旧版中断时为 `null`。
+    - `interrupts`：所有未决的标准中断（旧版中断为空数组）。
+    - `result`：从 `handler` 返回类型推断，或为 `null`
+    - `resolve(payload?, interruptId?)`：对于标准中断，为目标中断（默认为主要中断）记录 `{ status: "resolved", payload }`，并在所有未决中断都处理完毕后统一提交。对于旧版中断，通过 `command.resume = payload` 立即恢复。
+    - `cancel(interruptId?)`：对于标准中断，为目标中断记录 `{ status: "cancelled" }`，并在全部处理完毕后恢复。旧版中断不支持（直接关闭且不恢复）。
   </PropertyReference>
 
 <PropertyReference
   name="handler"
   type="(props: InterruptHandlerProps) => TResult | PromiseLike<TResult>"
 >
-  Optional preprocessing callback. Runs before rendering and can return sync or
-  async data that is exposed as `result` in `render`. `TResult` is automatically
-  inferred from the handler's return type. If the handler throws/rejects,
-  `result` is `null`.
+  可选的预处理回调。在渲染之前运行，可以返回同步或异步数据，这些数据会在 `render` 中以 `result` 暴露。`TResult` 会根据处理函数的返回类型自动推断。如果处理函数抛出异常或被拒绝，`result` 为 `null`。
 </PropertyReference>
 
 <PropertyReference name="enabled" type="(event: InterruptEvent) => boolean">
-  Optional filter. Return `false` to ignore matching interrupts for this hook
-  instance.
+  可选的过滤器。返回 `false` 可让该钩子实例忽略匹配的中断。
 </PropertyReference>
 
 <PropertyReference name="agentId" type="string">
-  Optional agent id. Defaults to the currently configured chat agent.
+  可选的智能体 id。默认为当前配置的聊天智能体。
 </PropertyReference>
 
   <PropertyReference name="renderInChat" type="boolean" default="true">
-    Controls where UI renders:
-    - `true` (default): publishes interrupt UI into [`CopilotChat`](/reference/react-native/components/CopilotChat)
-    - `false`: returns interrupt element from the hook for manual placement
+    控制 UI 渲染的位置：
+    - `true`（默认）：把中断 UI 发布到 [`CopilotChat`](/reference/react-native/components/CopilotChat)
+    - `false`：从钩子返回中断元素，由你手动放置
   </PropertyReference>
 </PropertyReference>
 
-## Return Value
+## 返回值
 
 <PropertyReference name="element" type="Conditional by renderInChat">
-  Return type is inferred from `renderInChat`:
+  返回类型由 `renderInChat` 推断：
   - `renderInChat: false` -> `React.ReactElement | null`
-  - `renderInChat: true` or omitted -> `void`
-  - dynamic boolean -> `React.ReactElement | null | void`
+  - `renderInChat: true` 或省略 -> `void`
+  - 动态布尔值 -> `React.ReactElement | null | void`
 </PropertyReference>
 
-## Usage
+## 用法
 
-### In-chat interrupt UI (default)
+### 聊天内中断 UI（默认）
 
 ```tsx
 import { Text, TouchableOpacity, View } from "react-native";
@@ -111,7 +107,7 @@ function ApprovalInterrupt() {
 }
 ```
 
-### AG-UI standard interrupt (approve / cancel)
+### AG-UI 标准中断（批准 / 取消）
 
 ```tsx
 import { Text, TouchableOpacity, View } from "react-native";
@@ -138,7 +134,7 @@ function ApprovalInterrupt() {
 }
 ```
 
-### Manual placement with async preprocessing
+### 手动放置与异步预处理
 
 ```tsx
 import { Text, TouchableOpacity, View } from "react-native";
@@ -164,20 +160,20 @@ function SidePanelInterrupt() {
 }
 ```
 
-## Behavior
+## 行为
 
-- Standard interrupts are detected from `RUN_FINISHED` (`outcome.type === "interrupt"`); legacy interrupts from `on_interrupt` custom events.
-- `resolve`/`cancel` accumulate one response per open interrupt; the resume run starts once every open interrupt is addressed.
-- Expired interrupts (past `expiresAt`) are not resumed.
-- Interrupt UI is surfaced when the run finalizes.
-- Starting a new run clears pending interrupt state.
-- `event.value` is `any`; type-narrow in your callbacks as needed. For standard interrupts, `event.value` is the primary `Interrupt`.
-- `render.result` is inferred from `handler` return type and is always `TResult | null`.
-- If `handler` throws or rejects, `result` is set to `null`.
+- 标准中断从 `RUN_FINISHED`（`outcome.type === "interrupt"`）检测；旧版中断从 `on_interrupt` 自定义事件检测。
+- `resolve`/`cancel` 会为每个未决中断累积一条响应；当所有未决中断都处理完毕后，恢复运行才会启动。
+- 已过期（超过 `expiresAt`）的中断不会被恢复。
+- 中断 UI 在运行收尾时呈现。
+- 启动新的运行会清除待处理的中断状态。
+- `event.value` 为 `any`；可根据需要在回调中做类型收窄。对于标准中断，`event.value` 就是主要的 `Interrupt`。
+- `render.result` 从 `handler` 的返回类型推断，始终为 `TResult | null`。
+- 如果 `handler` 抛出异常或被拒绝，`result` 会被设为 `null`。
 
-## Related
+## 相关内容
 
-- [`useHumanInTheLoop`](/reference/react-native/hooks/useHumanInTheLoop): structured interactive tool workflows
-- [`useFrontendTool`](/reference/react-native/hooks/useFrontendTool): client-side tool registration
-- [`useAgent`](/reference/react-native/hooks/useAgent): access and subscribe to agent events
-- [React (V2) reference](/reference/v2/hooks/useInterrupt)
+- [`useHumanInTheLoop`](/reference/react-native/hooks/useHumanInTheLoop)：结构化的交互式工具工作流
+- [`useFrontendTool`](/reference/react-native/hooks/useFrontendTool)：客户端工具注册
+- [`useAgent`](/reference/react-native/hooks/useAgent)：访问并订阅智能体事件
+- [React (V2) 参考](/reference/v2/hooks/useInterrupt)

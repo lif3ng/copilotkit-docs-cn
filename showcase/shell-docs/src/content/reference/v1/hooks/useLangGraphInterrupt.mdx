@@ -1,22 +1,21 @@
 ---
 title: "useLangGraphInterrupt"
-description: "The useLangGraphInterrupt hook allows setting the generative UI to be displayed on LangGraph's Interrupt event."
+description: "useLangGraphInterrupt 钩子用于设置在 LangGraph 的 Interrupt 事件发生时显示的生成式 UI。"
 ---
 
 <br />
 <video src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/interrupt-flow.mp4" className="rounded-lg shadow-xl" loop playsInline controls autoPlay muted />
 
 <Callout type="warning">
-  `useLangGraphInterrupt` is still supported, but we recommend migrating to [`useInterrupt`](/reference/v2/hooks/useInterrupt) from the v2 API. `useInterrupt` is the shape-equivalent replacement. It uses the same `render: ({ event, resolve }) => ...` pattern to render UI for an interrupt and resume the agent with the user's response.
+  `useLangGraphInterrupt` 仍受支持，但我们建议迁移到 v2 API 中的 [`useInterrupt`](/reference/v2/hooks/useInterrupt)。`useInterrupt` 是结构完全等价的替代品。它使用相同的 `render: ({ event, resolve }) => ...` 模式为中断渲染 UI，并用用户的响应恢复智能体。
 </Callout>
 
-`useLangGraphInterrupt` is a React hook that you can use in your application to provide
-custom UI to be rendered when using `interrupt` by LangGraph.
-Once an Interrupt event is emitted, that hook would execute, allowing to receive user input with a user experience to your choice.
+`useLangGraphInterrupt` 是一个 React 钩子，可在你的应用中使用，用于提供在使用 LangGraph 的 `interrupt` 时渲染的自定义 UI。
+一旦 Interrupt 事件发出，该钩子就会执行，让你能够以自选的用户体验接收用户输入。
 
-## Usage
+## 用法
 
-### Simple Usage
+### 简单用法
 
 ```tsx title="app/page.tsx"
 import { useLangGraphInterrupt } from "@copilotkit/react-core"; // [!code highlight]
@@ -46,32 +45,32 @@ const YourMainContent = () => {
 }
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="action" type="Action" required>
-  The action to perform when an Interrupt event is emitted. Either `handler` or `render` must be defined as arguments
+  Interrupt 事件发出时要执行的操作。参数中必须定义 `handler` 或 `render` 之一
 
     <PropertyReference name="name" type="string" required>
-      The name of the action.
+      操作的名称。
     </PropertyReference>
 
     <PropertyReference name="handler" type="(args: LangGraphInterruptRenderProps<T>) => any | Promise<any>">
-      A handler to programmatically resolve the Interrupt, or perform operations which result will be passed to the `render` method
+      用于以编程方式处理中断（Interrupt）的处理函数，或执行一些操作并将其结果传递给 `render` 方法
     </PropertyReference>
 
     <PropertyReference name="render" type="(props: LangGraphInterruptRenderProps<T>) => string | React.ReactElement">
-        Render lets you define a custom component or string to render when an Interrupt event is emitted.
+        render 允许你定义一个自定义组件或字符串，在 Interrupt 事件发出时渲染。
     </PropertyReference>
 
     <PropertyReference name="enabled" type="(args: { eventValue: TEventValue; agentMetadata: AgentSession }) => boolean">
-        Method that returns a boolean, indicating if the interrupt action should run. Useful when using multiple interrupts
+        返回布尔值的方法，指示该中断操作是否应该运行。在使用多个中断时非常有用
     </PropertyReference>
 
     <PropertyReference name="agentId" type="string">
-        Optional agent ID to scope this interrupt to a specific agent. Defaults to the agent configured in the CopilotKit chat configuration.
+        可选的 agent ID，用于将此中断限定到特定智能体。默认为 CopilotKit 聊天配置中所配置的智能体。
     </PropertyReference>
 </PropertyReference>
 
 <PropertyReference name="dependencies" type="any[]">
-  An optional array of dependencies.
+  一个可选的依赖项数组。
 </PropertyReference>

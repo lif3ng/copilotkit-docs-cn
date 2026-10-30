@@ -1,37 +1,37 @@
 ---
 title: "AssistantMessage"
-description: "A left-aligned assistant chat bubble that renders Markdown content, with an optional typing indicator and timestamp."
+description: "左对齐的助手聊天气泡，渲染 Markdown 内容，可选打字指示器与时间戳。"
 ---
 
-## Overview
+## 概览
 
-`AssistantMessage` renders a left-aligned chat bubble for assistant turns. Content is rendered as Markdown through [`CopilotMarkdown`](/reference/react-native/components/CopilotMarkdown). When `isLoading` is set, it shows an animated typing indicator instead of content. Useful when building a custom chat UI on top of the headless [`CopilotChat`](/reference/react-native/components/CopilotChat).
+`AssistantMessage` 为助手回合渲染左对齐的聊天气泡。内容通过 [`CopilotMarkdown`](/reference/react-native/components/CopilotMarkdown) 以 Markdown 渲染。设置了 `isLoading` 时，会显示动画打字指示器而非内容。适用于在无头的 [`CopilotChat`](/reference/react-native/components/CopilotChat) 之上构建自定义聊天 UI。
 
-## Import
+## 导入
 
 ```tsx
 import { AssistantMessage } from "@copilotkit/react-native/components";
 ```
 
-## Props
+## 属性
 
 <PropertyReference name="content" type="string" required>
-  Markdown content to render inside the bubble.
+  在气泡内渲染的 Markdown 内容。
 </PropertyReference>
 
 <PropertyReference name="isLoading" type="boolean" default="false">
-  When `true`, shows a typing indicator instead of the content.
+  为 `true` 时，显示打字指示器而非内容。
 </PropertyReference>
 
 <PropertyReference name="timestamp" type="Date">
-  Optional timestamp displayed below the bubble, formatted as 12-hour time.
+  可选时间戳，显示在气泡下方，以 12 小时制格式化。
 </PropertyReference>
 
 <PropertyReference name="style" type="ViewStyle">
-  Optional style override for the outer container.
+  外层容器的可选样式覆盖。
 </PropertyReference>
 
-## Usage
+## 用法
 
 ```tsx
 import { AssistantMessage } from "@copilotkit/react-native/components";
@@ -42,7 +42,7 @@ import { AssistantMessage } from "@copilotkit/react-native/components";
 <AssistantMessage content="" isLoading />;
 ```
 
-## Related
+## 相关内容
 
-- [`UserMessage`](/reference/react-native/components/UserMessage): the user-side counterpart
-- [`CopilotMarkdown`](/reference/react-native/components/CopilotMarkdown): the Markdown renderer used internally
+- [`UserMessage`](/reference/react-native/components/UserMessage)：用户侧的对应组件
+- [`CopilotMarkdown`](/reference/react-native/components/CopilotMarkdown)：内部使用的 Markdown 渲染器

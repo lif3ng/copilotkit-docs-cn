@@ -1,6 +1,6 @@
 ---
 title: "useCopilotAdditionalInstructions"
-description: "The useCopilotAdditionalInstructions hook allows you to provide additional instructions to the agent."
+description: "useCopilotAdditionalInstructions hook 允许你向智能体提供附加指令。"
 ---
 
 {
@@ -10,15 +10,13 @@ description: "The useCopilotAdditionalInstructions hook allows you to provide ad
   * packages/react-core/src/v1-deprecated/hooks/use-copilot-additional-instructions.ts
   */
 }
-`useCopilotAdditionalInstructions` is a React hook that provides additional instructions
-to the Copilot.
+`useCopilotAdditionalInstructions` 是一个 React hook，用于向 Copilot 提供附加指令。
  
-## Usage
+## 用法
  
-### Simple Usage
+### 简单用法
  
-In its most basic usage, useCopilotAdditionalInstructions accepts a single string argument
-representing the instructions to be added to the Copilot.
+最基本的用法中，useCopilotAdditionalInstructions 接受单个字符串实参，表示要添加到 Copilot 的指令。
  
 ```tsx
 import { useCopilotAdditionalInstructions } from "@copilotkit/react-core";
@@ -30,9 +28,9 @@ export function MyComponent() {
 }
 ```
  
-### Conditional Usage
+### 条件用法
  
-You can also conditionally add instructions based on the state of your app.
+你还可以根据应用的状态有条件地添加指令。
  
 ```tsx
 import { useCopilotAdditionalInstructions } from "@copilotkit/react-core";
@@ -47,10 +45,10 @@ export function MyComponent() {
 }
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="instructions" type="string" required > 
-The instructions to be added to the Copilot. Will be added to the instructions like so:
+要添加到 Copilot 的指令。将以如下方式追加到指令中：
  
   ```txt
   You are a helpful assistant.
@@ -61,6 +59,5 @@ The instructions to be added to the Copilot. Will be added to the instructions l
 </PropertyReference>
 
 <PropertyReference name="available" type="'enabled' | 'disabled'"  > 
-Whether the instructions are available to the Copilot.
+指令是否对 Copilot 可用。
 </PropertyReference>
-

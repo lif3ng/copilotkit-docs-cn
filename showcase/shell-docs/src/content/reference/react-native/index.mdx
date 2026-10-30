@@ -1,23 +1,22 @@
 ---
 title: "React Native"
-description: "API reference for @copilotkit/react-native: the headless provider, prebuilt UI components, and hooks for building CopilotKit into a React Native app."
+description: "@copilotkit/react-native 的 API 参考：无头 Provider、预构建 UI 组件，以及用于在 React Native 应用中构建 CopilotKit 的 Hook。"
 ---
 
-`@copilotkit/react-native` brings CopilotKit to React Native. It ships a lightweight [provider](/reference/react-native/components/CopilotKitProvider), a set of prebuilt UI components, hooks built for React Native, and re-exports of the platform-agnostic hooks from `@copilotkit/react-core`. Everything is built on the [AG-UI](https://docs.ag-ui.com) agent protocol, with no DOM, CSS, or web framework dependencies.
+`@copilotkit/react-native` 将 CopilotKit 带到了 React Native。它提供了一个轻量的 [Provider 组件](/reference/react-native/components/CopilotKitProvider)、一组预构建 UI 组件、专为 React Native 打造的 Hook，以及从 `@copilotkit/react-core` 转发的平台无关 Hook。一切均构建在 [AG-UI](https://docs.ag-ui.com) 智能体协议之上，不依赖任何 DOM、CSS 或 Web 框架。
 
 <Callout type="info">
-  The package root **is** the v2 API. Unlike the web SDK, which exposes v2
-  under a `/v2` subpath, React Native exports the v2 surface directly from
-  `@copilotkit/react-native`.
+  包根路径导出的**就是** v2 API。与 Web SDK 在 `/v2` 子路径下暴露 v2 不同，
+  React Native 直接从 `@copilotkit/react-native` 导出 v2 接口。
 </Callout>
 
-## Installation
+## 安装
 
 ```sh
 npm install @copilotkit/react-native
 ```
 
-The prebuilt UI components and native attachments rely on a few peer dependencies. Install the ones you use:
+预构建 UI 组件与原生附件功能依赖若干 peer dependencies，请按需安装你要用到的那些：
 
 ```sh
 npm install @gorhom/bottom-sheet react-native-gesture-handler react-native-reanimated react-native-streamdown
@@ -25,9 +24,9 @@ npm install @gorhom/bottom-sheet react-native-gesture-handler react-native-reani
 
 ## Polyfills
 
-React Native's JS runtime (Hermes) lacks several Web APIs that CopilotKit depends on (`ReadableStream`, `TextEncoder`, `crypto.getRandomValues`, `DOMException`, `location`). Importing `@copilotkit/react-native` **auto-installs** these polyfills, so no manual import is required.
+React Native 的 JS 运行时（Hermes）缺少 CopilotKit 所依赖的若干 Web API（`ReadableStream`、`TextEncoder`、`crypto.getRandomValues`、`DOMException`、`location`）。导入 `@copilotkit/react-native` 时会**自动安装**这些 polyfill，因此无需手动导入。
 
-If you bring your own polyfills, import only the pieces you need before any other code in your entry point:
+如果你自带 polyfill，可以在入口文件中、位于任何其他代码之前，只导入需要的部分：
 
 ```js title="index.js"
 import "@copilotkit/react-native/polyfills/streams";
@@ -37,9 +36,9 @@ import "@copilotkit/react-native/polyfills/dom";
 import "@copilotkit/react-native/polyfills/location";
 ```
 
-## Provider setup
+## Provider 配置
 
-Wrap your app (or a sub-tree) with [`CopilotKitProvider`](/reference/react-native/components/CopilotKitProvider) to configure the runtime connection:
+用 [`CopilotKitProvider`](/reference/react-native/components/CopilotKitProvider) 包裹你的应用（或某个子树），以配置运行时连接：
 
 ```tsx
 import { CopilotKitProvider } from "@copilotkit/react-native";
@@ -53,41 +52,41 @@ export default function App() {
 }
 ```
 
-## Two ways to build the chat UI
+## 构建聊天 UI 的两种方式
 
-The package is organized into two tiers, so you can pick how much UI you write yourself:
+这个包分为两个层级，你可以自行决定要亲手编写多少 UI：
 
-| Tier | Import | What you get |
+| 层级 | 导入路径 | 提供的内容 |
 |------|--------|--------------|
-| **Headless** | `@copilotkit/react-native` | Primitives that wire up an agent and expose its state. [`CopilotChat`](/reference/react-native/components/CopilotChat) and [`CopilotModal`](/reference/react-native/components/CopilotModal) render no UI; you build the interface from React Native views. |
-| **Prebuilt UI** | `@copilotkit/react-native/components` | Drop-in chat UI: a full-screen [`CopilotChat`](/reference/react-native/components/CopilotChat#prebuilt-ui), a bottom-sheet [`CopilotModal`](/reference/react-native/components/CopilotModal#prebuilt-ui), [`CopilotMarkdown`](/reference/react-native/components/CopilotMarkdown), and [message bubbles](/reference/react-native/components/AssistantMessage). |
+| **无头（headless）** | `@copilotkit/react-native` | 用于接入智能体并暴露其状态的基础组件。[`CopilotChat`](/reference/react-native/components/CopilotChat) 与 [`CopilotModal`](/reference/react-native/components/CopilotModal) 不渲染任何 UI，界面需由你用 React Native 视图自行搭建。 |
+| **预构建 UI** | `@copilotkit/react-native/components` | 开箱即用的聊天 UI：全屏的 [`CopilotChat`](/reference/react-native/components/CopilotChat#prebuilt-ui)、底部弹层的 [`CopilotModal`](/reference/react-native/components/CopilotModal#prebuilt-ui)、[`CopilotMarkdown`](/reference/react-native/components/CopilotMarkdown)，以及[消息气泡](/reference/react-native/components/AssistantMessage)。 |
 
-The root also exports two prebuilt chrome components: [`CopilotSidebar`](/reference/react-native/components/CopilotSidebar) (a slide-in drawer) and [`CopilotPopup`](/reference/react-native/components/CopilotPopup) (a floating action button + overlay).
+包根路径还导出两个预构建外壳组件：[`CopilotSidebar`](/reference/react-native/components/CopilotSidebar)（滑入式抽屉）和 [`CopilotPopup`](/reference/react-native/components/CopilotPopup)（浮动操作按钮 + 遮罩层）。
 
 <Callout type="info">
-  `CopilotChat` and `CopilotModal` exist in **both** tiers with different
-  props. The root exports are headless; the `/components` exports are prebuilt
-  UI. Each component page documents both, disambiguated by import path.
+  `CopilotChat` 与 `CopilotModal` 在**两个**层级中都存在，但 props 不同。
+  包根路径导出的是无头版本，`/components` 导出的是预构建 UI。
+  每个组件页面会同时记录两者，并通过导入路径加以区分。
 </Callout>
 
-## API Reference
+## API 参考
 
 <Cards>
   <Card
-    title="Components"
-    description="Provider, headless primitives, and prebuilt UI: CopilotKitProvider, CopilotChat, CopilotModal, CopilotSidebar, CopilotPopup, and message components."
+    title="组件"
+    description="Provider、无头基础组件与预构建 UI：CopilotKitProvider、CopilotChat、CopilotModal、CopilotSidebar、CopilotPopup 以及消息组件。"
     href="/reference/react-native/components/CopilotKitProvider"
     icon={<LinkIcon />}
   />
   <Card
     title="Hooks"
-    description="Native attachments and tool rendering plus the platform-agnostic hooks re-exported from react-core: useAgent, useFrontendTool, useHumanInTheLoop, and more."
+    description="原生附件与工具渲染，以及从 react-core 转发的平台无关 Hook：useAgent、useFrontendTool、useHumanInTheLoop 等。"
     href="/reference/react-native/hooks/useAgent"
     icon={<LinkIcon />}
   />
 </Cards>
 
-## Related
+## 相关内容
 
-- [React Native quickstart](/react-native): create an app, install, and connect your first agent
-- [React (V2) reference](/reference/v2): the web SDK, where the re-exported hooks behave identically
+- [React Native 快速开始](/react-native)：创建应用、完成安装并接入你的第一个智能体
+- [React（V2）参考](/reference/v2)：Web SDK，其中被转发的 Hook 行为完全一致

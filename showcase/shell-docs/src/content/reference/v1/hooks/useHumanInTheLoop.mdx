@@ -1,23 +1,23 @@
 ---
 title: "useHumanInTheLoop"
-description: "The useHumanInTheLoop hook enables human approval and interaction workflows."
+description: "useHumanInTheLoop 钩子用于实现人工审批和交互工作流。"
 ---
 
 <Callout type="warning">
-  This is the v1 `useHumanInTheLoop`, which takes an array of parameter definitions. It is still supported, but we recommend migrating to the [v2 `useHumanInTheLoop`](/reference/v2/hooks/useHumanInTheLoop) (from `@copilotkit/react-core/v2`), which uses Zod schemas for parameters.
+  这里是 v1 的 `useHumanInTheLoop`，它接受一个参数定义数组。它仍受支持，但我们建议迁移到 [v2 的 `useHumanInTheLoop`](/reference/v2/hooks/useHumanInTheLoop)（来自 `@copilotkit/react-core/v2`），后者使用 Zod schema 定义参数。
 </Callout>
 
-`useHumanInTheLoop` pauses AI execution to request human input or approval. When the AI calls this
-tool, it stops and waits for the user to respond through your custom UI before continuing. This is
-essential for sensitive operations, confirmations, or collecting information that only the user can provide.
+`useHumanInTheLoop` 会暂停 AI 的执行，以请求人工输入或审批。当 AI 调用此
+工具时，它会停下来，等待用户通过你的自定义 UI 做出响应后再继续。这对于
+敏感操作、确认流程或收集只有用户才能提供的信息来说至关重要。
 
-Unlike `useFrontendTool`, there's no handler function. Instead, your render function receives a `respond`
-callback that sends the user's input back to the AI. The AI execution remains paused until `respond` is called,
-making this a true blocking interaction.
+与 `useFrontendTool` 不同，这里没有处理函数。你的 render 函数会接收一个 `respond`
+回调，用于将用户的输入发回给 AI。在 `respond` 被调用之前，AI 的执行会一直保持暂停，
+因此这是一种真正的阻塞式交互。
 
-## Usage
+## 用法
 
-### Simple Confirmation Example
+### 简单确认示例
 
 ```tsx
 import { useHumanInTheLoop } from "@copilotkit/react-core";
@@ -75,7 +75,7 @@ useHumanInTheLoop({
 });
 ```
 
-### Complex Input Collection Example
+### 复杂输入收集示例
 
 ```tsx
 import { useHumanInTheLoop } from "@copilotkit/react-core";
@@ -129,17 +129,17 @@ useHumanInTheLoop({
 });
 ```
 
-## Best Practices
+## 最佳实践
 
-1. Always check for the `respond` function before rendering interactive elements
-2. Handle all status states to provide good user feedback
-3. Validate user input before calling `respond`
-4. Provide clear instructions in your UI about what input is expected
-5. Consider timeout scenarios for time-sensitive operations
+1. 在渲染交互元素之前，务必检查 `respond` 函数是否存在
+2. 处理所有 status 状态，以提供良好的用户反馈
+3. 在调用 `respond` 之前验证用户输入
+4. 在 UI 中清晰说明期望用户提供什么输入
+5. 对时间敏感的操作考虑超时场景
 
-## Migration from useCopilotAction
+## 从 useCopilotAction 迁移
 
-If you're migrating from `useCopilotAction` with `renderAndWaitForResponse`:
+如果你正在从使用 `renderAndWaitForResponse` 的 `useCopilotAction` 迁移：
 
 ```tsx
 // Before with useCopilotAction
@@ -187,31 +187,31 @@ useHumanInTheLoop({
 });
 ```
 
-The main differences are:
-1. The property is called `render` instead of `renderAndWaitForResponse`
-2. You need to check for the `respond` function's existence
+主要区别在于：
+1. 属性名为 `render`，而不是 `renderAndWaitForResponse`
+2. 你需要检查 `respond` 函数是否存在
 
-## Parameters
+## 参数
 
 <PropertyReference name="name" type="string" required >
-The name of the tool.
+工具的名称。
 </PropertyReference>
 
 <PropertyReference name="description" type="string"  >
-A description of the tool. This is used to instruct the Copilot on when to request human input.
+工具的描述。用于指导 Copilot 何时请求人工输入。
 </PropertyReference>
 
 <PropertyReference name="parameters" type="T"  >
-Array of parameter definitions that will be passed to the render function. Each parameter object should have:
-- `name` (string): The parameter name
-- `type` (string): The parameter type (e.g., "string", "number", "boolean", "string[]", "object")
-- `description` (string): A description of what the parameter is for
-- `required` (boolean): Whether the parameter is required
-- `properties` (array, optional): For object types, define nested properties using the same schema
+将传递给 render 函数的参数定义数组。每个参数对象应包含：
+- `name`（string）：参数名称
+- `type`（string）：参数类型（例如 "string"、"number"、"boolean"、"string[]"、"object"）
+- `description`（string）：说明该参数的用途
+- `required`（boolean）：该参数是否必填
+- `properties`（array，可选）：对于 object 类型，使用相同的 schema 定义嵌套属性
 
-Simple example: `[{ name: "itemName", type: "string", description: "Name of the item", required: true }]`
+简单示例：`[{ name: "itemName", type: "string", description: "Name of the item", required: true }]`
 
-Nested example:
+嵌套示例：
 ```typescript
 [
   {
@@ -229,9 +229,9 @@ Nested example:
 </PropertyReference>
 
 <PropertyReference name="render" type="FrontendAction<T>['renderAndWaitForResponse']" required >
-A React component that renders the interactive UI for human input. The component receives props including `args`, `status`, and `respond` function.
+渲染人工输入交互式 UI 的 React 组件。该组件接收的 props 包括 `args`、`status` 和 `respond` 函数。
 </PropertyReference>
 
 <PropertyReference name="available" type="'disabled' | 'enabled'"  >
-Currently non-functional in this v1 hook. The value is accepted for API compatibility but ignored, so setting `"disabled"` does not prevent the tool from being registered or called.
+在此 v1 钩子中目前不起作用。该值仅为 API 兼容性而被接受，实际会被忽略，因此设置为 `"disabled"` 并不会阻止该工具被注册或调用。
 </PropertyReference>

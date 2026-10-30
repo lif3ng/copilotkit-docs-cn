@@ -1,6 +1,6 @@
 ---
 title: "useCoAgent"
-description: "The useCoAgent hook allows you to share state bidirectionally between your application and the agent."
+description: "useCoAgent hook 支持在你的应用与智能体之间双向共享状态。"
 ---
 
 {
@@ -11,24 +11,21 @@ description: "The useCoAgent hook allows you to share state bidirectionally betw
   */
 }
 <Callout type="info">
-  Usage of this hook assumes some additional setup in your application, for more information
-  on that see the CoAgents <span className="text-blue-500">[getting started guide](/langgraph-python/quickstart)</span>.
+  使用此 hook 前需要在你的应用中做一些额外设置，详情请参阅 CoAgents <span className="text-blue-500">[入门指南](/langgraph-python/quickstart)</span>。
 </Callout>
 <Frame className="my-12">
   <img
     src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/SharedStateCoAgents.gif"
-    alt="CoAgents demonstration"
+    alt="CoAgents 演示"
     className="w-auto"
   />
 </Frame>
  
-This hook is used to integrate an agent into your application. With its use, you can
-render and update the state of an agent, allowing for a dynamic and interactive experience.
-We call these shared state experiences agentic copilots, or CoAgents for short.
+此 hook 用于将智能体集成到你的应用中。借助它，你可以渲染并更新智能体的状态，从而打造动态且可交互的体验。我们将这类共享状态体验称为 agentic copilot，简称 CoAgents。
  
-## Usage
+## 用法
  
-### Simple Usage
+### 简单用法
  
 ```tsx
 import { useCoAgent } from "@copilotkit/react-core";
@@ -46,9 +43,7 @@ const agent = useCoAgent<AgentState>({
  
 ```
  
-In CopilotKit v2, `useCoAgent` is a thin compatibility wrapper over the v2
-[`useAgent`](/reference/hooks/useAgent) hook. It returns an object with the
-following properties:
+在 CopilotKit v2 中，`useCoAgent` 是 v2 [`useAgent`](/reference/hooks/useAgent) hook 之上的一层轻量兼容包装器。它返回一个包含以下属性的对象：
  
 ```tsx
 const {
@@ -64,7 +59,7 @@ const {
 } = agent;
 ```
  
-Finally we can leverage these properties to create reactive experiences with the agent!
+最后，我们就可以利用这些属性与智能体构建响应式体验了！
  
 ```tsx
 const { state, setState } = useCoAgent<AgentState>({
@@ -82,22 +77,21 @@ return (
 );
 ```
  
-This reactivity is bidirectional, meaning that changes to the state from the agent will be reflected in the UI and vice versa.
- 
-## Parameters
+这种响应是双向的：来自智能体的状态变更会反映到 UI 中，反之亦然。
+
+## 参数
 <PropertyReference name="options" type="UseCoagentOptions<T>" required>
-  The options to use when creating the coagent.
+  创建 coagent 时使用的选项。
   <PropertyReference name="name" type="string" required>
-    The name of the agent to use.
+    要使用的智能体名称。
   </PropertyReference>
   <PropertyReference name="initialState" type="T | any">
-    The initial state of the agent.
+    智能体的初始状态。
   </PropertyReference>
   <PropertyReference name="state" type="T | any">
-    State to manage externally if you are using this hook with external state management.
+    当你将该 hook 与外部状态管理配合使用时，由外部管理的状态。
   </PropertyReference>
   <PropertyReference name="setState" type="(newState: T | ((prevState: T | undefined) => T)) => void">
-    A function to update the state of the agent if you are using this hook with external state management.
+    当你将该 hook 与外部状态管理配合使用时，用于更新智能体状态的函数。
   </PropertyReference>
 </PropertyReference>
-

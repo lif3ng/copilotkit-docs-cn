@@ -1,15 +1,15 @@
 ---
 title: "useAttachments"
-description: "React Native hook for adding multimodal file attachments to a chat using Expo's document picker and file system."
+description: "React Native hook，借助 Expo 的文档选择器与文件系统为聊天添加多模态文件附件。"
 ---
 
-## Overview
+## 概览
 
-`useAttachments` is the React Native counterpart of the web `useAttachments` hook. It manages picking, validating, uploading, and consuming file attachments for a chat, using [`expo-document-picker`](https://docs.expo.dev/versions/latest/sdk/document-picker/) and [`expo-file-system`](https://docs.expo.dev/versions/latest/sdk/filesystem/) in place of the web `FileReader` / `<input type="file">` APIs.
+`useAttachments` 是 Web 版 `useAttachments` hook 在 React Native 上的对应实现。它负责为聊天挑选、校验、上传和消费文件附件，使用 [`expo-document-picker`](https://docs.expo.dev/versions/latest/sdk/document-picker/) 和 [`expo-file-system`](https://docs.expo.dev/versions/latest/sdk/filesystem/) 替代 Web 的 `FileReader` / `<input type="file">` API。
 
-The headless [`CopilotChat`](/reference/react-native/components/CopilotChat) wires this hook up for you when you pass its `attachments` prop. Call `useAttachments` directly only when you manage attachments outside of `CopilotChat`. Requires the `expo-document-picker` and `expo-file-system` peer dependencies.
+无头（headless）的 [`CopilotChat`](/reference/react-native/components/CopilotChat) 在你传入其 `attachments` 属性时会自动接好这个 hook。只有在 `CopilotChat` 之外自行管理附件时，才需要直接调用 `useAttachments`。需要安装 `expo-document-picker` 和 `expo-file-system` 这两个对等依赖。
 
-## Signature
+## 签名
 
 ```tsx
 import { useAttachments } from "@copilotkit/react-native";
@@ -17,90 +17,84 @@ import { useAttachments } from "@copilotkit/react-native";
 function useAttachments(props: UseNativeAttachmentsProps): UseNativeAttachmentsReturn;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="props" type="UseNativeAttachmentsProps">
-  Configuration object for the hook.
+  该 hook 的配置对象。
 
   <PropertyReference name="config" type="NativeAttachmentsConfig">
-    Attachment configuration.
+    附件配置。
 
     <PropertyReference name="enabled" type="boolean" required>
-      Enable file attachments. When `false`, the hook is inert.
+      启用文件附件。为 `false` 时该 hook 不做任何事。
     </PropertyReference>
 
     <PropertyReference name="accept" type="string" default='"*/*"'>
-      MIME type filter for the picker. Supports wildcards (`"image/*"`) and
-      comma-separated lists (`"image/*,application/pdf"`).
+      选择器的 MIME 类型过滤。支持通配符（`"image/*"`）和逗号分隔列表（`"image/*,application/pdf"`）。
     </PropertyReference>
 
     <PropertyReference name="maxSize" type="number" default="20971520">
-      Maximum file size in bytes. Defaults to 20&nbsp;MB.
+      最大文件大小（字节）。默认为 20&nbsp;MB。
     </PropertyReference>
 
     <PropertyReference name="onUpload" type="(file: NativeFileInput) => AttachmentUploadResult | Promise<AttachmentUploadResult>">
-      Custom upload handler. If omitted, the file is read as base64 via
-      `expo-file-system` and embedded directly in the message.
+      自定义上传处理函数。省略时，文件会经 `expo-file-system` 读取为 base64 并直接嵌入消息。
     </PropertyReference>
 
     <PropertyReference name="onUploadFailed" type="(error: { reason: AttachmentUploadErrorReason; file: NativeFileInput; message: string }) => void">
-      Called when an attachment fails validation (e.g. wrong type or too large)
-      or upload.
+      附件未通过校验（例如类型错误或过大）或上传失败时调用。
     </PropertyReference>
 
   </PropertyReference>
 </PropertyReference>
 
-## Return Value
+## 返回值
 
 <PropertyReference name="attachments" type="Attachment[]">
-  Currently selected attachments (uploading + ready).
+  当前已选择的附件（上传中 + 就绪）。
 </PropertyReference>
 
 <PropertyReference name="enabled" type="boolean">
-  Whether attachments are enabled.
+  附件功能是否已启用。
 </PropertyReference>
 
 <PropertyReference name="openPicker" type="() => Promise<void>">
-  Open the native document picker (via `expo-document-picker`) and process the
-  selected files.
+  打开原生文档选择器（经 `expo-document-picker`）并处理所选文件。
 </PropertyReference>
 
 <PropertyReference name="processFiles" type="(files: NativeFileInput[]) => Promise<void>">
-  Validate, read, and add an array of files to the attachment queue. Useful
-  when you source files from somewhere other than the document picker.
+  校验、读取一组文件并加入附件队列。当你从文档选择器以外的地方获取文件时很有用。
 </PropertyReference>
 
 <PropertyReference name="removeAttachment" type="(id: string) => void">
-  Remove an attachment from the queue by ID.
+  按 ID 从队列中移除一个附件。
 </PropertyReference>
 
 <PropertyReference name="consumeAttachments" type="() => Attachment[]">
-  Return the ready attachments and clear the queue. Call this when submitting a
-  message.
+  返回就绪的附件并清空队列。提交消息时调用。
 </PropertyReference>
 
 ### `NativeFileInput`
 
-The React Native equivalent of the web `File` object.
+Web `File` 对象在 React Native 上的等价物。
 
 <PropertyReference name="uri" type="string">
-  Local file URI, e.g. `file:///path/to/file`.
+  本地文件 URI，例如 `file:///path/to/file`。
 </PropertyReference>
 
 <PropertyReference name="name" type="string">
-  Filename with extension.
+  带扩展名的文件名。
 </PropertyReference>
 
 <PropertyReference name="size" type="number">
-  File size in bytes.
+  文件大小（字节）。
 </PropertyReference>
 
 <PropertyReference name="mimeType" type="string">
-  MIME type, e.g. `"image/jpeg"`.
+  MIME 类型，例如 `"image/jpeg"`。
 </PropertyReference>
 
-## Usage
+## 用法
 
 ```tsx
 import { useAttachments } from "@copilotkit/react-native";
@@ -131,11 +125,9 @@ function Composer() {
 }
 ```
 
-Each `Attachment` exposes its content as a `source` (a base64 data source or a
-URL source), not a ready-made URL. `getSourceUrl` from `@copilotkit/shared`
-converts either form to a string you can pass to `Image`.
+每个 `Attachment` 都以 `source`（base64 数据源或 URL 源）的形式暴露内容，而不是现成的 URL。`@copilotkit/shared` 的 `getSourceUrl` 可把这两种形式转换为可传给 `Image` 的字符串。
 
-Most apps enable attachments declaratively through `CopilotChat` instead:
+大多数应用改为通过 `CopilotChat` 以声明式方式启用附件：
 
 ```tsx
 <CopilotChat agentId="default" attachments={{ enabled: true, accept: "image/*" }}>
@@ -143,6 +135,6 @@ Most apps enable attachments declaratively through `CopilotChat` instead:
 </CopilotChat>
 ```
 
-## Related
+## 相关内容
 
-- [`CopilotChat`](/reference/react-native/components/CopilotChat): wires up attachments via its `attachments` prop and exposes `openPicker` / `removeAttachment` through `useCopilotChatContext`
+- [`CopilotChat`](/reference/react-native/components/CopilotChat)：通过其 `attachments` 属性接好附件，并通过 `useCopilotChatContext` 暴露 `openPicker` / `removeAttachment`

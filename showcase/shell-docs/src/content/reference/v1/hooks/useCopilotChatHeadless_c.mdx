@@ -9,27 +9,27 @@ title: "useCopilotChatHeadless_c"
   * packages/react-core/src/v1-deprecated/hooks/use-copilot-chat-headless_c.ts
   */
 }
-`useCopilotChatHeadless_c` is for building fully custom UI (headless UI) implementations.
+`useCopilotChatHeadless_c` 用于构建完全自定义的 UI（无头 UI）实现。
  
-<Callout title="This is a CopilotKit Intelligence feature">
-Read more about <a href="/intelligence/overview">CopilotKit Intelligence</a>.
+<Callout title="这是 CopilotKit Intelligence 特性">
+阅读更多关于 <a href="/intelligence/overview">CopilotKit Intelligence</a> 的内容。
  
-Usage is generous and free to get started.
+起步阶段的用量十分宽松，且免费。
 </Callout>
  
-## Key Features
+## 主要特性
  
-- Fully headless: Build your own fully custom UI's for your agentic applications.
-- Advanced Suggestions: Direct access to suggestions array with full control
-- Interrupt Handling: Support for advanced interrupt functionality
-- MCP Server Support: Model Context Protocol server configurations
-- Chat Controls: Complete set of chat management functions
-- Loading States: Comprehensive loading state management
+- 完全无头：为你的智能体化应用构建完全自定义的 UI。
+- 高级建议：直接访问建议数组，获得完全控制
+- 中断处理：支持高级中断功能
+- MCP 服务器支持：Model Context Protocol 服务器配置
+- 聊天控制：完整的聊天管理功能集
+- 加载状态：全面的加载状态管理
  
  
-## Usage
+## 用法
  
-### Basic Setup
+### 基本设置
  
 ```tsx
 import { CopilotKit } from "@copilotkit/react-core";
@@ -65,7 +65,7 @@ export function YourComponent() {
 }
 ```
  
-### Working with Suggestions
+### 使用建议
  
 ```tsx
 import { useCopilotChatHeadless_c, useCopilotChatSuggestions } from "@copilotkit/react-core";
@@ -97,74 +97,73 @@ export function SuggestionExample() {
 }
 ```
  
-## Return Values
-The following properties are returned from the hook:
+## 返回值
+该 hook 返回以下属性：
  
 <PropertyReference name="messages" type="Message[]">
-The messages currently in the chat in AG-UI format
+聊天中当前的消息，采用 AG-UI 格式
 </PropertyReference>
  
 <PropertyReference name="sendMessage" type="(message: Message, options?) => Promise<void>">
-Send a new message to the chat and trigger AI response
+向聊天发送新消息并触发 AI 响应
 </PropertyReference>
  
 <PropertyReference name="setMessages" type="(messages: Message[] | DeprecatedGqlMessage[]) => void">
-Replace all messages in the chat with new array
+用新数组替换聊天中的所有消息
 </PropertyReference>
  
 <PropertyReference name="deleteMessage" type="(messageId: string) => void">
-Remove a specific message by ID from the chat
+按 ID 从聊天中移除特定消息
 </PropertyReference>
  
 <PropertyReference name="reloadMessages" type="(messageId: string) => Promise<void>">
-Regenerate the response for a specific message by ID
+按 ID 重新生成特定消息的响应
 </PropertyReference>
  
 <PropertyReference name="stopGeneration" type="() => void">
-Stop the current message generation process
+停止当前的消息生成过程
 </PropertyReference>
  
 <PropertyReference name="reset" type="() => void">
-Clear all messages and reset chat state completely
+清除所有消息并完全重置聊天状态
 </PropertyReference>
  
 <PropertyReference name="isLoading" type="boolean">
-Whether the chat is currently generating a response
+聊天当前是否正在生成响应
 </PropertyReference>
  
 <PropertyReference name="runChatCompletion" type="() => Promise<Message[]>">
-Manually trigger chat completion for advanced usage
+手动触发聊天补全，供高级用法使用
 </PropertyReference>
  
 <PropertyReference name="mcpServers" type="MCPServerConfig[]">
-Array of Model Context Protocol server configurations
+Model Context Protocol 服务器配置数组
 </PropertyReference>
  
 <PropertyReference name="setMcpServers" type="(servers: MCPServerConfig[]) => void">
-Update MCP server configurations for enhanced context
+更新 MCP 服务器配置以增强上下文
 </PropertyReference>
  
 <PropertyReference name="suggestions" type="SuggestionItem[]">
-Current suggestions array for reading or manual control
+当前的建议数组，可用于读取或手动控制
 </PropertyReference>
  
 <PropertyReference name="setSuggestions" type="(suggestions: SuggestionItem[]) => void">
-Manually set suggestions for custom workflows
+为自定义工作流手动设置建议
 </PropertyReference>
  
 <PropertyReference name="generateSuggestions" type="() => Promise<void>">
-Trigger AI-powered suggestion generation using configured settings
+使用已配置的设置触发 AI 驱动的建议生成
 </PropertyReference>
  
 <PropertyReference name="resetSuggestions" type="() => void">
-Clear all current suggestions and reset generation state
+清除当前所有建议并重置生成状态
 </PropertyReference>
  
 <PropertyReference name="isLoadingSuggestions" type="boolean">
-Whether suggestions are currently being generated
+当前是否正在生成建议
 </PropertyReference>
  
 <PropertyReference name="interrupt" type="string | React.ReactElement | null">
-Interrupt content for human-in-the-loop workflows
+用于人机协同（human-in-the-loop）工作流的中断内容
 </PropertyReference>
-

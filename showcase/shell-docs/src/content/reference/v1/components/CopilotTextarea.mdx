@@ -1,6 +1,6 @@
 ---
 title: "CopilotTextarea"
-description: "An AI-powered textarea component for your application, which serves as a drop-in replacement for any textarea."
+description: "面向你的应用的 AI 文本框组件，可作为任何 textarea 的即插即用替代品。"
 ---
 
 {
@@ -13,14 +13,13 @@ description: "An AI-powered textarea component for your application, which serve
 <br/>
 <img src="https://cdn.copilotkit.ai/docs/copilotkit/images/CopilotTextarea.gif" width="500" />
  
-`<CopilotTextarea>` is a React component that acts as a drop-in replacement for the standard `<textarea>`,
- offering enhanced autocomplete features powered by AI. It is context-aware, integrating seamlessly with the
-[`useCopilotReadable`](/reference/v1/hooks/useCopilotReadable) hook to provide intelligent suggestions based on the application context.
+`<CopilotTextarea>` 是一个 React 组件，可作为标准 `<textarea>` 的即插即用替代品，
+ 提供由 AI 驱动的增强自动补全功能。它具备上下文感知能力，可与
+[`useCopilotReadable`](/reference/v1/hooks/useCopilotReadable) hook 无缝集成，基于应用上下文提供智能建议。
  
-In addition, it provides a hovering editor window (available by default via `Cmd + K` on Mac and `Ctrl + K` on Windows) that allows the user to
-suggest changes to the text, for example providing a summary or rephrasing the text.
+此外，它还提供一个悬浮编辑器窗口（默认通过 Mac 上的 `Cmd + K` 和 Windows 上的 `Ctrl + K` 唤起），允许用户对文本提出修改建议，例如提供摘要或改写文本。
  
-## Example
+## 示例
  
 ```tsx
 import { CopilotTextarea } from '@copilotkit/react-textarea';
@@ -35,22 +34,22 @@ import "@copilotkit/react-textarea/styles.css";
 />
 ```
  
-## Usage
+## 用法
  
-### Install Dependencies
+### 安装依赖
  
-This component is part of the [@copilotkit/react-textarea](https://npmjs.com/package/@copilotkit/react-textarea) package.
+该组件属于 [@copilotkit/react-textarea](https://npmjs.com/package/@copilotkit/react-textarea) 包。
  
 ```shell npm2yarn \"@copilotkit/react-textarea"\
 npm install @copilotkit/react-core @copilotkit/react-textarea
 ```
  
-### Usage
+### 用法
  
-Use the CopilotTextarea component in your React application similarly to a standard `<textarea />`,
-with additional configurations for AI-powered features.
+在 React 应用中使用 CopilotTextarea 组件的方式与标准 `<textarea />` 类似，
+只需为 AI 驱动的功能进行额外配置即可。
  
-For example:
+例如：
  
 ```tsx
 import { useState } from "react";
@@ -80,9 +79,9 @@ export function ExampleComponent() {
 }
 ```
  
-### Look & Feel
+### 外观与风格
  
-By default, CopilotKit components do not have any styles. You can import CopilotKit's stylesheet at the root of your project:
+默认情况下，CopilotKit 组件不带任何样式。你可以在项目根组件中导入 CopilotKit 的样式表：
 ```tsx title="YourRootComponent.tsx"
 ...
 import "@copilotkit/react-textarea/styles.css"; // [!code highlight]
@@ -95,99 +94,98 @@ export function YourRootComponent() {
   );
 }
 ```
-For more information about how to customize the styles, check out the [Customize Look & Feel](/guides/custom-look-and-feel/customize-built-in-ui-components) guide.
+如需了解如何自定义样式，请查看[自定义外观与风格](/guides/custom-look-and-feel/customize-built-in-ui-components)指南。
 
-## Properties
+## 属性
 
 <PropertyReference name="disableBranding" type="boolean"  > 
-Determines whether the CopilotKit branding should be disabled. Default is `false`.
+确定是否禁用 CopilotKit 品牌标识。默认为 `false`。
 </PropertyReference>
 
 <PropertyReference name="placeholderStyle" type="React.CSSProperties"  > 
-Specifies the CSS styles to apply to the placeholder text.
+指定要应用于占位文本的 CSS 样式。
 </PropertyReference>
 
 <PropertyReference name="suggestionsStyle" type="React.CSSProperties"  > 
-Specifies the CSS styles to apply to the suggestions list.
+指定要应用于建议列表的 CSS 样式。
 </PropertyReference>
 
 <PropertyReference name="hoverMenuClassname" type="string"  > 
-A class name to apply to the editor popover window.
+要应用于编辑器弹窗窗口的 class 名。
 </PropertyReference>
 
 <PropertyReference name="value" type="string"  > 
-The initial value of the textarea. Can be controlled via `onValueChange`.
+文本框的初始值。可通过 `onValueChange` 进行受控。
 </PropertyReference>
 
 <PropertyReference name="onValueChange" type="(value: string) => void"  > 
-Callback invoked when the value of the textarea changes.
+文本框的值发生变化时调用的回调。
 </PropertyReference>
 
 <PropertyReference name="onChange" type="(event: React.ChangeEvent<HTMLTextAreaElement>) => void"  > 
-Callback invoked when a `change` event is triggered on the textarea element.
+textarea 元素上触发 `change` 事件时调用的回调。
 </PropertyReference>
 
 <PropertyReference name="shortcut" type="string"  > 
-The shortcut to use to open the editor popover window. Default is `"Cmd-k"`.
+用于打开编辑器弹窗窗口的快捷键。默认为 `"Cmd-k"`。
 </PropertyReference>
 
 <PropertyReference name="autosuggestionsConfig" type="AutosuggestionsConfigUserSpecified" required > 
-Configuration settings for the autosuggestions feature.
-  For full reference, [check the interface on GitHub](https://github.com/CopilotKit/CopilotKit/blob/main/packages/react-textarea/src/types/base/base-copilot-textarea-props.tsx#L8).
+自动补全建议（autosuggestions）功能的配置项。
+  完整参考请[在 GitHub 上查看该接口](https://github.com/CopilotKit/CopilotKit/blob/main/packages/react-textarea/src/types/base/base-copilot-textarea-props.tsx#L8)。
  
   <PropertyReference name="textareaPurpose" type="string" required={true} >
-    The purpose of the text area in plain text.
+    以纯文本描述的文本框用途。
  
-    Example: "The body of the email response"
+    示例：“邮件回复的正文”
   </PropertyReference>
  
   <PropertyReference name="chatApiConfigs" type="ChatApiConfigs" >
-    The chat API configurations.
+    聊天 API 配置。
  
-    <strong>NOTE:</strong> You must provide specify at least one of `suggestionsApiConfig` or `insertionApiConfig`.
+    <strong>注意：</strong>必须至少指定 `suggestionsApiConfig` 或 `insertionApiConfig` 之一。
  
     <PropertyReference name="suggestionsApiConfig" type="SuggestionsApiConfig">
-        For full reference, please [click here](https://github.com/CopilotKit/CopilotKit/blob/main/packages/react-textarea/src/types/autosuggestions-config/suggestions-api-config.tsx#L4).
+        完整参考请[点击这里](https://github.com/CopilotKit/CopilotKit/blob/main/packages/react-textarea/src/types/autosuggestions-config/suggestions-api-config.tsx#L4)。
     </PropertyReference>
     <PropertyReference name="insertionApiConfig" type="InsertionApiConfig">
-        For full reference, please [click here](https://github.com/CopilotKit/CopilotKit/blob/main/packages/react-textarea/src/types/autosuggestions-config/insertions-api-config.tsx#L4).
+        完整参考请[点击这里](https://github.com/CopilotKit/CopilotKit/blob/main/packages/react-textarea/src/types/autosuggestions-config/insertions-api-config.tsx#L4)。
     </PropertyReference>
   </PropertyReference>
  
   <PropertyReference name="disabled" type="boolean" >
-    Whether the textarea is disabled.
+    文本框是否禁用。
   </PropertyReference>
  
   <PropertyReference name="disableBranding" type="boolean" >
-    Whether to disable the CopilotKit branding.
+    是否禁用 CopilotKit 品牌标识。
   </PropertyReference>
  
   <PropertyReference name="placeholderStyle" type="React.CSSProperties" >
-    Specifies the CSS styles to apply to the placeholder text.
+    指定要应用于占位文本的 CSS 样式。
   </PropertyReference>
  
   <PropertyReference name="suggestionsStyle" type="React.CSSProperties" >
-    Specifies the CSS styles to apply to the suggestions list.
+    指定要应用于建议列表的 CSS 样式。
   </PropertyReference>
  
   <PropertyReference name="hoverMenuClassname" type="string" >
-    A class name to apply to the editor popover window.
+    要应用于编辑器弹窗窗口的 class 名。
   </PropertyReference>
  
   <PropertyReference name="value" type="string" >
-    The initial value of the textarea. Can be controlled via `onValueChange`.
+    文本框的初始值。可通过 `onValueChange` 进行受控。
   </PropertyReference>
  
   <PropertyReference name="onValueChange" type="(value: string) => void" >
-    Callback invoked when the value of the textarea changes.
+    文本框的值发生变化时调用的回调。
   </PropertyReference>
  
   <PropertyReference name="onChange" type="(event: React.ChangeEvent<HTMLTextAreaElement>) => void" >
-    Callback invoked when a `change` event is triggered on the textarea element.
+    textarea 元素上触发 `change` 事件时调用的回调。
   </PropertyReference>
  
   <PropertyReference name="shortcut" type="string" >
-    The shortcut to use to open the editor popover window. Default is `"Cmd-k"`.
+    用于打开编辑器弹窗窗口的快捷键。默认为 `"Cmd-k"`。
   </PropertyReference>
 </PropertyReference>
-

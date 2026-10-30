@@ -1,288 +1,255 @@
 ---
 title: "CopilotKitCore"
-description: "Framework-agnostic client that connects to a CopilotRuntime and manages agents, tools, context, and suggestions."
+description: "与框架无关的客户端，用于连接 CopilotRuntime 并管理智能体、工具、上下文和建议。"
 ---
 
-## Overview
+## 概览
 
-`CopilotKitCore` is the main entry point of `@copilotkit/core`. It connects to a CopilotRuntime over the AG-UI protocol, exposes the available agents, holds the registry of frontend tools, shared context, and suggestions, and notifies subscribers when any of that state changes. The React, Angular, and vanilla bindings all wrap a single instance of this class — reach for it directly when you need an agent client outside of those frameworks.
+`CopilotKitCore` 是 `@copilotkit/core` 的主入口。它通过 AG-UI 协议连接到 CopilotRuntime，暴露可用的智能体，持有前端工具、共享上下文和建议的注册表，并在这些状态发生任何变化时通知订阅者。React、Angular 和原生（vanilla）绑定都包装了该类的一个单一实例——当你需要在这些框架之外使用智能体客户端时，可以直接使用它。
 
-## Import
+## 导入
 
 ```ts
 import { CopilotKitCore } from "@copilotkit/core";
 ```
 
-## Constructor
+## 构造函数
 
 ```ts
 new CopilotKitCore(config: CopilotKitCoreConfig)
 ```
 
 <PropertyReference name="config" type="CopilotKitCoreConfig" required>
-  Configuration object. See [CopilotKitCoreConfig](/reference/core/types/CopilotKitCoreConfig) for the full type.
+  配置对象。完整类型请参见 [CopilotKitCoreConfig](/reference/core/types/CopilotKitCoreConfig)。
 
   <PropertyReference name="runtimeUrl" type="string">
-    Endpoint of the CopilotRuntime that requests are sent to.
+    请求发送到的 CopilotRuntime 端点。
   </PropertyReference>
 
   <PropertyReference name="runtimeTransport" type='"rest" | "single" | "auto"' default="auto">
-    Transport style for runtime endpoints. `"auto"` probes REST and falls back to single-route.
+    运行时端点的传输方式。`"auto"` 会先探测 REST，失败时回退到单路由。
   </PropertyReference>
 
   <PropertyReference name="headers" type="Record<string, string> | (() => Record<string, string>) | (() => Promise<Record<string, string>>)" default="{}">
-    Headers appended to every HTTP request made by the core. Pass a record for
-    static headers, or a function (sync or async) to build them fresh. A
-    builder runs when each request is sent, so a refreshed token is always
-    used. Cache inside the builder — a builder that calls the network every
-    time adds one call per request. If the builder throws or rejects, the
-    request is not sent and `onError` gets `HEADER_RESOLUTION_FAILED`.
+    附加到核心发出的每个 HTTP 请求的请求头。传记录（record）表示静态请求头，或传一个（同步或异步）函数来实时构建。构建函数在每次请求发送时运行，因此始终使用刷新后的令牌。请在构建函数内部做好缓存——每次都发起网络调用的构建函数会给每个请求增加一次额外调用。如果构建函数抛出异常或 Promise 被拒绝，该请求将不会发送，并且 `onError` 会收到 `HEADER_RESOLUTION_FAILED`。
   </PropertyReference>
 
   <PropertyReference name="credentials" type="RequestCredentials">
-    Credentials mode for fetch requests (e.g. `"include"` for HTTP-only cookies).
+    fetch 请求的凭据模式（例如 HTTP-only cookie 使用 `"include"`）。
   </PropertyReference>
 
   <PropertyReference name="properties" type="Record<string, unknown>" default="{}">
-    Values sent as `forwardedProps` to the AG-UI agent.
+    作为 `forwardedProps` 发送给 AG-UI 智能体的值。
   </PropertyReference>
 
   <PropertyReference name="tools" type="FrontendTool<any>[]" default="[]">
-    Frontend tools available to the core. See [FrontendTool](/reference/core/types/FrontendTool).
+    核心可用的前端工具。参见 [FrontendTool](/reference/core/types/FrontendTool)。
   </PropertyReference>
 
   <PropertyReference name="suggestionsConfig" type="SuggestionsConfig[]" default="[]">
-    Suggestion configurations registered at construction. See [SuggestionsConfig](/reference/core/types/SuggestionsConfig).
+    在构造时注册的建议配置。参见 [SuggestionsConfig](/reference/core/types/SuggestionsConfig)。
   </PropertyReference>
 
   <PropertyReference name="agents__unsafe_dev_only" type="Record<string, AbstractAgent>" default="{}">
-    Local agent instances keyed by name. Development only — production requires a CopilotRuntime.
+    以名称为键的本地智能体实例。仅限开发——生产环境需要 CopilotRuntime。
   </PropertyReference>
 
   <PropertyReference name="debug" type="DebugConfig">
-    Enables debug logging for the client-side event pipeline.
+    为客户端事件管线启用调试日志。
   </PropertyReference>
 </PropertyReference>
 
-## Methods
+## 方法
 
-### Agents
+### 智能体
 
 <PropertyReference name="getAgent(id: string): AbstractAgent | undefined" type="method">
-  Returns the agent registered under `id`, or `undefined` if none exists.
+  返回以 `id` 注册的智能体，不存在时返回 `undefined`。
 </PropertyReference>
 
 <PropertyReference name="runAgent(params: CopilotKitCoreRunAgentParams): Promise<RunAgentResult>" type="method">
-  Runs an agent against the runtime, streaming events and executing any frontend tool calls it produces.
+  针对运行时运行一个智能体，流式接收事件并执行其产生的所有前端工具调用。
 </PropertyReference>
 
 <PropertyReference name="connectAgent(params: CopilotKitCoreConnectAgentParams): Promise<RunAgentResult>" type="method">
-  Connects to an agent to receive its current state and message stream without starting a new run.
+  连接到一个智能体以接收其当前状态和消息流，而不开启新的运行。
 </PropertyReference>
 
 <PropertyReference name="stopAgent(params: CopilotKitCoreStopAgentParams): void" type="method">
-  Aborts the current run for the given agent.
+  中止给定智能体当前的运行。
 </PropertyReference>
 
 <PropertyReference name="registerProxiedAgent(params): { agent; unregister }" type="method">
-  Registers a [ProxiedCopilotRuntimeAgent](/reference/core/classes/ProxiedCopilotRuntimeAgent) under a local `agentId` that routes outbound requests to `runtimeAgentId`. Returns the proxy and an `unregister` cleanup handle. Throws if `agentId` is already taken.
+  在本地的 `agentId` 下注册一个 [ProxiedCopilotRuntimeAgent](/reference/core/classes/ProxiedCopilotRuntimeAgent)，把出站请求路由到 `runtimeAgentId`。返回该代理和一个 `unregister` 清理句柄。若 `agentId` 已被占用则抛出异常。
 </PropertyReference>
 
 <PropertyReference name="addAgent__unsafe_dev_only(params: CopilotKitCoreAddAgentParams): void" type="method">
-  Adds a local agent instance. Development only.
+  添加一个本地智能体实例。仅限开发。
 </PropertyReference>
 
 <PropertyReference name="removeAgent__unsafe_dev_only(id: string): void" type="method">
-  Removes a local agent by id. Development only.
+  按 id 移除一个本地智能体。仅限开发。
 </PropertyReference>
 
 <PropertyReference name="setAgents__unsafe_dev_only(agents: Record<string, AbstractAgent>): void" type="method">
-  Replaces the full set of local agents. Development only.
+  替换整个本地智能体集合。仅限开发。
 </PropertyReference>
 
-### Tools
+### 工具
 
 <PropertyReference name="addTool(tool: FrontendTool): void" type="method">
-  Registers a frontend tool the agent can call. If a tool with the same name and `agentId` is already registered, the call is a no-op (a warning is logged). See [FrontendTool](/reference/core/types/FrontendTool).
+  注册一个智能体可调用的前端工具。如果同名且 `agentId` 相同的工具已注册，该调用为空操作（会记录一条警告）。参见 [FrontendTool](/reference/core/types/FrontendTool)。
 </PropertyReference>
 
 <PropertyReference name="removeTool(id: string, agentId?: string): void" type="method">
-  Removes a registered tool by name. With no `agentId`, removes only the global (unscoped) tool of that name; with `agentId`, removes only the tool scoped to that agent.
+  按名称移除已注册的工具。不传 `agentId` 时，只移除该名称的全局（未限定作用域）工具；传入 `agentId` 时，只移除限定到该智能体的工具。
 </PropertyReference>
 
 <PropertyReference name="getTool(params: CopilotKitCoreGetToolParams): FrontendTool<any> | undefined" type="method">
-  Returns a registered tool, or `undefined` if not found.
+  返回一个已注册的工具，找不到时返回 `undefined`。
 </PropertyReference>
 
 <PropertyReference name="setTools(tools: FrontendTool<any>[]): void" type="method">
-  Replaces the entire tool registry.
+  替换整个工具注册表。
 </PropertyReference>
 
 <PropertyReference name="runTool(params: CopilotKitCoreRunToolParams): Promise<CopilotKitCoreRunToolResult>" type="method">
-  Executes a registered frontend tool directly, without an LLM turn. The handler runs, render components appear, and both the tool call and result messages are appended to `agent.messages`.
+  直接执行一个已注册的前端工具，无需 LLM 轮次。处理函数会运行，渲染组件会出现，并且工具调用与结果消息都会追加到 `agent.messages`。
 </PropertyReference>
 
-### Context
+### 上下文
 
 <PropertyReference name="addContext(context: Context): string" type="method">
-  Adds a context entry shared with the agent and returns its generated id.
+  添加一个与智能体共享的上下文条目，并返回其生成的 id。
 </PropertyReference>
 
 <PropertyReference name="removeContext(id: string): void" type="method">
-  Removes a context entry by id.
+  按 id 移除一个上下文条目。
 </PropertyReference>
 
-### Suggestions
+### 建议
 
 <PropertyReference name="addSuggestionsConfig(config: SuggestionsConfig): string" type="method">
-  Registers a suggestion configuration and returns its generated id.
+  注册一个建议配置并返回其生成的 id。
 </PropertyReference>
 
 <PropertyReference name="removeSuggestionsConfig(id: string): void" type="method">
-  Removes a suggestion configuration by id.
+  按 id 移除一个建议配置。
 </PropertyReference>
 
 <PropertyReference name="getSuggestions(agentId: string): CopilotKitCoreGetSuggestionsResult" type="method">
-  Returns the current suggestions and loading state for an agent.
+  返回某个智能体当前的建议和加载状态。
 </PropertyReference>
 
 <PropertyReference name="reloadSuggestions(agentId: string): void" type="method">
-  Re-generates suggestions for an agent.
+  为某个智能体重新生成建议。
 </PropertyReference>
 
 <PropertyReference name="clearSuggestions(agentId: string): void" type="method">
-  Clears the current suggestions for an agent.
+  清空某个智能体当前的建议。
 </PropertyReference>
 
-### Subscriptions
+### 订阅
 
 <PropertyReference name="subscribe(subscriber: CopilotKitCoreSubscriber): CopilotKitCoreSubscription" type="method">
-  Subscribes to core lifecycle events (agents changed, context changed, errors, runtime connection status, and more). Returns a subscription with an `unsubscribe()` method. See [CopilotKitCoreSubscriber](/reference/core/types/CopilotKitCoreSubscriber).
+  订阅核心生命周期事件（智能体变更、上下文变更、错误、运行时连接状态等）。返回一个带 `unsubscribe()` 方法的订阅对象。参见 [CopilotKitCoreSubscriber](/reference/core/types/CopilotKitCoreSubscriber)。
 </PropertyReference>
 
 <PropertyReference name="subscribeToAgentWithOptions(agent, subscriber, options?): CopilotKitCoreSubscription" type="method">
-  Subscribes to a single agent's message, state, and run-lifecycle callbacks with optional throttling. Every callback is wrapped with error protection. Use `agent.subscribe()` directly when you need AG-UI event handlers or per-item notifications.
+  订阅单个智能体的消息、状态和运行生命周期回调，支持可选节流。每个回调都带有错误保护。当你需要 AG-UI 事件处理函数或逐条通知时，请直接使用 `agent.subscribe()`。
 </PropertyReference>
 
-### Inspector metadata
+### Inspector 元数据
 
 <PropertyReference name="refreshInspectorMetadata(): Promise<void>" type="method">
-  Refreshes optional trusted Inspector metadata without reconnecting runtime
-  agents. Core makes the request only while connected to a runtime that reports
-  `inspectorMetadata: true` from its runtime-info response. Each refresh has a
-  five-second deadline. Route, timeout, and parse failures resolve with metadata
-  absent; they do not change the runtime connection state.
+  在不重连运行时智能体的情况下刷新可选的可信 Inspector 元数据。核心只会在已连接到 runtime-info 响应中报告 `inspectorMetadata: true` 的运行时时才发起请求。每次刷新有五秒的截止时限。路由、超时和解析失败都会以“无元数据”告终，不会改变运行时连接状态。
 </PropertyReference>
 
-### Configuration
+### 配置
 
 <PropertyReference name="setRuntimeUrl(runtimeUrl: string | undefined): void" type="method">
-  Updates the runtime endpoint.
+  更新运行时端点。
 </PropertyReference>
 
 <PropertyReference name="setRuntimeTransport(runtimeTransport: CopilotRuntimeTransport): void" type="method">
-  Updates the transport style.
+  更新传输方式。
 </PropertyReference>
 
 <PropertyReference name="setHeaders(headers: CopilotKitHeadersSource): void" type="method">
-  Replaces the request headers and re-applies them to existing agents. Pass a
-  record, a sync builder, or an async builder — see the
-  [`headers`](/reference/core/types/CopilotKitCoreConfig) config option. For a
-  record, any key whose value is `null` or `undefined` is dropped from the
-  stored headers, which is the supported way to clear a header (e.g.
-  `Authorization` on logout). An empty string remains a valid header value and
-  is preserved. Core clears trusted Inspector metadata before refreshing it
-  with the new headers, and `onHeadersChanged` subscribers are notified.
+  替换请求头并重新应用到现有智能体。可传记录、同步构建函数或异步构建函数——见 [`headers`](/reference/core/types/CopilotKitCoreConfig) 配置项。对于记录，值为 `null` 或 `undefined` 的键会从存储的请求头中删除，这是清除某个请求头的受支持方式（例如登出时清除 `Authorization`）。空字符串仍是有效的请求头值，会被保留。核心会用新请求头刷新之前先清空可信 Inspector 元数据，并通知 `onHeadersChanged` 订阅者。
 
-  This is a no-op — no Inspector refresh, no `onHeadersChanged` — when the
-  current source is also a record with equal normalized values. A new builder
-  function, a record with different values, or a record↔builder switch all
-  count as a change. A builder resolving a new token on its own (a rotated
-  auth token, for example) never fires `onHeadersChanged` and never re-applies
-  headers on its own — it is picked up the next time a request is sent. Key
-  reactive work off a change in headers, not off header values or object
-  identity.
+  当当前来源也是一条规范化后取值相同的记录时，此调用是空操作——不刷新 Inspector、也不触发 `onHeadersChanged`。新的构建函数、取值不同的记录、或记录与构建函数之间的切换，都算作变更。构建函数自行解析出新令牌（例如轮换的鉴权令牌）永远不会触发 `onHeadersChanged`，也不会自行重新应用请求头——它会在下次发送请求时被采用。请把响应式逻辑建立在“请求头发生变更”上，而不要依赖请求头的值或对象同一性。
 </PropertyReference>
 
 <PropertyReference name="resolveHeaders(): Record<string, string> | Promise<Record<string, string>>" type="method">
-  Resolves the current headers: synchronous for a record or a sync builder, a
-  promise for an async builder. Concurrent calls share one in-flight builder
-  call. Use this to get the value a builder would produce right now — the
-  `headers` getter below only reflects the last resolved value.
+  解析当前请求头：记录或同步构建函数时同步返回，异步构建函数时返回 Promise。并发调用会共享同一次进行中的构建函数调用。用它获取构建函数当下会产生的值——下面的 `headers` getter 只反映上次解析出的值。
 </PropertyReference>
 
 <PropertyReference name="setCredentials(credentials: RequestCredentials | undefined): void" type="method">
-  Replaces the fetch credentials mode and re-applies it to existing agents. Core clears trusted Inspector metadata before refreshing it with the new mode.
+  替换 fetch 凭据模式并重新应用到现有智能体。核心会用新模式刷新之前先清空可信 Inspector 元数据。
 </PropertyReference>
 
 <PropertyReference name="setMessageFilter(messageFilter: CopilotKitMessageFilter | undefined): void" type="method">
-  Replaces the filter applied to the outbound message list and re-applies it to existing agents. Agents discovered later pick it up too, so a filter set before `/info` lands is not lost. Pass `undefined` to go back to sending the full thread.
+  替换应用于出站消息列表的过滤器并重新应用到现有智能体。之后发现的智能体也会采用它，因此在 `/info` 返回之前设置的过滤器不会丢失。传 `undefined` 可恢复发送完整线程。
 </PropertyReference>
 
 <PropertyReference name="setProperties(properties: Record<string, unknown>): void" type="method">
-  Replaces the forwarded properties sent to agents.
+  替换发送给智能体的转发属性。
 </PropertyReference>
 
 <PropertyReference name="setDebug(debug: DebugConfig | undefined): void" type="method">
-  Toggles debug logging for the client-side event pipeline.
+  切换客户端事件管线的调试日志。
 </PropertyReference>
 
 <PropertyReference name="setDefaultThrottleMs(value: number | undefined): void" type="method">
-  Sets the default throttle interval (ms) used by `subscribeToAgentWithOptions`. Invalid values are ignored.
+  设置 `subscribeToAgentWithOptions` 使用的默认节流间隔（毫秒）。无效值会被忽略。
 </PropertyReference>
 
-### State queries
+### 状态查询
 
 <PropertyReference name="getStateByRun(agentId, threadId, runId): State | undefined" type="method">
-  Returns the agent state snapshot recorded for a specific run.
+  返回为某次特定运行记录的智能体状态快照。
 </PropertyReference>
 
 <PropertyReference name="getRunIdForMessage(agentId, threadId, messageId): string | undefined" type="method">
-  Returns the run id that produced a given message.
+  返回产生某条给定消息的运行 id。
 </PropertyReference>
 
 <PropertyReference name="getRunIdsForThread(agentId, threadId): string[]" type="method">
-  Returns the ordered run ids recorded for a thread.
+  返回为某个线程记录的按序运行 id 列表。
 </PropertyReference>
 
-### Properties (read-only)
+### 属性（只读）
 
 <PropertyReference name="agents: Readonly<Record<string, AbstractAgent>>" type="getter">
-  The currently registered agents, keyed by id.
+  当前已注册的智能体，以 id 为键。
 </PropertyReference>
 
 <PropertyReference name="tools: Readonly<FrontendTool<any>[]>" type="getter">
-  The currently registered frontend tools.
+  当前已注册的前端工具。
 </PropertyReference>
 
 <PropertyReference name="context: Readonly<Record<string, Context>>" type="getter">
-  The current shared context entries, keyed by id.
+  当前的共享上下文条目，以 id 为键。
 </PropertyReference>
 
 <PropertyReference name="runtimeUrl: string | undefined" type="getter">
-  The configured runtime endpoint.
+  配置的运行时端点。
 </PropertyReference>
 
 <PropertyReference name="runtimeConnectionStatus: CopilotKitCoreRuntimeConnectionStatus" type="getter">
-  The current runtime connection status. See [CopilotKitCoreRuntimeConnectionStatus](/reference/core/enums/CopilotKitCoreRuntimeConnectionStatus).
+  当前的运行时连接状态。参见 [CopilotKitCoreRuntimeConnectionStatus](/reference/core/enums/CopilotKitCoreRuntimeConnectionStatus)。
 </PropertyReference>
 
 <PropertyReference name="inspectorMetadata: InspectorMetadataV1 | undefined" type="getter">
-  The latest trusted, parsed metadata from the connected runtime. It is
-  `undefined` when the runtime does not advertise the capability, the optional
-  request fails, or the runtime has no supported metadata. Subscribe with
-  [`onInspectorMetadataChanged`](/reference/core/types/CopilotKitCoreSubscriber#properties)
-  to react to changes.
+  来自所连运行时的最新可信、已解析元数据。当运行时未宣告该能力、可选请求失败或运行时没有受支持的元数据时，它为 `undefined`。请订阅 [`onInspectorMetadataChanged`](/reference/core/types/CopilotKitCoreSubscriber#properties) 以响应变化。
 </PropertyReference>
 
 <PropertyReference name="headers / credentials / properties" type="getter">
-  Snapshots of the configured headers, credentials mode, and forwarded
-  properties. `headers` is the last resolved value — with a builder this may
-  be `{}` before the first request, or stale between requests. Call
-  `resolveHeaders()` for the value a builder would produce right now.
+  配置的请求头、凭据模式和转发属性的快照。`headers` 是上次解析出的值——使用构建函数时，首次请求前可能是 `{}`，请求之间也可能是过期的。要获取构建函数当下会产生的值，请调用 `resolveHeaders()`。
 </PropertyReference>
 
-## Usage
+## 用法
 
 ```ts
 import { CopilotKitCore } from "@copilotkit/core";
@@ -311,17 +278,17 @@ if (agent) {
 subscription.unsubscribe();
 ```
 
-## Behavior
+## 行为
 
-- **Asynchronous agent population** — `agents` is populated after the runtime responds, so it may be empty immediately after construction. Use `subscribe({ onAgentsChanged })` to react when agents become available.
-- **Error surfacing** — failures (runtime fetch, agent run, tool execution, subscriber callbacks) are delivered through the `onError` subscriber callback with a [CopilotKitCoreErrorCode](/reference/core/enums/CopilotKitCoreErrorCode); they are not thrown from the originating method — except `runTool()`, which also throws when the named tool or its resolved agent cannot be found.
-- **Subscriber isolation** — a throw in one subscriber callback is caught and logged; it does not stall notifications to other subscribers.
-- **Inspector metadata isolation** — metadata loads after the connected and agent notifications finish. A `setHeaders` call that changes the resolved values, or a credential change, refreshes it — it does not refetch `/info`. Runtime URL, transport, auth, connection, and capability checks prevent a stale request from replacing a newer value.
-- **`__unsafe_dev_only` APIs** — the `*Agent__unsafe_dev_only` methods register local in-memory agents for development. Production setups must go through a CopilotRuntime.
+- **智能体异步填充** —— `agents` 在运行时响应后才会填充，因此刚构造完成时可能为空。请用 `subscribe({ onAgentsChanged })` 在智能体可用时作出响应。
+- **错误呈现** —— 失败（运行时 fetch、智能体运行、工具执行、订阅者回调）会通过 `onError` 订阅者回调并附带 [CopilotKitCoreErrorCode](/reference/core/enums/CopilotKitCoreErrorCode) 送达；它们不会从发起调用的方法中抛出——唯一例外是 `runTool()`，当找不到指定工具或其解析到的智能体时，它也会抛出异常。
+- **订阅者隔离** —— 某个订阅者回调中抛出的异常会被捕获并记录，不会阻塞向其他订阅者的通知。
+- **Inspector 元数据隔离** —— 元数据在已连接通知和智能体通知完成之后加载。改变解析结果的 `setHeaders` 调用或凭据变更都会刷新它——但不会重新拉取 `/info`。运行时 URL、传输方式、鉴权、连接和 capability 检查会防止过期的请求覆盖更新的值。
+- **`__unsafe_dev_only` API** —— `*Agent__unsafe_dev_only` 方法用于在开发时注册本地内存智能体。生产环境必须通过 CopilotRuntime。
 
-## Related
+## 相关内容
 
-- [@copilotkit/core overview](/reference/core)
+- [@copilotkit/core 概览](/reference/core)
 - [CopilotKitCoreConfig](/reference/core/types/CopilotKitCoreConfig)
 - [CopilotKitCoreSubscriber](/reference/core/types/CopilotKitCoreSubscriber)
 - [ProxiedCopilotRuntimeAgent](/reference/core/classes/ProxiedCopilotRuntimeAgent)

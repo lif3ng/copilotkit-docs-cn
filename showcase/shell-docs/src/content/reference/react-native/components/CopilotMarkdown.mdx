@@ -1,37 +1,35 @@
 ---
 title: "CopilotMarkdown"
-description: "Render Markdown text with React Native styling tuned for chat. Handles streaming content gracefully."
+description: "以针对聊天调校的 React Native 样式渲染 Markdown 文本，并优雅处理流式内容。"
 ---
 
-## Overview
+## 概览
 
-`CopilotMarkdown` renders a Markdown string with sensible React Native styling, built on [`react-native-streamdown`](https://www.npmjs.com/package/react-native-streamdown). It handles incomplete (streaming) Markdown gracefully, rendering incrementally as content arrives, which makes it ideal for assistant messages. Requires the `react-native-streamdown` peer dependency.
+`CopilotMarkdown` 以合理的 React Native 样式渲染 Markdown 字符串，构建于 [`react-native-streamdown`](https://www.npmjs.com/package/react-native-streamdown) 之上。它能优雅地处理不完整的（流式）Markdown，随内容到达逐步渲染，因此非常适合助手消息。需要 `react-native-streamdown` 对等依赖。
 
-## Import
+## 导入
 
 ```tsx
 import { CopilotMarkdown, defaultMarkdownStyles } from "@copilotkit/react-native/components";
 ```
 
-## Props
+## 属性
 
 <PropertyReference name="content" type="string" required>
-  The Markdown string to render.
+  要渲染的 Markdown 字符串。
 </PropertyReference>
 
 <PropertyReference name="style" type="MarkdownStyle">
-  Optional style overrides merged on top of the defaults. A map of Markdown
-  element names (e.g. `paragraph`, `h1`, `link`, `code`) to style objects, so
-  you only override what you need.
+  可选的样式覆盖，合并在默认样式之上。它是 Markdown 元素名（如 `paragraph`、`h1`、`link`、`code`）到样式对象的映射，因此只需覆盖需要的部分。
 </PropertyReference>
 
 <PropertyReference name="streamingAnimation" type="boolean" default="true">
-  Whether to enable the streaming fade-in animation as content arrives.
+  是否在内容到达时启用流式淡入动画。
 </PropertyReference>
 
 ## `defaultMarkdownStyles`
 
-The default style map. Spread it to extend rather than replace the built-in styling:
+默认样式映射。展开它即可扩展而非替换内置样式：
 
 ```tsx
 import { CopilotMarkdown, defaultMarkdownStyles } from "@copilotkit/react-native/components";
@@ -44,7 +42,7 @@ const styles = {
 <CopilotMarkdown content="# Hello\nThis is **bold**." style={styles} />;
 ```
 
-## Usage
+## 用法
 
 ```tsx
 import { CopilotMarkdown } from "@copilotkit/react-native/components";
@@ -52,6 +50,6 @@ import { CopilotMarkdown } from "@copilotkit/react-native/components";
 <CopilotMarkdown content="**Hello** from CopilotKit!" />;
 ```
 
-## Related
+## 相关内容
 
-- [`AssistantMessage`](/reference/react-native/components/AssistantMessage): renders its content through `CopilotMarkdown`
+- [`AssistantMessage`](/reference/react-native/components/AssistantMessage)：其内容通过 `CopilotMarkdown` 渲染

@@ -1,13 +1,13 @@
 ---
-title: "API Reference"
-description: "API Reference for the next-generation CopilotKit React API."
+title: "API 参考"
+description: "新一代 CopilotKit React API 的 API 参考。"
 ---
 
-The v2 React API (`@copilotkit/react-core/v2`) is the next-generation interface for building copilot-powered applications. It provides a streamlined set of hooks and components built on top of the [AG-UI](https://docs.ag-ui.com) agent protocol.
+v2 React API（`@copilotkit/react-core/v2`）是构建 copilot 应用的下一代接口。它提供了一套精简的 hook 与组件，构建于 [AG-UI](https://docs.ag-ui.com) 智能体协议之上。
 
-## Provider Setup
+## 提供方配置
 
-Wrap your application with `<CopilotKitProvider>` to configure the v2 runtime connection:
+用 `<CopilotKitProvider>` 包裹你的应用，以配置 v2 运行时连接：
 
 ```tsx
 import { CopilotKitProvider } from "@copilotkit/react-core/v2";
@@ -21,72 +21,53 @@ function App() {
 }
 ```
 
-The [`<CopilotKit>`](/reference/components/CopilotKit) export is the v1 compatibility wrapper, not an alias for `<CopilotKitProvider>`. Use `agentId` on the v2 provider; the compatibility wrapper uses `agent` and retains the v1 error-handler contract.
+[`<CopilotKit>`](/reference/components/CopilotKit) 导出是 v1 兼容包装器，并非 `<CopilotKitProvider>` 的别名。请在 v2 提供方上使用 `agentId`；兼容包装器使用的是 `agent`，并保留 v1 的错误处理约定。
 
 <Accordions>
-<Accordion title="CopilotKitProvider props">
+<Accordion title="CopilotKitProvider 属性">
 
-### Props
+### 属性
 
 <PropertyReference name="agentId" type="string" default='"default"'>
-  Default agent for chats and hooks under this provider. An explicit hook or
-  chat `agentId`, or a surrounding chat configuration, takes precedence.
+  此提供方下聊天与 hook 使用的默认智能体。显式指定的 hook 或聊天 `agentId`，或外层的聊天配置，优先级更高。
 </PropertyReference>
 
 <PropertyReference name="licenseToken" type="string">
-  Signed license token for offline verification of CopilotKit Intelligence features.
+  用于离线验证 CopilotKit Intelligence 功能的签名许可令牌。
 </PropertyReference>
 
 <PropertyReference name="selfManagedAgents" type="Record<string, AbstractAgent>">
-  AG-UI agents managed by your app and registered directly with CopilotKit.
-  Use this when you connect to agents without routing through a Copilot Runtime.
+  由你的应用管理并直接注册到 CopilotKit 的 AG-UI 智能体。当你连接智能体而不经过 Copilot Runtime 路由时使用此项。
 </PropertyReference>
 
 <PropertyReference name="openGenerativeUI" type="{ sandboxFunctions?: SandboxFunction[]; designSkill?: string }">
-  Configuration for Open Generative UI. Use `sandboxFunctions` to expose host
-  functions to generated sandboxed iframes, and `designSkill` to override the
-  design guidance injected as agent context for `generateSandboxedUi`.
+  Open Generative UI 的配置。使用 `sandboxFunctions` 将宿主函数暴露给生成的沙箱 iframe，使用 `designSkill` 覆盖为 `generateSandboxedUi` 注入作为智能体上下文的设计指引。
 </PropertyReference>
 
 <PropertyReference name="defaultThrottleMs" type="number">
-  Default throttle interval, in milliseconds, for `useAgent` re-renders caused
-  by message and state updates. Individual `useAgent` calls and prebuilt chat
-  components can override it with their own `throttleMs`.
+  由消息与状态更新引发的 `useAgent` 重新渲染的默认节流间隔（毫秒）。单个 `useAgent` 调用与预构建聊天组件可通过各自的 `throttleMs` 覆盖它。
 </PropertyReference>
 
 <PropertyReference name="debug" type="DebugConfig">
-  Enable client-side debug logging for the AG-UI transport and event pipeline.
-  Pass `true` for event and lifecycle summaries, or a config object with
-  `verbose: true` to include full event payloads.
+  启用针对 AG-UI 传输层与事件管线的客户端调试日志。传 `true` 获取事件与生命周期摘要，或传入含 `verbose: true` 的配置对象以包含完整事件负载。
 </PropertyReference>
 
 <PropertyReference name="runtimeUrl" type="string">
-  URL of the CopilotKit runtime endpoint. Lazily forwarded to the core after
-  mount.
+  CopilotKit 运行时端点的 URL。挂载后惰性转发给核心层。
 </PropertyReference>
 
 <PropertyReference name="headers" type="Record<string, string> | (() => Record<string, string>) | (() => Promise<Record<string, string>>)" default="{}">
-  Request headers forwarded with runtime calls. Pass an object for static
-  headers, or a function (sync or async) to build them fresh. A builder runs
-  when each request is sent, so a refreshed token is always used. An inline
-  arrow is fine.
+  随运行时调用一起转发的请求头。传对象表示静态请求头，或传函数（同步或异步）以动态构建。构建函数会在每个请求发送时执行，因此总能使用刷新后的令牌。直接内联箭头函数即可。
 
-  Cache inside the builder. Clerk's and Auth0's `getToken()` already cache. A
-  builder that calls the network every time adds one call per request.
+  请在构建函数内部做缓存。Clerk 与 Auth0 的 `getToken()` 已自带缓存。每次都发起网络请求的构建函数会为每个请求额外增加一次调用。
 
-  If the builder throws or rejects, that request is not sent and `onError`
-  gets `header_resolution_failed`.
+  若构建函数抛出异常或 reject，该请求将不会发送，且 `onError` 会收到 `header_resolution_failed`。
 
-  Re-passing the same builder function is a no-op. On a user switch, remount
-  the provider (e.g. `key={userId}`), so Inspector metadata and thread lists
-  reload for the new user. This does not refetch the runtime's `/info`.
+  重复传入同一个构建函数不会产生任何效果。切换用户时，请重新挂载提供方（例如 `key={userId}`），以便 Inspector 元数据与线程列表为新用户重新加载。这不会重新获取运行时的 `/info`。
 
-  `copilotkit.headers` is the last resolved value. Use
-  `await copilotkit.resolveHeaders()` for your own requests.
+  `copilotkit.headers` 是最后解析出的值。对你自己的请求，请使用 `await copilotkit.resolveHeaders()`。
 
-  Core headers are also sent to any `selfManagedAgents` /
-  `agents__unsafe_dev_only` agent, including ones on other origins. Don't put
-  a bearer token in core headers if those agents point at a third party.
+  核心请求头也会发送给任何 `selfManagedAgents` / `agents__unsafe_dev_only` 智能体，包括位于其他源的智能体。如果这些智能体指向第三方，请不要将 bearer 令牌放入核心请求头。
 
   ```tsx
   const { getToken } = useAuth();
@@ -99,16 +80,15 @@ The [`<CopilotKit>`](/reference/components/CopilotKit) export is the v1 compatib
 </PropertyReference>
 
 <PropertyReference name="credentials" type="RequestCredentials">
-  Credentials mode for fetch requests (e.g. `"include"` for HTTP-only cookies in
-  cross-origin requests).
+  fetch 请求的凭据模式（例如跨域请求中为 HTTP-only cookie 使用 `"include"`）。
 </PropertyReference>
 
 <PropertyReference name="publicApiKey" type="string">
-  Copilot Cloud public API key.
+  Copilot Cloud 公共 API 密钥。
 </PropertyReference>
 
 <PropertyReference name="publicLicenseKey" type="string">
-  Alias for `publicApiKey`.
+  `publicApiKey` 的别名。
 </PropertyReference>
 
 <PropertyReference
@@ -116,66 +96,58 @@ The [`<CopilotKit>`](/reference/components/CopilotKit) export is the v1 compatib
   type="Record<string, unknown>"
   default="{}"
 >
-  Runtime metadata payload.
+  运行时元数据负载。
 </PropertyReference>
 
 <PropertyReference name="useSingleEndpoint" type="boolean">
-  When omitted, transport is negotiated from the runtime info response. Set
-  `true` to use a single endpoint or `false` to use separate routes.
+  省略时，传输方式会根据运行时 info 响应协商确定。设为 `true` 使用单一端点，设为 `false` 使用独立路由。
 </PropertyReference>
 
 <PropertyReference
   name="agents__unsafe_dev_only"
   type="Record<string, AbstractAgent>"
 >
-  Preinstantiated agents for development/testing. **Not intended for production
-  use.**
+  用于开发/测试的预实例化智能体。**不适用于生产环境。**
 </PropertyReference>
 
 <PropertyReference name="renderToolCalls" type="ReactToolCallRenderer[]">
-  Static set of tool call renderers. The array should be stable across renders.
+  静态的工具调用渲染器集合。该数组在渲染间应保持稳定。
 </PropertyReference>
 
 <PropertyReference
   name="renderActivityMessages"
   type="ReactActivityMessageRenderer[]"
 >
-  Static set of activity message renderers.
+  静态的活动消息渲染器集合。
 </PropertyReference>
 
 <PropertyReference
   name="renderCustomMessages"
   type="ReactCustomMessageRenderer[]"
 >
-  Static set of custom message renderers.
+  静态的自定义消息渲染器集合。
 </PropertyReference>
 
 <PropertyReference name="frontendTools" type="ReactFrontendTool[]">
-  Static tool handlers defined at the provider level. The array should be stable
-  across renders.
+  在提供方层级定义的静态工具处理器。该数组在渲染间应保持稳定。
 </PropertyReference>
 
 <PropertyReference name="humanInTheLoop" type="ReactHumanInTheLoop[]">
-  Declarative human-in-the-loop tool definitions. Each becomes both a tool
-  handler and a tool call renderer.
+  声明式的人机协同（human-in-the-loop）工具定义。每个定义同时成为工具处理器与工具调用渲染器。
 </PropertyReference>
 
 <PropertyReference name="enableInspector" type="boolean">
-  Controls the CopilotKit Inspector in development browser builds on localhost
-  or loopback hosts. It is shown by default unless set to `false`, and is never
-  loaded on remote hosts, in production, or during SSR, even when explicitly
-  set to `true`.
+  控制 localhost 或回环主机上开发浏览器构建中的 CopilotKit Inspector。除非设为 `false`，否则默认显示；而在远程主机、生产环境或 SSR 期间绝不会加载，即使显式设为 `true`。
 </PropertyReference>
 
 <PropertyReference name="showDevConsole" type='boolean | "auto"'>
-  **Deprecated for Inspector control:** this prop no longer changes Inspector
-  visibility. Use `enableInspector` instead.
+  **在 Inspector 控制方面已弃用**：该 prop 不再改变 Inspector 的可见性。请改用 `enableInspector`。
 </PropertyReference>
 
 <PropertyReference name="onError" type="(event: { error: Error; code: CopilotKitCoreErrorCode; context: Record<string, any> }) => void | Promise<void>">
-  Error handler called when CopilotKit encounters an error. Fires for all error types: runtime connection failures, agent errors, and tool errors.
+  当 CopilotKit 遇到错误时调用的错误处理器。对所有错误类型都会触发：运行时连接失败、智能体错误与工具错误。
 
-Unlike the v1 `onError`, this does **not** require a `publicApiKey`; error handling works with any configuration.
+与 v1 的 `onError` 不同，它**不**要求 `publicApiKey`；任何配置下错误处理均可正常工作。
 
 ```tsx
 <CopilotKitProvider
@@ -193,9 +165,9 @@ Unlike the v1 `onError`, this does **not** require a `publicApiKey`; error handl
 </Accordion>
 </Accordions>
 
-## Import Surfaces
+## 导入入口
 
-Use the main v2 entry when your app renders CopilotKit's web UI components or A2UI surfaces:
+当你的应用渲染 CopilotKit 的 web UI 组件或 A2UI 界面时，使用主 v2 入口：
 
 ```tsx
 import {
@@ -205,7 +177,7 @@ import {
 } from "@copilotkit/react-core/v2";
 ```
 
-Use the headless entry when you build a fully custom chat surface and only need platform-agnostic hooks. This avoids the built-in chat rendering stack and its CSS:
+当你构建完全自定义的聊天界面、只需要与平台无关的 hook 时，使用无头（headless）入口。这样可以避免内置的聊天渲染栈及其 CSS：
 
 ```tsx
 import {
@@ -216,35 +188,35 @@ import {
 } from "@copilotkit/react-core/v2/headless";
 ```
 
-The headless entry exports the provider context, chat configuration provider, `useAgent`, tool hooks, suggestions, threads, capabilities, and shared types. It does not export `CopilotKitProvider`, `CopilotKit`, `CopilotChat`, `CopilotPopup`, `CopilotSidebar`, `useDefaultRenderTool`, or A2UI render helpers.
+无头入口导出提供方上下文、聊天配置提供方、`useAgent`、工具 hook、建议、线程、能力与共享类型。它不导出 `CopilotKitProvider`、`CopilotKit`、`CopilotChat`、`CopilotPopup`、`CopilotSidebar`、`useDefaultRenderTool` 或 A2UI 渲染辅助函数。
 
-## Styling
+## 样式
 
-When using v2 UI components, import the stylesheet once at your app boundary:
+使用 v2 UI 组件时，在应用边界处一次性导入样式表：
 
 ```tsx
 import "@copilotkit/react-core/v2/styles.css";
 ```
 
-## API Reference
+## API 参考
 
 <Callout type="info">
-  Looking for tool rendering hooks? Start with
-  [`useComponent`](/reference/hooks/useComponent),
-  [`useRenderTool`](/reference/hooks/useRenderTool), and
-  [`useDefaultRenderTool`](/reference/hooks/useDefaultRenderTool).
+  在找工具渲染相关的 hook？从
+  [`useComponent`](/reference/hooks/useComponent)、
+  [`useRenderTool`](/reference/hooks/useRenderTool) 与
+  [`useDefaultRenderTool`](/reference/hooks/useDefaultRenderTool) 开始。
 </Callout>
 
 <Cards>
   <Card
     title="Hooks"
-    description="React hooks for agents, tools, context, and chat configuration."
+    description="用于智能体、工具、上下文与聊天配置的 React hook。"
     href="/reference/hooks/useAgent"
     icon={<LinkIcon />}
   />
   <Card
-    title="UI Components"
-    description="Pre-built chat components: CopilotChat, CopilotPopup, CopilotSidebar, and more."
+    title="UI 组件"
+    description="预构建聊天组件：CopilotChat、CopilotPopup、CopilotSidebar 等。"
     href="/reference/components/CopilotChat"
     icon={<LinkIcon />}
   />

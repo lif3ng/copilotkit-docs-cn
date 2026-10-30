@@ -1,19 +1,19 @@
 ---
 title: "useFrontendTool"
-description: "React hook for registering client-side tool handlers with optional UI rendering in React Native"
+description: "在 React Native 中注册客户端工具处理函数并可选进行 UI 渲染的 React 钩子"
 ---
 
-## Overview
+## 概览
 
-`useFrontendTool` registers a client-side tool with CopilotKit at component scope. When the agent decides to call the tool, the provided `handler` function executes on the device. Optionally, you can supply a `render` component to display custom UI in the chat showing the tool's execution progress and results.
+`useFrontendTool` 在组件作用域内向 CopilotKit 注册一个客户端工具。当智能体决定调用该工具时，所提供的 `handler` 函数会在设备上执行。你还可以选择提供一个 `render` 组件，在聊天界面中显示自定义 UI，以展示工具的执行进度与结果。
 
 <Callout type="info">
-  Re-exported from `@copilotkit/react-core/v2`. It is identical to the [React (V2) `useFrontendTool`](/reference/v2/hooks/useFrontendTool); only the import path differs.
+  该钩子从 `@copilotkit/react-core/v2` 重新导出。它与 [React (V2) 的 `useFrontendTool`](/reference/v2/hooks/useFrontendTool) 完全相同，仅导入路径不同。
 </Callout>
 
-The hook manages the full registration lifecycle: it warns if a tool with the same name already exists, registers the tool and its render component on mount, and cleans up both registrations on unmount. In v2, parameter schemas are defined using [Zod](https://zod.dev) instead of plain parameter arrays.
+该钩子管理完整的注册生命周期：如果同名工具已存在则发出警告，在挂载时注册工具及其渲染组件，并在卸载时清理这两项注册。在 v2 中，参数模式使用 [Zod](https://zod.dev) 定义，而非普通的参数数组。
 
-## Signature
+## 签名
 
 ```tsx
 import { useFrontendTool } from "@copilotkit/react-native";
@@ -24,26 +24,21 @@ function useFrontendTool<T extends Record<string, unknown>>(
 ): void;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="tool" type="ReactFrontendTool<T>" required>
-  The tool definition object.
+  工具定义对象。
 
 <PropertyReference name="name" type="string" required>
-  A unique name for the tool. The agent references this name when deciding to
-  call the tool. If a tool with this name is already registered, a warning is
-  logged.
+  工具的唯一名称。智能体在决定调用工具时会引用该名称。如果已注册同名工具，会记录一条警告。
 </PropertyReference>
 
 <PropertyReference name="description" type="string" required>
-  A natural-language description that tells the agent what the tool does and
-  when to use it.
+  用自然语言描述工具的用途与使用时机，供智能体理解。
 </PropertyReference>
 
 <PropertyReference name="parameters" type="z.ZodSchema" required>
-  A Zod schema defining the tool's input parameters. The schema drives the
-  advertised tool schema and type inference. Runtime arguments are JSON-parsed
-  but are not validated against that schema.
+  定义工具输入参数的 Zod 模式。该模式决定对外发布的工具模式与类型推断。运行时参数会经过 JSON 解析，但不会依据该模式进行校验。
 </PropertyReference>
 
 <PropertyReference
@@ -51,61 +46,36 @@ function useFrontendTool<T extends Record<string, unknown>>(
   type="(args: T, context?: { toolCall, agent, signal?, isReplay? }) => Promise<string>"
   required
 >
-  An async function that executes when the agent calls the tool. Receives the
-  parsed arguments, typed from `parameters` but not validated against it, and
-  an optional context object containing `toolCall` (the raw tool call metadata),
-  `agent` (the agent instance that invoked the tool), `signal` (an
-  `AbortSignal` that is aborted when the user stops the agent via `stopAgent()`
-  or `agent.abortRun()`), and `isReplay` (`true` when the call is run while the
-  thread's history is restored; see `reconnectBehavior`). Long-running
-  handlers can check `signal.aborted` to exit early.
+  当智能体调用工具时执行的异步函数。它接收解析后的参数（类型来自 `parameters`，但不依据其校验），以及一个可选的上下文对象，其中包含 `toolCall`（原始工具调用元数据）、`agent`（调用该工具的智能体实例）、`signal`（一个 `AbortSignal`，当用户通过 `stopAgent()` 或 `agent.abortRun()` 停止智能体时会被中止）和 `isReplay`（在线程历史恢复期间执行该调用时为 `true`；参见 `reconnectBehavior`）。长时间运行的处理函数可以检查 `signal.aborted` 以提前退出。
 </PropertyReference>
 
 <PropertyReference
   name="render"
   type="React.ComponentType<{ name: string; args: Partial<T>; status: ToolCallStatus; result: string | undefined }>"
 >
-  An optional component rendered in the chat interface to visualize tool
-  execution. In React Native the render component returns React Native elements
-  (e.g. `<View>` / `<Text>`). The component receives `name` (the tool name),
-  `args` (the arguments, partial while streaming and complete once execution
-  starts), `status` (one of `ToolCallStatus.InProgress`,
-  `ToolCallStatus.Executing`, or `ToolCallStatus.Complete`), and `result` (the
-  string result returned by the handler, available only when status is
-  `Complete`).
+  在聊天界面中渲染的可选组件，用于可视化工具的执行过程。在 React Native 中，渲染组件返回 React Native 元素（如 `<View>` / `<Text>`）。该组件接收 `name`（工具名称）、`args`（参数，流式传输期间为部分值，执行开始后为完整值）、`status`（`ToolCallStatus.InProgress`、`ToolCallStatus.Executing` 或 `ToolCallStatus.Complete` 之一）以及 `result`（处理函数返回的字符串结果，仅在状态为 `Complete` 时可用）。
 
-  **The declared return type is `ReactNode`, which is wider than React Native can
-  draw.** `render` is a `React.ComponentType`, so a `render` that returns a bare
-  string typechecks and then throws on a device. See [The render type React
-  Native needs](#the-render-type-react-native-needs).
+  **声明的返回类型是 `ReactNode`，比 React Native 实际能绘制的范围更宽**。`render` 是一个 `React.ComponentType`，因此返回裸字符串的 `render` 能通过类型检查，但在设备上会抛出异常。参见 [React Native 需要的 render 类型](#react-native-需要的-render-类型)。
 </PropertyReference>
 
   <PropertyReference name="available" type='"enabled" | "disabled" | "remote"' default='"enabled"'>
-    Controls tool availability. Set to `"disabled"` to temporarily prevent the agent from calling the tool, or `"remote"` to indicate the tool is handled server-side.
+    控制工具可用性。设为 `"disabled"` 可暂时阻止智能体调用该工具；设为 `"remote"` 表示该工具在服务端处理。
   </PropertyReference>
 
   <PropertyReference name="reconnectBehavior" type='"passive" | "resume-pending"' default='"passive"'>
-    What happens to a call of this tool that is still unanswered when the thread's history is restored, for example after a page reload. With `"passive"`, the call is shown but the handler does not run. With `"resume-pending"`, the handler runs for that call with `isReplay: true` in its context, and the run then continues as usual. Opt in only for a handler that is safe to run more than once. A call does not start twice at the same time on one page, but it can run again after a stop or a thread switch if its result never reached the agent, and two tabs that restore the same thread can each run it. If the agent calls this tool together with a tool that stays passive, the follow-up run sends the passive call without a result, which some model providers reject.
+    当线程历史恢复（例如页面重新加载之后）时，对该工具仍未应答的调用如何处理。使用 `"passive"` 时，调用会显示但处理函数不会运行。使用 `"resume-pending"` 时，处理函数会为该调用运行（其上下文中 `isReplay: true`），随后运行照常继续。只对可以安全重复运行的处理函数启用此选项。在同一页面上，一个调用不会同时启动两次；但如果其结果从未到达智能体，它可能在停止或切换线程后再次运行，并且恢复同一线程的两个标签页可能各自运行一次。如果智能体在调用此工具的同时还调用了一个保持 `"passive"` 行为的工具，后续运行会发送没有结果的 passive 调用，某些模型提供方会拒绝这种情况。
   </PropertyReference>
 </PropertyReference>
 
 <PropertyReference name="deps" type="ReadonlyArray<unknown>">
-  An optional dependency array. When it changes, the tool is unregistered and
-  re-registered so the new `handler` and `render` closures take effect. Pass every
-  value your `handler` or `render` captures and that changes over time — both are
-  captured at registration, not re-read on every render.
+  可选的依赖数组。当其变化时，工具会被注销并重新注册，使新的 `handler` 与 `render` 闭包生效。把 `handler` 或 `render` 捕获的、且会随时间变化的每个值都传进来——两者都是在注册时捕获的，不会在每次渲染时重新读取。
 
-  `deps` compares plain data (strings, numbers, booleans, `null`, dates, and
-  plain objects and arrays of those) by value, so an inline literal such as
-  `[{ status }]` re-registers only when its contents change. A function never counts as changed, as before, so keep a changing callback
-  in a ref. Class instances and other objects compare by identity, so a
-  circular value such as the `agent` from `useAgent` is safe to pass. Adding or removing an entry counts as a change. See [Dependency
-  comparison](#dependency-comparison).
+  `deps` 对普通数据（字符串、数字、布尔值、`null`、日期，以及由它们构成的普通对象和数组）按值进行比较，因此诸如 `[{ status }]` 这样的内联字面量只在其内容变化时才重新注册。函数与之前一样永远不算变化，所以要把会变化的回调保存在 ref 中。类实例和其他对象按引用（同一性）比较，因此传入来自 `useAgent` 的 `agent` 这类循环引用的值是安全的。增加或移除条目都算变化。参见 [依赖比较](#依赖比较)。
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Basic Tool with Zod Parameters
+### 使用 Zod 参数的基础工具
 
 ```tsx
 import { useState } from "react";
@@ -142,7 +112,7 @@ function TodoManager() {
 }
 ```
 
-### Tool with Custom Render Component
+### 带自定义渲染组件的工具
 
 ```tsx
 import { Text, View } from "react-native";
@@ -196,7 +166,7 @@ function WeatherWidget() {
 }
 ```
 
-### Conditionally Available Tool
+### 条件可用的工具
 
 ```tsx
 import { View } from "react-native";
@@ -226,11 +196,9 @@ function AdminPanel({ isAdmin }: { isAdmin: boolean }) {
 }
 ```
 
-## The render type React Native needs
+## React Native 需要的 render 类型
 
-`render` is typed as `ReactToolCallRenderer<T>["render"]`, which is a
-`React.ComponentType`. A function component's return type is `ReactNode`, so
-**this compiles**:
+`render` 的类型是 `ReactToolCallRenderer<T>["render"]`，即一个 `React.ComponentType`。函数组件的返回类型是 `ReactNode`，因此**以下代码能通过编译**：
 
 ```tsx
 useFrontendTool({
@@ -243,14 +211,9 @@ useFrontendTool({
 });
 ```
 
-and then fails on a device. The string reaches the prebuilt chat's `FlatList` as
-a bare text child of a host view, and React Native throws *Text strings must be
-rendered within a `<Text>` component*. The same applies to a number, an array of
-elements, or `undefined` — all of them are `ReactNode`, and none of them is
-something React Native's list renderer can draw.
+但随后会在设备上失败。该字符串会作为宿主视图的裸文本子节点进入预构建聊天的 `FlatList`，React Native 会抛出 *Text strings must be rendered within a `<Text>` component*。数字、元素数组或 `undefined` 也一样——它们都是 `ReactNode`，而没有一个能被 React Native 的列表渲染器绘制。
 
-`@copilotkit/react-native` exports an **opt-in** type that narrows the return to
-`ReactElement | null`, so the compiler rejects it instead:
+`@copilotkit/react-native` 导出一个**可选启用**的类型，它把返回类型收窄为 `ReactElement | null`，让编译器直接拒绝：
 
 ```tsx
 import { useFrontendTool } from "@copilotkit/react-native";
@@ -276,59 +239,38 @@ useFrontendTool({
 ```
 
 <PropertyReference name="FrontendToolRenderFunction<T>" type="(props: React.ComponentProps<ReactToolCallRenderer<T>['render']>) => React.ReactElement | null">
-  A tool-call render function whose return type is narrowed to React Native's
-  `ReactElement | null`. The props are read straight off react-core's canonical
-  `ReactToolCallRenderer` contract and are not changed in any way, so they cannot
-  drift from the props a registered renderer is actually invoked with; only the
-  return type is React-Native-specific.
+  一种工具调用渲染函数，其返回类型被收窄为 React Native 的 `ReactElement | null`。它的 props 直接取自 react-core 的权威契约 `ReactToolCallRenderer`，未做任何改动，因此不会与已注册渲染器实际被调用时的 props 产生偏差；只有返回类型是 React Native 特有的。
 
-  `T` is the parsed tool arguments — the same `T` as `useFrontendTool`'s — and
-  defaults to `Record<string, unknown>`, so the bare spelling is legal.
+  `T` 是解析后的工具参数——与 `useFrontendTool` 的 `T` 相同——默认为 `Record<string, unknown>`，因此裸写也是合法的。
 </PropertyReference>
 
-<Callout type="warn" title="It is opt-in, and only opt-in">
-  This type changes no hook signature. A renderer written **inline** in a
-  `useFrontendTool` call is still checked against react-core's
-  `ReactNode`-returning contract, and a bare string still compiles there. You get
-  the narrowing on renderers you annotate with it — declare `render` as a
-  standalone `FrontendToolRenderFunction<T>` and pass it in, as above. It does
-  not make the package safe on its own.
+<Callout type="warn" title="需要显式启用，且仅显式启用有效">
+  该类型不改变任何钩子签名。在 `useFrontendTool` 调用中**内联**编写的渲染器仍按 react-core 返回 `ReactNode` 的契约进行检查，裸字符串在那里仍能通过编译。只有用它标注渲染器时才能获得收窄——将 `render` 声明为独立的 `FrontendToolRenderFunction<T>` 并传入，如上例所示。它本身并不能让这个包变得安全。
 </Callout>
 
-[`useRenderTool`](/reference/react-native/hooks/useRenderTool) needs none of
-this: it declares its own `render` as `(props) => ReactElement | null`, so a bare
-string is rejected there without any annotation.
+[`useRenderTool`](/reference/react-native/hooks/useRenderTool) 则完全不需要这些：它把自己的 `render` 声明为 `(props) => ReactElement | null`，因此在那里裸字符串无需任何标注就会被拒绝。
 
-## Behavior
+## 行为
 
-- **Duplicate detection**: If a tool with the same `name` is already registered, the hook logs a warning. Only one tool per name is active at a time.
-- **Mount/Unmount lifecycle**: The tool and its optional render component are registered on mount and removed on unmount.
-- **Dependency tracking**: When `deps` is provided, the registration is refreshed whenever a dependency changes. Plain data compares by value; functions and other objects compare by identity. See [Dependency comparison](#dependency-comparison) below.
-- **Handler and render are captured at registration**: Neither closure is re-read on every render. A value your `handler` or `render` reads from component state or props is frozen at whatever it was when the tool was last registered, so it must be declared in `deps`.
-- **Render component lifecycle**: If a `render` function is provided, it is added to the internal render tool calls registry. It receives streaming `args` (partial during `InProgress`, complete during `Executing` and `Complete`).
-- **`render`'s return type is `ReactNode`, not `ReactElement | null`**: a bare string typechecks and then throws in the chat's `FlatList`. Annotate the renderer with [`FrontendToolRenderFunction<T>`](#the-render-type-react-native-needs) to have the compiler reject it.
-- **No return value**: The hook returns `void`.
+- **重复检测**：如果已注册同名（`name`）工具，钩子会记录一条警告。同一时间每个名称只有一个工具处于活动状态。
+- **挂载/卸载生命周期**：工具及其可选的渲染组件在挂载时注册，在卸载时移除。
+- **依赖追踪**：提供 `deps` 时，任何依赖变化都会刷新注册。普通数据按值比较；函数和其他对象按引用比较。参见下文 [依赖比较](#依赖比较)。
+- **handler 与 render 在注册时捕获**：两个闭包都不会在每次渲染时重新读取。`handler` 或 `render` 从组件状态或 props 读取的值，会冻结在工具最后一次注册时的值上，因此必须在 `deps` 中声明。
+- **渲染组件生命周期**：如果提供了 `render` 函数，它会被加入内部的渲染工具调用注册表。它会接收流式传输中的 `args`（`InProgress` 期间为部分值，`Executing` 和 `Complete` 期间为完整值）。
+- **`render` 的返回类型是 `ReactNode`，而非 `ReactElement | null`**：裸字符串能通过类型检查，随后会在聊天的 `FlatList` 中抛出异常。用 [`FrontendToolRenderFunction<T>`](#react-native-需要的-render-类型) 标注渲染器，让编译器拒绝它。
+- **无返回值**：该钩子返回 `void`。
 
-## Dependency comparison
+## 依赖比较
 
-The hook reduces `deps` to a version number and puts only that number in its
-registration effect (`packages/react-core/src/v2/hooks/tool-registration.ts`).
-`deps` is never serialized. Each entry is compared with the previous render's:
+钩子将 `deps` 归约为一个版本号，并只把该版本号放入注册 effect（`packages/react-core/src/v2/hooks/tool-registration.ts`）。`deps` 从不被序列化。每个条目都与上一次渲染的对应条目进行比较：
 
-- Plain data compares by value: strings, numbers, booleans, `null`,
-  `undefined`, dates, and plain objects and arrays of those. An inline literal
-  such as `[{ status }]` or `[items.filter(isOpen)]` re-registers only when its
-  contents change. Key order does not matter.
-- A function never counts as changed, as before: a new callback in `deps`
-  does not re-register the tool. Read a changing callback through a ref (below).
-- Class instances, `Map`, `Set` and other non-plain objects compare by
-  identity.
-- A circular value, such as the `agent` returned by `useAgent`, is safe to list.
-  A cycle inside plain data is safe too.
-- Adding or removing an entry counts as a change.
+- 普通数据按值比较：字符串、数字、布尔值、`null`、`undefined`、日期，以及由它们构成的普通对象和数组。诸如 `[{ status }]` 或 `[items.filter(isOpen)]` 这样的内联字面量只在其内容变化时才重新注册。键顺序无关紧要。
+- 函数与之前一样永远不算变化：`deps` 中的新回调不会触发工具重新注册。通过 ref 读取会变化的回调（见下文）。
+- 类实例、`Map`、`Set` 及其他非普通对象按引用（同一性）比较。
+- 循环引用的值（例如 `useAgent` 返回的 `agent`）可以安全列出。普通数据内部的循环引用同样安全。
+- 增加或移除条目都算变化。
 
-To keep the registration stable while the closure always sees the current
-value, keep the value out of `deps` and read it through a latest-value ref:
+为了在注册保持稳定的同时让闭包始终读到最新值，可以把该值排除在 `deps` 之外，并通过一个最新值 ref 来读取：
 
 ```tsx
 import { useEffect, useRef } from "react";
@@ -355,10 +297,10 @@ function DraftTool({ onSubmit }: { onSubmit: () => Promise<string> }) {
 }
 ```
 
-The same ref pattern applies to a `render` component that needs live state.
+同样的 ref 模式也适用于需要实时状态的 `render` 组件。
 
-## Related
+## 相关内容
 
-- [`useRenderTool`](/reference/react-native/hooks/useRenderTool): register renderer-only tool call UI (named or wildcard), and the migration notes for React Native's older local hook of the same name
-- [`useCopilotKit`](/reference/react-native/hooks/useCopilotKit): access the core instance and run tools programmatically
-- [React (V2) reference](/reference/v2/hooks/useFrontendTool): the web equivalent this page mirrors
+- [`useRenderTool`](/reference/react-native/hooks/useRenderTool)：注册仅渲染的工具调用 UI（具名或通配符），以及 React Native 旧版同名本地钩子的迁移说明
+- [`useCopilotKit`](/reference/react-native/hooks/useCopilotKit)：访问核心实例并以编程方式运行工具
+- [React (V2) 参考](/reference/v2/hooks/useFrontendTool)：本页所对应的 Web 版参考

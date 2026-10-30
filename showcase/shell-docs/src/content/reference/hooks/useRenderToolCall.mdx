@@ -1,19 +1,19 @@
 ---
 title: "useRenderToolCall"
-description: "React hook that returns a renderer function for tool calls in the chat interface"
+description: "返回一个渲染器函数的 React Hook，用于在聊天界面中渲染工具调用"
 ---
 
-## Overview
+## 概览
 
-<Callout type="warn" title="Same name, different API than v1">
-  The v2 `useRenderToolCall` (this page, from `@copilotkit/react-core/v2`) is a **no-argument hook** that *returns* a renderer function for consuming tool calls. It is **not** the v1 [`useRenderToolCall`](/reference/v1/hooks/useRenderToolCall), which takes a `{ name, parameters, render }` config object to *register* a renderer. To register renderers for existing backend tools in v2, use [`useRenderTool`](/reference/hooks/useRenderTool).
+<Callout type="warn" title="同名，但与 v1 的 API 不同">
+  v2 的 `useRenderToolCall`（即本页，来自 `@copilotkit/react-core/v2`）是一个**无参数 Hook**，它*返回*一个用于消费工具调用的渲染器函数。它**不是** v1 的 [`useRenderToolCall`](/reference/v1/hooks/useRenderToolCall)——后者接收 `{ name, parameters, render }` 配置对象来*注册*渲染器。在 v2 中为既有后端工具注册渲染器请使用 [`useRenderTool`](/reference/hooks/useRenderTool)。
 </Callout>
 
-`useRenderToolCall` returns a renderer function that maps tool calls to React elements. The returned function looks up the matching render configuration by tool name (preferring a renderer scoped to the active `agentId`, then an unscoped one, then a wildcard `"*"` renderer if no exact match is found), partially parses the JSON arguments, determines the current `ToolCallStatus`, and returns the appropriate React element. When neither a per-tool nor a wildcard renderer is registered, it falls back to the framework's built-in `DefaultToolCallRenderer`, so the returned element is effectively always non-null (the signature keeps `ReactElement | null` for type compatibility).
+`useRenderToolCall` 返回一个把工具调用映射为 React 元素的渲染器函数。返回的函数按工具名称查找匹配的渲染配置（优先选择作用于当前 `agentId` 的渲染器，其次是不限定智能体的渲染器，最后在找不到精确匹配时使用通配 `"*"` 渲染器），对 JSON 参数做部分解析，判定当前的 `ToolCallStatus`，并返回相应的 React 元素。当既没有针对具体工具的渲染器、也没有通配渲染器时，它会回退到框架内置的 `DefaultToolCallRenderer`，因此返回的元素实际上始终不为 `null`（签名保留 `ReactElement | null` 只是为了类型兼容）。
 
-This hook is primarily used by chat UI components to display visual feedback for tool calls. In most applications you will not call it directly; instead, you register render components for existing backend tools via `useRenderTool`, and the chat components use `useRenderToolCall` internally to resolve them.
+该 Hook 主要由聊天 UI 组件使用，为工具调用展示可视化反馈。在大多数应用中你不会直接调用它；你只需通过 `useRenderTool` 为既有后端工具注册渲染组件，聊天组件会在内部使用 `useRenderToolCall` 来解析它们。
 
-## Signature
+## 签名
 
 ```tsx
 import { useRenderToolCall } from "@copilotkit/react-core/v2";
@@ -23,48 +23,48 @@ function useRenderToolCall(): (
 ) => React.ReactElement | null;
 ```
 
-## Return Value
+## 返回值
 
 <PropertyReference name="renderer" type="(props: UseRenderToolCallProps) => React.ReactElement | null">
-  A function that accepts tool call props and returns a React element or `null`.
+  一个接收工具调用 props 并返回 React 元素或 `null` 的函数。
 
   <PropertyReference name="props" type="UseRenderToolCallProps" required>
-    The input object describing the tool call to render.
+    描述要渲染的工具调用的输入对象。
 
     <PropertyReference name="toolCall" type="ToolCall" required>
-      The tool call object. The tool name is read from `toolCall.function.name` and the JSON-encoded arguments from `toolCall.function.arguments`.
+      工具调用对象。工具名称从 `toolCall.function.name` 读取，JSON 编码的参数从 `toolCall.function.arguments` 读取。
     </PropertyReference>
 
     <PropertyReference name="toolMessage" type="ToolMessage">
-      The tool result message, if available. When present, indicates the tool call has completed and contains the result string.
+      工具结果消息（如果可用）。它存在即表示工具调用已完成，并包含结果字符串。
     </PropertyReference>
 
   </PropertyReference>
 </PropertyReference>
 
-## Status Resolution
+## 状态判定
 
-The renderer determines the `ToolCallStatus` based on the inputs:
+渲染器根据输入确定 `ToolCallStatus`：
 
-| Condition                                                           | Status                      | `result`                                |
+| 条件                                                                | 状态                        | `result`                                |
 | ------------------------------------------------------------------- | --------------------------- | --------------------------------------- |
-| No `toolMessage`, tool call id **not** in the executing set         | `ToolCallStatus.InProgress` | `undefined`                             |
-| No `toolMessage`, tool call id **is** in the provider executing set | `ToolCallStatus.Executing`  | `undefined`                             |
-| A `toolMessage` is present                                          | `ToolCallStatus.Complete`   | The result string from the tool message |
+| 没有 `toolMessage`，且工具调用 id **不在**执行集合中                 | `ToolCallStatus.InProgress` | `undefined`                             |
+| 没有 `toolMessage`，但工具调用 id **在**提供方执行集合中             | `ToolCallStatus.Executing`  | `undefined`                             |
+| 存在 `toolMessage`                                                  | `ToolCallStatus.Complete`   | 工具消息中的结果字符串                   |
 
 ## ToolCallStatus
 
-The `ToolCallStatus` enum is exported from `@copilotkit/react-core/v2`:
+`ToolCallStatus` 枚举从 `@copilotkit/react-core/v2` 导出：
 
-| Value                       | Description                                          |
+| 值                          | 说明                                                 |
 | --------------------------- | ---------------------------------------------------- |
-| `ToolCallStatus.InProgress` | The tool call's arguments are still being streamed.  |
-| `ToolCallStatus.Executing`  | Arguments are fully resolved; the tool is executing. |
-| `ToolCallStatus.Complete`   | Execution is finished and a result is available.     |
+| `ToolCallStatus.InProgress` | 工具调用的参数仍在流式传输中。                        |
+| `ToolCallStatus.Executing`  | 参数已完全解析；工具正在执行。                        |
+| `ToolCallStatus.Complete`   | 执行已结束，结果可用。                                |
 
-## Usage
+## 用法
 
-### Using the Renderer in a Custom Chat Component
+### 在自定义聊天组件中使用渲染器
 
 ```tsx
 function CustomChatMessage({ message }) {
@@ -85,9 +85,9 @@ function CustomChatMessage({ message }) {
 }
 ```
 
-### Registering Renderers with useRenderTool
+### 通过 useRenderTool 注册渲染器
 
-Tool call renderers for existing backend tools are registered through `useRenderTool` or directly via the `renderToolCalls` prop on the provider. The `useRenderToolCall` hook resolves these registrations at render time.
+既有后端工具的工具调用渲染器通过 `useRenderTool` 或直接通过提供方的 `renderToolCalls` prop 注册。`useRenderToolCall` Hook 会在渲染时解析这些注册。
 
 ```tsx
 import { useRenderTool } from "@copilotkit/react-core/v2";
@@ -120,9 +120,9 @@ function App() {
 }
 ```
 
-### Wildcard Renderer
+### 通配渲染器
 
-If no exact name match is found, the hook falls back to a wildcard `"*"` renderer. This is useful for providing a generic UI for all unhandled tool calls.
+如果找不到精确的名称匹配，该 Hook 会回退到通配 `"*"` 渲染器。这适合为所有未处理的工具调用提供一套通用 UI。
 
 ```tsx
 function App() {
@@ -154,19 +154,19 @@ function App() {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Name-based lookup with agent scoping**: The renderer searches registered render configurations for an exact tool name match first. When multiple match the same name, it prefers the one scoped to the active `agentId`, then an unscoped renderer, then the first match. If no exact match exists, it falls back to a wildcard (`"*"`) renderer, and finally to the framework's built-in `DefaultToolCallRenderer`.
-- **Partial JSON parsing**: The tool call's `arguments` string is parsed with `partialJSONParse` before being passed to the render component, so partially-streamed arguments can render incrementally while the tool call is still `InProgress`.
-- **Status inference**: Status is determined from the presence of the `toolMessage` prop and whether the tool call id is in the provider's executing set. The render component always receives a consistent shape with `name`, `toolCallId`, `args`, `status`, and `result`.
-- **Default renderer for unmatched tools**: If no renderer is registered for the tool name and no wildcard renderer exists, the function falls back to the built-in `DefaultToolCallRenderer` rather than returning `null`, so unhandled tool calls still paint out-of-the-box.
-- **Used internally by chat components**: The built-in `CopilotChat`, `CopilotPopup`, and `CopilotSidebar` components use this hook to render tool calls. You only need to call it directly when building custom chat UIs.
+- **按名称查找并按智能体限定作用域**：渲染器会先在已注册的渲染配置中查找工具名称的精确匹配。当多个配置匹配同一名称时，优先选择作用于当前 `agentId` 的渲染器，其次是不限定智能体的渲染器，再是第一个匹配项。如果不存在精确匹配，则回退到通配（`"*"`）渲染器，最后回退到框架内置的 `DefaultToolCallRenderer`。
+- **部分 JSON 解析**：工具调用的 `arguments` 字符串在传给渲染组件之前会先经过 `partialJSONParse` 解析，因此工具调用仍处于 `InProgress` 时，部分流式传入的参数也能增量渲染。
+- **状态推断**：状态由 `toolMessage` prop 是否存在以及工具调用 id 是否在提供方的执行集合中来判定。渲染组件始终收到结构一致的 `name`、`toolCallId`、`args`、`status` 与 `result`。
+- **未匹配工具的默认渲染器**：如果没有为该工具名称注册渲染器，也不存在通配渲染器，该函数会回退到内置的 `DefaultToolCallRenderer` 而不是返回 `null`，因此未处理的工具调用依然开箱即用地绘制 UI。
+- **由聊天组件在内部使用**：内置的 `CopilotChat`、`CopilotPopup` 与 `CopilotSidebar` 组件都使用该 Hook 渲染工具调用。只有构建自定义聊天 UI 时才需要直接调用它。
 
-### Disable default tool rendering
+### 禁用默认工具渲染
 
-Because the hook falls back to the built-in `DefaultToolCallRenderer` when no renderer matches, tool calls paint UI out-of-the-box. To turn that off, register a renderer that produces no UI (an empty fragment, `() => <></>`). A registered renderer takes priority over the default, so no fallback UI is shown.
+由于该 Hook 在没有渲染器匹配时会回退到内置的 `DefaultToolCallRenderer`，工具调用会开箱即用地绘制 UI。要关闭它，请注册一个不产生 UI 的渲染器（空片段，`() => <></>`）。已注册的渲染器优先于默认渲染器，因此不会显示回退 UI。
 
-Register a wildcard (`"*"`) renderer with [`useRenderTool`](/reference/hooks/useRenderTool) to disable the default for **all** tool calls. The wildcard overload takes no `parameters` schema, so no Zod is required. Any tool with its own named renderer still paints.
+注册一个通配（`"*"`）渲染器（通过 [`useRenderTool`](/reference/hooks/useRenderTool)）即可为**所有**工具调用禁用默认渲染。通配重载不需要 `parameters` schema，因此无需 Zod。拥有自己具名渲染器的工具仍会正常绘制。
 
 ```tsx
 function App() {
@@ -178,9 +178,9 @@ function App() {
 }
 ```
 
-#### For specific tools
+#### 针对特定工具
 
-To disable rendering for a single tool, register a renderer under that tool's name. Named renderers take a `parameters` schema; when you only want to suppress UI, pass a pass-through schema (`z.any()`):
+要禁用单个工具的渲染，请以该工具的名称注册一个渲染器。具名渲染器需要 `parameters` schema；如果只想隐藏 UI，传入直通 schema（`z.any()`）即可：
 
 ```tsx
 import { z } from "zod";
@@ -195,11 +195,11 @@ function App() {
 }
 ```
 
-You can also opt out conditionally — render nothing for some statuses and real UI for others (for example, hide while `InProgress` but show a result on `Complete`), since the `render` function receives the current `status`.
+你也可以按条件退出——对某些状态不渲染任何内容，对另一些状态渲染真实 UI（例如在 `InProgress` 时隐藏、在 `Complete` 时显示结果），因为 `render` 函数会收到当前的 `status`。
 
-## Related
+## 相关内容
 
-- [`useRenderTool`](/reference/hooks/useRenderTool) -- register a renderer by tool name or wildcard (no schema needed for `"*"`)
-- [`useFrontendTool`](/reference/hooks/useFrontendTool) -- register tools with render components
-- [`useHumanInTheLoop`](/reference/hooks/useHumanInTheLoop) -- register interactive tools with render components
-- [`CopilotKit`](/reference/v2) -- configure static render tool calls at the provider level
+- [`useRenderTool`](/reference/hooks/useRenderTool) —— 按工具名称或通配方式注册渲染器（`"*"` 无需 schema）
+- [`useFrontendTool`](/reference/hooks/useFrontendTool) —— 注册带渲染组件的工具
+- [`useHumanInTheLoop`](/reference/hooks/useHumanInTheLoop) —— 注册带渲染组件的交互式工具
+- [`CopilotKit`](/reference/v2) —— 在提供方层级配置静态渲染工具调用

@@ -1,17 +1,17 @@
 ---
 title: "useFrontendTools"
-description: "React hook for registering a list of client-side tools whose length can change between renders"
+description: "用于注册一批客户端工具的 React Hook，其数量可在两次渲染之间变化"
 ---
 
-## Overview
+## 概览
 
-`useFrontendTools` registers many client-side tools in one call. Use it when the set of tools is not known when you write the component: tools built from state, from props, or from a list the backend returned.
+`useFrontendTools` 一次调用即可注册多个客户端工具。当你编写组件时工具集合尚不确定——工具来自状态、props 或后端返回的列表——就使用它。
 
-[`useFrontendTool`](/reference/hooks/useFrontendTool) registers exactly one tool per call, so it cannot be called in a loop over a list whose length changes. That breaks the rules of hooks. `useFrontendTools` runs a single effect over the whole array instead, so the array may be empty on one render and hold twenty entries on the next.
+[`useFrontendTool`](/reference/hooks/useFrontendTool) 每次调用只注册一个工具，因此无法对长度会变化的列表做循环调用，那会破坏 Hook 的规则。`useFrontendTools` 则改为对整个数组运行单个 effect，所以数组这一次渲染可以为空，下一次渲染可以包含二十个条目。
 
-Each entry is the same `ReactFrontendTool` object that `useFrontendTool` takes. See that page for the full tool shape, including `parameters`, `handler`, `render`, and `webmcp`.
+每个条目与 `useFrontendTool` 接收的 `ReactFrontendTool` 对象相同。完整的工具结构（包括 `parameters`、`handler`、`render` 与 `webmcp`）请参见该页。
 
-## Signature
+## 签名
 
 ```tsx
 import { useFrontendTools } from "@copilotkit/react-core/v2";
@@ -22,34 +22,23 @@ function useFrontendTools(
 ): void;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="tools" type="ReadonlyArray<ReactFrontendTool<any>> | undefined" required>
-  The tools to register. The array may be empty, may change length between
-  renders, and may be `undefined` while data is still loading. Each entry takes
-  the same fields as the `tool` argument of
-  [`useFrontendTool`](/reference/hooks/useFrontendTool).
+  要注册的工具。数组可以为空、可以在两次渲染之间改变长度，也可以在数据尚在加载时为 `undefined`。每个条目的字段与 [`useFrontendTool`](/reference/hooks/useFrontendTool) 的 `tool` 参数相同。
 
-  Tools are identified by `name` plus `agentId`, so the same `name` can serve
-  two different agents. If one array lists the same `name` and `agentId` twice,
-  the last entry wins and a warning is logged.
+  工具由 `name` 加 `agentId` 标识，因此同一个 `name` 可以服务于两个不同的智能体。如果同一个数组中出现了两次相同的 `name` 与 `agentId`，以最后一个条目为准，并会记录一条警告。
 </PropertyReference>
 
 <PropertyReference name="deps" type="ReadonlyArray<unknown>">
-  An optional dependency array. It has the same contract as the second argument
-  of `useEffect`. Entries are compared by identity, and the array must keep a
-  constant length across renders. Registration is refreshed whenever any entry
-  changes. Use this when a handler captures external state that is not part of
-  the tool definition, such as a router or a mutation function.
+  可选的依赖数组。它的约定与 `useEffect` 的第二个参数相同。条目按引用比较，且数组在渲染之间必须保持长度恒定。只要有任何条目变化，注册就会刷新。当某个 handler 捕获了不属于工具定义的外部状态（例如路由器或 mutation 函数）时，请使用它。
 
-  Do not put the source collection here. The hook already keys on the contents
-  of `tools`. Adding `reports` or `data` to `deps` would re-register every tool
-  on every render, because that array is rebuilt each time.
+  不要把源数据集合放在这里。该 Hook 本身已经以 `tools` 的内容为键。把 `reports` 或 `data` 加进 `deps` 会导致每次渲染都重新注册所有工具，因为那个数组每次都会重建。
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Tools built from application state
+### 从应用状态构建的工具
 
 ```tsx
 function ReportTools({ reports }: { reports: Report[] }) {
@@ -71,9 +60,9 @@ function ReportTools({ reports }: { reports: Report[] }) {
 }
 ```
 
-When `reports` grows, the new tools are registered. When a report disappears from the list, its tool is unregistered and the rest stay registered.
+`reports` 增加时，新工具会被注册；某个报告从列表中消失时，它的工具会被注销，其余工具保持注册状态。
 
-### Tools described by the backend
+### 由后端描述的工具
 
 ```tsx
 function BackendTools() {
@@ -101,9 +90,9 @@ function BackendTools() {
 }
 ```
 
-Passing `undefined` while the query is in flight registers nothing. The tools appear once the data arrives, without a second code path for the loading state.
+查询进行中时传入 `undefined`，不会注册任何工具。数据到达后工具随即出现，无需为加载状态编写另一条代码路径。
 
-### Turning a subset of tools off
+### 关闭部分工具
 
 ```tsx
 function PermissionedTools({ isAdmin }: { isAdmin: boolean }) {
@@ -127,9 +116,9 @@ function PermissionedTools({ isAdmin }: { isAdmin: boolean }) {
 }
 ```
 
-`available: false` keeps the tool registered but hides it from the agent. Toggling it re-registers that tool, the same as with `useFrontendTool`.
+`available: false` 会保留工具的注册，但把它对智能体隐藏。切换该值会重新注册该工具，与 `useFrontendTool` 的行为一致。
 
-### Tools with render components
+### 带渲染组件的工具
 
 ```tsx
 function ChartTools({ metrics }: { metrics: Metric[] }) {
@@ -153,20 +142,20 @@ function ChartTools({ metrics }: { metrics: Metric[] }) {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Value-based re-registration**: The array is normally built inline, so its identity changes on every render. The hook keys on the `name`, `description`, `agentId`, `available`, and `webmcp` of every entry instead. A re-render that produces an equal list does not re-register anything.
-- **Descriptions stay current**: `description` is part of the key. A description derived from your data, such as `` `Open the ${report.title} report` ``, reaches the agent as soon as the data changes, with no `deps` entry. This is the one place the key differs from [`useFrontendTool`](/reference/hooks/useFrontendTool), which keys only on `name`, `available`, and `webmcp`.
-- **Adding and removing**: When the list changes, tools that are new get registered and tools that left get unregistered. Tools present in both the old and new list are re-registered with their latest definition.
-- **Unmount**: Every tool the hook registered is unregistered on unmount.
-- **Duplicate names**: A `name` and `agentId` pair listed twice in one array is a mistake in the calling code. The last entry wins and the hook logs a warning naming the tool.
-- **Overriding another registration**: If a tool with the same `name` and `agentId` was already registered elsewhere, the hook overrides it and logs a warning, matching `useFrontendTool`.
-- **Render component lifecycle**: Entries with a `render` function register a renderer. Renderers are deliberately left in place after unmount so that past tool calls still render in the chat history.
-- **Handlers and parameters are not part of the key**: A `handler` is a function and a `parameters` schema is an object, so neither can be compared by value. Changing only one of them does not re-register on its own. Pass `deps` when a handler closes over a value that must stay current, as the examples above do with `navigate`.
-- **No return value**: The hook returns `void`.
+- **基于值的重新注册**：数组通常是内联构建的，因此它的引用每次渲染都会变化。该 Hook 改为以每个条目的 `name`、`description`、`agentId`、`available` 与 `webmcp` 为键。产生相等列表的重新渲染不会重新注册任何东西。
+- **描述保持最新**：`description` 是键的一部分。由你的数据派生的描述，例如 `` `Open the ${report.title} report` ``，会在数据变化时立即同步给智能体，无需任何 `deps` 条目。这是该 Hook 的键与 [`useFrontendTool`](/reference/hooks/useFrontendTool) 唯一不同的地方——后者只以 `name`、`available` 与 `webmcp` 为键。
+- **新增与移除**：列表变化时，新增的工具会被注册，离开的工具会被注销。同时出现在新旧列表中的工具会以最新定义重新注册。
+- **卸载**：该 Hook 注册的所有工具都会在卸载时注销。
+- **重名**：同一个数组中出现两次的 `name` 与 `agentId` 组合属于调用代码的错误。以最后一个条目为准，该 Hook 会记录一条指名该工具的警告。
+- **覆盖其他注册**：如果相同 `name` 与 `agentId` 的工具已在别处注册，该 Hook 会覆盖它并记录一条警告，与 `useFrontendTool` 一致。
+- **渲染组件生命周期**：带有 `render` 函数的条目会注册一个渲染器。渲染器在卸载后被有意保留在原处，以便历史中的既往工具调用仍能正常渲染。
+- **handler 与 parameters 不属于键的一部分**：`handler` 是函数、`parameters` schema 是对象，两者都无法按值比较。只改动其中之一本身不会触发重新注册。当 handler 闭包引用了必须保持最新的值时请传入 `deps`，正如上面示例中对 `navigate` 的处理。
+- **无返回值**：该 Hook 返回 `void`。
 
-## Related
+## 相关内容
 
-- [`useFrontendTool`](/reference/hooks/useFrontendTool) -- register a single tool; the reference for the tool shape
-- [`useHumanInTheLoop`](/reference/hooks/useHumanInTheLoop) -- for tools that pause execution and wait for user input
-- [`useRenderTool`](/reference/hooks/useRenderTool) -- register renderer-only tool call UI (named or wildcard)
+- [`useFrontendTool`](/reference/hooks/useFrontendTool) —— 注册单个工具；工具结构的参考文档
+- [`useHumanInTheLoop`](/reference/hooks/useHumanInTheLoop) —— 用于暂停执行并等待用户输入的工具
+- [`useRenderTool`](/reference/hooks/useRenderTool) —— 注册仅负责渲染的工具调用 UI（具名或通配）

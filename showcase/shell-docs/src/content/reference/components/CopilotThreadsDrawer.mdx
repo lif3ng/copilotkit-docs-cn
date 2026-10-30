@@ -1,115 +1,83 @@
 ---
 title: "CopilotThreadsDrawer"
-description: "Prebuilt threads drawer that lists, switches, and manages conversations next to CopilotChat"
+description: "预构建的线程抽屉，可在 CopilotChat 旁列出、切换和管理会话"
 ---
 
-## Overview
+## 概览
 
-`CopilotThreadsDrawer` is a prebuilt thread switcher. Dropped in next to [`CopilotChat`](/reference/components/CopilotChat), it lists the user's conversations and lets them switch, start, archive, and delete threads — with **no active-thread state to wire up**. (Thread rename is available headlessly via [`useThreads`](/reference/hooks/useThreads), not through the drawer's row menu.) It is a thin React wrapper around the framework-agnostic `<copilotkit-threads-drawer>` shadow-DOM web component, fed by the [`useThreads`](/reference/hooks/useThreads) hook and the surrounding chat configuration.
+`CopilotThreadsDrawer` 是一个预构建的线程切换器。把它放到 [`CopilotChat`](/reference/components/CopilotChat) 旁边，它会列出用户的会话，并支持切换、新建、归档和删除线程——**无需接线任何活跃线程状态**。（线程重命名只能通过 [`useThreads`](/reference/hooks/useThreads) 以无头方式实现，抽屉的行菜单不提供该功能。）它是对框架无关的 `<copilotkit-threads-drawer>` shadow-DOM Web 组件的一层轻量 React 包装，由 [`useThreads`](/reference/hooks/useThreads) hook 和周围的聊天配置提供数据。
 
-When `onThreadSelect` / `onNewThread` are omitted, the drawer drives the surrounding chat configuration directly: selecting a row connects the chat to that thread (and replays its history); the "New Conversation" row resets the chat to a fresh welcome screen. Pass the callbacks only to take control of the active thread yourself.
+省略 `onThreadSelect` / `onNewThread` 时，抽屉会直接驱动周围的聊天配置：选中某一行会把聊天连接到该线程（并回放其历史记录）；“新建会话”一行会把聊天重置为全新的欢迎屏。只有当你想自己控制活跃线程时才需要传入这些回调。
 
-Pair it with the v2 `CopilotChat` or `CopilotSidebar` from `@copilotkit/react-core/v2`. `@copilotkit/react-ui` exports components with those same two names, and those are the [deprecated v1 components](/migrate/v2).
+请将它与来自 `@copilotkit/react-core/v2` 的 v2 版 `CopilotChat` 或 `CopilotSidebar` 搭配使用。`@copilotkit/react-ui` 也导出了同名的两个组件，但那是[已弃用的 v1 组件](/migrate/v2)。
 
-See the [CopilotThreadsDrawer guide](/prebuilt-components/copilot-threads-drawer) for a walkthrough, and [`useThreads`](/reference/hooks/useThreads) for the headless data layer underneath.
+完整演练请参阅 [CopilotThreadsDrawer 指南](/prebuilt-components/copilot-threads-drawer)，其底层的无头数据层请参见 [`useThreads`](/reference/hooks/useThreads)。
 
-## Import
+## 导入
 
 ```tsx
 import { CopilotThreadsDrawer } from "@copilotkit/react-core/v2";
 import "@copilotkit/react-core/v2/styles.css";
 ```
 
-## Props
+## 属性
 
 <PropertyReference name="agentId" type="string">
-  The agent whose threads to list and manage. The drawer lists one agent's
-  threads. When omitted, it uses the agent of the nearest
-  `CopilotChatConfigurationProvider`, then `agentId` on `CopilotKitProvider`,
-  then `"default"`. `CopilotKit` sets the chat configuration from its `agent`
-  prop (`"default"` when `agent` is omitted). Pass it
-  when your runtime registers several agents and the drawer should list a
-  different one.
+  要列出和管理其线程的智能体。抽屉只列出一个智能体的线程。省略时，依次使用最近的 `CopilotChatConfigurationProvider` 的智能体、`CopilotKitProvider` 上的 `agentId`，最后是 `"default"`。`CopilotKit` 会根据其 `agent` prop 设置聊天配置（省略 `agent` 时为 `"default"`）。当你的运行时注册了多个智能体、而抽屉应列出另一个智能体时，请传入该属性。
 </PropertyReference>
 
 <PropertyReference name="onThreadSelect" type="(threadId: string) => void">
-  Optional escape hatch called when the user picks a thread row. When omitted,
-  the drawer drives the surrounding chat configuration directly
-  (`setActiveThreadId`), so a bare `<CopilotThreadsDrawer>` switches the rendered
-  thread with no host wiring. Provide this only to take control of the active
-  thread yourself.
+  可选的逃生舱口，在用户选择某个线程行时调用。省略时，抽屉直接驱动周围的聊天配置（`setActiveThreadId`），因此一个裸的 `<CopilotThreadsDrawer>` 无需宿主接线即可切换渲染中的线程。只有当你想自己控制活跃线程时才提供它。
 </PropertyReference>
 
 <PropertyReference name="onNewThread" type="() => void">
-  Optional escape hatch called when the user starts a new thread (the
-  "New Conversation" row). The wrapper always resets the core thread store to a
-  fresh, non-explicit thread; when this is omitted it also resets the surrounding
-  chat configuration so the welcome screen shows with no host wiring.
+  可选的逃生舱口，在用户开始新线程时调用（即“新建会话”一行）。包装器总会把核心线程存储重置为全新的非显式线程；省略该回调时，它还会重置周围的聊天配置，因此无需宿主接线即可显示欢迎屏。
 </PropertyReference>
 
 <PropertyReference name="renderRow" type="(thread: Thread) => React.ReactNode">
-  Optional per-row content. Rendered as light-DOM children projected into the
-  element's `slot="row:{id}"`, so the element keeps the row chrome (selection,
-  archived styling, entry animation, actions) around your content. Return
-  `null` for a given row to keep the element's default row name.
+  可选的每行自定义内容。会作为 light-DOM 子元素投影到元素的 `slot="row:{id}"` 中，因此元素仍会在你的内容外围保留行的外观（选中态、归档样式、入场动画、操作按钮）。对某一行返回 `null` 则保留该元素的默认行名称。
 </PropertyReference>
 
 <PropertyReference name="label" type="string" default="Threads">
-  Accessible name for the drawer. Sets the `aria-label` on both the drawer region
-  and the thread listbox. The redesigned header has no visible title, so this is
-  no longer shown as header text.
+  抽屉的可访问名称。为抽屉区域和线程列表框（listbox）同时设置 `aria-label`。重新设计的头部没有可见标题，因此不再作为头部文字显示。
 </PropertyReference>
 
 <PropertyReference name="recentLabel" type="string" default="Recent Conversations">
-  Text of the section heading shown above the thread list (the `section-heading`
-  part), alongside the filter funnel.
+  线程列表上方显示的分区标题文字（即 `section-heading` 部分），与筛选漏斗并排。
 </PropertyReference>
 
 <PropertyReference name="limit" type="number">
-  Page size for thread pagination. When set, threads load in pages of this size
-  and a "Load more" control appears at the bottom of the list while more remain
-  (the element emits a `load-more` event the wrapper routes to
-  `fetchMoreThreads`). Omit to load the full list at once with no control.
+  线程分页的页大小。设置后，线程按该大小分页加载，当还有更多线程时，列表底部会出现“加载更多”控件（元素会发出 `load-more` 事件，由包装器路由到 `fetchMoreThreads`）。省略则一次性加载完整列表且不显示该控件。
 </PropertyReference>
 
 <PropertyReference name="collapsible" type="boolean" default="true">
-  Whether the drawer offers a collapse toggle on desktop. When `true` (default)
-  a sidebar-glyph toggle appears in the header; collapsing replaces the panel
-  with a small floating cluster (a sidebar toggle + a "New Conversation" button)
-  and the drawer sets `--cpk-drawer-reserved-width: 0px` on the document root so
-  a host grid that reads that variable reclaims the column. Set `false` to omit
-  the toggle and keep the drawer always expanded.
+  抽屉在桌面端是否提供折叠开关。为 `true`（默认）时，头部会显示一个侧边栏图形开关；折叠后面板会被一个小型浮动组件组取代（一个侧边栏开关 + 一个“新建会话”按钮），并且抽屉会在文档根元素上设置 `--cpk-drawer-reserved-width: 0px`，读取该变量的宿主网格即可收回该列。设为 `false` 则去掉开关并让抽屉始终保持展开。
 </PropertyReference>
 
 <PropertyReference name="onCollapseChange" type="(collapsed: boolean) => void">
-  Called when the user toggles the desktop collapse state, with the new
-  `collapsed` value. Optional — the drawer manages its own collapse state; use
-  this only to mirror it into your own layout.
+  用户切换桌面端折叠状态时调用，携带新的 `collapsed` 值。可选——抽屉自己管理折叠状态；仅当你想把它同步到自己的布局时使用。
 </PropertyReference>
 
 <PropertyReference name="data-testid" type="string" default="copilot-threads-drawer">
-  `data-testid` set on the underlying custom element, for tests and for
-  targeting from a host page.
+  设置在底层自定义元素上的 `data-testid`，用于测试和从宿主页面定位。
 </PropertyReference>
 
-## Customization
+## 自定义
 
-The drawer renders inside a shadow root and ships its own self-contained,
-theme-inheriting styles, so it looks correct in any host (including dark mode)
-with zero config. Three bounded escape hatches pierce the boundary.
+抽屉渲染在 shadow root 内部，自带独立且继承主题的样式，因此在任何宿主中（包括深色模式）零配置即可正确显示。有三个受约束的逃生舱口可以穿透这层边界。
 
-### Slots
+### 插槽
 
-Project light-DOM children with a `slot` attribute to replace a region:
+通过 `slot` 属性投影 light-DOM 子元素来替换某个区域：
 
-| Slot | Replaces |
-| --- | --- |
-| `header` | The drawer header region (renders only when you project content). |
-| `empty` | The empty-state body shown when there are no threads. |
-| `footer` | A footer region (hidden until you project content). |
-| `memories` | A reserved region for a future memories surface. |
-| `launcher-icon` | The icon inside the floating mobile launcher. |
-| `row:{id}` | Per-row content — prefer the `renderRow` prop, which manages this. |
+| 插槽       | 替换的内容                                             |
+| ---------- | ------------------------------------------------------ |
+| `header`   | 抽屉头部区域（仅当你投影内容时才渲染）。               |
+| `empty`    | 没有线程时显示的空状态主体。                           |
+| `footer`   | 页脚区域（在你投影内容之前隐藏）。                     |
+| `memories` | 为未来的记忆（memories）界面预留的区域。               |
+| `launcher-icon` | 移动端浮动启动器内的图标。                         |
+| `row:{id}` | 每行内容——建议使用管理此处的 `renderRow` prop。        |
 
 ```tsx
 <CopilotThreadsDrawer>
@@ -119,46 +87,28 @@ Project light-DOM children with a `slot` attribute to replace a region:
 
 ### CSS parts
 
-Style structural elements with `::part()`:
+使用 `::part()` 为结构性元素设置样式：
 
-- **Structure** — `root`, `header`, `list`, `footer`
-- **Rows** — `row`, `row-active` (the selected row), `row-name`, `row-menu` (kebab), `row-menu-popover`, `row-archive`, `row-unarchive`, `row-delete`
-- **New conversation & sections** — `new-thread-button`, `section-heading`
-- **Filter** — `filter-toggle`, `filter-indicator`, `filter-active`, `filter-all`, `filters`
-- **Collapse, mobile & launcher** — `collapse-toggle` (desktop), `close-toggle` (mobile), `backdrop` (mobile scrim), `launcher`, `launcher-cluster`, `launcher-new-thread`
-- **Pagination** — `load-more`, `fetching-more`, `fetch-more-error`, `fetch-more-retry`
-- **States & upsell** — `loading`, `empty`, `error`, `retry-button`, `licensed`, `licensed-cta`, `memories`
-- **Delete confirm dialog** — `confirm-dialog`, `confirm-cancel`, `confirm-delete`
+- **结构** —— `root`、`header`、`list`、`footer`
+- **行** —— `row`、`row-active`（选中的行）、`row-name`、`row-menu`（kebab 菜单）、`row-menu-popover`、`row-archive`、`row-unarchive`、`row-delete`
+- **新建会话与分区** —— `new-thread-button`、`section-heading`
+- **筛选** —— `filter-toggle`、`filter-indicator`、`filter-active`、`filter-all`、`filters`
+- **折叠、移动端与启动器** —— `collapse-toggle`（桌面端）、`close-toggle`（移动端）、`backdrop`（移动端遮罩）、`launcher`、`launcher-cluster`、`launcher-new-thread`
+- **分页** —— `load-more`、`fetching-more`、`fetch-more-error`、`fetch-more-retry`
+- **状态与升级引导** —— `loading`、`empty`、`error`、`retry-button`、`licensed`、`licensed-cta`、`memories`
+- **删除确认对话框** —— `confirm-dialog`、`confirm-cancel`、`confirm-delete`
 
-The Active/All filter lives behind the `filter-toggle` funnel, whose
-`filter-indicator` dot shows when a non-default filter is applied. Per-row
-Archive/Delete actions live in the `row-menu` kebab and its `row-menu-popover`.
-When the list is collapsed on desktop (or closed on mobile), the floating
-`launcher-cluster` holds the `launcher` toggle and the `launcher-new-thread`
-button.
+活跃/全部筛选藏在 `filter-toggle` 漏斗后面，当应用了非默认筛选时，其 `filter-indicator` 圆点会显示。每行的归档/删除操作位于 `row-menu` kebab 菜单及其 `row-menu-popover` 中。当列表在桌面端被折叠（或移动端被关闭）时，浮动组件组 `launcher-cluster` 会承载 `launcher` 开关和 `launcher-new-thread` 按钮。
 
-### CSS variable tokens
+### CSS 变量令牌
 
-Tokens override the bundled defaults and fall back to the host theme's vars
-(so the drawer follows light/dark automatically): `--cpk-drawer-bg`,
-`--cpk-drawer-fg`, `--cpk-drawer-border`, `--cpk-drawer-surface`,
-`--cpk-drawer-surface-fg`, `--cpk-drawer-muted`, `--cpk-drawer-muted-fg`,
-`--cpk-drawer-accent`, `--cpk-drawer-accent-fg`, `--cpk-drawer-primary`,
-`--cpk-drawer-primary-fg`, `--cpk-drawer-danger`, `--cpk-drawer-indicator`
-(default `#5b94e4`, color of the filter-applied dot), `--cpk-drawer-ring`,
-`--cpk-drawer-radius`, `--cpk-drawer-width`,
-`--cpk-drawer-font-family`, `--cpk-drawer-font-size`, `--cpk-drawer-line-height`,
-`--cpk-drawer-launcher-top`, `--cpk-drawer-launcher-left`.
+这些令牌会覆盖内置默认值，并回退到宿主主题的变量（因此抽屉会自动跟随浅色/深色模式）：`--cpk-drawer-bg`、`--cpk-drawer-fg`、`--cpk-drawer-border`、`--cpk-drawer-surface`、`--cpk-drawer-surface-fg`、`--cpk-drawer-muted`、`--cpk-drawer-muted-fg`、`--cpk-drawer-accent`、`--cpk-drawer-accent-fg`、`--cpk-drawer-primary`、`--cpk-drawer-primary-fg`、`--cpk-drawer-danger`、`--cpk-drawer-indicator`（默认 `#5b94e4`，即筛选生效圆点的颜色）、`--cpk-drawer-ring`、`--cpk-drawer-radius`、`--cpk-drawer-width`、`--cpk-drawer-font-family`、`--cpk-drawer-font-size`、`--cpk-drawer-line-height`、`--cpk-drawer-launcher-top`、`--cpk-drawer-launcher-left`。
 
-## Usage
+## 用法
 
-### Basic usage
+### 基础用法
 
-Wrap the drawer and `CopilotChat` in a shared `CopilotChatConfigurationProvider`
-so they operate on the **same** chat configuration — that shared config is how
-selecting a thread (or "New Conversation") drives the chat. Without a shared
-provider the drawer sits beside the chat's own scoped configuration and can't
-switch its thread.
+把抽屉和 `CopilotChat` 包裹在同一个 `CopilotChatConfigurationProvider` 中，让它们操作**同一个**聊天配置——正是这份共享配置让选择线程（或“新建会话”）能够驱动聊天。没有共享 Provider 时，抽屉与聊天各自的作用域配置相互独立，无法切换其线程。
 
 ```tsx
 import {
@@ -179,7 +129,7 @@ function App() {
 }
 ```
 
-### Custom row content + label
+### 自定义行内容与标签
 
 ```tsx
 function App() {
@@ -192,19 +142,19 @@ function App() {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Self-connecting**: without `onThreadSelect`/`onNewThread`, the drawer drives the chat configuration — select connects + replays; the "New Conversation" row shows the welcome screen.
-- **Collapsible sidebar**: on larger screens the drawer is an expanded sidebar by default with a collapse toggle (sidebar glyph) in the header. Collapsing replaces the panel with a small floating cluster — a sidebar toggle to expand plus a "New Conversation" button — and (via `--cpk-drawer-reserved-width`) lets a host grid reclaim the column. Set `collapsible={false}` to omit the toggle. "New Conversation" is its own row below the header; project `slot="header"` content to add your own chrome beside the toggle.
-- **Row actions**: per-row **Archive/Delete** live behind a per-row kebab (⋮) menu (`row-menu`), not always-visible inline buttons; delete still asks for confirmation.
-- **Optimistic mutations**: archive/unarchive/rename/delete are optimistic in the core thread store; delete rolls back if the server rejects.
-- **Deleting the active thread** resets to a fresh thread; **archiving** the active thread keeps you viewing it. Archived threads render italic/muted inline in the "All" view.
-- **Filter**: an Active/All filter lives behind a **funnel** icon popover under the "Recent Conversations" heading; a small indicator dot appears on the funnel when a non-default filter is applied. Toggling the filter refetches server-side.
-- **Mobile**: below 768px the drawer is an off-canvas modal. Closed, it shows the same floating cluster (a launcher to open it + a "New Conversation" button); open, it slides in and is dismissed by tapping the backdrop or pressing Escape. The launcher icon (`launcher-icon` slot) and position (`--cpk-drawer-launcher-*`) are customizable.
-- **Intelligence access**: threads require CopilotKit Intelligence. If the runtime reports that Threads are unavailable, the drawer shows a locked view in place of the list. Cloud-hosted projects use `CPK_INTELLIGENCE_API_KEY` on the server. A licensed self-hosted deployment uses `COPILOTKIT_LICENSE_TOKEN` on the server.
+- **自动接线**：在没有 `onThreadSelect`/`onNewThread` 的情况下，抽屉直接驱动聊天配置——选择即连接并回放；“新建会话”一行会显示欢迎屏。
+- **可折叠侧边栏**：在较大的屏幕上，抽屉默认是展开的侧边栏，头部带有折叠开关（侧边栏图形）。折叠后面板会被一个小型浮动组件组取代——一个用于展开的侧边栏开关加一个“新建会话”按钮——并（通过 `--cpk-drawer-reserved-width`）让宿主网格收回该列。设为 `collapsible={false}` 可去掉开关。“新建会话”是头部下方独立的一行；投影 `slot="header"` 内容可在开关旁添加你自己的元素。
+- **行操作**：每行的**归档/删除**藏在每行的 kebab（⋮）菜单（`row-menu`）中，而不是始终可见的行内按钮；删除仍会要求确认。
+- **乐观更新**：归档/取消归档/重命名/删除都在核心线程存储中乐观执行；若服务器拒绝，删除会回滚。
+- **删除活跃线程**会重置为一个新线程；**归档**活跃线程则你仍可继续查看它。已归档线程在“全部”视图中以内联的斜体/弱化样式渲染。
+- **筛选**：活跃/全部筛选藏在“最近会话”标题下方的**漏斗**图标气泡弹层中；当应用了非默认筛选时，漏斗上会出现一个小指示圆点。切换筛选会在服务端重新拉取。
+- **移动端**：在 768px 以下，抽屉是画布外的模态层。关闭时，它显示同样的浮动组件组（一个打开它的启动器 + 一个“新建会话”按钮）；打开时，它滑入显示，点击遮罩或按 Escape 即可关闭。启动器图标（`launcher-icon` 插槽）和位置（`--cpk-drawer-launcher-*`）均可自定义。
+- **Intelligence 访问**：线程功能需要 CopilotKit Intelligence。如果运行时报告 Threads 不可用，抽屉会显示一个锁定视图替代列表。云托管项目在服务器端使用 `CPK_INTELLIGENCE_API_KEY`。持许可证的自托管部署在服务器端使用 `COPILOTKIT_LICENSE_TOKEN`。
 
-## Related
+## 相关内容
 
-- [CopilotThreadsDrawer guide](/prebuilt-components/copilot-threads-drawer) — walkthrough and setup
-- [`useThreads`](/reference/hooks/useThreads) — the headless thread data + mutations
-- [`CopilotChat`](/reference/components/CopilotChat) — the chat the drawer connects to
+- [CopilotThreadsDrawer 指南](/prebuilt-components/copilot-threads-drawer) —— 演练与配置
+- [`useThreads`](/reference/hooks/useThreads) —— 无头线程数据与变更操作
+- [`CopilotChat`](/reference/components/CopilotChat) —— 抽屉连接的聊天组件

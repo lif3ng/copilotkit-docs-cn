@@ -1,18 +1,18 @@
 ---
 title: "useCapabilities"
-description: "React hook for reading an agent's declared capabilities"
+description: "用于读取智能体所声明能力的 React hook"
 ---
-## Overview
+## 概览
 
-`useCapabilities` returns the [AG-UI `AgentCapabilities`](https://docs.ag-ui.com/concepts/capabilities) declared by an agent. Capabilities describe what an agent supports: tool calling, streaming, multi-agent coordination, human-in-the-loop, and more.
+`useCapabilities` 返回某个智能体声明的 [AG-UI `AgentCapabilities`](https://docs.ag-ui.com/concepts/capabilities)。能力描述了智能体支持哪些特性——工具调用、流式传输、多智能体协同、人机协同（human-in-the-loop）等。
 
 <Callout type="info">
-  Re-exported from `@copilotkit/react-core/v2`. It is identical to the [React (V2) `useCapabilities`](/reference/v2/hooks/useCapabilities); only the import path differs.
+  从 `@copilotkit/react-core/v2` 重新导出。与 [React (V2) 的 `useCapabilities`](/reference/v2/hooks/useCapabilities) 完全相同，只是导入路径不同。
 </Callout>
 
-Capabilities are populated from the runtime `/info` response at connection time. The value is `undefined` until the runtime handshake completes or if the agent doesn't declare capabilities.
+能力信息来自连接时 runtime 的 `/info` 响应。在 runtime 握手完成之前，或智能体未声明能力时，该值为 `undefined`。
 
-## Signature
+## 签名
 
 ```tsx
 import { useCapabilities } from "@copilotkit/react-native";
@@ -20,67 +20,67 @@ import { useCapabilities } from "@copilotkit/react-native";
 function useCapabilities(agentId?: string): AgentCapabilities | undefined
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="agentId" type="string" default='"default"'>
-  ID of the agent whose capabilities to read. If omitted, uses the default agent.
+  要读取其能力的智能体 ID。若省略，则使用默认智能体。
 </PropertyReference>
 
-## Return Value
+## 返回值
 
 <PropertyReference name="capabilities" type="AgentCapabilities | undefined">
-  The agent's capability declaration, or `undefined` if the agent hasn't reported capabilities yet (e.g., the runtime handshake is still in progress) or doesn't implement `getCapabilities()`.
+  智能体的能力声明；如果智能体尚未上报能力（例如 runtime 握手仍在进行中），或未实现 `getCapabilities()`，则为 `undefined`。
 
-  When defined, the object contains these optional categories:
+  有值时，该对象包含以下可选类别：
 
   <PropertyReference name="identity" type="IdentityCapabilities">
-    Agent metadata: `name`, `type` (framework), `description`, `version`, `provider`, `documentationUrl`, `metadata`.
+    智能体元数据：`name`、`type`（框架）、`description`、`version`、`provider`、`documentationUrl`、`metadata`。
   </PropertyReference>
 
   <PropertyReference name="transport" type="TransportCapabilities">
-    Supported transports: `streaming`, `websocket`, `httpBinary`, `pushNotifications`, `resumable`.
+    支持的传输方式：`streaming`、`websocket`、`httpBinary`、`pushNotifications`、`resumable`。
   </PropertyReference>
 
   <PropertyReference name="tools" type="ToolsCapabilities">
-    Tool support: `supported`, `items`, `parallelCalls`, `clientProvided`.
+    工具支持情况：`supported`、`items`、`parallelCalls`、`clientProvided`。
   </PropertyReference>
 
   <PropertyReference name="output" type="OutputCapabilities">
-    Output formats: `structuredOutput`, `supportedMimeTypes`.
+    输出格式：`structuredOutput`、`supportedMimeTypes`。
   </PropertyReference>
 
   <PropertyReference name="state" type="StateCapabilities">
-    State management: `snapshots`, `deltas`, `memory`, `persistentState`.
+    状态管理：`snapshots`、`deltas`、`memory`、`persistentState`。
   </PropertyReference>
 
   <PropertyReference name="multiAgent" type="MultiAgentCapabilities">
-    Multi-agent coordination: `supported`, `delegation`, `handoffs`, `subAgents`.
+    多智能体协同：`supported`、`delegation`、`handoffs`、`subAgents`。
   </PropertyReference>
 
   <PropertyReference name="reasoning" type="ReasoningCapabilities">
-    Reasoning/thinking visibility: `supported`, `streaming`, `encrypted`.
+    推理/思考过程的可见性：`supported`、`streaming`、`encrypted`。
   </PropertyReference>
 
   <PropertyReference name="multimodal" type="MultimodalCapabilities">
-    Multimodal input/output: `input` and `output` sub-objects for images, audio, video, PDF, and file support.
+    多模态输入/输出：`input` 与 `output` 子对象，涵盖图像、音频、视频、PDF 与文件支持。
   </PropertyReference>
 
   <PropertyReference name="execution" type="ExecutionCapabilities">
-    Code execution: `codeExecution`, `sandboxed`, `maxIterations`, `maxExecutionTime`.
+    代码执行：`codeExecution`、`sandboxed`、`maxIterations`、`maxExecutionTime`。
   </PropertyReference>
 
   <PropertyReference name="humanInTheLoop" type="HumanInTheLoopCapabilities">
-    Human-in-the-loop: `supported`, `approvals`, `interventions`, `feedback`.
+    人机协同：`supported`、`approvals`、`interventions`、`feedback`。
   </PropertyReference>
 
   <PropertyReference name="custom" type="Record&lt;string, unknown&gt;">
-    Arbitrary key-value pairs for integration-specific capabilities.
+    任意键值对，用于集成特有的能力。
   </PropertyReference>
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Conditionally render UI based on capabilities
+### 根据能力条件渲染 UI
 
 ```tsx title="ToolPanel.tsx"
 import { useCapabilities } from "@copilotkit/react-native";
@@ -104,7 +104,7 @@ function ToolPanel() {
 }
 ```
 
-### Read capabilities for a specific agent
+### 读取特定智能体的能力
 
 ```tsx title="AgentInfo.tsx"
 import { useCapabilities } from "@copilotkit/react-native";
@@ -127,14 +127,14 @@ function AgentInfo({ agentId }: { agentId: string }) {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Synchronous read**: The hook reads `capabilities` directly from the agent instance. There is no separate loading state or async fetch. The value stays `undefined` until the runtime `/info` handshake populates it, then becomes defined.
-- **Re-renders**: The hook calls `useAgent()` internally, so the component re-renders on agent state, message, and run-status changes (the default `updates` set). If you only need capabilities and want fewer re-renders, read `agent.capabilities` directly via `useAgent({ updates: [] })`.
-- **Stable reference**: The capabilities object reference only changes when the agent reconnects or the runtime response changes. It does not change on every render.
+- **同步读取**：该 hook 直接从智能体实例读取 `capabilities`。没有单独的加载状态或异步请求——在 runtime `/info` 握手填充之前该值为 `undefined`，之后变为有值。
+- **重新渲染**：该 hook 内部调用了 `useAgent()`，因此组件会在智能体状态、消息与运行状态变化时重新渲染（默认的 `updates` 集合）。如果你只需要能力信息并希望减少重新渲染，可以通过 `useAgent({ updates: [] })` 直接读取 `agent.capabilities`。
+- **引用稳定**：capabilities 对象的引用只在智能体重连或 runtime 响应变化时才会改变，不会在每次渲染时都变。
 
-## Related
+## 相关内容
 
-- [`useAgent`](/reference/react-native/hooks/useAgent): access the full agent instance (capabilities are a property of the agent)
-- [AG-UI Protocol](/agentic-protocols/ag-ui): the protocol that defines the capabilities schema
-- [React (V2) reference](/reference/v2/hooks/useCapabilities): the web `useCapabilities` this hook mirrors
+- [`useAgent`](/reference/react-native/hooks/useAgent)：访问完整的智能体实例（能力是智能体的一个属性）
+- [AG-UI 协议](/agentic-protocols/ag-ui)：定义能力模式（schema）的协议
+- [React (V2) 参考](/reference/v2/hooks/useCapabilities)：本 hook 所对照的 Web 版 `useCapabilities`

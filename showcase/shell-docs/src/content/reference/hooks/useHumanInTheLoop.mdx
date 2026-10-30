@@ -1,15 +1,15 @@
 ---
 title: "useHumanInTheLoop"
-description: "React hook for interactive tools that pause agent execution and wait for user input"
+description: "用于交互式工具的 React Hook，可暂停智能体执行并等待用户输入"
 ---
 
-## Overview
+## 概览
 
-`useHumanInTheLoop` registers an interactive tool that pauses agent execution until the user responds through your custom UI. Unlike `useFrontendTool`, there is no `handler` function. Instead, the hook provides an internal status machine (`InProgress` -> `Executing` -> `Complete`) and supplies a `respond` callback to the render component while the tool is in the `Executing` state. The agent remains paused until `respond` is called with the user's input.
+`useHumanInTheLoop` 注册一个交互式工具，它会暂停智能体的执行，直到用户通过你的自定义 UI 做出响应。与 `useFrontendTool` 不同，它没有 `handler` 函数。该 Hook 提供一个内部状态机（`InProgress` -> `Executing` -> `Complete`），并在工具处于 `Executing` 状态时向渲染组件提供 `respond` 回调。在 `respond` 被传入用户输入调用之前，智能体保持暂停。
 
-This hook is built on top of `useFrontendTool` with an internally managed handler that resolves the tool call promise when `respond` is invoked. Use it for confirmation dialogs, approval workflows, form collection, or any scenario where a human must provide input before the agent can continue.
+该 Hook 构建在 `useFrontendTool` 之上，由内部管理的处理器在 `respond` 被调用时兑现工具调用的 promise。确认对话框、审批流程、表单收集，或任何需要人先提供输入智能体才能继续的场景，都适合使用它。
 
-## Signature
+## 签名
 
 ```tsx
 import { useHumanInTheLoop } from "@copilotkit/react-core/v2";
@@ -20,68 +20,59 @@ function useHumanInTheLoop<T extends Record<string, unknown>>(
 ): void;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="tool" type="ReactHumanInTheLoop<T>" required>
-  The interactive tool definition.
+  交互式工具的定义。
 
 <PropertyReference name="name" type="string" required>
-  A unique name for the tool. The agent references this name when it needs human
-  input.
+  工具的唯一名称。智能体在需要人工输入时会引用这个名称。
 </PropertyReference>
 
 <PropertyReference name="description" type="string" required>
-  A natural-language description that tells the agent what the tool does and
-  when to invoke it (e.g., "Ask the user to confirm before deleting records").
+  一段自然语言描述，告诉智能体该工具做什么、何时调用（例如“要求用户在删除记录前进行确认”）。
 </PropertyReference>
 
 <PropertyReference name="parameters" type="z.ZodSchema" required>
-  A Zod schema defining the arguments the agent passes to the tool. These
-  arguments are forwarded to the render component so you can build context-aware
-  UI.
+  定义智能体传给工具的参数的 Zod schema。这些参数会被转发给渲染组件，便于你构建感知上下文的 UI。
 </PropertyReference>
 
   <PropertyReference name="render" type="React.ComponentType<RenderProps>" required>
-    A React component that drives the human interaction. The component receives different props depending on the current status:
+    驱动人机交互的 React 组件。组件接收的 props 随当前状态而不同：
 
-    **When `status` is `ToolCallStatus.InProgress`:**
-    - `args: Partial<T>` -- partially streamed arguments
-    - `respond: undefined` -- not yet available
+    **当 `status` 为 `ToolCallStatus.InProgress` 时：**
+    - `args: Partial<T>` —— 流式传输中的部分参数
+    - `respond: undefined` —— 尚不可用
     - `result: undefined`
 
-    **When `status` is `ToolCallStatus.Executing`:**
-    - `args: T` -- fully resolved arguments
-    - `respond: (result: unknown) => Promise<void>` -- call this to send the user's response back to the agent and resume execution
+    **当 `status` 为 `ToolCallStatus.Executing` 时：**
+    - `args: T` —— 已完全解析的参数
+    - `respond: (result: unknown) => Promise<void>` —— 调用它把用户的响应发回给智能体并恢复执行
     - `result: undefined`
 
-    **When `status` is `ToolCallStatus.Complete`:**
-    - `args: T` -- the original arguments
-    - `respond: undefined` -- no longer available
-    - `result: string` -- the serialized result
+    **当 `status` 为 `ToolCallStatus.Complete` 时：**
+    - `args: T` —— 原始参数
+    - `respond: undefined` —— 已不可用
+    - `result: string` —— 序列化后的结果
 
   </PropertyReference>
 
   <PropertyReference name="available" type='"enabled" | "disabled" | "remote"' default='"enabled"'>
-    Controls tool availability. Set to `"disabled"` to temporarily prevent the agent from requesting human input through this tool.
+    控制工具的可用性。设为 `"disabled"` 可临时阻止智能体通过该工具请求人工输入。
   </PropertyReference>
 </PropertyReference>
 
 <PropertyReference name="deps" type="ReadonlyArray<unknown>">
-  An optional dependency array. When provided, the tool registration is
-  refreshed whenever a value in the array changes.
+  可选的依赖数组。提供后，只要数组中的值发生变化，工具注册就会刷新。
 
-  `deps` compares plain data (strings, numbers, booleans, `null`, dates, and
-  plain objects and arrays of those) by value, so an inline literal such as
-  `[{ status }]` re-registers only when its contents change. A function never counts as changed, as before, so keep a changing callback
-  in a ref. Class instances and other objects compare by identity, so a
-  circular value such as the `agent` from `useAgent` is safe to pass. Adding or removing an entry counts as a change.
+  `deps` 对普通数据（字符串、数字、布尔值、`null`、日期以及由它们组成的普通对象和数组）按值比较，因此 `[{ status }]` 这样的内联字面量只在其内容变化时才会重新注册。与之前一样，函数永远不会被视为已变化，所以请把会变化的回调保存在 ref 中。类实例和其他对象按引用（identity）比较，因此传入来自 `useAgent` 的 `agent` 这类循环引用的值是安全的。增删数组条目也算变化。
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Confirmation Dialog
+### 确认对话框
 
-A common pattern where the agent asks the user to confirm a destructive action.
+智能体请用户确认某个破坏性操作的常见模式。
 
 ```tsx
 function DeleteConfirmation() {
@@ -144,9 +135,9 @@ function DeleteConfirmation() {
 }
 ```
 
-### Form Input Collection
+### 表单输入收集
 
-Collect structured input from the user before the agent proceeds.
+在智能体继续之前，从用户处收集结构化输入。
 
 ```tsx
 function ShippingAddressForm() {
@@ -224,7 +215,7 @@ function ShippingAddressForm() {
 }
 ```
 
-### Approval Workflow with Context
+### 带上下文的审批工作流
 
 ```tsx
 function ExpenseApproval() {
@@ -292,27 +283,27 @@ function ExpenseApproval() {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Blocks agent execution**: The agent pauses when this tool is called and waits for the `respond` callback to be invoked before continuing.
-- **Internal status machine**: The hook manages three states -- `InProgress` (arguments streaming in), `Executing` (waiting for user response), and `Complete` (user has responded). Your render component receives the appropriate props for each state.
-- **Single response**: The `respond` callback should only be called once per tool invocation. Calling it resolves the tool call promise with the provided value.
-- **Built on `useFrontendTool`**: Under the hood, this hook wraps `useFrontendTool` with an internally generated handler, so all the same lifecycle behavior (mount/unmount registration, duplicate warnings) applies.
-- **Mount/Unmount lifecycle**: The tool and its render component are registered on mount and removed on unmount.
-- **No return value**: The hook returns `void`.
+- **阻塞智能体执行**：该工具被调用时智能体会暂停，等待 `respond` 回调被调用后才继续。
+- **内部状态机**：该 Hook 管理三个状态——`InProgress`（参数流式传入中）、`Executing`（等待用户响应）与 `Complete`（用户已响应）。你的渲染组件会收到与各状态相匹配的 props。
+- **单次响应**：每次工具调用中 `respond` 回调只应调用一次。调用它会以提供的值兑现工具调用的 promise。
+- **构建于 `useFrontendTool` 之上**：在底层，该 Hook 用内部生成的处理器包装 `useFrontendTool`，因此相同的生命周期行为（挂载/卸载注册、重名警告）全部适用。
+- **挂载/卸载生命周期**：工具及其渲染组件在挂载时注册，在卸载时移除。
+- **无返回值**：该 Hook 返回 `void`。
 
-## Related
+## 相关内容
 
-- [`useFrontendTool`](/reference/hooks/useFrontendTool) -- for tools with automated handlers that do not require user interaction
-- [`useRenderToolCall`](/reference/hooks/useRenderToolCall) -- for rendering backend tool calls
-- [`ToolCallStatus`](#toolcallstatus) -- the status enum used across tool hooks
+- [`useFrontendTool`](/reference/hooks/useFrontendTool) —— 用于带自动化处理器、无需用户交互的工具
+- [`useRenderToolCall`](/reference/hooks/useRenderToolCall) —— 用于渲染后端工具调用
+- [`ToolCallStatus`](#toolcallstatus) —— 各工具 Hook 共用的状态枚举
 
 ## ToolCallStatus
 
-The `ToolCallStatus` enum is exported from `@copilotkit/react-core` and defines the three phases of tool execution:
+`ToolCallStatus` 枚举从 `@copilotkit/react-core` 导出，定义了工具执行的三个阶段：
 
-| Value                       | Description                                                                                 |
+| 值                          | 说明                                                                                        |
 | --------------------------- | ------------------------------------------------------------------------------------------- |
-| `ToolCallStatus.InProgress` | Arguments are being streamed from the agent. The tool has not started executing yet.        |
-| `ToolCallStatus.Executing`  | Arguments are fully resolved. For `useHumanInTheLoop`, the `respond` callback is available. |
-| `ToolCallStatus.Complete`   | Execution is finished. The `result` string is available.                                    |
+| `ToolCallStatus.InProgress` | 参数正从智能体流式传输而来。工具尚未开始执行。                                              |
+| `ToolCallStatus.Executing`  | 参数已完全解析。对 `useHumanInTheLoop` 而言，此时 `respond` 回调可用。                       |
+| `ToolCallStatus.Complete`   | 执行已结束。`result` 字符串可用。                                                            |

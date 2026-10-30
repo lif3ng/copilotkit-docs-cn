@@ -1,6 +1,6 @@
 ---
 title: "OpenAIAssistantAdapter"
-description: "Copilot Runtime adapter for OpenAI Assistant API."
+description: "用于 OpenAI Assistant API 的 Copilot Runtime 适配器。"
 ---
 
 {
@@ -10,10 +10,10 @@ description: "Copilot Runtime adapter for OpenAI Assistant API."
   * packages/runtime/src/v1-deprecated/service-adapters/openai/openai-assistant-adapter.ts
   */
 }
-Copilot Runtime adapter for the OpenAI Assistant API.
+用于 OpenAI Assistant API 的 Copilot Runtime 适配器。
  
-## Example
- 
+## 示例
+
 ```ts
 import { CopilotRuntime, OpenAIAssistantAdapter } from "@copilotkit/runtime";
 import OpenAI from "openai";
@@ -33,33 +33,32 @@ return new OpenAIAssistantAdapter({
 });
 ```
 
-## Constructor Parameters
+## 构造函数参数
 
 <PropertyReference name="assistantId" type="string" required > 
-The ID of the assistant to use.
+要使用的助手 ID。
 </PropertyReference>
 
 <PropertyReference name="openai" type="OpenAI"  > 
-An optional OpenAI instance to use. If not provided, a new instance will be created.
+可选的 OpenAI 实例。若未提供，将会创建一个新实例。
 </PropertyReference>
 
 <PropertyReference name="codeInterpreterEnabled" type="boolean"  default="true"> 
-Whether to enable code interpretation.
+是否启用代码解释。
 </PropertyReference>
 
 <PropertyReference name="fileSearchEnabled" type="boolean"  default="true"> 
-Whether to enable file search.
+是否启用文件搜索。
 </PropertyReference>
 
 <PropertyReference name="disableParallelToolCalls" type="boolean"  default="false"> 
-Whether to disable parallel tool calls.
-  You can disable parallel tool calls to force the model to execute tool calls sequentially.
-  This is useful if you want to execute tool calls in a specific order so that the state changes
-  introduced by one tool call are visible to the next tool call. (i.e. new actions or readables)
+是否禁用并行工具调用。
+  你可以禁用并行工具调用，强制模型按顺序执行工具调用。
+  如果你希望按特定顺序执行工具调用，让前一个工具调用引入的状态变更
+  （即新的 action 或 readable）对下一个工具调用可见，这会很有用。
 </PropertyReference>
 
 <PropertyReference name="keepSystemRole" type="boolean"  default="false"> 
-Whether to keep the role in system messages as "System".
-  By default, it is converted to "developer", which is used by newer OpenAI models
+是否将系统消息中的 role 保留为 “System”。
+  默认情况下，它会被转换为 “developer”，这是较新的 OpenAI 模型所使用的 role
 </PropertyReference>
-

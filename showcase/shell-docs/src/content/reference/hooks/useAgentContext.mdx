@@ -1,15 +1,15 @@
 ---
 title: "useAgentContext"
-description: "React hook for providing dynamic context to agents"
+description: "用于向智能体提供动态上下文的 React hook"
 ---
 
-## Overview
+## 概览
 
-`useAgentContext` registers a dynamic context object with the active Copilot runtime for the lifetime of the component. The hook adds the context on mount and removes it on unmount, so the agent always sees an up-to-date snapshot of your application state without manual cleanup.
+`useAgentContext` 会在组件存续期间向当前生效的 Copilot runtime 注册一个动态上下文对象。该 hook 在挂载时添加上下文、卸载时移除上下文，因此智能体始终能看到应用状态的最新快照，无需手动清理。
 
-Update the incoming context object to refresh what the agent sees. This is the v2 equivalent of `useCopilotReadable` -- it lets you surface any serializable application state (user preferences, selected items, computed values, etc.) as context that agents can reference when generating responses or making decisions.
+更新传入的上下文对象即可刷新智能体所见的内容。它是 `useCopilotReadable` 的 v2 等价物——让你能把任意可序列化的应用状态（用户偏好、选中项、计算值等）作为上下文暴露出来，供智能体在生成响应或做决策时引用。
 
-## Signature
+## 签名
 
 ```tsx
 import { useAgentContext } from "@copilotkit/react-core/v2";
@@ -17,26 +17,25 @@ import { useAgentContext } from "@copilotkit/react-core/v2";
 function useAgentContext(context: AgentContextInput): void;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="context" type="AgentContextInput" required>
-  An object describing the context to expose to the agent.
+  描述要暴露给智能体的上下文的对象。
 
 <PropertyReference name="description" type="string" required>
-  A human-readable description of the context. The agent uses this to understand
-  what the value represents and when to reference it.
+  上下文的人类可读描述。智能体借助它来理解该值代表什么、何时引用它。
 </PropertyReference>
 
   <PropertyReference name="value" type="JsonSerializable" required>
-    The context value to provide. Must be JSON-serializable: `string`, `number`, `boolean`, `null`, arrays, or plain objects with string keys and serializable values. Anything that is not already a string is stringified with `JSON.stringify` before it is sent, so the agent receives a JSON string rather than the value you passed -- see [What the agent receives](#what-the-agent-receives).
+    要提供的上下文值。必须是 JSON 可序列化的：`string`、`number`、`boolean`、`null`、数组，或由字符串键与可序列化值组成的普通对象。凡不是字符串的值都会先用 `JSON.stringify` 字符串化再发送，因此智能体收到的是 JSON 字符串而非你传入的值——参见[智能体收到的内容](#智能体收到的内容)。
   </PropertyReference>
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Basic Usage
+### 基本用法
 
-Provide simple application state as context for the agent.
+把简单的应用状态作为上下文提供给智能体。
 
 ```tsx
 function UserGreeting({ user }: { user: { name: string; role: string } }) {
@@ -49,9 +48,9 @@ function UserGreeting({ user }: { user: { name: string; role: string } }) {
 }
 ```
 
-### Dynamic Context from Component State
+### 来自组件状态的动态上下文
 
-The context updates automatically when the value changes between renders.
+当值在两次渲染之间发生变化时，上下文会自动更新。
 
 ```tsx
 function ProductCatalog() {
@@ -82,9 +81,9 @@ function ProductCatalog() {
 }
 ```
 
-### Multiple Contexts in Nested Components
+### 嵌套组件中的多个上下文
 
-Each component can register its own context. All registered contexts are visible to the agent simultaneously.
+每个组件都可以注册自己的上下文。所有已注册的上下文会同时对智能体可见。
 
 ```tsx
 function Dashboard() {
@@ -113,11 +112,11 @@ function Sidebar() {
 }
 ```
 
-## What the agent receives
+## 智能体收到的内容
 
-Every registered entry reaches the agent as `{ description, value }`, and `value` is a **JSON string** -- not the object or array you passed. The AG-UI protocol types it as a string, so this is not an implementation detail you can ignore when writing the agent.
+每个已注册的条目都会以 `{ description, value }` 的形式到达智能体，且 `value` 是一个 **JSON 字符串**——不是你传入的对象或数组。AG-UI 协议将其类型定义为字符串，因此编写智能体时这是一个无法忽视的细节。
 
-Registering this:
+注册以下内容：
 
 ```tsx
 useAgentContext({
@@ -126,7 +125,7 @@ useAgentContext({
 });
 ```
 
-delivers this to the agent:
+智能体实际收到的是：
 
 ```json
 {
@@ -135,7 +134,7 @@ delivers this to the agent:
 }
 ```
 
-Parse it before reading any field. In a Python agent:
+读取任何字段之前先解析。在 Python 智能体中：
 
 ```python
 import json
@@ -148,7 +147,7 @@ def dashboard_records(context):
     return None if entry is None else json.loads(entry["value"])
 ```
 
-In a TypeScript agent:
+在 TypeScript 智能体中：
 
 ```ts
 const entry = context.find(
@@ -157,12 +156,11 @@ const entry = context.find(
 const records = entry ? JSON.parse(entry.value) : undefined;
 ```
 
-Where that context list surfaces in your agent depends on your framework's AG-UI adapter.
+这份上下文列表在智能体中的呈现位置取决于所用框架的 AG-UI 适配器。
 
 ### Google ADK
 
-`ag-ui-adk` stores the request's context list in ADK session state under
-`CONTEXT_STATE_KEY`, a public export whose value is `"_ag_ui_context"`:
+`ag-ui-adk` 会把请求的上下文列表存入 ADK 会话状态的 `CONTEXT_STATE_KEY` 键下，这是一个公开导出，其值为 `"_ag_ui_context"`：
 
 ```python
 from ag_ui_adk import CONTEXT_STATE_KEY
@@ -171,31 +169,20 @@ def dashboard_records_for_adk(ctx):
     return dashboard_records(ctx.state.get(CONTEXT_STATE_KEY, []))
 ```
 
-Use the `ctx` passed to an ADK instruction provider, `callback_context` in a
-callback, or `tool_context` in a tool. The entries are dictionaries with string
-`description` and `value` fields. To make these values visible to the model,
-include them in an instruction provider or a before-model callback;
-`AGUIToolset()` alone does not inject them into the prompt. See the
-[Google ADK read-only context setup](/google-adk/shared-state/agent-readonly)
-for a complete agent example.
+使用传给 ADK instruction provider 的 `ctx`、回调中的 `callback_context`，或工具中的 `tool_context`。这些条目是带有字符串类型 `description` 与 `value` 字段的字典。要让模型看到这些值，请将它们包含在 instruction provider 或模型调用前的回调中；仅靠 `AGUIToolset()` 不会把它们注入提示。完整的智能体示例参见 [Google ADK 只读上下文配置](/google-adk/shared-state/agent-readonly)。
 
 <Callout type="warn">
-  Do not type-check `value` against the shape you registered.
-  `isinstance(entry["value"], list)` in Python, or `Array.isArray(entry.value)`
-  in TypeScript, can never be true, because `value` is always a string on the
-  wire. An agent that reads such a failed check as "no context was sent" will
-  refuse every request while the browser is registering context correctly, and
-  the two cases are indistinguishable from the UI.
+  不要按你注册时的形态对 `value` 做类型检查。Python 中的 `isinstance(entry["value"], list)` 或 TypeScript 中的 `Array.isArray(entry.value)` 永远不会为真，因为 `value` 在传输时始终是字符串。如果智能体把这种检查失败解读为“没有发送任何上下文”，就会拒绝所有请求，而此时浏览器其实正在正确注册上下文，且这两种情况从 UI 上无法区分。
 </Callout>
 
-## Behavior
+## 行为
 
-- **Mount/Unmount lifecycle**: The context is registered when the component mounts and automatically removed when it unmounts. There is no manual cleanup required.
-- **Reactive updates**: When the `context` object changes between renders, the agent immediately sees the updated value.
-- **Serialization**: The `value` must conform to `JsonSerializable` (`string | number | boolean | null | JsonSerializable[] | { [key: string]: JsonSerializable }`). Non-serializable values such as functions, class instances, or symbols will cause errors. Strings are sent through unchanged; every other value is stringified, so the agent always reads a string -- see [What the agent receives](#what-the-agent-receives).
-- **Multiple contexts**: Multiple `useAgentContext` calls across your component tree are all visible to the agent concurrently. Each is identified by its description and value.
-- **No return value**: The hook returns `void`. Unlike `useCopilotReadable`, it does not return an ID for parent-child hierarchies.
+- **挂载/卸载生命周期**：上下文在组件挂载时注册，卸载时自动移除。无需手动清理。
+- **响应式更新**：当 `context` 对象在两次渲染之间变化时，智能体立即看到更新后的值。
+- **序列化**：`value` 必须符合 `JsonSerializable`（`string | number | boolean | null | JsonSerializable[] | { [key: string]: JsonSerializable }`）。函数、类实例或符号等不可序列化的值会导致错误。字符串原样发送；其他所有值都会被字符串化，因此智能体读到的始终是字符串——参见[智能体收到的内容](#智能体收到的内容)。
+- **多个上下文**：组件树中多处调用 `useAgentContext` 注册的上下文会同时对智能体可见。每个上下文由其 description 和 value 标识。
+- **无返回值**：该 hook 返回 `void`。与 `useCopilotReadable` 不同，它不会返回用于父子层级的 ID。
 
-## Related
+## 相关内容
 
-- [`useCopilotReadable`](/reference/v1/hooks/useCopilotReadable) -- v1 equivalent for providing context
+- [`useCopilotReadable`](/reference/v1/hooks/useCopilotReadable)——提供上下文的 v1 等价物

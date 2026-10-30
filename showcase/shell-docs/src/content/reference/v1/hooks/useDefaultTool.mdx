@@ -1,16 +1,15 @@
 ---
 title: "useDefaultTool"
-description: "The useDefaultTool hook enables rendering of a default UI which catches any tool that does not have a specific renderer."
+description: "useDefaultTool 钩子用于渲染一个默认 UI，可捕获所有没有专用渲染器的工具。"
 ---
 
 <Callout type="warning">
-  `useDefaultTool` is still supported, but we recommend migrating to [`useFrontendTool`](/reference/v2/hooks/useFrontendTool) from the v2 API.
+  `useDefaultTool` 仍受支持，但我们建议迁移到 v2 API 中的 [`useFrontendTool`](/reference/v2/hooks/useFrontendTool)。
 </Callout>
 
-`useDefaultTool` is a React hook that allows you to render custom UI for any tool
-call that doesn't have a specific renderer
+`useDefaultTool` 是一个 React 钩子，允许你为任何没有专用渲染器的工具调用渲染自定义 UI
 
-## Usage
+## 用法
 
 ```tsx
 import { useDefaultTool } from "@copilotkit/react-core";
@@ -51,7 +50,7 @@ useDefaultTool({
 });
 ```
 
-### Rendering Model Context Protocol (MCP) Tools
+### 渲染 Model Context Protocol（MCP）工具
 
 ```tsx
 import { useDefaultTool } from "@copilotkit/react-core";
@@ -70,56 +69,55 @@ useDefaultTool({
 });
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="tool" type="ReactRenderToolCall<T>" required>
-  The tool rendering configuration object.
+  工具渲染配置对象。
     <PropertyReference name="render" type="React.ComponentType<RenderProps>">
-      A React component that renders the tool call UI. The component receives props with:
+      一个渲染工具调用 UI 的 React 组件。该组件会接收包含以下内容的 props：
 
       <div className="ml-8">
         <PropertyReference name="status" type="'inProgress' | 'executing' | 'complete'">
-          - `"inProgress"`: Tool is being prepared or arguments are being streamed.
-          - `"executing"`: Tool is actively running.
-          - `"complete"`: Tool execution has finished.
+          - `"inProgress"`：工具正在准备，或参数正在流式传输。
+          - `"executing"`：工具正在运行。
+          - `"complete"`：工具执行已结束。
         </PropertyReference>
 
         <PropertyReference name="args" type="Partial<T> | T | any">
-          The arguments passed to the tool. Type-safe if parameters schema is provided.
-          For catch-all renderers (`name: "*"`), this will be `any`.
+          传递给工具的参数。如果提供了参数 schema，则具有类型安全。
+          对于捕获所有工具的渲染器（`name: "*"`），该值为 `any`。
         </PropertyReference>
 
         <PropertyReference name="result" type="any">
-          The result returned by the tool. Only available when status is `"complete"`.
+          工具返回的结果。仅在 status 为 `"complete"` 时可用。
         </PropertyReference>
 
         <PropertyReference name="name" type="string">
-          The actual name of the tool being executed. Particularly useful for
-          catch-all renderers to know which tool is being rendered.
+          正在执行的工具的实际名称。对于捕获所有工具的渲染器来说尤其有用，可用于得知当前渲染的是哪个工具。
         </PropertyReference>
 
         <PropertyReference name="description" type="string">
-          The description of the tool being executed.
+          正在执行的工具的描述。
         </PropertyReference>
       </div>
     </PropertyReference>
 </PropertyReference>
 
 <PropertyReference name="dependencies" type="any[]">
-  An optional array of dependencies.
+  一个可选的依赖项数组。
 </PropertyReference>
 
-## Common Use Cases
+## 常见用例
 
-1. **Backend Tool Visualization**: Display progress and results of long-running backend operations
-2. **Generic Tool Rendering**: Provide a fallback UI for any tool without specific rendering
-3. **MCP Tool Integration**: Render Model Context Protocol tools from various sources
-4. **Debugging**: Display all tool calls during development
-5. **Analytics**: Track and display tool usage
+1. **后端工具可视化**：展示长时间运行的后端操作的进度和结果
+2. **通用工具渲染**：为任何没有专用渲染的工具提供兜底 UI
+3. **MCP 工具集成**：渲染来自各种来源的 Model Context Protocol 工具
+4. **调试**：在开发过程中展示所有工具调用
+5. **分析**：跟踪并展示工具使用情况
 
-## Migration from useCopilotAction
+## 从 useCopilotAction 迁移
 
-If you're migrating from `useCopilotAction` with only a `render` function:
+如果你正在从只带 `render` 函数的 `useCopilotAction` 迁移：
 
 ```tsx
 // Before with useCopilotAction (the catch-all name is "*")
@@ -138,4 +136,4 @@ useDefaultTool({
 });
 ```
 
-The migration is straightforward - just change the hook name. The render props remain the same.
+迁移非常简单——只需更改钩子名称即可。render props 保持不变。

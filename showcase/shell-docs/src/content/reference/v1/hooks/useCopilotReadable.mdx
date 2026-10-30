@@ -1,6 +1,6 @@
 ---
 title: "useCopilotReadable"
-description: "The useCopilotReadable hook allows you to provide knowledge to your copilot (e.g. application state)."
+description: "useCopilotReadable 钩子允许你向 Copilot 提供知识（例如应用状态）。"
 ---
 
 {
@@ -8,18 +8,15 @@ description: "The useCopilotReadable hook allows you to provide knowledge to you
   * ATTENTION! DO NOT MODIFY THIS FILE!
   * This page is auto-generated. If you want to make any changes to this page, changes must be made at:
   * packages/react-core/src/v1-deprecated/hooks/use-copilot-readable.ts
-  */
+ */
 }
-`useCopilotReadable` is a React hook that provides app-state and other information
-to the Copilot.
+`useCopilotReadable` 是一个 React 钩子，用于向 Copilot 提供应用状态和其他信息。
  
-## Usage
+## 用法
  
-### Simple Usage
+### 简单用法
  
-In its most basic usage, useCopilotReadable accepts a single string argument
-representing any piece of app state, making it available for the Copilot to use
-as context when responding to user input.
+在最基本的用法中，useCopilotReadable 接受一个表示任意一段应用状态的字符串参数，使其可供 Copilot 在响应用户输入时用作上下文。
  
 ```tsx
 import { useCopilotReadable } from "@copilotkit/react-core";
@@ -34,11 +31,9 @@ export function MyComponent() {
 }
 ```
  
-### Custom Serialization
+### 自定义序列化
  
-By default the value is serialized with `JSON.stringify`. Pass `convert` to
-control the string the Copilot sees. It is called with the description and the
-value, in that order:
+默认情况下，值会通过 `JSON.stringify` 进行序列化。传入 `convert` 即可控制 Copilot 看到的字符串。该函数会依次接收 description 和 value 两个参数：
  
 ```tsx
 useCopilotReadable({
@@ -48,11 +43,9 @@ useCopilotReadable({
 });
 ```
  
-### Conditional Usage
+### 条件用法
  
-Toggle `available` to add or remove the context as your app state changes.
-Switching to `"disabled"` removes the entry from the Copilot context; switching
-back to `"enabled"` re-adds it.
+随着应用状态的变化，切换 `available` 即可添加或移除上下文。切换为 `"disabled"` 会将条目从 Copilot 上下文中移除；切换回 `"enabled"` 则会重新添加。
  
 ```tsx
 useCopilotReadable({
@@ -62,10 +55,9 @@ useCopilotReadable({
 });
 ```
  
-### Re-running on Custom Dependencies
+### 基于自定义依赖重新运行
  
-The context is refreshed whenever `description`, `value`, `convert` or
-`available` change. Pass a second argument to add your own dependencies:
+每当 `description`、`value`、`convert` 或 `available` 发生变化时，上下文都会刷新。传入第二个参数即可添加你自己的依赖项：
  
 ```tsx
 useCopilotReadable(
@@ -77,22 +69,20 @@ useCopilotReadable(
 );
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="description" type="string" required > 
-The description of the information to be added to the Copilot context.
+要添加到 Copilot 上下文中的信息描述。
 </PropertyReference>
 
 <PropertyReference name="value" type="any" required > 
-The value to be added to the Copilot context. Object values are automatically stringified.
+要添加到 Copilot 上下文中的值。对象值会被自动字符串化。
 </PropertyReference>
 
 <PropertyReference name="available" type="'enabled' | 'disabled'"  > 
-Whether the context is available to the Copilot.
+该上下文是否对 Copilot 可用。
 </PropertyReference>
 
 <PropertyReference name="convert" type="(description: string, value: any) => string"  > 
-A custom conversion function to use to serialize the value to a string. If not provided, the value
-  will be serialized using `JSON.stringify`.
+用于将值序列化为字符串的自定义转换函数。如果未提供，值将使用 `JSON.stringify` 进行序列化。
 </PropertyReference>
-

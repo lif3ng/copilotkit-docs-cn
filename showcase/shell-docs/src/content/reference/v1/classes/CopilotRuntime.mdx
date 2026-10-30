@@ -1,6 +1,6 @@
 ---
 title: "CopilotRuntime"
-description: "Copilot Runtime is the back-end component of CopilotKit, enabling interaction with LLMs."
+description: "Copilot Runtime 是 CopilotKit 的后端组件，用于实现与 LLM 的交互。"
 ---
 
 {
@@ -8,13 +8,13 @@ description: "Copilot Runtime is the back-end component of CopilotKit, enabling 
   * ATTENTION! DO NOT MODIFY THIS FILE!
   * This page is auto-generated. If you want to make any changes to this page, changes must be made at:
   * packages/runtime/src/v1-deprecated/lib/runtime/copilot-runtime.ts
-  */
+ */
 }
 <Callout type="info">
-  This is the reference for the `CopilotRuntime` class. For more information and example code snippets, please see [Concept: Copilot Runtime](/backend/copilot-runtime).
+  这是 `CopilotRuntime` 类的参考文档。更多信息与示例代码片段，请参见[概念：Copilot Runtime](/backend/copilot-runtime)。
 </Callout>
  
-## Usage
+## 用法
  
 ```tsx
 import { CopilotRuntime } from "@copilotkit/runtime";
@@ -22,15 +22,15 @@ import { CopilotRuntime } from "@copilotkit/runtime";
 const copilotKit = new CopilotRuntime();
 ```
 
-## Constructor Parameters
+## 构造函数参数
 
 <PropertyReference name="agents" type="AgentsConfig"  > 
-TODO: un-omit `transcriptionService` above once it's supported
+TODO：待其受支持后，取消上方 `transcriptionService` 的省略
  
-  This satisfies...
-   – the optional constraint in `CopilotRuntimeConstructorParams_BASE`
-   – the `MaybePromise<NonEmptyRecord<T>>` constraint in `CopilotRuntimeOptionsVNext`
-   – the `Record<string, AbstractAgent>` constraint in `both
+  这满足了……
+   – `CopilotRuntimeConstructorParams_BASE` 中的可选约束
+   – `CopilotRuntimeOptionsVNext` 中的 `MaybePromise<NonEmptyRecord<T>>` 约束
+   – 两处共有的 `Record<string, AbstractAgent>` 约束
 </PropertyReference>
 
 <PropertyReference name="intelligence" type="CopilotIntelligenceRuntimeOptions['intelligence']"  > 

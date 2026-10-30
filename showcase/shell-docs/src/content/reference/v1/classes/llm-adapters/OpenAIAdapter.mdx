@@ -1,6 +1,6 @@
 ---
 title: "OpenAIAdapter"
-description: "Copilot Runtime adapter for OpenAI."
+description: "用于 OpenAI 的 Copilot Runtime 适配器。"
 ---
 
 {
@@ -10,9 +10,9 @@ description: "Copilot Runtime adapter for OpenAI."
   * packages/runtime/src/v1-deprecated/service-adapters/openai/openai-adapter.ts
   */
 }
-Copilot Runtime adapter for OpenAI.
+用于 OpenAI 的 Copilot Runtime 适配器。
  
-## Example
+## 示例
  
 ```ts
 import { CopilotRuntime, OpenAIAdapter } from "@copilotkit/runtime";
@@ -28,7 +28,7 @@ const openai = new OpenAI({
 return new OpenAIAdapter({ openai });
 ```
  
-## Example with Azure OpenAI
+## Azure OpenAI 示例
  
 ```ts
 import { CopilotRuntime, OpenAIAdapter } from "@copilotkit/runtime";
@@ -59,31 +59,28 @@ const openai = new OpenAI({
 return new OpenAIAdapter({ openai });
 ```
 
-## Constructor Parameters
+## 构造函数参数
 
 <PropertyReference name="openai" type="OpenAI"  > 
-An optional OpenAI instance to use.  If not provided, a new instance will be
-  created.
+可选的 OpenAI 实例。若未提供，将创建一个新实例。
 </PropertyReference>
 
 <PropertyReference name="model" type="string"  > 
-The model to use.
+要使用的模型。
 </PropertyReference>
 
 <PropertyReference name="disableParallelToolCalls" type="boolean"  default="false"> 
-Whether to disable parallel tool calls.
-  You can disable parallel tool calls to force the model to execute tool calls sequentially.
-  This is useful if you want to execute tool calls in a specific order so that the state changes
-  introduced by one tool call are visible to the next tool call. (i.e. new actions or readables)
+是否禁用并行工具调用。
+  你可以禁用并行工具调用，迫使模型按顺序执行工具调用。
+  当你希望按特定顺序执行工具调用、让某次工具调用引入的状态变更对下一次工具调用可见时（即新的操作或 readables），该选项会很有用。
 </PropertyReference>
 
 <PropertyReference name="keepSystemRole" type="boolean"  default="false"> 
-Whether to keep the role in system messages as "System".
-  By default, it is converted to "developer", which is used by newer OpenAI models
+是否将 system 消息中的角色保持为 “System”。
+  默认情况下会被转换为 “developer”，这是较新 OpenAI 模型所使用的角色。
 </PropertyReference>
 
 <PropertyReference name="maxInputTokens" type="number"  > 
-Optional maximum input token limit. Overrides the default model-based limit
-  used when trimming messages to fit the context window.
+可选的最大输入 token 上限。在裁剪消息以适配上下文窗口时，该参数会覆盖基于模型的默认限制。
 </PropertyReference>
 

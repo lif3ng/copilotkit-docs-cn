@@ -1,20 +1,20 @@
 ---
 title: "useRenderTool"
-description: "Register typed renderers for tool calls, by tool name or wildcard"
+description: "按工具名称或以通配方式为工具调用注册带类型的渲染器"
 ---
 
-## Overview
+## 概览
 
-`useRenderTool` registers a chat renderer for tool calls.
-You can target a specific tool name (with a typed Zod `parameters` schema) or use a wildcard (`"*"`) fallback renderer.
+`useRenderTool` 为工具调用注册一个聊天渲染器。
+你可以针对某个具体的工具名称（携带带类型的 Zod `parameters` schema），也可以使用通配（`"*"`）兜底渲染器。
 
-This is part of the v2 tool rendering hook set with [`useComponent`](/reference/hooks/useComponent), [`useDefaultRenderTool`](/reference/hooks/useDefaultRenderTool), and [`useRenderToolCall`](/reference/hooks/useRenderToolCall).
+它属于 v2 工具渲染 Hook 套件，同套件的还有 [`useComponent`](/reference/hooks/useComponent)、[`useDefaultRenderTool`](/reference/hooks/useDefaultRenderTool) 与 [`useRenderToolCall`](/reference/hooks/useRenderToolCall)。
 
-This hook only handles rendering. It does not register a frontend handler.
+该 Hook 只负责渲染，不注册前端处理器。
 
-## Signature
+## 签名
 
-### Wildcard overload
+### 通配重载
 
 ```tsx
 import { useRenderTool } from "@copilotkit/react-core/v2";
@@ -30,7 +30,7 @@ useRenderTool(
 );
 ```
 
-### Named overload
+### 具名重载
 
 ```tsx
 import { z } from "zod";
@@ -50,30 +50,27 @@ useRenderTool(
 
 ## Render Props
 
-`render` receives one of these states:
+`render` 会收到以下状态之一：
 
 - `{ status: "inProgress", parameters: Partial<T>, result: undefined }`
 - `{ status: "executing", parameters: T, result: undefined }`
 - `{ status: "complete", parameters: T, result: string }`
 
-`name` is always present in all states.
+`name` 在所有状态下都始终存在。
 
-## Behavior
+## 行为
 
-- `render` may return `null` to draw nothing for a tool call. `null` was always
-  legal where a renderer is *invoked* — `ReactToolCallRenderer.render` is a
-  `React.ComponentType`, a function component returns `ReactNode`, and `null` is
-  a member of `ReactNode` — so only the build-side signature forbade it.
-- Builds a renderer entry with `defineToolCallRenderer`.
-- `group: true` lets the chat collapse calls this renderer draws into its tool-call groups (see [`toolCallDisplay`](/reference/components/CopilotChatMessageView#toolcalldisplay)). Leave it unset for renderers that are part of your UI, or that may draw nothing; their calls always show on their own.
-- Deduplicates by `agentId:name` key (latest registration wins).
-- Intentionally does not remove the renderer on cleanup so previous chat history can still render.
-- Tracks updates by `config.name` plus values in `deps` (include changing captures in `deps`).
-- **`deps` comparison**: compares plain data (strings, numbers, booleans, `null`, dates, and plain objects and arrays of those) by value, so an inline literal such as `[{ status }]` re-registers only when its contents change. A function never counts as changed, as before, so keep a changing callback in a ref. Class instances and other objects compare by identity, so a circular value such as the `agent` from `useAgent` is safe to pass. Adding or removing an entry counts as a change.
+- `render` 可以返回 `null`，表示不为某个工具调用绘制任何内容。在渲染器被*调用*的地方，`null` 一直是合法的——`ReactToolCallRenderer.render` 是一个 `React.ComponentType`，函数组件返回 `ReactNode`，而 `null` 是 `ReactNode` 的成员之一——此前只有构建侧的签名禁止它。
+- 通过 `defineToolCallRenderer` 构建渲染器条目。
+- `group: true` 允许聊天界面把该渲染器绘制的调用折叠进它的工具调用组（参见 [`toolCallDisplay`](/reference/components/CopilotChatMessageView#toolcalldisplay)）。如果渲染器是你 UI 的一部分，或者可能什么都不绘制，请保持不设置；它们的调用始终会单独显示。
+- 以 `agentId:name` 为键去重（后注册者生效）。
+- 有意在清理时不移除渲染器，以便既往聊天历史仍能渲染。
+- 以 `config.name` 加 `deps` 中的值跟踪更新（把会变化的捕获值放进 `deps`）。
+- **`deps` 比较**：对普通数据（字符串、数字、布尔值、`null`、日期以及由它们组成的普通对象和数组）按值比较，因此 `[{ status }]` 这样的内联字面量只在其内容变化时才会重新注册。与之前一样，函数永远不会被视为已变化，所以请把会变化的回调保存在 ref 中。类实例和其他对象按引用（identity）比较，因此传入来自 `useAgent` 的 `agent` 这类循环引用的值是安全的。增删数组条目也算变化。
 
-## Usage
+## 用法
 
-### Named tool renderer
+### 具名工具渲染器
 
 ```tsx
 function App() {
@@ -95,7 +92,7 @@ function App() {
 }
 ```
 
-### Wildcard fallback renderer
+### 通配兜底渲染器
 
 ```tsx
 function App() {
@@ -115,9 +112,9 @@ function App() {
 }
 ```
 
-### Disable rendering for a tool
+### 禁用某个工具的渲染
 
-Return `null` to suppress the default UI. The wildcard (`"*"`) needs no schema; a named tool takes a pass-through schema (`z.any()`).
+返回 `null` 即可隐藏默认 UI。通配（`"*"`）无需 schema；具名工具则使用直通 schema（`z.any()`）。
 
 ```tsx
 import { z } from "zod";
@@ -135,7 +132,7 @@ function App() {
 }
 ```
 
-## Related
+## 相关内容
 
 - [`useDefaultRenderTool`](/reference/hooks/useDefaultRenderTool)
 - [`useRenderToolCall`](/reference/hooks/useRenderToolCall)

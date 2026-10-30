@@ -1,59 +1,33 @@
 ---
 title: "useRenderTool"
-description: "Register a React Native renderer for a tool call, by tool name or wildcard."
+description: "按工具名称或通配符为工具调用注册一个 React Native 渲染器。"
 ---
 
-## Overview
+## 概览
 
-`useRenderTool` registers a **renderer only**. It supplies UI for a tool call
-somebody else owns — a server-side tool, or, with `name: "*"`, every tool call
-that has no renderer of its own. It does not register a tool: nothing is
-advertised to the model and nothing becomes callable.
+`useRenderTool` 只注册**渲染器**。它为别人拥有的工具调用提供 UI——服务端工具，或者当 `name: "*"` 时，为所有没有自己渲染器的工具调用提供回退。它不注册工具：不会向模型通告任何东西，也没有任何东西变得可调用。
 
-That contract is react-core's, so this page and the [React (V2)
-`useRenderTool`](/reference/v2/hooks/useRenderTool) describe the same behaviour;
-only the import path differs.
+这个契约来自 react-core，因此本页与 [React (V2) 的 `useRenderTool`](/reference/v2/hooks/useRenderTool) 描述的是同一种行为；仅导入路径不同。
 
-<Callout type="warn" title="Registering a tool is a different hook">
-  If you want the agent to be able to *call* your function and draw its UI, that
-  is [`useFrontendTool`](/reference/react-native/hooks/useFrontendTool) — it
-  accepts `description`, `handler` and `render`, and it advertises the tool to
-  the model on every run. A renderer-only registration does neither: nothing
-  offered to the model, nothing callable.
+<Callout type="warn" title="注册工具是另一个钩子">
+  如果你希望智能体能够*调用*你的函数并绘制它的 UI，那是 [`useFrontendTool`](/reference/react-native/hooks/useFrontendTool)——它接受 `description`、`handler` 和 `render`，并在每次运行时向模型通告该工具。仅渲染器注册两者都不做：不向模型提供任何东西，也没有任何东西可调用。
 </Callout>
 
-<Callout type="warn" title="This used to be a different hook on React Native">
-  Before 1.68, `@copilotkit/react-native` exported a **local** hook under this
-  name whose whole body forwarded to `useFrontendTool`, so it shipped one
-  capability under the other's name — and `name: "*"` registered a frontend tool
-  literally called `*`. 1.68 replaced it with react-core's hook and kept the old
-  call shapes working behind a deprecated compatibility shim; the shim has since
-  been removed ([#6976](https://github.com/CopilotKit/CopilotKit/issues/6976)),
-  so `description` and `handler` no longer compile here and no longer register a
-  tool.
+<Callout type="warn" title="在 React Native 上它曾经是另一个钩子">
+  在 1.68 之前，`@copilotkit/react-native` 以这个名字导出一个**本地**钩子，其整个函数体转发给 `useFrontendTool`，于是它借另一个钩子的名字提供了一种能力——而且 `name: "*"` 会注册一个字面上名为 `*` 的前端工具。1.68 用 react-core 的钩子替换了它，并通过一个已弃用的兼容垫片保持旧调用形态可用；该垫片随后已被移除（[#6976](https://github.com/CopilotKit/CopilotKit/issues/6976)），因此 `description` 与 `handler` 在这里不再能编译，也不再注册工具。
 
-  If you are upgrading from a version that predates 1.68, see [Migrating from
-  the old React Native
-  `useRenderTool`](#migrating-from-the-old-react-native-userendertool) for what
-  to change and what the compiler will not catch for you.
+  如果你从早于 1.68 的版本升级，参见[从旧版 React Native 的 `useRenderTool` 迁移](#从旧版-react-native-的-userendertool-迁移)了解要改什么，以及哪些问题编译器不会替你发现。
 </Callout>
 
 <Callout type="info">
-  `useRenderToolCall` **is** exported on React Native — import it from
-  `@copilotkit/react-native` to render a registered tool call on any surface,
-  not just inside the chat (see [Rendering a tool call outside the
-  chat](#rendering-a-tool-call-outside-the-chat)). The remaining web rendering
-  hooks (`useDefaultRenderTool`, `useRenderActivityMessage`,
-  `useRenderCustomMessages`) are **not** exported on React Native, because they
-  render host DOM or link the web chat-message stack.
+  `useRenderToolCall` 在 React Native 上**确实**有导出——从 `@copilotkit/react-native` 导入它，即可在任意界面渲染已注册的工具调用，而不限于聊天内部（参见[在聊天之外渲染工具调用](#在聊天之外渲染工具调用)）。其余的 Web 渲染钩子（`useDefaultRenderTool`、`useRenderActivityMessage`、`useRenderCustomMessages`）在 React Native 上**没有**导出，因为它们渲染宿主 DOM 或依赖 Web 的聊天消息栈。
 </Callout>
 
-## Signature
+## 签名
 
-There are two overloads: a wildcard fallback that takes no schema, and a
-name-scoped renderer that requires one.
+有两个重载：一个不接受 schema 的通配符回退，以及一个需要 schema 的具名渲染器。
 
-### Wildcard overload
+### 通配符重载
 
 ```tsx
 import { useRenderTool } from "@copilotkit/react-native";
@@ -68,7 +42,7 @@ useRenderTool(
 );
 ```
 
-### Named overload
+### 具名重载
 
 ```tsx
 import { useRenderTool } from "@copilotkit/react-native";
@@ -85,153 +59,91 @@ useRenderTool<S extends StandardSchemaV1>(
 );
 ```
 
-`S` is the **schema** type, not the parsed argument object — the shape of
-`props.parameters` inside `render` is inferred from it.
+`S` 是 **schema** 类型，而不是解析后的参数对象——`render` 内 `props.parameters` 的形态由它推断。
 
-## Parameters
+## 参数
 
 <PropertyReference name="config" type="object" required>
-  Renderer configuration.
+  渲染器配置。
 
   <PropertyReference name="name" type='string | "*"' required>
-    The tool name to render. Must match the name the agent calls. `"*"` selects
-    the wildcard overload: a fallback used for any tool call that has no
-    exact-name renderer registered.
+    要渲染的工具名称。必须与智能体调用的名称一致。`"*"` 选择通配符重载：作为回退，用于任何没有注册同名渲染器的工具调用。
   </PropertyReference>
 
   <PropertyReference name="parameters" type="S extends StandardSchemaV1" required>
-    Schema describing the tool's parameters, which types `props.parameters` in
-    `render`. Accepts any schema compatible with [Standard
-    Schema](https://standardschema.dev/) (Zod, Valibot, ArkType, etc.).
+    描述工具参数的 schema，它为 `render` 中的 `props.parameters` 提供类型。接受任何与 [Standard Schema](https://standardschema.dev/) 兼容的 schema（Zod、Valibot、ArkType 等）。
 
-    Required on the named overload; the wildcard overload takes no schema at all
-    and types its render props as `any`.
+    在具名重载上必填；通配符重载完全不接受 schema，其渲染 props 的类型为 `any`。
   </PropertyReference>
 
   <PropertyReference name="render" type="(props: RenderToolProps<S>) => React.ReactElement | null" required>
-    Render function for the tool call. Returning `null` draws nothing, which is
-    how you suppress UI for a tool call you do not want shown.
+    工具调用的渲染函数。返回 `null` 时不绘制任何东西，这就是隐藏不想展示的工具调用 UI 的方式。
 
-    The return type is `ReactElement | null` rather than `ReactNode`, which
-    matters on React Native: `FlatList` cannot render a bare string, so a
-    renderer that returned one would typecheck and then throw at runtime. This
-    hook's signature rejects it.
+    返回类型是 `ReactElement | null` 而非 `ReactNode`，这在 React Native 上很重要：`FlatList` 无法渲染裸字符串，因此返回裸字符串的渲染器能通过类型检查，然后在运行时抛出异常。本钩子的签名会拒绝它。
 
-    [`useFrontendTool`](/reference/react-native/hooks/useFrontendTool)'s `render`
-    is **not** narrowed this way — it is a `React.ComponentType`, so it returns
-    `ReactNode` and a bare string compiles there. Annotate that renderer with
-    [`FrontendToolRenderFunction<T>`](/reference/react-native/hooks/useFrontendTool#the-render-type-react-native-needs)
-    to get the same protection.
+    [`useFrontendTool`](/reference/react-native/hooks/useFrontendTool) 的 `render` **没有**这样收窄——它是一个 `React.ComponentType`，返回 `ReactNode`，裸字符串在那里能编译。用 [`FrontendToolRenderFunction<T>`](/reference/react-native/hooks/useFrontendTool#the-render-type-react-native-needs) 标注那个渲染器可获得同样的保护。
   </PropertyReference>
 
   <PropertyReference name="agentId" type="string">
-    Scopes the registry **key** to one agent. Registrations are deduplicated by
-    `agentId:name`, so an `agentId` lets two renderers coexist under the same
-    tool name.
+    将注册表**键**限定到单个智能体。注册按 `agentId:name` 去重，因此 `agentId` 允许两个渲染器在同一个工具名称下共存。
 
-    `agentId` is not itself part of the hook's re-registration check, so if it
-    comes from a value that changes at runtime, list that value in `deps` too.
+    `agentId` 本身不在钩子的重新注册检查之列，因此如果它来自一个会在运行时变化的值，请把该值也列入 `deps`。
   </PropertyReference>
 </PropertyReference>
 
 <PropertyReference name="deps" type="ReadonlyArray<unknown>">
-  Optional dependency array. Re-registers the renderer when these values change.
-  The `render` function is **captured at registration** and only refreshed when
-  the renderer re-registers — it does not re-read the latest closure on every
-  render.
+  可选的依赖数组。这些值变化时重新注册渲染器。`render` 函数在**注册时捕获**，只在渲染器重新注册时刷新——它不会在每次渲染时重新读取最新闭包。
 
-  `deps` compares plain data (strings, numbers, booleans, `null`, dates, and
-  plain objects and arrays of those) by value, so an inline literal such as
-  `[{ status }]` re-registers only when its contents change. A function never counts as changed, as before, so keep a changing callback
-  in a ref. Class instances and other objects compare by identity, so a
-  circular value such as the `agent` from `useAgent` is safe to pass. Adding or removing an entry counts as a change. See [Dependency
-  comparison](#dependency-comparison).
+  `deps` 对普通数据（字符串、数字、布尔值、`null`、日期，以及由它们构成的普通对象和数组）按值进行比较，因此诸如 `[{ status }]` 这样的内联字面量只在其内容变化时才重新注册。函数与之前一样永远不算变化，所以要把会变化的回调保存在 ref 中。类实例和其他对象按引用（同一性）比较，因此传入来自 `useAgent` 的 `agent` 这类循环引用的值是安全的。增加或移除条目都算变化。参见 [依赖比较](#依赖比较)。
 </PropertyReference>
 
 ### `RenderToolProps<S>`
 
-Props passed to your `render` function on the named overload.
-`@copilotkit/react-native` re-exports this type from react-core, so React Native
-and web cannot drift apart:
+具名重载下传给你的 `render` 函数的 props。`@copilotkit/react-native` 从 react-core 重新导出该类型，因此 React Native 与 Web 之间不会产生偏差：
 
 ```ts
 import type { RenderToolProps } from "@copilotkit/react-native";
 ```
 
-It is a three-arm union discriminated on `status`. `parameters` is
-`Partial<InferSchemaOutput<S>>` on the in-progress arm and the full
-`InferSchemaOutput<S>` on the executing and complete arms; `result` is a
-`string` only on the complete arm. Narrow on `status` before reading
-`parameters` fields or `result`.
+它是一个以 `status` 判别的三分支联合类型。`parameters` 在进行中分支上是 `Partial<InferSchemaOutput<S>>`，在执行与完成分支上是完整的 `InferSchemaOutput<S>`；`result` 仅在完成分支上是 `string`。读取 `parameters` 字段或 `result` 之前，先按 `status` 收窄。
 
-`S` has **no default**, so the type argument is required: a bare
-`RenderToolProps` is `TS2314: Generic type 'RenderToolProps' requires 1 type
-argument(s)`. Pass the schema's type — `RenderToolProps<typeof mySchema>` — or,
-for a renderer with no schema of its own, `RenderToolProps<z.ZodTypeAny>`.
+`S` **没有默认值**，因此类型参数必填：裸写 `RenderToolProps` 会得到 `TS2314: Generic type 'RenderToolProps' requires 1 type argument(s)`。传入 schema 的类型——`RenderToolProps<typeof mySchema>`——或者对于没有自己 schema 的渲染器，传 `RenderToolProps<z.ZodTypeAny>`。
 
 <PropertyReference name="name" type="string">
-  The tool name being rendered.
+  正在渲染的工具名称。
 </PropertyReference>
 
 <PropertyReference name="toolCallId" type="string">
-  Unique ID of this tool call.
+  该工具调用的唯一 ID。
 </PropertyReference>
 
 <PropertyReference name="parameters" type="Partial<InferSchemaOutput<S>> | InferSchemaOutput<S>">
-  Tool-call arguments, typed from your `parameters` schema: partial on the
-  in-progress arm (the agent is still writing the call), complete on the
-  executing and complete arms.
+  工具调用参数，类型来自你的 `parameters` schema：进行中分支为部分值（智能体仍在书写调用），执行与完成分支为完整值。
 
-  That widening is a **type-level assertion, not a runtime parse**. Every arm
-  receives the same value — the raw tool-call argument string run through
-  CopilotKit's partial JSON parser — and your `parameters` schema is never
-  applied to validate or coerce it before it reaches `render`. A truncated or
-  malformed argument string therefore still yields whatever the partial parse
-  produced, typed as complete. Keep renderers defensive about missing fields
-  even on the later arms.
+  这种放宽是**类型层面的断言，不是运行时解析**。每个分支收到的是同一个值——原始工具调用参数字符串经 CopilotKit 的部分 JSON 解析器处理后的产物——你的 `parameters` schema 从不会在它到达 `render` 之前被用来校验或强制转换。因此截断或畸形的参数字符串仍会产生部分解析的结果，却带着完整的类型。即便在后面的分支上，也要让渲染器对缺失字段保持防御。
 </PropertyReference>
 
 <PropertyReference name="status" type='"inProgress" | "executing" | "complete"'>
-  Current tool-call status, as a **string literal**: `"inProgress"` while
-  arguments stream, `"executing"` while the call runs, and `"complete"` once a
-  result is available.
+  当前工具调用状态，为**字符串字面量**：参数流式传输时为 `"inProgress"`，调用执行时为 `"executing"`，结果可用后为 `"complete"`。
 
-  The `ToolCallStatus` enum members (`ToolCallStatus.InProgress`,
-  `ToolCallStatus.Executing`, `ToolCallStatus.Complete`) carry exactly these
-  three strings, and a string-enum member is assignable to its own literal type
-  — so `status === ToolCallStatus.Complete` compiles **and** narrows against
-  this union just as `status === "complete"` does. Use whichever you prefer.
+  `ToolCallStatus` 枚举成员（`ToolCallStatus.InProgress`、`ToolCallStatus.Executing`、`ToolCallStatus.Complete`）携带的正是这三个字符串，而字符串枚举成员可赋值给它自己的字面量类型——因此 `status === ToolCallStatus.Complete` 既能编译**也**能像 `status === "complete"` 一样针对该联合类型收窄。用哪种都可以。
 
-  `ToolCallStatus` is still exported as a value from `@copilotkit/react-native`,
-  and it is the type you actually meet on the canonical
-  `ReactToolCallRenderer` contract — the props a renderer written against that
-  contract receives, whether you build it with `defineToolCallRenderer` or pass
-  `render` to `useFrontendTool`, declare `status` as enum members rather than as
-  string literals.
+  `ToolCallStatus` 仍作为值从 `@copilotkit/react-native` 导出，而且在权威的 `ReactToolCallRenderer` 契约上你实际遇到的就是它——基于该契约编写的渲染器（无论用 `defineToolCallRenderer` 构建，还是把 `render` 传给 `useFrontendTool`），其 `status` 都是枚举成员而非字符串字面量。
 </PropertyReference>
 
 <PropertyReference name="result" type="string | undefined">
-  The **content of the tool result message** for this `toolCallId` — not the
-  value a `handler` returned. Tool calls are correlated with their results by
-  `toolCallId`, and the renderer passes that message's `content` through.
-  Present as a `string` on the complete arm; `undefined` on the other two.
+  该 `toolCallId` 对应的**工具结果消息的内容**——不是 `handler` 返回的值。工具调用通过 `toolCallId` 与其结果关联，渲染器把该消息的 `content` 透传。在完成分支上是 `string`；在另外两个分支上是 `undefined`。
 
-  Consequences worth knowing:
+  值得了解的推论：
 
-  - The complete arm is selected **because a tool result message exists** for
-    this `toolCallId`, not because a handler finished.
-  - The prebuilt React Native chat serializes a non-string `content` before it
-    reaches you: `null` / `undefined` become `""`, anything else is
-    `JSON.stringify`-ed, and it warns in dev either way.
-  - On replay, `result` comes from the stored tool message in thread history, so
-    it survives reloads without any handler running.
+  - 完成分支之所以被选中，**是因为存在**对应此 `toolCallId` 的工具结果消息，而不是因为某个处理函数结束了。
+  - 预构建的 React Native 聊天会在它到达你之前把非字符串的 `content` 序列化：`null` / `undefined` 变成 `""`，其他值做 `JSON.stringify`，两种情况下都会在开发环境发出警告。
+  - 在回放时，`result` 来自线程历史中存储的工具消息，因此它能在没有任何处理函数运行的情况下在重新加载后保留。
 </PropertyReference>
 
-### `RenderToolInProgressProps`, `RenderToolExecutingProps`, `RenderToolCompleteProps`
+### `RenderToolInProgressProps`、`RenderToolExecutingProps`、`RenderToolCompleteProps`
 
-`@copilotkit/react-native` re-exports these three types from react-core. They are
-the **arms** of the `RenderToolProps<S>` union above, so you can name a single
-state directly:
+`@copilotkit/react-native` 从 react-core 重新导出这三个类型。它们就是上文 `RenderToolProps<S>` 联合类型的各个**分支**，因此你可以直接指名单个状态：
 
 ```tsx
 import type { RenderToolCompleteProps } from "@copilotkit/react-native";
@@ -246,10 +158,9 @@ function WeatherResult(props: RenderToolCompleteProps<typeof schema>) {
 }
 ```
 
-Each is generic over the **schema** (`S extends StandardSchemaV1`), matching
-`RenderToolProps<S>`.
+每一个都以 **schema**（`S extends StandardSchemaV1`）为泛型参数，与 `RenderToolProps<S>` 一致。
 
-## Usage
+## 用法
 
 ```tsx
 import { useRenderTool } from "@copilotkit/react-native";
@@ -288,16 +199,11 @@ function ChatScreen() {
 }
 ```
 
-Import `CopilotChat` from the **`/components`** subpath. That is the prebuilt UI
-that reads the render registry and paints tool calls inline; the `CopilotChat`
-exported from the `@copilotkit/react-native` root is
-[headless](/reference/react-native/components/CopilotChat) and renders no message
-list, so a registered `render` would never appear.
+请从 **`/components`** 子路径导入 `CopilotChat`。那才是读取渲染注册表并内联绘制工具调用的预构建 UI；从 `@copilotkit/react-native` 根导出的 `CopilotChat` 是[无头的](/reference/react-native/components/CopilotChat)，不渲染消息列表，因此注册的 `render` 永远不会出现。
 
-### Wildcard fallback
+### 通配符回退
 
-A `"*"` entry draws any tool call that has no exact-name renderer. It takes no
-schema, so its render props are untyped:
+`"*"` 条目会绘制任何没有同名渲染器的工具调用。它不接受 schema，因此其渲染 props 没有类型：
 
 ```tsx
 useRenderTool(
@@ -313,52 +219,30 @@ useRenderTool(
 );
 ```
 
-Returning `null` from a renderer draws nothing, so `render: () => null` is how
-you silence a tool call — one named tool, or, with `"*"`, every tool that has no
-renderer of its own.
+从渲染器返回 `null` 时不绘制任何东西，因此 `render: () => null` 就是让工具调用静默的方式——针对一个具名工具，或者用 `"*"` 时针对所有没有自己渲染器的工具。
 
-## Behavior
+## 行为
 
-- **Renderer only.** Nothing is added to the tool list the runtime hands the
-  agent, and the model cannot call a name registered here.
-- **`render` returns `ReactElement | null`**, not `ReactNode`. React Native's
-  `FlatList` cannot render bare strings or portals, and this signature enforces
-  it.
-- **Deduplicated by `agentId:name`** — the latest registration under a key wins.
-- **Arguments stream.** While the agent is still writing the call, `status` is
-  `"inProgress"` and `parameters` is partial — fields arrive progressively.
-  Write renderers that tolerate missing fields; that is what lets UI build as
-  the agent writes it.
-- **`render` is captured at registration.** It is not refreshed on every render
-  — only when the renderer re-registers, which happens when `name` changes or
-  when `deps` compare as changed. If your `render` closes over component state
-  or props that change over time, list them in `deps`, or read them through a
-  ref (see [below](#dependency-comparison)); otherwise
-  the chat keeps invoking the stale closure and paints outdated UI.
-- **No cleanup on unmount.** The renderer entry is deliberately kept, so tool
-  calls already in the chat history still render after you navigate away.
+- **仅渲染器。** 运行时交给智能体的工具列表中不会添加任何东西，模型也无法调用在此注册的名称。
+- **`render` 返回 `ReactElement | null`**，而非 `ReactNode`。React Native 的 `FlatList` 无法渲染裸字符串或 portal，本签名强制了这一点。
+- **按 `agentId:name` 去重**——同一个键下最新的注册生效。
+- **参数流式传输。** 智能体还在书写调用时，`status` 是 `"inProgress"`，`parameters` 是部分值——字段逐步到达。编写能容忍缺失字段的渲染器；正是这一点让 UI 能随智能体的书写逐步构建。
+- **`render` 在注册时捕获。** 它不会在每次渲染时刷新——只在渲染器重新注册时刷新，重新注册发生在 `name` 变化或 `deps` 比较为已变化时。如果你的 `render` 闭包引用了随时间变化的组件状态或 props，把它们列入 `deps`，或者通过 ref 读取（见[下文](#依赖比较)）；否则聊天会一直调用过期的闭包并绘制过时的 UI。
+- **卸载时不清理。** 渲染器条目被刻意保留，这样聊天历史中已有的工具调用在你离开页面后仍能渲染。
 
-### Dependency comparison
+### 依赖比较
 
-The hook reduces `deps` to a version number
-([source](https://github.com/CopilotKit/CopilotKit/blob/main/packages/react-core/src/v2/hooks/tool-registration.ts))
-and never serializes it:
+钩子把 `deps` 归约为一个版本号
+（[源码](https://github.com/CopilotKit/CopilotKit/blob/main/packages/react-core/src/v2/hooks/tool-registration.ts)）
+且从不序列化它：
 
-- Plain data compares by value: strings, numbers, booleans, `null`,
-  `undefined`, dates, and plain objects and arrays of those. An inline literal
-  such as `[{ status }]` or `[items.filter(isOpen)]` re-registers only when its
-  contents change. Key order does not matter.
-- A function never counts as changed, as before: a new callback in `deps`
-  does not re-register the tool. Read a changing callback through a ref (below).
-- Class instances, `Map`, `Set` and other non-plain objects compare by
-  identity.
-- A circular value, such as the `agent` returned by `useAgent`, is safe to list.
-  A cycle inside plain data is safe too.
-- Adding or removing an entry counts as a change.
+- 普通数据按值比较：字符串、数字、布尔值、`null`、`undefined`、日期，以及由它们构成的普通对象和数组。诸如 `[{ status }]` 或 `[items.filter(isOpen)]` 这样的内联字面量只在其内容变化时才重新注册。键顺序无关紧要。
+- 函数与之前一样永远不算变化：`deps` 中的新回调不会触发工具重新注册。通过 ref 读取会变化的回调（见下文）。
+- 类实例、`Map`、`Set` 及其他非普通对象按引用（同一性）比较。
+- 循环引用的值（例如 `useAgent` 返回的 `agent`）可以安全列出。普通数据内部的循环引用同样安全。
+- 增加或移除条目都算变化。
 
-When what changes is behavior rather than displayed data, a ref avoids
-re-registering at all. Keep the value in a ref that `render` dereferences when
-it runs:
+当变化的是行为而非展示数据时，ref 可以完全避免重新注册。把值保存在 ref 中，`render` 运行时解引用它：
 
 ```tsx
 function SeatPicker({ onSelect }: { onSelect: (id: string) => void }) {
@@ -382,14 +266,11 @@ function SeatPicker({ onSelect }: { onSelect: (id: string) => void }) {
 }
 ```
 
-The captured `render` is still the stale one, but the ref it reads is current, so
-the renderer never has to re-register to reach the newest callback. That makes the
-ref pattern the more reliable default whenever what changes is behavior rather
-than displayed data.
+被捕获的 `render` 仍是过期的那个，但它读取的 ref 是最新的，因此渲染器无需重新注册就能用到最新的回调。这使得当变化的是行为而非展示数据时，ref 模式是更可靠的默认选择。
 
-## Rendering a tool call outside the chat
+## 在聊天之外渲染工具调用
 
-[`CopilotChat`](/reference/react-native/components/CopilotChat#prebuilt-ui) renders tool calls inline. To render a registered component anywhere else — a dashboard, a kiosk, a full-screen stage the agent composes — call `useRenderToolCall()` inside a component mounted under `CopilotKitProvider`, and read the tool calls off the agent's own message list:
+[`CopilotChat`](/reference/react-native/components/CopilotChat#prebuilt-ui) 会内联渲染工具调用。要在其他任何地方渲染已注册的组件——仪表盘、自助终端、智能体编排的全屏舞台——在挂载于 `CopilotKitProvider` 之下的组件内调用 `useRenderToolCall()`，并从智能体自己的消息列表中读取工具调用：
 
 ```tsx
 import { useAgent, useRenderToolCall } from "@copilotkit/react-native";
@@ -432,107 +313,51 @@ function ToolCallStage({ agentId = "default" }: { agentId?: string }) {
 ```
 
 <PropertyReference name="useRenderToolCall" type="() => (input: { toolCall, toolMessage? }) => ReactElement | null">
-  Returns a function that renders a single tool call using the render function
-  registered for it. Prefers an exact name match, falls back to a `"*"` entry,
-  and returns `null` when neither exists. Arguments are partial-parsed, so
-  components paint as the agent writes the call.
+  返回一个函数，用为该调用注册的渲染函数渲染单个工具调用。优先精确名称匹配，回退到 `"*"` 条目，两者都不存在时返回 `null`。参数经过部分解析，因此组件能随智能体书写调用而逐步绘制。
 </PropertyReference>
 
-## Migrating from the old React Native `useRenderTool`
+## 从旧版 React Native 的 `useRenderTool` 迁移
 
-React Native used to export a **local** hook under this name. It was not
-react-core's `useRenderTool`: its whole body forwarded to react-core's *other*
-hook, `useFrontendTool`, so it registered a tool **and** a renderer while
-carrying the renderer-only hook's name.
+React Native 曾以这个名字导出一个**本地**钩子。它不是 react-core 的 `useRenderTool`：它的整个函数体转发给 react-core 的*另一个*钩子 `useFrontendTool`，于是它在顶着仅渲染器钩子名字的同时，注册了工具**和**渲染器。
 
-1.68 deleted that hook and pointed the name at react-core's, behind a deprecated
-compatibility shim that routed an old-shaped call the way the old hook did and
-warned about it in development. **The shim is gone.** `@copilotkit/react-native`
-now re-exports react-core's `useRenderTool` itself and carries no render-tool
-implementation of its own, so this page describes the whole of what the name
-does.
+1.68 删除了那个钩子，把名字指向 react-core 的钩子，中间隔着一个已弃用的兼容垫片，它把旧形态的调用按旧钩子的方式路由，并在开发环境发出警告。**垫片已经移除。** `@copilotkit/react-native` 现在直接重新导出 react-core 的 `useRenderTool`，自身不携带任何渲染工具实现，因此本页描述的就是这个名字的全部行为。
 
-### What to change
+### 需要改什么
 
-Most rows below are compile errors, so the compiler will bring you here for
-those whether or not you read this page first. The exception is the first row,
-which fails only where TypeScript's excess-property check reaches it — see
-[three shapes the compiler cannot see](#three-shapes-the-compiler-cannot-see)
-for the call shapes it does not.
+下表的大多数行都是编译错误，因此无论你是否先读本页，编译器都会把你带到这里。例外是第一行，它只在 TypeScript 的多余属性检查能够触及的地方才失败——参见[编译器看不见的三种形态](#编译器看不见的三种形态)了解它检查不到的调用形态。
 
-Because the hook is **overloaded**, an excess `description` or `handler` is
-reported as `TS2769: No overload matches this call` rather than the bare
-`TS2353` you would get on a single-signature function. The excess property is
-named in the nested per-overload detail, so read past the first line.
+由于该钩子是**重载的**，多余的 `description` 或 `handler` 会报告为 `TS2769: No overload matches this call`，而不是单签名函数上你会得到的裸 `TS2353`。多余属性在嵌套的逐重载细节中被点名，所以请读完第一行继续往下看。
 
-| Before (old RN hook) | Change it to | What happens if you don't |
+| 之前（旧版 RN 钩子） | 改成 | 不改会怎样 |
 | --- | --- | --- |
-| `useRenderTool({ name, description, parameters, handler, render }, deps)` | `useFrontendTool({ …identical object }, deps)` — rename only | **`TS2769: No overload matches this call`**, naming `description` under the named overload — but see [three shapes the compiler cannot see](#three-shapes-the-compiler-cannot-see), where it compiles and the tool silently stops being registered |
-| renderer-only registration: impossible in TypeScript (`description` was required), reachable from plain JS | `useRenderTool({ name, parameters, render, agentId? }, deps)` — `parameters` required on a named renderer | already correct; nothing to do |
-| wildcard: registers a tool named `*` | `useRenderTool({ name: "*", render })` — the one case that takes no schema | **`TS2769`** — `description` / `handler` / `parameters` are not on this overload; drop them |
-| render props `{ args, status, … }` | `{ parameters, status, … }` | **`TS2339: Property 'args' does not exist on type 'RenderToolProps<…>'`.** (The wildcard overload types its props as `any`, so `args` still compiles there.) |
-| `RenderToolProps<T>` (args-shaped, generic over parsed args) | `RenderToolProps<S>` (parameters-shaped, generic over schema) | re-exported from react-core |
-| bare `RenderToolProps` — RN's had `T = Record<string, unknown>` | `RenderToolProps<typeof mySchema>` | **`TS2314: Generic type 'RenderToolProps' requires 1 type argument(s)`.** core's `S` has no default, so the natural spelling for an untyped renderer no longer compiles |
-| `UseRenderToolOptions<T>` | gone — write the config inline (`RenderToolConfig` is core-internal) | `TS2305` on the import |
-| `RenderToolFunction<T>` | for a `useRenderTool` renderer, nothing: the hook already declares `render` as `ReactElement \| null`. For a `useFrontendTool` renderer, [`FrontendToolRenderFunction<T>`](/reference/react-native/hooks/useFrontendTool#the-render-type-react-native-needs) | `TS2305` on the import |
+| `useRenderTool({ name, description, parameters, handler, render }, deps)` | `useFrontendTool({ …对象完全相同 }, deps)`——仅改名 | **`TS2769: No overload matches this call`**，在具名重载下点名 `description`——但参见[编译器看不见的三种形态](#编译器看不见的三种形态)，那些情况下它能编译通过，而工具会静默停止注册 |
+| 仅渲染器注册：TypeScript 中不可能（`description` 是必填的），纯 JS 可以触达 | `useRenderTool({ name, parameters, render, agentId? }, deps)`——具名渲染器要求 `parameters` | 本来就正确；无需操作 |
+| 通配符：注册一个名为 `*` 的工具 | `useRenderTool({ name: "*", render })`——唯一不需要 schema 的情况 | **`TS2769`**——`description` / `handler` / `parameters` 不在这个重载上；删掉它们 |
+| 渲染 props `{ args, status, … }` | `{ parameters, status, … }` | **`TS2339: Property 'args' does not exist on type 'RenderToolProps<…>'**。（通配符重载的 props 类型是 `any`，所以 `args` 在那里仍能编译。） |
+| `RenderToolProps<T>`（args 形态，以解析后的参数为泛型） | `RenderToolProps<S>`（parameters 形态，以 schema 为泛型） | 从 react-core 重新导出 |
+| 裸写 `RenderToolProps`——RN 版有默认 `T = Record<string, unknown>` | `RenderToolProps<typeof mySchema>` | **`TS2314: Generic type 'RenderToolProps' requires 1 type argument(s)`**。core 的 `S` 没有默认值，因此无类型渲染器的自然写法不再能编译 |
+| `UseRenderToolOptions<T>` | 已移除——把配置写成内联形式（`RenderToolConfig` 是 core 内部类型） | 导入时报 `TS2305` |
+| `RenderToolFunction<T>` | 对 `useRenderTool` 渲染器：无需改动，钩子已把 `render` 声明为 `ReactElement \| null`。对 `useFrontendTool` 渲染器：[`FrontendToolRenderFunction<T>`](/reference/react-native/hooks/useFrontendTool#the-render-type-react-native-needs) | 导入时报 `TS2305` |
 
-There is no exported config type to annotate a call with, and that is deliberate
-rather than an oversight. `RenderToolConfig` — core's internal name for the
-shape, declared without `export` and referenced only by the implementation
-signature — is **looser than what the overloads accept**: it declares
-`parameters?: S`, so it would permit `{ name: "showWeather", render }` with no
-schema, which the named overload rejects. Exporting it would hand you a type that
-describes calls the compiler refuses. Write the config as an inline object literal
-and let the overload infer it. `RenderToolProps<S>` **is** exported, and is what
-you annotate a standalone render function with.
+没有一个可用于标注调用的导出配置类型，这是刻意的而非疏忽。`RenderToolConfig`——core 对该形态的内部命名，声明时没有 `export`，只被实现签名引用——**比重载实际接受的更宽松**：它声明的是 `parameters?: S`，因此它会允许不带 schema 的 `{ name: "showWeather", render }`，而具名重载会拒绝这种调用。导出它等于交给你一个描述编译器所拒绝调用的类型。把配置写成内联对象字面量，让重载去推断。`RenderToolProps<S>` **是**导出的，它才是你标注独立渲染函数所用的类型。
 
-If your call site wanted a **callable** tool, `useFrontendTool` is a rename and
-nothing else — it takes the same object, `description` and `handler` included.
-If it only ever drew UI for a tool the agent already had, drop `description`
-(and `handler`, if you passed one) and rename `args` to `parameters`.
+如果你的调用点想要一个**可调用**的工具，`useFrontendTool` 只是改名而已——它接受同一个对象，包括 `description` 和 `handler`。如果它只是为智能体已有的工具绘制 UI，去掉 `description`（以及 `handler`，如果你传过），并把 `args` 改名为 `parameters`。
 
-The wildcard is the case that changed behaviour for the better rather than
-merely moving. `name: "*"` on the old hook registered a frontend tool
-**literally named** `*`, with no description and no schema.
+通配符是行为变得更好而非仅仅搬家的情况。旧钩子上的 `name: "*"` 会注册一个**字面命名为** `*` 的前端工具，没有描述也没有 schema。
 
-That tool was never offered to the model — core filters the name `*` out of the
-tool list it hands the agent, precisely so the agent is not offered a tool whose
-name is a glob. The consequence was different, and worse for the person who
-wrote it. `*` is core's **catch-all handler** name: when a tool call has no
-matching frontend tool and no result yet, core reaches for the `*` tool and runs
-its wildcard path — and in that path, the tool-result insertion and the
-follow-up-turn request sit **outside** the check for whether the wildcard tool
-actually has a `handler`. A handler-less `*` tool, which is exactly what someone
-who wanted a display-only fallback wrote, therefore still answered the call with
-an **empty tool result** and still asked for another turn.
+那个工具从未被提供给模型——core 会把名称 `*` 从交给智能体的工具列表中过滤掉，正是为了不让智能体被提供一个名字是通配符的工具。后果出现在别处，而且对写它的人更糟。`*` 是 core 的**兜底处理函数**名称：当一个工具调用既没有匹配的前端工具也没有结果时，core 会求助于 `*` 工具并运行它的通配符路径——而在这条路径中，工具结果的插入与后续轮次的请求位于“通配符工具是否真的有 `handler`”这一检查的**外部**。一个没有 `handler` 的 `*` 工具——恰恰是想要纯展示回退的人会写出的东西——因此仍会用**空工具结果**应答该调用，并且仍会请求下一轮。
 
-Driving a single turn through both spellings shows it directly: an assistant
-message calling a tool nobody registered produces two turns and an empty tool
-result through the old hook, and one turn with no tool result through this one.
-The scope is bounded — only a tool call with no exact-name tool *and* no result
-yet reaches that path, so a server-side call whose result has already arrived was
-never affected.
+用两种写法各驱动一轮就能直接看到差异：一条调用无人注册工具的助手消息，经旧钩子会产生两轮和一个空工具结果，经本钩子只产生一轮且没有工具结果。影响范围是有界的——只有既没有同名工具*又*尚无结果的工具调用才会走到那条路径，因此结果已经到达的服务端调用从未受影响。
 
-On core's hook, `"*"` is what it is on the web: a schema-less fallback renderer
-that registers no tool at all.
+在 core 的钩子上，`"*"` 与它在 Web 上一样：一个无 schema 的回退渲染器，完全不注册工具。
 
-### Three shapes the compiler cannot see
+### 编译器看不见的三种形态
 
-`description` and `handler` are compile errors on this hook now — but only where
-TypeScript's **excess-property check** actually fires, which is on properties
-written inline in a **fresh** object literal. Three shapes slip past it, and all
-three compile clean while the tool silently stops being registered: nothing is
-advertised to the model any more, and `handler` never runs again.
+`description` 与 `handler` 在这个钩子上现在是编译错误——但只在 TypeScript 的**多余属性检查**真正生效的地方，也就是写在**全新**对象字面量内联的属性上。有三种形态能绕过它，而且三者都能干净地编译，同时工具静默停止注册：不再向模型通告任何东西，`handler` 也不再运行。
 
-They are also the shapes that look unchanged on screen. React-core's renderer
-bridge spreads `{ ...props, parameters: props.args }` into your renderer, so an
-old `render: ({ args }) => …` keeps painting exactly as it did. The UI is
-identical; the tool is gone. The deprecated shim that shipped between 1.68 and
-its removal warned about precisely this population in development — with the
-shim gone, nothing does. **Audit these by hand.**
+它们也是屏幕上看起来毫无变化的形态。React-core 的渲染器桥会向你的渲染器展开 `{ ...props, parameters: props.args }`，因此旧的 `render: ({ args }) => …` 的绘制效果与从前完全一样。UI 一模一样；工具没了。在 1.68 到垫片移除之间发布的已弃用垫片，在开发环境警告的正是这类代码——垫片没了，就再没有任何东西发出警告。**请人工审计这些代码。**
 
-1. **A hoisted config object.** Assign the config to a variable first and pass
-   the variable, and the excess `description` is no longer excess:
+1. **提升的配置对象。** 先把配置赋给一个变量再传入变量，多余的 `description` 就不再是多余的：
 
    ```tsx
    const cfg = {
@@ -545,14 +370,9 @@ shim gone, nothing does. **Audit these by hand.**
    useRenderTool(cfg); // compiles clean, registers a renderer and nothing else
    ```
 
-   A hoisted config whose `render` *does* destructure `args` is caught either
-   way — the render parameter is contravariant, so it fails on `render` — so
-   this is specifically the "hoisted **and** `render` ignores its props"
-   combination.
+   一个其 `render` *确实*解构了 `args` 的提升配置无论如何都会被抓住——render 参数是逆变的，所以它会在 `render` 上失败——因此这里特指“提升**且** `render` 忽略其 props”的组合。
 
-2. **Spread-carried fields.** Same cause, and it survives a fresh literal at the
-   call site: excess-property checking does not reach a property that arrives via
-   a spread, so the old `description` is not flagged.
+2. **展开携带的字段。** 同样的原因，而且它能逃过调用点处的全新字面量：多余属性检查触及不到经展开传入的属性，因此旧的 `description` 不会被标记。
 
    ```tsx
    const base = {
@@ -563,53 +383,32 @@ shim gone, nothing does. **Audit these by hand.**
    useRenderTool({ ...base, render: () => <WeatherCard city="Berlin" /> }); // compiles clean
    ```
 
-   Exactly as above, a `render` that *does* destructure `args` is caught on
-   contravariance.
+   与上文完全一样，*确实*解构 `args` 的 `render` 会因逆变被抓住。
 
-3. **An untyped call site.** A plain-JavaScript screen, or one under
-   `@ts-nocheck`, is checked by nothing at all.
+3. **无类型的调用点。** 纯 JavaScript 的屏幕，或处于 `@ts-nocheck` 之下的屏幕，什么都不检查它。
 
-If you have JavaScript React Native screens, grep them for `useRenderTool` and
-decide per call site whether it wanted a tool (`useFrontendTool`) or only a
-renderer. The compiler will never do it for you on those files.
+如果你有 JavaScript 的 React Native 屏幕，grep 一下 `useRenderTool`，逐个调用点判断它想要的是工具（`useFrontendTool`）还是仅渲染器。在这些文件上编译器永远不会替你做这件事。
 
-### The shape that looks correct either way
+### 两种情况下看起来都正确的形态
 
-`{ name, parameters, render }` — no `description`, no `handler` — is the one call
-that is simultaneously:
+`{ name, parameters, render }`——没有 `description`，没有 `handler`——是唯一同时满足以下两点的调用：
 
-- the **correct** renderer-only spelling, which is what this page documents; and
-- an **old plain-JS call** that used to register and advertise a real tool.
+- **正确的**仅渲染器写法，即本页所记录的；以及
+- 过去会注册并通告真实工具的**旧式纯 JS 调用**。
 
-Both are the same object, and nothing distinguishes them. `description` was
-required by the old hook's types, so a TypeScript caller could never write this
-shape — but an untyped JavaScript caller could. On the old hook, `handler` was
-optional and nothing filtered a tool out for lacking one, so
-`{ name, parameters, render }` registered **and advertised** `name` to the model
-with an empty description.
+两者是同一个对象，没有任何东西能区分它们。`description` 在旧钩子的类型中是必填的，因此 TypeScript 调用者永远写不出这个形态——但无类型的 JavaScript 调用者可以。在旧钩子上，`handler` 是可选的，也没有任何机制会因为缺少它而过滤掉某个工具，所以 `{ name, parameters, render }` 会注册 `name` **并通告给模型**，附带一个空描述。
 
-Today it registers a renderer and nothing else. If you were relying on it
-advertising a tool, move the call to
-[`useFrontendTool`](/reference/react-native/hooks/useFrontendTool). If you only
-ever wanted to draw UI for a tool somebody else owns, it is already correct.
+如今它注册一个渲染器，仅此而已。如果你依赖它通告工具，把这个调用移到 [`useFrontendTool`](/reference/react-native/hooks/useFrontendTool)。如果你只是想为别人拥有的工具绘制 UI，那它已经是对的。
 
-### `status` is not a break
+### `status` 不是破坏性变更
 
-The old hook's render props typed `status` as the `ToolCallStatus` **enum**;
-core's `RenderToolProps` types it as the string literals `"inProgress" |
-"executing" | "complete"`. **No migration work follows from that.** A
-string-enum member is assignable to its own literal type, so
-`status === ToolCallStatus.Complete` compiles *and* narrows against the literal
-union — existing enum comparisons keep working untouched. Either form is fine;
-pick one and be consistent.
+旧钩子的渲染 props 把 `status` 类型定义为 `ToolCallStatus` **枚举**；core 的 `RenderToolProps` 把它定义为字符串字面量 `"inProgress" |
+"executing" | "complete"`。**这不需要任何迁移工作。** 字符串枚举成员可赋值给它自己的字面量类型，因此 `status === ToolCallStatus.Complete` 能编译*也*能针对字面量联合收窄——现有的枚举比较原样继续工作。两种形式都行；选定一种并保持一致。
 
-`ToolCallStatus` remains a value export of `@copilotkit/react-native`, and it is
-still the shape you meet where the canonical `ReactToolCallRenderer` contract is
-in play: a renderer built with `defineToolCallRenderer`, or a `render` passed to
-`useFrontendTool`, receives `status` as an enum member.
+`ToolCallStatus` 仍是 `@copilotkit/react-native` 的值导出，而且在权威的 `ReactToolCallRenderer` 契约生效的地方你遇到的仍是这个形态：用 `defineToolCallRenderer` 构建的渲染器，或传给 `useFrontendTool` 的 `render`，收到的 `status` 是枚举成员。
 
-## Related
+## 相关内容
 
-- [`useFrontendTool`](/reference/react-native/hooks/useFrontendTool): register a tool the agent can call, with an optional renderer
-- [`useComponent`](/reference/react-native/hooks/useComponent): register a tool whose renderer is a component
-- [`useHumanInTheLoop`](/reference/react-native/hooks/useHumanInTheLoop): gate a tool call on user approval
+- [`useFrontendTool`](/reference/react-native/hooks/useFrontendTool)：注册智能体可调用的工具，带可选渲染器
+- [`useComponent`](/reference/react-native/hooks/useComponent)：注册渲染器为组件的工具
+- [`useHumanInTheLoop`](/reference/react-native/hooks/useHumanInTheLoop)：以用户审批门控工具调用

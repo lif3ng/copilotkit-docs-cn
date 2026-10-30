@@ -1,15 +1,15 @@
 ---
 title: "useAgent"
-description: "React hook for accessing AG-UI agent instances"
+description: "用于访问 AG-UI 智能体实例的 React hook"
 ---
 
-## Overview
+## 概览
 
-`useAgent` is a React hook that returns an [AG-UI AbstractAgent](https://docs.ag-ui.com/sdk/js/client/abstract-agent) instance. The hook subscribes to agent state changes and triggers re-renders when the agent's state, messages, or execution status changes.
+`useAgent` 是一个 React hook，返回 [AG-UI AbstractAgent](https://docs.ag-ui.com/sdk/js/client/abstract-agent) 实例。该 hook 会订阅智能体状态变化，并在智能体的状态、消息或执行状态发生变化时触发重新渲染。
 
-**Throws an error** if no agent is configured with the specified `agentId`, or if only part of the thread-scoped option set is provided.
+如果未配置具有指定 `agentId` 的智能体，或仅提供了线程作用域选项集的一部分，则会**抛出错误**。
 
-## Signature
+## 签名
 
 ```tsx
 import { useAgent } from "@copilotkit/react-core/v2";
@@ -20,15 +20,15 @@ function useAgent(options?: UseAgentProps): {
 };
 ```
 
-For fully headless UI that does not import the built-in chat rendering stack, import the hook from the headless entry:
+对于不导入内置聊天渲染栈的完全无头 UI，请从无头入口导入该 hook：
 
 ```tsx
 import { useAgent } from "@copilotkit/react-core/v2/headless";
 ```
 
-## Two valid shapes
+## 两种合法形态
 
-The options object admits exactly two shapes, and the type rejects everything in between:
+选项对象恰好支持两种形态，类型系统会拒绝二者之间的任何组合：
 
 ```tsx
 // Bind to an agent — the shared instance from the registry. The thread comes
@@ -45,129 +45,107 @@ const { agent } = useAgent({
 ```
 
 <Callout type="warn">
-  Partial combinations do not compile. `useAgent({ agentId, threadId })`,
-  `useAgent({ agentId, runtimeAgentId })` and
-  `useAgent({ runtimeAgentId, threadId })` are all type errors.
+  部分组合无法通过编译。`useAgent({ agentId, threadId })`、`useAgent({ agentId, runtimeAgentId })` 与 `useAgent({ runtimeAgentId, threadId })` 都是类型错误。
 
-A runtime agent registered under a given id is a singleton. Writing a
-per-hook `threadId` straight onto it would let two `useAgent` calls that
-share an `agentId` clobber each other's thread, so scoping a thread requires
-a private agent to pin it to.
+以给定 id 注册的 runtime 智能体是单例。若直接把每个 hook 各自的 `threadId` 写到它上面，共享同一个 `agentId` 的两个 `useAgent` 调用就会互相覆盖对方的线程，因此要限定线程作用域，就需要一个私有智能体来绑定它。
 
 </Callout>
 
-Use the second shape when several frontend agents — one per open thread, for
-instance — have to mount against a single runtime agent. `runtimeAgentId`
-registers a proxied agent through `CopilotKitCore.registerProxiedAgent`, so each
-hook gets its own instance instead of a shared one.
+当多个前端智能体——例如每个打开的线程一个——需要挂载到同一个 runtime 智能体上时，请使用第二种形态。`runtimeAgentId` 会通过 `CopilotKitCore.registerProxiedAgent` 注册一个代理智能体，因此每个 hook 都会得到自己的实例，而非共享实例。
 
-## Parameters
+## 参数
 
 <PropertyReference name="options" type="UseAgentProps">
-  Configuration object for the hook.
+  该 hook 的配置对象。
 
 <PropertyReference name="agentId" type="string" default='"default"'>
-  ID of the shared agent to retrieve. Resolution order is: explicit `agentId`,
-  the surrounding chat configuration's `agentId`, the provider's `agentId`,
-  then `"default"`. The resolved ID must match a registered agent.
+  要获取的共享智能体的 ID。解析顺序为：显式指定的 `agentId`、外围聊天配置的 `agentId`、提供方的 `agentId`，最后是 `"default"`。解析出的 ID 必须匹配某个已注册的智能体。
 
-  In the thread-scoped shape this is the **local** id to register the private
-  agent under, and it must not already be taken. The usual fallbacks — the chat
-  configuration's `agentId`, then the global default — name agents that already
-  exist, so pass an id of your own.
+  在线程作用域形态下，这是注册私有智能体所用的**本地** id，且不能与已有的重复。常见的回退值——聊天配置的 `agentId`，再到全局默认值——指向的都是已存在的智能体，因此请传入你自己的 id。
 </PropertyReference>
 
   <PropertyReference name="runtimeAgentId" type="string">
-    The runtime agent to route outbound requests to, while the hook exposes a
-    distinct local `agentId`. Registers a proxied agent via
-    `CopilotKitCore.registerProxiedAgent`.
+    出站请求要路由到的 runtime 智能体，同时该 hook 会对外暴露一个不同的本地 `agentId`。通过 `CopilotKitCore.registerProxiedAgent` 注册一个代理智能体。
 
-    Requires `threadId`. Registering a private agent is only worth doing in
-    order to scope a thread to it.
+    需要同时提供 `threadId`。注册私有智能体的意义仅在于把某个线程限定到它上面。
 
   </PropertyReference>
 
   <PropertyReference name="threadId" type="string">
-    Thread to scope the agent's run to. It is written onto the underlying agent,
-    so `/agent/run`, `/agent/connect` and `/agent/stop` all address this thread.
+    限定智能体运行所用线程。它会写到下层智能体上，因此 `/agent/run`、`/agent/connect` 与 `/agent/stop` 都会寻址到这个线程。
 
-    Requires `runtimeAgentId`. Omit both to take the thread from the chat
-    configuration instead.
+    需要同时提供 `runtimeAgentId`。两者都省略时，线程改由聊天配置提供。
 
   </PropertyReference>
 
   <PropertyReference name="throttleMs" type="number">
-    How long to batch re-render notifications for. Run lifecycle callbacks
-    (`onRunInitialized`, `onRunFinalized`, `onRunFailed`, `onRunErrorEvent`)
-    always fire immediately regardless.
+    批量合并重渲染通知的时长。运行生命周期回调（`onRunInitialized`、`onRunFinalized`、`onRunFailed`、`onRunErrorEvent`）无论如何都会立即触发。
 
-    When unset it inherits the provider's `defaultThrottleMs`; if that is also
-    unset the effective value is `0`, meaning no throttle. Pass `0` to disable
-    provider throttling for this hook.
+    未设置时继承提供方的 `defaultThrottleMs`；若后者也未设置，则实际取值为 `0`，即不节流。传入 `0` 可为该 hook 禁用提供方节流。
 
   </PropertyReference>
 
   <PropertyReference name="updates" type="UseAgentUpdate[]" default="[OnMessagesChanged, OnStateChanged, OnRunStatusChanged]">
-    Controls which agent changes trigger component re-renders. Options:
-    - `UseAgentUpdate.OnMessagesChanged` - Re-render when messages change
-    - `UseAgentUpdate.OnStateChanged` - Re-render when state changes
-    - `UseAgentUpdate.OnRunStatusChanged` - Re-render when execution status changes
+    控制哪些智能体变化会触发组件重新渲染。可选值：
+    - `UseAgentUpdate.OnMessagesChanged` - 消息变化时重新渲染
+    - `UseAgentUpdate.OnStateChanged` - 状态变化时重新渲染
+    - `UseAgentUpdate.OnRunStatusChanged` - 执行状态变化时重新渲染
 
-    Pass an empty array `[]` to prevent automatic re-renders.
+    传入空数组 `[]` 可阻止自动重新渲染。
 
   </PropertyReference>
 </PropertyReference>
 
-## Return Value
+## 返回值
 
 <PropertyReference name="object" type="{ agent: AbstractAgent; isReady: boolean }">
-  Object containing the agent instance and its readiness signal.
+  包含智能体实例及其就绪信号的对象。
 
   <PropertyReference name="agent" type="AbstractAgent">
-    The AG-UI agent instance. See [AbstractAgent documentation](https://docs.ag-ui.com/sdk/js/client/abstract-agent) for full interface details.
+    AG-UI 智能体实例。完整接口细节参见 [AbstractAgent 文档](https://docs.ag-ui.com/sdk/js/client/abstract-agent)。
 
-    ### Core Properties
+    ### 核心属性
 
     <PropertyReference name="agentId" type="string | undefined">
-      Unique identifier for the agent instance.
+      智能体实例的唯一标识符。
     </PropertyReference>
 
     <PropertyReference name="description" type="string">
-      Human-readable description of the agent's purpose.
+      对智能体用途的人类可读描述。
     </PropertyReference>
 
     <PropertyReference name="threadId" type="string">
-      Unique identifier for the current conversation thread.
+      当前会话线程的唯一标识符。
     </PropertyReference>
 
     <PropertyReference name="messages" type="Message[]">
-      Array of conversation messages. Each message contains:
-      - `id: string` - Unique message identifier
-      - `role: "user" | "assistant" | "system"` - Message role
-      - `content: string` - Message content
+      会话消息数组。每条消息包含：
+      - `id: string` - 消息的唯一标识符
+      - `role: "user" | "assistant" | "system"` - 消息角色
+      - `content: string` - 消息内容
     </PropertyReference>
 
     <PropertyReference name="state" type="any">
-      Shared state object synchronized between application and agent. Both can read and modify this state.
+      在应用与智能体之间同步的共享状态对象。双方都可以读取和修改该状态。
     </PropertyReference>
 
     <PropertyReference name="isRunning" type="boolean">
-      Indicates whether the agent is currently executing.
+      表示智能体当前是否正在执行。
     </PropertyReference>
 
-    ### Methods
+    ### 方法
 
     <PropertyReference name="runAgent" type="(parameters?: RunAgentParameters, subscriber?: AgentSubscriber) => Promise<RunAgentResult>">
-      Low-level: sends a run to the agent and resolves with a `RunAgentResult` (`{ result, newMessages }`) once the run finalizes. `result` is the final value of the run and `newMessages` are the messages produced during it.
+      底层方法：向智能体发送一次运行，并在运行结束后以 `RunAgentResult`（`{ result, newMessages }`）兑现。`result` 是该运行的最终值，`newMessages` 是运行期间产生的消息。
 
-      It does not send your registered frontend tools or context, does not execute frontend tool calls, and does not chain follow-up runs. For a normal run, call `copilotkit.runAgent({ agent })` from [`useCopilotKit`](/reference/hooks/useCopilotKit) instead. It takes the same `forwardedProps` and resolves with the same `RunAgentResult`. Unlike `agent.runAgent()`, it does not reject when the run itself fails. The core reports the error (code `AGENT_RUN_FAILED`) to its error subscribers and resolves with `{ result: undefined, newMessages: [] }`.
+      它不会发送你已注册的前端工具或上下文，不会执行前端工具调用，也不会链式发起后续运行。普通运行请改用 [`useCopilotKit`](/reference/hooks/useCopilotKit) 中的 `copilotkit.runAgent({ agent })`。它接受相同的 `forwardedProps`，并以相同的 `RunAgentResult` 兑现。与 `agent.runAgent()` 不同，当运行本身失败时它不会 reject，核心会把该错误（错误码 `AGENT_RUN_FAILED`）上报给错误订阅者，并以 `{ result: undefined, newMessages: [] }` 兑现。
 
-      **Parameters:**
-      - `parameters.forwardedProps?: any` - Data to pass to the agent execution context
+      **参数**：
+      - `parameters.forwardedProps?: any` - 传递给智能体执行上下文的数据
 
-      To answer an interrupt, use [`useInterrupt`](/reference/hooks/useInterrupt). It resumes the run for you. To resume by hand, pass the standard `resume` array with the id of the interrupt that the paused run reported: `copilotkit.runAgent({ agent, resume: [{ interruptId: interrupt.id, status: "resolved", payload }] })`. The older `forwardedProps: { command: { resume } }` form is the legacy path for `on_interrupt` custom events.
+      要响应中断，请使用 [`useInterrupt`](/reference/hooks/useInterrupt)，它会替你恢复运行。若要手动恢复，请传入标准 `resume` 数组，其中包含被暂停运行所报告的中断 id：`copilotkit.runAgent({ agent, resume: [{ interruptId: interrupt.id, status: "resolved", payload }] })`。较旧的 `forwardedProps: { command: { resume } }` 形式是 `on_interrupt` 自定义事件的旧版路径。
 
-      **Example:**
+      **示例**：
       ```tsx
       const { copilotkit } = useCopilotKit();
 
@@ -180,9 +158,9 @@ hook gets its own instance instead of a shared one.
     </PropertyReference>
 
     <PropertyReference name="setState" type="(newState: any) => void">
-      Updates the shared state. Changes are immediately available to both application and agent.
+      更新共享状态。更改对应用与智能体双方立即可见。
 
-      **Example:**
+      **示例**：
       ```tsx
       agent.setState({
         ...agent.state,
@@ -192,56 +170,48 @@ hook gets its own instance instead of a shared one.
     </PropertyReference>
 
     <PropertyReference name="subscribe" type="(subscriber: AgentSubscriber) => { unsubscribe: () => void }">
-      Subscribes to agent events. Returns cleanup function.
+      订阅智能体事件。返回清理函数。
 
-      **Subscriber Events:**
-      - `onCustomEvent?: ({ event: { name: string, value: any } }) => void` - Custom events
-      - `onRunStartedEvent?: () => void` - Agent execution starts
-      - `onRunFinalized?: () => void` - Agent execution completes
-      - `onStateChanged?: (state: any) => void` - State changes
-      - `onMessagesChanged?: (messages: Message[]) => void` - Messages added/modified
+      **订阅者事件**：
+      - `onCustomEvent?: ({ event: { name: string, value: any } }) => void` - 自定义事件
+      - `onRunStartedEvent?: () => void` - 智能体执行开始
+      - `onRunFinalized?: () => void` - 智能体执行完成
+      - `onStateChanged?: (state: any) => void` - 状态变化
+      - `onMessagesChanged?: (messages: Message[]) => void` - 消息新增或修改
     </PropertyReference>
 
     <PropertyReference name="addMessage" type="(message: Message) => void">
-      Adds a single message to the conversation and notifies subscribers.
+      向会话添加单条消息，并通知订阅者。
     </PropertyReference>
 
     <PropertyReference name="addMessages" type="(messages: Message[]) => void">
-      Adds multiple messages to the conversation and notifies subscribers once.
+      向会话添加多条消息，并一次性通知订阅者。
     </PropertyReference>
 
     <PropertyReference name="setMessages" type="(messages: Message[]) => void">
-      Replaces the entire message history with a new array of messages.
+      用一个新的消息数组替换整个消息历史。
     </PropertyReference>
 
     <PropertyReference name="abortRun" type="() => void">
-      Aborts the currently running agent execution.
+      中止当前正在执行的智能体运行。
     </PropertyReference>
 
     <PropertyReference name="clone" type="() => AbstractAgent">
-      Creates a deep copy of the agent with cloned messages, state, and configuration.
+      创建智能体的深拷贝，包括克隆的消息、状态与配置。
     </PropertyReference>
 
   </PropertyReference>
 
   <PropertyReference name="isReady" type="boolean">
-    Whether `agent` is the real, runtime-synced (or locally-registered) agent
-    rather than a provisional stand-in returned while the runtime is still
-    connecting (or in an error state).
+    表示 `agent` 是真实的、已与 runtime 同步（或本地注册）的智能体，而不是 runtime 仍在连接（或处于错误状态）时返回的临时替身。
 
-    `agent` is always a fully-constructed instance, so calling its methods is
-    always safe. While `isReady` is `false`, the instance is a placeholder that
-    is swapped for the real agent once the runtime finishes syncing — at which
-    point `agent` changes reference and dependent effects re-run. Guard on
-    `isReady` when you only want to act against the real agent, e.g. subscribing
-    to run-lifecycle events you don't want to miss during the provisional
-    window.
+    `agent` 始终是一个完整构造的实例，因此调用其方法总是安全的。当 `isReady` 为 `false` 时，该实例只是一个占位符，待 runtime 完成同步后会被替换为真实智能体——届时 `agent` 的引用会发生变化，依赖它的副作用会重新执行。当你只想针对真实智能体执行操作时（例如订阅不希望在临时窗口期间错过的运行生命周期事件），请以 `isReady` 作为守卫条件。
   </PropertyReference>
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Basic Usage
+### 基本用法
 
 ```tsx
 function AgentStatus() {
@@ -257,7 +227,7 @@ function AgentStatus() {
 }
 ```
 
-### Accessing and Updating State
+### 访问与更新状态
 
 ```tsx
 function StateController() {
@@ -274,7 +244,7 @@ function StateController() {
 }
 ```
 
-### Event Subscription
+### 事件订阅
 
 ```tsx
 function EventListener() {
@@ -299,7 +269,7 @@ function EventListener() {
 }
 ```
 
-### Multiple Agents
+### 多个智能体
 
 ```tsx
 function MultiAgentView() {
@@ -315,9 +285,9 @@ function MultiAgentView() {
 }
 ```
 
-### Thread-scoped Agent
+### 线程作用域的智能体
 
-Use the thread-scoped form when one runtime agent needs multiple independent frontend instances, for example one per open conversation. The local `agentId` must be unique in the current provider.
+当一个 runtime 智能体需要多个独立的前端实例时（例如每个打开的会话一个），请使用线程作用域形式。本地 `agentId` 在当前提供方内必须唯一。
 
 ```tsx
 function ThreadPreview({ threadId }: { threadId: string }) {
@@ -334,7 +304,7 @@ function ThreadPreview({ threadId }: { threadId: string }) {
 }
 ```
 
-### Optimizing Re-renders
+### 优化重渲染
 
 ```tsx
 // Only re-render when messages change
@@ -347,14 +317,14 @@ function MessageCount() {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Automatic Re-renders**: Component re-renders when agent state, messages, or execution status changes (configurable via `updates` parameter)
-- **Readiness**: While the runtime is connecting, `agent` is a fully-constructed provisional stand-in and `isReady` is `false`; once the runtime syncs, `agent` swaps to the real instance and `isReady` becomes `true`. Guard on `isReady` for work that must target the real agent (e.g. one-time subscriptions)
-- **Error Handling**: Throws error if no agent exists with specified `agentId`
-- **State Synchronization**: State updates via `setState()` are immediately available to both app and agent
-- **Event Subscriptions**: Subscribe/unsubscribe pattern for lifecycle and custom events
+- **自动重新渲染**：当智能体状态、消息或执行状态变化时组件重新渲染（可通过 `updates` 参数配置）
+- **就绪状态**：runtime 连接期间，`agent` 是一个完整构造的临时替身，`isReady` 为 `false`；runtime 同步完成后，`agent` 会切换为真实实例，`isReady` 变为 `true`。必须以真实智能体为目标的操作（例如一次性订阅）请以 `isReady` 作为守卫条件
+- **错误处理**：如果不存在具有指定 `agentId` 的智能体，则抛出错误
+- **状态同步**：通过 `setState()` 进行的状态更新对应用与智能体双方立即可见
+- **事件订阅**：针对生命周期事件与自定义事件的订阅/取消订阅模式
 
-## Related
+## 相关内容
 
-- [AG-UI AbstractAgent](https://docs.ag-ui.com/sdk/js/client/abstract-agent) - Full agent interface documentation
+- [AG-UI AbstractAgent](https://docs.ag-ui.com/sdk/js/client/abstract-agent) - 完整的智能体接口文档

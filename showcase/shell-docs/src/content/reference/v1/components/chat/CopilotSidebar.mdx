@@ -1,6 +1,6 @@
 ---
 title: "CopilotSidebar"
-description: "The CopilotSidebar component, providing a sidebar interface for interacting with your copilot."
+description: "CopilotSidebar 组件，提供与你的 copilot 交互的侧边栏界面。"
 ---
 
 {
@@ -13,19 +13,19 @@ description: "The CopilotSidebar component, providing a sidebar interface for in
 <br/>
 <img src="https://cdn.copilotkit.ai/docs/copilotkit/images/CopilotSidebar.gif" width="500" />
  
-A chatbot sidebar component for the CopilotKit framework. Highly customizable through various props and custom CSS.
+CopilotKit 框架的聊天机器人侧边栏组件。可通过多种 props 和自定义 CSS 高度定制。
  
-See [CopilotPopup](/reference/v1/components/chat/CopilotPopup) for a popup version of this component.
+弹窗版本请参见 [CopilotPopup](/reference/v1/components/chat/CopilotPopup)。
  
-## Install Dependencies
+## 安装依赖
  
-This component is part of the [@copilotkit/react-ui](https://npmjs.com/package/@copilotkit/react-ui) package.
+该组件属于 [@copilotkit/react-ui](https://npmjs.com/package/@copilotkit/react-ui) 包。
  
 ```shell npm2yarn \"@copilotkit/react-ui"\
 npm install @copilotkit/react-core @copilotkit/react-ui
 ```
  
-## Usage
+## 用法
  
 ```tsx
 import { CopilotSidebar } from "@copilotkit/react-ui";
@@ -41,9 +41,9 @@ import "@copilotkit/react-ui/styles.css";
 </CopilotSidebar>
 ```
  
-### With Observability Hooks
+### 使用可观测性钩子
  
-To monitor user interactions, provide the `observabilityHooks` prop.
+要监控用户交互，请提供 `observabilityHooks` prop。
  
 ```tsx
 <CopilotKit>
@@ -62,9 +62,9 @@ To monitor user interactions, provide the `observabilityHooks` prop.
 </CopilotKit>
 ```
  
-### Look & Feel
+### 外观与风格
  
-By default, CopilotKit components do not have any styles. You can import CopilotKit's stylesheet at the root of your project:
+默认情况下，CopilotKit 组件不带任何样式。你可以在项目根组件中导入 CopilotKit 的样式表：
 ```tsx title="YourRootComponent.tsx"
 ...
 import "@copilotkit/react-ui/styles.css"; // [!code highlight]
@@ -77,94 +77,92 @@ export function YourRootComponent() {
   );
 }
 ```
-For more information about how to customize the styles, check out the [Customize Look & Feel](/guides/custom-look-and-feel/customize-built-in-ui-components) guide.
+如需了解如何自定义样式，请查看[自定义外观与风格](/guides/custom-look-and-feel/customize-built-in-ui-components)指南。
 
-## Properties
+## 属性
 
 <PropertyReference name="instructions" type="string"  > 
-Custom instructions to be added to the system message. Use this property to
-  provide additional context or guidance to the language model, influencing
-  its responses. These instructions can include specific directions,
-  preferences, or criteria that the model should consider when generating
-  its output, thereby tailoring the conversation more precisely to the
-  user's needs or the application's requirements.
+要添加到系统消息中的自定义指令。使用该属性可为语言模型提供
+  额外的上下文或指引，从而影响其响应。这些指令可以包含模型在生成
+  输出时应遵循的具体方向、偏好或标准，从而使对话更精准地贴合
+  用户需求或应用要求。
 </PropertyReference>
 
 <PropertyReference name="suggestions" type="ChatSuggestions"  > 
-Controls the behavior of suggestions in the chat interface.
+控制聊天界面中建议（suggestions）的行为。
  
-  `auto` (default) - Suggestions are generated automatically:
-    - When the chat is first opened (empty state)
-    - After each message exchange completes
-    - Uses configuration from `useCopilotChatSuggestions` hooks
+  `auto`（默认）—— 自动生成建议：
+    - 首次打开聊天时（空状态）
+    - 每轮消息交互完成后
+    - 使用 `useCopilotChatSuggestions` hook 的配置
  
-  `manual` - Suggestions are controlled programmatically:
-    - Use `setSuggestions()` to set custom suggestions
-    - Use `generateSuggestions()` to trigger AI generation
-    - Access via `useCopilotChat` hook
+  `manual` —— 通过编程方式控制建议：
+    - 使用 `setSuggestions()` 设置自定义建议
+    - 使用 `generateSuggestions()` 触发 AI 生成
+    - 通过 `useCopilotChat` hook 访问
  
-  `SuggestionItem[]` - Static suggestions array:
-    - Always shows the same suggestions
-    - No AI generation involved
+  `SuggestionItem[]` —— 静态建议数组：
+    - 始终显示相同的建议
+    - 不涉及 AI 生成
 </PropertyReference>
 
 <PropertyReference name="onInProgress" type="(inProgress: boolean) => void"  > 
-A callback that gets called when the in progress state changes.
+当进行中（in progress）状态发生变化时调用的回调。
 </PropertyReference>
 
 <PropertyReference name="onSubmitMessage" type="(message: string) => void | Promise<void>"  > 
-A callback that gets called when a new message it submitted.
+提交新消息时调用的回调。
 </PropertyReference>
 
 <PropertyReference name="onStopGeneration" type="OnStopGeneration"  > 
-A custom stop generation function.
+自定义的停止生成函数。
 </PropertyReference>
 
 <PropertyReference name="onReloadMessages" type="OnReloadMessages"  > 
-A custom reload messages function.
+自定义的重新加载消息函数。
 </PropertyReference>
 
 <PropertyReference name="onRegenerate" type="(messageId: string) => void"  > 
-A callback function to regenerate the assistant's response
+用于重新生成助手响应的回调函数
 </PropertyReference>
 
 <PropertyReference name="onCopy" type="(message: string) => void"  > 
-A callback function when the message is copied
+复制消息时调用的回调函数
 </PropertyReference>
 
 <PropertyReference name="onThumbsUp" type="(message: Message, isActive?: boolean) => void"  > 
-A callback function for thumbs up feedback.
+点赞（thumbs up）反馈的回调函数。
  
-  `isActive` reports the feedback state the click is transitioning to:
-  `true` when thumbs up is being applied, `false` when it is being
-  retracted. It is optional so existing one-argument handlers keep working.
+  `isActive` 表示本次点击将要切换到的反馈状态：
+  点赞被应用时为 `true`，被撤销时为
+  `false`。该参数是可选的，因此现有的单参数处理函数依然可用。
 </PropertyReference>
 
 <PropertyReference name="onThumbsDown" type="(message: Message, isActive?: boolean) => void"  > 
-A callback function for thumbs down feedback.
+点踩（thumbs down）反馈的回调函数。
  
-  See `onThumbsUp` for the meaning of `isActive`.
+  `isActive` 的含义参见 `onThumbsUp`。
 </PropertyReference>
 
 <PropertyReference name="markdownTagRenderers" type="ComponentsMap"  > 
-A list of markdown components to render in assistant message.
-  Useful when you want to render custom elements in the message (e.g a reference tag element)
+要在助手消息中渲染的 markdown 组件列表。
+  当你想在消息中渲染自定义元素（例如引用标签元素）时很有用
 </PropertyReference>
 
 <PropertyReference name="icons" type="CopilotChatIcons"  > 
-Icons can be used to set custom icons for the chat window.
+可用于为聊天窗口设置自定义图标。
 </PropertyReference>
 
 <PropertyReference name="labels" type="CopilotChatLabels"  > 
-Labels can be used to set custom labels for the chat window.
+可用于为聊天窗口设置自定义标签文本。
 </PropertyReference>
 
 <PropertyReference name="attachments" type="AttachmentsConfig"  > 
-Configuration for file attachments in the chat input.
-  Enables users to attach images, audio, video, and documents.
+聊天输入框中文件附件的配置。
+  允许用户附加图片、音频、视频和文档。
  
-  Supports images, audio, video, and documents. Omit `accept` to allow all
-  file types (default: `"\"`), or restrict with a MIME filter.
+  支持图片、音频、视频和文档。省略 `accept` 即可允许所有
+  文件类型（默认：`"\"`），或通过 MIME 过滤器加以限制。
  
   @example
   ```tsx
@@ -183,55 +181,53 @@ Configuration for file attachments in the chat input.
 </PropertyReference>
 
 <PropertyReference name="makeSystemMessage" type="SystemMessageFunction"  > 
-A function that takes in context string and instructions and returns
-  the system message to include in the chat request.
-  Use this to completely override the system message, when providing
-  instructions is not enough.
+一个函数，接收上下文字符串和指令，返回要包含在
+  聊天请求中的系统消息。
+  当仅提供指令还不够时，可用它完全覆盖系统消息。
 </PropertyReference>
 
 <PropertyReference name="disableSystemMessage" type="boolean"  > 
-Disables inclusion of CopilotKit’s default system message. When true, no system message is sent (this also suppresses any custom message from <code>makeSystemMessage</code>).
+禁用 CopilotKit 默认系统消息的注入。设为 true 时不发送任何系统消息（同时也会抑制来自 <code>makeSystemMessage</code> 的任何自定义消息）。
 </PropertyReference>
 
 <PropertyReference name="AssistantMessage" type="React.ComponentType<AssistantMessageProps>"  > 
-A custom assistant message component to use instead of the default.
+用于替代默认组件的自定义助手消息组件。
 </PropertyReference>
 
 <PropertyReference name="UserMessage" type="React.ComponentType<UserMessageProps>"  > 
-A custom user message component to use instead of the default.
+用于替代默认组件的自定义用户消息组件。
 </PropertyReference>
 
 <PropertyReference name="ErrorMessage" type="React.ComponentType<ErrorMessageProps>"  > 
-A custom error message component to use instead of the default.
+用于替代默认组件的自定义错误消息组件。
 </PropertyReference>
 
 <PropertyReference name="Messages" type="React.ComponentType<MessagesProps>"  > 
-A custom Messages component to use instead of the default.
+用于替代默认组件的自定义 Messages 组件。
 </PropertyReference>
 
 <PropertyReference name="RenderMessage" type="React.ComponentType<RenderMessageProps>"  > 
-A custom RenderMessage component to use instead of the default.
+用于替代默认组件的自定义 RenderMessage 组件。
  
-  Warning: This is a break-glass solution to allow for custom
-  rendering of messages. You are most likely looking to swap out
-  the AssistantMessage and UserMessage components instead which
-  are also props.
+  警告：这是一种应急方案，仅用于实现对消息的自定义
+  渲染。你更可能想替换的是
+  AssistantMessage 和 UserMessage 组件，它们同样是 props。
 </PropertyReference>
 
 <PropertyReference name="RenderSuggestionsList" type="React.ComponentType<RenderSuggestionsListProps>"  > 
-A custom suggestions list component to use instead of the default.
+用于替代默认组件的自定义建议列表组件。
 </PropertyReference>
 
 <PropertyReference name="Input" type="React.ComponentType<InputProps>"  > 
-A custom Input component to use instead of the default.
+用于替代默认组件的自定义 Input 组件。
 </PropertyReference>
 
 <PropertyReference name="className" type="string"  > 
-A class name to apply to the root element.
+应用于根元素的 class 名。
 </PropertyReference>
 
 <PropertyReference name="children" type="React.ReactNode"  > 
-Children to render.
+要渲染的子节点。
 </PropertyReference>
 
 <PropertyReference name="hideStopButton" type="boolean"  > 
@@ -239,57 +235,57 @@ Children to render.
 </PropertyReference>
 
 <PropertyReference name="observabilityHooks" type="CopilotObservabilityHooks"  > 
-Event hooks for CopilotKit chat events.
+用于 CopilotKit 聊天事件的事件钩子。
 </PropertyReference>
 
 <PropertyReference name="renderError" type="(error: { message: string; operation?: string; timestamp: number; onDismiss: () => void; onRetry?: () => void; }) => React.ReactNode"  > 
-Custom error renderer for chat-specific errors.
-  When provided, errors will be displayed inline within the chat interface.
+针对聊天相关错误的自定义错误渲染器。
+  提供后，错误将内联显示在聊天界面中。
 </PropertyReference>
 
 <PropertyReference name="onError" type="CopilotErrorHandler"  > 
-Optional handler for comprehensive debugging and observability.
+可选的处理器，用于全面的调试与可观测性。
 </PropertyReference>
 
 <PropertyReference name="defaultOpen" type="boolean"  default="false"> 
-Whether the chat window should be open by default.
+聊天窗口默认是否打开。
 </PropertyReference>
 
 <PropertyReference name="clickOutsideToClose" type="boolean"  default="true"> 
-If the chat window should close when the user clicks outside of it.
+用户点击聊天窗口外部时是否关闭窗口。
 </PropertyReference>
 
 <PropertyReference name="hitEscapeToClose" type="boolean"  default="true"> 
-If the chat window should close when the user hits the Escape key.
+用户按下 Escape 键时是否关闭聊天窗口。
 </PropertyReference>
 
 <PropertyReference name="shortcut" type="string"  default="'/'"> 
-The shortcut key to open the chat window.
-  Uses Command-[shortcut] on a Mac and Ctrl-[shortcut] on Windows.
+打开聊天窗口的快捷键。
+  在 Mac 上为 Command-[shortcut]，在 Windows 上为 Ctrl-[shortcut]。
 </PropertyReference>
 
 <PropertyReference name="onSetOpen" type="(open: boolean) => void"  > 
-A callback that gets called when the chat window opens or closes.
+聊天窗口打开或关闭时调用的回调。
 </PropertyReference>
 
 <PropertyReference name="Window" type="React.ComponentType<WindowProps>"  > 
-A custom Window component to use instead of the default.
+用于替代默认组件的自定义 Window 组件。
 </PropertyReference>
 
 <PropertyReference name="Button" type="React.ComponentType<ButtonProps>"  > 
-A custom Button component to use instead of the default.
+用于替代默认组件的自定义 Button 组件。
 </PropertyReference>
 
 <PropertyReference name="Header" type="React.ComponentType<HeaderProps>"  > 
-A custom Header component to use instead of the default.
+用于替代默认组件的自定义 Header 组件。
 </PropertyReference>
 
 <PropertyReference name="fullHeightChildren" type="boolean"  > 
-Make the sidebar's content wrapper exactly one viewport tall, so children
-  can use `height: 100%` (or `flex: 1`) to fill the screen.
+让侧边栏的内容包装器恰好占满一个视口高度，使子元素
+  可以使用 `height: 100%`（或 `flex: 1`）填满屏幕。
  
-  Off by default: the wrappers are auto-height, so page content flows
-  normally and percentage heights on children collapse to content height.
+  默认关闭：包装器为自动高度，页面内容正常流动，
+  子元素上的百分比高度会收缩为内容高度。
  
   ```tsx
   <CopilotSidebar fullHeightChildren>
@@ -297,4 +293,3 @@ Make the sidebar's content wrapper exactly one viewport tall, so children
   </CopilotSidebar>
   ```
 </PropertyReference>
-

@@ -1,33 +1,33 @@
 ---
 title: "UserMessage"
-description: "A right-aligned user chat bubble that renders plain text, with an optional timestamp."
+description: "一个右对齐的用户聊天气泡，渲染纯文本，可选显示时间戳。"
 ---
 
-## Overview
+## 概览
 
-`UserMessage` renders a right-aligned chat bubble for user turns. Content is shown as plain text (no Markdown), with white text on a primary-color background. Useful when building a custom chat UI on top of the headless [`CopilotChat`](/reference/react-native/components/CopilotChat).
+`UserMessage` 为用户消息轮次渲染一个右对齐的聊天气泡。内容以纯文本显示（不解析 Markdown），主色背景配白色文字。在无头（headless）的 [`CopilotChat`](/reference/react-native/components/CopilotChat) 之上构建自定义聊天 UI 时非常有用。
 
-## Import
+## 导入
 
 ```tsx
 import { UserMessage } from "@copilotkit/react-native/components";
 ```
 
-## Props
+## 属性
 
 <PropertyReference name="content" type="string" required>
-  Plain text content to display.
+  要显示的纯文本内容。
 </PropertyReference>
 
 <PropertyReference name="timestamp" type="Date">
-  Optional timestamp displayed below the bubble, formatted as 12-hour time.
+  可选的时间戳，显示在气泡下方，以 12 小时制格式化。
 </PropertyReference>
 
 <PropertyReference name="style" type="ViewStyle">
-  Optional style override for the outer container.
+  可选的外层容器样式覆盖。
 </PropertyReference>
 
-## Usage
+## 用法
 
 ```tsx
 import { UserMessage } from "@copilotkit/react-native/components";
@@ -35,6 +35,6 @@ import { UserMessage } from "@copilotkit/react-native/components";
 <UserMessage content="What's the weather today?" timestamp={new Date()} />;
 ```
 
-## Related
+## 相关内容
 
-- [`AssistantMessage`](/reference/react-native/components/AssistantMessage): the assistant-side counterpart
+- [`AssistantMessage`](/reference/react-native/components/AssistantMessage)：助手侧的对应组件

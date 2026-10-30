@@ -1,70 +1,55 @@
 ---
 title: "CopilotKitProvider"
-description: "The React Native provider that configures the CopilotKit runtime connection and shares it with all hooks and components."
+description: "React Native 提供方，配置 CopilotKit 运行时连接并与所有 hook 和组件共享。"
 ---
 
-## Overview
+## 概览
 
-`CopilotKitProvider` is the React Native provider for CopilotKit. Wrap your app (or the sub-tree that needs a copilot) with it to configure the runtime connection. Every hook and component below it reads the configured client from context.
+`CopilotKitProvider` 是 CopilotKit 的 React Native 提供方。用它包裹你的应用（或需要 copilot 的子树），即可配置运行时连接。其下的每个 hook 与组件都会从上下文读取配置好的客户端。
 
-Importing the package auto-installs the [polyfills](/reference/react-native#polyfills) CopilotKit needs on Hermes, so you do not have to import them manually before using the provider.
+导入该包会自动安装 CopilotKit 在 Hermes 上所需的 [polyfills](/reference/react-native#polyfills)，因此使用提供方之前无需手动导入它们。
 
 <Callout type="info">
-  Cloud features (`publicLicenseKey` / license-gated functionality) are not yet
-  supported on React Native. Point `runtimeUrl` at a self-hosted runtime.
+  React Native 尚不支持云功能（`publicLicenseKey` / 受许可密钥控制的功能）。请将 `runtimeUrl` 指向自托管的运行时。
 </Callout>
 
 <Callout type="info">
-  Native iOS and Android applications do not have a built-in Inspector yet. The
-  browser Inspector requires a DOM and is intentionally excluded from the React
-  Native dependency graph, so this provider does not expose an inspector prop.
+  原生 iOS 与 Android 应用暂无内置 Inspector。浏览器版 Inspector 依赖 DOM，已被有意排除在 React Native 依赖图之外，因此该提供方不暴露 inspector prop。
 </Callout>
 
-## Import
+## 导入
 
 ```tsx
 import { CopilotKitProvider } from "@copilotkit/react-native";
 ```
 
-## Props
+## 属性
 
 <PropertyReference name="children" type="ReactNode" required>
-  The components rendered within the provider.
+  在提供方内渲染的组件。
 </PropertyReference>
 
 <PropertyReference name="runtimeUrl" type="string" required>
-  URL of the CopilotKit runtime endpoint, e.g.
-  `https://your-server/api/copilotkit`. Use your machine's LAN IP (not
-  `localhost`) when testing on a physical device.
+  CopilotKit 运行时端点的 URL，例如
+  `https://your-server/api/copilotkit`。在物理设备上测试时，请使用你机器的局域网 IP（而非 `localhost`）。
 </PropertyReference>
 
 <PropertyReference name="headers" type="Record<string, string> | (() => Record<string, string>)" default="{}">
-  Custom headers sent with every runtime request. Pass a function to compute
-  headers lazily (e.g. to attach a fresh auth token). The function is called
-  when the provider renders, not per request — see
-  [Frontends: React Native](/frontends/react-native#provider-options) for the
-  rotating-token pattern.
+  随每个运行时请求一起发送的自定义请求头。传函数可惰性计算请求头（例如附加最新的授权令牌）。该函数在提供方渲染时调用，而非每个请求调用——参见[前端：React Native](/frontends/react-native#provider-options)了解轮换令牌模式。
 
-  The web provider's builder now runs at send time and also accepts an async
-  function. Neither is supported here yet: only a sync function, evaluated at
-  render, works on React Native.
+  web 版提供方的构建函数现在在发送时执行，且接受异步函数。这两者此处均暂不支持：React Native 上仅支持在渲染时求值的同步函数。
 </PropertyReference>
 
 <PropertyReference name="credentials" type="RequestCredentials">
-  Credentials mode for fetch requests (e.g. `"include"` for HTTP-only cookies
-  in cross-origin requests).
+  fetch 请求的凭据模式（例如跨域请求中为 HTTP-only cookie 使用 `"include"`）。
 </PropertyReference>
 
 <PropertyReference name="messageFilter" type="(messages: Message[], context: { agentId: string }) => Message[]">
-  Rewrites the message list sent to the agent on every run.
+  在每次运行时重写发送给智能体的消息列表。
 
-CopilotKit sends the whole thread with each request. When your agent already
-stores the conversation — a LangGraph checkpointer, a Mastra memory store, a
-Strands `SessionManager` — most of that payload is waste, and an agent that
-merges the inbound list with its own store can show the model every turn twice.
-On a mobile connection the payload cost is felt sooner.
+CopilotKit 会在每次请求时发送整个线程。当你的智能体已经存储了会话——LangGraph checkpointer、Mastra memory store、Strands `SessionManager`——这些负载大部分都是浪费，而且将传入列表与自己存储合并的智能体可能会把每一轮对话向模型展示两次。在移动网络下，这种负载代价会更早显现。
 
-Return the messages to send:
+返回要发送的消息：
 
 ```tsx
 <CopilotKitProvider
@@ -75,30 +60,22 @@ Return the messages to send:
 </CopilotKitProvider>
 ```
 
-The filter changes the request body only. The transcript the UI renders is
-untouched, so the chat still shows the full conversation. Broken tool-call pairs
-are repaired before the request goes out, so a filter this blunt cannot strand a
-tool result mid-approval.
+该过滤器只改变请求体。UI 渲染的会话记录不受影响，因此聊天仍显示完整对话。损坏的工具调用对会在请求发出前被修复，因此如此粗放的过滤器也不会让某个工具结果卡在审批中途。
 
-Agents reached through your CopilotRuntime honor this. An agent your app
-constructs itself and passes in directly does not. CopilotKit Intelligence runs
-and suggestion runs are never filtered.
+通过你的 CopilotRuntime 访问的智能体会遵守此设置。你的应用自行构建并直接传入的智能体则不会。CopilotKit Intelligence 运行与建议运行永远不会被过滤。
 
 </PropertyReference>
 
 <PropertyReference name="useSingleEndpoint" type="boolean">
-  Whether the runtime uses a single-route endpoint. Leave unset to auto-detect.
+  运行时是否使用单一路由端点。不设置则自动检测。
 </PropertyReference>
 
 <PropertyReference name="properties" type="Record<string, unknown>" default="{}">
-  Custom properties forwarded to agents on every run (e.g. user metadata or
-  LangGraph Platform `authorization`).
+  每次运行时转发给智能体的自定义属性（例如用户元数据或 LangGraph Platform 的 `authorization`）。
 </PropertyReference>
 
 <PropertyReference name="onError" type="(event: { error: Error; code: CopilotKitCoreErrorCode; context: Record<string, any> }) => void | Promise<void>">
-  Error handler called when CopilotKit encounters an error. Fires for all error
-  types: runtime connection failures, agent errors, and tool errors. If not
-  provided, errors are logged to `console.error`.
+  当 CopilotKit 遇到错误时调用的错误处理器。对所有错误类型都会触发：运行时连接失败、智能体错误与工具错误。若未提供，错误将记录到 `console.error`。
 
 ```tsx
 <CopilotKitProvider
@@ -114,17 +91,14 @@ and suggestion runs are never filtered.
 </PropertyReference>
 
 <PropertyReference name="debug" type="DebugConfig">
-  Enable debug logging for the client-side event pipeline. When `true`, the
-  core instance emits verbose logs.
+  启用客户端事件管线的调试日志。为 `true` 时，核心实例会输出详细日志。
 </PropertyReference>
 
 <PropertyReference name="defaultThrottleMs" type="number">
-  Default throttle interval (ms) for `onMessagesChanged` / `onStateChanged`
-  subscriptions. Individual hooks and components can override this with their
-  own `throttleMs`.
+  `onMessagesChanged` / `onStateChanged` 订阅的默认节流间隔（毫秒）。各个 hook 与组件可通过各自的 `throttleMs` 覆盖。
 </PropertyReference>
 
-## Usage
+## 用法
 
 ```tsx
 import { CopilotKitProvider } from "@copilotkit/react-native";
@@ -142,14 +116,14 @@ export default function App() {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Auto-polyfills**: importing the package installs the Web API polyfills CopilotKit relies on (`ReadableStream`, `TextEncoder`, `crypto.getRandomValues`, `DOMException`, `location`) before any CopilotKit code runs.
-- **Shared render-tool registry**: the provider instantiates the CopilotKit client whose renderer registry is shared with the rest of CopilotKit. Render functions registered by [`useRenderTool`](/reference/react-native/hooks/useRenderTool), [`useFrontendTool`](/reference/react-native/hooks/useFrontendTool) or [`useComponent`](/reference/react-native/hooks/useComponent) write into that one registry, so they and [`useRenderToolCall`](/reference/react-native/hooks/useRenderTool#rendering-a-tool-call-outside-the-chat) work anywhere below the provider. There is no second registry and no extra provider to mount for rendering.
-- **Stable references**: header functions and `properties` are memoized internally to avoid effect churn on re-render.
+- **自动安装 polyfill**：导入该包会在任何 CopilotKit 代码运行前，安装 CopilotKit 所依赖的 Web API polyfill（`ReadableStream`、`TextEncoder`、`crypto.getRandomValues`、`DOMException`、`location`）。
+- **共享的渲染工具注册表**：该提供方会实例化 CopilotKit 客户端，其渲染器注册表与其余 CopilotKit 共享。由 [`useRenderTool`](/reference/react-native/hooks/useRenderTool)、[`useFrontendTool`](/reference/react-native/hooks/useFrontendTool) 或 [`useComponent`](/reference/react-native/hooks/useComponent) 注册的渲染函数都写入同一个注册表，因此它们与 [`useRenderToolCall`](/reference/react-native/hooks/useRenderTool#rendering-a-tool-call-outside-the-chat) 可以在提供方下任何位置工作。无需第二个注册表，也无需为渲染额外挂载提供方。
+- **稳定的引用**：请求头函数与 `properties` 会在内部做记忆化，以避免重新渲染时的 effect 抖动。
 
-## Related
+## 相关内容
 
-- [`useCopilotKit`](/reference/react-native/hooks/useCopilotKit): access the configured client from any descendant
-- [`useAgent`](/reference/react-native/hooks/useAgent): connect to an agent and read its state
-- [Polyfills](/reference/react-native#polyfills): what gets installed and how to bring your own
+- [`useCopilotKit`](/reference/react-native/hooks/useCopilotKit)：从任意后代访问配置好的客户端
+- [`useAgent`](/reference/react-native/hooks/useAgent)：连接智能体并读取其状态
+- [Polyfills](/reference/react-native#polyfills)：会安装哪些 polyfill，以及如何自带

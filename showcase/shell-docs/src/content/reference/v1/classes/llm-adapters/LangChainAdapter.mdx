@@ -1,6 +1,6 @@
 ---
 title: "LangChainAdapter"
-description: "Copilot Runtime adapter for LangChain."
+description: "用于 LangChain 的 Copilot Runtime 适配器。"
 ---
 
 {
@@ -10,9 +10,9 @@ description: "Copilot Runtime adapter for LangChain."
   * packages/runtime/src/v1-deprecated/service-adapters/langchain/langchain-adapter.ts
   */
 }
-Copilot Runtime adapter for LangChain.
+用于 LangChain 的 Copilot Runtime 适配器。
  
-## Example
+## 示例
  
 ```ts
 import { CopilotRuntime, LangChainAdapter } from "@copilotkit/runtime";
@@ -34,16 +34,16 @@ return new LangChainAdapter({
 });
 ```
  
-The asynchronous handler function (`chainFn`) can return any of the following:
+异步处理函数（`chainFn`）可以返回以下任意一种：
  
-- A simple `string` response
-- A LangChain stream (`IterableReadableStream`)
-- A LangChain `BaseMessageChunk` object
-- A LangChain `AIMessage` object
+- 一个简单的 `string` 响应
+- 一个 LangChain 流（`IterableReadableStream`）
+- 一个 LangChain `BaseMessageChunk` 对象
+- 一个 LangChain `AIMessage` 对象
 
-## Constructor Parameters
+## 构造函数参数
 
 <PropertyReference name="chainFn" type="(parameters: ChainFnParameters) => Promise<LangChainReturnType>" required > 
-A function that uses the LangChain API to generate a response.
+使用 LangChain API 生成响应的函数。
 </PropertyReference>
 

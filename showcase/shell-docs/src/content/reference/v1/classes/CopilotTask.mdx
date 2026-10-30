@@ -1,6 +1,6 @@
 ---
 title: "CopilotTask"
-description: "CopilotTask is used to execute one-off tasks, for example on button click."
+description: "CopilotTask 用于执行一次性任务，例如在点击按钮时触发。"
 ---
 
 {
@@ -10,10 +10,10 @@ description: "CopilotTask is used to execute one-off tasks, for example on butto
   * packages/react-core/src/v1-deprecated/lib/copilot-task.ts
   */
 }
-This class is used to execute one-off tasks, for example on button press. It can use the context available via [useCopilotReadable](/reference/v1/hooks/useCopilotReadable) and the actions provided by [useCopilotAction](/reference/v1/hooks/useCopilotAction), or you can provide your own context and actions.
+该类用于执行一次性任务，例如在按下按钮时触发。它可以使用通过 [useCopilotReadable](/reference/v1/hooks/useCopilotReadable) 提供的上下文以及 [useCopilotAction](/reference/v1/hooks/useCopilotAction) 定义的操作，你也可以提供自己的上下文与操作。
  
-## Example
-In the simplest case, use CopilotTask in the context of your app by giving it instructions on what to do.
+## 示例
+在最简单的情况下，只需在应用上下文中使用 CopilotTask，并告诉它要做什么。
  
 ```tsx
 import { CopilotTask, useCopilotContext } from "@copilotkit/react-core";
@@ -54,39 +54,39 @@ export function MyComponent() {
 }
 ```
  
-Have a look at the [Presentation Example App](https://github.com/CopilotKit/CopilotKit/blob/main/examples/v1/next-openai/src/app/presentation/page.tsx) for a more complete example.
+如需更完整的示例，请查看 [Presentation Example App](https://github.com/CopilotKit/CopilotKit/blob/main/examples/v1/next-openai/src/app/presentation/page.tsx)。
 
-## Constructor Parameters
+## 构造函数参数
 
 <PropertyReference name="instructions" type="string" required > 
-The instructions to be given to the assistant.
+要提供给助手的指令。
 </PropertyReference>
 
 <PropertyReference name="actions" type="FrontendAction<any>[]"  > 
-An array of action definitions that can be called.
+可供调用的操作定义数组。
 </PropertyReference>
 
 <PropertyReference name="includeCopilotReadable" type="boolean"  > 
-Whether to include the copilot readable context in the task.
+是否在任务中包含 copilot readable 上下文。
 </PropertyReference>
 
 <PropertyReference name="includeCopilotActions" type="boolean"  > 
-Whether to include actions defined via useCopilotAction in the task.
+是否在任务中包含通过 useCopilotAction 定义的操作。
 </PropertyReference>
 
 <PropertyReference name="forwardedParameters" type="ForwardedParametersInput"  > 
-The forwarded parameters to use for the task.
+任务要使用的转发参数。
 </PropertyReference>
 
 <PropertyReference name="run" type="context: CopilotContextParams, data?: T">
-Run the task.
+运行该任务。
 
   <PropertyReference name="context" type="CopilotContextParams" required>
-  The CopilotContext to use for the task. Use `useCopilotContext` to obtain the current context.
+  任务要使用的 CopilotContext。使用 `useCopilotContext` 获取当前上下文。
   </PropertyReference>
 
   <PropertyReference name="data" type="T" >
-  The data to use for the task.
+  任务要使用的数据。
   </PropertyReference>
 
 </PropertyReference>

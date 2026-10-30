@@ -1,18 +1,18 @@
 ---
 title: "useComponent"
-description: "Register a React component as a frontend tool renderer in chat"
+description: "将 React 组件注册为聊天中的前端工具渲染器"
 ---
 
-## Overview
+## 概览
 
-`useComponent` is a convenience hook built on top of `useFrontendTool`.
-It registers a tool and renders a React component in chat using the tool call parameters.
+`useComponent` 是构建在 `useFrontendTool` 之上的一个便捷 hook。
+它会注册一个工具，并使用工具调用参数在聊天中渲染 React 组件。
 
-This is part of the v2 tool rendering hook set with [`useRenderTool`](/reference/hooks/useRenderTool), [`useDefaultRenderTool`](/reference/hooks/useDefaultRenderTool), and [`useRenderToolCall`](/reference/hooks/useRenderToolCall).
+它属于 v2 工具渲染 hook 套件，同属该套件的还有 [`useRenderTool`](/reference/hooks/useRenderTool)、[`useDefaultRenderTool`](/reference/hooks/useDefaultRenderTool) 与 [`useRenderToolCall`](/reference/hooks/useRenderToolCall)。
 
-Use this when you want a visual component renderer without writing a full frontend tool config manually.
+当你想要一个可视化的组件渲染器、又不想手写完整的前端工具配置时，就使用它。
 
-## Signature
+## 签名
 
 ```tsx
 import { z } from "zod";
@@ -34,26 +34,26 @@ function useComponent<TSchema extends z.ZodTypeAny | undefined = undefined>(
 ): void;
 ```
 
-## Parameters
+## 参数
 
-- `config.name`: tool name used by the agent to invoke this component tool.
-- `config.description`: optional extra description for model guidance.
-- `config.parameters`: optional Zod schema for the tool's parameters. When provided, `render` props are inferred from the schema. When omitted, the tool is advertised with an empty parameter schema (`{ "type": "object", "properties": {} }`), so the agent invokes it with no arguments.
-- `config.render`: React component rendered with the tool call's arguments as props. While the call streams, the props are the partially parsed JSON of the arguments, not a schema-parsed result, so fields can be missing (see Behavior). Accepts any props when `parameters` is omitted.
-- `config.agentId`: optional agent scope for the registration.
-- `config.followUp`: whether the agent should continue after rendering the component. Defaults to `true`; set it to `false` to stop after the tool call.
-- `deps`: optional dependency array for refreshing registration.
+- `config.name`：智能体调用该组件工具所用的工具名称。
+- `config.description`：可选的额外描述，用于引导模型。
+- `config.parameters`：可选的 Zod schema，描述工具参数。提供时，`render` 的 props 会从该 schema 推断。省略时，工具会以空参数 schema（`{ "type": "object", "properties": {} }`）对外声明，因此智能体调用它时不带任何参数。
+- `config.render`：以工具调用的参数为 props 进行渲染的 React 组件。调用流式进行期间，props 是参数的部分解析 JSON，而不是 schema 解析结果，因此字段可能缺失（参见行为）。省略 `parameters` 时可接受任意 props。
+- `config.agentId`：可选的注册作用域（智能体）。
+- `config.followUp`：渲染组件后智能体是否继续运行。默认为 `true`；设为 `false` 可在工具调用后停止。
+- `deps`：可选的依赖数组，用于刷新注册。
 
-## Behavior
+## 行为
 
-- Prepends a default instruction to the description: _"Use this tool to display the \"&lt;name&gt;\" component in the chat..."_.
-- Calls `useFrontendTool` internally with a render function that spreads the tool parameters as component props.
-- **Props arrive partial while the tool call streams.** The component renders as soon as the agent starts the tool call, and again as each argument streams in. Until the call completes, any field can be missing. The props are the arguments the agent sent, not a parsed schema result, so schema defaults such as `.default("c")` are not filled in. The `render` type shows the complete parameters, so TypeScript does not warn you. Treat every prop as optional in the component and render a placeholder for missing fields.
-- Inherits `useFrontendTool` lifecycle behavior: duplicate-name override warning, tool removal on unmount, and renderer retention for chat history.
-- Tracks updates by `config.name` plus `deps` (include any changing captured values in `deps`).
-- **`deps` comparison**: compares plain data (strings, numbers, booleans, `null`, dates, and plain objects and arrays of those) by value, so an inline literal such as `[{ status }]` re-registers only when its contents change. A function never counts as changed, as before, so keep a changing callback in a ref. Class instances and other objects compare by identity, so a circular value such as the `agent` from `useAgent` is safe to pass. Adding or removing an entry counts as a change.
+- 会在描述前追加一条默认指令：_“Use this tool to display the \"&lt;name&gt;\" component in the chat...”_。
+- 内部调用 `useFrontendTool`，其渲染函数会把工具参数展开为组件 props。
+- **工具调用流式进行期间，props 会分批到达。** 智能体一开始工具调用，组件就会渲染，并随每个参数流入而再次渲染。在调用完成前，任何字段都可能缺失。props 是智能体发送的参数，而不是 schema 解析后的结果，因此 `.default("c")` 这类 schema 默认值不会被填入。`render` 的类型显示的是完整参数，所以 TypeScript 不会告警。请在组件中把每个 prop 都当作可选处理，并为缺失字段渲染占位内容。
+- 继承 `useFrontendTool` 的生命周期行为：重名覆盖警告、卸载时移除工具，以及为聊天历史保留渲染器。
+- 以 `config.name` 加 `deps` 追踪更新（把任何会变化的捕获值放进 `deps`）。
+- **`deps` 比较**：对纯数据（字符串、数字、布尔值、`null`、日期，以及由它们组成的普通对象和数组）按值比较，因此 `[{ status }]` 这类内联字面量只在其内容变化时才重新注册。函数与之前一样永远不会被判为已变化，所以请把会变化的回调保存在 ref 中。类实例与其他对象按引用比较，因此像 `useAgent` 返回的 `agent` 这样的循环引用值可以安全传入。增删条目也算变化。
 
-## Usage
+## 用法
 
 ```tsx
 const weatherCardSchema = z.object({
@@ -90,7 +90,7 @@ function App() {
 }
 ```
 
-## Related
+## 相关内容
 
 - [`useFrontendTool`](/reference/hooks/useFrontendTool)
 - [`useRenderTool`](/reference/hooks/useRenderTool)

@@ -1,10 +1,10 @@
 ---
 title: "useRenderToolCall"
-description: "The useRenderToolCall hook enables rendering of backend tool calls in the frontend."
+description: "useRenderToolCall 钩子用于在前端渲染后端工具调用。"
 ---
 
 <Callout type="warning">
-  This v1 `useRenderToolCall` takes a `{ name, parameters, render }` config object to **register** a renderer for an existing backend tool. In v2, use [`useRenderTool`](https://docs.copilotkit.ai/reference/v2/hooks/useRenderTool) for that job. The v2 hook named [`useRenderToolCall`](/reference/v2/hooks/useRenderToolCall) is a different, low-level API that returns a renderer function for consuming tool calls.
+  v1 的 `useRenderToolCall` 接受一个 `{ name, parameters, render }` 配置对象，用于为现有的后端工具**注册**渲染器。在 v2 中，这项工作请使用 [`useRenderTool`](https://docs.copilotkit.ai/reference/v2/hooks/useRenderTool)。v2 中名为 [`useRenderToolCall`](/reference/v2/hooks/useRenderToolCall) 的钩子则是另一个不同的低层 API，它返回一个用于消费工具调用的渲染器函数。
 
 ```tsx
 import { useRenderTool } from "@copilotkit/react-core/v2";
@@ -24,17 +24,17 @@ function StatusTool() {
 
 </Callout>
 
-`useRenderToolCall` is purely a rendering hook. It displays custom UI for tool calls without executing
-any logic. This is typically used to visualize backend tool executions in your chat interface, showing
-users what the AI is doing behind the scenes.
+`useRenderToolCall` 是一个纯粹的渲染钩子。它为工具调用显示自定义 UI，而不执行
+任何逻辑。它通常用于在聊天界面中可视化后端工具的执行过程，让
+用户看到 AI 在幕后正在做什么。
 
-This hook has no handler function. You only provide a render function that receives information about
-the tool call (arguments, status, results) and displays it however you want. You can target specific
-tool names or use an asterisk (`"*"`) to catch and render all tool calls.
+该钩子没有处理函数。你只需提供一个 render 函数，它接收有关
+工具调用的信息（参数、状态、结果），并按你想要的方式显示。你可以针对特定的
+工具名称，也可以使用星号（`"*"`）来捕获并渲染所有工具调用。
 
-## Usage
+## 用法
 
-### Rendering a Specific Backend Tool
+### 渲染特定的后端工具
 
 ```tsx
 import { useRenderToolCall } from "@copilotkit/react-core";
@@ -82,9 +82,9 @@ useRenderToolCall({
 });
 ```
 
-## Migration from useCopilotAction
+## 从 useCopilotAction 迁移
 
-If you're migrating from `useCopilotAction` with only a `render` function:
+如果你正在从只带 `render` 函数的 `useCopilotAction` 迁移：
 
 ```tsx
 // Before with useCopilotAction
@@ -100,29 +100,29 @@ useRenderToolCall({
 });
 ```
 
-The migration is straightforward - just change the hook name. The render props remain the same.
+迁移非常简单——只需更改钩子名称即可。render props 保持不变。
 
-## Parameters
+## 参数
 
 <PropertyReference name="name" type="string" required>
-  The name of the tool to render. Use `"*"` to catch all tool calls.
+  要渲染的工具名称。使用 `"*"` 可捕获所有工具调用。
 </PropertyReference>
 
 <PropertyReference name="description" type="string">
-  A description of what this renderer does. Mainly for documentation purposes.
+  描述此渲染器的用途。主要用于文档说明。
 </PropertyReference>
 
 <PropertyReference name="parameters" type="T"  >
-Optional array of parameter definitions. If provided, adds type safety to the args in the render function. Each parameter object should have:
-- `name` (string): The parameter name
-- `type` (string): The parameter type (e.g., "string", "number", "boolean", "string[]", "object")
-- `description` (string): A description of what the parameter is for
-- `required` (boolean): Whether the parameter is required
-- `properties` (array, optional): For object types, define nested properties using the same schema
+可选的参数定义数组。如果提供，会为 render 函数中的 args 增加类型安全。每个参数对象应包含：
+- `name`（string）：参数名称
+- `type`（string）：参数类型（例如 "string"、"number"、"boolean"、"string[]"、"object"）
+- `description`（string）：说明该参数的用途
+- `required`（boolean）：该参数是否必填
+- `properties`（array，可选）：对于 object 类型，使用相同的 schema 定义嵌套属性
 
-Simple example: `[{ name: "datasetName", type: "string", description: "Name of the dataset", required: true }]`
+简单示例：`[{ name: "datasetName", type: "string", description: "Name of the dataset", required: true }]`
 
-Nested example:
+嵌套示例：
 
 ```typescript
 [
@@ -152,12 +152,12 @@ Nested example:
 </PropertyReference>
 
 <PropertyReference name="render" type="FrontendAction<T>['render']">
-  A React component that renders the tool call UI. The component receives props
-  with `status`, `args`, `result`, `name`, and `description`.
+  渲染工具调用 UI 的 React 组件。该组件接收的 props
+  包含 `status`、`args`、`result`、`name` 和 `description`。
 </PropertyReference>
 
 <PropertyReference name="available" type="'disabled' | 'enabled'">
-  Currently non-functional in this v1 hook. The value is accepted for API
-  compatibility but ignored, so setting `"disabled"` does not prevent the
-  renderer from being registered.
+  在此 v1 钩子中目前不起作用。该值仅为 API
+  兼容性而被接受，实际会被忽略，因此设置为 `"disabled"` 并不会阻止
+  该渲染器被注册。
 </PropertyReference>

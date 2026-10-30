@@ -1,67 +1,63 @@
 ---
 title: "CopilotSidebar"
-description: "A prebuilt slide-in drawer from the right edge of the screen that wraps a CopilotChat session."
+description: "一个预构建的滑入式抽屉，从屏幕右缘滑出，包装一个 CopilotChat 会话。"
 ---
 
-## Overview
+## 概览
 
-`CopilotSidebar` renders a slide-in drawer from the right edge of the screen, with a header bar, a backdrop, and an optional floating action button (FAB) to toggle it. The drawer's chat area wraps a headless [`CopilotChat`](/reference/react-native/components/CopilotChat). Render your chat UI as `children` (consuming [`useCopilotChatContext`](/reference/react-native/components/CopilotChat#usecopilotchatcontext)) or drop in the prebuilt UI `CopilotChat` from `@copilotkit/react-native/components`.
+`CopilotSidebar` 渲染一个从屏幕右缘滑入的抽屉，带有标题栏、遮罩层，以及一个用于切换它的可选悬浮操作按钮（FAB）。抽屉的聊天区域包装了一个无头（headless）的 [`CopilotChat`](/reference/react-native/components/CopilotChat)。将你的聊天 UI 作为 `children` 渲染（消费 [`useCopilotChatContext`](/reference/react-native/components/CopilotChat#usecopilotchatcontext)），或直接放入来自 `@copilotkit/react-native/components` 的预构建 `CopilotChat` UI。
 
-Control it imperatively through a `CopilotSidebarHandle` ref.
+可以通过 `CopilotSidebarHandle` ref 以命令式方式控制它。
 
-## Import
+## 导入
 
 ```tsx
 import { CopilotSidebar, type CopilotSidebarHandle } from "@copilotkit/react-native";
 ```
 
-## Props
+## 属性
 
-Accepts the headless [`CopilotChat` props](/reference/react-native/components/CopilotChat#props) (`agentId`, `agentName`, `threadId`, `onError`, `throttleMs`, `attachments`) except `children` is repurposed for the drawer body, plus:
+接受无头 [`CopilotChat` 的属性](/reference/react-native/components/CopilotChat#props)（`agentId`、`agentName`、`threadId`、`onError`、`throttleMs`、`attachments`），其中 `children` 被改用作抽屉主体内容，此外还有：
 
 <PropertyReference name="defaultOpen" type="boolean" default="false">
-  Start the drawer in the open position.
+  抽屉是否以打开状态启动。
 </PropertyReference>
 
 <PropertyReference name="width" type="number | string" default='"85%"'>
-  Width of the drawer panel. Accepts points (a number) or a percentage string
-  resolved against the screen width.
+  抽屉面板的宽度。接受点数（数字）或相对于屏幕宽度解析的百分比字符串。
 </PropertyReference>
 
 <PropertyReference name="headerTitle" type="string" default='"Copilot"'>
-  Title displayed in the drawer header bar.
+  抽屉标题栏中显示的标题。
 </PropertyReference>
 
 <PropertyReference name="showToggleButton" type="boolean" default="true">
-  Show a floating action button to toggle the drawer. Hidden while the drawer
-  is open.
+  显示一个用于切换抽屉的悬浮操作按钮。抽屉打开期间该按钮隐藏。
 </PropertyReference>
 
 <PropertyReference name="onOpen" type="() => void">
-  Called after the drawer finishes opening.
+  抽屉完成打开后调用。
 </PropertyReference>
 
 <PropertyReference name="onClose" type="() => void">
-  Called after the drawer finishes closing.
+  抽屉完成关闭后调用。
 </PropertyReference>
 
 <PropertyReference name="style" type="ViewStyle">
-  Custom style applied to the drawer container.
+  应用于抽屉容器的自定义样式。
 </PropertyReference>
 
 <PropertyReference name="children" type="ReactNode">
-  Content rendered inside the drawer below the header. Build your chat UI here
-  from [`useCopilotChatContext`](/reference/react-native/components/CopilotChat#usecopilotchatcontext).
+  在抽屉内、标题栏下方渲染的内容。在这里基于 [`useCopilotChatContext`](/reference/react-native/components/CopilotChat#usecopilotchatcontext) 构建你的聊天 UI。
 </PropertyReference>
 
-## Ref handle
+## Ref 句柄
 
 <PropertyReference name="CopilotSidebarHandle" type="{ open(): void; close(): void; toggle(): void }">
-  Imperative handle exposed via `ref` for opening, closing, and toggling the
-  drawer programmatically.
+  通过 `ref` 暴露的命令式句柄，用于以编程方式打开、关闭和切换抽屉。
 </PropertyReference>
 
-## Usage
+## 用法
 
 ```tsx
 import { CopilotSidebar, type CopilotSidebarHandle } from "@copilotkit/react-native";
@@ -79,13 +75,13 @@ export function ChatScreen() {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Animation**: slides in/out over 300ms using the React Native `Animated` API.
-- **Backdrop**: a semi-transparent, pressable backdrop dismisses the drawer.
-- **FAB**: when `showToggleButton` is `true`, a floating button opens the drawer and hides while it is open.
+- **动画**：使用 React Native 的 `Animated` API 在 300 毫秒内滑入/滑出。
+- **遮罩层**：半透明、可按压的遮罩层会关闭抽屉。
+- **FAB**：当 `showToggleButton` 为 `true` 时，悬浮按钮可打开抽屉，抽屉打开期间该按钮隐藏。
 
-## Related
+## 相关内容
 
-- [`CopilotPopup`](/reference/react-native/components/CopilotPopup): floating action button plus centered overlay
-- [`CopilotChat`](/reference/react-native/components/CopilotChat): the chat primitive wrapped inside the drawer
+- [`CopilotPopup`](/reference/react-native/components/CopilotPopup)：悬浮操作按钮加居中覆盖层
+- [`CopilotChat`](/reference/react-native/components/CopilotChat)：抽屉内部包装的聊天原语

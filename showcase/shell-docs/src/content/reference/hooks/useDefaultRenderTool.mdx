@@ -1,20 +1,20 @@
 ---
 title: "useDefaultRenderTool"
-description: "Register a wildcard default renderer for unhandled tool calls"
+description: "为未处理的工具调用注册一个通配的默认渲染器"
 ---
 
-## Overview
+## 概览
 
-`useDefaultRenderTool` is a convenience wrapper around `useRenderTool` with `name: "*"`.
+`useDefaultRenderTool` 是 `useRenderTool` 以 `name: "*"` 调用时的便捷包装器。
 
-This is part of the v2 tool rendering hook set with [`useComponent`](/reference/hooks/useComponent), [`useRenderTool`](/reference/hooks/useRenderTool), and [`useRenderToolCall`](/reference/hooks/useRenderToolCall).
+它属于 v2 工具渲染 Hook 套件，同套件的还有 [`useComponent`](/reference/hooks/useComponent)、[`useRenderTool`](/reference/hooks/useRenderTool) 与 [`useRenderToolCall`](/reference/hooks/useRenderToolCall)。
 
-- With no config, it registers CopilotKit's built-in default tool-call UI.
-- With `render`, it replaces that default UI with your own wildcard renderer.
+- 不传配置时，它注册的是 CopilotKit 内置的默认工具调用 UI。
+- 传入 `render` 时，它会用你自己的通配渲染器替换该默认 UI。
 
-Use this for catch-all rendering of tool calls that do not have a specific named renderer.
+当工具调用没有具名渲染器时，可以用它来做兜底渲染。
 
-## Signature
+## 签名
 
 ```tsx
 import { useDefaultRenderTool } from "@copilotkit/react-core/v2";
@@ -33,19 +33,19 @@ function useDefaultRenderTool(
 ): void;
 ```
 
-## Behavior
+## 行为
 
-- Internally calls `useRenderTool({ name: "*", ... })`.
-- If `config.render` is omitted, uses an expandable default card UI that shows status, parameters, and result.
-- If `config.render` is provided, your renderer is used instead.
-- Your renderer can return `null` to draw nothing. Use this to render only the tool calls you care about and suppress the rest.
-- `config.group` lets the chat group the calls your renderer draws, the way it groups the built-in card's (see [`toolCallDisplay`](/reference/components/CopilotChatMessageView#toolcalldisplay)). It's on for the built-in card and off by default for a custom `render`, since a renderer that draws nothing would leave an empty group.
-- Inherits `useRenderTool` registration behavior and dependency semantics.
-- Tool calls the agent makes in a row are grouped by default (see [`toolCallDisplay`](/reference/components/CopilotChatMessageView#toolcalldisplay)). Inside a group, the built-in card draws itself as a compact row: status, tool name and main argument, opening to the arguments and result. A custom `render` is drawn as-is inside the group.
+- 内部调用 `useRenderTool({ name: "*", ... })`。
+- 如果省略 `config.render`，则使用可展开的默认卡片 UI，展示状态、参数与结果。
+- 如果提供了 `config.render`，则改用你的渲染器。
+- 你的渲染器可以返回 `null`，表示不绘制任何内容。可以用它只渲染你关心的工具调用，并隐藏其余调用。
+- `config.group` 允许聊天界面把你的渲染器绘制的调用编组，方式与内置卡片的编组一致（参见 [`toolCallDisplay`](/reference/components/CopilotChatMessageView#toolcalldisplay)）。内置卡片默认开启该选项，而自定义 `render` 默认关闭，因为什么都不绘制的渲染器会留下一个空组。
+- 继承 `useRenderTool` 的注册行为与依赖语义。
+- 智能体连续发起的工具调用默认会被编组（参见 [`toolCallDisplay`](/reference/components/CopilotChatMessageView#toolcalldisplay)）。在组内，内置卡片会把自己绘制成紧凑的一行：状态、工具名称与主要参数，展开后显示参数与结果。自定义 `render` 则在组内按原样绘制。
 
-## Usage
+## 用法
 
-### Built-in default renderer
+### 内置默认渲染器
 
 ```tsx
 function App() {
@@ -54,7 +54,7 @@ function App() {
 }
 ```
 
-### Custom wildcard renderer
+### 自定义通配渲染器
 
 ```tsx
 function App() {
@@ -74,7 +74,7 @@ function App() {
 }
 ```
 
-## Related
+## 相关内容
 
 - [`useRenderTool`](/reference/hooks/useRenderTool)
 - [`useRenderToolCall`](/reference/hooks/useRenderToolCall)

@@ -1,19 +1,19 @@
 ---
 title: "useCopilotChatConfiguration"
-description: "React hook and provider for chat UI configuration and labels"
+description: "用于聊天 UI 配置与标签的 React hook 和 Provider"
 ---
 
-## Overview
+## 概览
 
-`useCopilotChatConfiguration` is a React hook that reads the chat configuration context. It returns the configuration value from the nearest `CopilotChatConfigurationProvider`, or `null` if no provider is present.
+`useCopilotChatConfiguration` 是一个读取聊天配置上下文的 React hook。它返回最近的 `CopilotChatConfigurationProvider` 所提供的配置值；若不存在任何 Provider，则返回 `null`。
 
-This page documents both the **hook** and the **`CopilotChatConfigurationProvider`** component, which together provide a lightweight context for localized labels, agent/thread binding, and modal state used by the chat UI components.
+本页同时记录 **hook** 与 **`CopilotChatConfigurationProvider`** 组件，二者共同为聊天 UI 组件所用的本地化标签、智能体/线程绑定与弹窗状态提供一个轻量上下文。
 
 ## CopilotChatConfigurationProvider
 
-A provider component that exposes localized labels, agent and thread IDs, and optional modal state to all descendant chat components.
+一个 Provider 组件，向所有后代聊天组件暴露本地化标签、智能体与线程 ID，以及可选的弹窗状态。
 
-### Signature
+### 签名
 
 ```tsx
 import { CopilotChatConfigurationProvider } from "@copilotkit/react-core/v2";
@@ -31,34 +31,28 @@ import { CopilotChatConfigurationProvider } from "@copilotkit/react-core/v2";
 ### Props
 
 <PropertyReference name="children" type="ReactNode" required>
-  The child components that will have access to the chat configuration context.
+  可以访问聊天配置上下文的子组件。
 </PropertyReference>
 
 <PropertyReference name="labels" type="Partial<CopilotChatLabels>">
-  Partial set of label overrides. Any labels not provided will fall back to
-  defaults, then to any parent provider's labels. See the
-  [CopilotChatLabels](#copilotchatlabels) section below for all available keys.
+  标签覆盖项的部分集合。未提供的标签会先回退到默认值，再回退到父 Provider 的标签。所有可用键参见下文 [CopilotChatLabels](#copilotchatlabels) 一节。
 </PropertyReference>
 
 <PropertyReference name="agentId" type="string" default='"default"'>
-  The agent ID to associate with this chat context. Falls back to the parent
-  provider's `agentId`, then to `"default"`.
+  与此聊天上下文关联的智能体 ID。回退到父 Provider 的 `agentId`，最后是 `"default"`。
 </PropertyReference>
 
 <PropertyReference name="threadId" type="string">
-  The thread ID for conversation continuity. If omitted, falls back to the
-  parent provider's `threadId`, or a new random UUID is generated.
+  用于会话延续的线程 ID。若省略，回退到父 Provider 的 `threadId`，否则生成一个新的随机 UUID。
 </PropertyReference>
 
 <PropertyReference name="isModalDefaultOpen" type="boolean">
-  When provided, creates modal open/close state within this provider. The
-  initial value is used as the default state. If omitted, modal state is
-  inherited from the parent provider (if any).
+  提供时，会在该 Provider 内创建弹窗打开/关闭状态，其初始值用作默认状态。若省略，弹窗状态从父 Provider 继承（如有）。
 </PropertyReference>
 
 ## useCopilotChatConfiguration
 
-### Signature
+### 签名
 
 ```tsx
 import { useCopilotChatConfiguration } from "@copilotkit/react-core/v2";
@@ -66,46 +60,43 @@ import { useCopilotChatConfiguration } from "@copilotkit/react-core/v2";
 function useCopilotChatConfiguration(): CopilotChatConfigurationValue | null;
 ```
 
-### Parameters
+### 参数
 
-This hook takes no parameters.
+该 hook 不接受任何参数。
 
-### Return Value
+### 返回值
 
-Returns `null` if used outside of a `CopilotChatConfigurationProvider`. Otherwise returns a `CopilotChatConfigurationValue` object:
+在 `CopilotChatConfigurationProvider` 之外使用时返回 `null`。否则返回一个 `CopilotChatConfigurationValue` 对象：
 
 <PropertyReference name="config" type="CopilotChatConfigurationValue">
-  The resolved chat configuration.
+  解析后的聊天配置。
 
 <PropertyReference name="labels" type="CopilotChatLabels">
-  The fully resolved labels object, merged from defaults, parent providers, and
-  the nearest provider's overrides. See [CopilotChatLabels](#copilotchatlabels)
-  for all keys.
+  完整解析后的标签对象，由默认值、父 Provider 与最近 Provider 的覆盖项合并而成。所有键参见 [CopilotChatLabels](#copilotchatlabels)。
 </PropertyReference>
 
 <PropertyReference name="agentId" type="string">
-  The resolved agent ID for this chat context.
+  该聊天上下文解析出的智能体 ID。
 </PropertyReference>
 
 <PropertyReference name="threadId" type="string">
-  The resolved thread ID for this chat context.
+  该聊天上下文解析出的线程 ID。
 </PropertyReference>
 
 <PropertyReference name="isModalOpen" type="boolean | undefined">
-  The current modal open state. `undefined` if no provider in the tree has
-  created modal state via `isModalDefaultOpen`.
+  当前弹窗打开状态。若组件树中没有任何 Provider 通过 `isModalDefaultOpen` 创建弹窗状态，则为 `undefined`。
 </PropertyReference>
 
   <PropertyReference name="setModalOpen" type="((open: boolean) => void) | undefined">
-    Function to control the modal open state. `undefined` if no provider in the tree has created modal state.
+    控制弹窗打开状态的函数。若组件树中没有任何 Provider 创建弹窗状态，则为 `undefined`。
   </PropertyReference>
 </PropertyReference>
 
 ## CopilotChatLabels
 
-The `CopilotChatLabels` type defines all customizable text strings used by the chat UI. The following keys are available with their default values:
+`CopilotChatLabels` 类型定义了聊天 UI 使用的所有可自定义文本。以下键均可使用，并附其默认值：
 
-| Key                                           | Default Value                                                  |
+| 键                                            | 默认值                                                         |
 | --------------------------------------------- | -------------------------------------------------------------- |
 | `chatInputPlaceholder`                        | `"Type a message..."`                                          |
 | `chatInputToolbarStartTranscribeButtonLabel`  | `"Transcribe"`                                                 |
@@ -144,9 +135,9 @@ The `CopilotChatLabels` type defines all customizable text strings used by the c
 | `modalHeaderThreadsButtonLabel`               | `"Open threads"`                                               |
 | `sidebarLabel`                                | `"Copilot chat sidebar"`                                       |
 
-## Usage
+## 用法
 
-### Basic Label Customization
+### 基本标签自定义
 
 ```tsx
 import {
@@ -170,7 +161,7 @@ function App() {
 }
 ```
 
-### Reading Configuration in a Component
+### 在组件中读取配置
 
 ```tsx
 function ChatHeader() {
@@ -184,7 +175,7 @@ function ChatHeader() {
 }
 ```
 
-### Binding to a Specific Agent and Thread
+### 绑定到特定智能体与线程
 
 ```tsx
 function SupportChat() {
@@ -203,7 +194,7 @@ function SupportChat() {
 }
 ```
 
-### Modal State Management
+### 弹窗状态管理
 
 ```tsx
 import {
@@ -235,9 +226,9 @@ function ToggleButton() {
 }
 ```
 
-### Nested Providers
+### 嵌套 Provider
 
-Providers can be nested. Child providers inherit and merge labels from their parent, with child overrides taking precedence.
+Provider 可以嵌套。子 Provider 会继承并合并父级的标签，子级覆盖项优先。
 
 ```tsx
 function App() {
@@ -257,15 +248,15 @@ function App() {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Label Merging**: Labels are merged in order: built-in defaults, then parent provider labels, then current provider labels. This allows partial overrides at any level.
-- **Agent ID Resolution**: The `agentId` resolves from the nearest provider, falling back to parent providers, then to `"default"`.
-- **Thread ID Generation**: If no `threadId` is provided at any level, a random UUID is generated and remains stable for the lifetime of the provider.
-- **Modal State Ownership**: Modal state (`isModalOpen` / `setModalOpen`) is only created when a provider explicitly sets `isModalDefaultOpen`. Providers without this prop pass through the parent's modal state.
-- **Null Return**: The hook returns `null` when used outside any `CopilotChatConfigurationProvider`, rather than throwing an error. Components should handle this case gracefully.
+- **标签合并**：标签按以下顺序合并：内置默认值，然后是父 Provider 的标签，最后是当前 Provider 的标签。因此可以在任意层级进行部分覆盖。
+- **智能体 ID 解析**：`agentId` 从最近的 Provider 解析，逐级回退到父 Provider，最后是 `"default"`。
+- **线程 ID 生成**：如果任何层级都没有提供 `threadId`，会生成一个随机 UUID，并在 Provider 存续期间保持不变。
+- **弹窗状态归属**：只有当 Provider 显式设置 `isModalDefaultOpen` 时才会创建弹窗状态（`isModalOpen` / `setModalOpen`）。未设置该 prop 的 Provider 会透传父级的弹窗状态。
+- **返回 null**：在任何 `CopilotChatConfigurationProvider` 之外使用时，该 hook 返回 `null` 而不是抛出错误。组件应妥善处理这种情况。
 
-## Related
+## 相关内容
 
-- [`useSuggestions`](/reference/hooks/useSuggestions) -- Uses `CopilotChatConfigurationProvider` context for agent ID resolution
-- [`CopilotChat`](/reference/components/CopilotChat) -- Chat component that wraps its children with this provider
+- [`useSuggestions`](/reference/hooks/useSuggestions)——使用 `CopilotChatConfigurationProvider` 上下文解析智能体 ID
+- [`CopilotChat`](/reference/components/CopilotChat)——用该 Provider 包裹其子组件的聊天组件

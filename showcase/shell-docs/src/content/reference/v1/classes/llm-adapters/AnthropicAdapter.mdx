@@ -1,6 +1,6 @@
 ---
 title: "AnthropicAdapter"
-description: "Copilot Runtime adapter for Anthropic."
+description: "用于 Anthropic 的 Copilot Runtime 适配器。"
 ---
 
 {
@@ -10,9 +10,9 @@ description: "Copilot Runtime adapter for Anthropic."
   * packages/runtime/src/v1-deprecated/service-adapters/anthropic/anthropic-adapter.ts
   */
 }
-Copilot Runtime adapter for Anthropic.
+用于 Anthropic 的 Copilot Runtime 适配器。
  
-## Example
+## 示例
  
 ```ts
 import { CopilotRuntime, AnthropicAdapter } from "@copilotkit/runtime";
@@ -33,24 +33,22 @@ return new AnthropicAdapter({
 });
 ```
 
-## Constructor Parameters
+## 构造函数参数
 
 <PropertyReference name="anthropic" type="SdkClientLike"  > 
-An optional Anthropic instance to use.  If not provided, a new instance will be
-  created.
+可选的 Anthropic 实例。若未提供，将创建一个新实例。
 </PropertyReference>
 
 <PropertyReference name="model" type="string"  > 
-The model to use.
+要使用的模型。
 </PropertyReference>
 
 <PropertyReference name="promptCaching" type="AnthropicPromptCachingConfig"  > 
-Configuration for prompt caching.
-  See: https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
+提示缓存（prompt caching）的配置。
+  参见：https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
 </PropertyReference>
 
 <PropertyReference name="maxInputTokens" type="number"  > 
-Optional maximum input token limit. Overrides the default limit
-  used when trimming messages to fit the context window.
+可选的最大输入 token 上限。在裁剪消息以适配上下文窗口时，该参数会覆盖默认限制。
 </PropertyReference>
 

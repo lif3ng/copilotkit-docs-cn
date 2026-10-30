@@ -1,19 +1,19 @@
 ---
 title: "Suggestion"
-description: "A single suggested prompt presented to the user."
+description: "呈现给用户的单条建议提示词。"
 ---
 
-## Overview
+## 概览
 
-`Suggestion` represents one suggested prompt shown to the user (typically as a clickable pill). Suggestions are produced from a [`SuggestionsConfig`](/reference/core/types/SuggestionsConfig) and surfaced through [`CopilotKitCoreSubscriber.onSuggestionsChanged`](/reference/core/types/CopilotKitCoreSubscriber).
+`Suggestion` 表示呈现给用户的一条建议提示词（通常以可点击的胶囊按钮形式展示）。建议由 [`SuggestionsConfig`](/reference/core/types/SuggestionsConfig) 生成，并通过 [`CopilotKitCoreSubscriber.onSuggestionsChanged`](/reference/core/types/CopilotKitCoreSubscriber) 对外呈现。
 
-## Import
+## 导入
 
 ```ts
 import type { Suggestion } from "@copilotkit/core";
 ```
 
-## Definition
+## 定义
 
 ```ts
 type Suggestion = {
@@ -24,25 +24,25 @@ type Suggestion = {
 };
 ```
 
-## Properties
+## 属性
 
 <PropertyReference name="title" type="string" required>
-  Short label displayed on the suggestion pill.
+  显示在建议胶囊按钮上的简短标签。
 </PropertyReference>
 
 <PropertyReference name="message" type="string" required>
-  The message sent to the agent when the suggestion is selected.
+  选中该建议时发送给智能体的消息。
 </PropertyReference>
 
 <PropertyReference name="isLoading" type="boolean" required>
-  Indicates whether this suggestion is still being generated.
+  表示该建议是否仍在生成中。
 </PropertyReference>
 
 <PropertyReference name="className" type="string">
-  Optional CSS class name applied to the suggestion pill.
+  应用于建议胶囊按钮的可选 CSS 类名。
 </PropertyReference>
 
-## Usage
+## 用法
 
 ```ts
 import type { Suggestion } from "@copilotkit/core";
@@ -54,7 +54,7 @@ const suggestion: Suggestion = {
 };
 ```
 
-## Related
+## 相关内容
 
 - [SuggestionsConfig](/reference/core/types/SuggestionsConfig)
 - [CopilotKitCoreSubscriber](/reference/core/types/CopilotKitCoreSubscriber)

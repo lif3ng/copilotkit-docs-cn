@@ -1,30 +1,30 @@
 ---
 title: "CopilotModal"
-description: "Headless modal wrapper around CopilotChat, plus a prebuilt bottom-sheet chat from the /components subpath."
+description: "CopilotChat 的无头弹窗包装器，以及来自 /components 子路径的预构建底部弹层聊天。"
 ---
 
-## Overview
+## 概览
 
-Like [`CopilotChat`](/reference/react-native/components/CopilotChat), `CopilotModal` ships in **two** versions, chosen by import path:
+与 [`CopilotChat`](/reference/react-native/components/CopilotChat) 一样，`CopilotModal` 也提供**两个**版本，由导入路径决定：
 
-- **Headless** (`@copilotkit/react-native`) is a thin wrapper around `CopilotChat` that mirrors the web SDK's `CopilotModal` API. It provides agent wiring only; you handle modal presentation with React Native's `Modal` (or any overlay) and build the chat UI from [`useCopilotChatContext`](/reference/react-native/components/CopilotChat#usecopilotchatcontext).
-- **Prebuilt UI** (`@copilotkit/react-native/components`) is a ready-made chat in a [`@gorhom/bottom-sheet`](https://ui.gorhom.dev/components/bottom-sheet/) with snap points and swipe-to-dismiss. See [Prebuilt UI](#prebuilt-ui).
+- **无头版**（`@copilotkit/react-native`）是 `CopilotChat` 的轻量包装器，对齐 web SDK 的 `CopilotModal` API。它只负责智能体接线；弹窗展示由你用 React Native 的 `Modal`（或任意浮层）处理，聊天 UI 则基于 [`useCopilotChatContext`](/reference/react-native/components/CopilotChat#usecopilotchatcontext) 构建。
+- **预构建 UI**（`@copilotkit/react-native/components`）是[`@gorhom/bottom-sheet`](https://ui.gorhom.dev/components/bottom-sheet/) 中的现成聊天界面，带吸附点与下滑关闭。参见[预构建 UI](#预构建-ui)。
 
-## Headless `CopilotModal`
+## 无头 `CopilotModal`
 
 ```tsx
 import { CopilotModal } from "@copilotkit/react-native";
 ```
 
-Accepts all [headless `CopilotChat` props](/reference/react-native/components/CopilotChat#props) (`agentId`, `agentName`, `threadId`, `onError`, `throttleMs`, `attachments`), plus:
+接受所有[无头 `CopilotChat` 属性](/reference/react-native/components/CopilotChat#props)（`agentId`、`agentName`、`threadId`、`onError`、`throttleMs`、`attachments`），另外还有：
 
 <PropertyReference name="children" type="ReactNode">
-  Your chat UI, rendered inside the chat context. Consume
+  你的聊天 UI，渲染在聊天上下文内。消费
   [`useCopilotChatContext`](/reference/react-native/components/CopilotChat#usecopilotchatcontext)
-  to read messages and submit input.
+  来读取消息并提交输入。
 </PropertyReference>
 
-### Usage
+### 用法
 
 ```tsx
 import { CopilotModal } from "@copilotkit/react-native";
@@ -41,70 +41,67 @@ function App({ isOpen }: { isOpen: boolean }) {
 }
 ```
 
-## Prebuilt UI
+## 预构建 UI
 
-Import `CopilotModal` from the `/components` subpath for a bottom-sheet chat. Control it imperatively through a `CopilotModalRef`, or declaratively with the `visible` prop. Requires the `@gorhom/bottom-sheet`, `react-native-gesture-handler`, and `react-native-reanimated` peer dependencies.
+从 `/components` 子路径导入 `CopilotModal` 即可获得底部弹层聊天。可通过 `CopilotModalRef` 命令式控制，或用 `visible` prop 声明式控制。需要 `@gorhom/bottom-sheet`、`react-native-gesture-handler` 与 `react-native-reanimated` 对等依赖。
 
 ```tsx
 import { CopilotModal, type CopilotModalRef } from "@copilotkit/react-native/components";
 ```
 
-### Props
+### 属性
 
 <Callout type="info">
-  Like the prebuilt `CopilotChat`, this component selects its agent with
-  `agentName` (the prop the prebuilt UI currently exposes), not the headless
-  `agentId`.
+  与预构建 `CopilotChat` 一样，该组件使用 `agentName`（预构建 UI 目前暴露的 prop）选择智能体，而非无头版的 `agentId`。
 </Callout>
 
 <PropertyReference name="visible" type="boolean">
-  Controlled visibility: `true` opens the sheet, `false` closes it.
+  受控可见性：`true` 打开弹层，`false` 关闭。
 </PropertyReference>
 
 <PropertyReference name="onDismiss" type="() => void">
-  Called when the sheet is dismissed (backdrop tap, swipe-down, or `close()`).
+  弹层被关闭时调用（点击背景、下滑或 `close()`）。
 </PropertyReference>
 
 <PropertyReference name="snapPoints" type="(string | number)[]" default="['50%', '90%']">
-  Bottom-sheet snap points, passed through to `@gorhom/bottom-sheet`.
+  底部弹层的吸附点，原样传递给 `@gorhom/bottom-sheet`。
 </PropertyReference>
 
 <PropertyReference name="initialSnapIndex" type="number" default="0">
-  Which snap-point index to open at.
+  打开时所处的吸附点索引。
 </PropertyReference>
 
 <PropertyReference name="enableDismissOnClose" type="boolean" default="true">
-  Whether closing the sheet fires `onDismiss`.
+  关闭弹层时是否触发 `onDismiss`。
 </PropertyReference>
 
 <PropertyReference name="backdropOpacity" type="number" default="0.5">
-  Backdrop opacity when the sheet is open.
+  弹层打开时的背景遮罩不透明度。
 </PropertyReference>
 
 <PropertyReference name="agentName" type="string">
-  Which agent to connect to. Passed through to the inner `CopilotChat`.
+  要连接的智能体。原样传递给内部的 `CopilotChat`。
 </PropertyReference>
 
 <PropertyReference name="placeholder" type="string">
-  Input placeholder text.
+  输入框占位文本。
 </PropertyReference>
 
 <PropertyReference name="initialMessages" type="string[]">
-  Suggestion pills shown in the empty state.
+  空状态下显示的建议胶囊按钮。
 </PropertyReference>
 
 <PropertyReference name="headerTitle" type="string">
-  Title shown in the chat header area.
+  聊天头部区域显示的标题。
 </PropertyReference>
 
-### Ref handle
+### Ref 句柄
 
 <PropertyReference name="CopilotModalRef" type="{ open(): void; close(): void }">
-  Imperative handle exposed via `ref` for opening and closing the sheet
-  programmatically.
+  通过 `ref` 暴露的命令式句柄，用于以编程方式打开和关闭弹层。
 </PropertyReference>
 
-### Usage
+### 用法
 
 ```tsx
 import { CopilotModal, type CopilotModalRef } from "@copilotkit/react-native/components";
@@ -128,8 +125,8 @@ export function ChatScreen() {
 }
 ```
 
-## Related
+## 相关内容
 
-- [`CopilotChat`](/reference/react-native/components/CopilotChat): the underlying chat primitive and prebuilt UI
-- [`CopilotSidebar`](/reference/react-native/components/CopilotSidebar): slide-in drawer variant
-- [`CopilotPopup`](/reference/react-native/components/CopilotPopup): floating action button + overlay
+- [`CopilotChat`](/reference/react-native/components/CopilotChat)：底层聊天原语与预构建 UI
+- [`CopilotSidebar`](/reference/react-native/components/CopilotSidebar)：滑入式抽屉变体
+- [`CopilotPopup`](/reference/react-native/components/CopilotPopup)：悬浮操作按钮 + 浮层

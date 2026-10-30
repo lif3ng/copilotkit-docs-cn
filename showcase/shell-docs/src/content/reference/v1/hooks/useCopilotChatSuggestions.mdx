@@ -1,6 +1,6 @@
 ---
 title: "useCopilotChatSuggestions"
-description: "The useCopilotChatSuggestions hook generates suggestions in the chat window based on real-time app state."
+description: "useCopilotChatSuggestions hook 基于实时应用状态在聊天窗口中生成建议。"
 ---
 
 {
@@ -11,28 +11,26 @@ description: "The useCopilotChatSuggestions hook generates suggestions in the ch
   */
 }
 <Callout type="warning">
-  useCopilotChatSuggestions is experimental. The interface is not final and
-  can change without notice.
+  useCopilotChatSuggestions 目前处于实验阶段。其接口尚未定稿，可能随时变更，恕不另行通知。
 </Callout>
  
-`useCopilotReadable` is a React hook that provides app-state and other information
-to the Copilot. Optionally, the hook can also handle hierarchical state within your
-application, passing these parent-child relationships to the Copilot.
+`useCopilotReadable` 是一个 React hook，用于向 Copilot 提供应用状态及其他信息。
+此外，该 hook 还可以处理应用内的层级状态，将这些父子关系传递给 Copilot。
  
 <br/>
 <img src="https://cdn.copilotkit.ai/docs/copilotkit/images/use-copilot-chat-suggestions/use-copilot-chat-suggestions.gif" width="500" />
  
-## Usage
+## 用法
  
-### Install Dependencies
+### 安装依赖
  
-This component is part of the [@copilotkit/react-ui](https://npmjs.com/package/@copilotkit/react-ui) package.
+该组件属于 [@copilotkit/react-ui](https://npmjs.com/package/@copilotkit/react-ui) 包。
  
 ```shell npm2yarn \"@copilotkit/react-ui"\
 npm install @copilotkit/react-core @copilotkit/react-ui
 ```
  
-### Simple Usage
+### 简单用法
  
 ```tsx
 import { useCopilotChatSuggestions } from "@copilotkit/react-ui";
@@ -46,7 +44,7 @@ export function MyComponent() {
 }
 ```
  
-### Dependency Management
+### 依赖管理
  
 ```tsx
 import { useCopilotChatSuggestions } from "@copilotkit/react-ui";
@@ -61,11 +59,10 @@ export function MyComponent() {
 }
 ```
  
-In the example above, the suggestions are generated based on the given instructions.
-The hook monitors `appState`, and updates suggestions accordingly whenever it changes.
+在上面的示例中，建议基于给定的指令生成。
+该 hook 会监控 `appState`，并在其变化时相应地更新建议。
  
-### Behavior and Lifecycle
+### 行为与生命周期
  
-The hook registers the configuration with the chat context upon component mount and
-removes it on unmount, ensuring a clean and efficient lifecycle management.
-
+该 hook 会在组件挂载时向聊天上下文注册该配置，并在卸载时将其移除，
+从而确保干净而高效的生命周期管理。

@@ -1,97 +1,97 @@
 ---
 title: "useAgent"
-description: "React hook for accessing AG-UI agent instances"
+description: "用于访问 AG-UI 智能体实例的 React hook"
 ---
 
 <Callout type="info">
-  `useAgent` is a v2 API, exported from `@copilotkit/react-core/v2`. See the [v2 `useAgent` reference](/reference/v2/hooks/useAgent) for the full, up-to-date documentation.
+  `useAgent` 是一个 v2 API，从 `@copilotkit/react-core/v2` 导出。完整且最新的文档请参阅 [v2 版 `useAgent` 参考](/reference/v2/hooks/useAgent)。
 </Callout>
 
-## Overview
+## 概览
 
-`useAgent` is a React hook that returns an [AG-UI AbstractAgent](https://docs.ag-ui.com/sdk/js/client/abstract-agent) instance. The hook subscribes to agent state changes and triggers re-renders when the agent's state, messages, or execution status changes.
+`useAgent` 是一个 React hook，返回 [AG-UI AbstractAgent](https://docs.ag-ui.com/sdk/js/client/abstract-agent) 实例。该 hook 会订阅智能体状态变化，并在智能体的状态、消息或执行状态发生变化时触发重渲染。
 
-**Throws error** if no agent is configured with the specified `agentId`.
+若未配置具有指定 `agentId` 的智能体，**将抛出错误**。
 
-## Signature
+## 签名
 
 ```tsx
 function useAgent(options?: UseAgentProps): { agent: AbstractAgent }
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="options" type="UseAgentProps">
-  Configuration object for the hook.
+  该 hook 的配置对象。
 
   <PropertyReference name="agentId" type="string" default='"default"'>
-    ID of the agent to retrieve. Must match an agent configured in `CopilotKitProvider`.
+    要获取的智能体 ID。必须与 `CopilotKitProvider` 中配置的某个智能体匹配。
   </PropertyReference>
 
   <PropertyReference name="updates" type="UseAgentUpdate[]" default="[OnMessagesChanged, OnStateChanged, OnRunStatusChanged]">
-    Controls which agent changes trigger component re-renders. Options:
-    - `UseAgentUpdate.OnMessagesChanged` - Re-render when messages change
-    - `UseAgentUpdate.OnStateChanged` - Re-render when state changes
-    - `UseAgentUpdate.OnRunStatusChanged` - Re-render when execution status changes
+    控制哪些智能体变化会触发组件重渲染。可选项：
+    - `UseAgentUpdate.OnMessagesChanged` - 消息变化时重新渲染
+    - `UseAgentUpdate.OnStateChanged` - 状态变化时重新渲染
+    - `UseAgentUpdate.OnRunStatusChanged` - 执行状态变化时重新渲染
 
-    Pass an empty array `[]` to prevent automatic re-renders.
+    传入空数组 `[]` 可阻止自动重渲染。
   </PropertyReference>
 </PropertyReference>
 
-## Return Value
+## 返回值
 
 <PropertyReference name="object" type="{ agent: AbstractAgent }">
-  Object containing the agent instance.
+  包含智能体实例的对象。
 
   <PropertyReference name="agent" type="AbstractAgent">
-    The AG-UI agent instance. See [AbstractAgent documentation](https://docs.ag-ui.com/sdk/js/client/abstract-agent) for full interface details.
+    AG-UI 智能体实例。完整的接口细节请参阅 [AbstractAgent 文档](https://docs.ag-ui.com/sdk/js/client/abstract-agent)。
 
-    ### Core Properties
+    ### 核心属性
 
     <PropertyReference name="agentId" type="string | undefined">
-      Unique identifier for the agent instance.
+      智能体实例的唯一标识符。
     </PropertyReference>
 
     <PropertyReference name="description" type="string">
-      Human-readable description of the agent's purpose.
+      以人类可读形式描述智能体的用途。
     </PropertyReference>
 
     <PropertyReference name="threadId" type="string">
-      Unique identifier for the current conversation thread.
+      当前会话线程的唯一标识符。
     </PropertyReference>
 
     <PropertyReference name="messages" type="Message[]">
-      Array of conversation messages. Each message contains:
-      - `id: string` - Unique message identifier
-      - `role: "user" | "assistant" | "system"` - Message role
-      - `content: string` - Message content
+      会话消息数组。每条消息包含：
+      - `id: string` - 消息的唯一标识符
+      - `role: "user" | "assistant" | "system"` - 消息角色
+      - `content: string` - 消息内容
     </PropertyReference>
 
     <PropertyReference name="state" type="any">
-      Shared state object synchronized between application and agent. Both can read and modify this state.
+      在应用与智能体之间同步的共享状态对象。双方均可读取和修改该状态。
     </PropertyReference>
 
     <PropertyReference name="isRunning" type="boolean">
-      Indicates whether the agent is currently executing.
+      指示智能体当前是否正在执行。
     </PropertyReference>
 
     <PropertyReference name="debug" type="boolean">
-      Enables debug logging for agent events and execution.
+      为智能体事件与执行启用调试日志。
     </PropertyReference>
 
-    ### Methods
+    ### 方法
 
     <PropertyReference name="runAgent" type="(parameters?: RunAgentParameters, subscriber?: AgentSubscriber) => Promise<RunAgentResult>">
-      Low-level: sends a run to the agent and resolves with a `RunAgentResult` (`{ result, newMessages }`) once the run finalizes. `result` is the final value of the run and `newMessages` are the messages produced during it.
+      底层方法：向智能体发送一次运行，并在运行结束后以 `RunAgentResult`（`{ result, newMessages }`）兑现。`result` 是该运行的最终结果值，`newMessages` 是运行期间产生的消息。
 
-      It does not send your registered frontend tools or context, does not execute frontend tool calls, and does not chain follow-up runs. For a normal run, call `copilotkit.runAgent({ agent })` from [`useCopilotKit`](/reference/hooks/useCopilotKit) instead. It takes the same `forwardedProps` and resolves with the same `RunAgentResult`. Unlike `agent.runAgent()`, it does not reject when the run itself fails. The core reports the error (code `AGENT_RUN_FAILED`) to its error subscribers and resolves with `{ result: undefined, newMessages: [] }`.
+      它不会发送你注册的前端工具或上下文，不会执行前端工具调用，也不会链式发起后续运行。对于常规运行，请改用 [`useCopilotKit`](/reference/hooks/useCopilotKit) 中的 `copilotkit.runAgent({ agent })`。它接受相同的 `forwardedProps`，并以相同的 `RunAgentResult` 兑现。与 `agent.runAgent()` 不同，当运行本身失败时它不会 reject。核心会将错误（错误码 `AGENT_RUN_FAILED`）报告给其错误订阅者，并以 `{ result: undefined, newMessages: [] }` 兑现。
 
-      **Parameters:**
-      - `parameters.forwardedProps?: any` - Data to pass to the agent execution context
+      **参数**：
+      - `parameters.forwardedProps?: any` - 传递给智能体执行上下文的数据
 
-      To answer an interrupt, use [`useInterrupt`](/reference/hooks/useInterrupt). It resumes the run for you. To resume by hand, pass the standard `resume` array with the id of the interrupt that the paused run reported: `copilotkit.runAgent({ agent, resume: [{ interruptId: interrupt.id, status: "resolved", payload }] })`. The older `forwardedProps: { command: { resume } }` form is the legacy path for `on_interrupt` custom events.
+      要响应中断，请使用 [`useInterrupt`](/reference/hooks/useInterrupt)，它会为你恢复运行。如需手动恢复，请传入标准的 `resume` 数组，其中包含被暂停运行所报告的中断 id：`copilotkit.runAgent({ agent, resume: [{ interruptId: interrupt.id, status: "resolved", payload }] })`。较旧的 `forwardedProps: { command: { resume } }` 形式是针对 `on_interrupt` 自定义事件的旧版路径。
 
-      **Example:**
+      **示例**：
       ```tsx
       const { copilotkit } = useCopilotKit();
 
@@ -104,9 +104,9 @@ function useAgent(options?: UseAgentProps): { agent: AbstractAgent }
     </PropertyReference>
 
     <PropertyReference name="setState" type="(newState: any) => void">
-      Updates the shared state. Changes are immediately available to both application and agent.
+      更新共享状态。变更对应用与智能体双方立即可见。
 
-      **Example:**
+      **示例**：
       ```tsx
       agent.setState({
         ...agent.state,
@@ -116,16 +116,16 @@ function useAgent(options?: UseAgentProps): { agent: AbstractAgent }
     </PropertyReference>
 
     <PropertyReference name="subscribe" type="(subscriber: AgentSubscriber) => { unsubscribe: () => void }">
-      Subscribes to agent events. Returns cleanup function.
+      订阅智能体事件。返回清理函数。
 
-      **Subscriber Events:**
-      - `onCustomEvent?: ({ event: { name: string, value: any } }) => void` - Custom events (e.g., LangGraph interrupts)
-      - `onRunStartedEvent?: () => void` - Agent execution starts
-      - `onRunFinalized?: () => void` - Agent execution completes
-      - `onStateChanged?: (state: any) => void` - State changes
-      - `onMessagesChanged?: (messages: Message[]) => void` - Messages added/modified
+      **订阅者事件**：
+      - `onCustomEvent?: ({ event: { name: string, value: any } }) => void` - 自定义事件（如 LangGraph 中断）
+      - `onRunStartedEvent?: () => void` - 智能体执行开始
+      - `onRunFinalized?: () => void` - 智能体执行完成
+      - `onStateChanged?: (state: any) => void` - 状态变化
+      - `onMessagesChanged?: (messages: Message[]) => void` - 消息新增或修改
 
-      **Example:**
+      **示例**：
       ```tsx
       const { unsubscribe } = agent.subscribe({
         onCustomEvent: ({ event }) => {
@@ -139,9 +139,9 @@ function useAgent(options?: UseAgentProps): { agent: AbstractAgent }
     </PropertyReference>
 
     <PropertyReference name="addMessage" type="(message: Message) => void">
-      Adds a single message to the conversation and notifies subscribers.
+      向会话添加单条消息并通知订阅者。
 
-      **Example:**
+      **示例**：
       ```tsx
       agent.addMessage({
         id: crypto.randomUUID(),
@@ -152,39 +152,39 @@ function useAgent(options?: UseAgentProps): { agent: AbstractAgent }
     </PropertyReference>
 
     <PropertyReference name="addMessages" type="(messages: Message[]) => void">
-      Adds multiple messages to the conversation and notifies subscribers once.
+      向会话添加多条消息，且只通知订阅者一次。
     </PropertyReference>
 
     <PropertyReference name="setMessages" type="(messages: Message[]) => void">
-      Replaces the entire message history with a new array of messages.
+      用新的消息数组替换整个消息历史。
     </PropertyReference>
 
     <PropertyReference name="connectAgent" type="(options?: RunAgentParameters) => Promise<RunAgentResult>">
-      Connects to a streaming agent endpoint. Similar to `runAgent` but uses the `connect()` method for persistent connections.
+      连接到流式智能体端点。与 `runAgent` 类似，但使用 `connect()` 方法建立持久连接。
     </PropertyReference>
 
     <PropertyReference name="detachActiveRun" type="() => Promise<void>">
-      Detaches from the currently active agent run without aborting it. The run continues in the background but stops updating the local agent state.
+      与当前活跃的智能体运行解除关联但不中止它。该运行会在后台继续，但不再更新本地智能体状态。
     </PropertyReference>
 
     <PropertyReference name="abortRun" type="() => void">
-      Aborts the currently running agent execution. Implementation varies by agent type.
+      中止当前正在运行的智能体执行。具体实现因智能体类型而异。
     </PropertyReference>
 
     <PropertyReference name="clone" type="() => AbstractAgent">
-      Creates a deep copy of the agent with cloned messages, state, and configuration.
+      创建智能体的深拷贝，包括克隆的消息、状态与配置。
     </PropertyReference>
 
     <PropertyReference name="use" type="(...middlewares: Middleware[]) => this">
-      Adds middleware to the agent's execution pipeline. Middlewares can intercept and transform agent runs.
+      向智能体的执行管线添加中间件。中间件可以拦截并转换智能体运行。
     </PropertyReference>
 
   </PropertyReference>
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Basic Usage
+### 基本用法
 
 ```tsx
 import { useAgent } from "@copilotkit/react-core/v2";
@@ -202,7 +202,7 @@ function AgentStatus() {
 }
 ```
 
-### Accessing State
+### 访问状态
 
 ```tsx
 function StateDisplay() {
@@ -212,7 +212,7 @@ function StateDisplay() {
 }
 ```
 
-### Updating State
+### 更新状态
 
 ```tsx
 function StateController() {
@@ -226,7 +226,7 @@ function StateController() {
 }
 ```
 
-### Event Subscription
+### 事件订阅
 
 ```tsx
 import { useEffect } from "react";
@@ -249,7 +249,7 @@ function EventListener() {
 }
 ```
 
-### Multiple Agents
+### 多个智能体
 
 ```tsx
 function MultiAgentView() {
@@ -265,9 +265,9 @@ function MultiAgentView() {
 }
 ```
 
-### Optimizing Re-renders
+### 优化重渲染
 
-Control when your component re-renders using the `updates` parameter:
+使用 `updates` 参数控制组件何时重渲染：
 
 ```tsx
 import { useAgent, UseAgentUpdate } from "@copilotkit/react-core/v2";
@@ -298,13 +298,13 @@ function ManualSubscription() {
 }
 ```
 
-## Behavior
+## 行为
 
-- **Automatic Re-renders**: Component re-renders when agent state, messages, or execution status changes (configurable via `updates` parameter)
-- **Error Handling**: Throws error if no agent exists with specified `agentId`
-- **State Synchronization**: State updates via `setState()` are immediately available to both app and agent
-- **Event Subscriptions**: Subscribe/unsubscribe pattern for lifecycle and custom events
+- **自动重渲染**：当智能体状态、消息或执行状态变化时组件会重渲染（可通过 `updates` 参数配置）
+- **错误处理**：如果不存在具有指定 `agentId` 的智能体则抛出错误
+- **状态同步**：通过 `setState()` 进行的状态更新对应用与智能体双方立即可见
+- **事件订阅**：针对生命周期与自定义事件的订阅/取消订阅模式
 
-## Related
+## 相关内容
 
-- [AG-UI AbstractAgent](https://docs.ag-ui.com/sdk/js/client/abstract-agent) - Full agent interface documentation
+- [AG-UI AbstractAgent](https://docs.ag-ui.com/sdk/js/client/abstract-agent) - 完整的智能体接口文档

@@ -1,6 +1,6 @@
 ---
 title: "useCoAgentStateRender"
-description: "The useCoAgentStateRender hook allows you to render the state of the agent in the chat."
+description: "useCoAgentStateRender hook 允许你在聊天中渲染智能体的状态。"
 ---
 
 {
@@ -10,12 +10,12 @@ description: "The useCoAgentStateRender hook allows you to render the state of t
   * packages/react-core/src/v1-deprecated/hooks/use-coagent-state-render.ts
   */
 }
-The useCoAgentStateRender hook allows you to render UI or text based components on a Agentic Copilot's state in the chat.
-This is particularly useful for showing intermediate state or progress during Agentic Copilot operations.
+useCoAgentStateRender hook 允许你基于智能体化 Copilot（Agentic Copilot）的状态，在聊天中渲染 UI 或文本组件。
+这在展示智能体化 Copilot 执行过程中的中间状态或进度时尤为有用。
  
-## Usage
+## 用法
  
-### Simple Usage
+### 简单用法
  
 ```tsx
 import { useCoAgentStateRender } from "@copilotkit/react-core";
@@ -39,33 +39,32 @@ useCoAgentStateRender<YourAgentState>({
 });
 ```
  
-This allows for you to render UI components or text based on what is happening within the agent.
+这让你可以根据智能体内部正在发生的事情来渲染 UI 组件或文本。
  
-### Example
-A great example of this is in our Perplexity Clone where we render the progress of an agent's internet search as it is happening.
-You can play around with it below or learn how to build it with the [state rendering guide](/generative-ui/state-rendering).
+### 示例
+我们 Perplexity 克隆版中就有一个绝佳示例：智能体在进行网络搜索时，我们会实时渲染其搜索进度。
+你可以在下方体验它，或通过[状态渲染指南](/generative-ui/state-rendering)学习如何构建。
  
 <Callout type="info">
-  This example is hosted on Vercel and may take a few seconds to load.
+  该示例托管在 Vercel 上，可能需要几秒钟才能加载完成。
 </Callout>
  
 <iframe src="https://examples-coagents-ai-researcher-ui.vercel.app/" className="w-full rounded-lg border h-[700px] my-4" />
 
-## Parameters
+## 参数
 
 <PropertyReference name="name" type="string" required > 
-The name of the coagent.
+coagent 的名称。
 </PropertyReference>
 
 <PropertyReference name="nodeName" type="string"  > 
-The node name of the coagent.
+coagent 的节点名称。
 </PropertyReference>
 
 <PropertyReference name="handler" type="( props: CoAgentStateRenderHandlerArguments<T>, ) => void | Promise<void>"  > 
-The handler function to handle the state of the agent.
+用于处理智能体状态的 handler 函数。
 </PropertyReference>
 
 <PropertyReference name="render" type="| (( props: CoAgentStateRenderProps<T>, ) => string | React.ReactElement | undefined | null) | string"  > 
-The render function to handle the state of the agent.
+用于处理智能体状态的渲染函数。
 </PropertyReference>
-

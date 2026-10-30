@@ -1,6 +1,6 @@
 ---
 title: "CopilotKit"
-description: "The CopilotKit provider component, wrapping your application."
+description: "CopilotKit 提供方组件，用于包裹你的应用。"
 ---
 
 {
@@ -10,11 +10,11 @@ description: "The CopilotKit provider component, wrapping your application."
   * packages/react-core/src/v1-deprecated/components/copilot-provider/copilotkit.tsx
   */
 }
-This component will typically wrap your entire application (or a sub-tree of your application where you want to have a copilot). It provides the copilot context to all other components and hooks.
+该组件通常会包裹你的整个应用（或应用中希望接入 copilot 的子树）。它为所有其他组件和 hook 提供 copilot 上下文。
  
-## Example
+## 示例
  
-You can find more information about self-hosting CopilotKit [here](/guides/self-hosting).
+关于自托管 CopilotKit 的更多信息，请参见[这里](/guides/self-hosting)。
  
 ```tsx
 import { CopilotKit } from "@copilotkit/react-core";
@@ -24,39 +24,39 @@ import { CopilotKit } from "@copilotkit/react-core";
 </CopilotKit>
 ```
 
-## Properties
+## 属性
 
 <PropertyReference name="publicApiKey" type="string"  > 
-Your CopilotKit public license key.
+你的 CopilotKit 公开许可证密钥。
 </PropertyReference>
 
 <PropertyReference name="publicLicenseKey" type="string"  > 
-Your public license key for accessing CopilotKit Intelligence features.
+用于访问 CopilotKit Intelligence 功能的公开许可证密钥。
 </PropertyReference>
 
 <PropertyReference name="guardrails_c" type="{ validTopics?: string[]; invalidTopics?: string[]; }"  > 
-@internal Defunct — retained for backward compatibility.
+@internal 已废弃 —— 为保持向后兼容而保留。
 </PropertyReference>
 
 <PropertyReference name="runtimeUrl" type="string"  > 
-The endpoint for the Copilot Runtime instance. [Click here for more information](/backend/copilot-runtime).
+Copilot Runtime 实例的端点。[点击这里了解更多信息](/backend/copilot-runtime)。
 </PropertyReference>
 
 <PropertyReference name="transcribeAudioUrl" type="string"  > 
-The endpoint for the Copilot transcribe audio service.
+Copilot 语音转写服务的端点。
 </PropertyReference>
 
 <PropertyReference name="textToSpeechUrl" type="string"  > 
-The endpoint for the Copilot text to speech service.
+Copilot 文本转语音服务的端点。
 </PropertyReference>
 
 <PropertyReference name="headers" type="CopilotKitHeadersSource"  > 
-Additional headers to be sent with the request.
-  Can be a static object, a synchronous builder, or an async builder
-  (useful for refreshing auth tokens). Whichever form you use, it is
-  evaluated when each request is sent, not when this component renders.
+随请求一起发送的额外请求头。
+  可以是静态对象、同步构建器，也可以是异步构建器
+  （适用于刷新身份验证令牌）。无论使用哪种形式，它都会在
+  每个请求发送时求值，而不是在该组件渲染时求值。
  
-  For example:
+  例如：
   ```tsx
   // Static headers
   headers={{ "Authorization": "Bearer X" }}
@@ -68,39 +68,37 @@ Additional headers to be sent with the request.
   headers={async () => ({ "Authorization": `Bearer ${await getToken()}` })}
   ```
  
-  An async builder is only awaited on the request paths served by
-  `<CopilotKit>`'s v2 provider (agent runs, threads, the inspector, and
-  so on). The legacy v1 `CopilotTask` / GraphQL path (and anything else
-  that reads the internal `copilotApiConfig.headers` snapshot) never
-  awaits it: an async builder is called once, its result (and any
-  rejection) is discarded, and every read there gets an empty object
-  instead, with one console warning per provider instance in development.
+  异步构建器只会在由 `<CopilotKit>` 的 v2 提供方服务的请求路径上被等待
+  （agent 运行、线程、inspector 等）。旧版 v1 的 `CopilotTask` / GraphQL
+  路径（以及任何读取内部 `copilotApiConfig.headers` 快照的代码）从不等待它：
+  异步构建器只会被调用一次，其结果（以及任何 Promise rejection）会被丢弃，
+  那里的每次读取得到的都是空对象，开发模式下每个 provider 实例
+  会输出一条 console 警告。
  
-  Cache inside the builder. Clerk's and Auth0's `getToken()` already
-  cache. A builder that calls the network every time adds one call per
-  request.
+  请在构建器内部做缓存。Clerk 和 Auth0 的 `getToken()` 本身已带缓存。
+  每次都发起网络调用的构建器会让每个请求多出一次调用。
  
-  If the builder throws or rejects, that request is not sent and
-  `onError` gets `header_resolution_failed`.
+  如果构建器抛出异常或 rejected，该请求将不会被发送，
+  并且 `onError` 会收到 `header_resolution_failed`。
  
-  Passing the same builder again, or a new builder function, does not
-  reload anything, because the provider keeps one stable wrapper. On a
-  user switch, remount the provider (for example `key={userId}`) so
-  thread lists and Inspector metadata reload for the new user.
+  再次传入相同的构建器，或传入新的构建器函数，都不会触发任何重新加载，
+  因为提供方内部保持同一个稳定的包装器。切换用户时，请重新挂载提供方
+  （例如使用 `key={userId}`），以便为新用户重新加载线程列表和
+  Inspector 元数据。
  
-  Core headers are also sent to any self-managed agent registered
-  directly with CopilotKit, including ones on other origins. Don't put a
-  bearer token in core headers if those agents point at a third party.
+  核心请求头也会发送给直接注册到 CopilotKit 的任何自管智能体，
+  包括位于其他源的智能体。如果这些智能体指向第三方，
+  请不要在核心请求头中放置 bearer 令牌。
 </PropertyReference>
 
 <PropertyReference name="children" type="ReactNode" required > 
-The children to be rendered within the CopilotKit.
+要在 CopilotKit 内渲染的子节点。
 </PropertyReference>
 
 <PropertyReference name="properties" type="Record<string, any>"  > 
-Custom properties to be sent with the request.
-  Can include threadMetadata for thread creation and authorization for LangGraph Platform authentication.
-  For example:
+随请求一起发送的自定义属性。
+  可以包含用于创建线程的 threadMetadata，以及用于 LangGraph Platform 身份验证的 authorization。
+  例如：
   ```js
   {
     'user_id': 'users_id',
@@ -112,15 +110,14 @@ Custom properties to be sent with the request.
   }
   ```
  
-  Note: The `authorization` property is automatically forwarded to LangGraph agents. See the [LangGraph Agent Authentication Guide](/auth) for details.
+  注意：`authorization` 属性会自动转发给 LangGraph 智能体。详情参见 [LangGraph 智能体身份验证指南](/auth)。
 </PropertyReference>
 
 <PropertyReference name="credentials" type="RequestCredentials"  > 
-Indicates whether the user agent should send or receive cookies from the other domain
-  in the case of cross-origin requests.
+指示在跨源请求的情况下，user agent 是否应向另一个域发送或从中接收 cookie。
  
-  To enable HTTP-only cookie authentication, set `credentials="include"` and configure
-  CORS on your runtime endpoint:
+  要启用 HTTP-only cookie 身份验证，请设置 `credentials="include"`，
+  并在你的运行时端点上配置 CORS：
  
   ```tsx
   // Frontend (https://myapp.com)
@@ -141,25 +138,25 @@ Indicates whether the user agent should send or receive cookies from the other d
 </PropertyReference>
 
 <PropertyReference name="agent" type="string"  > 
-The name of the agent to use.
+要使用的智能体名称。
 </PropertyReference>
 
 <PropertyReference name="forwardedParameters" type="Pick<ForwardedParametersInput, 'temperature'>"  > 
-The forwarded parameters to use for the task.
+任务要使用的转发参数。
 </PropertyReference>
 
 <PropertyReference name="authConfig_c" type="{ SignInComponent: React.ComponentType<{ onSignInComplete: (authState: AuthState) => void; }>; }"  > 
-@internal Defunct — retained for backward compatibility.
+@internal 已废弃 —— 为保持向后兼容而保留。
 </PropertyReference>
 
 <PropertyReference name="threadId" type="string"  > 
-The thread id to use for the CopilotKit.
+CopilotKit 要使用的线程 ID。
 </PropertyReference>
 
 <PropertyReference name="onError" type="CopilotErrorHandler"  > 
-Optional error handler for comprehensive debugging and observability.
+可选的错误处理器，用于全面的调试与可观测性。
  
-  @param errorEvent - Structured error event with rich debugging context
+  @param errorEvent - 带有丰富调试上下文的结构化错误事件
  
   @example
   ```typescript
@@ -172,19 +169,18 @@ Optional error handler for comprehensive debugging and observability.
 </PropertyReference>
 
 <PropertyReference name="enableInspector" type="boolean"  > 
-Enable or disable the CopilotKit Inspector, letting you inspect AG-UI events,
-  view agent messages, check agent state, and visualize agent context. The
-  Inspector is enabled by default in development browser builds and is always
-  disabled in production and during server rendering.
+启用或禁用 CopilotKit Inspector，让你可以检查 AG-UI 事件、
+  查看智能体消息、检查智能体状态并可视化智能体上下文。
+  Inspector 在开发环境的浏览器构建中默认启用，在生产环境和
+  服务器渲染期间始终禁用。
 </PropertyReference>
 
 <PropertyReference name="debug" type="DebugConfig"  > 
-Enable debug logging. On the server (`CopilotRuntime`), this enables
-  structured Pino logging of the AG-UI event pipeline. On the client,
-  this configuration is forwarded to the AG-UI transport layer
-  (`transformChunks`) for transport-level debug output.
+启用调试日志。在服务端（`CopilotRuntime`）上，这会为 AG-UI 事件管线
+  启用结构化的 Pino 日志。在客户端，该配置会被转发到 AG-UI 传输层
+  （`transformChunks`）以输出传输层级别的调试信息。
  
-  Pass `true` for full output, or an object for granular control:
+  传 `true` 表示完整输出，或传一个对象进行细粒度控制：
  
   ```tsx
   <CopilotKit debug={true} runtimeUrl="...">
@@ -192,4 +188,3 @@ Enable debug logging. On the server (`CopilotRuntime`), this enables
   </CopilotKit>
   ```
 </PropertyReference>
-
