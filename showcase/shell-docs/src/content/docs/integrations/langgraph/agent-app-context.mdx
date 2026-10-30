@@ -1,20 +1,20 @@
 ---
-title: Readables
+title: 可读上下文（Readables）
 icon: "lucide/BookA"
-description: Share app specific context with your agent.
+description: 与智能体共享应用专属的上下文。
 hideTOC: true
 ---
 
 import AgentContextJsonString from "@/snippets/shared/basics/agent-context-json-string.mdx";
-One of the most common use cases for CopilotKit is to register app state and context using `useAgentContext`.
-This way, you can notify CopilotKit of what is going on in your app in real time.
-Some examples might be: the current user, the current page, etc.
+CopilotKit 最常见的用例之一，就是使用 `useAgentContext` 注册应用状态与上下文。
+这样，你就可以让 CopilotKit 实时了解你的应用中正在发生什么。
+例如：当前用户、当前页面等等。
 
-This context can then be shared with your LangGraph agent.
+这些上下文随后便可与你的 LangGraph 智能体共享。
 
-## Implementation
+## 实现
 <Callout>
-    Check out the [Frontend Data documentation](/langgraph-python/agent-app-context) to understand what this is and how to use it.
+    请查阅[前端数据文档](/langgraph-python/agent-app-context)，了解它的含义与用法。
 </Callout>
 
 <AgentContextJsonString />
@@ -25,14 +25,14 @@ This context can then be shared with your LangGraph agent.
 >
     <TailoredContentOption
         id="graph"
-        title="Custom graph"
-        description="I'm using a custom graph, where I define the nodes and edges myself."
+        title="自定义 graph"
+        description="我使用的是自定义 graph，节点和边由我自己定义。"
     >
         <Steps>
             <Step>
-                ### Add the data to the Copilot
+                ### 将数据添加到 Copilot
 
-                The `useAgentContext` hook is used to add data as context to the agent.
+                `useAgentContext` hook 用于将数据作为上下文添加给智能体。
 
                 ```tsx title="YourComponent.tsx"
                 "use client" // only necessary if you are using Next.js with the App Router. // [!code highlight]
@@ -62,8 +62,8 @@ This context can then be shared with your LangGraph agent.
             </Step>
 
             <Step>
-                ### Set up your agent state
-                Make sure your agent state inherits from CopilotKit state definition
+                ### 设置智能体状态
+                确保你的智能体状态继承自 CopilotKit 的状态定义。
 
                 <Tabs groupId="language_langgraph_agent" items={['Python', 'TypeScript']} default="Python" persist>
                     <Tab value="Python">
@@ -99,13 +99,13 @@ This context can then be shared with your LangGraph agent.
             </Step>
 
             <Step>
-                ### Consume the data in your LangGraph agent
-                The state of a LangGraph agent is the "hub" for applicative information used by the agent.
-                Naturally, the context from CopilotKit will be injected there.
+                ### 在 LangGraph 智能体中使用这些数据
+                LangGraph 智能体的状态是智能体所用应用信息的“枢纽”。
+                来自 CopilotKit 的上下文自然会注入其中。
 
-                In both Python and TypeScript, the CopilotKit state key is lowercase
-                `copilotkit`. Read `state.copilotkit.context` in TypeScript; the
-                SDK's state schema does not define a `copilotKit` field.
+                在 Python 和 TypeScript 中，CopilotKit 状态键均为小写的
+                `copilotkit`。在 TypeScript 中请读取 `state.copilotkit.context`；
+                SDK 的状态 schema 并未定义 `copilotKit` 字段。
 
                 <Tabs groupId="language_langgraph_agent" items={['Python', 'TypeScript']} default="Python" persist>
                     <Tab value="Python">
@@ -202,21 +202,21 @@ This context can then be shared with your LangGraph agent.
             </Step>
 
             <Step>
-                ### Give it a try!
-                Ask your agent a question about the context. It should be able to answer!
+                ### 试一试！
+                向你的智能体提一个与上下文相关的问题，它应该能够回答！
             </Step>
         </Steps>
     </TailoredContentOption>
     <TailoredContentOption
         id="prebuilt"
-        title="Prebuilt agent"
-        description={`I'm using a prebuilt agent like "create_agent" by LangGraph`}
+        title="预构建智能体"
+        description={`我使用的是 LangGraph 提供的预构建智能体，例如 "create_agent"`}
     >
         <Steps>
             <Step>
-                ### Add the data to the Copilot
+                ### 将数据添加到 Copilot
 
-                The `useAgentContext` hook is used to add data as context to the agent.
+                `useAgentContext` hook 用于将数据作为上下文添加给智能体。
 
                 ```tsx title="YourComponent.tsx"
                 "use client" // only necessary if you are using Next.js with the App Router. // [!code highlight]
@@ -246,10 +246,10 @@ This context can then be shared with your LangGraph agent.
             </Step>
 
             <Step>
-                ### Consume the data in your LangGraph agent
-                The state of a LangGraph agent is the "hub" for applicative information used by the agent.
-                Naturally, the context from CopilotKit will be injected there.
-                In addition, the CopilotKitMiddleware is what takes context, and passes it on to your agent
+                ### 在 LangGraph 智能体中使用这些数据
+                LangGraph 智能体的状态是智能体所用应用信息的“枢纽”。
+                来自 CopilotKit 的上下文自然会注入其中。
+                此外，CopilotKitMiddleware 负责获取上下文，并将其传递给你的智能体。
 
                 <Tabs groupId="language_langgraph_agent" items={['Python', 'TypeScript']} default="Python" persist>
                     <Tab value="Python">
@@ -283,13 +283,13 @@ This context can then be shared with your LangGraph agent.
             </Step>
 
             <Step>
-                ### Serve the agent with FastAPI (Python)
+                ### 使用 FastAPI 提供智能体服务（Python）
 
-                If you deploy with LangSmith, skip this step. The LangGraph API server supplies persistence, so do not pass a `checkpointer`.
+                如果你使用 LangSmith 部署，请跳过此步骤。LangGraph API 服务器已提供持久化，因此不要传入 `checkpointer`。
 
-                If you run the agent in your own FastAPI app, nothing supplies persistence. `ag-ui-langgraph` reads thread state with `graph.aget_state(...)`, which raises `ValueError: No checkpointer set` without a checkpointer. Pass one to `create_agent`.
+                如果你在自己的 FastAPI 应用中运行智能体，则没有任何组件提供持久化。`ag-ui-langgraph` 会通过 `graph.aget_state(...)` 读取线程状态，在没有 checkpointer 的情况下会抛出 `ValueError: No checkpointer set`。请将 checkpointer 传给 `create_agent`。
 
-                `create_agent` comes from `langchain` 1.x. Install it explicitly, together with the FastAPI packages:
+                `create_agent` 来自 `langchain` 1.x。请将它与 FastAPI 相关的包一起显式安装：
 
                 ```bash
                 uv add "langchain>=1" langchain-openai ag-ui-langgraph fastapi uvicorn copilotkit python-dotenv
@@ -331,12 +331,12 @@ This context can then be shared with your LangGraph agent.
                     uvicorn.run("main:app", host="0.0.0.0", port=8123, reload=True)
                 ```
 
-                `MemorySaver` keeps state in process memory only. For production, use a durable saver, for example Postgres. The [quickstart](/langgraph-python/quickstart) shows the runtime route and provider that connect to this server on port `8123`.
+                `MemorySaver` 仅将状态保存在进程内存中。生产环境请使用可持久化的 saver，例如 Postgres。[快速开始](/langgraph-python/quickstart)展示了连接此服务器（端口 `8123`）所需的运行时路由与提供方。
             </Step>
 
             <Step>
-                ### Give it a try!
-                Ask your agent a question about the context. It should be able to answer!
+                ### 试一试！
+                向你的智能体提一个与上下文相关的问题，它应该能够回答！
             </Step>
         </Steps>
     </TailoredContentOption>

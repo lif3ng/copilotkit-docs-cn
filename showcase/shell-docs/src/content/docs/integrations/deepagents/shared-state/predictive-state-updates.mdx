@@ -1,60 +1,60 @@
 ---
-title: "State streaming"
+title: "状态流式传输"
 icon: "lucide/Podcast"
-description: Stream in-progress agent state updates to the frontend.
+description: 将进行中的智能体状态更新流式传输到前端。
 ---
 {/* TODO: swap feature-viewer URLs back to /deepagents/ once the dojo supports that route */}
 <IframeSwitcher
   id="predictive-state-updates-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/predictive_state_updates?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/predictive_state_updates?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
 <Callout type="info">
-  This example demonstrates predictive state updates in the [CopilotKit Feature Viewer](https://feature-viewer.copilotkit.ai/langgraph/feature/predictive_state_updates).
+  本示例在 [CopilotKit Feature Viewer](https://feature-viewer.copilotkit.ai/langgraph/feature/predictive_state_updates) 中演示了预测性状态更新。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-A Deep Agents agent's state updates discontinuosly; only across node transitions in the graph.
-But even a _single node_ in the graph often takes many seconds to run and contain sub-steps of interest to the user.
+Deep Agents 智能体的状态更新是不连续的，只在图中的节点切换时发生。
+但即使是图中的_单个节点_，也往往要运行数秒之久，其中包含用户感兴趣的子步骤。
 
-**Agent-native applications** reflect to the end-user what the agent is doing **as continuously possible.**
+**智能体原生应用**会尽可能**持续**地向最终用户呈现智能体正在做什么。
 
-CopilotKit enables this through its concept of **_predictive state updates_**.
-
-
-## When should I use this?
-You can use this when you want to provide the user with feedback about what your agent is doing, specifically to:
-
-- **Keep users engaged** by avoiding long loading indicators
-- **Build trust** by demonstrating what the agent is working on
-- Enable **agent steering** - allowing users to course-correct the agent if needed
-
-## Important Note
-
-When a node in your LangGraph finishes executing, **its returned state becomes the single source of truth**. While intermediate state updates are great for real-time feedback, any changes you want to persist must be explicitly included in the node's final returned state. Otherwise, they will be overwritten when the node completes.
+CopilotKit 通过 **_预测性状态更新_** 的概念实现了这一点。
 
 
-## Implementation
+## 何时使用？
+当你想向用户提供关于智能体正在做什么的反馈时，可以使用它，具体来说：
+
+- **让用户保持参与**——避免漫长的加载指示器
+- **建立信任**——展示智能体正在处理的工作
+- 支持**智能体引导**——允许用户在需要时纠正智能体的方向
+
+## 重要说明
+
+当 LangGraph 中的一个节点执行完毕时，**它返回的状态将成为唯一的权威来源**。中间状态更新非常适合实时反馈，但任何你想持久化的变更都必须显式包含在节点最终返回的状态中。否则，这些变更会在节点完成时被覆盖。
+
+
+## 实现
 
 <TailoredContent id="agent-type">
   <TailoredContentOption
     id="custom-graph"
-    title="Custom graph"
-    description="I'm using a custom graph, where I define the nodes and edges myself."
+    title="自定义图"
+    description="我使用的是自定义图，节点和边由我自己定义。"
   >
     <Steps>
     <Step>
-        ### Install the CopilotKit SDK
+        ### 安装 CopilotKit SDK
         <InstallSDKSnippet/>
     </Step>
     <Step>
-        ### Define the state
-        We'll be defining a `observed_steps` field in the state, which will be updated as the agent writes different sections of the report.
+        ### 定义状态
+        我们将在状态中定义一个 `observed_steps` 字段，随着智能体撰写报告的不同章节而更新。
 
         <Tabs groupId="agent_language" items={["Python", "TypeScript"]} persist>
             <Tab value="Python">
@@ -82,25 +82,25 @@ When a node in your LangGraph finishes executing, **its returned state becomes t
         </Tabs>
     </Step>
     <Step>
-        ### Emit the intermediate state
+        ### 发出中间状态
         <TailoredContent
             id="state-emission"
             header={
                 <div>
-                    <p className="text-xl font-semibold">How would you like to emit state updates?</p>
+                    <p className="text-xl font-semibold">你想如何发出状态更新？</p>
                     <p className="text-base">
-                        You can either manually emit state updates or configure specific tool calls to emit updates.
+                        你可以手动发出状态更新，也可以配置特定工具调用来发出更新。
                     </p>
                 </div>
             }
         >
             <TailoredContentOption
                 id="manual-emission"
-                title="Manual Predictive State Updates"
-                description="Manually emit state updates for maximum control over when updates occur."
+                title="手动预测性状态更新"
+                description="手动发出状态更新，最大程度控制更新发生的时机。"
                 icon={<FaArrowUp />}
             >
-                For long-running tasks, you can emit state updates progressively as predictions of the final state. In this example, we simulate a long-running task by executing a series of steps with a one second delay between each update.
+                对于长时间运行的任务，你可以逐步发出状态更新，作为对最终状态的预测。在本示例中，我们通过执行一系列步骤并在每次更新之间延迟一秒，来模拟一个长时间运行的任务。
                 <Tabs groupId="agent_language" items={['Python', 'TypeScript']} persist>
                     <Tab value="Python">
                         ```python title="agent.py"
@@ -177,7 +177,7 @@ When a node in your LangGraph finishes executing, **its returned state becomes t
                         }); // [!code highlight]
                         ```
                         <Callout type="info">
-                          For custom graphs, you wire your nodes together using `StateGraph`, then compile it. The state you defined with `AgentStateAnnotation` is passed to `new StateGraph()` to ensure type safety across your nodes.
+                          对于自定义图，你需要使用 `StateGraph` 将节点连接起来，然后编译它。你用 `AgentStateAnnotation` 定义的状态会传给 `new StateGraph()`，以确保各节点之间的类型安全。
                         </Callout>
                     </Tab>
                 </Tabs>
@@ -185,11 +185,11 @@ When a node in your LangGraph finishes executing, **its returned state becomes t
 
             <TailoredContentOption
                 id="tool-emission"
-                title="Tool-Based Predictive State Updates"
-                description="Configure specific tool calls to automatically emit intermediate state updates."
+                title="基于工具的预测性状态更新"
+                description="配置特定工具调用，使其自动发出中间状态更新。"
                 icon={<FaWrench />}
             >
-                For long-running tasks, you can configure CopilotKit to automatically predict state updates when specific tool calls are made. In this example, we'll configure CopilotKit to predict state updates whenever the LLM calls the step progress tool.
+                对于长时间运行的任务，你可以配置 CopilotKit，在发生特定工具调用时自动预测状态更新。在本示例中，我们将配置 CopilotKit，使 LLM 每次调用步骤进度工具时都会预测状态更新。
                 <Tabs groupId="agent_language" items={['Python', 'TypeScript']} persist>
                     <Tab value="Python">
                         ```python
@@ -438,8 +438,8 @@ When a node in your LangGraph finishes executing, **its returned state becomes t
         </TailoredContent>
     </Step>
     <Step>
-        ### Observe the predictions
-        These predictions will be emitted as the agent runs, allowing you to track its progress before the final state is determined.
+        ### 观察预测结果
+        这些预测会随着智能体的运行而发出，让你在最终状态确定之前就能跟踪其进度。
 
         ```tsx title="ui/app/page.tsx"
         import { useAgent } from '@copilotkit/react-core/v2'; // [!code highlight]
@@ -471,13 +471,13 @@ When a node in your LangGraph finishes executing, **its returned state becomes t
         ```
     </Step>
     <Step>
-        ### Give it a try!
-        Now you'll notice that the state predictions are emitted as the agent makes progress, giving you insight into its work before the final state is determined.
-        You can apply this pattern to any long-running task in your agent.
+        ### 试一试！
+        现在你会看到，随着智能体的推进，状态预测会不断发出，让你在最终状态确定之前就能了解它的工作内容。
+        你可以将这一模式应用到智能体中任何长时间运行的任务上。
 
         <video src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/intermediate-state-render.mp4" className="rounded-lg shadow-xl" loop playsInline controls autoPlay muted />
         <Callout>
-          This video shows the result of `npx copilotkit@latest init` with the [implementation](#implementation) section applied to it!
+          此视频展示的是 `npx copilotkit@latest init` 的结果，并应用了[实现](#实现)一节的内容！
         </Callout>
     </Step>
     </Steps>
@@ -485,13 +485,13 @@ When a node in your LangGraph finishes executing, **its returned state becomes t
 
   <TailoredContentOption
     id="prebuilt"
-    title="Prebuilt agent"
-    description={`I'm using a prebuilt agent like createDeepAgent or create_agent`}
+    title="预构建智能体"
+    description={`我使用的是预构建智能体，例如 createDeepAgent 或 create_agent`}
   >
     <Steps>
       <Step>
-        ### Define the state schema
-        We'll define an `observed_steps` field in the state, which will be updated as the agent reports progress.
+        ### 定义状态 schema
+        我们将在状态中定义一个 `observed_steps` 字段，随着智能体报告进度而更新。
 
         <Tabs groupId="agent_language" items={["Python", "TypeScript"]} persist>
           <Tab value="Python">
@@ -519,9 +519,9 @@ When a node in your LangGraph finishes executing, **its returned state becomes t
         </Tabs>
       </Step>
       <Step>
-        ### Add StateStreamingMiddleware to your agent
-        Instead of manually calling emit functions or configuring the `RunnableConfig`, pass `StateStreamingMiddleware` as middleware to your prebuilt agent.
-        Each `StateItem` maps a tool argument to a state key — the same mapping concept as the tool-based approach in custom graphs.
+        ### 将 StateStreamingMiddleware 添加到你的智能体
+        无需手动调用 emit 函数或配置 `RunnableConfig`，只需将 `StateStreamingMiddleware` 作为中间件传给你的预构建智能体即可。
+        每个 `StateItem` 将一个工具参数映射到一个状态键——与自定义图中基于工具的方法使用相同的映射概念。
 
         <Tabs groupId="agent_language" items={["Python", "TypeScript"]} persist>
           <Tab value="Python">
@@ -582,8 +582,8 @@ When a node in your LangGraph finishes executing, **its returned state becomes t
         </Tabs>
       </Step>
       <Step>
-        ### Observe the predictions
-        These predictions will be emitted as the agent runs, allowing you to track its progress before the final state is determined.
+        ### 观察预测结果
+        这些预测会随着智能体的运行而发出，让你在最终状态确定之前就能跟踪其进度。
 
         ```tsx title="ui/app/page.tsx"
         import { useAgent } from '@copilotkit/react-core/v2'; // [!code highlight]
@@ -615,13 +615,13 @@ When a node in your LangGraph finishes executing, **its returned state becomes t
         ```
       </Step>
       <Step>
-        ### Give it a try!
-        Now you'll notice that the state predictions are emitted as the agent makes progress, giving you insight into its work before the final state is determined.
-        You can apply this pattern to any long-running task in your agent.
+        ### 试一试！
+        现在你会看到，随着智能体的推进，状态预测会不断发出，让你在最终状态确定之前就能了解它的工作内容。
+        你可以将这一模式应用到智能体中任何长时间运行的任务上。
 
         <video src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/intermediate-state-render.mp4" className="rounded-lg shadow-xl" loop playsInline controls autoPlay muted />
         <Callout>
-          This video shows the result of `npx copilotkit@latest init` with the [implementation](#implementation) section applied to it!
+          此视频展示的是 `npx copilotkit@latest init` 的结果，并应用了[实现](#实现)一节的内容！
         </Callout>
       </Step>
     </Steps>

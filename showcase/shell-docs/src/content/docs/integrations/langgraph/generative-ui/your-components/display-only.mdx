@@ -1,35 +1,35 @@
 ---
-title: "Display-only"
+title: "仅展示"
 icon: "lucide/Eye"
-description: "Register React components that your agent can render in the chat."
+description: "注册智能体可在聊天中渲染的 React 组件。"
 ---
-## What is this?
+## 这是什么？
 
-`useComponent` lets you register a React component as a tool your agent can invoke. When the agent calls the tool, CopilotKit renders your component directly in the chat with the tool's arguments as props.
+`useComponent` 允许你将一个 React 组件注册为智能体可以调用的工具。当智能体调用该工具时，CopilotKit 会以工具参数作为 props，把你的组件直接渲染在聊天中。
 
-This is the simplest form of Generative UI — your agent decides when to show a component, and CopilotKit renders it. No handler logic, no user interaction required.
+这是生成式 UI 最简单的形式——由智能体决定何时显示组件，CopilotKit 负责渲染。无需处理器逻辑，也无需用户交互。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Use `useComponent` when you want to:
-- Display rich UI (cards, charts, tables) inline in the chat
-- Show structured data from agent responses
-- Render previews, status indicators, or visual feedback
-- Let the agent present information beyond plain text
+当你想要以下效果时，可以使用 `useComponent`：
+- 在聊天中内联展示富 UI（卡片、图表、表格）
+- 展示来自智能体响应的结构化数据
+- 渲染预览、状态指示器或可视化反馈
+- 让智能体呈现纯文本以外的信息
 
-For components that need user interaction, see [Interactive](/langgraph/generative-ui/your-components/interactive) or [Interrupt-based](/langgraph/generative-ui/your-components/interrupt-based).
+对于需要用户交互的组件，请参阅[交互式](/langgraph/generative-ui/your-components/interactive)或[基于中断](/langgraph/generative-ui/your-components/interrupt-based)。
 
-## Implementation
+## 实现
 
 <Steps>
   <Step>
-    ### Run and connect your agent
+    ### 运行并连接你的智能体
     <RunAndConnect />
   </Step>
   <Step>
-    ### Register a component
+    ### 注册组件
 
-    Use the `useComponent` hook to register a React component. The agent will be able to call it by name, and CopilotKit will render it with the tool arguments as props.
+    使用 `useComponent` hook 注册一个 React 组件。智能体将能够按名称调用它，CopilotKit 会以工具参数作为 props 渲染该组件。
 
     ```tsx title="app/page.tsx"
     import { useComponent } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -65,16 +65,16 @@ For components that need user interaction, see [Interactive](/langgraph/generati
     ```
   </Step>
   <Step>
-    ### Install the CopilotKit SDK
+    ### 安装 CopilotKit SDK
 
-    Now, we'll need to make sure your agent can access frontend tools. In your terminal, navigate to your agent's folder and continue from there.
+    接下来，需要确保你的智能体能够访问前端工具。在终端中，进入你的智能体所在文件夹，然后从那里继续操作。
 
     <InstallSDKSnippet/>
   </Step>
   <Step>
-    ### Inherit from CopilotKitState
+    ### 继承 CopilotKitState
 
-    To access the frontend tools provided by CopilotKit, inherit from `CopilotKitState` in your agent's state definition:
+    要访问 CopilotKit 提供的前端工具，请在智能体的状态定义中继承 `CopilotKitState`：
 
     <Tabs groupId="language_langgraph_agent" items={['Python', 'TypeScript']} default="Python" persist>
       <Tab value="Python">
@@ -99,22 +99,22 @@ For components that need user interaction, see [Interactive](/langgraph/generati
     </Tabs>
   </Step>
   <Step>
-    ### Agent calls the component
+    ### 智能体调用组件
 
-    When your agent's LLM decides to use the tool, CopilotKit automatically renders your component in the chat. The tool is registered as a frontend tool that the agent can discover and call.
+    当智能体的 LLM 决定使用该工具时，CopilotKit 会自动将你的组件渲染在聊天中。该工具会注册为前端工具，供智能体发现并调用。
 
     <FrontEndToolsImpl />
   </Step>
   <Step>
-    ### Give it a try!
+    ### 试一试！
 
-    Ask your agent something that would trigger the component (e.g. "What's the weather in San Francisco?"). You should see your `WeatherCard` rendered directly in the chat.
+    向智能体提问一个会触发该组件的问题（例如“旧金山的天气怎么样？”）。你应该能看到 `WeatherCard` 直接渲染在聊天中。
   </Step>
 </Steps>
 
-## Without parameters
+## 无参数
 
-For simple components that don't need typed parameters:
+对于不需要类型化参数的简单组件：
 
 ```tsx
 useComponent({
@@ -127,9 +127,9 @@ useComponent({
 });
 ```
 
-## Scoping to an agent
+## 限定到特定智能体
 
-In multi-agent setups, scope a component to a specific agent:
+在多智能体场景中，可将组件限定到特定的智能体：
 
 ```tsx
 useComponent({

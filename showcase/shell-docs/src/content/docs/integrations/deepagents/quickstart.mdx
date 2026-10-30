@@ -1,40 +1,40 @@
 ---
-title: Quickstart
-description: Get started with Deep Agents and CopilotKit in minutes.
+title: 快速开始
+description: 几分钟内上手 Deep Agents 与 CopilotKit。
 icon: "lucide/Rocket"
 ---
 
 import OpenInspectorStep from "@/snippets/shared/inspector/open-inspector-step.mdx";
-## Start with your coding agent
+## 从你的编码智能体开始
 
-Use this prompt to connect your Deep Agents agent to CopilotKit and verify a working conversation. Your coding agent will follow this guide in your project, or you can work through the manual steps below.
+使用此提示词将你的 Deep Agents 智能体连接到 CopilotKit，并验证对话可以正常运行。你的编码智能体会在你的项目中按照本指南操作，你也可以按下面的手动步骤自行完成。
 
 <PageAgentPrompt />
 
-## Prerequisites
+## 前置条件
 
-Before you begin, you'll need the following:
+开始之前，你需要准备：
 
-- An OpenAI API key
+- 一个 OpenAI API 密钥
 - Node.js 20+
-- Your favorite package manager
-- A LangGraph Platform API key - only required if deploying to the Deep Agent platform
+- 你喜欢的包管理器
+- 一个 LangGraph Platform API 密钥——仅在部署到 Deep Agent 平台时需要
 
-## Getting started
+## 开始使用
 
 <Steps>
     <Step>
-        ### Set up CopilotKit Intelligence
+        ### 设置 CopilotKit Intelligence
 
-        <SignupLink surface="docs_deepagents_quickstart_step1">Sign in to cloud-hosted Intelligence</SignupLink>. Cloud-hosted setup uses a server-side project API key and does not issue `COPILOTKIT_LICENSE_TOKEN`. You will connect the app after you create it below.
+        <SignupLink surface="docs_deepagents_quickstart_step1">登录云端托管的 Intelligence</SignupLink>。云端托管配置使用服务端项目 API 密钥，不会签发 `COPILOTKIT_LICENSE_TOKEN`。你将在下文创建应用后再进行连接。
     </Step>
 
     <Step>
-        ### Initialize your agent project
+        ### 初始化你的智能体项目
 
         <Tabs groupId="agent_language" items={['Python', 'TypeScript']} persist>
             <Tab value="Python">
-                If you don't already have a Python project set up, create one using `uv`:
+                如果你还没有 Python 项目，可以使用 `uv` 创建一个：
 
                 ```bash
                 uv init my-agent
@@ -42,7 +42,7 @@ Before you begin, you'll need the following:
                 ```
             </Tab>
             <Tab value="TypeScript">
-                If you don't already have a Node.js project set up, create one using `npm`:
+                如果你还没有 Node.js 项目，可以使用 `npm` 创建一个：
 
                 ```bash
                 mkdir my-agent
@@ -53,18 +53,18 @@ Before you begin, you'll need the following:
         </Tabs>
     </Step>
     <Step>
-        ### Add necessary dependencies
+        ### 添加必要的依赖
 
         <Tabs groupId="agent_language" items={['Python', 'TypeScript']} persist>
             <Tab value="Python">
-                Add the `deepagents`, `langchain-openai`, and `copilotkit` packages:
+                添加 `deepagents`、`langchain-openai` 和 `copilotkit` 包：
 
                 ```bash
                 uv add deepagents copilotkit langchain-openai
                 ```
             </Tab>
             <Tab value="TypeScript">
-                Add the `deepagents`, `@langchain/langgraph`, `@copilotkit/sdk-js`, and `@langchain/openai` packages:
+                添加 `deepagents`、`@langchain/langgraph`、`@copilotkit/sdk-js` 和 `@langchain/openai` 包：
 
                 ```bash
                 npm install deepagents @langchain/langgraph @copilotkit/sdk-js @langchain/openai
@@ -73,11 +73,11 @@ Before you begin, you'll need the following:
         </Tabs>
     </Step>
     <Step>
-        ### Create your Deep Agent
+        ### 创建你的 Deep Agent
 
         <Tabs groupId="agent_setup" items={['Python', 'TypeScript', 'FastAPI']}>
             <Tab value="Python">
-                Create a simple Deep Agent:
+                创建一个简单的 Deep Agent：
 
                 ```python title="main.py"
                 from deepagents import create_deep_agent
@@ -95,7 +95,7 @@ Before you begin, you'll need the following:
                 )
                 ```
 
-                Then to test and deploy with Deep Agent, create a `langgraph.json`:
+                然后，为了配合 Deep Agent 进行测试和部署，创建一个 `langgraph.json`：
 
                 ```sh
                 touch langgraph.json
@@ -115,7 +115,7 @@ Before you begin, you'll need the following:
                 ```
             </Tab>
             <Tab value="TypeScript">
-                Create a simple Deep Agent:
+                创建一个简单的 Deep Agent：
 
                 ```ts title="agent.ts"
                 import { createDeepAgent } from "deepagents";
@@ -140,7 +140,7 @@ Before you begin, you'll need the following:
                 });
                 ```
 
-                Then to test and deploy with Deep Agent, create a `langgraph.json`:
+                然后，为了配合 Deep Agent 进行测试和部署，创建一个 `langgraph.json`：
 
                 ```sh
                 touch langgraph.json
@@ -159,17 +159,17 @@ Before you begin, you'll need the following:
                 ```
 
                 <Callout type="info">
-                    When setting up the Copilot Runtime in the next steps, select the **Deep Agent** tab.
+                    在后续步骤中设置 Copilot Runtime 时，请选择 **Deep Agent** 标签页。
                 </Callout>
             </Tab>
             <Tab value="FastAPI">
-                Add the `ag-ui-langgraph`, `fastapi`, and `uvicorn` packages:
+                添加 `ag-ui-langgraph`、`fastapi` 和 `uvicorn` 包：
 
                 ```bash
                 uv add ag-ui-langgraph fastapi uvicorn
                 ```
 
-                Create a Deep Agent and expose it as an AG-UI endpoint:
+                创建一个 Deep Agent，并将其暴露为 AG-UI 端点：
 
                 ```python title="main.py"
                 from ag_ui_langgraph import add_langgraph_fastapi_endpoint
@@ -218,27 +218,27 @@ Before you begin, you'll need the following:
             </Tab>
         </Tabs>
 
-        <Callout type="info" title="What is AG-UI?">
-            AG-UI is an open protocol for frontend-agent communication. Deep Agents use it to stream state and tool calls to your frontend in real-time.
+        <Callout type="info" title="什么是 AG-UI？">
+            AG-UI 是一个用于前端与智能体通信的开放协议。Deep Agents 使用它将状态和工具调用实时流式传输到你的前端。
         </Callout>
     </Step>
     <Step>
-        ### Configure your environment
+        ### 配置你的环境
 
-        Create a `.env` file in your agent directory and add your OpenAI API key:
+        在你的智能体目录中创建一个 `.env` 文件，并添加你的 OpenAI API 密钥：
 
         ```plaintext title=".env"
         OPENAI_API_KEY=your_openai_api_key
         ```
 
-        <Callout type="info" title="Other models">
-        Deep Agents support any model available via LangChain. Change the `model` parameter in `create_deep_agent` to switch providers.
+        <Callout type="info" title="其他模型">
+        Deep Agents 支持通过 LangChain 可用的任何模型。修改 `create_deep_agent` 中的 `model` 参数即可切换提供方。
         </Callout>
     </Step>
     <Step>
-        ### Create your frontend
+        ### 创建你的前端
 
-        CopilotKit works with any React-based frontend. We'll use Next.js for this example.
+        CopilotKit 可与任何基于 React 的前端配合使用。本示例中我们使用 Next.js。
 
         ```bash
         npx create-next-app@latest frontend
@@ -246,28 +246,28 @@ Before you begin, you'll need the following:
         ```
     </Step>
     <Step>
-        ### Install CopilotKit packages
+        ### 安装 CopilotKit 包
 
         ```npm
         npm install @copilotkit/react-core @copilotkit/runtime @ag-ui/client@1.0.2
         ```
 
-        The **FastAPI** route below imports `HttpAgent` from `@ag-ui/client`.
-        Version `1.0.2` matches the one `@copilotkit/runtime` uses.
+        下方的 **FastAPI** 路由会从 `@ag-ui/client` 导入 `HttpAgent`。
+        版本 `1.0.2` 与 `@copilotkit/runtime` 所使用的版本一致。
     </Step>
     <Step>
-        ### Setup Copilot Runtime
+        ### 设置 Copilot Runtime
 
-        Create an API route to connect CopilotKit to your Deep Agent:
+        创建一个 API 路由，将 CopilotKit 连接到你的 Deep Agent：
 
         ```sh
         mkdir -p "app/api/copilotkit/[[...slug]]" && touch "app/api/copilotkit/[[...slug]]/route.ts"
         ```
 
-        <Callout type="info" title="Using Next.js is optional">
-            If you'd rather skip the Next.js API proxy, see LangChain's
-            [CopilotKit integration guide](https://docs.langchain.com/oss/python/langchain/frontend/integrations/copilotkit)
-            for how to add a custom CopilotKit route directly to your LangGraph deployment.
+        <Callout type="info" title="使用 Next.js 是可选的">
+            如果你想跳过 Next.js API 代理，请参阅 LangChain 的
+            [CopilotKit 集成指南](https://docs.langchain.com/oss/python/langchain/frontend/integrations/copilotkit)，
+            了解如何将自定义 CopilotKit 路由直接添加到你的 LangGraph 部署中。
         </Callout>
 
         <Tabs groupId="deployment_method" items={['Deep Agent', 'FastAPI']}>
@@ -349,30 +349,27 @@ Before you begin, you'll need the following:
             </Tab>
         </Tabs>
 
-        From this frontend app directory, connect the runtime to an Intelligence project:
+        在这个前端应用目录下，将 runtime 连接到一个 Intelligence 项目：
 
         ```bash title="Terminal"
         npx copilotkit@latest project select
         ```
 
-        The command writes the server-side project API key to `.env`. The runtime reads it here:
+        该命令会将服务端项目 API 密钥写入 `.env`。runtime 会从这里读取它：
 
         ```plaintext title=".env"
         CPK_INTELLIGENCE_API_KEY=cpk-...
         ```
 
-        <Callout type="info" title="Running without the Intelligence Platform?">
-          Drop the `intelligence` and `identifyUser` options and the runtime falls back
-          to SSE mode with an in-memory runner. Chat still works, but Threads and the
-          Inspector stay locked and the key is never read. See
-          [Connect your runtime to Intelligence](/intelligence/quickstart) for the
-          full constructor and how to confirm the key is in use.
+        <Callout type="info" title="不使用 Intelligence 平台运行？">
+          去掉 `intelligence` 和 `identifyUser` 选项后，runtime 会回退到使用内存运行器的 SSE 模式。聊天仍然可用，但 Threads 和 Inspector 将保持锁定，密钥也永远不会被读取。完整构造函数以及如何确认密钥已生效，请参阅
+          [将你的 runtime 连接到 Intelligence](/intelligence/quickstart)。
         </Callout>
     </Step>
     <Step>
-        ### Configure CopilotKit Provider
+        ### 配置 CopilotKit Provider
 
-        Wrap your application with the CopilotKit provider:
+        用 CopilotKit provider 包裹你的应用：
 
         ```tsx title="app/providers.tsx"
         "use client";
@@ -388,8 +385,7 @@ Before you begin, you'll need the following:
         }
         ```
 
-        `app/layout.tsx` is a server component and cannot import the provider
-        directly, so it renders your client file instead:
+        `app/layout.tsx` 是服务端组件，无法直接导入 provider，因此它改为渲染你的客户端文件：
 
         ```tsx title="app/layout.tsx"
         import { Providers } from "./providers";
@@ -410,18 +406,16 @@ Before you begin, you'll need the following:
         }
         ```
 
-        <Callout type="info" title="This relative runtimeUrl assumes Next.js serves the runtime">
-          `/api/copilotkit` resolves only because Next.js serves your app and the runtime from the
-          same origin. A client-only frontend has no shared origin, so it needs a standalone runtime
-          server of its own and an absolute `runtimeUrl` such as
-          `http://localhost:8200/api/copilotkit`. The per-frontend guides at `/react-spa`, `/vue`,
-          `/angular` and `/react-native` each show that setup.
+        <Callout type="info" title="此相对 runtimeUrl 假设由 Next.js 托管 runtime">
+          `/api/copilotkit` 之所以能解析，是因为 Next.js 从同一源（origin）同时托管你的应用和 runtime。纯客户端前端没有共享源，因此它需要自己独立部署一个 runtime 服务器，并使用绝对 `runtimeUrl`，例如
+          `http://localhost:8200/api/copilotkit`。`/react-spa`、`/vue`、
+          `/angular` 和 `/react-native` 的各前端指南分别展示了这种配置。
         </Callout>
     </Step>
     <Step>
-        ### Add the chat interface
+        ### 添加聊天界面
 
-        Add the CopilotSidebar component to your page:
+        将 CopilotSidebar 组件添加到你的页面：
 
         ```tsx title="app/page.tsx"
         "use client";
@@ -453,7 +447,7 @@ Before you begin, you'll need the following:
         ```
     </Step>
     <Step>
-        ### Start your agent
+        ### 启动你的智能体
 
         <Tabs groupId="deployment_method" items={['Deep Agent', 'FastAPI']}>
             <Tab value="Deep Agent">
@@ -468,17 +462,17 @@ Before you begin, you'll need the following:
             </Tab>
         </Tabs>
 
-        Your agent will be available at `http://localhost:8123`.
+        你的智能体将在 `http://localhost:8123` 可用。
 
         <Callout type="info">
-            If port 8123 is already in use, change the `--port` flag (or the `port=` argument
-            in the FastAPI `main.py`) and update `LANGGRAPH_DEPLOYMENT_URL` in Step 7 to match.
+            如果端口 8123 已被占用，请修改 `--port` 标志（或 FastAPI `main.py` 中的 `port=` 参数），
+            并将第 7 步中的 `LANGGRAPH_DEPLOYMENT_URL` 更新为一致的值。
         </Callout>
     </Step>
     <Step>
-        ### Start your UI
+        ### 启动你的 UI
 
-        In a separate terminal, navigate to your frontend directory and start the development server:
+        在另一个终端中，进入你的前端目录并启动开发服务器：
 
         <Tabs groupId="package-manager" items={['npm', 'pnpm', 'yarn', 'bun']}>
             <Tab value="npm">

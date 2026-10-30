@@ -1,39 +1,39 @@
 ---
-title: "Connecting Backend Emit APIs to Frontend Hooks"
+title: "将后端 Emit API 连接到前端 Hooks"
 icon: "lucide/ArrowLeftRight"
-description: "End-to-end guide: how LangGraph SDK emit functions map to React v2 frontend hooks."
+description: "端到端指南：LangGraph SDK 的 emit 函数如何映射到 React v2 前端 Hooks。"
 ---
 
-## What is this?
+## 这是什么？
 
-CopilotKit's Python SDK provides **emit functions** that your LangGraph nodes can call to push tool calls and control streaming behavior. On the frontend, React v2 provides **hooks** that register handlers and renderers for those emitted events.
+CopilotKit 的 Python SDK 提供 **emit 函数**，你的 LangGraph 节点可以调用它们来推送工具调用并控制流式传输行为。在前端，React v2 提供 **Hooks**，用于为这些被发出的事件注册处理器和渲染器。
 
-This page shows exactly how the two sides connect so you can build predictable, end-to-end integrations without guessing.
+本页精确展示两侧如何连接，让你无需猜测即可构建可预测的端到端集成。
 
-## The mapping at a glance
+## 映射一览
 
-| Backend (Python SDK) | Frontend (React v2) | What it does |
+| 后端（Python SDK） | 前端（React v2） | 作用 |
 |---|---|---|
-| `copilotkit_emit_tool_call(config, name, args)` | `useFrontendTool` | Agent manually fires a tool call; the registered handler runs in the browser |
-| LLM calls a frontend tool normally (via `bind_tools`) | `useFrontendTool` | Agent lets the LLM decide when to call the tool; same handler, same result |
-| LLM calls a frontend tool (via `bind_tools`) | `useComponent` | Agent calls a tool and the registered component is rendered inline in the chat |
-| `copilotkit_customize_config(config, emit_tool_calls=["ToolName"])` | `useFrontendTool` / `useComponent` | Controls which tool calls are streamed to the frontend; use this to filter noise |
-| `copilotkit_customize_config(config, emit_tool_calls=False)` | — | Suppresses all tool call streaming for that LLM invocation |
+| `copilotkit_emit_tool_call(config, name, args)` | `useFrontendTool` | 智能体手动触发一次工具调用；已注册的处理器在浏览器中运行 |
+| LLM 以常规方式调用前端工具（通过 `bind_tools`） | `useFrontendTool` | 智能体让 LLM 决定何时调用工具；相同的处理器，相同的结果 |
+| LLM 调用前端工具（通过 `bind_tools`） | `useComponent` | 智能体调用工具，已注册的组件在聊天中内联渲染 |
+| `copilotkit_customize_config(config, emit_tool_calls=["ToolName"])` | `useFrontendTool` / `useComponent` | 控制哪些工具调用被流式传输到前端；用它过滤噪音 |
+| `copilotkit_customize_config(config, emit_tool_calls=False)` | — | 抑制该次 LLM 调用的所有工具调用流式传输 |
 
-### Persisted vs. emitted tool calls
+### 持久化与发送的工具调用
 
-<Callout type="info" title="Key concept: persisted vs. transient">
-- **Persisted tool calls** are LLM-generated tool call messages stored in `state["messages"]`. They appear in chat history and are replayed on page refresh.
-- **Emitted tool calls** (`copilotkit_emit_tool_call`) are transient events that fire a frontend handler immediately. They are **not** stored in chat history unless you explicitly add a message to state.
+<Callout type="info" title="关键概念：持久化与瞬时">
+- **持久化工具调用**是存储在 `state["messages"]` 中的、由 LLM 生成的工具调用消息。它们会出现在聊天历史中，并在页面刷新后重放。
+- **发送的工具调用**（`copilotkit_emit_tool_call`）是瞬时事件，会立即触发前端处理器。它们 **不会** 存入聊天历史，除非你显式向状态添加一条消息。
 
-`useComponent` and `useFrontendTool` both respond to persisted tool calls triggered by the LLM. `copilotkit_emit_tool_call` lets you fire the same frontend mechanism imperatively, without waiting for the LLM.
+`useComponent` 和 `useFrontendTool` 都会响应由 LLM 触发的持久化工具调用。`copilotkit_emit_tool_call` 让你以命令式方式触发同样的前端机制，而无需等待 LLM。
 </Callout>
 
-## End-to-end example: `copilotkit_emit_tool_call` → `useFrontendTool`
+## 端到端示例：`copilotkit_emit_tool_call` → `useFrontendTool`
 
-This pattern lets a LangGraph node **directly invoke** a frontend function — for example, to update React state, show a toast, or trigger a browser API — without the LLM needing to decide when to call it.
+此模式让 LangGraph 节点 **直接调用** 某个前端函数——例如更新 React 状态、显示 toast 或触发浏览器 API——而无需由 LLM 决定何时调用它。
 
-### Step 1: Register the frontend tool
+### 步骤 1：注册前端工具
 
 ```tsx title="app/page.tsx"
 import { z } from "zod";
@@ -59,7 +59,7 @@ export function Page() {
 }
 ```
 
-### Step 2: Emit the tool call from your LangGraph node
+### 步骤 2：从 LangGraph 节点发送工具调用
 
 ```python title="agent.py"
 from langchain_core.runnables import RunnableConfig
@@ -88,17 +88,17 @@ async def my_node(state: AgentState, config: RunnableConfig):
     return state
 ```
 
-When `copilotkit_emit_tool_call` is called:
-1. CopilotKit sends the tool call event to the frontend over SSE.
-2. The `useFrontendTool` handler matching `"updateStatus"` runs in the browser immediately.
-3. The return value of the handler is sent back to the agent as the tool result.
-4. The call is **not** saved to `state["messages"]` unless you add it yourself.
+当 `copilotkit_emit_tool_call` 被调用时：
+1. CopilotKit 通过 SSE 将工具调用事件发送到前端。
+2. 匹配 `"updateStatus"` 的 `useFrontendTool` 处理器立即在浏览器中运行。
+3. 处理器的返回值会作为工具结果发送回智能体。
+4. 该调用 **不会** 保存到 `state["messages"]`，除非你自己添加。
 
-## End-to-end example: LLM tool call → `useComponent`
+## 端到端示例：LLM 工具调用 → `useComponent`
 
-This pattern lets the LLM decide when to render a custom React component in the chat, passing its parameters as props.
+此模式让 LLM 决定何时在聊天中渲染一个自定义 React 组件，并将其参数作为 props 传入。
 
-### Step 1: Register the component
+### 步骤 1：注册组件
 
 ```tsx title="app/page.tsx"
 import { useComponent } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -135,7 +135,7 @@ export function Page() {
 }
 ```
 
-### Step 2: Expose it to the LLM via `bind_tools`
+### 步骤 2：通过 `bind_tools` 将其暴露给 LLM
 
 ```python title="agent.py"
 from langchain_openai import ChatOpenAI
@@ -153,15 +153,15 @@ async def chat_node(state: AgentState, config: RunnableConfig):
     return {"messages": response}
 ```
 
-When the LLM calls `showWeather`:
-1. The tool call is stored as a message in `state["messages"]` (persisted).
-2. CopilotKit streams the tool call to the frontend.
-3. `useComponent` renders `WeatherCard` inline in the chat with the tool arguments as props.
-4. The component remains visible in the chat on replay/refresh because the message is persisted.
+当 LLM 调用 `showWeather` 时：
+1. 工具调用作为消息存储在 `state["messages"]` 中（持久化）。
+2. CopilotKit 将该工具调用流式传输到前端。
+3. `useComponent` 以工具参数为 props 在聊天中内联渲染 `WeatherCard`。
+4. 由于消息已持久化，重放/刷新后组件仍在聊天中可见。
 
-## Controlling which tool calls are streamed with `copilotkit_customize_config`
+## 使用 `copilotkit_customize_config` 控制哪些工具调用被流式传输
 
-By default, CopilotKit streams all LLM tool calls to the frontend. Use `copilotkit_customize_config` to filter them.
+默认情况下，CopilotKit 会将所有 LLM 工具调用流式传输到前端。使用 `copilotkit_customize_config` 来过滤它们。
 
 ```python title="agent.py"
 from copilotkit.langgraph import copilotkit_customize_config # [!code highlight]
@@ -180,31 +180,31 @@ async def chat_node(state: AgentState, config: RunnableConfig):
     return {"messages": response}
 ```
 
-<Callout type="warn" title="Use a new variable">
-Always assign the result to a **new variable** (e.g. `streaming_config`) rather than overwriting `config`. In LangGraph Python, `config` is implicitly passed to all LangChain LLM calls in scope — overwriting it changes the behavior of every subsequent call unexpectedly.
+<Callout type="warn" title="使用新变量">
+始终将结果赋给一个 **新变量**（例如 `streaming_config`），而不是覆盖 `config`。在 LangGraph Python 中，`config` 会被隐式传给作用域内的所有 LangChain LLM 调用——覆盖它会意外改变每个后续调用的行为。
 </Callout>
 
-### `emit_tool_calls` options at a glance
+### `emit_tool_calls` 选项一览
 
-| Value | Effect |
+| 取值 | 效果 |
 |---|---|
-| `True` (default) | Stream all tool calls to the frontend |
-| `False` | Suppress all tool call streaming for this LLM call |
-| `"ToolName"` | Stream only the named tool call |
-| `["Tool1", "Tool2"]` | Stream only the listed tool calls |
+| `True`（默认） | 将所有工具调用流式传输到前端 |
+| `False` | 抑制本次 LLM 调用的所有工具调用流式传输 |
+| `"ToolName"` | 只流式传输指定名称的工具调用 |
+| `["Tool1", "Tool2"]` | 只流式传输列出的工具调用 |
 
-## Choosing the right pattern
+## 选择合适的模式
 
-| Goal | Recommended pattern |
+| 目标 | 推荐模式 |
 |---|---|
-| Agent imperatively triggers a browser action (toast, state update) | `copilotkit_emit_tool_call` → `useFrontendTool` |
-| LLM decides when to trigger a browser action | `bind_tools(state["copilotkit"]["actions"])` → `useFrontendTool` |
-| LLM renders a rich component in chat (persisted in history) | `bind_tools(state["copilotkit"]["actions"])` → `useComponent` |
-| Hide certain LLM tool calls from the frontend | `copilotkit_customize_config(emit_tool_calls=[...])` |
-| Hide all tool calls from the frontend for a sensitive LLM call | `copilotkit_customize_config(emit_tool_calls=False)` |
+| 智能体以命令式触发浏览器动作（toast、状态更新） | `copilotkit_emit_tool_call` → `useFrontendTool` |
+| LLM 决定何时触发浏览器动作 | `bind_tools(state["copilotkit"]["actions"])` → `useFrontendTool` |
+| LLM 在聊天中渲染富组件（持久化在历史中） | `bind_tools(state["copilotkit"]["actions"])` → `useComponent` |
+| 对前端隐藏某些 LLM 工具调用 | `copilotkit_customize_config(emit_tool_calls=[...])` |
+| 敏感 LLM 调用对前端隐藏所有工具调用 | `copilotkit_customize_config(emit_tool_calls=False)` |
 
-## See also
+## 另请参阅
 
-- [Frontend Tools](/integrations/langgraph/frontend-tools) — full guide to `useFrontendTool`
-- [Display-only components](/integrations/langgraph/generative-ui/your-components/display-only) — full guide to `useComponent`
-- [Disabling state streaming](/integrations/langgraph/advanced/disabling-state-streaming) — `copilotkit_customize_config` reference
+- [前端工具](/integrations/langgraph/frontend-tools) — `useFrontendTool` 完整指南
+- [仅展示型组件](/integrations/langgraph/generative-ui/your-components/display-only) — `useComponent` 完整指南
+- [禁用状态流式传输](/integrations/langgraph/advanced/disabling-state-streaming) — `copilotkit_customize_config` 参考

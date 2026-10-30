@@ -1,27 +1,27 @@
 ---
-title: "Exiting the agent loop"
+title: "退出智能体循环"
 icon: "lucide/DoorOpen"
 ---
 
-After your agent has finished a workflow, you'll usually want to explicitly end that loop by calling the `copilotkit_exit()` method in your Python code.
+智能体完成工作流后，你通常需要在 Python 代码中调用 `copilotkit_exit()` 方法来显式结束该循环。
 
-Exiting the agent has different effects depending on mode:
+退出智能体的效果因模式而异：
 
-- **Router Mode**: Exiting the agent hands responsibility for handling input back to the router, which can initiate chat, call actions, other agents, etc. The router can return to this agent later (starting a new loop) to satisfy a user request.
+- **路由模式**：退出智能体会把处理输入的职责交还给路由，后者可以发起聊天、调用操作或其他智能体等。路由随后可以回到该智能体（开始一个新循环）以满足用户请求。
 
-- **Agent Lock Mode**: Exiting the agent restarts the workflow loop for the current agent.
+- **智能体锁定模式**：退出智能体会为当前智能体重启工作流循环。
 
-In this example from [our email-sending app](https://github.com/copilotkit/copilotkit/tree/main/examples/coagents-qa), the `send_email` node explicitly exits, then manually sends a response back to the user as a `ToolMessage`:
+在[我们的邮件发送应用](https://github.com/copilotkit/copilotkit/tree/main/examples/coagents-qa)的这个示例中，`send_email` 节点显式退出，然后以 `ToolMessage` 形式手动向用户发回一条响应：
 
 <Steps>
     <Step>
-        ### Install the CopilotKit SDK
+        ### 安装 CopilotKit SDK
         <InstallSDKSnippet/>
     </Step>
 
     <Step>
-        ### Exit the agent loop
-        This will exit the agent session as soon as the current CrewAI run is finished, either by a breakpoint or by reaching the `END` node.
+        ### 退出智能体循环
+        当前 CrewAI 运行结束（无论是到达断点还是到达 `END` 节点）后，这会立即退出智能体会话。
 
         <Tabs groupId="language_crewai-flows_agent" items={['Python']} default="Python" persist>
             <Tab value="Python">

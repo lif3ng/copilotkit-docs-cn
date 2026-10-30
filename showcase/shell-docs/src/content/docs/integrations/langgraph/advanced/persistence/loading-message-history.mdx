@@ -1,19 +1,19 @@
 ---
-title: Threads
-description: Learn how to load chat messages and threads within the CopilotKit framework.
+title: 线程
+description: 了解如何在 CopilotKit 框架中加载聊天消息与线程。
 icon: "lucide/MessagesSquare"
 ---
 
-LangGraph supports threads, a way to group messages together and ultimately maintain a continuous chat history. CopilotKit
-provides a few different ways to interact with this concept.
+LangGraph 支持线程（threads），这是一种把消息归组在一起、最终维护连续聊天历史的方式。CopilotKit
+提供了几种与此概念交互的方式。
 
-This guide assumes you have already gone through the [quickstart](/langgraph/quickstart) guide.
+本指南假设你已经完成过[快速开始](/langgraph/quickstart)指南。
 
-## Loading an Existing Thread
+## 加载已有线程
 
-To load an existing thread in CopilotKit, you can simply set the `threadId` property on `<CopilotKit>` like so.
+要在 CopilotKit 中加载一个已有线程，只需像下面这样在 `<CopilotKit>` 上设置 `threadId` 属性。
 
-<Callout>When using LangGraph platform, the `threadId` must be a UUID.</Callout>
+<Callout>使用 LangGraph Platform 时，`threadId` 必须是 UUID。</Callout>
 
 ```tsx
 {
@@ -24,9 +24,9 @@ To load an existing thread in CopilotKit, you can simply set the `threadId` prop
 </CopilotKit>;
 ```
 
-## Dynamically Switching Threads
+## 动态切换线程
 
-You can also make the `threadId` dynamic. Once it is set, CopilotKit will load the previous messages for that thread.
+你还可以让 `threadId` 变为动态。一旦设置，CopilotKit 就会加载该线程此前的消息。
 
 ```tsx
 

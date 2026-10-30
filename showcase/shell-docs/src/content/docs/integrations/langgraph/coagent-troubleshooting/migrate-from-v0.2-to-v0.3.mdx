@@ -1,13 +1,13 @@
 ---
-title: Migrate from v0.2 to v0.3
-description: How to migrate from v0.2 to v0.3.
+title: 从 v0.2 迁移到 v0.3
+description: 如何从 v0.2 迁移到 v0.3。
 ---
 
-## What's new in v0.3?
+## v0.3 有哪些新变化？
 
-Starting with `v0.3`, we changed how messages are synced between the agent (LangGraph) and CopilotKit. Essentially, both will now share exactly the same message history.
+从 `v0.3` 开始，我们改变了智能体（LangGraph）与 CopilotKit 之间同步消息的方式。本质上，现在双方将共享完全相同的消息历史。
 
-This means that you need to return the messages you want to appear in CopilotKit chat from your LangGraph nodes, for example:
+这意味着你需要从 LangGraph 节点中返回希望出现在 CopilotKit 聊天中的消息，例如：
 
 ```python
 from langchain_core.runnables import RunnableConfig
@@ -19,16 +19,16 @@ def my_node(state: State, config: RunnableConfig) -> State:
     }
 ```
 
-All tool messages are now emitted by default, so you don't need to manually call `copilotkit_customize_config` to configure tool call emissions.
+现在所有工具消息默认都会发出，因此你无需再手动调用 `copilotkit_customize_config` 来配置工具调用的发出。
 
 <Frame>
   <img src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents-v-0-3-migration-image.png" />
 </Frame>
 
-## How do I migrate?
+## 如何迁移？
 
-1. Make sure to return any messages (tool calls or text messages) you want to be part of the message history from your LangGraph nodes.
+1. 确保从 LangGraph 节点中返回你希望纳入消息历史的所有消息（工具调用或文本消息）。
 
-2. Optionally, remove manual `copilotkit_customize_config` calls when you want to emit tool calls.
+2. 可选：如果你本来是为了发出工具调用而手动调用 `copilotkit_customize_config`，现在可以移除这些调用。
 
-3. If you want to hide tool calls or messages from the chat, use `copilotkit_customize_config` and set `emit_tool_calls` or `emit_messages` to `False`. Make sure to not return these messages in your nodes so they don't become part of the message history.
+3. 如果你想在聊天中隐藏某些工具调用或消息，请使用 `copilotkit_customize_config` 并将 `emit_tool_calls` 或 `emit_messages` 设为 `False`。同时确保不要在节点中返回这些消息，以免它们进入消息历史。

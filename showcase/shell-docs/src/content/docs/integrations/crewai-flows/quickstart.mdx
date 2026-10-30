@@ -1,6 +1,6 @@
 ---
-title: Quickstart
-description: Turn your CrewAI Flows into an agent-native application in 10 minutes.
+title: 快速开始
+description: 用 10 分钟将你的 CrewAI Flows 变成智能体原生应用。
 icon: "lucide/Play"
 hideTOC: true
 doc_type: tutorial
@@ -8,29 +8,29 @@ doc_type: tutorial
 
 import OpenInspectorStep from "@/snippets/shared/inspector/open-inspector-step.mdx";
 
-## Start with your coding agent
+## 从你的编码智能体开始
 
-Use this prompt to connect your CrewAI agent to CopilotKit and verify a working conversation. Your coding agent will follow this guide in your project, or you can work through the manual steps below.
+使用以下提示词将你的 CrewAI 智能体连接到 CopilotKit，并验证对话可用。你的编码智能体会在你的项目中遵循本指南操作，你也可以按下面的手动步骤自行完成。
 
 <PageAgentPrompt />
 
-## Prerequisites
+## 前置条件
 
-Before you begin, you need a [CrewAI Flow](https://docs.crewai.com/guides/flows/first-flow). It can run locally or on infrastructure you manage; a CrewAI Enterprise deployment is optional. If you use the CopilotKit CLI path below, the starter creates the Flow integration for you.
+开始之前，你需要一个 [CrewAI Flow](https://docs.crewai.com/guides/flows/first-flow)。它可以在本地或你自行管理的基础设施上运行；CrewAI Enterprise 部署是可选项。如果你采用下方的 CopilotKit CLI 路线，起步模板会为你创建 Flow 集成。
 
-## Getting started
+## 开始使用
 
 <Steps>
 <Step>
-    ### Optional: Set up CopilotKit Intelligence
+    ### 可选：设置 CopilotKit Intelligence
 
-    <SignupLink surface="docs_crewai_flows_quickstart_step1">Start cloud-hosted setup</SignupLink> and create or select a project if you want persistent threads and the inspector. The CLI's `init` flow writes the server-side project API key to `.env` as `CPK_INTELLIGENCE_API_KEY`; cloud-hosted setup does not issue `COPILOTKIT_LICENSE_TOKEN`. A Copilot Cloud account is not required to run a local CrewAI Flow with CopilotKit.
+    <SignupLink surface="docs_crewai_flows_quickstart_step1">开始云端托管配置</SignupLink>，如果你需要持久化线程和检查器（inspector），请创建或选择一个项目。CLI 的 `init` 流程会将服务端项目 API 密钥以 `CPK_INTELLIGENCE_API_KEY` 的形式写入 `.env`；云端托管配置不会颁发 `COPILOTKIT_LICENSE_TOKEN`。在本地运行 CrewAI Flow 搭配 CopilotKit 无需 Copilot Cloud 账号。
 </Step>
 
 <Step>
-    ### How do you want to get started?
+    ### 你想如何开始？
 
-    Bootstrap with the new CopilotKit CLI (Beta) or code along with us to get started.
+    使用全新的 CopilotKit CLI（Beta）快速引导，或跟随我们逐步编码。
 
     <TailoredContent
         className="step"
@@ -38,17 +38,17 @@ Before you begin, you need a [CrewAI Flow](https://docs.crewai.com/guides/flows/
     >
     <TailoredContentOption
         id="cli"
-        title="Use the CopilotKit CLI (NextJS only)"
-        description="I have a Next.js application and want to get started quickly."
+        title="使用 CopilotKit CLI（仅支持 Next.js）"
+        description="我已有 Next.js 应用，希望快速上手。"
         icon={<SquareTerminal />}
     >
         <Step>
-            ### Run the CLI
-            Run the following command in your Next.js application:
+            ### 运行 CLI
+            在你的 Next.js 应用中运行以下命令：
 
             <Accordions>
-                <Accordion title="Don't have a Next.js application?">
-                    No problem! Just use `create-next-app` to make one quickly.
+                <Accordion title="没有 Next.js 应用？">
+                    没问题！用 `create-next-app` 快速创建一个即可。
                     ```bash
                     npx create-next-app@latest
                     ```
@@ -59,13 +59,12 @@ Before you begin, you need a [CrewAI Flow](https://docs.crewai.com/guides/flows/
             npx copilotkit@latest init --framework flows
             ```
 
-            The starter uses a regular CrewAI Flow. To make it session-aware, finish this Quickstart and then [promote the Flow to a Conversational Flow](/crewai-flows/conversational-flows). Your CopilotKit frontend stays the same.
+            起步模板使用的是普通 CrewAI Flow。要让其具备会话感知能力，请先完成本快速开始，再[将 Flow 升级为对话式 Flow](/crewai-flows/conversational-flows)。你的 CopilotKit 前端保持不变。
         </Step>
         <Step>
-            ### 🎉 Talk to your agent!
+            ### 🎉 与你的智能体对话！
 
-            Congrats! You've successfully integrated a CrewAI Flow agent chatbot to your application. Depending on the
-            template you chose, you may see some different UI elements. To start, try asking a few questions to your agent.
+            恭喜！你已成功将 CrewAI Flow 智能体聊天机器人集成到你的应用中。根据你选择的模板，你可能会看到一些不同的 UI 元素。先试着向你的智能体问几个问题吧。
 
             ```
             Can you tell me a joke?
@@ -87,14 +86,14 @@ Before you begin, you need a [CrewAI Flow](https://docs.crewai.com/guides/flows/
     </TailoredContentOption>
     <TailoredContentOption
         id="code-along"
-        title="Code along"
-        description="I want to deeply understand what's happening under the hood or don't have a Next.js application."
+        title="跟随编码"
+        description="我想深入理解底层原理，或者还没有 Next.js 应用。"
         icon={<SquareChartGantt />}
     >
         <Step>
-            ### Expose your Flow as an AG-UI endpoint
+            ### 将你的 Flow 暴露为 AG-UI 端点
 
-            CopilotKit connects to agents over [AG-UI](https://docs.ag-ui.com). A CrewAI Enterprise Live Automation URL or another plain CrewAI endpoint is not automatically AG-UI-compatible, even if it returns HTTP 200. Add the official CrewAI adapter to the service that hosts your Flow:
+            CopilotKit 通过 [AG-UI](https://docs.ag-ui.com) 连接智能体。CrewAI Enterprise Live Automation URL 或其他普通 CrewAI 端点并不自动兼容 AG-UI，即使它返回 HTTP 200。请在承载你的 Flow 的服务中添加官方 CrewAI 适配器：
 
             ```bash title="Terminal"
             pip install -U "crewai>=1.15.11,<2" ag-ui-crewai fastapi uvicorn
@@ -111,13 +110,13 @@ Before you begin, you need a [CrewAI Flow](https://docs.crewai.com/guides/flows/
             add_crewai_flow_fastapi_endpoint(app, YourFlow(), "/")
             ```
 
-            Start the server locally with `uvicorn server:app --host 0.0.0.0 --port 8000`, then deploy it to a public HTTPS URL that Copilot Cloud can reach.
+            使用 `uvicorn server:app --host 0.0.0.0 --port 8000` 在本地启动服务器，然后将其部署到 Copilot Cloud 可访问的公网 HTTPS URL。
         </Step>
 
         <Step>
-            ### Verify the AG-UI stream
+            ### 验证 AG-UI 流
 
-            Before connecting the frontend, send one run directly to the deployed endpoint:
+            在连接前端之前，先直接向部署好的端点发送一次运行：
 
             ```bash title="Terminal"
             export AG_UI_URL="https://your-service.example.com/"
@@ -143,42 +142,41 @@ Before you begin, you need a [CrewAI Flow](https://docs.crewai.com/guides/flows/
               }'
             ```
 
-            A compatible response has a `Content-Type: text/event-stream` header and emits `RUN_STARTED` followed by `RUN_FINISHED`. Do not register the URL if it returns a normal JSON response or emits `RUN_ERROR`; fix the agent endpoint first.
+            兼容的响应应带有 `Content-Type: text/event-stream` 头，并依次发出 `RUN_STARTED` 和 `RUN_FINISHED`。如果它返回普通 JSON 响应或发出 `RUN_ERROR`，请不要注册该 URL；应先修复智能体端点。
         </Step>
 
         <Step>
-            ### Connect to Copilot Cloud
-            1. Go to [Copilot Cloud](https://dashboard.operations.copilotkit.ai), sign in and click Get Started
-            2. Click "Add Remote Endpoint" and enter the public AG-UI URL you verified above. Note: If your Agent Name contains multiple words, use underscores (`_`) as separators.
-            3. Click "Save Endpoint"
-            4. Copy the Copilot Cloud Public API Key
+            ### 连接到 Copilot Cloud
+            1. 前往 [Copilot Cloud](https://dashboard.operations.copilotkit.ai)，登录并点击 Get Started
+            2. 点击 “Add Remote Endpoint”，输入你在上面验证过的公网 AG-UI URL。注意：如果你的智能体名称包含多个单词，请使用下划线（`_`）作为分隔符。
+            3. 点击 “Save Endpoint”
+            4. 复制 Copilot Cloud Public API Key
 
             <img src="https://cdn.copilotkit.ai/docs/copilotkit/images/copilot-cloud/crewai-flow-cpk-setup.gif" alt="CrewAI Flow Copilot Setup" className="rounded-lg shadow-xl mt-4" />
         </Step>
 
         <Step>
-            ### Install CopilotKit
-            First, install the latest packages for CopilotKit into your frontend.
+            ### 安装 CopilotKit
+            首先，在你的前端中安装最新的 CopilotKit 软件包。
             ```npm
             npm install @copilotkit/react-core
             ```
         </Step>
 
         <Step>
-            ### Setup the CopilotKit Provider
-            The [`<CopilotKit>`](/reference/v1/components/CopilotKit) component must wrap the Copilot-aware parts of your application. For most use-cases,
-            it's appropriate to wrap the CopilotKit provider around the entire app, e.g. in your layout.tsx.
+            ### 设置 CopilotKit Provider
+            [`<CopilotKit>`](/reference/v1/components/CopilotKit) 组件必须包裹应用中需要 Copilot 能力的部分。对于大多数用例，将 CopilotKit Provider 包裹整个应用是合适的做法，例如在你的 layout.tsx 中。
 
             <CloudCopilotKit />
         </Step>
         <Step>
-            ### Choose a Copilot UI
-            You are almost there! Now it's time to setup your Copilot UI.
+            ### 选择 Copilot UI
+            就快完成了！现在来设置你的 Copilot UI。
             <CopilotUI />
         </Step>
         <Step>
-            ### Create a CrewAI Flow component
-            Place the following snippet in your **main page** (e.g. `page.tsx` in Next.js) or wherever you want to use CopilotKit.
+            ### 创建 CrewAI Flow 组件
+            将以下代码片段放到你的**主页面**（例如 Next.js 中的 `page.tsx`）或任何你想使用 CopilotKit 的地方。
 
             ```tsx title="page.tsx"
             "use client";
@@ -243,9 +241,9 @@ Before you begin, you need a [CrewAI Flow](https://docs.crewai.com/guides/flows/
             ```
         </Step>
         <Step>
-            ### 🎉 Talk to your agent!
+            ### 🎉 与你的智能体对话！
 
-            Congrats! You've successfully integrated a CrewAI Flow chatbot to your application. To start, try asking a few questions to your agent.
+            恭喜！你已成功将 CrewAI Flow 聊天机器人集成到你的应用中。先试着向你的智能体问几个问题吧。
 
             ```
             Can you tell me a joke?
@@ -262,8 +260,8 @@ Before you begin, you need a [CrewAI Flow](https://docs.crewai.com/guides/flows/
             <video src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/chat-example.mp4" className="rounded-lg shadow-xl" loop playsInline controls autoPlay muted />
 
             <Accordions className="mb-4">
-                <Accordion title="Having trouble?">
-                    - Try changing the host to `0.0.0.0` or `127.0.0.1` instead of `localhost`.
+                <Accordion title="遇到问题？">
+                    - 尝试将主机地址改为 `0.0.0.0` 或 `127.0.0.1`，而不是 `localhost`。
                 </Accordion>
             </Accordions>
         </Step>
@@ -280,39 +278,38 @@ Before you begin, you need a [CrewAI Flow](https://docs.crewai.com/guides/flows/
 
 ---
 
-## What's next?
+## 下一步
 
-You've now got a CrewAI Flow running in CopilotKit! Now you can start exploring the various ways that CopilotKit
-can help you build powerful agent-native applications.
+现在你的 CrewAI Flow 已经在 CopilotKit 中运行了！接下来可以开始探索 CopilotKit 帮助你构建强大智能体原生应用的各种方式。
 
 <Cards>
   <Card
-    title="Make your Flow conversational"
-    description="Promote the Flow to CrewAI's session-aware conversational execution mode."
+    title="让 Flow 支持对话"
+    description="将 Flow 升级为 CrewAI 感知会话的对话式执行模式。"
     href="/crewai-flows/conversational-flows"
     icon={<MessageSquare />}
   />
   <Card
-    title="Implement Human in the Loop"
-    description="Allow your users and agents to collaborate together on tasks."
+    title="实现人机协同（human-in-the-loop）"
+    description="让你的用户与智能体在任务上协同合作。"
     href="/crewai-flows/human-in-the-loop"
     icon={<UserIcon />}
   />
   <Card
-    title="Utilize the Shared State"
-    description="Learn how to synchronize your agent's state with your UI's state, and vice versa."
+    title="利用共享状态"
+    description="了解如何将智能体状态与 UI 状态相互同步。"
     href="/crewai-flows/shared-state"
     icon={<RepeatIcon />}
   />
   <Card
-    title="Add some generative UI"
-    description="Render your agent's progress and output in the UI."
+    title="添加生成式 UI"
+    description="在 UI 中渲染智能体的进度与输出。"
     href="/crewai-flows/generative-ui/tool-rendering"
     icon={<PaintbrushIcon />}
   />
   <Card
-    title="Setup frontend actions"
-    description="Give your agent the ability to call frontend tools, directly updating your application."
+    title="设置前端操作"
+    description="赋予智能体调用前端工具的能力，直接更新你的应用。"
     href="/crewai-flows/frontend-tools"
     icon={<WrenchIcon />}
   />

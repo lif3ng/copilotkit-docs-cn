@@ -1,7 +1,7 @@
 ---
-title: Writing agent state
+title: 写入智能体状态
 icon: "lucide/ArrowRight"
-description: Write to agent's state from your application.
+description: 从你的应用写入智能体状态。
 ---
 
 <video
@@ -14,36 +14,31 @@ description: Write to agent's state from your application.
   muted
 />
 <Callout>
-  This video shows the result of `npx copilotkit@latest init` with the
-  [implementation](#implementation) section applied to it!
+  该视频展示了 `npx copilotkit@latest init` 的结果，并在其上应用了[实现](#实现)部分！
 </Callout>
 
-## What is this?
+## 这是什么？
 
-This guide shows you how to write to your agent's state from your application.
+本指南展示如何从你的应用写入智能体状态。
 
-## When should I use this?
+## 什么时候应该使用？
 
-You can use this when you want to provide the user with feedback about what your agent is doing, specifically
-when your agent is calling tools. CopilotKit allows you to fully customize how these tools are rendered in the chat.
+当你想向用户反馈智能体正在做什么时，就可以使用它，尤其是当智能体正在调用工具时。CopilotKit 允许你完全自定义这些工具在聊天中的渲染方式。
 
-## Implementation
+## 实现
 
 <Steps>
   <Step>
-    ### Run and Connect Your Agent to CopilotKit
+    ### 运行智能体并连接到 CopilotKit
 
-    You'll need to run your agent and connect it to CopilotKit before proceeding. If you haven't done so already,
-    you can follow the instructions in the [Getting Started](/crewai-flows/quickstart) guide.
+    在继续之前，你需要运行你的智能体并将其连接到 CopilotKit。如果尚未完成，可以按照[快速开始](/crewai-flows/quickstart)指南中的说明操作。
 
-    If you don't already have an agent, you can use the [coagent starter](https://github.com/copilotkit/copilotkit/tree/main/examples/coagents-starter-crewai-flows) as a starting point
-    as this guide uses it as a starting point.
+    如果你还没有智能体，可以使用 [coagent starter](https://github.com/copilotkit/copilotkit/tree/main/examples/coagents-starter-crewai-flows) 作为起点，本指南也以它为起点。
 
   </Step>
   <Step>
-    ### Define the Agent State
-    CrewAI Flows are stateful. As you transition through the flow, that state is updated and available to the next function. For this example,
-    let's assume that our agent state looks something like this.
+    ### 定义智能体状态
+    CrewAI Flows 是有状态的。当你在 Flow 中逐步推进时，状态会被更新并可供下一个函数使用。在本示例中，我们假设智能体状态大致如下。
 
     <Tabs groupId="language_crewai-flows_agent" items={["Python", "TypeScript"]} persist>
       <Tab value="Python">
@@ -59,9 +54,8 @@ when your agent is calling tools. CopilotKit allows you to fully customize how t
 
   </Step>
   <Step>
-    ### Call `agent.setState` from the `useAgent` hook
-    `useAgent` returns an `agent` object with a `setState` method that you can use to update the agent state. Calling this
-    will update the agent state and trigger a rerender of anything that depends on the agent state.
+    ### 从 `useAgent` hook 调用 `agent.setState`
+    `useAgent` 会返回一个带有 `setState` 方法的 `agent` 对象，你可以用它来更新智能体状态。调用它会更新智能体状态，并触发所有依赖该状态的内容重新渲染。
 
     ```tsx title="ui/app/page.tsx"
     import { useEffect } from "react";
@@ -106,20 +100,19 @@ when your agent is calling tools. CopilotKit allows you to fully customize how t
 
   </Step>
   <Step>
-    ### Give it a try!
-    You can now use `agent.setState` to update the agent state and `agent.state` to read it. Try toggling the language button
-    and talking to your agent. You'll see the language change to match the agent's state.
+    ### 动手试试！
+    现在你可以使用 `agent.setState` 更新智能体状态，并用 `agent.state` 读取它。试着点击切换语言的按钮并与你的智能体对话，你会看到语言随智能体状态而变化。
   </Step>
 </Steps>
 
-## Advanced Usage
+## 高级用法
 
-### Re-run the agent with a hint about what's changed
+### 附带变更提示重新运行智能体
 
-The new agent state will be used next time the agent runs.
-If you want to re-run it manually, use `copilotkit.runAgent()`.
+新的智能体状态将在智能体下次运行时生效。
+如果你想手动重新运行，可以使用 `copilotkit.runAgent()`。
 
-The agent will be re-run with the latest updated state. You can also add a hint message before re-running.
+智能体会以最新更新的状态重新运行。你也可以在重新运行前添加一条提示消息。
 
 ```tsx title="ui/app/page.tsx"
 
@@ -152,11 +145,10 @@ function YourMainContent() {
 }
 ```
 
-### Intermediately Stream and Render Agent State
+### 以中间状态流式渲染智能体状态
 
-By default, the CrewAI Flow agent state will only update _between_ CrewAI Flow node transitions --
-which means state updates will be discontinuous and delayed.
+默认情况下，CrewAI Flow 智能体状态只_会在 CrewAI Flow 节点切换之间_更新——这意味着状态更新是不连续且滞后的。
 
-You likely want to render the agent state as it updates **continuously.**
+你可能希望智能体状态在更新时**持续地**渲染。
 
-See **[predictive state updates](/crewai-flows/shared-state/predictive-state-updates).**
+参阅 **[预测状态更新](/crewai-flows/shared-state/predictive-state-updates)**。

@@ -1,6 +1,6 @@
 ---
 title: CrewAI Flows
-description: Learn how to implement Human-in-the-Loop (HITL) using CrewAI Flows.
+description: 了解如何使用 CrewAI Flows 实现人机协同（human-in-the-loop，HITL）。
 icon: lucide/Share2
 ---
 
@@ -15,47 +15,42 @@ icon: lucide/Share2
 />
 
 <Callout type="info">
-  Pictured above is the [coagent
-  starter](https://github.com/copilotkit/copilotkit/tree/main/examples/coagents-starter-crewai-flows)
-  with the implementation below applied!
+  上图是应用了下方实现之后的
+  [CoAgents
+  起步模板项目](https://github.com/copilotkit/copilotkit/tree/main/examples/coagents-starter-crewai-flows)！
 </Callout>
 
-## What is this?
+## 这是什么？
 
-[Flow based agents](https://docs.crewai.com/concepts/flows) are stateful agents that can be interrupted and resumed
-to allow for user input.
+[基于 Flow 的智能体](https://docs.crewai.com/concepts/flows)是一种有状态的智能体，可以被中断并恢复，从而为用户输入留出空间。
 
-CopilotKit lets you to add custom UI to take user input and then pass it back to the agent upon completion.
+CopilotKit 让你能够添加自定义 UI 来收集用户输入，并在完成后将其传回智能体。
 
-## Why should I use this?
+## 为什么要用它？
 
-Human-in-the-loop is a powerful way to implement complex workflows that are production ready. By having a human in the loop,
-you can ensure that the agent is always making the right decisions and ultimately is being steered in the right direction.
+人机协同（human-in-the-loop，HITL）是构建可上生产环境的复杂工作流的强大方式。通过让人类参与流程，你可以确保智能体始终做出正确的决策，并最终被引导到正确的方向上。
 
-Flow based agents are a great way to implement HITL for more complex workflows where you want to ensure the agent is aware
-of everything that has happened during a HITL interaction.
+对于更复杂的工作流，基于 Flow 的智能体是实现 HITL 的绝佳方式——它可以确保智能体清楚了解每一次 HITL 交互过程中发生的一切。
 
-## Implementation
+## 实现
 
 <Steps>
     <Step>
-        ### Run and connect your agent
+        ### 运行并连接你的智能体
 
-        You'll need to run your agent and connect it to CopilotKit before proceeding. If you haven't done so already,
-        you can follow the instructions in the [Getting Started](/crewai-flows/quickstart) guide.
+        在继续之前，你需要先运行你的智能体并将其连接到 CopilotKit。如果还没有，可以按照[快速开始](/crewai-flows/quickstart)指南中的说明操作。
 
-        If you don't already have an agent, you can use the [coagent starter](https://github.com/CopilotKit/CopilotKit/tree/main/examples/coagents-starter-crewai-flows) as a starting point
-        as this guide uses it as a starting point.
+        如果你还没有智能体，可以使用 [CoAgents 起步模板项目](https://github.com/CopilotKit/CopilotKit/tree/main/examples/coagents-starter-crewai-flows)作为起点，本指南也正是以它为起点的。
     </Step>
 
     <Step>
-      ### Install the CopilotKit SDK
+      ### 安装 CopilotKit SDK
       <InstallSDKSnippet/>
     </Step>
 
     <Step>
-        ### Add a `useFrontendTool` to your Frontend
-        First, we'll create a component that renders the agent's essay draft and waits for user approval.
+        ### 在前端中添加 `useFrontendTool`
+        首先，我们创建一个组件，用于渲染智能体的文章草稿并等待用户批准。
 
         ```tsx title="ui/app/page.tsx"
 
@@ -102,15 +97,13 @@ of everything that has happened during a HITL interaction.
     </Step>
 
     <Step>
-    ### Setup the CrewAI Agent
-    Now we'll setup the CrewAI agent. The flow is hard to understand without a complete example, so below
-    is the complete implementation of the agent with explanations.
+    ### 配置 CrewAI 智能体
+    接下来我们配置 CrewAI 智能体。没有完整示例的话，这个 Flow 很难理解，所以下面给出带有讲解的智能体完整实现。
 
-    Some main things to note:
-    - The agent's state inherits from `CopilotKitState` to bring in the CopilotKit actions.
-    - CopilotKit's actions are bound to the model as tools.
-    - If the `writeEssay` action is found in the model's response, the agent will pass control back to the frontend
-      to get user feedback.
+    有几个要点需要注意：
+    - 智能体的状态继承自 `CopilotKitState`，以引入 CopilotKit 的操作。
+    - CopilotKit 的操作会作为工具绑定到模型上。
+    - 如果模型的响应中出现了 `writeEssay` 操作，智能体会把控制权交回前端，以获取用户反馈。
 
     <Tabs groupId="language_crewai-flows_agent" items={["Python"]} persist>
       <Tab value="Python">
@@ -190,9 +183,8 @@ of everything that has happened during a HITL interaction.
     </Tabs>
     </Step>
     <Step>
-        ### Give it a try!
-        Try asking your agent to write an essay about the benefits of AI. You'll see that it will generate an essay,
-        stream the progress and eventually ask you to review it.
+        ### 试一试！
+        试着让智能体写一篇关于 AI 好处的文章。你会看到它会生成文章、流式展示进度，并最终请你审阅。
     </Step>
 
 </Steps>

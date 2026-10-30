@@ -1,39 +1,35 @@
 ---
-title: Conversational Flows
-description: Promote an existing CrewAI Flow to a session-aware Conversational Flow and connect it to CopilotKit through AG-UI.
+title: 对话式 Flow
+description: 将现有 CrewAI Flow 升级为会话感知的对话式 Flow，并通过 AG-UI 连接到 CopilotKit。
 icon: "lucide/MessagesSquare"
 doc_type: how-to
 ---
 
-CrewAI Conversational Flows are an execution mode for CrewAI Flows, not a separate CopilotKit integration. Start with the [CrewAI Quickstart](/crewai-flows/quickstart), then opt your existing Flow and its AG-UI endpoint into conversational execution.
+CrewAI 对话式 Flow 是 CrewAI Flows 的一种执行模式，而不是一个独立的 CopilotKit 集成。请先完成 [CrewAI 快速开始](/crewai-flows/quickstart)，然后将你现有的 Flow 及其 AG-UI 端点选择加入对话式执行。
 
-Each CopilotKit turn is passed to CrewAI's `stream_turn` API. The integration maps the CopilotKit `threadId` to CrewAI's `session_id`, so each browser thread gets an isolated, multi-turn conversation.
+CopilotKit 的每一轮对话都会传递给 CrewAI 的 `stream_turn` API。该集成将 CopilotKit 的 `threadId` 映射为 CrewAI 的 `session_id`，因此每个浏览器线程都拥有隔离的多轮对话。
 
-<Callout type="info" title="Full CopilotKit support">
-  Conversational Flows support the same CopilotKit features as regular CrewAI
-  Flows, including chat components, headless chat, frontend tools, tool
-  rendering, generative UI, shared state, reasoning, human-in-the-loop,
-  subagents, voice, and multimodal input. Your CopilotKit frontend code does not
-  change when you promote a Flow.
+<Callout type="info" title="完整的 CopilotKit 支持">
+  对话式 Flow 支持与常规 CrewAI Flow 相同的 CopilotKit 特性，包括聊天组件、无头聊天、前端工具、工具渲染、生成式 UI、共享状态、推理、人机协同（human-in-the-loop）、子智能体、语音和多模态输入。升级 Flow 时，你的 CopilotKit 前端代码无需更改。
 </Callout>
 
-## Prerequisites
+## 前置条件
 
-- Complete the [CrewAI Quickstart](/crewai-flows/quickstart) with a working Flow and AG-UI endpoint.
-- Install CrewAI 1.15.11 or later. Earlier versions do not provide the `stream_turn` behavior required by this integration.
-- Use the latest `ag-ui-crewai` release.
+- 完成 [CrewAI 快速开始](/crewai-flows/quickstart)，拥有一个可正常工作的 Flow 和 AG-UI 端点。
+- 安装 CrewAI 1.15.11 或更高版本。更早的版本不提供此集成所需的 `stream_turn` 行为。
+- 使用最新版本的 `ag-ui-crewai`。
 
 ```bash title="Terminal"
 pip install -U "crewai>=1.15.11,<2" ag-ui-crewai
 ```
 
-## Promote your Flow
+## 升级你的 Flow
 
 <Steps>
   <Step>
-    ### Enable conversational execution on the Flow
+    ### 在 Flow 上启用对话式执行
 
-    Add `conversational = True` to the Flow class you created in the Quickstart. You do not need a second agent or a separate deployment.
+    在快速开始中创建的 Flow 类上添加 `conversational = True`。你不需要第二个智能体，也不需要单独部署。
 
     ```python title="flow.py"
     class SupportFlow(Flow[AppState]):
@@ -44,9 +40,9 @@ pip install -U "crewai>=1.15.11,<2" ag-ui-crewai
   </Step>
 
   <Step>
-    ### Enable conversational execution on the endpoint
+    ### 在端点上启用对话式执行
 
-    Pass the same opt-in when you register the Flow with FastAPI:
+    用 FastAPI 注册 Flow 时传入同样的选择加入参数：
 
     ```python title="server.py"
     from fastapi import FastAPI
@@ -64,28 +60,28 @@ pip install -U "crewai>=1.15.11,<2" ag-ui-crewai
     )
     ```
 
-    The endpoint now calls `stream_turn(message, session_id=thread_id)` instead of starting the Flow through the regular `kickoff` or `astream` path.
+    此时端点会调用 `stream_turn(message, session_id=thread_id)`，而不是通过常规的 `kickoff` 或 `astream` 路径启动 Flow。
   </Step>
 
   <Step>
-    ### Keep the CopilotKit frontend unchanged
+    ### 保持 CopilotKit 前端不变
 
-    Continue using the same `<CopilotKit>`, chat component, hooks, tools, and generative UI components from the Quickstart and feature guides. The execution-mode change is entirely in the CrewAI backend.
+    继续使用快速开始和特性指南中相同的 `<CopilotKit>`、聊天组件、hook、工具和生成式 UI 组件。执行模式的更改完全位于 CrewAI 后端。
   </Step>
 </Steps>
 
-## Feature-specific notes
+## 特性相关注意事项
 
-Most CopilotKit features require no additional Conversational Flow configuration. These are the exceptions to keep in mind:
+大多数 CopilotKit 特性无需额外的对话式 Flow 配置。以下是需要注意的例外情况：
 
-| When you use | What to do |
+| 当你使用 | 该怎么做 |
 | --- | --- |
-| Custom Pydantic state | Inherit from `ag_ui_crewai.CopilotKitState`. It includes the conversation fields CrewAI needs alongside CopilotKit messages, tools, and shared state. |
-| CrewAI conversational routes | Route a turn with `route_turn()` and `@listen(...)`. Return the public reply or call `append_assistant_message()` once; CrewAI already appends the current user message. |
-| Native interrupts with `useInterrupt` | Register the endpoint with `emit_interrupt_outcome=True` and `enable_legacy_on_interrupt_event=False`, just as you would for a regular CrewAI Flow. |
-| CrewAI persistence | Keep using CrewAI's `@persist` support. CopilotKit supplies a stable `threadId`, and the integration uses it as the CrewAI `session_id`. |
+| 自定义 Pydantic 状态 | 继承 `ag_ui_crewai.CopilotKitState`。除 CopilotKit 消息、工具和共享状态外，它还包含 CrewAI 所需的会话字段。 |
+| CrewAI 对话式路由 | 使用 `route_turn()` 和 `@listen(...)` 对每一轮进行路由。返回公开回复或调用一次 `append_assistant_message()`；CrewAI 已经会追加当前用户消息。 |
+| 配合 `useInterrupt` 的原生中断 | 像常规 CrewAI Flow 一样，使用 `emit_interrupt_outcome=True` 和 `enable_legacy_on_interrupt_event=False` 注册端点。 |
+| CrewAI 持久化 | 继续使用 CrewAI 的 `@persist` 支持。CopilotKit 提供稳定的 `threadId`，该集成将其用作 CrewAI 的 `session_id`。 |
 
-For an interrupt-enabled endpoint, the registration looks like this:
+对于启用了中断的端点，注册方式如下：
 
 ```python title="server.py"
 add_crewai_flow_fastapi_endpoint(
@@ -98,9 +94,9 @@ add_crewai_flow_fastapi_endpoint(
 )
 ```
 
-## Existing Flow routing
+## 现有 Flow 的路由
 
-Enabling conversational mode adds CrewAI's turn router to your Flow. If your existing Flow already produces one public response from an `@start` graph, make sure the conversational router does not also send a built-in `converse` response. For intent-based conversations, move the per-turn entry points behind `route_turn()` and `@listen(...)` handlers.
+启用对话式模式会为你的 Flow 添加 CrewAI 的轮次路由器。如果你现有的 Flow 已经通过 `@start` 图产生一条公开响应，请确保对话式路由器不会再发送内置的 `converse` 响应。对于基于意图的对话，请将每轮的入口点移到 `route_turn()` 和 `@listen(...)` 处理器之后。
 
 ```python title="flow.py"
 from crewai.flow import listen
@@ -116,13 +112,13 @@ class SupportFlow(Flow[AppState]):
         return self.run_existing_support_logic()
 ```
 
-## Runtime contract
+## 运行时约定
 
-Both opt-ins are required. If the endpoint requests conversational execution but the Flow does not declare `conversational = True` or expose `stream_turn`, the integration returns a correlated `RUN_ERROR` instead of silently falling back to regular Flow execution.
+两处选择加入都是必需的。如果端点请求了对话式执行，但 Flow 既未声明 `conversational = True` 也未暴露 `stream_turn`，该集成会返回一个对应的 `RUN_ERROR`，而不是静默回退到常规 Flow 执行。
 
-## Next steps
+## 后续步骤
 
-- **Build the base integration:** [CrewAI Quickstart](/crewai-flows/quickstart) — create the Flow and CopilotKit application that this guide promotes.
-- **Add generative UI:** [Tool rendering](/crewai-flows/generative-ui/tool-rendering) — render CrewAI tool activity with application components.
-- **Synchronize application state:** [Shared state](/crewai-flows/shared-state) — let your Conversational Flow read and update frontend state.
-- **Pause for user input:** [Human in the loop](/crewai-flows/human-in-the-loop) — suspend a turn and resume it with structured user feedback.
+- **构建基础集成**：[CrewAI 快速开始](/crewai-flows/quickstart) —— 创建本指南要升级的 Flow 和 CopilotKit 应用。
+- **添加生成式 UI**：[工具渲染](/crewai-flows/generative-ui/tool-rendering) —— 用应用组件渲染 CrewAI 工具活动。
+- **同步应用状态**：[共享状态](/crewai-flows/shared-state) —— 让你的对话式 Flow 读取并更新前端状态。
+- **暂停等待用户输入**：[人机协同](/crewai-flows/human-in-the-loop) —— 暂停一轮对话，并在获得结构化用户反馈后恢复。

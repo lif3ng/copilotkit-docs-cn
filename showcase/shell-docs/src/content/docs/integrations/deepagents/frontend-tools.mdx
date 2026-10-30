@@ -1,7 +1,7 @@
 ---
-title: Frontend Tools
+title: 前端工具
 icon: "lucide/Wrench"
-description: Create frontend tools and use them within your Deep Agents agent.
+description: 创建前端工具并在你的 Deep Agents 智能体中使用它们。
 hideTOC: true
 ---
 {/* TODO: swap feature-viewer URLs back to /deepagents/ once the dojo supports that route */}
@@ -9,40 +9,40 @@ hideTOC: true
   id="frontend-actions-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/agentic_chat?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/agentic_chat?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
-## What is this?
-Frontend tools enable you to define client-side functions that your Deep Agents agent can invoke, with execution happening entirely in the user's browser. When your agent calls a frontend tool,
-the logic runs on the client side, giving you direct access to the frontend environment.
+## 这是什么？
+前端工具让你能够定义客户端函数，供你的 Deep Agents 智能体调用，执行完全发生在用户的浏览器中。当你的智能体调用前端工具时，
+逻辑会在客户端运行，让你可以直接访问前端环境。
 
-This can be utilized to let your agent control the UI, for generative UI, or for Human-in-the-loop interactions.
+它可以用来让智能体控制 UI、实现生成式 UI，或进行人机协同（human-in-the-loop）交互。
 
-In this guide, we cover the use of frontend tools driving and interacting with the UI.
+在本指南中，我们将介绍如何使用前端工具来驱动 UI 并与之交互。
 
-## When should I use this?
-Use frontend tools when you need your agent to interact with client-side primitives such as:
-- Reading or modifying React component state
-- Accessing browser APIs like localStorage, sessionStorage, or cookies
-- Triggering UI updates or animations
-- Interacting with third-party frontend libraries
-- Performing actions that require the user's immediate browser context
+## 什么时候应该使用它？
+当你需要智能体与客户端底层能力交互时，可以使用前端工具，例如：
+- 读取或修改 React 组件状态
+- 访问 localStorage、sessionStorage 或 cookies 等浏览器 API
+- 触发 UI 更新或动画
+- 与第三方前端库交互
+- 执行需要用户即时浏览器上下文的操作
 
-## Implementation
+## 实现
 
 <Steps>
     <Step>
-        ### Run and connect your agent
+        ### 运行并连接你的智能体
        <RunAndConnect />
     </Step>
 
     <Step>
-        ### Create a frontend tool
+        ### 创建前端工具
 
-        First, you'll need to create a frontend tool using the [useFrontendTool](/reference/v2/hooks/useFrontendTool) hook. Here's a simple one to get you started
-        that says hello to the user.
+        首先，你需要使用 [useFrontendTool](/reference/v2/hooks/useFrontendTool) 钩子创建一个前端工具。下面是一个简单的入门示例，
+        它会向用户问好。
 
         ```tsx title="page.tsx"
         import { z } from "zod";
@@ -69,20 +69,20 @@ Use frontend tools when you need your agent to interact with client-side primiti
         ```
     </Step>
     <Step>
-        ### Install the CopilotKit SDK
+        ### 安装 CopilotKit SDK
 
-        Now, we'll need to modify the agent to access these frontend tools. In your terminal, navigate to your agent's folder and continue from there!
+        接下来，我们需要修改智能体以访问这些前端工具。在终端中进入智能体所在文件夹，然后从那里继续！
 
         <InstallSDKSnippet/>
     </Step>
     <Step>
-        ### Wire CopilotKit state into your agent
+        ### 将 CopilotKit 状态接入你的智能体
 
-        To access the frontend tools provided by CopilotKit, register the CopilotKit state alongside any custom state your agent needs.
+        要访问 CopilotKit 提供的前端工具，需要在智能体所需的任意自定义状态之外，同时注册 CopilotKit 状态。
 
         <Tabs groupId="agent_language" items={['Python', 'TypeScript']} persist>
             <Tab value="Python">
-                In Python, inherit from `CopilotKitState` in your agent's state definition:
+                在 Python 中，让智能体的状态定义继承 `CopilotKitState`：
 
                 ```python title="agent.py"
                 from copilotkit import CopilotKitState # [!code highlight]
@@ -92,7 +92,7 @@ Use frontend tools when you need your agent to interact with client-side primiti
                 ```
             </Tab>
             <Tab value="TypeScript">
-                In TypeScript, define your custom state as a middleware via `createMiddleware` and compose it with `copilotkitMiddleware`:
+                在 TypeScript 中，通过 `createMiddleware` 将自定义状态定义为中间件，再与 `copilotkitMiddleware` 组合：
 
                 ```ts title="agent.ts"
                 import { createMiddleware } from "langchain";
@@ -112,22 +112,22 @@ Use frontend tools when you need your agent to interact with client-side primiti
             </Tab>
         </Tabs>
 
-        By doing this, your agent's state will include the `copilotkit` property, which contains the frontend tools that can be accessed and invoked.
+        这样一来，智能体的状态就会包含 `copilotkit` 属性，其中含有可访问和调用的前端工具。
     </Step>
     <Step>
-        ### Accessing Frontend Tools
+        ### 访问前端工具
 
-        Once your agent's state includes the `copilotkit` property, you can access the frontend tools and utilize them within your agent's logic.
+        一旦智能体的状态包含 `copilotkit` 属性，你就可以访问这些前端工具，并在智能体的逻辑中使用它们。
 
-        Here's how you can call a frontend tool from your agent:
+        以下是从智能体中调用前端工具的方法：
 
         <FrontEndToolsImpl />
 
-        These tools are automatically populated by CopilotKit and are compatible with LangChain's tool call definitions, making it straightforward to integrate them into your agent's workflow.
+        这些工具由 CopilotKit 自动填充，并与 LangChain 的工具调用定义兼容，因此可以轻松集成到智能体的工作流中。
     </Step>
     <Step>
-        ### Give it a try!
-        You've now given your agent the ability to directly call any frontend tools you've defined. These tools will be available to the agent where they can be used as needed.
+        ### 试一试！
+        现在，你的智能体已经能够直接调用你定义的任何前端工具。这些工具对智能体可用，可在需要时使用。
 
         <video src="https://cdn.copilotkit.ai/docs/copilotkit/images/frontend-actions-demo.mp4" className="rounded-lg shadow-xl" loop playsInline controls autoPlay muted />
     </Step>

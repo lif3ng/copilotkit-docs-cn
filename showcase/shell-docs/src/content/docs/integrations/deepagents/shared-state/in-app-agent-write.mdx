@@ -1,42 +1,40 @@
 ---
-title: Writing agent state
+title: 写入智能体状态
 icon: "lucide/ArrowRight"
-description: Write to agent's state from your application.
+description: 从你的应用写入智能体状态。
 ---
 {/* TODO: swap feature-viewer URLs back to /deepagents/ once the dojo supports that route */}
 <IframeSwitcher
   id="shared-state-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/shared_state?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/shared_state?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
 <Callout type="info">
-  This example demonstrates writing to shared state in the [CopilotKit Feature Viewer](https://feature-viewer.copilotkit.ai/langgraph/feature/shared_state).
+  本示例在 [CopilotKit Feature Viewer](https://feature-viewer.copilotkit.ai/langgraph/feature/shared_state) 中演示了如何写入共享状态。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-This guide shows you how to write to your agent's state from your application.
+本指南将向你展示如何从你的应用写入智能体状态。
 
-## When should I use this?
+## 何时使用？
 
-You can use this when you want to provide the user with feedback about what your agent is doing, specifically
-when your agent is calling tools. CopilotKit allows you to fully customize how these tools are rendered in the chat.
+当你想向用户反馈智能体正在做什么时，可以使用它，尤其是智能体正在调用工具的时候。CopilotKit 允许你完全自定义这些工具在聊天中的渲染方式。
 
-## Implementation
+## 实现
 
 <Steps>
   <Step>
-    ### Run and connect your agent
+    ### 运行并连接你的智能体
     <RunAndConnect />
   </Step>
   <Step>
-    ### Define the Agent State
-    LangGraph is stateful. As you transition between nodes, that state is updated and passed to the next node. For this example,
-    let's assume that our agent state looks something like this.
+    ### 定义智能体状态
+    LangGraph 是有状态的。当你在节点之间流转时，状态会被更新并传递给下一个节点。在本示例中，我们假设智能体状态大致如下。
 
     <Tabs groupId="agent_language" items={["Python", "TypeScript"]} persist>
       <Tab value="Python">
@@ -68,8 +66,8 @@ when your agent is calling tools. CopilotKit allows you to fully customize how t
     </Tabs>
   </Step>
   <Step>
-    ### Use the `useAgent` hook to read and write state
-    `useAgent` gives you access to the agent, including its state. You can update state by calling `agent.setState`.
+    ### 使用 `useAgent` hook 读写状态
+    `useAgent` 让你可以访问智能体及其状态。你可以通过调用 `agent.setState` 来更新状态。
 
     ```tsx title="ui/app/page.tsx"
     import { useAgent } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -104,23 +102,22 @@ when your agent is calling tools. CopilotKit allows you to fully customize how t
     ```
   </Step>
   <Step>
-    ### Give it a try!
-    You can now use the `setState` function to update the agent state and `state` to read it. Try toggling the language button
-    and talking to your agent. You'll see the language change to match the agent's state.
+    ### 试一试！
+    现在你可以使用 `setState` 函数更新智能体状态，并用 `state` 读取它。试着切换语言按钮并与你的智能体对话，你会看到语言随智能体状态而变化。
 
     <video src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/write-agent-state.mp4" className="rounded-lg shadow-xl" loop playsInline controls autoPlay muted />
     <Callout>
-      This video shows the result of `npx copilotkit@latest init` with the [implementation](#implementation) section applied to it!
+      此视频展示的是 `npx copilotkit@latest init` 的结果，并应用了[实现](#实现)一节的内容！
     </Callout>
   </Step>
 </Steps>
 
-## Advanced Usage
+## 高级用法
 
-### Re-run the agent with updated state
+### 用更新后的状态重新运行智能体
 
-The new agent state will be used next time the agent runs.
-If you want to re-run it manually, call `copilotkit.runAgent({ agent })` after updating state. Running through `copilotkit` sends your frontend tools and context with the run and executes any frontend tool calls.
+更新后的智能体状态会在智能体下次运行时使用。
+如果你想手动重新运行它，请在更新状态后调用 `copilotkit.runAgent({ agent })`。通过 `copilotkit` 运行会在这次运行中携带你的前端工具与上下文，并执行任何前端工具调用。
 
 ```tsx title="ui/app/page.tsx"
 import { useAgent, useCopilotKit } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -151,10 +148,9 @@ function YourMainContent() {
 }
 ```
 
-### Intermediately Stream and Render Agent State
-By default, the Deep Agents agent state will only update *between* LangGraph node transitions --
-which means state updates will be discontinuous and delayed.
+### 流式传输并渲染中间状态
+默认情况下，Deep Agents 的智能体状态只会在 LangGraph 节点切换*之间*更新——这意味着状态更新是不连续且有延迟的。
 
-You likely want to render the agent state as it updates **continuously.**
+你可能希望智能体状态在更新过程中**持续**地渲染出来。
 
-See **[predictive state updates](/deepagents/shared-state/predictive-state-updates).**
+参见 **[预测性状态更新](/deepagents/shared-state/predictive-state-updates)**。

@@ -1,19 +1,19 @@
 ---
-title: "Error Debugging & Observability"
-description: "Learn how to debug errors in CopilotKit with dev console and set up error observability for monitoring services."
+title: "报错调试与可观测性"
+description: "了解如何使用 dev console 调试 CopilotKit 中的报错，并配置错误可观测性以接入监控服务。"
 icon: "lucide/TriangleAlert"
 ---
 
-CopilotKit provides comprehensive error handling capabilities to help you debug issues and monitor your application's behavior. Whether you're developing locally or running in production, CopilotKit offers tools to capture, understand, and resolve errors effectively.
+CopilotKit 提供全面的错误处理能力，帮助你调试问题并监控应用行为。无论你是在本地开发还是在生产环境运行，CopilotKit 都提供工具来高效地捕获、理解和解决报错。
 
-## Quick Start
+## 快速开始
 
 <Steps>
 
 <Step>
-### Local Development with Dev Console
+### 使用 dev console 进行本地开发
 
-For local development, enable the dev console to see errors directly in your UI:
+在本地开发时，启用 dev console 即可在 UI 中直接看到报错：
 
 ```tsx
 export default function App() {
@@ -29,16 +29,15 @@ export default function App() {
 ```
 
 <Callout type="tip">
-  The dev console shows error banner directly in your UI, making it easy to spot
-  issues during development. **No API key required** for this feature.
+  dev console 会直接在你的 UI 中显示错误横幅，方便你在开发过程中发现问题。此功能**无需 API 密钥**。
 </Callout>
 
 </Step>
 
 <Step>
-### Production Error Observability
+### 生产环境错误可观测性
 
-For production applications, use error observability hooks to send errors to monitoring services (requires `publicApiKey`):
+对于生产应用，使用错误可观测性 hook 将报错发送到监控服务（需要 `publicApiKey`）：
 
 ```tsx
 export default function App() {
@@ -67,20 +66,20 @@ export default function App() {
 ```
 
 <Callout type="info">
-  **Need a publicApiKey?** Go to
-  [https://dashboard.operations.copilotkit.ai](https://dashboard.operations.copilotkit.ai) and get one for
-  free!
+  **需要 publicApiKey？**前往
+  [https://dashboard.operations.copilotkit.ai](https://dashboard.operations.copilotkit.ai) 免费
+  获取一个！
 </Callout>
 
 </Step>
 
 </Steps>
 
-## Error Handling Options
+## 错误处理选项
 
-### Dev Console (`showDevConsole`)
+### Dev Console（`showDevConsole`）
 
-The dev console provides immediate visual feedback during development:
+dev console 在开发过程中提供即时的可视化反馈：
 
 ```tsx
 <CopilotKit runtimeUrl="<your-runtime-url>" showDevConsole={true}>
@@ -88,27 +87,26 @@ The dev console provides immediate visual feedback during development:
 </CopilotKit>
 ```
 
-**Features:**
+**特性：**
 
-- ✅ **No API key required** - works with any setup
-- ✅ **Visual error banner** - errors appear as banner in your UI
-- ✅ **Real-time feedback** - see errors immediately as they occur
-- ✅ **Development-focused** - detailed error information for debugging
+- ✅ **无需 API 密钥**——适用于任何配置
+- ✅ **可视化错误横幅**——报错以横幅形式显示在你的 UI 中
+- ✅ **实时反馈**——报错一出现就能立即看到
+- ✅ **面向开发**——提供用于调试的详细报错信息
 
-**Best for:**
+**最适用于：**
 
-- Local development
-- Testing and debugging
-- Understanding error flows
+- 本地开发
+- 测试与调试
+- 理解报错流程
 
 <Callout type="warn">
-  Set `showDevConsole={false}` in production to avoid showing error details to
-  end users.
+  在生产环境中请设置 `showDevConsole={false}`，以避免向最终用户展示报错详情。
 </Callout>
 
-### Error Observability (`onError`)
+### 错误可观测性（`onError`）
 
-The error observability hooks provide programmatic access to detailed error information for monitoring and analytics:
+错误可观测性 hook 提供对详细报错信息的编程式访问，用于监控与分析：
 
 ```tsx
 <CopilotKit
@@ -135,27 +133,26 @@ The error observability hooks provide programmatic access to detailed error info
 </CopilotKit>
 ```
 
-**Features:**
+**特性：**
 
-- ✅ **Rich error context** - detailed information about what went wrong
-- ✅ **Request/response tracking** - monitor the full conversation flow
-- ✅ **Agent state monitoring** - track agent interactions and state changes
-- ✅ **Production-ready** - structured data perfect for monitoring services
+- ✅ **丰富的报错上下文**——关于出错原因的详细信息
+- ✅ **请求/响应追踪**——监控完整的对话流程
+- ✅ **智能体状态监控**——追踪智能体交互与状态变化
+- ✅ **生产可用**——结构化数据非常适合监控服务
 
-**Requirements:**
+**前提条件：**
 
-- Requires `publicApiKey` from [Copilot Cloud](https://dashboard.operations.copilotkit.ai)
-- Part of CopilotKit's enterprise observability offering
+- 需要来自 [Copilot Cloud](https://dashboard.operations.copilotkit.ai) 的 `publicApiKey`
+- 属于 CopilotKit 企业级可观测性服务的一部分
 
 <Callout type="info">
-  **Note:** Basic error handling works without Cloud. The `onError` hook is
-  specifically for **error observability** - sending error data to monitoring
-  services like Sentry, DataDog, etc.
+  **注意**：基础错误处理无需 Cloud 即可使用。`onError` hook 专门用于
+  **错误可观测性**——将报错数据发送到 Sentry、DataDog 等监控服务。
 </Callout>
 
-## Error Event Structure
+## 错误事件结构
 
-The `onError` handler receives detailed error events with rich context:
+`onError` 处理器会接收到带有丰富上下文的详细错误事件：
 
 ```typescript
 interface CopilotErrorEvent {
@@ -197,9 +194,9 @@ interface CopilotErrorEvent {
 }
 ```
 
-## Common Error Observability Patterns
+## 常见错误可观测性模式
 
-### Basic Error Logging
+### 基础报错日志
 
 ```tsx
 <CopilotKit
@@ -217,7 +214,7 @@ interface CopilotErrorEvent {
 </CopilotKit>
 ```
 
-### Integration with Monitoring Services
+### 与监控服务集成
 
 ```tsx
 // Example with Sentry
@@ -243,7 +240,7 @@ interface CopilotErrorEvent {
 </CopilotKit>
 ```
 
-### Custom Error Analytics
+### 自定义错误分析
 
 ```tsx
 <CopilotKit
@@ -264,9 +261,9 @@ interface CopilotErrorEvent {
 </CopilotKit>
 ```
 
-## Development vs Production Setup
+## 开发与生产环境配置
 
-### Development Environment
+### 开发环境
 
 ```tsx
 <CopilotKit
@@ -281,7 +278,7 @@ interface CopilotErrorEvent {
 </CopilotKit>
 ```
 
-### Production Environment
+### 生产环境
 
 ```tsx
 <CopilotKit
@@ -309,17 +306,17 @@ interface CopilotErrorEvent {
 </CopilotKit>
 ```
 
-## Getting Started with Copilot Cloud
+## 开始使用 Copilot Cloud
 
-To use error observability hooks, you'll need a Copilot Cloud account:
+要使用错误可观测性 hook，你需要一个 Copilot Cloud 账号：
 
-1. **Sign up for free** at [https://dashboard.operations.copilotkit.ai](https://dashboard.operations.copilotkit.ai)
-2. **Get your public API key** from the dashboard
-3. **Add it to your environment variables**:
+1. 在 [https://dashboard.operations.copilotkit.ai](https://dashboard.operations.copilotkit.ai) **免费注册**
+2. 在控制台**获取你的 public API 密钥**
+3. **将其添加到环境变量**：
    ```bash
    NEXT_PUBLIC_COPILOTKIT_API_KEY=ck_pub_your_key_here
    ```
-4. **Use it in your CopilotKit provider**:
+4. **在你的 CopilotKit provider 中使用它**：
    ```tsx
    <CopilotKit publicApiKey={process.env.NEXT_PUBLIC_COPILOTKIT_API_KEY}>
      {/* Your app */}
@@ -327,49 +324,48 @@ To use error observability hooks, you'll need a Copilot Cloud account:
    ```
 
 <Callout type="info">
-  Copilot Cloud is free to get started and provides production-ready
-  infrastructure for your AI copilots, including comprehensive error
-  observability and monitoring capabilities.
+  Copilot Cloud 可免费上手，并为你的 AI copilot 提供生产级
+  基础设施，包括全面的错误可观测性与监控能力。
 </Callout>
 
-## Best Practices
+## 最佳实践
 
-### ✅ Do
+### ✅ 推荐做法
 
-- **Use `showDevConsole={true}` during development** for immediate feedback
-- **Set `showDevConsole={false}` in production** to hide errors from users
-- **Implement proper error observability** with the `onError` hook for monitoring
-- **Monitor error patterns** to identify and fix issues proactively
-- **Use structured logging** to make error analysis easier
+- **开发时使用 `showDevConsole={true}`**，获得即时反馈
+- **在生产环境设置 `showDevConsole={false}`**，对用户隐藏报错
+- **实现完善的错误可观测性**，配合 `onError` hook 进行监控
+- **监控报错模式**，主动发现并修复问题
+- **使用结构化日志**，让报错分析更轻松
 
-### ❌ Don't
+### ❌ 避免做法
 
-- **Don't expose detailed errors to end users** in production
-- **Don't ignore error events** - they provide valuable debugging information
-- **Don't log sensitive data** in error observability hooks
-- **Don't block the UI** with error handling logic
+- **不要在生产环境向最终用户暴露详细报错**
+- **不要忽略错误事件**——它们提供了宝贵的调试信息
+- **不要在错误可观测性 hook 中记录敏感数据**
+- **不要用错误处理逻辑阻塞 UI**
 
-## Troubleshooting
+## 故障排查
 
-### Error Observability Not Working
+### 错误可观测性不生效
 
-If your `onError` hook isn't being called:
+如果你的 `onError` hook 没有被调用：
 
-1. **Check your publicApiKey** - error observability requires a valid API key
-2. **Verify the key format** - should start with `ck_pub_`
-3. **Ensure the key is set** - check your environment variables
-4. **Test with dev console** - use `showDevConsole={true}` to see if errors are occurring
+1. **检查 publicApiKey**——错误可观测性需要有效的 API 密钥
+2. **验证密钥格式**——应以 `ck_pub_` 开头
+3. **确认已设置密钥**——检查你的环境变量
+4. **用 dev console 测试**——使用 `showDevConsole={true}` 查看报错是否正在发生
 
-### Dev Console Not Showing
+### Dev Console 未显示
 
-If the dev console isn't displaying errors:
+如果 dev console 没有显示报错：
 
-1. **Check showDevConsole setting** - ensure it's set to `true`
-2. **Look for console errors** - check browser dev tools for JavaScript errors
-3. **Verify error occurrence** - make sure errors are actually happening
+1. **检查 showDevConsole 设置**——确保其值为 `true`
+2. **查看控制台报错**——在浏览器开发者工具中检查 JavaScript 错误
+3. **确认报错确实发生**——确保确实有错误产生
 
-## Next Steps
+## 后续步骤
 
-- Learn about [Copilot Cloud features](https://dashboard.operations.copilotkit.ai)
-- Explore the [CopilotKit reference documentation](/reference/v1/components/CopilotKit)
-- Check out [troubleshooting guides](/troubleshooting/common-issues) for common issues
+- 了解 [Copilot Cloud 特性](https://dashboard.operations.copilotkit.ai)
+- 浏览 [CopilotKit 参考文档](/reference/v1/components/CopilotKit)
+- 查看[故障排查指南](/troubleshooting/common-issues)了解常见问题

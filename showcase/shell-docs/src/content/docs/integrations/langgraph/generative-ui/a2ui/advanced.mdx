@@ -1,22 +1,22 @@
 ---
-title: "Advanced"
-description: "Custom progress rendering, frontend action handlers, and advanced A2UI configuration."
+title: "进阶"
+description: "自定义进度渲染、前端操作处理器以及高级 A2UI 配置。"
 ---
-## Custom A2UI Progress Renderer
+## 自定义 A2UI 进度渲染器
 
-When using [Dynamic Schema A2UI](./dynamic-schema), a secondary LLM generates the UI schema and data. This takes a few seconds — during which CopilotKit shows a built-in progress indicator.
+使用[动态 Schema A2UI](./dynamic-schema) 时，一个辅助 LLM 会生成 UI schema 与数据。这一过程需要几秒钟——期间 CopilotKit 会显示内置的进度指示器。
 
-You can replace the built-in indicator with your own component using `useRenderTool`.
+你可以使用 `useRenderTool` 将内置指示器替换为自己的组件。
 
-### How it works
+### 工作原理
 
-The dynamic schema flow calls a tool named `render_a2ui` under the hood. While the tool call is in progress (`status === "inProgress"`), your custom renderer is shown. Once the A2UI surface starts rendering (`status === "complete"`), your component is hidden and the actual surface takes over.
+动态 schema 流程在底层会调用一个名为 `render_a2ui` 的工具。当该工具调用处于进行中时（`status === "inProgress"`），会显示你的自定义渲染器。一旦 A2UI surface 开始渲染（`status === "complete"`），你的组件就会被隐藏，由真正的 surface 接管。
 
-### Implementation
+### 实现
 
 <Steps>
 <Step>
-### Create a progress component
+### 创建进度组件
 
 ```tsx title="src/components/a2ui-progress.tsx"
 "use client";
@@ -58,9 +58,9 @@ export const A2UIProgress = memo(function A2UIProgress({
 </Step>
 
 <Step>
-### Register the renderer
+### 注册渲染器
 
-Use `useRenderTool` to intercept the `render_a2ui` tool call and show your component while it's in progress:
+使用 `useRenderTool` 拦截 `render_a2ui` 工具调用，并在其进行期间显示你的组件：
 
 ```tsx title="src/hooks/use-a2ui-progress.tsx"
 "use client";
@@ -87,7 +87,7 @@ export function useA2UIProgress() {
 </Step>
 
 <Step>
-### Call the hook in your page
+### 在页面中调用 Hook
 
 ```tsx title="src/app/page.tsx"
 "use client";
@@ -104,31 +104,31 @@ function Chat() {
 </Steps>
 
 <Callout type="info">
-The `parameters` object updates progressively as the LLM streams the `render_a2ui` tool call. You can use this to show a skeleton that fills in as components and data arrive.
+`parameters` 对象会随着 LLM 流式传输 `render_a2ui` 工具调用而逐步更新。你可以借此展示一个骨架屏，随着组件与数据到达逐步填充。
 </Callout>
 
-### What's in `parameters`?
+### `parameters` 里有什么？
 
-As the secondary LLM generates the A2UI surface, the `parameters` object accumulates:
+随着辅助 LLM 生成 A2UI surface，`parameters` 对象会不断累积：
 
-| Field | Type | Description |
+| 字段 | 类型 | 说明 |
 |---|---|---|
-| `surfaceId` | `string` | Unique ID for this surface |
-| `components` | `array` | The component tree (schema) — arrives first |
-| `root` | `string` | Root component ID |
-| `items` | `array` | Data items — arrive after the schema |
+| `surfaceId` | `string` | 该 surface 的唯一 ID |
+| `components` | `array` | 组件树（schema）——最先到达 |
+| `root` | `string` | 根组件 ID |
+| `items` | `array` | 数据项——在 schema 之后到达 |
 
-A common pattern is to show a skeleton layout once `components` has data, then show item count as `items` streams in.
+常见的模式是：一旦 `components` 有了数据就显示骨架布局，然后随着 `items` 流式到达显示条目数量。
 
-## Action Handlers
+## 操作处理器
 
-Action handling in this section is client-side. The current Python SDK's `a2ui.render` does not support the `action_handlers=` keyword; the fixed-schema guide preserves the button schema and documents that server-side handlers are not supported. The current React API exposes `createA2UIMessageRenderer` with an `onAction` interceptor.
+本节中的操作处理均在客户端进行。当前 Python SDK 的 `a2ui.render` 不支持 `action_handlers=` 关键字；固定 schema 指南保留了按钮 schema，并注明不支持服务端处理器。当前 React API 提供了带有 `onAction` 拦截器的 `createA2UIMessageRenderer`。
 
-This section covers the current frontend interceptor and the v0.9 schema button format.
+本节介绍当前的前端拦截器以及 v0.9 schema 按钮格式。
 
-### Schema button with action context
+### 带操作上下文的 schema 按钮
 
-The v0.9 A2UI schema defines buttons with an event and data-bound context fields. Components inside a repeating list use relative paths, so the context values resolve from the clicked item:
+v0.9 A2UI schema 为按钮定义了事件以及绑定数据的上下文字段。重复列表内的组件使用相对路径，因此上下文值会从被点击的条目中解析：
 
 ```json
 {
@@ -148,7 +148,7 @@ The v0.9 A2UI schema defines buttons with an event and data-bound context fields
 }
 ```
 
-The resulting `A2UIUserAction` will include the resolved context:
+生成的 `A2UIUserAction` 将包含解析后的上下文：
 
 ```typescript
 {
@@ -160,9 +160,9 @@ The resulting `A2UIUserAction` will include the resolved context:
 }
 ```
 
-### `onAction` interceptor
+### `onAction` 拦截器
 
-Pass `onAction` to the exported renderer factory to handle an action in the browser. Return `null` after handling the action locally; return `undefined` to forward it unchanged to the agent:
+将 `onAction` 传给导出的渲染器工厂，即可在浏览器中处理操作。在本地处理完该操作后返回 `null`；返回 `undefined` 则将其原样转发给智能体：
 
 ```tsx
 import {
@@ -183,11 +183,11 @@ const A2UIMessageRenderer = createA2UIMessageRenderer({
 });
 ```
 
-Pass the returned renderer through the provider's `renderActivityMessages` prop when you need this custom `onAction` behavior. User-provided renderers take precedence over the provider's built-in A2UI renderer.
+当你需要这种自定义 `onAction` 行为时，请将返回的渲染器通过 Provider 的 `renderActivityMessages` prop 传入。用户提供的渲染器优先于 Provider 内置的 A2UI 渲染器。
 
-### Forward a modified action
+### 转发修改后的操作
 
-An interceptor can return a modified exported `A2UIUserAction`; the renderer forwards that action to the agent:
+拦截器可以返回一个修改后的 `A2UIUserAction`（导出类型）；渲染器会将该操作转发给智能体：
 
 ```tsx
 const A2UIMessageRenderer = createA2UIMessageRenderer({
@@ -206,21 +206,20 @@ const A2UIMessageRenderer = createA2UIMessageRenderer({
 });
 ```
 
-### Current action flow
+### 当前的操作流程
 
-The current renderer applies `onAction` before forwarding an action:
+当前渲染器在转发操作之前会先应用 `onAction`：
 
-1. Returning `null` handles the action in the browser and skips the agent.
-2. Returning an `A2UIUserAction` forwards that modified action.
-3. Returning `undefined` forwards the original action.
+1. 返回 `null` 表示在浏览器中处理该操作，并跳过智能体。
+2. 返回一个 `A2UIUserAction` 则转发修改后的操作。
+3. 返回 `undefined` 则转发原始操作。
 
-The current Python SDK does not create server-side action handlers from an `action_handlers=` argument. The frontend interceptor is the supported custom-handling path in this documentation. The current React bridge does not include `dataContextPath` in the action passed to `onAction`; use `context` for values needed by the callback.
+当前 Python SDK 不会根据 `action_handlers=` 参数创建服务端操作处理器。在本文档中，前端拦截器是受支持的自定义处理路径。当前 React bridge 传给 `onAction` 的操作中不包含 `dataContextPath`；回调所需的值请使用 `context`。
 
-### Types reference
+### 类型参考
 
-| Type | Description |
+| 类型 | 说明 |
 |---|---|
-| `A2UIUserAction` | Dispatched action: `{ name, surfaceId, sourceComponentId, timestamp, context? }` |
-| `A2UIActionInterceptor` | `(action, forward) => A2UIUserAction \| null \| void \| Promise<void \| A2UIUserAction \| null>` — exported interceptor type |
-| `createA2UIMessageRenderer` | Exported factory that accepts `theme` and optional `onAction` |
-
+| `A2UIUserAction` | 派发的操作：`{ name, surfaceId, sourceComponentId, timestamp, context? }` |
+| `A2UIActionInterceptor` | `(action, forward) => A2UIUserAction \| null \| void \| Promise<void \| A2UIUserAction \| null>` —— 导出的拦截器类型 |
+| `createA2UIMessageRenderer` | 接受 `theme` 和可选 `onAction` 的导出工厂函数 |

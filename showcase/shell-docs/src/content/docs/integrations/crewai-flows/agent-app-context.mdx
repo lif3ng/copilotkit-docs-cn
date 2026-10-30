@@ -1,46 +1,37 @@
 ---
-title: Agent App Context
+title: 智能体应用上下文
 icon: "lucide/BookA"
-description: Share app specific context with your CrewAI Flow.
+description: 与你的 CrewAI Flow 共享应用专属上下文。
 ---
 
 import AgentContextJsonString from "@/snippets/shared/basics/agent-context-json-string.mdx";
 
-## What is this?
+## 这是什么？
 
-One of the most common use cases for CopilotKit is to register app state and context using `useAgentContext`.
-This way, you can notify your agent of what is going on in your app in real time.
+CopilotKit 最常见的用例之一是使用 `useAgentContext` 注册应用状态和上下文。
+这样，你就能实时告知智能体应用中正在发生什么。
 
-Some examples might be: the current user, the current page, the rows currently on screen.
+例如：当前用户、当前页面、当前屏幕上显示的表格行。
 
-## When should I use this?
+## 什么时候应该使用？
 
-Use this when the agent's answer has to be about data your application holds rather than data the
-user retypes into the chat. A queue, a selection, a cart, a filtered table: the page already has it,
-and `useAgentContext` is how the agent gets it.
+当智能体的回答必须基于你的应用持有的数据，而不是用户在聊天中重新输入的数据时，使用此功能。队列、选中项、购物车、筛选后的表格：页面已经拥有这些数据，而 `useAgentContext` 就是智能体获取它们的途径。
 
-<Callout type="warn" title="CrewAI needs a field on your state class">
-    Unlike the [built-in agent](/built-in-agent/agent-app-context), a CrewAI Flow does **not** receive
-    this context automatically, and the gap is easy to miss because it does not look like a missing
-    field. The AG-UI adapter writes your entries into the run state under a `context` key — but
-    `CopilotKitState` does not declare `context`, and a Flow state is a Pydantic model, so the key is
-    dropped on validation before any `@start()` method runs.
+<Callout type="warn" title="CrewAI 需要在你的状态类上声明字段">
+    与[内置智能体](/built-in-agent/agent-app-context)不同，CrewAI Flow **不会**自动接收此上下文，而且这个缺口很容易被忽略，因为它看起来不像一个缺失的字段。AG-UI 适配器会把你的条目写入运行状态中的 `context` 键——但 `CopilotKitState` 并未声明 `context`，而 Flow 状态是一个 Pydantic 模型，因此在任何 `@start()` 方法运行之前，这个键就会在校验时被丢弃。
 
-    That means `self.state.context` does not exist in the shape the quickstart shows, and reading it
-    raises nothing — it is simply never there. Your crew still answers, fluently and in the right
-    shape, from nothing. Step 2 below declares the field so the value survives, and step 3 puts it in
-    front of the model.
+    这意味着在快速开始展示的形态中 `self.state.context` 并不存在，读取它也不会报错——它根本就不在那里。你的 crew 依然会流畅地、以正确的格式作答，只是凭空作答。下文的第 2 步声明该字段使值得以保留，第 3 步则把它送到模型面前。
 </Callout>
 
-## Implementation
+## 实现方式
 
 
 <AgentContextJsonString />
 <Steps>
     <Step>
-        ### Share data with your agent
+        ### 与智能体共享数据
 
-        The [`useAgentContext` hook](/reference/v2/hooks/useAgentContext) adds data as context to the Copilot.
+        [`useAgentContext` hook](/reference/v2/hooks/useAgentContext) 会将数据作为上下文添加给 Copilot。
 
         ```tsx title="YourComponent.tsx" showLineNumbers
         "use client" // only necessary if you are using Next.js with the App Router. // [!code highlight]
@@ -70,10 +61,9 @@ and `useAgentContext` is how the agent gets it.
     </Step>
 
     <Step>
-        ### Declare `context` on your state class
+        ### 在状态类上声明 `context`
 
-        This is the step that is easy to skip, because nothing fails loudly without it. Subclass
-        `CopilotKitState` as usual and add the field yourself.
+        这一步很容易被跳过，因为缺少它时不会有任何明显报错。照常继承 `CopilotKitState`，并自行添加该字段。
 
         ```python title="flow.py"
         from typing import Any
@@ -86,15 +76,14 @@ and `useAgentContext` is how the agent gets it.
             context: list[dict[str, Any]] = Field(default_factory=list) # [!code highlight]
         ```
 
-        Each entry is a plain dict with the `description` and `value` you registered on the frontend.
-        `value` arrives JSON-encoded as a string for anything that is not already a string.
+        每个条目都是一个普通 dict，包含你在前端注册的 `description` 和 `value`。
+        对于任何本来不是字符串的值，`value` 都会以 JSON 编码的字符串形式到达。
     </Step>
 
     <Step>
-        ### Render the context into the crew's work
+        ### 将上下文融入 crew 的工作
 
-        Declaring the field makes the data reachable. It does not put it in the prompt. Fold the
-        entries into the text your crew actually reads, the same way you fold in the user's message.
+        声明字段只是让数据可以被访问，并不会把它放进提示中。你需要把这些条目并入 crew 实际读取的文本，方式与你并入用户消息相同。
 
         ```python title="flow.py"
         import json
@@ -164,25 +153,17 @@ and `useAgentContext` is how the agent gets it.
         ```
 
         <Callout>
-            Pass the rendered context through `inputs` rather than formatting it into the
-            `description` string yourself. CrewAI interpolates `{placeholder}` in a task description
-            from `inputs`, so context full of JSON braces stays verbatim instead of being read as
-            more placeholders.
+            通过 `inputs` 传递渲染后的上下文，而不是自行把它格式化进 `description` 字符串。CrewAI 会用 `inputs` 对任务描述中的 `{placeholder}` 做插值，因此充满 JSON 花括号的上下文会原样保留，而不会被误读为更多占位符。
         </Callout>
     </Step>
 
     <Step>
-        ### Give it a try!
+        ### 试试看！
 
-        Ask your agent a question about the context. It should be able to answer.
+        向智能体提一个与上下文相关的问题。它应该能够作答。
 
-        Then check the answer against your own records, because this integration fails quietly. The
-        reliable check is a control: send the same request once with the context and once with an
-        empty context. Two answers that describe the same record mean the context changed nothing,
-        and the agent is answering from its own invention.
+        然后对照你自己的记录检查答案，因为这种集成会静默失效。可靠的检查是设置对照组：带上下文发送一次相同的请求，再以空上下文发送一次。如果两次答案描述的是同一条记录，说明上下文没有起作用，智能体是在凭自己的臆想做答。
 
-        A crew whose backstory forbids invention refuses instead of inventing, which looks safer and
-        is the same defect — it is still answering with nothing. Compare against the empty control
-        either way.
+        backstory 中禁止臆造的 crew 会拒绝回答而不是凭空捏造，这看起来更安全，但缺陷相同——它依然是在没有任何依据的情况下作答。无论哪种情况，都要与空上下文对照组进行比较。
     </Step>
 </Steps>

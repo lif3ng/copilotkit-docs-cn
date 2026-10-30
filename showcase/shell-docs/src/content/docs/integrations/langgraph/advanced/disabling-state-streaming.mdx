@@ -1,25 +1,23 @@
 ---
-title: "Disabling state streaming"
+title: "禁用状态流式传输"
 icon: "lucide/Cog"
-description: "Granularly control what is streamed to the frontend."
+description: "细粒度控制流式传输到前端的内容。"
 ---
 
-## What is this?
+## 这是什么？
 
-By default, CopilotKit will stream both your state and tool calls to the frontend.
-You can disable this by using CopilotKit's custom `RunnableConfig`.
+默认情况下，CopilotKit 会将你的状态和工具调用都流式传输到前端。
+你可以使用 CopilotKit 的自定义 `RunnableConfig` 来禁用这一行为。
 
-## When should I use this?
+## 什么时候该用它？
 
-Occasionally, you'll want to disable streaming temporarily — for example, the LLM may be
-doing something the current user should not see, like emitting tool calls or questions
-pertaining to other employees in an HR system.
+有时你会希望临时禁用流式传输——例如，LLM 可能正在处理当前用户不应看到的内容，比如在 HR 系统中发出与其他员工相关的工具调用或提问。
 
-## Implementation
+## 实现方法
 
-### Disable all streaming
+### 禁用所有流式传输
 
-You can disable all message streaming and tool call streaming by passing `emit_messages=False` and `emit_tool_calls=False` to the CopilotKit config.
+你可以向 CopilotKit 配置传入 `emit_messages=False` 和 `emit_tool_calls=False`，同时禁用消息流式传输和工具调用流式传输。
 
 <Tabs groupId="language_langgraph_agent" items={['Python', 'TypeScript']} default="Python" persist>
     <Tab value="Python">
@@ -49,10 +47,10 @@ You can disable all message streaming and tool call streaming by passing `emit_m
             return state
         ```
 
-    <Callout type="warn" title="BEWARE!">
-        In LangGraph Python, the `config` variable in the surrounding namespace is **implicitly** passed into LangChain LLM calls, even when not explicitly provided.
+    <Callout type="warn" title="注意！">
+        在 LangGraph Python 中，外围命名空间里的 `config` 变量会被 **隐式** 传入 LangChain 的 LLM 调用，即使你没有显式提供它。
 
-        This is why we create a new variable `modifiedConfig` rather than modifying `config` directly. If we modified `config` itself, it would change the default configuration for all subsequent LLM calls in that namespace.
+        这正是我们创建新变量 `modifiedConfig` 而不是直接修改 `config` 的原因。如果我们直接修改 `config` 本身，就会改变该命名空间中所有后续 LLM 调用的默认配置。
 
         ```python
         # if we override the config variable name with a new value

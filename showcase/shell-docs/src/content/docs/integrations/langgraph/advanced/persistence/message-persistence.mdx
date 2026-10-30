@@ -1,16 +1,15 @@
 ---
-title: "Message Persistence"
+title: "消息持久化"
 icon: "lucide/Database"
 ---
 
 <Callout>
-  To learn about how to load previous messages and agent states, check out the
-  [Loading Message
-  History](/langgraph/advanced/persistence/loading-message-history) and [Loading
-  Agent State](/langgraph/advanced/persistence/loading-agent-state) pages.
+  如需了解如何加载此前的消息与智能体状态，请参阅[加载消息
+  历史](/langgraph/advanced/persistence/loading-message-history)与[加载
+  智能体状态](/langgraph/advanced/persistence/loading-agent-state)页面。
 </Callout>
 
-To persist LangGraph messages to a database, you can use either `AsyncPostgresSaver` or `AsyncSqliteSaver`. Set up the asynchronous memory by configuring the graph within a lifespan function, as follows:
+要将 LangGraph 消息持久化到数据库，可以使用 `AsyncPostgresSaver` 或 `AsyncSqliteSaver`。在 lifespan 函数中配置 graph，即可完成异步内存的设置，如下所示：
 
 ```python
 from fastapi import FastAPI
@@ -46,4 +45,4 @@ add_langgraph_fastapi_endpoint(
 
 ```
 
-To learn more about persistence in LangGraph, check out the [LangGraph documentation](https://docs.langchain.com/oss/python/langgraph/persistence).
+要进一步了解 LangGraph 中的持久化机制，请查阅 [LangGraph 文档](https://docs.langchain.com/oss/python/langgraph/persistence)。

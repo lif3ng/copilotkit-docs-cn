@@ -1,35 +1,33 @@
 ---
-title: Common LangGraph issues
-description: Common issues you may encounter when using LangGraph.
+title: LangGraph 常见问题
+description: 使用 LangGraph 时可能遇到的常见问题。
 icon: "lucide/LifeBuoy"
 ---
 
-Welcome to the CoAgents Troubleshooting Guide! If you're having trouble getting tool calls to work, you've come to the right place.
+欢迎阅读 CoAgents 故障排查指南！如果你在让工具调用正常工作这件事上遇到了麻烦，来这里就对了。
 
 <Callout>
-    Have an issue not listed here? Open a ticket on [GitHub](https://github.com/CopilotKit/CopilotKit/issues) or reach out on [Discord](https://discord.com/invite/6dffbvGU3D)
-    and we'll be happy to help.
+    遇到了此处未列出的问题？请在 [GitHub](https://github.com/CopilotKit/CopilotKit/issues) 上提交 issue，或在 [Discord](https://discord.com/invite/6dffbvGU3D) 上联系我们，我们很乐意提供帮助。
 
-    We also highly encourage any open-source contributors that want to add their own troubleshooting issues to [GitHub as a pull request](https://github.com/CopilotKit/CopilotKit/blob/main/CONTRIBUTING.md).
+    我们也非常欢迎开源贡献者[以 pull request 的形式把故障排查条目补充到 GitHub](https://github.com/CopilotKit/CopilotKit/blob/main/CONTRIBUTING.md)。
 
 </Callout>
 
-## My tool calls are not being streamed
+## 我的工具调用没有流式输出
 
-This could be due to a few different reasons.
+这可能由多种原因导致。
 
-First, we strongly recommend checking out our [Human In the Loop](/langgraph/human-in-the-loop) guide to follow a more in depth example of how to stream tool calls
-in your LangGraph agents. You can also check out our [travel tutorial](/langgraph/tutorials/ai-travel-app/step-6-human-in-the-loop) which talks about how to stream
-tool calls in a more complex example.
+首先，我们强烈建议阅读[人机协同（human-in-the-loop）](/langgraph/human-in-the-loop)指南，其中有更深入的示例，讲解如何在 LangGraph 智能体中流式输出工具调用。
+你也可以查看我们的[旅行教程](/langgraph/tutorials/ai-travel-app/step-6-human-in-the-loop)，了解如何在更复杂的示例中流式输出工具调用。
 
-If you have already done that, you can check the following:
+如果已经看过上述内容，可以继续检查以下几点：
 
 <Accordions>
-    <Accordion title="You're using llm.invoke() instead of llm.ainvoke()">
+    <Accordion title="你使用的是 llm.invoke() 而不是 llm.ainvoke()">
         <p>
-            When you invoke your LangGraph agent, you can invoke it synchronously or asynchronously. If you invoke it synchronously,
-            the tool calls will not be streamed progressively, only the final result will be streamed. If you invoke it asynchronously,
-            the tool calls will be streamed progressively.
+            调用 LangGraph 智能体时，可以选择同步或异步方式。如果同步调用，
+            工具调用不会逐步流式输出，只会流式输出最终结果；如果异步调用，
+            工具调用则会逐步流式输出。
 
             ```python
             config = copilotkit_customize_config(config, emit_tool_calls=["say_hello_to"])
@@ -43,24 +41,23 @@ If you have already done that, you can check the following:
 
 </Accordions>
 
-## Error: `'AzureOpenAI' object has no attribute 'bind_tools'`
+## 报错：`'AzureOpenAI' object has no attribute 'bind_tools'`
 
-This error is typically due to the use of an incorrect import from LangGraph. Instead of importing `AzureOpenAI` import `AzureChatOpenAI` and your
-issue will be resolved.
+此报错通常是由于从 LangGraph 导入了错误的类。把 `AzureOpenAI` 换成 `AzureChatOpenAI` 来导入，问题即可解决。
 
 ```python
 from langchain_openai import AzureOpenAI # [!code --]
 from langchain_openai import AzureChatOpenAI # [!code ++]
 ```
 
-## I am getting "agent not found" error
+## 我遇到了 “agent not found” 报错
 
-If you're seeing this error, it means CopilotKit couldn't find the LangGraph agent you're trying to use. Here's how to fix it:
+如果看到此报错，说明 CopilotKit 找不到你想使用的 LangGraph 智能体。排查方法如下：
 
 <Accordions>
-    <Accordion title="Verify your agent lock mode configuration">
-        If you're using agent lock mode,
-        check that the agent defined in `langgraph.json` matches what's defined in the CopilotKit provider:
+    <Accordion title="检查 agent lock mode 配置">
+        如果你在使用 agent lock mode，
+        请检查 `langgraph.json` 中定义的 agent 与 CopilotKit provider 中定义的是否一致：
 
         ```json title="langgraph.json"
         {
@@ -81,13 +78,13 @@ If you're seeing this error, it means CopilotKit couldn't find the LangGraph age
         </CopilotKit>
         ```
 
-        Common issues:
-        - Typos in agent names
-        - Case sensitivity mismatches
-        - Missing entries in `langgraph.json`
+        常见问题：
+        - agent 名称拼写错误
+        - 大小写不一致
+        - `langgraph.json` 中缺少条目
     </Accordion>
-    <Accordion title="Check your agent registration on a LangGraph Platform endpoint">
-        When using LangGraph Platform endpoint, make sure your agents are properly specified and are following the definition in your `langgraph.json`:
+    <Accordion title="检查智能体在 LangGraph Platform 端点上的注册">
+        使用 LangGraph Platform 端点时，请确保智能体已正确声明，且与 `langgraph.json` 中的定义一致：
 
         ```json title="langgraph.json"
         {
@@ -115,8 +112,8 @@ If you're seeing this error, it means CopilotKit couldn't find the LangGraph age
         });
         ```
     </Accordion>
-    <Accordion title="Check your agent name in useAgent">
-        Make sure that the agent defined in `langgraph.json` matches the `agentId` you pass to the `useAgent` hook:
+    <Accordion title="检查 useAgent 中的智能体名称">
+        确保 `langgraph.json` 中定义的 agent 与传给 `useAgent` hook 的 `agentId` 一致：
 
         ```json title="langgraph.json"
         {
@@ -137,8 +134,8 @@ If you're seeing this error, it means CopilotKit couldn't find the LangGraph age
         });
         ```
     </Accordion>
-    <Accordion title="Check your agent name in useCoAgentStateRender">
-        Make sure that the agent defined in `langgraph.json` matches the `name` you pass to the `useCoAgentStateRender` hook:
+    <Accordion title="检查 useCoAgentStateRender 中的智能体名称">
+        确保 `langgraph.json` 中定义的 agent 与传给 `useCoAgentStateRender` hook 的 `name` 一致：
 
         ```json title="langgraph.json"
         {
@@ -162,13 +159,13 @@ If you're seeing this error, it means CopilotKit couldn't find the LangGraph age
 
 </Accordions>
 
-## Connection issues with tunnel creation
+## 创建隧道时的连接问题
 
-If you notice the tunnel creation process spinning indefinitely, your router or ISP might be blocking the connection to CopilotKit's tunnel service.
+如果隧道创建过程一直在转圈，可能是你的路由器或 ISP 阻断了与 CopilotKit 隧道服务的连接。
 
 <Accordions>
-    <Accordion title="Router or ISP blocking tunnel connections">
-        To verify connectivity to the tunnel service, try these commands:
+    <Accordion title="路由器或 ISP 阻断了隧道连接">
+        要验证与隧道服务的连通性，可以尝试以下命令：
 
         ```bash
         ping tunnels.devcopilotkit.com
@@ -176,30 +173,30 @@ If you notice the tunnel creation process spinning indefinitely, your router or 
         telnet tunnels.devcopilotkit.com 443
         ```
 
-        If these fail, your router's security features or ISP might be blocking the connection. Common solutions:
-        - Check router security settings
-        - Consider checking with your ISP about any connection restrictions
-        - Try using a mobile hotspot
+        如果这些命令都失败，可能是路由器的安全功能或 ISP 阻断了连接。常见解决办法：
+        - 检查路由器安全设置
+        - 向你的 ISP 确认是否存在连接限制
+        - 尝试使用手机热点
     </Accordion>
 
 </Accordions>
 
-## I am getting "Failed to find or contact remote endpoint at url, Make sure the API is running and that it's indeed a LangGraph platform url" error
+## 我遇到了 “Failed to find or contact remote endpoint at url, Make sure the API is running and that it's indeed a LangGraph platform url” 报错
 
-If you're seeing this error, it means the LangGraph platform client cannot connect to your endpoint.
+如果看到此报错，说明 LangGraph platform 客户端无法连接到你的端点。
 
 <Accordions>
-    <Accordion title="Verify the endpoint is reachable">
-        Check the logs for the backend API running on the remote endpoint url. Make sure it is up and ready to receive requests
+    <Accordion title="确认端点可达">
+        查看运行在远程端点 URL 上的后端 API 日志，确保它已启动并可以接收请求。
     </Accordion>
-    <Accordion title="Verify running a LangGraph platform endpoint using LangGraph deployment tools">
-        Verify that the backend API is running using `langgraph dev`, `langgraph up`, on a LangGraph cloud url or equivalent methods supplied by LangGraph
+    <Accordion title="确认通过 LangGraph 部署工具运行 LangGraph platform 端点">
+        使用 `langgraph dev`、`langgraph up`、LangGraph cloud URL 或 LangGraph 提供的同等方式，确认后端 API 正在运行。
     </Accordion>
-    <Accordion title="Verify the remote endpoint matches the endpoint definition type">
-        If you are running your remote endpoint using FastAPI, even if it uses LangGraph for the agent, it is not considered a LangGraph platform endpoint.
-        You may need to change your `remoteEndpoints` definition for this endpoint to match the expected format.
+    <Accordion title="确认远程端点与端点定义类型匹配">
+        如果你的远程端点是使用 FastAPI 运行的，即使智能体用的是 LangGraph，它也不会被视为 LangGraph platform 端点。
+        你可能需要调整该端点的 `remoteEndpoints` 定义，使其符合预期的格式。
 
-        Change the endpoint definition, from:
+        将端点定义从：
         ```
         new CopilotRuntime({
           remoteEndpoints: [
@@ -223,7 +220,7 @@ If you're seeing this error, it means the LangGraph platform client cannot conne
         });
         ```
 
-        To:
+        改为：
         ```
         import { HttpAgent } from "@ag-ui/client";
 
@@ -239,27 +236,24 @@ If you're seeing this error, it means the LangGraph platform client cannot conne
 
 </Accordions>
 
-## I am getting a "No checkpointer set" error when using LangGraph with FastAPI
+## 在 LangGraph 与 FastAPI 一起使用时遇到 “No checkpointer set” 报错
 
-If you're encountering this error, it means you are missing a checkpointer in your compiled graph.
-You can visit the [LangGraph Persistence guide](https://docs.langchain.com/oss/python/langgraph/persistence#checkpoints) to understand what a checkpointer is and how to add it.
+如果遇到此报错，说明编译 graph 时缺少 checkpointer。
+你可以访问 [LangGraph 持久化指南](https://docs.langchain.com/oss/python/langgraph/persistence#checkpoints)，了解什么是 checkpointer 以及如何添加它。
 
-## I see messages being streamed and disappear
+## 我看到消息流式输出后又消失了
 
-LangGraph agents are stateful. As a graph is traversed, the state is saved at the end of each node. CopilotKit uses the agent's state as
-the source of truth for what to display in the frontend chat. However, since state is only emitted at the end of a node, CopilotKit allows
-you to stream predictive state updates _in the middle of a node_. By default, CopilotKit will stream messages and tool calls being actively
-generated to the frontend chat that initiated the interaction. **If this predictive state is not persisted at the end of the node, it will
-disappear in the frontend chat**.
+LangGraph 智能体是有状态的。在遍历 graph 的过程中，状态会在每个节点结束时保存。CopilotKit 将智能体状态作为前端聊天显示内容的
+唯一事实来源。但由于状态只在节点结束时发出，CopilotKit 允许你_在节点执行过程中_流式输出预测性的状态更新。默认情况下，CopilotKit 会把正在生成的
+消息和工具调用流式输出到发起交互的前端聊天中。**如果这些预测状态在节点结束时没有被持久化，它们就会从前端聊天中消失**。
 
-In this situation, the most likely scenario is that the `messages` property in the state is being updated in the middle of a node but those edits are not being
-persisted at the end of a node.
+在这种情况下，最可能的原因是状态中的 `messages` 属性在节点执行过程中被更新，但这些修改没有在节点结束时被持久化。
 
 <img src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/message-state-diagram.png" />
 
 <Accordions>
-    <Accordion title="I want these messages to be persisted">
-        To fix this, you can simply persist the messages by returning the new messages at the end of the node.
+    <Accordion title="我希望这些消息被持久化">
+        要解决这个问题，只需在节点结束时返回新消息，从而持久化这些消息即可。
 
          <Tabs groupId="language_langgraph_agent" items={["Python", "TypeScript"]} persist>
             <Tab value="Python">
@@ -295,9 +289,9 @@ persisted at the end of a node.
             </Tab>
         </Tabs>
     </Accordion>
-    <Accordion title="I don't want these messages to streamed at all">
-        In this case, you can reference our document on [disabling streaming](/langgraph/advanced/disabling-state-streaming). More specifically,
-        you can use the copilotkit config to disable emitting messages anywhere you'd like a message to not be streamed.
+    <Accordion title="我根本不想让这些消息流式输出">
+        这时可以参考我们关于[禁用流式传输](/langgraph/advanced/disabling-state-streaming)的文档。更具体地说，
+        你可以在任何不希望消息被流式输出的地方，使用 copilotkit config 来禁用消息发出。
 
         <Tabs groupId="language_langgraph_agent" items={["Python", "TypeScript"]} persist>
             <Tab value="Python">
@@ -340,8 +334,8 @@ persisted at the end of a node.
             </Tab>
         </Tabs>
 
-        <Callout title="Running a subgraph or langchain?">
-            Just make sure to pass the modified config we defined above as your `RunnableConfig` for the subgraph or langchain!
+        <Callout title="运行的是 subgraph 或 langchain？">
+            只需确保将上文定义的 modified config 作为 subgraph 或 langchain 的 `RunnableConfig` 传入即可！
         </Callout>
     </Accordion>
 

@@ -1,41 +1,41 @@
 ---
-title: State Rendering
+title: 状态渲染
 icon: "lucide/Bot"
-description: Render your agent's state with custom UI components in real-time.
+description: 使用自定义 UI 组件实时渲染智能体的状态。
 ---
 {/* TODO: swap feature-viewer URLs back to /deepagents/ once the dojo supports that route */}
 <IframeSwitcher
   id="agent-state-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/agentic_generative_ui?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/agentic_generative_ui?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
-## What is this?
+## 这是什么？
 
-State rendering lets you build UI that reflects your agent's state in real-time. As your agent progresses through nodes and emits state updates, your frontend renders those changes — showing progress, drafts, or intermediate results.
+状态渲染让你能够构建实时反映智能体状态的 UI。当智能体在各节点间推进并发出状态更新时，你的前端会渲染这些变化——展示进度、草稿或中间结果。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Use state rendering when you want to:
-- Show real-time progress (e.g. "Researching... 2/5 complete")
-- Display drafts that update as the agent works
-- Build dashboards that reflect agent state
-- Render structured output outside of the chat
+当你想实现以下需求时，可以使用状态渲染：
+- 展示实时进度（例如“研究中……已完成 2/5”）
+- 展示随智能体工作而更新的草稿
+- 构建反映智能体状态的仪表盘
+- 在聊天之外渲染结构化输出
 
-## Implementation
+## 实现
 
 <Steps>
   <Step>
-    ### Run and connect your agent
+    ### 运行并连接你的智能体
     <RunAndConnect />
   </Step>
   <Step>
-    ### Build an agent that produces state
+    ### 构建会产出状态的智能体
 
-    Define the `searches` state, then add a tool that returns each completed update.
+    定义 `searches` 状态，然后添加一个返回每次已完成更新的工具。
 
     <Tabs groupId="agent_language" items={['Python', 'TypeScript']} persist>
       <Tab value="Python">
@@ -184,18 +184,18 @@ Use state rendering when you want to:
     </Tabs>
   </Step>
   <Step>
-    ### Understand the two update phases
+    ### 理解两个更新阶段
 
-    The state-streaming middleware sends partial `searches` arguments while the model creates them. The frontend can show each partial value immediately.
+    状态流式中间件会在模型生成 `searches` 参数的过程中发送部分参数值。前端可以立即展示每个部分值。
 
-    The tool then returns a `Command` that saves the completed list. Its `ToolMessage` closes the active tool call.
+    随后工具返回一个保存已完成列表的 `Command`。其 `ToolMessage` 会关闭当前活跃的工具调用。
 
-    Keep the state key, tool name, and tool argument identical. A mismatch sends updates to the wrong state field.
+    状态键、工具名称和工具参数必须保持一致。不匹配会把更新发送到错误的状态字段。
   </Step>
   <Step>
-    ### Render state in the UI
+    ### 在 UI 中渲染状态
 
-    Use the `useAgent` hook to access agent state anywhere in your app. You can render it in the chat, in dashboards, sidebars, or custom layouts.
+    使用 `useAgent` 钩子可以在应用的任意位置访问智能体状态。你可以在聊天、仪表盘、侧边栏或自定义布局中渲染它。
 
     ```tsx title="app/page.tsx"
     import { useAgent } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -224,8 +224,8 @@ Use state rendering when you want to:
     ```
   </Step>
   <Step>
-    ### Give it a try!
+    ### 试一试！
 
-    Ask the agent to research a topic. The search items appear and update while the agent works.
+    让智能体研究一个主题。搜索条目会在智能体工作过程中出现并更新。
   </Step>
 </Steps>

@@ -1,12 +1,12 @@
 ---
-title: Loading Agent State
-description: Learn how threadId is used to load previous agent states.
+title: 加载智能体状态
+description: 了解如何使用 threadId 加载之前的智能体状态。
 icon: "lucide/ChartBar"
 ---
 
-### Setting the threadId
+### 设置 threadId
 
-When setting the `threadId` property in CopilotKit, i.e:
+在 CopilotKit 中设置 `threadId` 属性时，即：
 
 ```tsx
 <CopilotKit threadId="2140b272-7180-410d-9526-f66210918b13">
@@ -14,20 +14,16 @@ When setting the `threadId` property in CopilotKit, i.e:
 </CopilotKit>
 ```
 
-CopilotKit will restore the complete state of the thread, including the messages, from the database.
-(See [Message Persistence](/crewai-flows/persistence/message-persistence) for more details.)
+CopilotKit 会从数据库中恢复该线程的完整状态，包括其中的消息。
+（更多细节请参阅[消息持久化](/crewai-flows/persistence/message-persistence)。）
 
-### Loading Agent State
+### 加载智能体状态
 
 <Callout>
-  **Important:** For agent state to be loaded correctly, you must first ensure
-  that message history and persistence are properly configured. Follow the
-  guides on [Threads &
-  Persistence](/crewai-flows/persistence/loading-message-history) and [Message
-  Persistence](/crewai-flows/persistence/message-persistence).
+  **重要**：要正确加载智能体状态，你必须先确保消息历史与持久化已正确配置。请遵循[线程与持久化](/crewai-flows/persistence/loading-message-history)和[消息持久化](/crewai-flows/persistence/message-persistence)指南。
 </Callout>
 
-This means that the state of any agent will also be restored. For example:
+这意味着任何智能体的状态也将被恢复。例如：
 
 ```tsx
 const { state } = useAgent({ agentId: "research_agent" });
@@ -35,10 +31,10 @@ const { state } = useAgent({ agentId: "research_agent" });
 // state will now be the state of research_agent in the thread id given above
 ```
 
-### Learn More
+### 了解更多
 
-To learn more about persistence and state in CopilotKit, see:
+要进一步了解 CopilotKit 中的持久化与状态，请参阅：
 
-- [Reading agent state](/crewai-flows/shared-state/in-app-agent-read)
-- [Writing agent state](/crewai-flows/shared-state/in-app-agent-write)
-- [Loading Message History](/crewai-flows/persistence/loading-message-history)
+- [读取智能体状态](/crewai-flows/shared-state/in-app-agent-read)
+- [写入智能体状态](/crewai-flows/shared-state/in-app-agent-write)
+- [加载消息历史](/crewai-flows/persistence/loading-message-history)

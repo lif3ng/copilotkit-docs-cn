@@ -1,7 +1,7 @@
 ---
-title: Reading agent state
+title: 读取智能体状态
 icon: "lucide/ArrowLeft"
-description: Read the realtime agent state in your native application.
+description: 在你自己的应用中读取实时的智能体状态。
 ---
 
 <Frame>
@@ -15,37 +15,32 @@ description: Read the realtime agent state in your native application.
 </Frame>
 
 <Callout type="info">
-  Pictured above is the [coagent
-  starter](https://github.com/copilotkit/copilotkit/tree/main/examples/coagents-starter-crewai-flows)
-  with the [implementation](#implementation) section applied!
+  上图是应用了[实现](#实现)部分的 [coagent
+  starter](https://github.com/copilotkit/copilotkit/tree/main/examples/coagents-starter-crewai-flows)！
 </Callout>
 
-## What is this?
+## 这是什么？
 
-You can easily use the realtime agent state not only in the chat UI, but also in the native application UX.
+你不仅可以在聊天 UI 中使用实时智能体状态，还可以在应用本身的 UX 中使用它。
 
-## When should I use this?
+## 什么时候应该使用？
 
-You can use this when you want to provide the user with feedback about your agent's state. As your agent's
-state updates, you can reflect these updates natively in your application.
+当你想向用户提供关于智能体状态的反馈时，就可以使用它。随着智能体状态更新，你可以在应用中原生地反映这些更新。
 
-## Implementation
+## 实现
 
 <Steps>
   <Step>
-    ### Run and Connect Your Agent to CopilotKit
+    ### 运行智能体并连接到 CopilotKit
 
-    You'll need to run your agent and connect it to CopilotKit before proceeding. If you haven't done so already,
-    you can follow the instructions in the [Getting Started](/crewai-flows/quickstart) guide.
+    在继续之前，你需要运行你的智能体并将其连接到 CopilotKit。如果尚未完成，可以按照[快速开始](/crewai-flows/quickstart)指南中的说明操作。
 
-    If you don't already have an agent, you can use the [coagent starter](https://github.com/copilotkit/copilotkit/tree/main/examples/coagents-starter-crewai-flows) as a starting point
-    as this guide uses it as a starting point.
+    如果你还没有智能体，可以使用 [coagent starter](https://github.com/copilotkit/copilotkit/tree/main/examples/coagents-starter-crewai-flows) 作为起点，本指南也以它为起点。
 
   </Step>
   <Step>
-    ### Define the Agent State
-    CrewAI Flows are stateful. As you transition through the flow, that state is updated and available to the next function. For this example,
-    let's assume that our agent state looks something like this.
+    ### 定义智能体状态
+    CrewAI Flows 是有状态的。当你在 Flow 中逐步推进时，状态会被更新并可供下一个函数使用。在本示例中，我们假设智能体状态大致如下。
 
     <Tabs groupId="language_crewai-flows_agent" items={["Python"]} persist>
       <Tab value="Python">
@@ -61,9 +56,8 @@ state updates, you can reflect these updates natively in your application.
 
   </Step>
   <Step>
-    ### Use the `useAgent` Hook
-    With your agent connected and running all that is left is to call the `useAgent` hook, pass the agent's name, and
-    initialize missing UI-owned state after the connected agent is ready.
+    ### 使用 `useAgent` Hook
+    智能体连接并运行后，剩下的就是调用 `useAgent` hook，传入智能体名称，并在所连接的智能体就绪后初始化缺失的 UI 侧状态。
 
     ```tsx title="ui/app/page.tsx"
     import { useEffect } from "react";
@@ -99,20 +93,19 @@ state updates, you can reflect these updates natively in your application.
     }
     ```
     <Callout type="info">
-      The `agent.state` in `useAgent` is reactive and will automatically update when the agent's state changes.
+      `useAgent` 中的 `agent.state` 是响应式的，当智能体状态变化时会自动更新。
     </Callout>
 
   </Step>
   <Step>
-    ### Give it a try!
-    As the agent state updates, your `state` variable will automatically update with it! In this case, you'll see the
-    language set to "english" after the connected agent is ready.
+    ### 动手试试！
+    随着智能体状态更新，你的 `state` 变量也会自动更新！在本例中，当所连接的智能体就绪后，你会看到 language 被设置为 “english”。
   </Step>
 </Steps>
 
-## Rendering agent state in your app
+## 在你的应用中渲染智能体状态
 
-You can render the agent state in any React component under `<CopilotKit>`. Read `agent.state` and return ordinary JSX.
+你可以在 `<CopilotKit>` 下的任意 React 组件中渲染智能体状态。读取 `agent.state` 并返回普通 JSX 即可。
 
 ```tsx title="ui/app/page.tsx"
 import { useAgent } from "@copilotkit/react-core/v2";
@@ -133,15 +126,13 @@ function YourMainContent() {
 ```
 
 <Callout type="info">
-  The `agent.state` in `useAgent` is reactive and will automatically update when
-  the agent's state changes.
+  `useAgent` 中的 `agent.state` 是响应式的，当智能体状态变化时会自动更新。
 </Callout>
 
-## Intermediately Stream and Render Agent State
+## 以中间状态流式渲染智能体状态
 
-By default, the CrewAI Flow agent state will only update _between_ CrewAI Flow node transitions --
-which means state updates will be discontinuous and delayed.
+默认情况下，CrewAI Flow 智能体状态只_会在 CrewAI Flow 节点切换之间_更新——这意味着状态更新是不连续且滞后的。
 
-You likely want to render the agent state as it updates **continuously.**
+你可能希望智能体状态在更新时**持续地**渲染。
 
-See **[emit intermediate state](/crewai-flows/shared-state/predictive-state-updates).**
+参阅 **[发出中间状态](/crewai-flows/shared-state/predictive-state-updates)**。

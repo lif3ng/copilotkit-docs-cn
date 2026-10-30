@@ -1,27 +1,27 @@
 ---
-title: "Exiting the agent loop"
+title: "退出智能体循环"
 icon: "lucide/DoorOpen"
 ---
 
-After your agent has finished a workflow, you'll usually want to explicitly end that loop by calling the CopilotKit exit method in your agent code.
+当你的智能体完成一个工作流后，通常需要在智能体代码中调用 CopilotKit 的退出方法，显式结束该循环。
 
-Exiting the agent has different effects depending on mode:
+退出智能体的效果因模式而异：
 
-- **Router Mode**: Exiting the agent hands responsibility for handling input back to the router, which can initiate chat, call actions, other agents, etc. The router can return to this agent later (starting a new loop) to satisfy a user request.
+- **路由模式（Router Mode）**：退出智能体会把处理输入的职责交还给路由器，路由器可以发起聊天、调用操作、调度其他智能体等。路由器之后还可以返回这个智能体（开启一个新的循环）来满足用户请求。
 
-- **Agent Lock Mode**: Exiting the agent restarts the workflow loop for the current agent.
+- **智能体锁定模式（Agent Lock Mode）**：退出智能体会为当前智能体重启工作流循环。
 
-In this example from [our email-sending app](https://github.com/copilotkit/copilotkit/tree/main/examples/coagents-qa), the `send_email` node explicitly exits, then manually sends a response back to the user as a `ToolMessage`:
+在来自[我们的邮件发送应用](https://github.com/copilotkit/copilotkit/tree/main/examples/coagents-qa)的这个示例中，`send_email` 节点会显式退出，然后以 `ToolMessage` 的形式手动向用户发回一条响应：
 
 <Steps>
     <Step>
-        ### Install the CopilotKit SDK
+        ### 安装 CopilotKit SDK
         <InstallSDKSnippet/>
     </Step>
 
     <Step>
-        ### Exit the agent loop
-        This will exit the agent session as soon as the current LangGraph run is finished, either by a breakpoint or by reaching the `END` node.
+        ### 退出智能体循环
+        一旦当前 LangGraph 运行结束——无论是因断点还是到达 `END` 节点——这都会立即退出智能体会话。
 
         <Tabs groupId="language_langgraph_agent" items={['Python', 'TypeScript']} default="Python" persist>
             <Tab value="Python">

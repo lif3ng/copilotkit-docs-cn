@@ -1,51 +1,48 @@
 ---
-title: Interrupts
+title: 中断
 icon: "lucide/CirclePause"
-description: Learn how to implement Human-in-the-Loop (HITL) using a interrupt-based flow.
+description: 了解如何使用基于中断的流程实现人机协同（human-in-the-loop，HITL）。
 ---
 {/* TODO: swap feature-viewer URLs back to /deepagents/ once the dojo supports that route */}
 <IframeSwitcher
   id="human-in-the-loop-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/human_in_the_loop?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/human_in_the_loop?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
 <Callout type="info">
-  This example demonstrates interrupt-based human-in-the-loop (HITL) in the [CopilotKit Feature Viewer](https://feature-viewer.copilotkit.ai/langgraph/feature/human_in_the_loop).
+  本示例在 [CopilotKit Feature Viewer](https://feature-viewer.copilotkit.ai/langgraph/feature/human_in_the_loop) 中演示了基于中断的人机协同（human-in-the-loop，HITL）。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-[LangGraph's interrupt flow](https://docs.langchain.com/oss/python/langgraph/interrupts) provides an intuitive way to implement Human-in-the-loop workflows.
+[LangGraph 的中断流（interrupt flow）](https://docs.langchain.com/oss/python/langgraph/interrupts) 提供了一种直观的方式来实现人机协同（human-in-the-loop）工作流。
 
-This guide will show you how to both use `interrupt` and how to integrate it with CopilotKit.
+本指南将向你展示如何使用 `interrupt`，以及如何将其与 CopilotKit 集成。
 
-## When should I use this?
+## 何时使用？
 
-Human-in-the-loop is a powerful way to implement complex workflows that are production ready. By having a human in the loop,
-you can ensure that the agent is always making the right decisions and ultimately is being steered in the right direction.
+人机协同是实现可上生产的复杂工作流的有力方式。让人参与到流程中，你可以确保智能体始终做出正确的决策，并最终朝着正确的方向前进。
 
-Interrupt-based flows are a very intuitive way to implement HITL. Instead of having a node await user input before or after its execution,
-nodes can be interrupted in the middle of their execution to allow for user input. The trade-off is that the agent is not aware of the
-interaction, however [CopilotKit's SDKs provide helpers to alleviate this](#make-your-agent-aware-of-interruptions).
+基于中断的流程是实现 HITL 的一种非常直观的方式。节点不必在执行前或执行后等待用户输入，而是可以在执行过程中被中断，以便获取用户输入。代价是智能体无法感知这次交互，不过 [CopilotKit 的 SDK 提供了辅助方法来缓解这一问题](#让智能体感知中断)。
 
-## Implementation
+## 实现
 
 <Steps>
 <Step>
-  ### Run and connect your agent
+  ### 运行并连接你的智能体
   <RunAndConnect />
 </Step>
 <Step>
-  ### Install the CopilotKit SDK
+  ### 安装 CopilotKit SDK
   <InstallSDKSnippet />
 </Step>
 <Step>
-### Set up your agent state
-We're going to have the agent ask us to name it, so we'll need a state property to store the name.
+### 设置你的智能体状态
+我们将让智能体请求我们为它取名，因此需要一个状态属性来存储这个名字。
 
 <Tabs groupId="agent_language" items={['Python', 'TypeScript']} persist>
     <Tab value="Python">
@@ -77,13 +74,13 @@ We're going to have the agent ask us to name it, so we'll need a state property 
 
 </Step>
 <Step>
-    ### Call `interrupt` in your Deep Agents agent
-    Now we can call `interrupt` in our Deep Agents agent.
+    ### 在 Deep Agents 智能体中调用 `interrupt`
+    现在我们可以在 Deep Agents 智能体中调用 `interrupt` 了。
 
     <Callout type="info">
-        Your agent will not be aware of the `interrupt` interaction by default in LangGraph.
+        在 LangGraph 中，你的智能体默认不会感知到 `interrupt` 交互。
 
-        If you want this behavior, see the [section on it below](#make-your-agent-aware-of-interruptions).
+        如果你想要这种行为，请参阅[下文的相关小节](#让智能体感知中断)。
     </Callout>
 
     <Tabs groupId="agent_language" items={['Python', 'TypeScript']} persist>
@@ -124,7 +121,7 @@ We're going to have the agent ask us to name it, so we'll need a state property 
             ```
         </Tab>
         <Tab value="TypeScript">
-            In Deep Agents TypeScript, wire the interrupt into a middleware hook rather than a custom node. The hook below runs before the model call and asks the user for a name the first time.
+            在 Deep Agents 的 TypeScript 版本中，应将中断接入中间件 hook，而不是自定义节点。下面的 hook 会在模型调用之前运行，并在首次运行时请求用户取名。
 
             ```ts title="agent.ts"
             import {
@@ -169,11 +166,10 @@ We're going to have the agent ask us to name it, so we'll need a state property 
     </Tabs>
 </Step>
 <Step>
-    ### Handle the interrupt in your frontend
-    At this point, your Deep Agents agent's `interrupt` will be called. However, we currently have no handling for rendering or
-    responding to the interrupt in the frontend.
+    ### 在前端处理中断
+    此时，你的 Deep Agents 智能体会调用 `interrupt`。但目前我们还没有在前端对中断进行渲染或响应的处理。
 
-    To do this, we'll use the `useInterrupt` hook, give it a component to render, and then call `resolve` with the user's response.
+    为此，我们将使用 `useInterrupt` hook，为它提供一个要渲染的组件，然后用用户的响应调用 `resolve`。
 
     ```tsx title="app/page.tsx"
     import { useInterrupt } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -203,33 +199,32 @@ We're going to have the agent ask us to name it, so we'll need a state property 
     }
     ```
 
-    When your app already selects an agent in its `CopilotKit` provider, `useInterrupt` uses that configured agent. Pass `agentId` only when this component must target a different agent in a multi-agent app.
+    当你的应用已在 `CopilotKit` provider 中选择了某个智能体时，`useInterrupt` 会使用该配置的智能体。只有当此组件必须面向多智能体应用中的另一个智能体时，才需要传入 `agentId`。
 
 </Step>
 <Step>
-### Give it a try!
-Try talking to your agent, you'll see that it now pauses execution and waits for you to respond!
+### 试一试！
+试着和你的智能体对话，你会看到它现在会暂停执行并等待你的响应！
 <video src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/interrupt-flow.mp4" className="rounded-lg shadow-xl" loop playsInline controls autoPlay muted />
 </Step>
 </Steps>
 
-## Make your agent aware of interruptions
+## 让智能体感知中断
 
-Resuming an interrupt and making the model aware of the result are separate concerns. The custom middleware saves the response in thread state. In TypeScript, `zodState` also preserves the custom field in the graph output schema so AG-UI can send it to the frontend.
+恢复中断与让模型感知结果是两个独立的关注点。自定义中间件会把响应保存到线程状态中。在 TypeScript 中，`zodState` 还会将该自定义字段保留在图的输出 schema 中，以便 AG-UI 能将其发送到前端。
 
-The CopilotKit middleware then adds only the allowlisted name field to each model request. The system prompt explains what that field means, so after the run resumes the Deep Agent uses the selected name. Keep the allowlist narrow instead of exposing unrelated application state.
+随后，CopilotKit 中间件只会在每次模型请求中添加白名单内的 name 字段。系统提示词解释了这个字段的含义，因此在运行恢复后，Deep Agent 会使用选定的名字。请保持白名单尽量窄，不要暴露无关的应用状态。
 
-## Advanced usage
+## 高级用法
 
-### Condition UI executions
+### 条件化 UI 执行
 
-When rendering multiple `interrupt` events in the agent, there could be conflicts between multiple `useInterrupt` hooks calls in the UI.
-For this reason, the hook can take an `enabled` argument which will apply it conditionally:
+当智能体中渲染多个 `interrupt` 事件时，UI 中多个 `useInterrupt` hook 的调用之间可能产生冲突。因此，该 hook 可以接受一个 `enabled` 参数，从而按条件生效：
 
 <Steps>
     <Step>
-        ### Define multiple interrupts
-        First, let's define two different interrupts. We will include a "type" property to differentiate them.
+        ### 定义多个中断
+        首先，我们定义两个不同的中断。我们将加入一个 “type” 属性来区分它们。
         <Tabs groupId="agent_language" items={['Python', 'TypeScript']} persist>
             <Tab value="Python">
                 ```python title="agent.py"
@@ -283,9 +278,9 @@ For this reason, the hook can take an `enabled` argument which will apply it con
         </Tabs>
     </Step>
     <Step>
-        ### Add multiple frontend handlers
-        With the differentiator in mind, we will add a handler that takes care of any "ask" and any "approve" types.
-        With two `useInterrupt` hooks in our page, we can leverage the `enabled` property to enable each in the right time:
+        ### 添加多个前端处理器
+        有了这个区分标志，我们将添加一个处理器来处理所有 “ask” 和 “approve” 类型。
+        在页面中使用两个 `useInterrupt` hook，我们可以利用 `enabled` 属性在正确的时机分别启用它们：
 
         ```tsx title="app/page.tsx"
         import { useInterrupt } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -337,12 +332,12 @@ For this reason, the hook can take an `enabled` argument which will apply it con
     </Step>
 </Steps>
 
-### Preprocessing of an interrupt and programmatically handling an interrupt value
+### 中断的预处理与以编程方式处理中断值
 
-When opting for custom chat UI, some cases may require pre-processing of the incoming values of interrupt event or even resolving it entirely without showing a UI for it.
-This can be achieved using the `handler` property, which is not required to return a React component.
+在选择自定义聊天 UI 时，某些情况可能需要对中断事件传入的值进行预处理，甚至完全不显示 UI 就直接将其解决。
+这可以通过 `handler` 属性实现，它不需要返回 React 组件。
 
-The return value of the handler will be passed to the `render` method as the `result` argument.
+handler 的返回值会作为 `result` 参数传递给 `render` 方法。
 ```tsx title="app/page.tsx"
 // We will assume an interrupt event in the following shape
 type Department = 'finance' | 'engineering' | 'admin'

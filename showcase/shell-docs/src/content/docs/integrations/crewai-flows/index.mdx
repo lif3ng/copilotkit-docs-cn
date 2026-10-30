@@ -1,7 +1,7 @@
 ---
-title: Introduction
+title: 介绍
 icon: "custom/crewai"
-description: Bring your CrewAI Flow-based agents to your users with CopilotKit via AG-UI.
+description: 通过 CopilotKit 与 AG-UI，把基于 CrewAI Flow 的智能体带给你的用户。
 hideHeader: true
 # The landing page carries its own prompt button in the hero; the page-tools
 # row above the title would put a second one on the page, which the data-record
@@ -12,42 +12,42 @@ hidePageActions: true
 <FrameworkOverview
   frameworkName="CrewAI Flows"
   frameworkIcon={<CrewaiIcon className="h-12 w-12" />}
-  header="Bring your CrewAI Flow-based agents to your users"
-  subheader="CrewAI runs your flows. CopilotKit gives them a surface your users can see, interrupt and steer."
+  header="把基于 CrewAI Flow 的智能体带给你的用户"
+  subheader="CrewAI 负责运行你的 Flow，CopilotKit 则为它们提供一个用户可以看见、中断并引导的界面。"
   guideLink="/crewai-flows/quickstart"
   initCommand="npx copilotkit@latest init"
-  lede="CrewAI gives you the flow: steps, state and the crew that works through them. What it does not give you is the surface. Somewhere for the conversation to happen, a way to show the flow while it runs, and a moment for a person to step in. Each capability below builds on something your flow already does."
+  lede="CrewAI 给你的是流程本身：步骤、状态，以及逐步推进这些步骤的 crew。它没有给你的是界面——一个让对话发生的地方、一种在 Flow 运行时展示它的方式、以及一个让人介入的时机。下面的每一项能力，都建立在你的 Flow 已具备的某个基础之上。"
   supportedFeatures={[
     {
-      title: "Generative UI",
+      title: "生成式 UI",
       iconKey: "paintbrush",
       description:
-        "Your flow emits state and tool calls as each step completes. CopilotKit streams those to the browser and renders them as React components your users watch update while the flow runs.",
+        "你的 Flow 会在每一步完成时发出状态与工具调用。CopilotKit 将它们流式传输到浏览器，并渲染成 React 组件，让用户在 Flow 运行过程中看到实时更新。",
       documentationLink: "/crewai-flows/generative-ui"
     },
     {
-      title: "Human-in-the-loop",
+      title: "人机协同",
       iconKey: "user",
       description:
-        "A flow can stop and wait for a person. CopilotKit renders your own UI for that decision and resumes the flow with the answer.",
+        "Flow 可以停下来等待一个人。CopilotKit 会为该决策渲染你自己的 UI，并在得到答复后恢复 Flow 的执行。",
       documentationLink: "/crewai-flows/human-in-the-loop/flow"
     },
     {
-      title: "Shared state",
+      title: "共享状态",
       iconKey: "repeat",
       description:
-        "Flow state is the one object every step reads and writes. CopilotKit mirrors it into your app and back, so a user edit and a step write land in the same place.",
+        "Flow 状态是每个步骤都会读写的同一个对象。CopilotKit 把它镜像到你的应用中再同步回去，因此用户的编辑和步骤的写入会落在同一个地方。",
       documentationLink: "/crewai-flows/shared-state"
     }
   ]}
   capabilitiesFootnote={{
-    text: "Chat surfaces, headless UI, frontend tools and multi-agent flows work with CrewAI too.",
-    linkLabel: "And more",
+    text: "聊天界面、无头 UI、前端工具与多智能体流同样适用于 CrewAI。",
+    linkLabel: "以及更多",
     href: "/crewai-flows/build-with-agents"
   }}
   connect={{
     intro:
-      "Your flow keeps running as its own Python service, with the AG-UI bridge from ag_ui_crewai in front of it. CopilotKit reaches that service over HTTP, so nothing inside the flow changes.",
+      "你的 Flow 依旧作为独立的 Python 服务运行，前面由 ag_ui_crewai 提供 AG-UI 桥接。CopilotKit 通过 HTTP 访问该服务，因此 Flow 内部无需任何改动。",
     filename: "app/api/copilotkit/route.ts",
     language: "ts",
     guideLink: "/crewai-flows/quickstart"
@@ -55,12 +55,12 @@ hidePageActions: true
   showcase={{
     integration: "crewai-crews",
     intro:
-      "CrewAI and CopilotKit running together, in the React frontend. Every demo below is the same integration with one capability turned on.",
+      "CrewAI 与 CopilotKit 在 React 前端中协同运行。下面的每个演示都是同一个集成，只是开启了不同的能力。",
     demos: [
-      { slug: "agentic-chat", title: "Pre-Built: CopilotChat" },
-      { slug: "hitl-in-chat", title: "Human In the Loop: In-chat" },
-      { slug: "shared-state-read-write", title: "Shared State: Read + Write" },
-      { slug: "gen-ui-agent", title: "Generative UI: Agent State" }
+      { slug: "agentic-chat", title: "预构建：CopilotChat" },
+      { slug: "hitl-in-chat", title: "人机协同：聊天内" },
+      { slug: "shared-state-read-write", title: "共享状态：读取 + 写入" },
+      { slug: "gen-ui-agent", title: "生成式 UI：智能体状态" }
     ]
   }}
 >

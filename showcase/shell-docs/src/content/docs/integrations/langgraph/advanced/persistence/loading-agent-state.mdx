@@ -1,14 +1,14 @@
 ---
-title: Loading Agent State
-description: Learn how threadId is used to load previous agent states.
+title: 加载智能体状态
+description: 了解如何使用 threadId 加载之前的智能体状态。
 icon: "lucide/ChartBar"
 ---
 
-### Setting the threadId
+### 设置 threadId
 
-When setting the `threadId` property in CopilotKit, i.e:
+在 CopilotKit 中设置 `threadId` 属性时，即：
 
-<Callout>When using LangGraph platform, the `threadId` must be a UUID.</Callout>
+<Callout>使用 LangGraph Platform 时，`threadId` 必须是 UUID。</Callout>
 
 ```tsx
 <CopilotKit threadId="2140b272-7180-410d-9526-f66210918b13">
@@ -16,11 +16,11 @@ When setting the `threadId` property in CopilotKit, i.e:
 </CopilotKit>
 ```
 
-CopilotKit will restore the complete state of the thread, including the messages, from the database. (See [Message Persistence](/langgraph/advanced/persistence/message-persistence) for more details.)
+CopilotKit 会从数据库恢复该线程的完整状态，包括消息。（详见[消息持久化](/langgraph/advanced/persistence/message-persistence)。）
 
-### Loading Agent State
+### 加载智能体状态
 
-This means that the state of any agent will also be restored. For example:
+这意味着任何智能体的状态也会被恢复。例如：
 
 ```tsx
 const { agent } = useAgent({ agentId: "research_agent" });
@@ -28,10 +28,10 @@ const { agent } = useAgent({ agentId: "research_agent" });
 // agent.state will now be the state of research_agent in the thread id given above
 ```
 
-### Learn More
+### 了解更多
 
-To learn more about persistence and state in CopilotKit, see:
+要进一步了解 CopilotKit 中的持久化与状态，请参阅：
 
-- [Reading agent state](/langgraph/shared-state/in-app-agent-read)
-- [Writing agent state](/langgraph/shared-state/in-app-agent-write)
-- [Loading Message History](/langgraph/advanced/persistence/loading-message-history)
+- [读取智能体状态](/langgraph/shared-state/in-app-agent-read)
+- [写入智能体状态](/langgraph/shared-state/in-app-agent-write)
+- [加载消息历史](/langgraph/advanced/persistence/loading-message-history)

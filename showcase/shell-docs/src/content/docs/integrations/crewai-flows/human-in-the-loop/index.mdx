@@ -1,7 +1,7 @@
 ---
-title: Human in the Loop (HITL)
+title: 人机协同（HITL）
 icon: "lucide/User"
-description: Allow your agent and users to collaborate on complex tasks.
+description: 让智能体与用户协作完成复杂任务。
 ---
 
 <video
@@ -20,47 +20,46 @@ This video shows an example of our [AI Travel App](/langgraph/tutorials/ai-trave
 
 </Callout> */}
 
-## What is Human-in-the-Loop (HITL)?
+## 什么是人机协同（HITL）？
 
-Human-in-the-loop (HITL) allows agents to request human input or approval during execution, making AI systems more reliable and trustworthy. This pattern is essential when building AI applications that need to handle complex decisions or actions that require human judgment.
+人机协同（human-in-the-loop，HITL）允许智能体在执行过程中请求人类输入或批准，使 AI 系统更加可靠、可信。在构建需要处理复杂决策、或需要执行依赖人类判断的动作的 AI 应用时，这一模式至关重要。
 
-<Callout type="info" title="Conversational Flows">
-  The frontend HITL APIs are unchanged in conversational mode. For native
-  `useInterrupt` flows, register the AG-UI endpoint with
-  `emit_interrupt_outcome=True` and
-  `enable_legacy_on_interrupt_event=False`, in addition to
-  `conversational=True`.
+<Callout type="info" title="对话式 Flow">
+  在对话模式下，前端 HITL API 保持不变。对于原生的 `useInterrupt` 流程，除了
+  `conversational=True` 之外，注册 AG-UI 端点时还需设置
+  `emit_interrupt_outcome=True` 和
+  `enable_legacy_on_interrupt_event=False`。
 </Callout>
 
 <Frame className="my-0">
   <img
     src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/coagents-hitl-infographic.png"
-    alt="Agentic Copilot Human in the Loop"
+    alt="智能体化 Copilot 的人机协同"
     className="mt-4 mb-0 shadow-md"
   />
 </Frame>
 
-## When should I use this?
+## 什么时候该用它？
 
-HITL combines the efficiency of AI with human judgment, creating a system that's both powerful and reliable. The key advantages include:
+HITL 将 AI 的效率与人类的判断相结合，打造出既强大又可靠的系统。主要优势包括：
 
-- **Quality Control**: Human oversight at critical decision points
-- **Edge Cases**: Graceful handling of low-confidence situations
-- **Expert Input**: Leverage human expertise when needed
-- **Reliability**: More robust system for real-world use
+- **质量控制**：在关键决策点上进行人工监督
+- **边界情况**：从容应对低置信度的场景
+- **专家输入**：在需要时借助人类的专业知识
+- **可靠性**：面向真实场景的更健壮的系统
 
-## How can I use this?
+## 如何使用它？
 
-Read more about the approach to HITL in CrewAI Flows.
+进一步阅读 CrewAI Flows 中实现 HITL 的方式。
 
 <CTACards
   columns={1}
   cards={[
     {
       iconKey: "share2",
-      title: "Flow-based",
+      title: "基于 Flow",
       description:
-        "Utilize CrewAI Flows to create Human-in-the-Loop workflows.",
+        "使用 CrewAI Flows 创建人机协同工作流。",
       href: "/human-in-the-loop/flow",
     },
   ]}
