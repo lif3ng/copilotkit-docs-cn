@@ -1,11 +1,12 @@
 ---
-title: "Step 1: Checkout the repo"
+title: "第 1 步：检出仓库"
 ---
 
 <Steps>
 <Step>
-### Checkout the repository
-We'll begin by checking out the base code of the todo list app.
+### 检出仓库
+
+我们首先检出待办列表应用的基础代码。
 
 ```shell
 GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 https://github.com/CopilotKit/CopilotKit.git
@@ -14,9 +15,9 @@ cd CopilotKit/examples/starters/todos-app/start
 
 </Step>
 <Step>
-### Install dependencies
+### 安装依赖
 
-To install the dependencies, run the following:
+运行以下命令安装依赖：
 
 ```shell
 npm install
@@ -24,28 +25,28 @@ npm install
 
 </Step>
 <Step>
-### Start the project
+### 启动项目
 
-Now, you are ready to start the project by running:
+现在可以运行以下命令启动项目：
 
 ```shell
 npm run dev
 ```
 
-You should be able to go to [http://localhost:3000](http://localhost:3000) and see the todo list app. Feel free to play around with the app to get a feel for it.
+现在你可以访问 [http://localhost:3000](http://localhost:3000) 查看待办列表应用。不妨先随意把玩一番，找找感觉。
 
 </Step>
 </Steps>
 
 <Cards>
 <Card
-  title="← Previous: Overview"
+  title="← 上一步：概览"
   href="/tutorials/ai-todo-app/overview"
-  description="What you'll build and a live preview of the end result."
+  description="你将构建的内容以及最终效果的实时预览。"
 />
 <Card
-  title="Next: Set up CopilotKit →"
+  title="下一步：配置 CopilotKit →"
   href="/tutorials/ai-todo-app/step-2-setup-copilotkit"
-  description="Wire the CopilotKit provider and chat UI into the app."
+  description="将 CopilotKit provider 和聊天 UI 接入应用。"
 />
 </Cards>

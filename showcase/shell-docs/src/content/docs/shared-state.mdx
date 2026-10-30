@@ -1,22 +1,22 @@
 ---
-title: Shared State
-description: Create a two-way connection between your UI and agent state.
+title: 共享状态
+description: 在你的 UI 与智能体状态之间建立双向连接。
 icon: "lucide/Repeat"
 ---
 
 import InspectorPaneState from "@/snippets/shared/inspector/open-inspector-pane-state.mdx";
 
-## What is shared state?
+## 什么是共享状态？
 
-Agentic Copilots maintain a shared state that seamlessly connects your UI with the agent's execution. This shared state system allows you to:
+智能体化的 Copilot 会维护一个共享状态，把你的 UI 与智能体的执行无缝连接起来。这套共享状态系统让你可以：
 
-- Display the agent's current progress and intermediate results
-- Update the agent's state through UI interactions
-- React to state changes in real-time across your application
+- 展示智能体当前的进展与中间结果
+- 通过 UI 交互更新智能体的状态
+- 在整个应用中实时响应状态变化
 
 <ImageZoom
   src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/SharedStateCoAgents.gif"
-  alt="Shared State Demo"
+  alt="共享状态演示"
   width={1000}
   height={1000}
   className="rounded-lg shadow-lg border mt-0"
@@ -24,80 +24,55 @@ Agentic Copilots maintain a shared state that seamlessly connects your UI with t
 
 <InspectorPaneState components={props.components} />
 
-## When should I use this?
+## 什么时候该用它？
 
-Use shared state when you want the agent and the user to collaborate through the
-same application state. The agent's outputs are reflected in the UI, and user
-updates in the UI are reflected in the agent's execution.
+当你希望智能体和用户通过同一份应用状态协作时，就使用共享状态。智能体的输出会反映到 UI 中，用户在 UI 中的更新也会反映到智能体的执行里。
 
 <OpsPlatformCTA
   variant="inline"
-  title="Building stateful agents?"
-  body="Persistent threads ship with CopilotKit Intelligence on the free Developer tier."
+  title="在构建有状态的智能体？"
+  body="持久化线程随免费 Developer 层级的 CopilotKit Intelligence 一同提供。"
   surface="docs_shared_state"
 />
 
-## Reading agent state
+## 读取智能体状态
 
 <FrameworkSetup concept="shared-state-setup" />
 
-Subscribe a component to the agent's state with `useAgent`. Any time the agent
-mutates its state, for example via a tool call, the hook fires and your UI
-re-renders with the new values.
+用 `useAgent` 把组件订阅到智能体的状态上。只要智能体修改自己的状态（例如通过一次工具调用），该 hook 就会触发，你的 UI 便会以新值重新渲染。
 
-<Snippet region="use-agent-read" cell="shared-state-read-write" title="frontend/src/app/page.tsx: useAgent subscription" />
+<Snippet region="use-agent-read" cell="shared-state-read-write" title="frontend/src/app/page.tsx：useAgent 订阅" />
 
-The returned `agent.state` is just a plain object. Read it like any other
-piece of React state and render the parts you care about: agent-written
-notes, structured outputs, progress indicators, anything the agent has put
-there.
+返回的 `agent.state` 只是一个普通对象。像读取其他 React state 一样读取它，并渲染你关心的部分：智能体写入的笔记、结构化输出、进度指示器——智能体放进去的任何东西。
 
-## Writing agent state
+## 写入智能体状态
 
-The same `agent` object exposes a `setState` setter. Calling it from a UI
-event handler pushes the new value into shared state, and the agent reads it
-back on its next turn. The UI's writes visibly steer the model.
+同一个 `agent` 对象还暴露了 `setState` 设置器。在 UI 事件处理器中调用它，会把新值推入共享状态，智能体会在它的下一轮读取回来。UI 的写入会实实在在地引导模型。
 
-<Snippet region="use-agent-write" cell="shared-state-read-write" title="frontend/src/app/page.tsx: agent.setState" />
+<Snippet region="use-agent-write" cell="shared-state-read-write" title="frontend/src/app/page.tsx：agent.setState" />
 
-This is what makes the channel two-way: the UI doesn't just observe the
-agent, it can hand the agent fresh inputs (preferences, selections, partial
-work) without going through the chat thread.
+这正是这条通道双向的原因：UI 不仅能观察智能体，还能把新的输入（偏好、选择、半成品工作）直接交给智能体，而无需经过聊天线程。
 
-## Rendering shared state in the UI
+## 在 UI 中渲染共享状态
 
-Because `agent.state` is plain React data, the UI layer is whatever you'd
-normally build. The demo on this page wires the agent's outputs into a
-small card component and feeds user edits back through `setState`.
+由于 `agent.state` 就是普通的 React 数据，UI 层就是你平时构建的那些东西。本页的演示把智能体的输出接进一个小卡片组件，并通过 `setState` 把用户编辑回传。
 
-<Snippet region="notes-card-render" cell="shared-state-read-write" title="frontend/src/app/page.tsx: NotesCard" />
+<Snippet region="notes-card-render" cell="shared-state-read-write" title="frontend/src/app/page.tsx：NotesCard" />
 
-Nothing about this is chat-specific: `useAgent` works in any component under
-`<CopilotKit>`, so you can render `agent.state` in your main view or canvas,
-not just inside the chat panel. See
-**[Render agent state in your app](/shared-state/rendering-in-app)** for the
-full main-view pattern.
+这一切都不局限于聊天：`useAgent` 可以在 `<CopilotKit>` 下的任何组件中使用，因此你可以在主视图或画布中渲染 `agent.state`，而不只是聊天面板里。完整的主视图模式见 **[在应用中渲染智能体状态](/shared-state/rendering-in-app)**。
 
-## Streaming partial state updates
+## 流式传输部分状态更新
 
-By default, agent state only updates *between* backend checkpoints, so a
-long-running tool call appears as one big burst at the end. State streaming
-forwards a specific tool argument straight into a state key *as it's being
-generated*, so the UI can watch the answer assemble token-by-token.
+默认情况下，智能体状态只在后端检查点*之间*更新，因此一次长时间运行的工具调用会到最后才一次性涌现出来。状态流式传输会在某个特定工具参数*生成的同时*把它直接转发到一个状态键，让 UI 能看着答案逐 token 组装起来。
 
-<Snippet region="state-streaming-middleware" cell="shared-state-streaming" title="backend: streaming state update" />
+<Snippet region="state-streaming-middleware" cell="shared-state-streaming" title="backend：流式状态更新" />
 
-See **[State streaming](/shared-state/streaming)** for the full walkthrough,
-including the corresponding `useAgent` subscription on the frontend.
+完整演练（包括前端对应的 `useAgent` 订阅）见 **[状态流式传输](/shared-state/streaming)**。
 
-## Read-only context
+## 只读上下文
 
-When the value is **UI-owned** and the agent should read it but never write
-it back, such as current user, selected record, or scroll position, reach for
-`useAgentContext` instead of full shared state. It publishes values as a
-one-way UI-to-agent channel that auto-unregisters on unmount.
+当某个值是 **UI 所有**的、智能体只应读取而绝不应回写时——比如当前用户、选中的记录或滚动位置——请使用 `useAgentContext` 而不是完整的共享状态。它把值发布为一条从 UI 到智能体的单向通道，并在组件卸载时自动注销。
 
-See **[Agent read-only context](/shared-state/agent-readonly)** for the
-full pattern.
+完整模式见 **[智能体只读上下文](/shared-state/agent-readonly)**。
 
 <IntegrationGrid path="shared-state" exclude={["agno", "agent-spec", "spring-ai", "langroid"]} />

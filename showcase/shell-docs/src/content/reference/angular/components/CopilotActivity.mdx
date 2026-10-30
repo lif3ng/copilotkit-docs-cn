@@ -1,19 +1,19 @@
 ---
 title: "CopilotActivity"
-description: "Angular component that renders a single activity message through the activity renderer registered for its activity type."
+description: "Angular 组件，通过为其活动类型注册的活动渲染器来渲染单条活动消息。"
 ---
 
-## Overview
+## 概览
 
-`CopilotActivity` renders one activity message. It looks up the renderer registered for the message's `activityType` — via `provideCopilotKit({ renderActivityMessages })` or [`registerRenderActivityMessage`](/reference/angular/functions/registerRenderActivityMessage) — validates the message content against the renderer's schema, and mounts the renderer component with the `activityType`, `content`, `message`, and `agent` inputs.
+`CopilotActivity` 渲染单条活动消息。它会查找为该消息的 `activityType` 注册的渲染器——通过 `provideCopilotKit({ renderActivityMessages })` 或 [`registerRenderActivityMessage`](/reference/angular/functions/registerRenderActivityMessage)——校验消息内容是否符合渲染器的 schema，并以 `activityType`、`content`、`message` 和 `agent` 这些输入挂载渲染器组件。
 
-It is the activity counterpart of `RenderToolCalls` and the Angular equivalent of React's `useRenderActivityMessage()`. [`CopilotChatMessageView`](/reference/angular/components/CopilotChatMessageView) uses it for every message with `role: "activity"`, so the built-in chat and your own templates share one implementation.
+它是 `RenderToolCalls` 在活动消息上的对应物，也是 React 的 `useRenderActivityMessage()` 在 Angular 中的等价物。[`CopilotChatMessageView`](/reference/angular/components/CopilotChatMessageView) 对每条 `role: "activity"` 的消息都会使用它，因此内置聊天与你自己的模板共用同一套实现。
 
-Use it directly when you build a custom chat shell without `CopilotChatMessageView`, or when you host activities outside of a chat entirely — a dashboard, a side panel, an output area.
+当你构建不使用 `CopilotChatMessageView` 的自定义聊天外壳，或在聊天之外完全独立地承载活动——例如仪表盘、侧边面板、输出区域——时，可以直接使用它。
 
-The component is standalone. Reactive inputs are Angular [signals](https://angular.dev/guide/signals).
+该组件是 standalone 组件。响应式输入基于 Angular 的 [signals](https://angular.dev/guide/signals)。
 
-## Usage
+## 用法
 
 ```ts title="src/app/activity-panel.component.ts"
 import { Component, computed, input } from "@angular/core";
@@ -42,26 +42,26 @@ export class ActivityPanelComponent {
 }
 ```
 
-## Renderer resolution
+## 渲染器解析
 
-For a given `activityType`, the first matching renderer wins in this order:
+对于给定的 `activityType`，按以下顺序取第一个匹配的渲染器：
 
-1. a renderer for that type registered with the same `agentId`
-2. a renderer for that type without an `agentId` (global)
-3. the `"*"` wildcard renderer
+1. 以相同 `agentId` 注册的该类型渲染器
+2. 不带 `agentId` 的该类型渲染器（全局）
+3. `"*"` 通配符渲染器
 
-Within a tier, registration order decides: renderers passed to `provideCopilotKit` or registered at runtime come before the built-in ones (A2UI, Open Generative UI, MCP Apps), so an application renderer can override a built-in for the same activity type.
+在同一层级内，由注册顺序决定：传给 `provideCopilotKit` 或在运行时注册的渲染器排在内置渲染器（A2UI、Open Generative UI、MCP Apps）之前，因此应用级渲染器可以覆盖同一活动类型的内置渲染器。
 
-If no renderer matches, nothing is rendered. If the renderer's content schema rejects the message content, nothing is rendered and a warning is logged.
+如果没有匹配的渲染器，则不渲染任何内容。如果渲染器的内容 schema 拒绝了该消息内容，则同样不渲染，并会记录一条警告。
 
-## Inputs
+## 输入
 
-| Input     | Type                  | Default     | Description                                                                                                 |
+| 输入      | 类型                  | 默认值      | 说明                                                                                                        |
 | --------- | --------------------- | ----------- | ----------------------------------------------------------------------------------------------------------- |
-| `message` | `ActivityMessage`     | — (required) | The activity message to render.                                                                             |
-| `agentId` | `string \| undefined` | `undefined` | Agent scope for renderer resolution. Also used to look up the `AbstractAgent` handed to the renderer's `agent` input. |
+| `message` | `ActivityMessage`     | —（必填）   | 要渲染的活动消息。                                                                                          |
+| `agentId` | `string \| undefined` | `undefined` | 用于渲染器解析的智能体作用域。也用于查找传递给渲染器 `agent` 输入的 `AbstractAgent`。                       |
 
-## See also
+## 另请参阅
 
-- [`registerRenderActivityMessage`](/reference/angular/functions/registerRenderActivityMessage) — register a renderer for the lifetime of the current injector.
-- [`CopilotChatMessageView`](/reference/angular/components/CopilotChatMessageView) — the message list that uses this component for activity messages.
+- [`registerRenderActivityMessage`](/reference/angular/functions/registerRenderActivityMessage)——为当前注入器的生命周期注册一个渲染器。
+- [`CopilotChatMessageView`](/reference/angular/components/CopilotChatMessageView)——对活动消息使用本组件的消息列表。

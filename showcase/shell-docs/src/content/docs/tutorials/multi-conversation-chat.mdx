@@ -1,42 +1,42 @@
 ---
-title: "Tutorial: Build a Multi-Conversation Chat App"
-description: "Build a chat application with persistent conversation threads using useThreads and CopilotChat — create, switch, rename, and archive conversations with realtime sync."
+title: "教程：构建多会话聊天应用"
+description: "使用 useThreads 与 CopilotChat 构建带持久化会话线程的聊天应用——创建、切换、重命名和归档会话，并实时同步。"
 icon: "lucide/MessageSquareMore"
 doc_type: tutorial
 ---
 
 <OpsPlatformCTA
   variant="inline"
-  title="Need a CopilotKit Intelligence project?"
-  body="The Developer tier on cloud-hosted CopilotKit Intelligence has everything this tutorial uses — threads, realtime sync, and a project-scoped API key for your runtime."
+  title="需要 CopilotKit Intelligence 项目？"
+  body="云托管 CopilotKit Intelligence 的 Developer 层级涵盖了本教程所用的一切——线程、实时同步，以及供你的运行时使用的项目级 API 密钥。"
   surface="docs_tutorial_multi_conversation_chat"
 />
 
-## What you'll build
+## 你将构建什么
 
-A chat application with a thread sidebar — similar to ChatGPT or Claude's conversation list. Users can create new conversations, switch between them, rename them, and archive old ones. All thread metadata syncs in realtime across tabs.
+一个带线程侧边栏的聊天应用——类似于 ChatGPT 或 Claude 的会话列表。用户可以创建新会话、在会话之间切换、重命名会话以及归档旧会话。所有线程元数据都会跨标签页实时同步。
 
-## What you'll learn
+## 你将学到什么
 
-- How to list and manage threads with `useThreads`
-- How to wire thread selection into `CopilotChat` via `threadId`
-- How to create new threads by clearing the active thread
-- How to add rename and archive actions to each thread
-- How pagination works for users with many conversations
+- 如何使用 `useThreads` 列出和管理线程
+- 如何通过 `threadId` 将线程选择接入 `CopilotChat`
+- 如何通过清空活动线程来创建新线程
+- 如何为每个线程添加重命名和归档操作
+- 会话较多的用户场景下分页的工作方式
 
-## Prerequisites
+## 前置条件
 
 - Node.js 20+
-- A CopilotKit project with CopilotKit Intelligence configured (via [Cloud-hosted CopilotKit Intelligence](/intelligence/managed-intelligence-platform) or [self-hosted](/intelligence/self-hosting))
+- 一个已配置 CopilotKit Intelligence 的 CopilotKit 项目（通过[云托管 CopilotKit Intelligence](/intelligence/managed-intelligence-platform) 或[自托管](/intelligence/self-hosting)）
 - `@copilotkit/react-core` v1.50+
 
-## Steps
+## 步骤
 
 <Steps>
   <Step>
-    ### Scaffold the layout
+    ### 搭建布局
 
-    Create a two-panel layout: a sidebar for the thread list on the left, and the chat area on the right. We'll use a simple flexbox layout.
+    创建一个双栏布局：左侧是线程列表侧边栏，右侧是聊天区域。我们将使用简单的 flexbox 布局。
 
     ```tsx title="App.tsx"
     import { CopilotKit } from "@copilotkit/react-core/v2";
@@ -59,9 +59,9 @@ A chat application with a thread sidebar — similar to ChatGPT or Claude's conv
   </Step>
 
   <Step>
-    ### Build the thread sidebar
+    ### 构建线程侧边栏
 
-    Use `useThreads` to fetch the thread list and render it. Each thread shows its name (or "New conversation" if unnamed) and the time it was last updated.
+    使用 `useThreads` 获取并渲染线程列表。每个线程显示其名称（未命名时显示 “New conversation”）以及最后更新时间。
 
     ```tsx title="ThreadSidebar.tsx"
     import { useThreads } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -106,9 +106,9 @@ A chat application with a thread sidebar — similar to ChatGPT or Claude's conv
   </Step>
 
   <Step>
-    ### Add thread row with actions
+    ### 添加带操作的线程行
 
-    Each row needs a click handler to select the thread, plus rename and archive actions. We'll use a simple inline editing pattern for rename.
+    每一行需要一个用于选中线程的点击处理器，外加重命名和归档操作。重命名采用简单的内联编辑模式。
 
     ```tsx title="ThreadRow.tsx"
     import { useState } from "react";
@@ -190,9 +190,9 @@ A chat application with a thread sidebar — similar to ChatGPT or Claude's conv
   </Step>
 
   <Step>
-    ### Wire up the chat panel
+    ### 接入聊天面板
 
-    The chat panel listens for thread selection events and passes the active `threadId` to `CopilotChat`. When no thread is selected, starting a conversation creates a new thread automatically.
+    聊天面板监听线程选择事件，并将活动的 `threadId` 传给 `CopilotChat`。未选择任何线程时，开始对话会自动创建新线程。
 
     ```tsx title="ChatPanel.tsx"
     import { CopilotChat } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -223,13 +223,13 @@ A chat application with a thread sidebar — similar to ChatGPT or Claude's conv
     }
     ```
 
-    When `threadId` is `undefined`, the chat starts a fresh conversation. When set to an existing thread ID, it loads that thread's message history and reconnects to any active agent stream.
+    当 `threadId` 为 `undefined` 时，聊天会开启一段全新会话。设置为已有线程 ID 时，则会加载该线程的消息历史，并重新连接到任何活动的智能体流。
   </Step>
 
   <Step>
-    ### Add pagination (optional)
+    ### 添加分页（可选）
 
-    If your users accumulate many conversations, add a "Load more" button at the bottom of the sidebar using the `limit` parameter.
+    如果你的用户积累了大量会话，可以使用 `limit` 参数在侧边栏底部添加一个 “加载更多” 按钮。
 
     ```tsx title="ThreadSidebar.tsx"
     const {
@@ -259,17 +259,17 @@ A chat application with a thread sidebar — similar to ChatGPT or Claude's conv
   </Step>
 </Steps>
 
-## What's next
+## 接下来
 
-You now have a working multi-conversation chat app with persistent threads. Thread names are auto-generated by the LLM after the first message — you'll see them appear in the sidebar automatically. Here are some ideas for extending further:
+现在你已经有了一个带持久化线程、可正常工作的多会话聊天应用。线程名称会在首条消息之后由 LLM 自动生成——你会看到它们自动出现在侧边栏中。以下是一些进一步扩展的思路：
 
-- **Search** — add a search input that filters threads by name
-- **Unread indicators** — track which threads have new messages since the user last viewed them
-- **Drag to reorder** — let users pin important threads to the top
-- **Archive view** — add a toggle to show archived threads using `includeArchived: true`
+- **搜索**——添加一个按名称筛选线程的搜索输入框
+- **未读标记**——跟踪哪些线程自用户上次查看后有新消息
+- **拖拽排序**——让用户把重要线程置顶
+- **归档视图**——添加一个开关，通过 `includeArchived: true` 显示已归档线程
 
-## Next steps
+## 后续步骤
 
-- **Step-by-step guide:** [Headless Threads](/headless-threads) — build a custom thread-management UI
-- **Thread architecture:** [AG-UI Streams & Framework Threads](/intelligence/threads-explained) — event replay model and WebSocket sync
-- **API reference:** [useThreads](/reference/v2/hooks/useThreads) — parameters, return values, types
+- **分步指南**：[Headless Threads](/headless-threads)——构建自定义线程管理 UI
+- **线程架构**：[AG-UI Streams & Framework Threads](/intelligence/threads-explained)——事件回放模型与 WebSocket 同步
+- **API 参考**：[useThreads](/reference/v2/hooks/useThreads)——参数、返回值、类型

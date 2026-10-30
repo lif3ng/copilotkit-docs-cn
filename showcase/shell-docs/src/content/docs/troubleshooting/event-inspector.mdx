@@ -1,132 +1,125 @@
 ---
-title: "AG-UI Event Inspector"
-description: "Inspect AG-UI events in real time with the VSCode extension"
+title: "AG-UI 事件检查器"
+description: "使用 VSCode 扩展实时检查 AG-UI 事件"
 icon: "lucide/Activity"
 frontend: universal
 ---
-The AG-UI Event Inspector gives you a live view of every event flowing between your CopilotKit runtime and client. Instead of sprinkling `console.log` statements through your agent code, you can watch the full AG-UI event stream in a filterable, color-coded panel inside VS Code.
+AG-UI 事件检查器让你实时查看在 CopilotKit 运行时与客户端之间流转的每一个事件。无需在智能体代码中到处插 `console.log`，你就能在 VS Code 内一个可筛选、按颜色编码的面板中观察完整的 AG-UI 事件流。
 
-Use it when:
-- An agent interaction isn't behaving as expected and you need to see which events the runtime is actually emitting
-- You want to understand the AG-UI event lifecycle (e.g., how `RUN_STARTED` flows through `TEXT_MESSAGE_CONTENT` chunks to `RUN_FINISHED`)
-- You need to inspect tool call arguments or state deltas for a specific interaction
+在以下情况下使用：
+- 智能体交互表现不符合预期，你需要查看运行时实际发出了哪些事件
+- 你想理解 AG-UI 事件的生命周期（例如 `RUN_STARTED` 如何经过一个个 `TEXT_MESSAGE_CONTENT` 块流转到 `RUN_FINISHED`）
+- 你需要检查某次交互的工具调用参数或状态增量（state delta）
 
 <Callout type="info">
-  The in-app Inspector locks the Threads tab when the Runtime does not advertise
-  the Threads list capability, regardless of license metadata. The locked view
-  offers **Copy setup prompt** and **Talk to an Engineer**. See
-  [Inspector](/inspector#enable-or-repair-intelligence) for the setup flow.
+  当运行时未声明 Threads 列表能力时，应用内 Inspector 会锁定 Threads 标签页，无论许可证元数据如何。锁定视图提供 **Copy setup prompt**（复制配置提示词）与 **Talk to an Engineer**（联系工程师）两个选项。配置流程参见 [Inspector](/inspector#enable-or-repair-intelligence)。
 </Callout>
 
-## Prerequisites
+## 前置条件
 
-- A CopilotKit runtime running locally with `NODE_ENV` set to `development`, or with `debug` enabled on the runtime
-- The [CopilotKit VS Code extension](/vs-code-extension) installed
+- 一个在本地运行、且 `NODE_ENV` 设为 `development` 的 CopilotKit 运行时，或在运行时上启用了 `debug`
+- 已安装 [CopilotKit VS Code 扩展](/vs-code-extension)
 
 <Callout type="warning">
-  The `/cpk-debug-events` endpoint streams every event of every thread, including full message content, to any subscriber. It is served in exactly two cases: `NODE_ENV` is `development`, or the runtime sets `debug`. Everywhere else it returns 404.
+  `/cpk-debug-events` 端点会将每个线程的每一个事件（包括完整消息内容）流式推送给任何订阅者。它只在两种情况下提供服务：`NODE_ENV` 为 `development`，或运行时设置了 `debug`。其余情况一律返回 404。
 
-  An *unset* `NODE_ENV` counts as everywhere else. A plain `node server.js` sets no value, so a self-hosted runtime does not expose the feed by accident. If you need it on such a host, ask for it explicitly:
+  未设置（unset）的 `NODE_ENV` 属于其余情况。直接运行 `node server.js` 不会设置该值，因此自托管运行时不会意外暴露该订阅源。如果你需要在此类主机上启用它，请显式声明：
 
   ```ts
   const runtime = new CopilotRuntime({ agents, debug: true });
   ```
 
-  Treat that as you would any other way of reading conversation content, and do not enable it on a runtime the public can reach.
+  请像对待其他任何读取会话内容的方式一样对待它，不要在公网可访问的运行时上启用。
 </Callout>
 
 <Callout type="warning">
-  This stream carries the AG-UI events a **self-hosted** runtime sends over SSE.
-  A runtime configured with `intelligence` does not send them: it answers runs
-  over CopilotKit Intelligence's realtime connection instead. On that runtime
-  `/cpk-debug-events` still connects and reports `: connected`, then stays
-  empty. To trace an Intelligence-backed run, use the in-app
-  [Inspector](/inspector), which reads the events on the client.
+  此流承载的是**自托管**运行时通过 SSE 发送的 AG-UI 事件。
+  配置了 `intelligence` 的运行时不会发送这些事件：它改用 CopilotKit Intelligence 的实时连接来响应运行。在这种运行时上，`/cpk-debug-events` 仍能连接并报告 `: connected`，但之后一直为空。要追踪由 Intelligence 支撑的运行，请使用应用内 [Inspector](/inspector)，它在客户端读取事件。
 </Callout>
 
-## Connect and inspect
+## 连接并检查
 
 <Steps>
 <Step>
-### Ensure your runtime is running in development mode
+### 确保运行时以开发模式运行
 
-The debug event endpoint is available at `GET {runtimeUrl}/cpk-debug-events`. It activates automatically when `NODE_ENV` is `development`, which `next dev` and most dev servers set for you — no extra configuration needed. On a host that sets no `NODE_ENV`, set `debug: true` on the runtime instead.
+调试事件端点位于 `GET {runtimeUrl}/cpk-debug-events`。当 `NODE_ENV` 为 `development` 时它会自动启用——`next dev` 和大多数开发服务器都会帮你设好该值，无需额外配置。在不设置 `NODE_ENV` 的主机上，请改为在运行时设置 `debug: true`。
 
-The path is relative to the `basePath` the runtime is mounted at, not to the server's origin. A runtime mounted at `/api/copilotkit` on port 8200 serves the stream at `http://localhost:8200/api/copilotkit/cpk-debug-events`; requesting `http://localhost:8200/cpk-debug-events` returns `404 {"error":"Not found"}`. Confirm the URL before you connect:
+该路径相对于运行时挂载的 `basePath`，而非服务器源（origin）。挂载在 `/api/copilotkit`、端口 8200 的运行时会在 `http://localhost:8200/api/copilotkit/cpk-debug-events` 提供该流；请求 `http://localhost:8200/cpk-debug-events` 则返回 `404 {"error":"Not found"}`。连接前请先确认 URL：
 
 ```bash
 curl -N http://localhost:8200/api/copilotkit/cpk-debug-events
 ```
 
-A working endpoint responds immediately with `: connected` and then holds the connection open.
+正常工作的端点会立即以 `: connected` 响应，然后保持连接打开。
 </Step>
 
 <Step>
-### Open the AG-UI Inspector
+### 打开 AG-UI 检查器
 
-Open the VS Code command palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run:
+打开 VS Code 命令面板（`Ctrl+Shift+P` / `Cmd+Shift+P`）并运行：
 
 ```
 CopilotKit: Open AG-UI Inspector
 ```
 
-This opens a dedicated webview panel.
+这会打开一个专用的 webview 面板。
 </Step>
 
 <Step>
-### Enter your runtime URL and connect
+### 输入运行时 URL 并连接
 
-Type your runtime URL in the input field at the top of the panel (default: `http://localhost:4000`) and click **Connect**. Use the full mounted runtime URL — the same value your frontend passes as `runtimeUrl`, including its base path — not just the origin. The panel status indicator turns green when the SSE connection is established.
+在面板顶部的输入框中输入你的运行时 URL（默认值：`http://localhost:4000`），然后点击 **Connect**。请使用完整的挂载后运行时 URL——即前端作为 `runtimeUrl` 传入的同一个值，包含其 base path——而不只是源地址。SSE 连接建立后，面板状态指示器会变为绿色。
 </Step>
 
 <Step>
-### Trigger an agent interaction
+### 触发一次智能体交互
 
-Go to your app and perform an action that triggers an agent run — send a chat message, invoke a tool, or interact with any CopilotKit-powered component. Events start streaming into the inspector immediately.
+前往你的应用，执行一个会触发智能体运行的操作——发送聊天消息、调用工具，或与任何由 CopilotKit 驱动的组件交互。事件会立即开始流入检查器。
 </Step>
 
 <Step>
-### Read the event stream
+### 阅读事件流
 
-Each event row shows:
-- **Timestamp** — relative time since the first event (e.g., `+0.142s`)
-- **Event type badge** — color-coded by category (see table below)
-- **Summary** — key fields like message ID, tool name, or a text preview
+每个事件行显示：
+- **时间戳**——自第一个事件起的相对时间（例如 `+0.142s`）
+- **事件类型徽章**——按类别以颜色区分（见下表）
+- **摘要**——消息 ID、工具名称或文本预览等关键字段
 </Step>
 
 <Step>
-### Filter events
+### 筛选事件
 
-Use the category filter buttons at the top of the panel to show or hide event categories. You can also search event payloads with the search field to find specific tool names, message IDs, or content.
+使用面板顶部的类别筛选按钮来显示或隐藏事件类别。你也可以用搜索框搜索事件负载，以查找特定的工具名称、消息 ID 或内容。
 </Step>
 
 <Step>
-### Inspect event details
+### 查看事件详情
 
-Click any event row to expand the full JSON payload in the detail panel. This shows every field the runtime emitted for that event, including `agentId`, `threadId`, `runId`, and the complete event data.
+点击任意事件行，在详情面板中展开完整的 JSON 负载。这里会显示运行时为该事件发出的每一个字段，包括 `agentId`、`threadId`、`runId` 以及完整的事件数据。
 </Step>
 </Steps>
 
-## Event type reference
+## 事件类型参考
 
-| Category | Color | Event Types | Description |
+| 类别 | 颜色 | 事件类型 | 说明 |
 |---|---|---|---|
-| **Lifecycle** | Purple | `RUN_STARTED`, `RUN_FINISHED` | Marks the start and end of an agent run |
-| **Errors** | Red | `RUN_ERROR` | An error occurred during the agent run |
-| **Text Messages** | Blue | `TEXT_MESSAGE_START`, `TEXT_MESSAGE_CONTENT`, `TEXT_MESSAGE_END`, `TEXT_MESSAGE_CHUNK` | Text streamed from the agent to the client |
-| **Tool Calls** | Orange | `TOOL_CALL_START`, `TOOL_CALL_ARGS`, `TOOL_CALL_END`, `TOOL_CALL_CHUNK`, `TOOL_CALL_RESULT` | Tool invocation lifecycle — name, arguments, and result |
-| **Reasoning** | Green | `REASONING_START`, `REASONING_MESSAGE_START`, `REASONING_MESSAGE_CONTENT`, `REASONING_MESSAGE_END`, `REASONING_END` | Model reasoning/chain-of-thought events |
-| **State** | Teal | `STATE_SNAPSHOT`, `STATE_DELTA` | Agent state snapshots and incremental updates |
-| **Activity/UI** | Yellow | `ACTIVITY_SNAPSHOT`, `ACTIVITY_DELTA` | UI activity indicators and progress updates |
+| **生命周期** | 紫色 | `RUN_STARTED`, `RUN_FINISHED` | 标记智能体运行的开始与结束 |
+| **错误** | 红色 | `RUN_ERROR` | 智能体运行期间发生错误 |
+| **文本消息** | 蓝色 | `TEXT_MESSAGE_START`, `TEXT_MESSAGE_CONTENT`, `TEXT_MESSAGE_END`, `TEXT_MESSAGE_CHUNK` | 从智能体流式传输到客户端的文本 |
+| **工具调用** | 橙色 | `TOOL_CALL_START`, `TOOL_CALL_ARGS`, `TOOL_CALL_END`, `TOOL_CALL_CHUNK`, `TOOL_CALL_RESULT` | 工具调用生命周期——名称、参数与结果 |
+| **推理** | 绿色 | `REASONING_START`, `REASONING_MESSAGE_START`, `REASONING_MESSAGE_CONTENT`, `REASONING_MESSAGE_END`, `REASONING_END` | 模型推理/思维链事件 |
+| **状态** | 蓝绿色 | `STATE_SNAPSHOT`, `STATE_DELTA` | 智能体状态快照与增量更新 |
+| **活动/UI** | 黄色 | `ACTIVITY_SNAPSHOT`, `ACTIVITY_DELTA` | UI 活动指示与进度更新 |
 
 <FrontendOnly frontend="react">
 <Callout type="info">
-  For console-level debug logging and programmatic error handling in your app, see [Error Debugging](/troubleshooting/error-debugging). If you're debugging a render prop rather than a runtime event stream, the [Hook Explorer](/troubleshooting/hook-explorer) is the offline, render-first complement to this tool.
+  关于应用中的控制台级调试日志与程序化错误处理，请参阅[错误调试](/troubleshooting/error-debugging)。如果你调试的是 render prop 而非运行时事件流，[钩子浏览器](/troubleshooting/hook-explorer)是本工具离线的、渲染优先的补充。
 </Callout>
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
 <Callout type="info">
-  For application-level debugging, use the [Angular troubleshooting guide](/guides/troubleshooting). For component and tool-renderer examples, use the [Angular feature examples](/angular/features).
+  应用级调试请使用 [Angular 故障排查指南](/guides/troubleshooting)。组件与工具渲染器示例请使用 [Angular 特性示例](/angular/features)。
 </Callout>
 </FrontendOnly>

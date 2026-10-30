@@ -1,17 +1,15 @@
 ---
-title: "Inspector and dev console"
+title: "Inspector 与开发者控制台"
 icon: "lucide/PanelTop"
-description: "Configure the CopilotKit Inspector in React, Vue, and Angular."
+description: "在 React、Vue 与 Angular 中配置 CopilotKit Inspector。"
 ---
 
-`enableInspector` controls the built-in Inspector in browser applications:
+`enableInspector` 控制浏览器应用中的内置 Inspector：
 
-- `true` or omitted: show it in development builds.
-- `false`: hide it in development builds.
+- `true` 或省略：在开发构建中显示。
+- `false`：在开发构建中隐藏。
 
-The Inspector is never loaded or rendered in production builds or during
-server-side rendering. This safety guard cannot be overridden by an explicit
-`true`, and development hostnames are unrestricted.
+Inspector 在生产构建或服务器端渲染期间绝不会加载或渲染。这一安全防护无法通过显式的 `true` 覆盖，而开发主机名则不受限制。
 
 ## React v2
 
@@ -23,8 +21,7 @@ import { CopilotKit } from "@copilotkit/react-core/v2";
 </CopilotKit>;
 ```
 
-Legacy `showDevConsole` values no longer control the Inspector. Use
-`enableInspector` for Inspector visibility.
+旧版 `showDevConsole` 取值不再控制 Inspector。请使用 `enableInspector` 控制 Inspector 的可见性。
 
 ## Vue
 
@@ -34,7 +31,7 @@ Legacy `showDevConsole` values no longer control the Inspector. Use
 </CopilotKitProvider>
 ```
 
-Vue's deprecated `showDevConsole` prop no longer controls the Inspector.
+Vue 中已弃用的 `showDevConsole` prop 不再控制 Inspector。
 
 ## Angular
 
@@ -45,28 +42,22 @@ provideCopilotKit({
 });
 ```
 
-Angular has no `showDevConsole` alias. Configure the Inspector through
-`enableInspector` on `CopilotKitConfig`.
+Angular 没有 `showDevConsole` 别名。请通过 `CopilotKitConfig` 上的 `enableInspector` 配置 Inspector。
 
 ## React v1
 
-The v1 compatibility component follows the same development-only
-`enableInspector` behavior. Its deprecated `showDevConsole?: boolean` prop
-controls error toasts and banners, not the Inspector.
+v1 兼容组件遵循同样的仅开发环境生效的 `enableInspector` 行为。其已弃用的 `showDevConsole?: boolean` prop 控制的是错误 toast 与横幅，而不是 Inspector。
 
 <Callout type="warn">
-  The Inspector cannot be enabled in a production build. Use a development build
-  when debugging a deployed or remote environment.
+  Inspector 无法在生产构建中启用。调试已部署或远程环境时，请使用开发构建。
 </Callout>
 
 ## React Native
 
-Native iOS and Android applications do not have a built-in Inspector yet. The
-current Inspector is a DOM web component and is not included in the React
-Native dependency graph.
+原生 iOS 与 Android 应用尚无内置 Inspector。当前的 Inspector 是一个 DOM web component，未包含在 React Native 依赖图中。
 
-## Related
+## 相关内容
 
-- [Inspector](/inspector): what the Inspector shows and how to use it.
-- [Error Debugging](/troubleshooting/error-debugging): the error console and the programmatic `onError` callback.
-- [Migrate to v2](/migrate/v2): the full React v1 to v2 migration guide.
+- [Inspector](/inspector)：Inspector 展示的内容与使用方法。
+- [错误调试](/troubleshooting/error-debugging)：错误控制台与程序化 `onError` 回调。
+- [迁移到 v2](/migrate/v2)：完整的 React v1 到 v2 迁移指南。

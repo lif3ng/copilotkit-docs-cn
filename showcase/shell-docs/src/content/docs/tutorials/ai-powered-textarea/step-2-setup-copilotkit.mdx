@@ -1,46 +1,46 @@
 ---
-title: "Step 2: Setup CopilotKit"
+title: "第 2 步：设置 CopilotKit"
 ---
 
-Now that we have our todo list app running, we're ready to integrate CopilotKit. For this tutorial, we will install the following dependencies:
+现在我们的待办清单应用已经跑起来了，可以开始集成 CopilotKit。在本教程中，我们将安装以下依赖：
 
-- `@copilotkit/react-core`: The core library for CopilotKit, which contains the CopilotKit provider and useful hooks.
-- `@copilotkit/react-textarea`: The textarea component for CopilotKit, which enables you to get instant context-aware autocompletions in your app.
+- `@copilotkit/react-core`：CopilotKit 的核心库，包含 CopilotKit provider 和实用的钩子。
+- `@copilotkit/react-textarea`：CopilotKit 的 textarea 组件，让你能在应用中获得即时的上下文感知自动补全。
 
-## Install Dependencies
+## 安装依赖
 
-To install the CopilotKit dependencies, run the following:
+要安装 CopilotKit 依赖，请运行以下命令：
 
 ```npm
 npm install @copilotkit/react-core @copilotkit/react-textarea
 ```
 
-## Setup CopilotKit
+## 设置 CopilotKit
 
 <TailoredContent id="hosting">
 <TailoredContentOption
   id="copilot-cloud"
-  title="Copilot Cloud (Recommended)"
-  description="Use the cloud-hosted service to get started quickly."
+  title="Copilot Cloud（推荐）"
+  description="使用云托管服务快速上手。"
   icon={<FaCloud />}
 >
-In order to use CopilotKit, we'll need to configure the CopilotKit provider.
+要使用 CopilotKit，我们需要配置 CopilotKit provider。
 
 <CopilotCloudConfigureCopilotKit />
 </TailoredContentOption>
 <TailoredContentOption
   id="self-hosted"
-  title="Self-hosting"
-  description="Learn to host CopilotKit's runtime yourself with your own backend."
+  title="自托管"
+  description="学习用自己的后端自行托管 CopilotKit 的运行时。"
   icon={<FaServer />}
 >
 <Steps>
 <Step>
-### Set up Copilot Runtime Endpoint
+### 设置 Copilot Runtime 端点
 <SelfHostingCopilotRuntimeCreateEndpoint />
 </Step>
 <Step>
-### Configure the CopilotKit Provider
+### 配置 CopilotKit Provider
 
 ```tsx title="app/page.tsx" showLineNumbers {5,10,14}
 "use client";
@@ -64,21 +64,21 @@ export default function Home() {
 </TailoredContentOption>
 </TailoredContent>
 
-Let's break this down:
+我们来拆解一下：
 
-- First, we imported the `CopilotKit` provider from `@copilotkit/react-core/v2`.
-- Then, we wrapped the page with the `<CopilotKit>` provider.
-- We imported the built-in styles from `@copilotkit/react-textarea`.
+- 首先，我们从 `@copilotkit/react-core/v2` 导入了 `CopilotKit` provider。
+- 然后，我们用 `<CopilotKit>` provider 包裹了页面。
+- 我们从 `@copilotkit/react-textarea` 导入了内置样式。
 
 <Cards>
 <Card
-  title="← Previous: Check out the repo"
+  title="← 上一步：检出仓库"
   href="/tutorials/ai-powered-textarea/step-1-checkout-repo"
-  description="Clone the starter and install dependencies."
+  description="克隆起步模板并安装依赖。"
 />
 <Card
-  title="Next: Add CopilotTextarea →"
+  title="下一步：添加 CopilotTextarea →"
   href="/tutorials/ai-powered-textarea/step-3-copilot-textarea"
-  description="Swap the plain textarea for CopilotKit's AI-aware version."
+  description="把纯 textarea 换成 CopilotKit 的 AI 感知版本。"
 />
 </Cards>

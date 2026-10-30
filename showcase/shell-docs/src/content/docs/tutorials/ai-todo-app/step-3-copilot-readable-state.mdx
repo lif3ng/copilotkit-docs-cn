@@ -1,29 +1,29 @@
 ---
-title: "Step 3: Copilot Readable State"
+title: "第 3 步：Copilot 可读状态"
 ---
 
-At this point, we have a chat popup in our app and we're able to chat directly with our copilot. This is great, but our copilot doesn't know anything about our app. In this step, we'll provide our copilot with the state of our todos.
+到这里，应用中已经有了聊天弹窗，我们可以直接与 copilot 对话。这很棒，但 copilot 对我们的应用还一无所知。本步骤中，我们将把待办事项的状态提供给 copilot。
 
-In this step, you'll learn how to provide knowledge to the copilot. In our case, we want the copilot to know about the tasks in our app.
+本步骤你将学到如何向 copilot 提供知识。就本例而言，我们想让 copilot 了解应用中的任务。
 
-## Our App's State
+## 应用的状态
 
-Let's quickly review how our app's state works. Open up the [`lib/hooks/use-tasks.tsx`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/starters/todos-app/start/lib/hooks/use-tasks.tsx) file.
+我们快速回顾一下应用的状态是如何运作的。打开 [`lib/hooks/use-tasks.tsx`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/starters/todos-app/start/lib/hooks/use-tasks.tsx) 文件。
 
-At a glance, we can see that the file exposes a provider (`TasksProvider`), which defines a useful things:
+一眼望去就能看到，该文件暴露了一个 provider（`TasksProvider`），它定义了这些实用的内容：
 
-- The state of our tasks (`tasks`)
-- A function to add a task (`addTask`)
-- A function to update a task (`updateTask`)
-- A function to delete a task (`deleteTask`)
+- 任务状态（`tasks`）
+- 添加任务的函数（`addTask`）
+- 更新任务的函数（`updateTask`）
+- 删除任务的函数（`deleteTask`）
 
-All of this is consumable by a `useTasks` hook, which we use in the rest of our application (feel free to check out the `TasksList`, `AddTask` and `Task` components).
+这些内容都可以通过 `useTasks` hook 消费，应用的其余部分正是这样使用它的（欢迎查看 `TasksList`、`AddTask` 和 `Task` 组件）。
 
-This resembles the majority of React apps, where frontend state, either for a feature or the entire app, is managed by a context or state management library.
+这与大多数 React 应用类似：无论是某个特性还是整个应用的前端状态，都由 context 或状态管理库来管理。
 
-## The `useAgentContext` hook
+## `useAgentContext` hook
 
-Our goal is to make our copilot aware of this state, so that it can provide more accurate and helpful responses. We can easily achieve this by using the [`useAgentContext`](/reference/hooks/useAgentContext) hook.
+我们的目标是让 copilot 感知到这份状态，从而给出更准确、更有帮助的响应。借助 [`useAgentContext`](/reference/hooks/useAgentContext) hook 就能轻松实现。
 
 ```tsx title="lib/hooks/use-tasks.tsx" {3,8-11}
 // ... the rest of the file
@@ -41,28 +41,28 @@ export const TasksProvider = ({ children }: { children: ReactNode }) => {
 };
 ```
 
-In this example, we use the `useAgentContext` hook to provide the copilot with the state of our tasks.
+在本例中，我们用 `useAgentContext` hook 把任务状态提供给 copilot。
 
-- For the `description` property, we provide a concise description that tells the copilot what this piece of readable data means.
-- For the `value` property, we pass the entire state as a JSON string.
+- `description` 属性：提供一段简明描述，告诉 copilot 这份可读数据的含义。
+- `value` 属性：把整个状态以 JSON 字符串的形式传入。
 
-## Try it out!
+## 试试看吧！
 
-Now, try it out! Ask your Copilot a question about the state of the todo list. For example:
+动手试试吧！向 Copilot 提一个与待办列表状态相关的问题。例如：
 
-> How many tasks do I still need to get done?
+> 我还有多少任务需要完成？
 
-Magical, isn't it? ✨
+很神奇，对吧？✨
 
 <Cards>
 <Card
-  title="← Previous: Set up CopilotKit"
+  title="← 上一步：配置 CopilotKit"
   href="/tutorials/ai-todo-app/step-2-setup-copilotkit"
-  description="Wire the CopilotKit provider and chat UI into the app."
+  description="将 CopilotKit provider 和聊天 UI 接入应用。"
 />
 <Card
-  title="Next: Frontend tools →"
+  title="下一步：前端工具 →"
   href="/tutorials/ai-todo-app/step-4-frontend-tools"
-  description="Let the copilot take actions on the todo list with useFrontendTool."
+  description="使用 useFrontendTool 让 copilot 对待办列表执行操作。"
 />
 </Cards>

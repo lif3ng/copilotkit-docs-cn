@@ -1,59 +1,56 @@
 ---
-title: "Deploy to any runtime"
+title: 部署到任意运行时
 icon: "lucide/Server"
-description: Deploy the CopilotKit runtime on any backend framework — Node.js, Express, Hono, Bun, Deno, Cloudflare Workers, and more.
+description: 在任意后端框架上部署 CopilotKit 运行时——Node.js、Express、Hono、Bun、Deno、Cloudflare Workers 等皆可。
 frontend:
   kind: universal
 ---
 
-The TypeScript CopilotKit runtime is **framework-agnostic**. At its core, it's a pure Fetch handler — a function that takes a `Request` and returns a `Response`. This means it runs natively on any platform that supports the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API), and thin adapters are provided for Node.js-based frameworks like Express and Hono.
+TypeScript 版 CopilotKit 运行时是**框架无关**的。它本质上是一个纯 Fetch 处理器——一个接收 `Request` 并返回 `Response` 的函数。这意味着它可以原生运行在任何支持 [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) 的平台上，同时我们也为 Express、Hono 等基于 Node.js 的框架提供了轻量适配器。
 
-<Callout type="info" title="TypeScript server adapters">
-This guide covers the TypeScript runtime, which works with or without Intelligence. For Python, Go, Ruby, or C#/.NET servers, follow the [Intelligence quickstart](/intelligence/quickstart#connect-your-runtime). Those runtimes require Intelligence and expose multi-route endpoints.
+<Callout type="info" title="TypeScript 服务器适配器">
+本指南介绍 TypeScript 运行时，它可以在有无 Intelligence 的情况下工作。对于 Python、Go、Ruby 或 C#/.NET 服务器，请参阅 [Intelligence 快速开始](/intelligence/quickstart#connect-your-runtime)。那些运行时需要 Intelligence，并暴露多路由端点。
 </Callout>
 
-## Quick Overview
+## 快速概览
 
-| Runtime | Import Path | Key Function |
+| 运行时 | 导入路径 | 关键函数 |
 |---------|------------|--------------|
-| **Fetch-native** (Bun, Deno, CF Workers, Next.js App Router) | `@copilotkit/runtime/v2` | `createCopilotRuntimeHandler` |
+| **Fetch 原生**（Bun、Deno、CF Workers、Next.js App Router） | `@copilotkit/runtime/v2` | `createCopilotRuntimeHandler` |
 | **Node.js HTTP** | `@copilotkit/runtime/v2/node` | `createCopilotNodeHandler` / `createCopilotNodeListener` |
 | **Express** | `@copilotkit/runtime/v2/express` | `createCopilotExpressHandler` |
 | **Hono** | `@copilotkit/runtime/v2/hono` | `createCopilotHonoHandler` |
 
-## Multi-Route vs Single-Route
+## 多路由与单路由
 
-The runtime supports two endpoint modes:
+运行时支持两种端点模式：
 
-- **Multi-route** (default) — exposes individual URL endpoints:
+- **多路由**（默认）——暴露独立的 URL 端点：
   - `GET  {basePath}/info`
   - `POST {basePath}/agent/:agentId/run`
   - `POST {basePath}/agent/:agentId/connect`
   - `POST {basePath}/agent/:agentId/stop/:threadId`
   - `POST {basePath}/transcribe`
 
-- **Single-route** — a single `POST {basePath}` endpoint that accepts a JSON envelope:
+- **单路由**——单个 `POST {basePath}` 端点，接受 JSON 信封：
   ```json
   { "method": "agent/run", "params": { "agentId": "default" }, "body": { ... } }
   ```
 
-Both modes use the same Runtime handlers. A current client and Runtime also carry Intelligence thread, memory, and annotation operations through the single endpoint. They negotiate this support through Runtime info, so older clients and servers keep their existing behavior.
+两种模式使用相同的 Runtime 处理器。较新的客户端和 Runtime 还能通过单端点承载 Intelligence 的线程、内存与标注操作。它们通过 Runtime info 协商这一能力，因此旧客户端和旧服务器保持原有行为。
 
-Single-route mode is useful when your platform only allows one route handler, or when you prefer a simpler URL structure.
+当你的平台只允许一个路由处理器，或者你更偏好更简单的 URL 结构时，单路由模式会很有用。
 
 <FrontendOnly frontend="react">
-<Callout type="warn" title="The mode you pick here binds the frontend">
-  Both `<CopilotKit>` and `<CopilotKitProvider>` detect the mode when you pass
-  no transport prop, so either one follows whichever mode you pick here. Pin it
-  with `useSingleEndpoint` only if you want to skip that detection — and then it
-  has to match. The full mapping is in
-  [Provider and handler pairs](/backend/runtime-endpoints#provider-and-handler-pairs).
+<Callout type="warn" title="此处选择的模式会绑定前端">
+  当你不传 transport prop 时，`<CopilotKit>` 和 `<CopilotKitProvider>` 都会自动探测模式，因此无论哪一个都会跟随你在这里选择的模式。只有想跳过这一探测时才用 `useSingleEndpoint` 固定它——而且固定后必须与实际模式匹配。完整的映射关系见
+  [Provider 与处理器配对](/backend/runtime-endpoints#provider-and-handler-pairs)。
 </Callout>
 </FrontendOnly>
 
-## Fetch-Native Runtimes
+## Fetch 原生运行时
 
-If your platform supports the Fetch API natively (Bun, Deno, Cloudflare Workers, etc.), you can use `createCopilotRuntimeHandler` directly — no adapter needed.
+如果你的平台原生支持 Fetch API（Bun、Deno、Cloudflare Workers 等），可以直接使用 `createCopilotRuntimeHandler`——无需适配器。
 
 ```ts
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -76,12 +73,12 @@ const handler = createCopilotRuntimeHandler({
 Bun.serve({ fetch: handler, port: 4000 });
 ```
 
-For framework-specific examples, see the sections below.
+各框架的具体示例见下文各节。
 
 ## Bun
 
-<Tabs groupId="runtime-mode" items={["Multi-route", "Single-route", "Existing server"]}>
-<Tab value="Multi-route">
+<Tabs groupId="runtime-mode" items={["多路由", "单路由", "现有服务器"]}>
+<Tab value="多路由">
 ```ts title="server.ts"
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
 
@@ -103,7 +100,7 @@ const handler = createCopilotRuntimeHandler({
 Bun.serve({ fetch: handler, port: 4000 });
 ```
 </Tab>
-<Tab value="Single-route">
+<Tab value="单路由">
 ```ts title="server.ts"
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
 
@@ -124,7 +121,7 @@ const handler = createCopilotRuntimeHandler({
 Bun.serve({ fetch: handler, port: 4000 });
 ```
 </Tab>
-<Tab value="Existing server">
+<Tab value="现有服务器">
 ```ts title="server.ts"
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
 
@@ -164,8 +161,8 @@ Bun.serve({
 
 ## Deno
 
-<Tabs groupId="runtime-mode" items={["Multi-route", "Single-route", "Existing server"]}>
-<Tab value="Multi-route">
+<Tabs groupId="runtime-mode" items={["多路由", "单路由", "现有服务器"]}>
+<Tab value="多路由">
 ```ts title="server.ts"
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
 
@@ -185,7 +182,7 @@ const handler = createCopilotRuntimeHandler({
 Deno.serve({ port: 4000 }, handler);
 ```
 </Tab>
-<Tab value="Single-route">
+<Tab value="单路由">
 ```ts title="server.ts"
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
 
@@ -206,7 +203,7 @@ const handler = createCopilotRuntimeHandler({
 Deno.serve({ port: 4000 }, handler);
 ```
 </Tab>
-<Tab value="Existing server">
+<Tab value="现有服务器">
 ```ts title="server.ts"
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
 
@@ -243,13 +240,9 @@ Deno.serve({ port: 4000 }, (request) => {
 
 ## Cloudflare Workers
 
-<Callout type="warn" title="Do not construct an agent at module scope">
-  Workers do not allow random values in global scope, and an agent generates a
-  thread ID when you construct it. An agent created at the top level of the module
-  stops the Worker from starting, with `Disallowed operation called within global
-  scope`. The examples below construct everything inside `fetch`. To create the
-  runtime once at module scope, pass `agents` as a factory. The runtime calls the
-  factory on each request:
+<Callout type="warn" title="不要在模块作用域构造智能体">
+  Workers 不允许在全局作用域中出现随机值，而智能体在构造时会生成线程 ID。在模块顶层创建的智能体会导致 Worker 无法启动，并报错 `Disallowed operation called within global
+  scope`。下面的示例把所有构造都放在 `fetch` 内。如果想在模块作用域只创建一次运行时，可以把 `agents` 作为工厂传入。运行时会在每次请求时调用该工厂：
 
   ```ts
   const runtime = new CopilotRuntime({
@@ -260,8 +253,8 @@ Deno.serve({ port: 4000 }, (request) => {
   ```
 </Callout>
 
-<Tabs groupId="runtime-mode" items={["Multi-route", "Single-route", "Existing worker"]}>
-<Tab value="Multi-route">
+<Tabs groupId="runtime-mode" items={["多路由", "单路由", "现有 Worker"]}>
+<Tab value="多路由">
 ```ts title="src/index.ts"
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
 
@@ -289,7 +282,7 @@ export default {
 };
 ```
 </Tab>
-<Tab value="Single-route">
+<Tab value="单路由">
 ```ts title="src/index.ts"
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
 
@@ -318,7 +311,7 @@ export default {
 };
 ```
 </Tab>
-<Tab value="Existing worker">
+<Tab value="现有 Worker">
 ```ts title="src/index.ts"
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
 
@@ -361,8 +354,8 @@ export default {
 
 ## Next.js App Router
 
-<Tabs groupId="runtime-mode" items={["Multi-route", "Single-route"]}>
-<Tab value="Multi-route">
+<Tabs groupId="runtime-mode" items={["多路由", "单路由"]}>
+<Tab value="多路由">
 ```ts title="app/api/copilotkit/[...path]/route.ts"
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
 
@@ -381,7 +374,7 @@ const handler = createCopilotRuntimeHandler({
 export { handler as GET, handler as POST, handler as PATCH, handler as DELETE };
 ```
 </Tab>
-<Tab value="Single-route">
+<Tab value="单路由">
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
 
@@ -402,21 +395,21 @@ export { handler as POST };
 ```
 
 <Callout type="info">
-In single-route mode, no `[...path]` catch-all is needed — everything goes through a single `POST /api/copilotkit`.
+单路由模式下无需 `[...path]` 兜底路由——一切都通过单个 `POST /api/copilotkit` 完成。
 </Callout>
 </Tab>
 </Tabs>
 
 <Callout type="info">
-No `cors: true` needed for Next.js — same-origin requests don't require CORS headers.
+Next.js 无需 `cors: true`——同源请求不需要 CORS 头。
 </Callout>
 
-## React Router (Framework Mode)
+## React Router（框架模式）
 
-React Router v7 in framework mode uses file-based routing with Fetch API handlers — the CopilotKit handler works directly as a resource route.
+框架模式下的 React Router v7 使用基于文件的路由和 Fetch API 处理器——CopilotKit 处理器可以直接作为资源路由使用。
 
-<Tabs groupId="runtime-mode" items={["Multi-route", "Single-route"]}>
-<Tab value="Multi-route">
+<Tabs groupId="runtime-mode" items={["多路由", "单路由"]}>
+<Tab value="多路由">
 ```ts title="app/routes/api.copilotkit.$.ts"
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
 import type { Route } from "./+types/api.copilotkit.$";
@@ -444,10 +437,10 @@ export function action({ request }: Route.ActionArgs) {
 ```
 
 <Callout type="info">
-The `$` splat segment in the filename (`api.copilotkit.$.ts`) captures all subpaths under `/api/copilotkit/`, allowing the CopilotKit router to handle `/info`, `/agent/:id/run`, etc.
+文件名中的 `$` splat 段（`api.copilotkit.$.ts`）会捕获 `/api/copilotkit/` 下的所有子路径，让 CopilotKit 路由能够处理 `/info`、`/agent/:id/run` 等。
 </Callout>
 </Tab>
-<Tab value="Single-route">
+<Tab value="单路由">
 ```ts title="app/routes/api.copilotkit.ts"
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
 import type { Route } from "./+types/api.copilotkit";
@@ -471,17 +464,17 @@ export function action({ request }: Route.ActionArgs) {
 ```
 
 <Callout type="info">
-In single-route mode, no `$` splat is needed — the filename is just `api.copilotkit.ts` and all dispatch happens via the JSON envelope.
+单路由模式下无需 `$` splat——文件名就是 `api.copilotkit.ts`，所有分发都通过 JSON 信封完成。
 </Callout>
 </Tab>
 </Tabs>
 
 ## TanStack Start
 
-TanStack Start uses API routes that receive standard `Request` objects and return `Response` objects.
+TanStack Start 使用的 API 路由会接收标准 `Request` 对象并返回 `Response` 对象。
 
-<Tabs groupId="runtime-mode" items={["Multi-route", "Single-route"]}>
-<Tab value="Multi-route">
+<Tabs groupId="runtime-mode" items={["多路由", "单路由"]}>
+<Tab value="多路由">
 ```ts title="app/routes/api/copilotkit/$.ts"
 import { createAPIFileRoute } from "@tanstack/react-start/api";
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -507,10 +500,10 @@ export const APIRoute = createAPIFileRoute("/api/copilotkit/$")({
 ```
 
 <Callout type="info">
-The `$` in the filename is TanStack Start's splat parameter, matching all subpaths under `/api/copilotkit/`.
+文件名中的 `$` 是 TanStack Start 的 splat 参数，匹配 `/api/copilotkit/` 下的所有子路径。
 </Callout>
 </Tab>
-<Tab value="Single-route">
+<Tab value="单路由">
 ```ts title="app/routes/api/copilotkit.ts"
 import { createAPIFileRoute } from "@tanstack/react-start/api";
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -534,17 +527,17 @@ export const APIRoute = createAPIFileRoute("/api/copilotkit")({
 ```
 
 <Callout type="info">
-In single-route mode, no `$` splat is needed — the file is `copilotkit.ts` (not `$.ts`) and only `POST` is required.
+单路由模式下无需 `$` splat——文件为 `copilotkit.ts`（而非 `$.ts`），且只需要 `POST`。
 </Callout>
 </Tab>
 </Tabs>
 
 ## Node.js HTTP
 
-For vanilla Node.js HTTP servers, use the `/node` subpath which bridges Fetch to Node's `IncomingMessage`/`ServerResponse`.
+对于原生 Node.js HTTP 服务器，请使用 `/node` 子路径，它在 Fetch 与 Node 的 `IncomingMessage`/`ServerResponse` 之间做桥接。
 
-<Tabs groupId="runtime-mode" items={["Multi-route", "Single-route", "Existing server"]}>
-<Tab value="Multi-route">
+<Tabs groupId="runtime-mode" items={["多路由", "单路由", "现有服务器"]}>
+<Tab value="多路由">
 ```ts title="server.ts"
 import { createServer } from "node:http";
 import { CopilotRuntime, BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -569,7 +562,7 @@ createServer(listener).listen(4000, () => {
 });
 ```
 </Tab>
-<Tab value="Single-route">
+<Tab value="单路由">
 ```ts title="server.ts"
 import { createServer } from "node:http";
 import { CopilotRuntime, BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -593,7 +586,7 @@ createServer(listener).listen(4000, () => {
 });
 ```
 </Tab>
-<Tab value="Existing server">
+<Tab value="现有服务器">
 ```ts title="server.ts"
 import { createServer } from "node:http";
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -644,19 +637,16 @@ server.listen(4000, () => {
 
 ## Express
 
-The Express adapter returns a router that you mount with `app.use()`. The value
-is a real `express.Router()`. Its declared type is `CopilotExpressRouter`, which
-names no Express major, so it mounts on Express 4 and Express 5 alike.
+Express 适配器返回一个可用 `app.use()` 挂载的路由器。该值是一个真正的 `express.Router()`。它声明的类型是 `CopilotExpressRouter`，不绑定任何 Express 大版本，因此在 Express 4 和 Express 5 上都能挂载。
 
-`express` is an optional peer dependency of `@copilotkit/runtime`, so install it
-in your own app. Both majors are supported.
+`express` 是 `@copilotkit/runtime` 的可选 peer 依赖，请在你自己的应用中安装它。两个大版本都受支持。
 
 ```
 npm install express cors
 ```
 
-<Tabs groupId="runtime-mode" items={["Multi-route", "Single-route", "Existing server"]}>
-<Tab value="Multi-route">
+<Tabs groupId="runtime-mode" items={["多路由", "单路由", "现有服务器"]}>
+<Tab value="多路由">
 ```ts title="server.ts"
 import express from "express";
 import { CopilotRuntime, BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -684,7 +674,7 @@ app.listen(4000, () => {
 });
 ```
 </Tab>
-<Tab value="Single-route">
+<Tab value="单路由">
 ```ts title="server.ts"
 import express from "express";
 import { CopilotRuntime, BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -713,7 +703,7 @@ app.listen(4000, () => {
 });
 ```
 </Tab>
-<Tab value="Existing server">
+<Tab value="现有服务器">
 ```ts title="server.ts"
 import express from "express";
 import { CopilotRuntime, BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -752,30 +742,30 @@ app.listen(4000, () => {
 </Tab>
 </Tabs>
 
-### Express Options
+### Express 选项
 
-| Option | Type | Default | Description |
+| 选项 | 类型 | 默认值 | 说明 |
 |--------|------|---------|-------------|
-| `runtime` | `CopilotRuntime` | *required* | The runtime instance |
-| `basePath` | `string` | *required* | URL path prefix (e.g. `"/api/copilotkit"`) |
-| `mode` | `"multi-route"` \| `"single-route"` | `"multi-route"` | Multi-route exposes individual endpoints; single-route uses a JSON envelope |
-| `cors` | `boolean` \| `CorsOptions` | `false` | CORS configuration. `true` for permissive defaults, or pass a `cors` options object |
-| `hooks` | `CopilotRuntimeHooks` | — | [Lifecycle hooks](#lifecycle-hooks) |
+| `runtime` | `CopilotRuntime` | *必填* | 运行时实例 |
+| `basePath` | `string` | *必填* | URL 路径前缀（例如 `"/api/copilotkit"`） |
+| `mode` | `"multi-route"` \| `"single-route"` | `"multi-route"` | 多路由暴露独立端点；单路由使用 JSON 信封 |
+| `cors` | `boolean` \| `CorsOptions` | `false` | CORS 配置。`true` 表示宽松默认值，或传入一个 `cors` 选项对象 |
+| `hooks` | `CopilotRuntimeHooks` | — | [生命周期钩子](#生命周期钩子) |
 
 <Callout type="info">
-The Express adapter is compatible with `express.json()` body parsing. If you have `app.use(express.json())` before the CopilotKit router, the adapter will detect the pre-parsed body and handle it correctly.
+Express 适配器兼容 `express.json()` 请求体解析。如果 CopilotKit 路由器之前已有 `app.use(express.json())`，适配器会检测到已解析的请求体并正确处理。
 </Callout>
 
 ## Hono
 
-The Hono adapter returns a Hono app that you mount with `app.route()`.
+Hono 适配器返回一个可用 `app.route()` 挂载的 Hono 应用。
 
 ```
 npm install
 ```
 
-<Tabs groupId="runtime-mode" items={["Multi-route", "Single-route", "Existing server"]}>
-<Tab value="Multi-route">
+<Tabs groupId="runtime-mode" items={["多路由", "单路由", "现有服务器"]}>
+<Tab value="多路由">
 ```ts title="server.ts"
 import { serve } from "@hono/node-server";
 import { CopilotRuntime, BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -799,7 +789,7 @@ serve({ fetch: endpoint.fetch, port: 4000 }, () => {
 });
 ```
 </Tab>
-<Tab value="Single-route">
+<Tab value="单路由">
 ```ts title="server.ts"
 import { serve } from "@hono/node-server";
 import { CopilotRuntime, BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -823,7 +813,7 @@ serve({ fetch: endpoint.fetch, port: 4000 }, () => {
 });
 ```
 </Tab>
-<Tab value="Existing server">
+<Tab value="现有服务器">
 ```ts title="server.ts"
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
@@ -852,16 +842,16 @@ serve({ fetch: app.fetch, port: 4000 }, () => {
 </Tab>
 </Tabs>
 
-## Elysia (Bun)
+## Elysia（Bun）
 
-Elysia runs on Bun and supports the Fetch API natively, so you use `createCopilotRuntimeHandler` directly.
+Elysia 运行在 Bun 上并原生支持 Fetch API，因此直接使用 `createCopilotRuntimeHandler` 即可。
 
 ```
 bun add elysia
 ```
 
-<Tabs groupId="runtime-mode" items={["Multi-route", "Single-route", "Existing server"]}>
-<Tab value="Multi-route">
+<Tabs groupId="runtime-mode" items={["多路由", "单路由", "现有服务器"]}>
+<Tab value="多路由">
 ```ts title="server.ts"
 import { Elysia } from "elysia";
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -880,7 +870,7 @@ new Elysia()
   .listen(4000);
 ```
 </Tab>
-<Tab value="Single-route">
+<Tab value="单路由">
 ```ts title="server.ts"
 import { Elysia } from "elysia";
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -904,7 +894,7 @@ new Elysia()
   .listen(4000);
 ```
 </Tab>
-<Tab value="Existing server">
+<Tab value="现有服务器">
 ```ts title="server.ts"
 import { Elysia } from "elysia";
 import { CopilotRuntime, createCopilotRuntimeHandler, BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -928,9 +918,9 @@ new Elysia()
 </Tab>
 </Tabs>
 
-## Lifecycle Hooks
+## 生命周期钩子
 
-All adapters support lifecycle hooks for cross-cutting concerns like authentication, logging, and response modification.
+所有适配器都支持生命周期钩子，用于处理身份验证、日志记录、响应修改等横切关注点。
 
 ```ts
 const handler = createCopilotRuntimeHandler({
@@ -968,18 +958,18 @@ const handler = createCopilotRuntimeHandler({
 });
 ```
 
-| Hook | When | Can modify |
+| 钩子 | 时机 | 可做的修改 |
 |------|------|------------|
-| `onRequest` | Before routing | Throw `Response` to short-circuit |
-| `onBeforeHandler` | After routing, before handler | Access `route` info (method, agentId, threadId) |
-| `onResponse` | After handler | Return a new `Response` to replace it |
-| `onError` | On unhandled error | Log or produce a custom error response |
+| `onRequest` | 路由之前 | 抛出 `Response` 以短路 |
+| `onBeforeHandler` | 路由之后、处理器之前 | 访问 `route` 信息（method、agentId、threadId） |
+| `onResponse` | 处理器之后 | 返回新的 `Response` 以替换原响应 |
+| `onError` | 出现未处理错误时 | 记录日志或生成自定义错误响应 |
 
-## CORS Configuration
+## CORS 配置
 
-### Fetch-native runtimes
+### Fetch 原生运行时
 
-Pass `cors: true` for permissive defaults (`Access-Control-Allow-Origin: *`), or provide a config object:
+传入 `cors: true` 即可获得宽松默认值（`Access-Control-Allow-Origin: *`），或提供一个配置对象：
 
 ```ts
 const handler = createCopilotRuntimeHandler({
@@ -994,7 +984,7 @@ const handler = createCopilotRuntimeHandler({
 
 ### Express
 
-Pass `cors: true` for permissive defaults, or pass a [cors](https://www.npmjs.com/package/cors) options object:
+传入 `cors: true` 即可获得宽松默认值，或传入一个 [cors](https://www.npmjs.com/package/cors) 选项对象：
 
 ```ts
 createCopilotExpressHandler({
@@ -1009,7 +999,7 @@ createCopilotExpressHandler({
 
 ### Hono
 
-Pass a `cors` config with explicit origin:
+传入带显式 origin 的 `cors` 配置：
 
 ```ts
 createCopilotHonoHandler({
@@ -1023,12 +1013,12 @@ createCopilotHonoHandler({
 ```
 
 <Callout type="warn">
-When using `credentials: true`, you must specify an explicit origin — wildcard (`*`) is not allowed by the CORS spec.
+使用 `credentials: true` 时必须指定显式 origin——CORS 规范不允许通配符（`*`）。
 </Callout>
 
-## Connecting Your Frontend
+## 连接你的前端
 
-Once your runtime is running, point your frontend at it:
+运行时跑起来之后，把你的前端指向它：
 
 <FrontendOnly frontend="react">
 ```tsx
@@ -1037,13 +1027,8 @@ Once your runtime is running, point your frontend at it:
 </CopilotKit>
 ```
 
-<Callout type="warn" title="Match the prop to the mode you chose">
-  `useSingleEndpoint={false}` is what a **multi-route** handler needs — the
-  default, and what every example above uses unless you passed
-  `mode: "single-route"`. If you did choose single-route, drop the prop: the v1
-  `<CopilotKit>` wrapper already defaults to that transport. `<CopilotKitProvider>`
-  detects the mode and needs no prop either way. Getting this wrong 404s the
-  startup `/info` call, and the runtime will say so in your server logs.
+<Callout type="warn" title="prop 要与你选择的模式匹配">
+  `useSingleEndpoint={false}` 正是**多路由**处理器所需要的——这是默认值，上面的所有示例只要你没有传 `mode: "single-route"`，用的都是它。如果你确实选择了单路由，就去掉这个 prop：v1 的 `<CopilotKit>` 包装器默认就是该传输方式。`<CopilotKitProvider>` 会自动探测模式，两种情况下都不需要这个 prop。弄错这一点会让启动时的 `/info` 调用返回 404，运行时也会在你的服务器日志中说明原因。
 </Callout>
 </FrontendOnly>
 
@@ -1054,7 +1039,7 @@ provideCopilotKit({
 })
 ```
 
-For same-origin deployments, use a relative path:
+同源部署请使用相对路径：
 
 ```ts title="src/app/app.config.ts"
 provideCopilotKit({
@@ -1064,7 +1049,7 @@ provideCopilotKit({
 </FrontendOnly>
 
 <FrontendOnly frontend="react">
-For same-origin deployments, use a relative path:
+同源部署请使用相对路径：
 ```tsx
 <CopilotKit runtimeUrl="/api/copilotkit" useSingleEndpoint={false}>
   <YourApp />

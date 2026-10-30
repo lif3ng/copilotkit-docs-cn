@@ -1,23 +1,23 @@
 ---
-title: Common Copilot Issues
-description: Network errors, endpoint not found, tunnel timeouts, and other common issues when wiring up CopilotKit with the Built-in Agent.
+title: Copilot 常见问题
+description: 网络错误、找不到端点、隧道超时，以及在将 CopilotKit 与内置智能体对接时常见的其他问题。
 icon: "lucide/LifeBuoy"
 frontend: universal
 ---
 
-Welcome to the CopilotKit troubleshooting guide. This page covers the most common issues you'll hit while wiring up a Built-in Agent, plus the usual fixes.
+欢迎阅读 CopilotKit 故障排查指南。本页介绍在配置内置智能体（Built-in Agent）时最常遇到的问题，以及相应的常规修复方法。
 
 <Callout type="info">
-Have an issue not listed here? Open a ticket on [GitHub](https://github.com/CopilotKit/CopilotKit/issues) or reach out on [Discord](https://discord.com/invite/6dffbvGU3D) and we'll help. PRs adding your own troubleshooting notes are very welcome.
+遇到本页未列出的问题？请在 [GitHub](https://github.com/CopilotKit/CopilotKit/issues) 上提交 issue，或在 [Discord](https://discord.com/invite/6dffbvGU3D) 上联系我们，我们会提供帮助。非常欢迎提交 PR 补充你自己的故障排查笔记。
 </Callout>
 
-## Network errors / API not found
+## 网络错误 / 找不到 API
 
-If you're getting network or API errors, here's how to troubleshoot.
+如果你遇到网络或 API 错误，可以按以下方式排查。
 
 <Accordions>
-<Accordion title="Check your endpoint configuration">
-Verify the configured `runtimeUrl`.
+<Accordion title="检查你的端点配置">
+检查已配置的 `runtimeUrl`。
 
 <FrontendOnly frontend="react">
 ```tsx
@@ -26,7 +26,7 @@ Verify the configured `runtimeUrl`.
 </CopilotKit>
 ```
 
-Or, if you're using CopilotCloud:
+或者，如果你使用的是 CopilotCloud：
 
 ```tsx
 <CopilotKit publicApiKey="<your-copilot-cloud-public-api-key>">
@@ -50,21 +50,21 @@ export const appConfig = {
 ```
 </FrontendOnly>
 
-Common issues:
+常见问题：
 
-- Missing leading slash in the endpoint path
-- Wrong path relative to your app's base URL (or, if absolute, wrong full URL)
-- Typos in the endpoint path
+- 端点路径缺少开头的斜杠
+- 相对于应用基础 URL 的路径不对（如果是绝对路径，则是完整 URL 不对）
+- 端点路径拼写错误
 <FrontendOnly frontend="react">
-- Using CopilotCloud but also setting `runtimeUrl`. Omit `runtimeUrl` and keep only `publicApiKey`
+- 既使用 CopilotCloud 又设置了 `runtimeUrl`。应省略 `runtimeUrl`，只保留 `publicApiKey`
 </FrontendOnly>
 <FrontendOnly frontend="angular">
-- Omitting both `runtimeUrl` and `agents`/`selfManagedAgents`
+- 把 `runtimeUrl` 和 `agents`/`selfManagedAgents` 都省略了
 </FrontendOnly>
 </Accordion>
 
-<Accordion title="localhost vs 127.0.0.1">
-If you're running locally and getting connection errors, try `127.0.0.1` instead of `localhost`:
+<Accordion title="localhost 与 127.0.0.1">
+如果你在本地运行并遇到连接错误，尝试用 `127.0.0.1` 代替 `localhost`：
 
 ```bash
 # If this doesn't work:
@@ -74,35 +74,35 @@ http://localhost:3000/api/copilotkit
 http://127.0.0.1:3000/api/copilotkit
 ```
 
-Usually caused by local DNS / `/etc/hosts` issues.
+这通常由本地 DNS / `/etc/hosts` 配置问题引起。
 </Accordion>
 
-<Accordion title="Verify your backend is running">
-Make sure your backend:
+<Accordion title="确认你的后端正在运行">
+请确认你的后端：
 
-- Is actually running on the port you expect
-- Is reachable from your frontend
-- Isn't blocked by CORS or a firewall
+- 确实运行在你期望的端口上
+- 可以从你的前端访问到
+- 没有被 CORS 或防火墙拦截
 
-Revisit the [quickstart](../quickstart) if you want to double-check your setup.
+如果想再核对一遍配置，可以回顾[快速开始](../quickstart)。
 </Accordion>
 </Accordions>
 
-## "Remote Endpoint not found" error
+## “Remote Endpoint not found”报错
 
-If you're getting a *"CopilotKit's Remote Endpoint not found"* error, the `/info` endpoint isn't reachable from the runtime.
+如果你看到 *“CopilotKit's Remote Endpoint not found”* 报错，说明运行时无法访问 `/info` 端点。
 
 <Accordions>
-<Accordion title="Check your FastAPI / backend setup">
-Confirm the CopilotKit SDK is mounted. If you're using Python + FastAPI, follow the [Remote Python Endpoint](/reference/v1/sdk/python/RemoteEndpoints) guide.
+<Accordion title="检查你的 FastAPI / 后端配置">
+确认 CopilotKit SDK 已挂载。如果你使用 Python + FastAPI，请按照 [Remote Python Endpoint](/reference/v1/sdk/python/RemoteEndpoints) 指南操作。
 </Accordion>
 
-<Accordion title="Test the /info endpoint directly">
+<Accordion title="直接测试 /info 端点">
 ```bash
 curl -v -d '{}' http://localhost:8000/copilotkit/info
 ```
 
-You should see a `200 OK` and a JSON body like:
+你应该会看到 `200 OK` 和类似如下的 JSON 响应体：
 
 ```json
 {
@@ -114,17 +114,17 @@ You should see a `200 OK` and a JSON body like:
 }
 ```
 
-If you see a different response, check your server logs.
+如果响应不同，请检查服务器日志。
 </Accordion>
 </Accordions>
 
-## Tunnel creation hangs
+## 隧道创建卡住
 
-If the tunnel creation process spins indefinitely, your router or ISP might be blocking the tunnel service.
+如果隧道创建过程一直转圈不停，可能是你的路由器或 ISP 拦截了隧道服务。
 
 <Accordions>
-<Accordion title="Router / ISP blocking tunnel connections">
-Verify connectivity:
+<Accordion title="路由器 / ISP 拦截隧道连接">
+验证连通性：
 
 ```bash
 ping tunnels.devcopilotkit.com
@@ -132,104 +132,81 @@ curl -I https://tunnels.devcopilotkit.com
 telnet tunnels.devcopilotkit.com 443
 ```
 
-If any of these fail:
+如果其中有命令失败：
 
-- Check your router security settings
-- Contact your ISP to see if they're blocking the connection
-- Try a different network to confirm
+- 检查路由器的安全设置
+- 联系 ISP，确认是否拦截了该连接
+- 换一个网络验证一下
 </Accordion>
 </Accordions>
 
-## The Built-in Agent responds with an empty message
+## 内置智能体返回空消息
 
-Usually one of:
+通常是以下原因之一：
 
-- The LLM model string isn't supported by the runtime's provider. Check it against [Model Selection](/model-selection).
-- The Built-in Agent's `prompt` is empty and the user message gives it nothing useful to do. Give the agent a system prompt.
-- A frontend tool is throwing during its handler and the agent is treating the empty result as the turn output. See [Error Debugging](./error-debugging) for the `tool_handler_failed` code.
+- 运行时的提供方不支持该 LLM 模型字符串。请对照[模型选择](/model-selection)检查。
+- 内置智能体的 `prompt` 为空，用户消息没能给它任何有用的任务。请为智能体提供一条系统提示。
+- 某个前端工具的处理器抛出了异常，智能体把空结果当作了本轮输出。`tool_handler_failed` 错误码详见[错误调试](./error-debugging)。
 
-## Tools I registered don't show up
+## 我注册的工具没有出现
 
 <FrontendOnly frontend="react">
-- Open the [Inspector](../inspector). Go to **Agents**, then **Frontend Tools**. If the tool isn't listed, the hook call didn't land. Confirm the component is actually mounted.
-- If the tool is listed but the agent never calls it, the model may not know when to use it. Tweak the `description` to include the trigger phrase. For LangGraph agents, also add an explicit instruction in `system_prompt` — especially for mandatory data-fetch tools where the agent must call the tool before answering. See [Ensuring your agent reliably calls frontend tools](/integrations/langgraph/frontend-tools#ensuring-your-agent-reliably-calls-frontend-tools) for the recommended pattern.
-- For v1 to v2 migrations, `useCopilotAction` split into `useFrontendTool`, `useComponent`, and `useHumanInTheLoop`. Make sure you're using the right one.
+- 打开[检查器](../inspector)。进入 **Agents**，再进入 **Frontend Tools**。如果列表中没有该工具，说明 hook 调用没有生效。请确认组件确实已挂载。
+- 如果工具在列表中但智能体从不调用它，可能是模型不知道何时该用它。调整 `description`，把触发语句写进去。对于 LangGraph 智能体，还要在 `system_prompt` 中加入明确的指令——尤其是那些必须先调用工具再回答的强制性数据获取工具。推荐模式参见 [Ensuring your agent reliably calls frontend tools](/integrations/langgraph/frontend-tools#ensuring-your-agent-reliably-calls-frontend-tools)。
+- 从 v1 迁移到 v2 时，`useCopilotAction` 拆分成了 `useFrontendTool`、`useComponent` 和 `useHumanInTheLoop`。请确认你用的是正确的那一个。
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
-- Confirm the component or service that calls `registerFrontendTool` is
-  instantiated and its injector has not been destroyed.
-- Confirm the registration and chat select the same `agentId`.
-- If the tool is registered but never called, make its `description` state the
-  trigger clearly and confirm its schema accepts the emitted arguments.
-- See <a href="/angular/guides/troubleshooting">Troubleshooting Angular
-  apps</a> for the complete registration checklist.
+- 确认调用 `registerFrontendTool` 的组件或服务已实例化，且其注入器尚未销毁。
+- 确认注册与聊天选用的是同一个 `agentId`。
+- 如果工具已注册但从未被调用，让它的 `description` 清楚说明触发条件，并确认其 schema 能接受发出的参数。
+- 完整的注册检查清单参见 <a href="/angular/guides/troubleshooting">Angular 应用故障排查</a>。
 </FrontendOnly>
 
-## Connect route returns 404 on a fresh thread
+## 新线程上 connect 路由返回 404
 
-If you self-host the runtime and see a `404` from `POST /agent/:agentId/connect`
-right after the page loads, before any message is sent, it's almost always one
-of two things:
+如果你自托管运行时，页面刚加载、尚未发送任何消息时就看到 `POST /agent/:agentId/connect` 返回 `404`，几乎总是以下两种情况之一：
 
 <Accordions>
-<Accordion title="The agentId isn't registered (most common)">
-The runtime returns a `404` with this body when no agent matches the id in the URL:
+<Accordion title="agentId 未注册（最常见）">
+当没有智能体与 URL 中的 id 匹配时，运行时会返回带如下响应体的 `404`：
 
 ```json
 { "error": "Agent not found", "message": "Agent 'default' does not exist" }
 ```
 
-The prebuilt components connect to the agent named `"default"` unless you pass an
-explicit `agentId`. Register one under that key:
+除非你显式传入 `agentId`，否则预构建组件会连接名为 `"default"` 的智能体。请在该键下注册一个智能体：
 
 ```ts
 new CopilotRuntime({ agents: { default: myAgent } });
 ```
 
-Confirm the agent shows up by hitting [`GET {runtimeUrl}/info`](/backend/runtime-endpoints)
-directly. See also the [error reference](./error-reference#agent-not-found--agent-id-does-not-exist).
+直接请求 [`GET {runtimeUrl}/info`](/backend/runtime-endpoints) 确认智能体已出现。另请参阅[错误参考](./error-reference#agent-not-found--agent-id-does-not-exist)。
 </Accordion>
 
-<Accordion title="connect() runs before run() on a new thread">
-The frontend mints a thread id and may call `connect()` to re-attach **before**
-the first `run()` has produced any events. A persistence backend that only learns
-about a thread once a run starts can 404 (or error) on that first connect.
+<Accordion title="在新线程上 connect() 先于 run() 执行">
+前端会生成一个线程 id，并可能在第一次 `run()` 产生任何事件**之前**调用 `connect()` 来重新挂接。只在运行开始后才得知某线程存在的持久化后端，会在第一次 connect 时返回 404（或报错）。
 
-The built-in [`InMemoryAgentRunner`](/backend/agent-runner) handles the common
-cases, but a custom runner backed by an external memory layer must handle the
-"unknown thread" path explicitly. Return an empty `RUN_STARTED`,
-`MESSAGES_SNAPSHOT`, `RUN_FINISHED` sequence instead of failing. The
-[AWS AgentCore integration](/deploy/agentcore) shows the exact pattern.
+内置的 [`InMemoryAgentRunner`](/backend/agent-runner) 已经处理了常见情况，但由外部记忆层支撑的自定义 runner 必须显式处理“未知线程”路径：返回一个空的 `RUN_STARTED`、`MESSAGES_SNAPSHOT`、`RUN_FINISHED` 序列，而不是直接失败。[AWS AgentCore 集成](/deploy/agentcore)展示了确切的模式。
 </Accordion>
 </Accordions>
 
-## Runtime memory keeps growing or the process runs out of heap
+## 运行时内存持续增长或进程堆内存耗尽
 
-A long-lived server on the default `InMemoryAgentRunner` accumulates thread
-history in process memory.
+使用默认 `InMemoryAgentRunner` 的长期运行服务器会在进程内存中不断积累线程历史。
 
 <Accordions>
-<Accordion title="Tune or lower the in-memory bounds">
-The store is bounded by default (1000 threads, 100 runs per thread, ~512 MiB of
-retained history), but those defaults assume a reasonably sized heap. If your
-process runs with a small `--max-old-space-size`, or your threads carry unusually
-large payloads, lower the limits:
+<Accordion title="调整或调低内存上限">
+该存储默认是有上限的（1000 个线程、每个线程 100 次运行、约 512 MiB 保留历史），但这些默认值假设堆内存足够充裕。如果你的进程以较小的 `--max-old-space-size` 运行，或线程携带异常大的载荷，请调低这些上限：
 
 ```ts
 new InMemoryAgentRunner({ maxThreads: 200, maxBytes: 64 * 1024 ** 2 });
 ```
 
-See [bounding in-memory history](/backend/agent-runner#bounding-in-memory-history)
-for what each bound covers and what it deliberately does not.
+每个上限覆盖什么、刻意不覆盖什么，参见 [bounding in-memory history](/backend/agent-runner#bounding-in-memory-history)。
 </Accordion>
 
-<Accordion title="You saw an eviction warning in the logs">
-`InMemoryAgentRunner evicted in-memory thread history...` means the bounds are
-doing their job — the process is safe, but that thread's scrollback is gone and
-will not come back. If losing history matters, move to a durable runner:
-[Self-host CopilotKit Intelligence](/intelligence/self-hosting), or your own
-[custom runner](/backend/agent-runner#extending-a-runner-for-a-custom-backend)
-backed by your datastore.
+<Accordion title="你在日志中看到驱逐警告">
+出现 `InMemoryAgentRunner evicted in-memory thread history...` 说明上限正在发挥作用——进程是安全的，但该线程的历史回溯已丢失且不会恢复。如果历史丢失要紧，请改用持久化 runner：[自托管 CopilotKit Intelligence](/intelligence/self-hosting)，或基于你自己的数据存储构建[自定义 runner](/backend/agent-runner#extending-a-runner-for-a-custom-backend)。
 </Accordion>
 </Accordions>

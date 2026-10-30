@@ -1,64 +1,63 @@
 ---
 title: WebMCP
 icon: "lucide/Globe2"
-description: Expose browser-side actions as structured tools that compatible agents can discover and call.
+description: 将浏览器端操作暴露为结构化工具，供兼容的智能体发现和调用。
 frontend: universal
 ---
 
 import { WebMCPSetupPrompt } from "@/components/webmcp-setup-prompt";
 
-## Overview
+## 概览
 
-WebMCP lets your website tell compatible browser agents what they can do. Instead of guessing which buttons to click, an agent discovers a named tool with a description, a typed input schema, and a JavaScript handler.
+WebMCP 让你的网站告诉兼容的浏览器智能体它能做什么。智能体无需猜测该点击哪些按钮，而是发现一个具名工具，它带有描述、类型化的输入 schema 和一个 JavaScript 处理器。
 
-CopilotKit can publish an existing frontend tool to [`document.modelContext`](https://webmachinelearning.github.io/webmcp/). The same handler then works for your CopilotKit agent and for WebMCP-aware browser agents.
+CopilotKit 可以把现有的前端工具发布到 [`document.modelContext`](https://webmachinelearning.github.io/webmcp/)。这样，同一个处理器既能服务于你的 CopilotKit 智能体，也能服务于感知 WebMCP 的浏览器智能体。
 
-<Callout type="warn" title="WebMCP is experimental">
-  WebMCP is a draft Community Group report, not a W3C Standard. Chrome offers
-  it through an origin trial beginning in Chrome 149, or through the
-  `chrome://flags/#enable-webmcp-testing` flag for local development. CopilotKit
-  safely does nothing when `document.modelContext` is unavailable. Check the
-  [current Chrome setup instructions](https://developer.chrome.com/docs/ai/webmcp)
-  before testing.
+<Callout type="warn" title="WebMCP 尚处于实验阶段">
+  WebMCP 是一份 Community Group 报告草案，还不是 W3C 标准。Chrome 从
+  Chrome 149 起通过 origin trial 提供它，本地开发则可通过
+  `chrome://flags/#enable-webmcp-testing` 标志启用。当
+  `document.modelContext` 不可用时，CopilotKit 会安全地不做任何事。测试前请查阅
+  [最新的 Chrome 配置说明](https://developer.chrome.com/docs/ai/webmcp)。
 </Callout>
 
-## Start with your coding agent
+## 从你的编码智能体开始
 
-Use this pre-built prompt to add WebMCP to your project. Your coding agent will adapt the implementation to your app and verify that a compatible browser can discover and call the tool.
+使用这个预构建的提示把 WebMCP 添加到你的项目。你的编码智能体会把实现适配到你的应用，并验证兼容的浏览器能够发现并调用该工具。
 
 <WebMCPSetupPrompt />
 
-## Do I need an agent?
+## 我需要智能体吗？
 
-You do not need a CopilotKit backend agent to handle a WebMCP call. A compatible browser agent calls the frontend tool handler directly on the page; in that path, the handler context has no `agent`.
+处理 WebMCP 调用不需要 CopilotKit 后端智能体。兼容的浏览器智能体会直接在页面上调用前端工具处理器；在这条路径上，处理器上下文中没有 `agent`。
 
-Choose the smallest path that fits your app:
+选择适合你应用的最小路径：
 
-| What your app has today | What to do |
+| 你的应用目前的情况 | 该怎么做 |
 | --- | --- |
-| A CopilotKit frontend tool for the action | Add `webmcp: true`, or add annotations with `webmcp: { annotations: ... }`. |
-| CopilotKit, but no frontend tool for the action | Wrap the smallest suitable browser-side action in a frontend tool, then opt it into WebMCP. |
-| A backend agent | Keep it. The tool can remain available to that agent, but WebMCP calls do not pass through it. |
-| No backend agent | Use `CopilotKitCore` directly in browser code, or add the appropriate frontend integration. Do not create an agent only for WebMCP. |
+| 已有面向该操作的 CopilotKit 前端工具 | 添加 `webmcp: true`，或通过 `webmcp: { annotations: ... }` 添加注解。 |
+| 使用了 CopilotKit，但没有面向该操作的前端工具 | 把最小合适的浏览器端操作包装成前端工具，然后将其加入 WebMCP。 |
+| 已有后端智能体 | 保留它。该工具仍可对该智能体可用，但 WebMCP 调用不会经过它。 |
+| 没有后端智能体 | 在浏览器代码中直接使用 `CopilotKitCore`，或添加相应的前端集成。不要只为 WebMCP 创建一个智能体。 |
 
-React Native does not expose `document.modelContext`, so WebMCP registration is a no-op there. CopilotKit currently supports this WebMCP option in its browser integrations for React, Vue, Angular, and direct core usage.
+React Native 不暴露 `document.modelContext`，因此 WebMCP 注册在那里是空操作。CopilotKit 目前在其面向 React、Vue、Angular 的浏览器集成以及直接使用 core 的方式中支持该 WebMCP 选项。
 
-## How CopilotKit connects WebMCP
+## CopilotKit 如何连接 WebMCP
 
-1. Your app registers a CopilotKit frontend tool with `webmcp` enabled.
-2. CopilotKit mirrors the tool's name, description, JSON Schema, annotations, and handler onto `document.modelContext`.
-3. A compatible browser agent discovers the tool and calls the same JavaScript handler while the page is open.
-4. CopilotKit unregisters the WebMCP tool when the frontend tool is removed or becomes unavailable.
+1. 你的应用注册一个启用了 `webmcp` 的 CopilotKit 前端工具。
+2. CopilotKit 把工具的名称、描述、JSON Schema、注解和处理器镜像到 `document.modelContext`。
+3. 兼容的浏览器智能体发现该工具，并在页面打开期间调用同一个 JavaScript 处理器。
+4. 当前端工具被移除或变得不可用时，CopilotKit 会注销该 WebMCP 工具。
 
-The WebMCP call stays in the browser unless your handler deliberately calls an API. CopilotKit does not route that call through a Runtime or backend agent.
+除非你的处理器有意调用某个 API，否则 WebMCP 调用始终留在浏览器内。CopilotKit 不会把该调用经由 Runtime 或后端智能体路由。
 
-## Add WebMCP manually
+## 手动添加 WebMCP
 
 <FrontendOnly frontend="react">
 
-### React frontend tool
+### React 前端工具
 
-Add `webmcp` to the tool you already register. This code must run inside your existing `CopilotKitProvider`.
+在你已注册的工具上添加 `webmcp`。这段代码必须在你现有的 `CopilotKitProvider` 内运行。
 
 ```tsx title="OrderSearch.tsx"
 "use client";
@@ -88,15 +87,15 @@ export function OrderSearch() {
 }
 ```
 
-Use the equivalent option with [`useFrontendTool` for Vue](/reference/vue/hooks/useFrontendTool) or [`registerFrontendTool` for Angular](/reference/angular/functions/registerFrontendTool). The React API is documented in [`useFrontendTool`](/reference/hooks/useFrontendTool).
+在 [Vue 的 `useFrontendTool`](/reference/vue/hooks/useFrontendTool) 或 [Angular 的 `registerFrontendTool`](/reference/angular/functions/registerFrontendTool) 中使用等效选项。React API 记录在 [`useFrontendTool`](/reference/hooks/useFrontendTool)。
 
 </FrontendOnly>
 
 <FrontendOnly frontend="vue">
 
-### Vue frontend tool
+### Vue 前端工具
 
-Add `webmcp` to the tool you already register. This code must run inside your existing `CopilotKitProvider`.
+在你已注册的工具上添加 `webmcp`。这段代码必须在你现有的 `CopilotKitProvider` 内运行。
 
 ```vue title="OrderSearch.vue"
 <script setup lang="ts">
@@ -122,15 +121,15 @@ useFrontendTool({
 </script>
 ```
 
-See the Vue [`useFrontendTool` reference](/reference/vue/hooks/useFrontendTool) for the complete API.
+完整 API 请参阅 Vue 的 [`useFrontendTool` 参考](/reference/vue/hooks/useFrontendTool)。
 
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
 
-### Angular frontend tool
+### Angular 前端工具
 
-Add `webmcp` to the tool you register in an Angular injection context.
+在你于 Angular 注入上下文中注册的工具上添加 `webmcp`。
 
 ```ts title="src/app/order-search.component.ts"
 import { Component } from "@angular/core";
@@ -164,13 +163,13 @@ export class OrderSearchComponent {
 }
 ```
 
-See the Angular [`registerFrontendTool` reference](/reference/angular/functions/registerFrontendTool) for the complete API.
+完整 API 请参阅 Angular 的 [`registerFrontendTool` 参考](/reference/angular/functions/registerFrontendTool)。
 
 </FrontendOnly>
 
-### WebMCP only, with no agent
+### 仅 WebMCP，无智能体
 
-For browser code that does not use a framework provider, register the frontend tool directly with the core. Keep the core instance alive for as long as the tool should remain available.
+对于不使用框架 provider 的浏览器代码，直接向 core 注册前端工具。只要工具应保持可用，就让 core 实例保持存活。
 
 ```ts title="webmcp.ts"
 import { CopilotKitCore } from "@copilotkit/core";
@@ -198,47 +197,47 @@ export const copilotkit = new CopilotKitCore({
 });
 ```
 
-This path does not configure a Runtime or an agent. It only registers browser-side tools through CopilotKit's core lifecycle.
+这条路径不配置 Runtime 或智能体。它只是通过 CopilotKit 的 core 生命周期注册浏览器端工具。
 
-## Design tools agents can use reliably
+## 设计智能体能可靠使用的工具
 
-- Give every WebMCP tool a non-empty, specific `description`. CopilotKit skips WebMCP registration when it is missing.
-- Keep each tool focused on one action and give every parameter a useful description.
-- Use `readOnlyHint: true` only when the handler cannot change state.
-- Use `untrustedContentHint: true` when results may contain user-generated or external content.
-- Return concise, structured results that tell the caller what happened.
-- Set the frontend tool to unavailable when the action cannot currently run; CopilotKit removes it from WebMCP until it is available again.
+- 为每个 WebMCP 工具提供非空且具体的 `description`。缺失时 CopilotKit 会跳过 WebMCP 注册。
+- 让每个工具只聚焦一个操作，并为每个参数提供有用的描述。
+- 仅当处理器不会改变状态时才使用 `readOnlyHint: true`。
+- 当结果可能包含用户生成或外部内容时，使用 `untrustedContentHint: true`。
+- 返回简洁、结构化的结果，向调用方说明发生了什么。
+- 当操作当前无法执行时，把前端工具置为不可用；在重新可用之前，CopilotKit 会把它从 WebMCP 中移除。
 
-Annotations are hints for browser agents, not security controls. Enforce authentication, authorization, validation, rate limits, and required user confirmation inside the handler or the API it calls. See Chrome's [WebMCP tool security guidance](https://developer.chrome.com/docs/ai/webmcp/secure-tools).
+注解是给浏览器智能体的提示，不是安全控制。请在处理器或其调用的 API 内部实施身份验证、授权、校验、速率限制以及必要的用户确认。参见 Chrome 的 [WebMCP 工具安全指南](https://developer.chrome.com/docs/ai/webmcp/secure-tools)。
 
-<Callout type="warn" title="Agent scope does not scope WebMCP">
-  `agentId` limits which CopilotKit agent receives a frontend tool. WebMCP tools
-  are page-level, so `agentId` does not restrict browser-agent access. If
-  multiple opted-in tools share a name across agent IDs, CopilotKit exposes the
-  first one and logs a warning.
+<Callout type="warn" title="智能体作用域不会约束 WebMCP">
+  `agentId` 限制哪个 CopilotKit 智能体能收到某个前端工具。WebMCP 工具
+  是页面级的，因此 `agentId` 不会限制浏览器智能体的访问。如果
+  多个已加入 WebMCP 的工具在不同智能体 ID 之间重名，CopilotKit 会暴露
+  第一个并记录一条警告。
 </Callout>
 
-## Test the complete path
+## 测试完整路径
 
-1. Open Chrome 149 or newer and enable the WebMCP origin trial or local testing flag.
-2. Load the app in an [origin-isolated document](https://developer.chrome.com/docs/ai/webmcp#origin-isolation). The `tools` permissions policy defaults to `self`; cross-origin iframes also need `allow="tools"`.
-3. Confirm that `document.modelContext` exists.
-4. Use Chrome's [Model Context Tool Inspector](https://developer.chrome.com/docs/ai/webmcp#imitate-agent-chat-with-the-inspector-extension) to confirm the tool name and schema, call it with representative inputs, and inspect its result.
-5. Ask the inspector's agent to complete the user task in natural language. Verify that it chooses the right tool and that authentication and confirmation boundaries still hold.
+1. 打开 Chrome 149 或更新版本，并启用 WebMCP origin trial 或本地测试标志。
+2. 在[源隔离文档](https://developer.chrome.com/docs/ai/webmcp#origin-isolation)中加载应用。`tools` 权限策略默认为 `self`；跨源 iframe 还需要 `allow="tools"`。
+3. 确认 `document.modelContext` 存在。
+4. 使用 Chrome 的 [Model Context Tool Inspector](https://developer.chrome.com/docs/ai/webmcp#imitate-agent-chat-with-the-inspector-extension) 确认工具名称与 schema，用有代表性的输入调用它，并检查其结果。
+5. 让 inspector 的智能体用自然语言完成用户任务。验证它选择了正确的工具，且身份验证与确认边界仍然有效。
 
-If the tool does not appear, check the browser setup first, then verify that the tool has a description, `webmcp` is enabled, and the frontend tool is currently available.
+如果工具没有出现，先检查浏览器配置，然后验证该工具有描述、已启用 `webmcp`，且前端工具当前处于可用状态。
 
-## Related
+## 相关内容
 
-- [Frontend tools](/frontend-tools)
+- [前端工具](/frontend-tools)
 <FrontendOnly frontend="react">
-- [React `useFrontendTool` reference](/reference/hooks/useFrontendTool)
+- [React `useFrontendTool` 参考](/reference/hooks/useFrontendTool)
 </FrontendOnly>
 <FrontendOnly frontend="vue">
-- [Vue `useFrontendTool` reference](/reference/vue/hooks/useFrontendTool)
+- [Vue `useFrontendTool` 参考](/reference/vue/hooks/useFrontendTool)
 </FrontendOnly>
 <FrontendOnly frontend="angular">
-- [Angular `registerFrontendTool` reference](/reference/angular/functions/registerFrontendTool)
+- [Angular `registerFrontendTool` 参考](/reference/angular/functions/registerFrontendTool)
 </FrontendOnly>
-- [WebMCP specification](https://webmachinelearning.github.io/webmcp/)
-- [Chrome WebMCP best practices](https://developer.chrome.com/docs/ai/webmcp/best-practices)
+- [WebMCP 规范](https://webmachinelearning.github.io/webmcp/)
+- [Chrome WebMCP 最佳实践](https://developer.chrome.com/docs/ai/webmcp/best-practices)

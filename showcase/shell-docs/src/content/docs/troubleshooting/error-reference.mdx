@@ -1,44 +1,30 @@
 ---
-title: "Error message reference"
+title: "错误消息参考"
 icon: "lucide/CircleAlert"
-description: "Find the cause and fix for common CopilotKit console, network, and error UI messages."
+description: "查找 CopilotKit 常见控制台、网络与错误界面消息的原因和修复方法。"
 ---
 
-This page lists the error strings CopilotKit surfaces in your console, network
-responses, and error UI. If you hit an error, search this page with Cmd/Ctrl-F
-for a distinctive phrase from the message.
+本页列出了 CopilotKit 在控制台、网络响应和错误界面中呈现的错误字符串。遇到错误时，可使用 Cmd/Ctrl-F 在本页搜索消息中具有辨识度的短语。
 
-For the programmatic `onError` **codes** (`runtime_info_fetch_failed`,
-`tool_handler_failed`, ...) rather than these human-readable strings, see
-[Error Debugging](/troubleshooting/error-debugging).
+如果你要找的是 `onError` 的程序化**代码**（`runtime_info_fetch_failed`、`tool_handler_failed` 等）而非这些人类可读的字符串，请参阅[错误调试](/troubleshooting/error-debugging)。
 
-## Missing runtime configuration
+## 缺少运行时配置
 
-Error string:
+错误字符串：
 
 ```txt
 Missing required prop: 'runtimeUrl' or 'publicApiKey' or 'publicLicenseKey'
 ```
 
-**Where:** the **v2** provider, `<CopilotKitProvider>`, imported from
-`@copilotkit/react-core/v2`. In production
-(`NODE_ENV === "production"`) it's a thrown `Error`; in development it's a
-`console.warn` so local-agent and test setups still run.
+**位置**：从 `@copilotkit/react-core/v2` 导入的 **v2** provider `<CopilotKitProvider>`。在生产环境（`NODE_ENV === "production"`）下它会抛出 `Error`；在开发环境下则是 `console.warn`，以便本地智能体与测试配置仍能运行。
 
-<Callout type="info" title="v1 behaves differently">
-  The **v1** `<CopilotKit>` provider throws in **both development and
-  production** when nothing is configured, whereas the v2 `<CopilotKitProvider>`
-  only warns in development. Either way, registering `selfManagedAgents` or
-  `agents__unsafe_dev_only` satisfies the check — no `runtimeUrl` or Copilot
-  Cloud key required.
+<Callout type="info" title="v1 的行为有所不同">
+  未配置任何内容时，**v1** 的 `<CopilotKit>` provider 在**开发和生产环境**中都会抛出错误，而 v2 的 `<CopilotKitProvider>` 在开发环境中仅发出警告。无论哪种情况，注册 `selfManagedAgents` 或 `agents__unsafe_dev_only` 即可通过该项检查——无需 `runtimeUrl` 或 Copilot Cloud 密钥。
 </Callout>
 
-**Cause:** the provider has no way to reach an agent. You didn't pass a
-`runtimeUrl`, a Copilot Cloud key (`publicApiKey` / `publicLicenseKey`), **and** you
-didn't register any local agents.
+**原因**：provider 无法连接到任何智能体。你既没有传入 `runtimeUrl` 或 Copilot Cloud 密钥（`publicApiKey` / `publicLicenseKey`），**也**没有注册任何本地智能体。
 
-**Fix (v2):** provide one of these values to `CopilotKitProvider`, imported from
-`@copilotkit/react-core/v2`:
+**修复方法（v2）**：向从 `@copilotkit/react-core/v2` 导入的 `CopilotKitProvider` 提供以下值之一：
 
 ```tsx
 // Runtime-backed (recommended)
@@ -51,101 +37,84 @@ didn't register any local agents.
 <CopilotKitProvider selfManagedAgents={{ "my-agent": myAgent }}>{children}</CopilotKitProvider>
 ```
 
-See [Self-managed agents](/backend/self-managed-agents) for the local-agent path.
+本地智能体方案请参阅[自管理智能体](/backend/self-managed-agents)。
 
-## Agent discovery failed
+## 智能体发现失败
 
-Error name:
+错误名称：
 
 ```txt
 CopilotKitAgentDiscoveryError
 ```
 
-This is the error **name** (`error.name`). The accompanying message is one of:
+这是错误的**名称**（`error.name`）。随附的消息为以下之一：
 
 - `Agent '<name>' was not found. Available agents are: <list>. Please verify the agent name in your configuration and ensure it matches one of the available agents.`
 - `The requested agent was not found. Available agents are: <list>. ...`
-- `Agent '<name>' was not found. Please set up at least one agent before proceeding.` (when **no** agents are registered)
+- `Agent '<name>' was not found. Please set up at least one agent before proceeding.`（在**没有**注册任何智能体时出现）
 
-**Cause:** the frontend asked for an `agentId` that the runtime didn't return from
-its `/info` discovery. This is usually a typo, a missing registration, or a runtime that has no
-agents at all. The prebuilt components default to the agent named `"default"`.
+**原因**：前端请求的 `agentId` 未出现在运行时 `/info` 发现结果中。这通常是拼写错误、缺少注册，或运行时根本没有任何智能体。预构建组件默认使用名为 `"default"` 的智能体。
 
-**Fix:**
+**修复方法**：
 
-- Register the agent under the id you're requesting (or under `"default"` if you
-  pass no `agentId`):
+- 以你请求的 id 注册智能体（若未传 `agentId`，则以 `"default"` 注册）：
   ```ts
   new CopilotRuntime({ agents: { default: myAgent } });
   ```
-- Confirm the id matches the "Available agents" list in the message.
-- Verify the runtime is reachable by hitting `GET {runtimeUrl}/info` directly (see
-  [Runtime HTTP endpoints](/backend/runtime-endpoints)). A discovery failure here
-  cascades into this error.
+- 确认 id 与消息中 “Available agents” 列表相匹配。
+- 直接请求 `GET {runtimeUrl}/info` 验证运行时是否可达（参见[运行时 HTTP 端点](/backend/runtime-endpoints)）。此处的发现失败会级联引发该错误。
 
-`CopilotKitAgentDiscoveryError` is a **banner** error. It renders as a fixed
-banner in the dev console rather than a dismissible toast.
+`CopilotKitAgentDiscoveryError` 是一种**横幅（banner）**错误。它在开发者控制台中渲染为固定横幅，而不是可关闭的 toast。
 
-## Agent route returned 404
+## 智能体路由返回 404
 
-Error strings:
+错误字符串：
 
 ```txt
 Agent not found
 Agent '<id>' does not exist
 ```
 
-**Where:** an HTTP `404` JSON body from the runtime's agent routes:
+**位置**：来自运行时智能体路由的 HTTP `404` JSON 响应体：
 
 ```json
 { "error": "Agent not found", "message": "Agent 'my-agent' does not exist" }
 ```
 
-**Cause:** a `POST /agent/:agentId/run`, `/connect`, or `/stop/:threadId` request
-named an `agentId` that isn't registered on the runtime. This is the server-side
-counterpart to the client-side `CopilotKitAgentDiscoveryError`.
+**原因**：`POST /agent/:agentId/run`、`/connect` 或 `/stop/:threadId` 请求中指定的 `agentId` 未在运行时上注册。这是客户端 `CopilotKitAgentDiscoveryError` 在服务端的对应版本。
 
-**Fix:** register the agent under that key in `new CopilotRuntime({ agents: { ... } })`.
-If you see this on the `/connect` route **before sending any message**, also read
-[the `/connect` 404 entry](/troubleshooting/common-issues#connect-route-returns-404-on-a-fresh-thread).
+**修复方法**：在 `new CopilotRuntime({ agents: { ... } })` 中以该键注册智能体。如果在发送任何消息**之前**就在 `/connect` 路由上看到此错误，另请阅读[/connect 路由 404 条目](/troubleshooting/common-issues#connect-route-returns-404-on-a-fresh-thread)。
 
-## Agent run failed
+## 智能体运行失败
 
-Error string:
+错误字符串：
 
 ```txt
 Failed to run agent
 ```
 
-**Where:** a `500` JSON body from the runtime's run/connect routes, with a
-`message` field carrying the underlying error.
+**位置**：运行时 run/connect 路由返回的 `500` JSON 响应体，其中 `message` 字段携带底层错误。
 
-**Cause:** the agent threw while executing. Common causes include a bad model string, a missing API key
-on the server, a provider error, or an exception inside the agent itself.
+**原因**：智能体在执行过程中抛出了异常。常见原因包括模型字符串有误、服务器缺少 API 密钥、模型提供方出错，或智能体内部发生异常。
 
-**Fix:** read the `message` field and check your server logs (the runtime logs the
-error name, message, and stack). Common culprits: an unset `OPENAI_API_KEY` (or
-equivalent) on the server, or a model string the provider doesn't recognize.
+**修复方法**：查看 `message` 字段并检查服务器日志（运行时会记录错误名称、消息与堆栈）。常见原因：服务器上未设置 `OPENAI_API_KEY`（或等效变量），或提供方无法识别的模型字符串。
 
-## Capability discovery failed
+## 能力发现失败
 
-Error string:
+错误字符串：
 
 ```txt
 Failed to fetch capabilities for agent "<name>"
 ```
 
-**Where:** logged on the client when capability discovery for an agent fails.
+**位置**：当某个智能体的能力发现失败时，在客户端记录此日志。
 
-**Cause:** the runtime couldn't be reached, or the named agent's capabilities
-endpoint errored.
+**原因**：运行时无法访问，或指定智能体的能力端点出错。
 
-**Fix:** confirm `runtimeUrl` is correct and the runtime is up; verify
-`GET {runtimeUrl}/info` returns the agent. See
-[Common Issues: Network errors](/troubleshooting/common-issues#network-errors--api-not-found).
+**修复方法**：确认 `runtimeUrl` 正确且运行时已启动；验证 `GET {runtimeUrl}/info` 能返回该智能体。参见[常见问题：网络错误](/troubleshooting/common-issues#network-errors--api-not-found)。
 
-## Related
+## 相关内容
 
-- [Error Debugging](/troubleshooting/error-debugging): the `onError` callback and its programmatic error **codes**.
-- [Common Issues](/troubleshooting/common-issues): network, endpoint, and tunnel problems.
-- [Runtime HTTP endpoints](/backend/runtime-endpoints): probing `/info` and the agent routes with `curl`.
+- [错误调试](/troubleshooting/error-debugging)：`onError` 回调及其程序化错误**代码**。
+- [常见问题](/troubleshooting/common-issues)：网络、端点与隧道问题。
+- [运行时 HTTP 端点](/backend/runtime-endpoints)：使用 `curl` 探测 `/info` 与智能体路由。

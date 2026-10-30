@@ -1,100 +1,98 @@
 ---
-title: Voice
-description: Real-time speech-to-text in the chat composer. The user speaks, the runtime transcribes, the agent runs the resulting prompt.
+title: 语音
+description: 聊天输入框中的实时语音转文本：用户说话、运行时转录、智能体执行生成的提示。
 icon: "lucide/Mic"
 snippet_cell: voice
 ---
 
 <InlineDemo demo="voice" />
 
-You have a working chat surface and you want users to be able to speak instead of type. By the end of this guide, the chat composer will sprout a mic button, recorded audio will be transcribed by the runtime, and the transcript will auto-send to the agent like any other message.
+你已经有一个可用的聊天界面，希望用户能够用说话代替打字。读完本指南后，聊天输入框会长出一个麦克风按钮，录制的音频将由运行时转录，转录文本会像其他消息一样自动发送给智能体。
 
-## When to use this
+## 何时使用
 
-- **Hands-free or accessibility flows** where typing isn't the right input modality.
-- **Mobile or kiosk surfaces** where a long voice query is faster than thumb-typing.
-- **Demo and test loops** where you want canned audio to drive the chat without a microphone.
+- **免手操作或无障碍场景**——打字并非合适输入方式的场景。
+- **移动端或自助终端界面**——较长的语音提问比拇指打字更快的场景。
+- **演示与测试流程**——想用预置音频在没有麦克风的情况下驱动聊天的场景。
 
-If you only need file uploads (audio, images, video, documents), use [Multimodal Attachments](/multimodal-attachments) instead. Voice is specifically about live transcription of recorded speech into chat input.
+如果你只需要文件上传（音频、图像、视频、文档），请改用 [Multimodal Attachments](/multimodal-attachments)。Voice 特指把录制的语音实时转录为聊天输入。
 
-## Frontend
+## 前端
 
-`<CopilotChat />` from `@copilotkit/react-core/v2` renders the mic button automatically when the runtime advertises `audioFileTranscriptionEnabled: true` on its `/info` endpoint. There's nothing to wire up on the chat surface itself:
+来自 `@copilotkit/react-core/v2` 的 `<CopilotChat />` 会在运行时于 `/info` 端点通告 `audioFileTranscriptionEnabled: true` 时自动渲染麦克风按钮。聊天界面本身无需任何接线：
 
-<Snippet region="voice-page" title="frontend/src/app/page.tsx — chat surface" />
+<Snippet region="voice-page" title="frontend/src/app/page.tsx — 聊天界面" />
 
-The `runtimeUrl="/api/copilotkit-voice"` points the browser to your Next.js API route. When the user clicks the mic, the chat captures audio, POSTs it to that runtime route's `/transcribe` endpoint, drops the resulting transcript into the composer, and submits.
+`runtimeUrl="/api/copilotkit-voice"` 将浏览器指向你的 Next.js API 路由。用户点击麦克风时，聊天会录制音频，将其 POST 到该运行时路由的 `/transcribe` 端点，把得到的转录文本放入输入框并提交。
 
-### Driving the demo without a mic
+### 无麦克风时驱动演示
 
-For Playwright runs, screenshots, or any flow where prompting for mic permissions is awkward, ship a button that emits a canned sample phrase through an `onTranscribed` callback, bypassing the transcription endpoint entirely:
+在 Playwright 运行、截图，或任何弹出麦克风权限请求不太方便的流程中，可以提供一个按钮，通过 `onTranscribed` 回调发出预置的示例语句，完全绕过转录端点：
 
 <Snippet region="sample-audio-button" title="frontend/src/app/sample-audio-button.tsx" />
 
-The parent chat component can then drop that text into the composer's textarea (matched via `data-testid="copilot-chat-textarea"`) using the native value setter and a synthetic `input` event so React's managed state updates correctly.
+父级聊天组件随后可以使用原生 value setter 和合成的 `input` 事件，把这段文本放入输入框的 textarea（通过 `data-testid="copilot-chat-textarea"` 匹配），从而让 React 托管的状态正确更新。
 
-## Backend
+## 后端
 
-### Next.js API route
+### Next.js API 路由
 
-Create a dedicated API route at `app/api/copilotkit-voice/[[...slug]]/route.ts`. The `[[...slug]]` catch-all pattern lets the V2 runtime handle its internal URL routing (`/info`, `/agent/:id/run`, `/transcribe`, etc.) under the `/api/copilotkit-voice` base path.
+在 `app/api/copilotkit-voice/[[...slug]]/route.ts` 创建一个专用 API 路由。`[[...slug]]` 通配模式让 V2 运行时能在 `/api/copilotkit-voice` 基础路径下处理其内部 URL 路由（`/info`、`/agent/:id/run`、`/transcribe` 等）。
 
-Wire up the V2 runtime with a `TranscriptionService`. The V1 wrapper drops the `transcriptionService` option, so use `createCopilotRuntimeHandler` from `@copilotkit/runtime/v2` directly:
+为 V2 运行时接入一个 `TranscriptionService`。V1 包装器会丢弃 `transcriptionService` 选项，因此请直接使用 `@copilotkit/runtime/v2` 中的 `createCopilotRuntimeHandler`：
 
 <Snippet region="voice-runtime" title="app/api/copilotkit-voice/[[...slug]]/route.ts" />
 
-The `basePath: "/api/copilotkit-voice"` in `createCopilotRuntimeHandler` must match the API route's directory path. With `transcriptionService` set, the runtime advertises `audioFileTranscriptionEnabled: true` on `/info` (which is what tells the chat to render the mic button) and routes `POST /transcribe` to the service.
+`createCopilotRuntimeHandler` 中的 `basePath: "/api/copilotkit-voice"` 必须与 API 路由的目录路径一致。设置 `transcriptionService` 后，运行时会在 `/info` 上通告 `audioFileTranscriptionEnabled: true`（这正是让聊天渲染麦克风按钮的开关），并把 `POST /transcribe` 路由到该服务。
 
-<Callout type="warn" title="Without a service, `/transcribe` answers 503">
-A runtime with no `transcriptionService` still serves the route, and answers every request
-`503` with `{ "error": "service_not_configured" }`. The mic button never appears, so the
-symptom is a chat with no voice input rather than a visible server error — check `/info` for
-`audioFileTranscriptionEnabled` when voice silently doesn't show up.
+<Callout type="warn" title="无服务时，`/transcribe` 返回 503">
+没有 `transcriptionService` 的运行时仍会正常提供该路由，并对每个请求返回
+`503` 与 `{ "error": "service_not_configured" }`。麦克风按钮永远不会出现，因此症状是
+没有语音输入的聊天，而不是可见的服务器错误——当语音功能无声无息地没有出现时，请检查
+`/info` 中的 `audioFileTranscriptionEnabled`。
 </Callout>
 
-<Callout type="warn" title="Calling `/transcribe` yourself">
-The chat handles this for you; these are the rules if you post to the route directly. As
-multipart, the audio field must be named `audio` — any other name reads as absent and the
-route answers `invalid_request`. As JSON, `mimeType` is required alongside the base64
-`audio`, and a payload without it is rejected the same way.
+<Callout type="warn" title="自行调用 `/transcribe`">
+聊天会替你处理这些；以下规则仅在你直接向该路由发起 POST 时适用。以
+multipart 方式调用时，音频字段必须命名为 `audio`——任何其他名称都会被视为缺失，路由将返回
+`invalid_request`。以 JSON 方式调用时，base64 的 `audio` 之外还必须有 `mimeType`，
+缺少该字段的载荷会以同样方式被拒绝。
 </Callout>
 
 <WhenFrameworkHas flag="voice_backend_pattern" equals="adk-fastapi-agent-path">
-For the Google ADK showcase, agent runs take one more hop: this Next.js route registers the `voice-demo` agent with an `HttpAgent` pointed at `${AGENT_URL}/voice`. The Python `agent_server.py` mounts registered ADK agents with `add_adk_fastapi_endpoint(app, ..., path=f"/{agent_name}")`, so the browser talks to `/api/copilotkit-voice` while the Next.js runtime forwards voice-demo agent runs to the backend `/voice` endpoint.
+在 Google ADK 示例中，智能体运行要多经过一跳：这个 Next.js 路由通过一个指向 `${AGENT_URL}/voice` 的 `HttpAgent` 注册 `voice-demo` 智能体。Python 端的 `agent_server.py` 使用 `add_adk_fastapi_endpoint(app, ..., path=f"/{agent_name}")` 挂载已注册的 ADK 智能体，因此浏览器与 `/api/copilotkit-voice` 通信，而 Next.js 运行时把 voice-demo 智能体的运行转发到后端的 `/voice` 端点。
 </WhenFrameworkHas>
 
-### Custom transcription backends
+### 自定义转录后端
 
-`TranscriptionService` from `@copilotkit/runtime/v2` is an abstract class. Subclass it to plug in any transcription provider — Whisper, AssemblyAI, Deepgram, your own model. The library ships `TranscriptionServiceOpenAI` as the canonical reference implementation.
+来自 `@copilotkit/runtime/v2` 的 `TranscriptionService` 是一个抽象类。继承它即可接入任何转录提供方——Whisper、AssemblyAI、Deepgram 或你自己的模型。该库自带 `TranscriptionServiceOpenAI` 作为标准的参考实现。
 
-<Callout type="info" title="TranscriptionServiceOpenAI takes an openai 5.x client">
-`@copilotkit/voice` depends on `openai` `^5.9.0`, and the `openai` option of
-`TranscriptionServiceOpenAI` is typed against the copy of `openai` that
-`@copilotkit/voice` resolves. Pass an `OpenAI` instance created from that same
-installed copy. The `OpenAI` class has private (`#private`) members, so an
-instance from another copy or another major version fails type-checking, even
-when it looks the same.
+<Callout type="info" title="TranscriptionServiceOpenAI 需要一个 openai 5.x 客户端">
+`@copilotkit/voice` 依赖 `openai` `^5.9.0`，而 `TranscriptionServiceOpenAI` 的 `openai` 选项是针对
+`@copilotkit/voice` 所解析到的那份 `openai` 副本定义类型的。请传入由同一份已安装副本创建的
+`OpenAI` 实例。`OpenAI` 类带有私有（`#private`）成员，因此来自另一份副本或另一个大版本的实例会
+无法通过类型检查，哪怕看起来一模一样。
 
-If your app uses `openai` v4, v6 or v7 (npm's latest is 7.x), either:
+如果你的应用使用 `openai` v4、v6 或 v7（npm 上的最新版是 7.x），可以选择：
 
-- align your app on `openai` 5.x, so your app and `@copilotkit/voice` share one
-  copy, or
-- subclass `TranscriptionService` and call your own client inside
-  `transcribeFile`.
+- 把应用统一到 `openai` 5.x，让应用与 `@copilotkit/voice` 共用一份
+  副本；或
+- 继承 `TranscriptionService`，在
+  `transcribeFile` 内部调用你自己的客户端。
 </Callout>
 
-<Callout type="warn" title="Return a string, and let provider errors through">
-`transcribeFile` returns the transcript as a string — the handler wraps it into
-`{ transcription }` itself, so returning a richer object is a type error.
+<Callout type="warn" title="返回字符串，并放行提供方错误">
+`transcribeFile` 以字符串形式返回转录文本——处理器会自行将其包装成
+`{ transcription }`，因此返回更复杂的对象是类型错误。
 
-Let the provider's own errors propagate unchanged. The runtime classifies failures by reading
-the error text for markers like `rate`, `429`, `auth` and `too long`, so a provider message
-such as `OpenAI returned 429 rate limited` maps to the right error code on its own. Replacing
-it with your own wording bypasses that and everything lands as a generic provider error.
+让提供方自身的错误原样传播。运行时会通过在错误文本中查找
+`rate`、`429`、`auth` 与 `too long` 等标记来对失败分类，因此诸如
+`OpenAI returned 429 rate limited` 这样的提供方消息会自行映射到正确的错误码。若替换成你自己的措辞，这套机制就会
+失效，一切都会落成通用的提供方错误。
 </Callout>
 
-A useful pattern is constructing the service only when its dedicated credential is configured. Without it, omit `transcriptionService`; the runtime reports the capability as disabled, hides the mic, and returns the documented 503 if `/transcribe` is called directly:
+一个实用的模式是：仅当专用凭证已配置时才构造该服务。没有凭证时省略 `transcriptionService`，运行时会把该能力报告为禁用、隐藏麦克风，并在直接调用 `/transcribe` 时返回文档所述的 503：
 
-<Snippet region="transcription-service-guard" title="backend — guarded transcription service" />
+<Snippet region="transcription-service-guard" title="后端——带守卫的转录服务" />
 
 <IntegrationGrid path="voice" />

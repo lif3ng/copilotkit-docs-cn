@@ -1,32 +1,28 @@
 ---
-title: "Debug Mode"
-description: "Enable debug mode to get detailed logging of the AG-UI event pipeline on both the server and client."
+title: "调试模式"
+description: "启用调试模式以获得服务端与客户端两侧 AG-UI 事件管线的详细日志。"
 icon: "lucide/Bug"
 frontend: universal
 ---
 
-# Debug Mode
+# 调试模式
 
-When your agent isn't behaving as expected — events are missing, state isn't
-updating, or tool calls aren't executing — you need visibility into the event
-pipeline. Runtime debug mode provides structured server-side logging; the
-frontend can inspect the resulting stream with browser network tools or the
-AG-UI Event Inspector.
+当智能体的表现不符合预期时——事件缺失、状态不更新或工具调用没有执行——你需要看清事件管线内部发生了什么。运行时调试模式提供结构化的服务端日志；前端则可以用浏览器网络工具或 AG-UI Event Inspector 检查产出的事件流。
 
-Enable it to see:
-- What events your agent is emitting and whether they reach the client
-- Where in the pipeline events are being dropped or failing validation
-- The full lifecycle of a request from start to finish
+启用后可以看到：
+- 智能体发出了哪些事件，以及它们是否到达了客户端
+- 事件在管线的哪个环节被丢弃或未通过校验
+- 一个请求从开始到结束的完整生命周期
 
 <Callout type="info">
-  For visual error display during local development (error banners, dev console), see [Error Debugging](/troubleshooting/error-debugging). Debug mode focuses on event pipeline logging rather than UI-level error display.
+  本地开发时的可视化错误展示（错误横幅、开发者控制台）请参见[错误调试](/troubleshooting/error-debugging)。调试模式聚焦于事件管线日志，而非 UI 层面的错误展示。
 </Callout>
 
-## Enabling Debug Mode
+## 启用调试模式
 
-### Server-Side (Runtime)
+### 服务端（运行时）
 
-Pass `debug: true` to the `CopilotRuntime` constructor:
+向 `CopilotRuntime` 构造函数传入 `debug: true`：
 
 ```ts title="app/api/copilotkit/route.ts"
 const runtime = new CopilotRuntime({
@@ -37,7 +33,7 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-This produces structured Pino logs (formatted by `pino-pretty`) with a `copilotkit-debug` component label:
+这会生成结构化的 Pino 日志（由 `pino-pretty` 格式化），并带有 `copilotkit-debug` 组件标签：
 
 ```
 [14:32:01.123] DEBUG (copilotkit-debug): Agent run started
@@ -61,9 +57,9 @@ This produces structured Pino logs (formatted by `pino-pretty`) with a `copilotk
 ```
 
 <FrontendOnly frontend="react">
-### Client-Side
+### 客户端
 
-Pass `debug={true}` to the `<CopilotKit>` provider:
+向 `<CopilotKit>` 提供方传入 `debug={true}`：
 
 ```tsx
 <CopilotKit
@@ -74,26 +70,22 @@ Pass `debug={true}` to the `<CopilotKit>` provider:
 </CopilotKit>
 ```
 
-This forwards the debug configuration to the AG-UI client transport layer (`transformChunks`), which may produce transport-level debug output depending on the AG-UI library version. Note that the richest debug logging comes from the **server-side** `CopilotRuntime` — enable `debug: true` there for full structured Pino logs of every AG-UI event.
+这会把调试配置转发给 AG-UI 客户端传输层（`transformChunks`），视 AG-UI 库版本不同，可能产生传输层级别的调试输出。请注意，最丰富的调试日志来自**服务端**的 `CopilotRuntime`——请在该处启用 `debug: true`，以获得每个 AG-UI 事件的完整结构化 Pino 日志。
 
 <Callout type="info">
-  The server and client debug toggles are independent. Enabling debug on the client does not affect the server, and vice versa.
+  服务端与客户端的调试开关相互独立。在客户端启用调试不会影响服务端，反之亦然。
 </Callout>
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
-### Client-side inspection
+### 客户端排查
 
-`@copilotkit/angular` does not expose a separate client debug toggle. Enable
-debugging on `CopilotRuntime`, inspect the SSE request in browser developer
-tools, or connect the [AG-UI Event Inspector](/troubleshooting/event-inspector)
-to the development runtime.
+`@copilotkit/angular` 没有暴露单独的客户端调试开关。可以在 `CopilotRuntime` 上启用调试、用浏览器开发者工具检查 SSE 请求，或将 [AG-UI Event Inspector](/troubleshooting/event-inspector) 连接到开发环境运行时。
 </FrontendOnly>
 
-## Granular Configuration
+## 细粒度配置
 
-On `CopilotRuntime`, pass an object instead of `true` for fine-grained control
-over what gets logged:
+在 `CopilotRuntime` 上，可以传入一个对象而不是 `true`，对记录内容进行细粒度控制：
 
 ```ts
 debug: {
@@ -103,77 +95,76 @@ debug: {
 }
 ```
 
-### Defaults
+### 默认值
 
-| Input | `events` | `lifecycle` | `verbose` |
+| 输入 | `events` | `lifecycle` | `verbose` |
 |-------|----------|-------------|-----------|
 | `debug: true` | `true` | `true` | `false` |
 | `debug: {}` | `true` | `true` | `false` |
 | `debug: { events: false }` | `false` | `true` | `false` |
 
-When `debug` is a boolean (`true`), events and lifecycle logging are enabled but verbose mode is **off** by default (to avoid leaking PII in logs). To get full event payloads, explicitly opt in with `debug: { verbose: true }`.
+当 `debug` 是布尔值（`true`）时，事件与生命周期日志会启用，但详细（verbose）模式默认**关闭**（避免在日志中泄露 PII）。要获得完整的事件载荷，请显式使用 `debug: { verbose: true }` 开启。
 
-### Examples
+### 示例
 
-Log only lifecycle events (no per-event logs):
+只记录生命周期事件（不记录逐事件日志）：
 
 ```ts
 debug: { events: false, lifecycle: true }
 ```
 
-Log events with full payloads but skip lifecycle:
+记录带完整载荷的事件，但跳过生命周期日志：
 
 ```ts
 debug: { events: true, lifecycle: false, verbose: true }
 ```
 
-## Troubleshooting with Debug Mode
+## 用调试模式排查问题
 
-### Events Not Reaching the Client
+### 事件未到达客户端
 
-Enable debug on the server side for the most detailed visibility:
-1. Check server logs for `Event emitted` — are the expected events being sent?
-2. Verify `SSE stream completed` shows the expected `eventCount`.
-3. Use the browser Network tab to confirm SSE events are arriving over the wire.
+在服务端启用调试以获得最详细的可视信息：
+1. 在服务器日志中查找 `Event emitted`——预期的事件是否正在发送？
+2. 确认 `SSE stream completed` 显示的 `eventCount` 符合预期。
+3. 用浏览器的 Network 面板确认 SSE 事件确实在网络上到达。
 
-### Tool Calls Not Executing
+### 工具调用未执行
 
-Enable server-side debug and look for:
-1. `TOOL_CALL_START` events being emitted on the server
-2. `TOOL_CALL_ARGS` and `TOOL_CALL_END` events following correctly
-3. Confirm the events appear in the SSE stream via the browser Network tab
+启用服务端调试，然后检查：
+1. 服务端是否发出了 `TOOL_CALL_START` 事件
+2. `TOOL_CALL_ARGS` 和 `TOOL_CALL_END` 事件是否正确跟随
+3. 通过浏览器 Network 面板确认这些事件出现在 SSE 流中
 
-### State Not Updating
+### 状态未更新
 
-Look for `STATE_SNAPSHOT` or `STATE_DELTA` events in server logs. If they appear on the server but not in the browser's SSE stream, there may be a connection issue.
+在服务器日志中查找 `STATE_SNAPSHOT` 或 `STATE_DELTA` 事件。如果它们出现在服务端却没出现在浏览器的 SSE 流中，则可能存在连接问题。
 
-## What Gets Logged
+## 会记录哪些内容
 
-### Server-Side Logs
+### 服务端日志
 
-| Category | Log Message | Description |
+| 类别 | 日志消息 | 说明 |
 |----------|-------------|-------------|
-| Lifecycle | `Agent run started` | An agent run was initiated, includes agent name and thread ID |
-| Lifecycle | `SSE stream opened` | The SSE response stream was created |
-| Lifecycle | `SSE stream completed` | The stream finished, includes total event count |
-| Lifecycle | `SSE stream errored` | The stream encountered an error |
-| Events | `Event emitted` | Each AG-UI event as it's written to the stream |
+| 生命周期 | `Agent run started` | 一个智能体运行已启动，包含智能体名称与线程 ID |
+| 生命周期 | `SSE stream opened` | SSE 响应流已创建 |
+| 生命周期 | `SSE stream completed` | 流已结束，包含事件总数 |
+| 生命周期 | `SSE stream errored` | 流遇到错误 |
+| 事件 | `Event emitted` | 每个 AG-UI 事件写入流时都会记录 |
 
-In **summary mode** (verbose off), event logs include key identifiers like `messageId`, `toolCallId`, `toolCallName`, `role`, and content lengths instead of full payloads.
+在**摘要模式**（verbose 关闭）下，事件日志包含 `messageId`、`toolCallId`、`toolCallName`、`role` 等关键标识以及内容长度，而不是完整载荷。
 
 <FrontendOnly frontend="react">
-### Client-Side
+### 客户端
 
-On the client, the `debug` configuration is passed through to the AG-UI transport layer. The AG-UI client library controls what (if any) debug output is produced. CopilotKit itself does not emit `console.debug` calls — the debug flag configures the underlying AG-UI event pipeline.
+在客户端，`debug` 配置会透传给 AG-UI 传输层。产生什么调试输出（如果有的话）由 AG-UI 客户端库决定。CopilotKit 本身不会发出 `console.debug` 调用——调试标志配置的是底层 AG-UI 事件管线。
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
-### Client-side
+### 客户端
 
-Use the browser's Network panel or the AG-UI Event Inspector for client-side
-visibility. The Angular package does not add a second console-debug stream.
+客户端侧的可视化请使用浏览器的 Network 面板或 AG-UI Event Inspector。Angular 包不会增加第二条控制台调试输出流。
 </FrontendOnly>
 
 <Callout type="warn">
-  Debug mode can produce a large volume of log output, especially in verbose mode. Use it during development and debugging, not in production.
+  调试模式可能产生大量日志输出，在详细（verbose）模式下尤其如此。请在开发和调试时使用，不要在生产环境中使用。
 </Callout>

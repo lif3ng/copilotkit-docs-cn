@@ -1,14 +1,14 @@
 ---
-title: "Error Debugging & Observability"
-description: "Surface errors visually in development, and wire programmatic error handlers for Sentry / Datadog / your analytics pipeline in production."
+title: "错误调试与可观测性"
+description: "在开发环境中可视化地呈现错误，并在生产环境中接入程序化错误处理器，对接 Sentry / Datadog / 你的分析管线。"
 icon: "lucide/TriangleAlert"
 ---
 
-# How to debug errors
+# 如何调试错误
 
-CopilotKit provides a visual error console for local development and a programmatic `onError` callback for production observability. The visual console is completely free and requires no API keys.
+CopilotKit 为本地开发提供了可视化错误控制台，并为生产环境可观测性提供了程序化的 `onError` 回调。可视化控制台完全免费，且不需要任何 API 密钥。
 
-## Quick setup
+## 快速配置
 
 ```tsx
 import { CopilotKit } from "@copilotkit/react-core/v2";
@@ -26,22 +26,22 @@ export default function App() {
 ```
 
 <Callout type="warn">
-Avoid showing the dev console in production — it exposes internal error details to end users.
+避免在生产环境中显示开发控制台——它会向最终用户暴露内部错误细节。
 </Callout>
 
-## When to use development debugging
+## 何时使用开发调试
 
-- **Local development** — errors appear immediately in your UI
-- **Quick debugging** — no setup required, works out of the box
-- **Testing** — verify error handling during development
+- **本地开发** —— 错误会立即出现在你的 UI 中
+- **快速调试** —— 无需任何配置，开箱即用
+- **测试** —— 在开发过程中验证错误处理
 
-## Programmatic error handling
+## 程序化错误处理
 
-The v2 API provides an `onError` callback on both `CopilotKit` and `CopilotChat`. No `publicApiKey` is required.
+v2 API 在 `CopilotKit` 和 `CopilotChat` 上都提供了 `onError` 回调，无需 `publicApiKey`。
 
-### Provider-level error handling
+### Provider 层级的错误处理
 
-Catches every error across the entire application:
+捕获整个应用中的所有错误：
 
 ```tsx
 import { CopilotKit } from "@copilotkit/react-core/v2";
@@ -60,9 +60,9 @@ import { CopilotKit } from "@copilotkit/react-core/v2";
 </CopilotKit>;
 ```
 
-### Chat-level error handling
+### Chat 层级的错误处理
 
-Scoped to a specific chat's agent — fires **in addition to** the provider-level handler:
+只作用于特定聊天的智能体——会在 Provider 层级处理函数**之外额外**触发：
 
 ```tsx
 import { CopilotChat } from "@copilotkit/react-core/v2";
@@ -75,33 +75,33 @@ import { CopilotChat } from "@copilotkit/react-core/v2";
 />;
 ```
 
-### Error codes
+### 错误码
 
-| Code | Description |
+| 错误码 | 说明 |
 |------|-------------|
-| `runtime_info_fetch_failed` | Could not reach the runtime's `/info` endpoint |
-| `agent_connect_failed` | Agent connection (thread setup) failed |
-| `agent_run_failed` | Agent run rejected (e.g. network error) |
-| `agent_run_failed_event` | The agent's `onRunFailed` subscriber fired |
-| `agent_run_error_event` | Agent emitted a `RUN_ERROR` event |
-| `tool_argument_parse_failed` | Tool call arguments were not valid JSON |
-| `tool_handler_failed` | A frontend tool handler threw |
+| `runtime_info_fetch_failed` | 无法访问运行时的 `/info` 端点 |
+| `agent_connect_failed` | 智能体连接（线程初始化）失败 |
+| `agent_run_failed` | 智能体运行被拒绝（例如网络错误） |
+| `agent_run_failed_event` | 智能体的 `onRunFailed` 订阅者被触发 |
+| `agent_run_error_event` | 智能体发出了 `RUN_ERROR` 事件 |
+| `tool_argument_parse_failed` | 工具调用参数不是有效的 JSON |
+| `tool_handler_failed` | 前端工具处理器抛出了异常 |
 
 <Callout type="info">
-Need to see the full event pipeline: what events your agent emits, whether they reach the client, and where they are dropped? Open the [Inspector](../inspector). The launcher turns red, and where there is room a pill names the failure. Click the launcher to land on the pane that shows the agent, the tool if one failed, and the error.
+想看清完整的事件管线——智能体发出了哪些事件、是否到达客户端、在哪里被丢弃？打开[检查器](../inspector)。启动器会变红，空间允许时还会有一个胶囊标签标明失败原因。点击启动器即可跳到对应的窗格，查看出问题的智能体、失败的工具（如有）以及错误信息。
 </Callout>
 
-## Troubleshooting
+## 故障排查
 
-### Dev console not showing
+### 开发控制台不显示
 
-- Confirm `showDevConsole={true}`
-- Check for JavaScript errors in the browser console
-- Ensure no CSS is hiding the error banner
+- 确认设置了 `showDevConsole={true}`
+- 检查浏览器控制台中是否有 JavaScript 错误
+- 确认没有 CSS 把错误横幅隐藏掉
 
-### Production error pipeline checklist
+### 生产环境错误管线检查清单
 
-- Provider-level `onError` is wired and forwards to your error tracker
-- `showDevConsole` is **false** in production builds
-- Agent IDs in errors match the agents registered on your runtime
-- Critical error codes (`agent_run_failed`, `tool_handler_failed`) are alerted on, not just logged
+- Provider 层级的 `onError` 已接线，并转发到你的错误追踪器
+- 生产构建中 `showDevConsole` 为 **false**
+- 错误中的智能体 ID 与运行时上注册的智能体一致
+- 关键错误码（`agent_run_failed`、`tool_handler_failed`）已配置告警，而不只是记录日志

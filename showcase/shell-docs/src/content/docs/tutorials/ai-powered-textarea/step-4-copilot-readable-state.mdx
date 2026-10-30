@@ -1,18 +1,18 @@
 ---
-title: "Step 3: Copilot Readable State"
+title: "第 3 步：Copilot 可读状态"
 ---
 
-At this point, we have set up our CopilotKit provider and `<CopilotTextarea />`, and we already benefit from a great AI assistant. However, there is one last problem - the copilot assistant is not aware of the email thread. Let's fix that.
+到这里，我们已经配置好了 CopilotKit provider 和 `<CopilotTextarea />`，也享受到了一位出色 AI 助手带来的便利。不过还剩最后一个问题 —— copilot 助手并不了解这封邮件的往来内容。来解决这个问题吧。
 
-## Our App's State
+## 应用的状态
 
-Let's quickly review how our app's state works. Open up the [`lib/hooks/use-emails.tsx`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/starters/textarea/start/lib/hooks/use-emails.tsx) file.
+我们快速回顾一下应用的状态是如何运作的。打开 [`lib/hooks/use-emails.tsx`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/starters/textarea/start/lib/hooks/use-emails.tsx) 文件。
 
-At a glance, we can see that the file exposes a provider (`EmailsProvider`) which holds our `emails`. This is the context we need to provide to our copilot to get AI autocompletions.
+一眼望去就能看到，该文件暴露了一个持有 `emails` 的 provider（`EmailsProvider`）。要让 copilot 提供 AI 自动补全，就需要把这些上下文提供给它。
 
-## The `useAgentContext` hook
+## `useAgentContext` hook
 
-Our goal is to make our copilot aware of this state, so that it can provide more accurate and helpful responses. We can easily achieve this by using the [`useAgentContext`](/reference/hooks/useAgentContext) hook.
+我们的目标是让 copilot 感知到这份状态，从而给出更准确、更有帮助的响应。借助 [`useAgentContext`](/reference/hooks/useAgentContext) hook 就能轻松实现。
 
 ```tsx title="libs/hooks/use-emails.tsx"
 // ... the rest of the file
@@ -30,32 +30,32 @@ export const EmailsProvider = ({ children }: { children: ReactNode }) => {
 };
 ```
 
-In this example, we use the `useAgentContext` hook to provide the copilot with the state of our email thread.
+在本例中，我们用 `useAgentContext` hook 把邮件往来的状态提供给 copilot。
 
-- For the `description` property, we provide a concise description that tells the copilot what this piece of readable data means.
-- For the `value` property, we pass the entire state as a JSON string.
+- `description` 属性：提供一段简明描述，告诉 copilot 这份可读数据的含义。
+- `value` 属性：把整个状态以 JSON 字符串的形式传入。
 
-In the next step, we'll set up our AI-powered textarea, which will use this readable state to provide accurate and helpful responses.
+在下一步中，我们将配置 AI 文本框，它会利用这份可读状态给出准确而有帮助的响应。
 
-## Try it out!
+## 试试看吧！
 
-Now, go back to the app and start typing things related to the email thread. Some ideas:
+现在回到应用，输入一些与邮件往来相关的内容。可以试试：
 
-- `"Thanks Jo..."` (the assistant will complete John's name)
-- `"I'm glad Spac..."` (the assistant will complete the company's name to SpaceY)
-- `"I'm glad they liked my..."` (the assistant will add context)
+- `"Thanks Jo..."`（助手会补全出 John 的名字）
+- `"I'm glad Spac..."`（助手会把公司名补全为 SpaceY）
+- `"I'm glad they liked my..."`（助手会补充相关上下文）
 
-Your textarea is now fully aware of the email thread, and therefore it provides helpful, relevant autocompletions. 🚀
+现在，你的文本框已经完全了解这封邮件的往来内容，因此能给出有帮助且切题的自动补全。🚀
 
 <Cards>
 <Card
-  title="← Previous: Add CopilotTextarea"
+  title="← 上一步：添加 CopilotTextarea"
   href="/tutorials/ai-powered-textarea/step-3-copilot-textarea"
-  description="Swap the plain textarea for CopilotKit's AI-aware version."
+  description="把普通文本框换成具备 AI 感知能力的 CopilotKit 版本。"
 />
 <Card
-  title="Next: Wrap up →"
+  title="下一步：收尾 →"
   href="/tutorials/ai-powered-textarea/next-steps"
-  description="Find the source code, ideas for what to build next, and more tutorials."
+  description="查看源码、后续构建灵感以及更多教程。"
 />
 </Cards>

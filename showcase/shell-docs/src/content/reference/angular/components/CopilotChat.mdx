@@ -1,19 +1,19 @@
 ---
 title: "CopilotChat"
-description: "Angular standalone component that wires an agent to a complete chat UI"
+description: "Angular standalone 组件，将智能体接入完整的聊天 UI"
 ---
 
-## Overview
+## 概览
 
-`CopilotChat` is the all-in-one chat component. It wires an agent into [`CopilotChatView`](/reference/angular/components/CopilotChatView) so you get a working chat interface with one selector. It resolves the agent through [`injectAgentStore`](/reference/angular/functions/injectAgentStore), subscribes to that agent's messages and running state, manages suggestions, tracks the input value, handles audio transcription, wires file attachments, and clears the input after each message is sent.
+`CopilotChat` 是一站式聊天组件。它将智能体接入 [`CopilotChatView`](/reference/angular/components/CopilotChatView)，只需一个选择器就能得到可用的聊天界面。它通过 [`injectAgentStore`](/reference/angular/functions/injectAgentStore) 解析智能体，订阅该智能体的消息与运行状态，管理建议，跟踪输入值，处理语音转写，接入文件附件，并在每条消息发送后清空输入。
 
-`CopilotChat` extends `ChatState` and provides itself to the view and input beneath it. You usually only need to point it at an agent.
+`CopilotChat` 继承自 `ChatState`，并将自身提供给其下的视图与输入组件。通常你只需把它指向一个智能体。
 
-For the layout without the agent wiring, use [`CopilotChatView`](/reference/angular/components/CopilotChatView) directly.
+如果只需要布局而不需要智能体接线，可直接使用 [`CopilotChatView`](/reference/angular/components/CopilotChatView)。
 
-## Usage
+## 用法
 
-`CopilotChat` is a standalone component with the selector `copilot-chat`. Import the class into your component's `imports` array and use the element in the template. The chat reads its configuration from [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit), so the provider must be in scope.
+`CopilotChat` 是一个 standalone 组件，选择器为 `copilot-chat`。将该类导入组件的 `imports` 数组，并在模板中使用该元素。聊天组件从 [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit) 读取配置，因此该 provider 必须在作用域内。
 
 ```ts title="src/app/app.component.ts"
 import { Component } from "@angular/core";
@@ -28,92 +28,92 @@ import { CopilotChat } from "@copilotkit/angular";
 export class AppComponent {}
 ```
 
-Remember to import the stylesheet once in your global styles:
+记得在全局样式中导入一次样式表：
 
 ```css title="src/styles.css"
 @import "@copilotkit/angular/styles.css";
 ```
 
-## Inputs
+## 输入
 
 <PropertyReference name="agentId" type="string">
-  ID of the agent to connect. Must match an agent configured in [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit). When omitted, the default agent is used.
+  要连接的智能体 ID。必须与 [`provideCopilotKit`](/reference/angular/functions/provideCopilotKit) 中配置的某个智能体匹配。省略时使用默认智能体。
 </PropertyReference>
 
 <PropertyReference name="threadId" type="string">
-  ID of the conversation thread. Pass a specific thread id to resume an existing conversation. When omitted, a thread id is minted locally and the agent connects on first run. Setting an explicit `threadId` also makes the chat attempt to connect to (resume) that thread on the agent.
+  会话线程的 ID。传入具体的线程 ID 可恢复已有会话。省略时会在本地生成一个线程 ID，智能体在首次运行时连接。显式设置 `threadId` 还会让聊天组件尝试在智能体上连接（恢复）该线程。
 </PropertyReference>
 
 <PropertyReference name="attachments" type="AttachmentsConfig">
-  Configuration for file attachments. Bound through the `attachments` alias (the underlying input is `attachmentsConfig`). When `enabled` is true, the add-file action and drag-and-drop are turned on and the chat manages the attachment queue automatically.
+  文件附件的配置。通过 `attachments` 别名绑定（底层输入为 `attachmentsConfig`）。当 `enabled` 为 true 时，添加文件操作与拖拽上传将被启用，聊天组件会自动管理附件队列。
 </PropertyReference>
 
 <PropertyReference name="inputComponent" type="Type<any>">
-  A custom Angular component class to render in place of the default [`CopilotChatInput`](/reference/angular/components/CopilotChatInput). Forwarded to the underlying [`CopilotChatView`](/reference/angular/components/CopilotChatView).
+  用于替代默认 [`CopilotChatInput`](/reference/angular/components/CopilotChatInput) 的自定义 Angular 组件类。会转发给底层的 [`CopilotChatView`](/reference/angular/components/CopilotChatView)。
 </PropertyReference>
 
 <PropertyReference name="assistantMessageComponent" type="Type<any>">
-  Component class used for assistant messages.
+  用于助手消息的组件类。
 </PropertyReference>
 
 <PropertyReference name="assistantMessageTemplate" type="TemplateRef<any>">
-  Template used for assistant messages. Takes precedence over `assistantMessageComponent`.
+  用于助手消息的模板。优先级高于 `assistantMessageComponent`。
 </PropertyReference>
 
 <PropertyReference name="assistantMessageClass" type="string">
-  CSS classes forwarded to the assistant-message slot.
+  转发给助手消息插槽的 CSS 类。
 </PropertyReference>
 
 <PropertyReference name="reasoningMessageComponent" type="Type<any>">
-  Component class used for reasoning messages.
+  用于推理消息的组件类。
 </PropertyReference>
 
 <PropertyReference name="reasoningMessageTemplate" type="TemplateRef<any>">
-  Template used for reasoning messages. Takes precedence over `reasoningMessageComponent`.
+  用于推理消息的模板。优先级高于 `reasoningMessageComponent`。
 </PropertyReference>
 
 <PropertyReference name="reasoningMessageClass" type="string">
-  CSS classes forwarded to the reasoning-message slot.
+  转发给推理消息插槽的 CSS 类。
 </PropertyReference>
 
 <PropertyReference name="messageViewChildrenComponent" type="Type<any>">
-  Component rendered after the message list and before the streaming cursor.
+  渲染在消息列表之后、流式光标之前的组件。
 </PropertyReference>
 
 <PropertyReference name="messageViewChildrenTemplate" type="TemplateRef<any>">
-  Template rendered after the message list. Takes precedence over `messageViewChildrenComponent`.
+  渲染在消息列表之后的模板。优先级高于 `messageViewChildrenComponent`。
 </PropertyReference>
 
 <PropertyReference name="messageViewChildrenClass" type="string">
-  CSS classes forwarded to the message-list children slot.
+  转发给消息列表子内容插槽的 CSS 类。
 </PropertyReference>
 
-## Outputs
+## 输出
 
-`CopilotChat` does not declare its own outputs. It handles message submission, suggestion selection, and transcription internally through the `ChatState` it provides to the input and view. To observe lower-level interactions, render a custom input via `inputComponent` (or use [`CopilotChatInput`](/reference/angular/components/CopilotChatInput) directly), which exposes outputs such as `submitMessage` and the transcription events.
+`CopilotChat` 没有声明自己的输出。它通过提供给输入与视图组件的 `ChatState`，在内部处理消息提交、建议选择和语音转写。若要观察更底层的交互，可通过 `inputComponent` 渲染自定义输入（或直接使用 [`CopilotChatInput`](/reference/angular/components/CopilotChatInput)），它会暴露 `submitMessage` 等输出以及转写事件。
 
-## Customization
+## 自定义
 
-`CopilotChat` keeps the layout simple and delegates slot customization to the view it renders. Swap the input area with the `inputComponent` input, or compose the layout yourself with [`CopilotChatView`](/reference/angular/components/CopilotChatView), which exposes the full set of slot inputs and content-projection templates (message view, scroll view, feather, disclaimer, input container, and the input toolbar buttons).
+`CopilotChat` 保持了布局的简洁，并把插槽自定义委托给它渲染的视图。可以通过 `inputComponent` 输入替换输入区域，也可以用 [`CopilotChatView`](/reference/angular/components/CopilotChatView) 自行组合布局——它暴露了全部插槽输入与内容投影模板（消息视图、滚动视图、feather、免责声明、输入容器以及输入工具栏按钮）。
 
-To customize the text strings (input placeholder, welcome message, toolbar labels, disclaimer), provide labels through [`provideCopilotChatLabels`](/reference/angular/functions/provideCopilotChatLabels). The chat reads them through `injectChatLabels` internally.
+要自定义文本字符串（输入占位符、欢迎消息、工具栏标签、免责声明），请通过 [`provideCopilotChatLabels`](/reference/angular/functions/provideCopilotChatLabels) 提供标签。聊天组件内部通过 `injectChatLabels` 读取它们。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="CopilotChatView"
-    description="The layout-only chat view used internally. Use it when you manage messages and handlers yourself."
+    description="仅负责布局的聊天视图，内部也在使用。适合由你自己管理消息与处理函数时使用。"
     href="/reference/angular/components/CopilotChatView"
   />
   <Card
     title="CopilotChatInput"
-    description="The input area: textarea, send button, tools menu, file upload, and transcription."
+    description="输入区域：文本框、发送按钮、工具菜单、文件上传与语音转写。"
     href="/reference/angular/components/CopilotChatInput"
   />
   <Card
     title="provideCopilotKit"
-    description="Configures the runtime connection and agents that CopilotChat reads from."
+    description="配置 CopilotChat 所读取的运行时连接与智能体。"
     href="/reference/angular/functions/provideCopilotKit"
   />
 </Cards>

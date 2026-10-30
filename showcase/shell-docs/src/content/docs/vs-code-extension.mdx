@@ -1,30 +1,29 @@
 ---
-title: VS Code Extension
+title: VS Code 扩展
 icon: "lucide/Monitor"
-description: Preview supported CopilotKit UI sources, A2UI catalog components, and the AG-UI event stream without leaving VS Code.
+description: 无需离开 VS Code，即可预览受支持的 CopilotKit UI 源码、A2UI catalog 组件与 AG-UI 事件流。
 frontend: universal
 ---
-The CopilotKit VS Code extension is a three-in-one workbench for iterating on CopilotKit features inside your editor. Install it once and you get three sidebars under the CopilotKit activity-bar icon:
+CopilotKit VS Code 扩展是一个三合一工作台，用于在编辑器内迭代 CopilotKit 特性。安装一次，你就能在 CopilotKit 活动栏图标下获得三个侧边栏：
 
 <FrontendOnly frontend="react">
-- **CopilotKit Hooks** — discover every `useCopilotAction`, `useRenderTool`, `useCoAgentStateRender`, etc. in your workspace, and live-preview their `render` components with auto-generated form controls.
+- **CopilotKit Hooks**——发现工作区中的每一个 `useCopilotAction`、`useRenderTool`、`useCoAgentStateRender` 等，并通过自动生成的表单控件实时预览它们的 `render` 组件。
 </FrontendOnly>
 <FrontendOnly frontend="angular">
-- **CopilotKit Hooks** — currently targets hook-based frontend source; use the Angular feature catalog and linked Showcase source for Angular component examples.
+- **CopilotKit Hooks**——目前仅面向基于 hook 的前端源码；Angular 组件示例请使用 Angular 特性目录及其链接的 Showcase 源码。
 </FrontendOnly>
-- **A2UI Catalog** — live preview of your A2UI catalog components with fixture-driven scenarios and hot-reload on save.
-- **AG-UI Inspector** — a real-time, color-coded, filterable stream of every AG-UI event your runtime emits.
+- **A2UI Catalog**——实时预览你的 A2UI catalog 组件，支持 fixture 驱动的场景与保存时热重载。
+- **AG-UI Inspector**——实时、按颜色区分、可过滤的流，展示你的运行时发出的每一个 AG-UI 事件。
 
-The A2UI catalog preview runs without a localhost server, browser tab, or agent
-run. The AG-UI Inspector connects to a running development runtime.
+A2UI catalog 预览无需 localhost 服务器、浏览器标签页或智能体运行即可工作。AG-UI Inspector 则需要连接到一个正在运行的开发运行时。
 
-## Install
+## 安装
 
 <Steps>
 <Step>
-### Install the extension
+### 安装扩展
 
-Open VS Code, go to Extensions (`Ctrl+Shift+X` / `Cmd+Shift+X`), search for **CopilotKit**, and click Install. Or from a terminal:
+打开 VS Code，进入 Extensions 面板（`Ctrl+Shift+X` / `Cmd+Shift+X`），搜索 **CopilotKit** 并点击 Install。或者在终端中执行：
 
 ```bash
 code --install-extension copilotkit.copilotkit
@@ -32,71 +31,71 @@ code --install-extension copilotkit.copilotkit
 </Step>
 
 <Step>
-### Open the CopilotKit activity bar
+### 打开 CopilotKit 活动栏
 
-Click the **CopilotKit icon** in the Activity Bar on the left edge of VS Code. Three sidebar views expand underneath it, in this order:
+点击 VS Code 左侧边缘 Activity Bar 中的 **CopilotKit 图标**。三个侧边栏视图会在其下方展开，顺序如下：
 
 1. **CopilotKit Hooks**
 2. **A2UI Catalog**
 3. **AG-UI Inspector**
 
-Each is a self-contained tool — pick the one that matches what you're working on.
+每一个都是独立的工具——选择与你当前工作匹配的那个即可。
 </Step>
 </Steps>
 
 <FrontendOnly frontend="react">
 ## Hook Explorer
 
-You have a file that calls `useCopilotAction`, `useRenderTool`, or any other render-capable CopilotKit hook, and you want to iterate on the `render` prop. The **CopilotKit Hooks** sidebar lists every call-site in your workspace; clicking one opens a live preview panel where the `render` output is driven by a form built from your hook's declared parameters.
+你有一个调用 `useCopilotAction`、`useRenderTool` 或其他任何支持渲染的 CopilotKit hook 的文件，想迭代 `render` prop。**CopilotKit Hooks** 侧边栏会列出工作区中的每一个调用点；点击其中一个会打开实时预览面板，`render` 输出由根据 hook 声明的参数构建的表单驱动。
 
-Extra niceties:
+额外的便利功能：
 
-- A `▶️ Preview Component` CodeLens sits directly above every render-hook call in your editor — one click opens the preview for exactly that site.
-- A `</>` button on each sidebar row jumps to the source file.
-- Cross-file hook switches auto-recover — a forced render-prop crash in one hook doesn't strand the whole webview.
+- 编辑器中每个渲染 hook 调用的正上方都有一个 `▶️ Preview Component` CodeLens——一次点击即可打开对应调用点的预览。
+- 每个侧边栏行上的 `</>` 按钮可跳转到源文件。
+- 跨文件切换 hook 会自动恢复——某个 hook 中强制渲染 prop 导致的崩溃不会让整个 webview 卡死。
 
 <Callout type="info">
-  Full walkthrough, hook coverage table, and limitations: [Hook Explorer](/troubleshooting/hook-explorer).
+  完整演练、hook 覆盖表与限制说明：[Hook Explorer](/troubleshooting/hook-explorer)。
 </Callout>
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
-## Angular component source
+## Angular 组件源码
 
-The hook preview is not the Angular authoring surface. Browse <a
-href="/angular/features">Angular feature examples</a> instead: each supported
-feature links to the runnable standalone component and its closest typed API
-reference. The A2UI Catalog and AG-UI Inspector sections below remain
-applicable.
+hook 预览并不是 Angular 的创作界面。请改为浏览 <a
+href="/angular/features">Angular 特性示例</a>：每个受支持的
+特性都链接到可运行的独立组件及其最贴近的类型化 API
+参考。下方的 A2UI Catalog 与 AG-UI Inspector 部分仍然
+适用。
 </FrontendOnly>
 
 ## A2UI Catalog
 
-You have a file that exports an A2UI catalog via `createCatalog` (or imports `@copilotkit/a2ui-renderer`). The **A2UI Catalog** sidebar lists every catalog file in your workspace, plus any named fixtures you've defined alongside them. Clicking a component opens a live preview; edit the file and the preview updates on save while preserving interaction state.
+你有一个通过 `createCatalog` 导出 A2UI catalog 的文件（或导入了 `@copilotkit/a2ui-renderer`）。**A2UI Catalog** 侧边栏会列出工作区中的每一个 catalog 文件，以及你在它们旁边定义的具名 fixture。点击组件会打开实时预览；编辑文件并保存时，预览会在保留交互状态的情况下更新。
 
 <Steps>
 <Step>
-### Find your catalog files
+### 找到你的 catalog 文件
 
-Open the **A2UI Catalog** sidebar. Each row is a catalog file (discovered by scanning for `@copilotkit/a2ui-renderer` imports). Rows with fixture files expand to show named scenarios; rows without one get an `auto` badge and render with a default empty surface.
+打开 **A2UI Catalog** 侧边栏。每一行都是一个 catalog 文件（通过扫描 `@copilotkit/a2ui-renderer` 导入来发现）。带 fixture 文件的行会展开显示具名场景；没有 fixture 的行会获得一个 `auto` 徽标，并以默认的空 surface 渲染。
 
-Hover any row to reveal a `</>` button that jumps to the source — on fixture rows, it jumps to the named fixture key inside the fixture file.
+悬停任意行会显示一个可跳转到源码的 `</>` 按钮——在 fixture 行上，它会跳转到 fixture 文件内的具名 fixture 键。
 </Step>
 
 <Step>
-### Preview a component
+### 预览组件
 
-Click a component row to open the preview. If the component has fixtures, click the row to expand and pick a fixture — otherwise the click previews directly. Edit the file and save — the preview rebundles and re-renders automatically.
+点击组件行即可打开预览。如果该组件有 fixture，请点击行展开并选择一个 fixture——否则点击会直接预览。编辑文件并保存——预览会自动重新打包并重新渲染。
 </Step>
 
 <Step>
-### Add fixtures
+### 添加 fixture
 
-Fixtures are named test-data scenarios. Create a fixture file next to your component:
+Fixture 是具名的测试数据场景。在你的组件旁边创建一个 fixture 文件：
 
 <Tabs items={["JSON", "TypeScript"]}>
 <Tab value="JSON">
-`MyComponent.fixture.json`:
+`MyComponent.fixture.json`：
 ```json
 {
   "default": {
@@ -114,7 +113,7 @@ Fixtures are named test-data scenarios. Create a fixture file next to your compo
 ```
 </Tab>
 <Tab value="TypeScript">
-`MyComponent.fixture.ts`:
+`MyComponent.fixture.ts`：
 ```ts
 export default {
   "default": {
@@ -133,18 +132,18 @@ export default {
 </Tab>
 </Tabs>
 
-Each top-level key is a named fixture. Switch between them from the fixture dropdown inside the preview panel.
+每个顶层键都是一个具名 fixture。可在预览面板内的 fixture 下拉菜单中切换。
 </Step>
 </Steps>
 
 <Callout type="info">
-  The extension validates fixture files on save and surfaces structural warnings (missing `surfaceId`, invalid `messages`, unknown component types) as in-editor diagnostics.
+  扩展会在保存时校验 fixture 文件，并把结构性警告（缺少 `surfaceId`、无效的 `messages`、未知组件类型）以编辑器内诊断的形式呈现。
 </Callout>
 
 ## AG-UI Inspector
 
-You're running a CopilotKit runtime and something in an agent interaction is off — a tool call isn't firing, a state delta is wrong, or the run ends before the UI settles. The **AG-UI Inspector** sidebar opens a dedicated SSE connection to `{runtimeUrl}/cpk-debug-events` and renders every event in a filterable, color-coded stream. Click any event row to expand the full JSON payload. That path is relative to the base path the runtime is mounted at, so give the panel the full runtime URL rather than just the origin.
+你正在运行一个 CopilotKit 运行时，而智能体交互中有些地方不对劲——工具调用没有触发、状态增量不对，或者运行在 UI 稳定下来之前就结束了。**AG-UI Inspector** 侧边栏会打开一条到 `{runtimeUrl}/cpk-debug-events` 的专用 SSE 连接，并在可过滤、按颜色区分的流中渲染每一个事件。点击任意事件行可展开完整的 JSON 载荷。该路径相对于运行时挂载的基础路径，因此请给面板完整的运行时 URL，而不只是源（origin）。
 
 <Callout type="info">
-  Full walkthrough, event-type color reference, and production guard details: [AG-UI Event Inspector](/troubleshooting/event-inspector).
+  完整演练、事件类型颜色参考与生产环境守卫细节：[AG-UI Event Inspector](/troubleshooting/event-inspector)。
 </Callout>

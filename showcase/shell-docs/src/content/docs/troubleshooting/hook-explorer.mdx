@@ -1,73 +1,73 @@
 ---
-title: "Hook Explorer"
-description: "Discover and live-preview CopilotKit render hooks without leaving VS Code."
+title: "钩子浏览器"
+description: "无需离开 VS Code 即可发现并实时预览 CopilotKit 渲染钩子。"
 icon: "lucide/Binoculars"
 ---
-You have a file that calls `useCopilotAction`, `useRenderTool`, `useCoAgentStateRender`, or any of the other render-capable CopilotKit hooks, and you want to iterate on the `render` prop — tweak the layout, test different statuses, feed different args — without running the full chat loop. The Hook Explorer is a sidebar and inline-CodeLens UI inside the [VS Code extension](/vs-code-extension) that does exactly that.
+你有一个调用了 `useCopilotAction`、`useRenderTool`、`useCoAgentStateRender` 或其他任何具备渲染能力的 CopilotKit 钩子的文件，想在不跑完整聊天循环的情况下迭代 `render` prop——调整布局、测试不同状态、喂入不同参数。钩子浏览器是 [VS Code 扩展](/vs-code-extension)内的一个侧边栏加内联 CodeLens 界面，做的正是这件事。
 
-By the end of this page you'll have:
+阅读完本页后，你将拥有：
 
-- Every CopilotKit hook call in your workspace listed in a sidebar.
-- A live preview panel for any render hook, with auto-generated form controls driven by the hook's declared parameters.
-- A one-click `▶️ Preview Component` CodeLens above every hook call in your editor.
+- 一个侧边栏，列出工作区中的每一个 CopilotKit 钩子调用。
+- 任意渲染钩子的实时预览面板，表单控件由钩子声明的参数自动生成。
+- 编辑器中每个钩子调用上方一个一键 `▶️ Preview Component` CodeLens。
 
-## Prerequisites
+## 前置条件
 
-- The [CopilotKit VS Code extension](/vs-code-extension) installed.
-- `@copilotkit/react-core` or `@copilotkit/react-core/v2` imported somewhere in your workspace.
+- 已安装 [CopilotKit VS Code 扩展](/vs-code-extension)。
+- 工作区中某处导入了 `@copilotkit/react-core` 或 `@copilotkit/react-core/v2`。
 
 <Callout type="info">
-  The Hook Explorer runs entirely against your source files — no runtime, no API keys, no agent run required.
+  钩子浏览器完全针对你的源文件运行——无需运行时、无需 API 密钥、无需运行智能体。
 </Callout>
 
-## Explore and preview
+## 浏览与预览
 
 <Steps>
 
 <Step>
-### Open the Hook Explorer
+### 打开钩子浏览器
 
-Click the CopilotKit icon in the Activity Bar and expand the **CopilotKit Hooks** sidebar (first of the three views). You'll see every CopilotKit hook call in your workspace, grouped by hook name. Each row shows the action/tool name (or `line:N` for nameless hooks like `useLangGraphInterrupt`) alongside the file path and line.
+点击活动栏（Activity Bar）中的 CopilotKit 图标，展开 **CopilotKit Hooks** 侧边栏（三个视图中的第一个）。你会看到工作区中的每一个 CopilotKit 钩子调用，按钩子名称分组。每行显示 action/工具名称（或 `line:N`，适用于 `useLangGraphInterrupt` 这类无名钩子），以及文件路径和行号。
 </Step>
 
 <Step>
-### Preview a render hook
+### 预览渲染钩子
 
-Click any row under a render hook (`useCopilotAction`, `useRenderTool`, …) to open the preview panel in an editor pane. The first time you open a panel for a file, the extension bundles that file through Rolldown with a capture-only stub for `@copilotkit/react-core` — your component mounts into the webview, the hook's config is captured, and the `render` prop is driven by controls on the left (or on top at narrow widths):
+点击渲染钩子（`useCopilotAction`、`useRenderTool` 等）下的任意行，在编辑器窗格中打开预览面板。第一次为某个文件打开面板时，扩展会通过 Rolldown 打包该文件，并对 `@copilotkit/react-core` 使用仅用于捕获的桩（stub）——你的组件挂载进 webview，钩子配置被捕获，`render` prop 由左侧（窄宽度时在顶部）的控件驱动：
 
-- **Status** — `inProgress` / `executing` / `complete`.
-- **Args / parameters** — form built from your hook's `parameters` array (V1) or Zod / Standard Schema (V2). Missing fields, enum options, nested objects and arrays all work.
-- **Result** — editable once status is `complete`.
-- **Hook-specific extras** — `nodeName` for `useCoAgentStateRender`, `toolCallId` for `useRenderTool`, an event-value editor for interrupts.
+- **状态**——`inProgress` / `executing` / `complete`。
+- **Args / 参数**——表单由钩子的 `parameters` 数组（V1）或 Zod / Standard Schema（V2）构建。缺失字段、枚举选项、嵌套对象和数组均支持。
+- **结果**——状态为 `complete` 后即可编辑。
+- **钩子专属附加项**——`useCoAgentStateRender` 的 `nodeName`、`useRenderTool` 的 `toolCallId`，以及用于中断的事件值编辑器。
 
-The rendered output sits inside a labeled frame on the right (or below) so it's unmistakably "the component your `render` returned." Your Tailwind classes and any `.css` imports your file uses are bundled in and injected per load.
+渲染输出位于右侧（或下方）一个带标签的边框内，让人一目了然：“这就是你的 `render` 返回的组件”。你使用的 Tailwind 类和文件中的任何 `.css` 导入都会被打包进去，并在每次加载时注入。
 </Step>
 
 <Step>
-### Jump to source
+### 跳转到源码
 
-Each sidebar row has a `</>` button on hover that opens the file at the exact line of the hook call. For data hooks (non-previewable), the row click itself opens the source — they stay useful as a navigation index even without a preview.
+每个侧边栏行在悬停时都有一个 `</>` 按钮，点击可在钩子调用的确切行打开文件。对于数据钩子（不可预览），点击行本身即可打开源码——即使没有预览，它们仍可作为导航索引使用。
 </Step>
 
 <Step>
-### Use the inline CodeLens
+### 使用内联 CodeLens
 
-Open any `.ts` or `.tsx` file that calls a render hook. You'll see a `▶️ Preview Component` CodeLens directly above each hook call — clicking it opens the same preview panel. This is handy when you're already in the source file and don't want to round-trip through the sidebar.
+打开任何调用了渲染钩子的 `.ts` 或 `.tsx` 文件。你会看到每个钩子调用正上方有一个 `▶️ Preview Component` CodeLens——点击它会打开同一个预览面板。当你已经在源文件中、不想经由侧边栏来回切换时，这一功能非常方便。
 </Step>
 
 <Step>
-### Edit and re-render
+### 编辑并重新渲染
 
-Save the file. The extension re-scans the file, rebundles the preview, and re-captures. Your form values are preserved wherever the field names and types still match the new schema.
+保存文件。扩展会重新扫描该文件、重新打包预览并重新捕获。只要字段名和类型仍与新 schema 匹配，你的表单值就会被保留。
 </Step>
 
 </Steps>
 
-## Hook coverage
+## 钩子覆盖范围
 
-Every render-capable CopilotKit hook is discoverable and previewable:
+每个具备渲染能力的 CopilotKit 钩子都可被发现和预览：
 
-| Hook | Source | Preview shape |
+| 钩子 | 来源 | 预览形态 |
 |---|---|---|
 | `useCopilotAction` | `@copilotkit/react-core` | action (`args`, `status`, `result`) |
 | `useCopilotAuthenticatedAction_c` | `@copilotkit/react-core` | action |
@@ -85,23 +85,23 @@ Every render-capable CopilotKit hook is discoverable and previewable:
 | `useRenderCustomMessages` | `@copilotkit/react-core/v2` | custom-messages (`message`) |
 | `useRenderActivityMessage` | `@copilotkit/react-core/v2` | activity-message (`message`) |
 
-Data hooks (`useCopilotReadable`, `useCoAgent`, `useAgent`, `useCopilotChat`, etc.) appear in the sidebar for navigation but have no preview — the row click opens the source.
+数据钩子（`useCopilotReadable`、`useCoAgent`、`useAgent`、`useCopilotChat` 等）会出现在侧边栏中供导航，但没有预览——点击行即可打开源码。
 
-Imported render components work too: if your `render` prop is a reference to a component defined in a sibling file (instead of an inline arrow), Rolldown walks the import chain and the preview binds to the actual component.
+导入的渲染组件同样可用：如果你的 `render` prop 是对同级文件中定义的组件的引用（而非内联箭头函数），Rolldown 会沿导入链查找，预览会绑定到实际组件。
 
-## Behavior notes
+## 行为说明
 
-- **Auto-recovery**: if a render prop throws, the preview surface shows a readable error screen — and picking a different hook in the sidebar automatically resets the boundary. You're never stuck on a crashed preview.
-- **Controls persist**: your last-used args, status, and result are stored in VS Code workspace state per hook, so they're restored next time you open the same preview.
-- **Styles flow through**: Tailwind classes in your `render` prop work via the Tailwind browser CDN loaded into the preview panel. Local `.css` imports are collected by the bundler and injected as a `<style>` tag on each load.
+- **自动恢复**：如果某个 render prop 抛出异常，预览界面会显示一个可读的错误屏幕——在侧边栏中选择另一个钩子会自动重置错误边界。你绝不会卡在崩溃的预览上。
+- **控件状态保留**：你上次使用的参数、状态和结果会按钩子存储在 VS Code 工作区状态中，下次打开同一个预览时会恢复。
+- **样式生效**：`render` prop 中的 Tailwind 类通过加载到预览面板中的 Tailwind browser CDN 生效。本地 `.css` 导入由打包器收集，并在每次加载时作为 `<style>` 标签注入。
 
-## Limitations
+## 局限性
 
-- **Barrel-file re-exports aren't resolved** — import hooks directly from `@copilotkit/react-core` or `@copilotkit/react-core/v2`. If you re-export through your own index file, the scanner won't pick up the call sites.
-- **Non-CopilotKit providers**: if your component requires `<ThemeProvider>`, Redux, Auth, or another custom provider to render, the mount will throw. Isolate the hook into a provider-free component for preview, or stub the provider in the preview-only path.
-- **Agent state typing**: `useCoAgentStateRender` state has no runtime schema (types live in TypeScript only), so the state control falls back to a raw-JSON editor.
-- **Dynamic action names**: if `useCopilotAction({ name: someVariable })` uses a non-literal name, the sidebar labels the entry `(dynamic) · file:line` until the runtime capture resolves it.
+- **不解析桶文件（barrel file）再导出**——请直接从 `@copilotkit/react-core` 或 `@copilotkit/react-core/v2` 导入钩子。如果你通过自己的 index 文件再导出，扫描器将无法识别调用点。
+- **非 CopilotKit provider**：如果你的组件需要 `<ThemeProvider>`、Redux、Auth 或其他自定义 provider 才能渲染，挂载时会抛出异常。请将钩子隔离到一个无 provider 的组件中以供预览，或在仅预览路径中桩掉该 provider。
+- **智能体状态类型**：`useCoAgentStateRender` 的 state 没有运行时 schema（类型仅存在于 TypeScript 中），因此状态控件会退化为原始 JSON 编辑器。
+- **动态 action 名称**：如果 `useCopilotAction({ name: someVariable })` 使用了非字面量名称，侧边栏会将该条目标注为 `(dynamic) · file:line`，直到运行时捕获解析出实际名称。
 
 <Callout type="info">
-  Need to see the live AG-UI event stream while the agent is actually running? Hook Explorer is the offline, render-first tool — the [AG-UI Event Inspector](/troubleshooting/event-inspector) is the runtime, events-first complement.
+  需要在智能体实际运行时查看实时 AG-UI 事件流？钩子浏览器是离线的、渲染优先的工具——[AG-UI 事件检查器](/troubleshooting/event-inspector)则是面向运行时的、事件优先的补充。
 </Callout>
