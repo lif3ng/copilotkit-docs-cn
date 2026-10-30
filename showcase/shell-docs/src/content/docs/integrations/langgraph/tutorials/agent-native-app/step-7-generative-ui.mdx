@@ -1,32 +1,26 @@
 ---
-title: "Step 7: Agentic Generative UI"
+title: "第 7 步：智能体化生成式 UI"
 ---
 
-We're almost done! In this step, we're going to add generative UI to the application so that we can visualize the agent
-state in the chat UI. The end goal with this is to allow the user to see the progress of the agent's research as it is
-completed.
+我们就快完成了！在这一步中，我们将为应用添加生成式 UI，以便在聊天 UI 中将智能体状态可视化。这样做的最终目标是让用户能够看到智能体研究完成过程中的进度。
 
 <Callout>
-  We call UI that is rendered from the state of the agent or its tool calls
-  "Generative UI".
+  我们把从智能体状态或其工具调用渲染出来的 UI 称为
+  “生成式 UI（Generative UI）”。
 </Callout>
 
-For this guide, we're going to start using the CopilotKit SDK to emit the state of the agent manually. This is because
-in LangGraph, state is only updated when a node change occurs (i.e, an edge is traversed).
+在本指南中，我们将开始使用 CopilotKit SDK 手动发出智能体的状态。这是因为在 LangGraph 中，只有当节点发生变化（即遍历一条边）时状态才会更新。
 
-As such, in-progress work is not emitted to the user by default. However, we can manually emit the state using the `copilotkit_emit_state`
-function. With that emitted state, we'll be using the `useCoAgentStateRender` hook to render updates in the chat to give the user
-a sense of progress.
+因此，进行中的工作默认不会发送给用户。不过，我们可以使用 `copilotkit_emit_state` 函数手动发出状态。有了这些发出的状态，我们将使用 `useCoAgentStateRender` hook 在聊天中渲染更新，让用户感受到进度。
 
 <Steps>
 <Step>
 ## CopilotKit Python SDK
-This tutorial already comes with the CopilotKit Python SDK installed. This allows us to utilize various CopilotKit specific
-features, such as emitting state.
+本教程已经安装好了 CopilotKit Python SDK。这让我们可以使用各种 CopilotKit 特有的功能，比如发出状态。
 
 <Accordions>
-<Accordion title="Install command (optional)">
-  **The package versions in this tutorial are pinned, so updating the dependencies could break the tutorial.**
+<Accordion title="安装命令（可选）">
+  **本教程中的包版本是固定的，更新依赖可能会导致教程无法正常运行**。
 
   <InstallPythonSDK />
 </Accordion>
@@ -34,18 +28,16 @@ features, such as emitting state.
 
 </Step>
 <Step>
-## Manually emit state
-The research ANA emits state in a variety of places. For the sake of simplicity, we'll be adding the `copilotkit_emit_state` function
-to the `agent/graph.py` file so you can understand how it works. However, state is also emitted in the following files if you'd like to
-look at them:
+## 手动发出状态
+研究型 ANA 在多处发出状态。为了简单起见，我们把 `copilotkit_emit_state` 函数添加到 `agent/graph.py` 文件中，以便你理解它的工作原理。如果你有兴趣，也可以查看以下发出状态的文件：
 - `agent/tools/outline_writer.py`
 - `agent/tools/section_writer.py`
 - `agent/tools/tavily_extract.py`
 - `agent/tools/tavily_search.py`
 
-Each of these files will write their progress to the `logs` field of the agent's state. Directly after that, we call `copilotkit_emit_state` to emit the state to the frontend.
+这些文件都会把各自的进度写入智能体状态的 `logs` 字段。紧接着，我们调用 `copilotkit_emit_state` 把状态发送到前端。
 
-For example, in the `tool_node` we update some state based on the tool result and then use `copilotkit_emit_state` to emit the state to the frontend.
+例如，在 `tool_node` 中，我们根据工具结果更新一些状态，然后使用 `copilotkit_emit_state` 把状态发送到前端。
 
 ```python title="agent/graph.py"
 # ...
@@ -72,13 +64,12 @@ async def tool_node(self, state: ResearchState, config: RunnableConfig) -> Comma
         return tool_state
 ```
 
-As this loop is iterated through, the intermediate state that the tools write will be emitted to the frontend. Basically, any time that
-you want to emit state to the frontend, you can do so by calling `copilotkit_emit_state`.
+随着这个循环的迭代，工具写入的中间状态会被发送到前端。基本上，任何时候你想把状态发送到前端，都可以通过调用 `copilotkit_emit_state` 来实现。
 
 </Step>
 <Step>
-## Render the emitted state
-Now, our state is being emitted to the frontend. However, we need to render it in the chat. To do this, we'll be using the `useCoAgentStateRender` hook.
+## 渲染发出的状态
+现在，状态已经被发送到前端了。但我们还需要在聊天中渲染它。为此，我们将使用 `useCoAgentStateRender` hook。
 
 ```tsx title="frontend/src/app/layout.tsx"
 export default function HomePage() {
@@ -107,10 +98,9 @@ export default function HomePage() {
 </Step>
 </Steps>
 
-## Recap
+## 回顾
 
-Try running the agent again and going through the same steps. You'll now notice that the state is streaming intermediately and
-the user can see the progress of the agent's research.
+试着再次运行智能体并重复相同的步骤。现在你会注意到，状态正以中间状态的形式流式传输，用户可以看到智能体研究的进度。
 
 ```
 Please research dogs!
@@ -126,10 +116,9 @@ Please research dogs!
   />
 </Frame>
 
-To recap, we did the following:
+回顾一下，我们做了以下事情：
 
-- Learned about how to emit state whenever we want with `copilotkit_emit_state`.
-- Added the `useCoAgentStateRender` hook to our application to render the intermediate state in the chat.
+- 了解了如何使用 `copilotkit_emit_state` 随时发出状态。
+- 在应用中添加了 `useCoAgentStateRender` hook，以在聊天中渲染中间状态。
 
-We're almost done, just one step to go! Now we're going to learn about **progressive state updates** which will allow us to render the sections as they are written into state. This will
-complete the agentic experience.
+我们就快完成了，只剩最后一步！接下来我们将学习**渐进式状态更新（progressive state updates）**，它让我们能够在各个章节写入状态时实时渲染出来。这将为智能体化体验画上句号。

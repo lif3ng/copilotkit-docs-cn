@@ -1,66 +1,66 @@
 ---
-title: Quickstart
-description: Turn your LangGraph agent into an agent-native application in 10 minutes.
+title: 快速开始
+description: 用 10 分钟把你的 LangGraph 智能体变成智能体原生应用。
 icon: "lucide/Play"
 hideTOC: true
 ---
 
 import OpenInspectorStep from "@/snippets/shared/inspector/open-inspector-step.mdx";
 
-## Start with your coding agent
+## 从你的编码智能体开始
 
-Use this prompt to connect your LangGraph agent to CopilotKit and verify a working conversation. Your coding agent will follow this guide in your project, or you can work through the manual steps below.
+使用以下提示词将你的 LangGraph 智能体连接到 CopilotKit，并验证对话可以正常工作。你的编码智能体会按照本指南在你的项目中操作，你也可以按下面的手动步骤自行完成。
 
 <PageAgentPrompt />
 
-## Prerequisites
+## 前置条件
 
-Before you begin, you'll need the following:
+开始之前，你需要准备以下内容：
 
-- An OpenAI API key
+- 一个 OpenAI API 密钥
 - Node.js 20+
-- Your favorite package manager
-- (Optional) A LangSmith API key - only required if using an existing LangGraph agent
+- 你顺手的包管理器
+- （可选）一个 LangSmith API 密钥——仅在使用现有 LangGraph 智能体时需要
 
-<Callout type="info" title="Zod version for TypeScript agents">
-When adding `@copilotkit/sdk-js` to a TypeScript agent, install Zod 3 alongside it:
+<Callout type="info" title="TypeScript 智能体的 Zod 版本">
+在 TypeScript 智能体中添加 `@copilotkit/sdk-js` 时，请同时安装 Zod 3：
 
 ```bash
 npm install @copilotkit/sdk-js zod@3
 ```
 
-An unversioned `zod` install selects Zod 4, which does not satisfy the SDK's `zod` peer dependency (`^3`). Use `zod@3` with pnpm or Yarn too. If your agent already requires Zod 4, check SDK compatibility before changing its dependencies; do not bypass the conflict with `--force` or `--legacy-peer-deps`.
+不带版本号的 `zod` 安装会选择 Zod 4，它不满足 SDK 对 `zod` 的 peer 依赖（`^3`）。使用 pnpm 或 Yarn 时同样请用 `zod@3`。如果你的智能体已经依赖 Zod 4，请在改动其依赖之前先确认 SDK 的兼容性；不要用 `--force` 或 `--legacy-peer-deps` 绕过冲突。
 
-The SDK also has a peer dependency on `langchain`. If your agent pins `@langchain/core` to an exact version, npm installs the newest `langchain`, which can require a newer `@langchain/core` and fail with `ERESOLVE`. Install a `langchain` release whose peer range includes your `@langchain/core`. To see each release's range, run:
+SDK 还对 `langchain` 有 peer 依赖。如果你的智能体将 `@langchain/core` 锁定到某个精确版本，npm 会安装最新的 `langchain`，而它可能要求更新版本的 `@langchain/core`，从而导致 `ERESOLVE` 失败。请安装一个 peer 范围能覆盖你的 `@langchain/core` 的 `langchain` 版本。要查看每个版本的 peer 范围，运行：
 
 ```bash
 npm view langchain@1 peerDependencies
 ```
 
-For example, `langchain@1.5.9` requires `@langchain/core ^1.2.8`, so it is the newest release that works with `@langchain/core@1.2.8`. Pin it exactly. A caret range such as `^1.5.9` lets a later install pick `langchain@1.5.19`, which requires `@langchain/core ^1.2.20`:
+例如，`langchain@1.5.9` 要求 `@langchain/core ^1.2.8`，因此它是能与 `@langchain/core@1.2.8` 配合的最新版本。请精确锁定该版本。像 `^1.5.9` 这样的插入符范围会让后续安装选中 `langchain@1.5.19`，而后者要求 `@langchain/core ^1.2.20`：
 
 ```bash
 npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
 ```
 </Callout>
 
-## Getting started
+## 开始使用
 
 <Steps>
     <Step>
-        ### Set up CopilotKit Intelligence
+        ### 设置 CopilotKit Intelligence
 
-        <SignupLink surface="docs_langgraph_quickstart_step1">Sign in to cloud-hosted Intelligence</SignupLink>. Cloud-hosted setup uses a server-side project API key and does not issue `COPILOTKIT_LICENSE_TOKEN`. You will connect the app after you create it below.
+        <SignupLink surface="docs_langgraph_quickstart_step1">登录云端托管的 Intelligence</SignupLink>。云端托管配置使用服务端项目 API 密钥，不会签发 `COPILOTKIT_LICENSE_TOKEN`。你可以在下文创建应用之后再将其连接起来。
 
-        <Callout type="info" title="Run Intelligence locally instead">
-          You can also run Intelligence in Docker on your own machine. The CopilotKit CLI sets up the local stack and connects your app to it. Read [Evaluate Intelligence locally](/intelligence/self-hosting-local) for the steps and the supported preview scope.
+        <Callout type="info" title="改为在本地运行 Intelligence">
+          你也可以在自己的机器上用 Docker 运行 Intelligence。CopilotKit CLI 会搭建本地栈并将你的应用连接到它。具体步骤与支持的预览范围请参阅[在本地评估 Intelligence](/intelligence/self-hosting-local)。
         </Callout>
     </Step>
 
     <Step>
-        ### Choose your starting point
+        ### 选择你的起点
 
-        You can either start fresh with our starter template or integrate CopilotKit into your existing LangGraph agent.
+        你可以用我们的起步模板从零开始，也可以将 CopilotKit 集成到你现有的 LangGraph 智能体中。
 
         <TailoredContent
             className="step"
@@ -68,39 +68,39 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
         >
         <TailoredContentOption
             id="starter"
-            title="Start from scratch"
-            description="Get started quickly with our ready-to-go starter application."
+            title="从零开始"
+            description="使用我们开箱即用的起步应用快速上手。"
         >
             <Step>
-                ### Run our CLI
+                ### 运行我们的 CLI
 
                 ```bash
                 npx copilotkit@latest create
                 ```
 
-                The CLI walks you through:
+                CLI 会引导你完成以下配置：
 
-                - **Project name**
-                - **CopilotKit Intelligence** — persistent threads and the inspector. Choose **Yes** to scaffold a project pre-wired for the platform (the CLI walks you through sign-up, or you can [create an account](https://dashboard.operations.copilotkit.ai/?utm_source=docs&utm_medium=cta&utm_campaign=intelligence&utm_content=docs_cli_prompt) first), or **No** for a standard LangGraph setup.
-                - **Framework** — pick **LangGraph (Python)** or **LangGraph (JavaScript)**.
+                - **项目名称**
+                - **CopilotKit Intelligence**——提供持久化线程与检查器。选择 **Yes** 可生成一个为该平台预先接线的项目（CLI 会引导你完成注册，你也可以先[创建账号](https://dashboard.operations.copilotkit.ai/?utm_source=docs&utm_medium=cta&utm_campaign=intelligence&utm_content=docs_cli_prompt)），选择 **No** 则是标准 LangGraph 配置。
+                - **框架**——选择 **LangGraph (Python)** 或 **LangGraph (JavaScript)**。
             </Step>
             <Step>
-                ### Install dependencies
+                ### 安装依赖
 
                 ```npm
                 npm install
                 ```
             </Step>
             <Step>
-                ### Configure your environment
+                ### 配置环境变量
 
-                Copy the example file in the project root. The agent reads this file too, because its `langgraph.json` points at `../.env`.
+                复制项目根目录下的示例文件。智能体也会读取这个文件，因为它的 `langgraph.json` 指向 `../.env`。
 
                 ```bash
                 cp .env.example .env
                 ```
 
-                Then add your OpenAI API key to `.env`:
+                然后在 `.env` 中添加你的 OpenAI API 密钥：
 
                 ```plaintext title=".env"
                 OPENAI_API_KEY=your_openai_api_key
@@ -108,8 +108,8 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
 
                 <ApiKeyHint provider="openai" />
 
-                <Callout type="info" title="Using Anthropic or Google instead">
-                  Both starters (Python and JavaScript) read the model from `COPILOTKIT_AGENT_MODEL` as `<provider>:<model>`. The provider is `openai`, `anthropic` or `google`. The starters already install the Anthropic and Google model packages, so you do not change any code. To use Claude, set these two values in `.env`:
+                <Callout type="info" title="改用 Anthropic 或 Google">
+                  两个起步模板（Python 和 JavaScript）都会以 `<provider>:<model>` 的格式从 `COPILOTKIT_AGENT_MODEL` 读取模型。provider 可以是 `openai`、`anthropic` 或 `google`。起步模板已经安装了 Anthropic 和 Google 的模型包，因此你无需修改任何代码。要使用 Claude，请在 `.env` 中设置这两项：
 
                   ```plaintext title=".env"
                   ANTHROPIC_API_KEY=your_anthropic_api_key
@@ -118,11 +118,11 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
 
                   <ApiKeyHint provider="anthropic" />
 
-                  For Google, set `GOOGLE_API_KEY` and use `google:<model>`. `COPILOTKIT_AGENT_MODEL` applies to every model call in the agent.
+                  对于 Google，请设置 `GOOGLE_API_KEY` 并使用 `google:<model>`。`COPILOTKIT_AGENT_MODEL` 会作用于智能体中的每一次模型调用。
                 </Callout>
             </Step>
             <Step>
-                ### Start the development server
+                ### 启动开发服务器
 
                 <Tabs groupId="package-manager" items={['npm', 'pnpm', 'yarn', 'bun']}>
                     <Tab value="npm">
@@ -147,20 +147,20 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
                     </Tab>
                 </Tabs>
 
-                This will start both the UI and agent servers concurrently.
+                这会同时启动 UI 服务器和智能体服务器。
             </Step>
         </TailoredContentOption>
         <TailoredContentOption
             id="bring-your-own"
-            title="Use an existing agent"
-            description="I already have a LangGraph agent and want to add CopilotKit."
+            title="使用现有智能体"
+            description="我已经有一个 LangGraph 智能体，想添加 CopilotKit。"
         >
           <Step>
-              ### Initialize your agent project
+              ### 初始化你的智能体项目
 
               <Tabs groupId="language_langgraph_agent" items={['Python', 'TypeScript']} default="Python" persist>
                 <Tab value="Python">
-                  If you don't already have a Python project set up, create one using `uv`:
+                  如果你还没有 Python 项目，可以用 `uv` 创建一个：
 
                   ```bash
                   uv init my-agent
@@ -168,7 +168,7 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
                   ```
                 </Tab>
                 <Tab value="TypeScript">
-                  If you don't already have a Node.js project set up, create one with `npm`:
+                  如果你还没有 Node.js 项目，可以用 `npm` 创建一个：
 
                   ```bash
                   mkdir my-agent
@@ -179,9 +179,9 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
               </Tabs>
           </Step>
           <Step>
-              ### Install LangGraph
+              ### 安装 LangGraph
 
-              Add the packages the agent code below imports:
+              添加下文智能体代码所导入的包：
 
               <Tabs groupId="language_langgraph_agent" items={['Python', 'TypeScript']} default="Python" persist>
                 <Tab value="Python">
@@ -189,15 +189,10 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
                   uv add langgraph langchain-openai langchain-core python-dotenv
                   ```
 
-                  Both tabs in the next step import all four. The **FastAPI** tab installs what
-                  its own code needs on top of these — `ag-ui-langgraph`, `fastapi`,
-                  `uvicorn` and `copilotkit` — in its own step; the LangSmith path
-                  imports none of them, so they are not in this line.
+                  下一步中的两个 Tab 都会导入这四个包。**FastAPI** Tab 会在它自己的步骤中额外安装其代码所需的包——`ag-ui-langgraph`、`fastapi`、`uvicorn` 和 `copilotkit`；而 LangSmith 路线不导入其中任何一个，所以它们不在这一行里。
 
-                  <Callout type="warn" title="Project with pinned dependencies?">
-                    `uv add` resolves and rewrites your lockfile. If your project
-                    pins exact versions (`==`), add these to your dependency file by
-                    hand instead so the rest of your pins stay put.
+                  <Callout type="warn" title="项目锁定了依赖版本？">
+                    `uv add` 会解析并重写你的锁文件。如果你的项目锁定了精确版本（`==`），请改为手动将这些依赖添加到依赖文件中，以免影响其他已锁定的版本。
                   </Callout>
                 </Tab>
                 <Tab value="TypeScript">
@@ -205,24 +200,21 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
                   npm install @langchain/langgraph @langchain/core @langchain/openai
                   ```
 
-                  The agent does not need `dotenv`. The LangGraph CLI loads the
-                  `.env` file that `langgraph.json` names in the next step.
+                  智能体不需要 `dotenv`。LangGraph CLI 会在下一步加载
+                  `langgraph.json` 中指定的 `.env` 文件。
                 </Tab>
               </Tabs>
           </Step>
           <Step>
-            ### Expose your agent via AG-UI
+            ### 通过 AG-UI 暴露你的智能体
 
-            If you already have a LangGraph agent written, just reference the following code. In this step
-            we create a simple LangGraph agent for the sake of demonstration.
+            如果你已经写好了一个 LangGraph 智能体，只需参考以下代码。本步骤中我们为了演示而创建一个简单的 LangGraph 智能体。
 
             <Tabs groupId="language_langgraph_agent" items={['Python', 'TypeScript']} default="Python" persist>
               <Tab value="TypeScript">
-                A TypeScript agent runs on the LangGraph API server, with the
-                `@langchain/langgraph-cli` tool. This is the **LangSmith**
-                path. The **FastAPI** path is Python only.
+                TypeScript 智能体借助 `@langchain/langgraph-cli` 工具运行在 LangGraph API 服务器上。这就是 **LangSmith** 路线。**FastAPI** 路线仅支持 Python。
 
-                Create the agent in `src/agent.ts`:
+                在 `src/agent.ts` 中创建智能体：
 
                 ```ts title="src/agent.ts" doctest="component"
                 import { SystemMessage } from "@langchain/core/messages";
@@ -251,10 +243,10 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
                   .compile();
                 ```
 
-                Do not pass a `checkpointer` to `compile()`. The LangGraph API
-                server supplies persistence at run time.
+                不要向 `compile()` 传入 `checkpointer`。LangGraph API
+                服务器会在运行时提供持久化。
 
-                Then add a `langgraph.json` in the agent directory:
+                然后在智能体目录中添加一个 `langgraph.json`：
 
                 ```json title="langgraph.json"
                 {
@@ -267,15 +259,15 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
                 }
                 ```
 
-                The `graphs` entry is `<file>:<export>`. It must name the
-                exported `graph` constant, or the CLI fails with
-                "graph is nullish". The key `sample_agent` is the `graphId`
-                that the runtime route below connects to.
+                `graphs` 条目的格式是 `<file>:<export>`。它必须指向导出的
+                `graph` 常量，否则 CLI 会报
+                “graph is nullish” 错误。键 `sample_agent` 就是下文
+                runtime 路由要连接的 `graphId`。
               </Tab>
               <Tab value="Python">
               <Tabs groupId="deployment_method" items={['LangSmith', 'FastAPI']}>
                 <Tab value="LangSmith">
-                  First, we'll create a simple LangGraph agent:
+                  首先，我们创建一个简单的 LangGraph 智能体：
 
                   ```python title="main.py"
                   from dotenv import load_dotenv
@@ -302,18 +294,17 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
                   graph = graph.compile()
                   ```
 
-                  <Callout type="warn" title="Do not add a checkpointer on this path">
-                    `compile()` is called with no `checkpointer=` on purpose. The
-                    LangGraph API server owns persistence and injects its own
-                    checkpointer at run time. If you compile a custom one in,
-                    `langgraph dev` refuses to load the graph
-                    (`ValueError: ... includes a custom checkpointer ... persistence is
-                    handled automatically by the platform`) and a deployed graph
-                    ignores it. The **FastAPI** tab is the opposite case — see the
-                    note there.
+                  <Callout type="warn" title="此路线下不要添加 checkpointer">
+                    `compile()` 刻意没有传 `checkpointer=`。持久化由
+                    LangGraph API 服务器负责，它会在运行时注入自己的
+                    checkpointer。如果你在编译时内置了自定义 checkpointer，
+                    `langgraph dev` 会拒绝加载该图
+                    （`ValueError: ... includes a custom checkpointer ... persistence is
+                    handled automatically by the platform`），部署后的图则会忽略它。
+                    **FastAPI** Tab 正好相反——参见那里的说明。
                   </Callout>
 
-                  Then to test and deploy with LangSmith, we'll also need a `langgraph.json`
+                  接下来，要用 LangSmith 进行测试和部署，我们还需要一个 `langgraph.json`
 
                   ```sh
                   touch langgraph.json
@@ -333,13 +324,13 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
                   ```
                 </Tab>
                 <Tab value="FastAPI">
-                  First, add the `ag-ui-langgraph` package to your project:
+                  首先，将 `ag-ui-langgraph` 包添加到你的项目：
 
                   ```bash
                   uv add ag-ui-langgraph fastapi uvicorn copilotkit
                   ```
 
-                  Then create a simple LangGraph agent, add a FastAPI app, and build attach our agent as an AG-UI endpoint.
+                  然后创建一个简单的 LangGraph 智能体，添加一个 FastAPI 应用，并把我们的智能体挂载为 AG-UI 端点。
 
                   ```python title="main.py" doctest="server"
                   import os
@@ -402,32 +393,31 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
                     main()
                   ```
 
-                  <Callout type="info" title="Why this tab compiles with a checkpointer">
-                    Here you run the graph yourself, so nothing supplies
-                    persistence. `ag-ui-langgraph` reads thread state via
-                    `graph.aget_state(...)`, which raises
-                    `ValueError: No checkpointer set` on a graph compiled without
-                    one — hence `MemorySaver()`. It keeps state in process memory
-                    only; swap in a durable saver (e.g. Postgres) for production.
-                    Do **not** copy this into the LangSmith tab's graph.
+                  <Callout type="info" title="为什么这个 Tab 编译时带 checkpointer">
+                    这里由你自己运行图，因此没有任何东西提供持久化。`ag-ui-langgraph` 通过
+                    `graph.aget_state(...)` 读取线程状态，如果图编译时没有
+                    checkpointer，就会抛出
+                    `ValueError: No checkpointer set`——所以要加 `MemorySaver()`。它只把状态保存在进程内存中；
+                    生产环境请换成持久化的 saver（如 Postgres）。
+                    **不要**把这段代码复制到 LangSmith Tab 的图中。
                   </Callout>
 
-                  `main.py` sets uvicorn's port to `8123` above, which is the
-                  port the runtime route below expects. Change both together if
-                  you pick a different one.
+                  上文的 `main.py` 将 uvicorn 的端口设为了 `8123`，这正是
+                  下文 runtime 路由所期望的端口。如果你换用其他端口，请
+                  同时修改这两处。
                 </Tab>
               </Tabs>
               </Tab>
             </Tabs>
 
-              <Callout type="info" title="What is AG-UI?">
-                AG-UI is an open protocol for frontend-agent communication.
+              <Callout type="info" title="AG-UI 是什么？">
+                AG-UI 是一个用于前端与智能体通信的开放协议。
               </Callout>
           </Step>
           <Step>
-              ### Configure your environment
+              ### 配置环境变量
 
-              Create a `.env` file in your agent directory and add your OpenAI API key:
+              在你的智能体目录中创建一个 `.env` 文件，并添加你的 OpenAI API 密钥：
 
               ```plaintext title=".env"
               OPENAI_API_KEY=your_openai_api_key
@@ -435,14 +425,14 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
 
               <ApiKeyHint provider="openai" />
 
-              <Callout type="info" title="What about other models?">
-                The agent code above uses OpenAI's `gpt-4.1-mini`. To use another provider, replace `ChatOpenAI` with that provider's LangChain chat model and set its API key in `.env`.
+              <Callout type="info" title="想用其他模型？">
+                上文的智能体代码使用的是 OpenAI 的 `gpt-4.1-mini`。要使用其他提供方，请将 `ChatOpenAI` 替换为该提供方的 LangChain 聊天模型，并在 `.env` 中设置对应的 API 密钥。
               </Callout>
           </Step>
           <Step>
-              ### Create your frontend
+              ### 创建你的前端
 
-              CopilotKit works with any React-based frontend. We'll use Next.js for this example.
+              CopilotKit 可以配合任何基于 React 的前端使用。本示例中我们使用 Next.js。
 
               ```bash
               npx create-next-app@latest frontend
@@ -450,43 +440,43 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
               ```
           </Step>
           <Step>
-              ### Install CopilotKit packages
+              ### 安装 CopilotKit 包
 
               ```npm
               npm install @copilotkit/react-core @copilotkit/runtime
               ```
 
-              The components used below (`CopilotKitProvider`, `CopilotSidebar`) and the
-              stylesheet all come from `@copilotkit/react-core/v2`, so
-              `@copilotkit/react-ui` is not needed for this setup.
+              下文用到的组件（`CopilotKitProvider`、`CopilotSidebar`）和
+              样式表都来自 `@copilotkit/react-core/v2`，因此
+              这种配置不需要 `@copilotkit/react-ui`。
           </Step>
           <Step>
-              ### Setup Copilot Runtime
+              ### 设置 Copilot Runtime
 
-              Create an API route to connect CopilotKit to your LangGraph agent:
+              创建一个 API 路由，将 CopilotKit 连接到你的 LangGraph 智能体：
 
               ```sh
               mkdir -p "app/api/copilotkit/[[...slug]]" && touch "app/api/copilotkit/[[...slug]]/route.ts"
               ```
 
-              <Callout type="info" title="A catch-all route for four verbs">
-                The example below mounts the Runtime on a catch-all route
-                (`app/api/copilotkit/[[...slug]]/route.ts`) for `GET`, `POST`,
-                `PATCH`, and `DELETE`. The LangGraph starters, the
-                [Intelligence quickstart](/intelligence/quickstart), and the
-                [runtime endpoints page](/backend/runtime-endpoints) use the
-                same mount.
+              <Callout type="info" title="承载四种动词的 catch-all 路由">
+                下例将 Runtime 挂载到一个 catch-all 路由
+                （`app/api/copilotkit/[[...slug]]/route.ts`）上，同时服务 `GET`、`POST`、
+                `PATCH` 和 `DELETE`。LangGraph 起步模板、
+                [Intelligence 快速开始](/intelligence/quickstart)以及
+                [runtime 端点页面](/backend/runtime-endpoints)都使用
+                相同的挂载方式。
 
-                If your app already serves the Runtime on one `POST` route with
-                `mode: "single-route"`, keep it. It also carries AG-UI Streams,
-                User Memory, and Inspector requests. Set `useSingleEndpoint` on
-                the provider to match. See
-                [Provider and handler pairs](/backend/runtime-endpoints#provider-and-handler-pairs).
+                如果你的应用已经用 `mode: "single-route"` 在单个 `POST` 路由上
+                提供 Runtime，那就保留它。它同样承载 AG-UI 流、
+                User Memory 和 Inspector 请求。请在 provider 上相应设置
+                `useSingleEndpoint`。参见
+                [Provider 与 handler 的配对](/backend/runtime-endpoints#provider-and-handler-pairs)。
               </Callout>
 
-              If your agent is in TypeScript, use the **LangSmith** tab.
-              `LangGraphAgent` connects to the LangGraph API server that
-              `@langchain/langgraph-cli` starts.
+              如果你的智能体是 TypeScript 写的，请使用 **LangSmith** Tab。
+              `LangGraphAgent` 会连接到由
+              `@langchain/langgraph-cli` 启动的 LangGraph API 服务器。
 
               <Tabs groupId="deployment_method" items={['LangSmith', 'FastAPI']}>
                 <Tab value="LangSmith">
@@ -528,78 +518,78 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
                   export const POST = handler;
                   export const PATCH = handler;
                   export const DELETE = handler;
-                ```
-              </Tab>
-              <Tab value="FastAPI">
-                ```tsx title="app/api/copilotkit/[[...slug]]/route.ts" doctest="component"
-                import {
-                  CopilotKitIntelligence,
-                  CopilotRuntime,
-                  createCopilotRuntimeHandler,
-                } from "@copilotkit/runtime/v2";
-                // [!code highlight]
-                import { HttpAgent } from "@ag-ui/client";
+                  ```
+                </Tab>
+                <Tab value="FastAPI">
+                  ```tsx title="app/api/copilotkit/[[...slug]]/route.ts" doctest="component"
+                  import {
+                    CopilotKitIntelligence,
+                    CopilotRuntime,
+                    createCopilotRuntimeHandler,
+                  } from "@copilotkit/runtime/v2";
+                  // [!code highlight]
+                  import { HttpAgent } from "@ag-ui/client";
 
-                const runtime = new CopilotRuntime({
-                  agents: {
-                    // [!code highlight:3]
-                    sample_agent: new HttpAgent({
-                      url:  process.env.LANGGRAPH_DEPLOYMENT_URL || "http://localhost:8123",
+                  const runtime = new CopilotRuntime({
+                    agents: {
+                      // [!code highlight:3]
+                      sample_agent: new HttpAgent({
+                        url:  process.env.LANGGRAPH_DEPLOYMENT_URL || "http://localhost:8123",
+                      }),
+                    },
+                    // [!code highlight:8]
+                    intelligence: new CopilotKitIntelligence({
+                      apiKey: process.env.CPK_INTELLIGENCE_API_KEY!,
                     }),
-                  },
-                  // [!code highlight:8]
-                  intelligence: new CopilotKitIntelligence({
-                    apiKey: process.env.CPK_INTELLIGENCE_API_KEY!,
-                  }),
-                  // Threads are per-user. Without this, every visitor shares one history.
-                  identifyUser: (request) => ({
-                    id: request.headers.get("x-user-id") ?? "anonymous",
-                    name: request.headers.get("x-user-name") ?? "Anonymous",
-                  }),
-                });
+                    // Threads are per-user. Without this, every visitor shares one history.
+                    identifyUser: (request) => ({
+                      id: request.headers.get("x-user-id") ?? "anonymous",
+                      name: request.headers.get("x-user-name") ?? "Anonymous",
+                    }),
+                  });
 
-                const handler = createCopilotRuntimeHandler({
-                  runtime,
-                  basePath: "/api/copilotkit",
-                });
+                  const handler = createCopilotRuntimeHandler({
+                    runtime,
+                    basePath: "/api/copilotkit",
+                  });
 
-                export const GET = handler;
-                export const POST = handler;
-                export const PATCH = handler;
-                export const DELETE = handler;
-              ```
-              </Tab>
-            </Tabs>
+                  export const GET = handler;
+                  export const POST = handler;
+                  export const PATCH = handler;
+                  export const DELETE = handler;
+                  ```
+                </Tab>
+              </Tabs>
 
-              From this frontend app directory, connect the runtime to an Intelligence project:
+              在这个前端应用目录下，将 runtime 连接到一个 Intelligence 项目：
 
               ```bash title="Terminal"
               npx copilotkit@latest project select
               ```
 
-              The command writes the server-side project API key to `.env`. The runtime reads it here:
+              该命令会将服务端项目 API 密钥写入 `.env`。runtime 在这里读取它：
 
               ```plaintext title=".env"
               CPK_INTELLIGENCE_API_KEY=cpk-...
               ```
 
-              <Callout type="info" title="Running without the Intelligence Platform?">
-                Drop the `intelligence` and `identifyUser` options and the runtime falls back
-                to SSE mode with an in-memory runner. Chat still works, but Threads and the
-                Inspector stay locked and the key is never read. See
-                [Connect your runtime to Intelligence](/intelligence/quickstart) for the
-                full constructor and how to confirm the key is in use.
+              <Callout type="info" title="不使用 Intelligence 平台运行？">
+                去掉 `intelligence` 和 `identifyUser` 选项后，runtime 会回退到
+                使用内存运行器的 SSE 模式。聊天仍可工作，但 Threads 和
+                Inspector 将保持锁定，密钥也不会被读取。完整构造参数以及
+                如何确认密钥已生效，请参阅
+                [将你的 runtime 连接到 Intelligence](/intelligence/quickstart)。
               </Callout>
           </Step>
           <Step>
-              ### Configure CopilotKit Provider
+              ### 配置 CopilotKit Provider
 
-              Wrap your application with the CopilotKit provider:
+              用 CopilotKit provider 包裹你的应用：
 
-              <Callout type="info" title="Match the provider to the handler">
-                `useSingleEndpoint={false}` pins the provider to the multi-route
-                handler above. See
-                [Provider and handler pairs](/backend/runtime-endpoints#provider-and-handler-pairs).
+              <Callout type="info" title="让 provider 与 handler 匹配">
+                `useSingleEndpoint={false}` 将 provider 固定到上文的
+                multi-route handler。参见
+                [Provider 与 handler 的配对](/backend/runtime-endpoints#provider-and-handler-pairs)。
               </Callout>
 
               ```tsx title="app/providers.tsx"
@@ -616,8 +606,8 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
               }
               ```
 
-              `app/layout.tsx` is a server component and cannot import the provider
-              directly, so it renders your client file instead:
+              `app/layout.tsx` 是服务端组件，不能直接导入 provider，
+              因此它改为渲染你的客户端文件：
 
               ```tsx title="app/layout.tsx"
               // [!code highlight:2]
@@ -641,18 +631,18 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
               }
               ```
 
-              <Callout type="info" title="This relative runtimeUrl assumes Next.js serves the runtime">
-                `/api/copilotkit` resolves only because Next.js serves your app and the runtime from the
-                same origin. A client-only frontend has no shared origin, so it needs a standalone runtime
-                server of its own and an absolute `runtimeUrl` such as
-                `http://localhost:8200/api/copilotkit`. The per-frontend guides at `/react-spa`, `/vue`,
-                `/angular` and `/react-native` each show that setup.
+              <Callout type="info" title="此相对 runtimeUrl 假设由 Next.js 提供 runtime 服务">
+                `/api/copilotkit` 之所以能解析，是因为 Next.js 从同一源提供你的应用和
+                runtime。纯客户端前端没有共享源，因此需要自己的独立
+                runtime 服务器，以及形如
+                `http://localhost:8200/api/copilotkit` 的绝对 `runtimeUrl`。`/react-spa`、`/vue`、
+                `/angular` 和 `/react-native` 的各前端指南都展示了这种配置。
               </Callout>
           </Step>
           <Step>
-            ### Add the chat interface
+            ### 添加聊天界面
 
-            Add the CopilotSidebar component to your page:
+            将 CopilotSidebar 组件添加到你的页面：
 
             ```tsx title="app/page.tsx"
             "use client"; // [!code highlight]
@@ -671,8 +661,8 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
             ```
           </Step>
           <Step>
-              ### Start your agent
-              From your agent directory, start the agent server:
+              ### 启动你的智能体
+              在智能体目录下，启动智能体服务器：
 
               <Tabs groupId="language_langgraph_agent" items={['Python', 'TypeScript']} default="Python" persist>
                 <Tab value="TypeScript">
@@ -681,8 +671,8 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
                   npx @langchain/langgraph-cli dev --port 8123 --no-browser
                   ```
 
-                  `--port 8123` matches the `http://localhost:8123` fallback in
-                  the runtime route. A bare `langgraph dev` serves on **2024**.
+                  `--port 8123` 与 runtime 路由中的 `http://localhost:8123` 回退值一致。
+                  不带参数的 `langgraph dev` 在 **2024** 端口提供服务。
                 </Tab>
                 <Tab value="Python">
               <Tabs groupId="deployment_method" items={['LangSmith', 'FastAPI']}>
@@ -692,15 +682,14 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
                   npx @langchain/langgraph-cli dev --port 8123 --no-browser
                   ```
 
-                  <Callout type="warn" title="Port 8123 is not the default">
-                    A bare `langgraph dev` (either the Python `langgraph-cli` or
-                    `@langchain/langgraph-cli`) serves on **2024**. This guide
-                    pins **8123** with `--port 8123` to match the
-                    `http://localhost:8123` fallback in the route above. Keep the
-                    flag, or drop it and change the route's URL to
-                    `http://localhost:2024` — but do not mix the two, or the
-                    runtime will fail to connect with no diagnostic beyond a
-                    connection error.
+                  <Callout type="warn" title="8123 并非默认端口">
+                    不带参数的 `langgraph dev`（无论是 Python 的 `langgraph-cli` 还是
+                    `@langchain/langgraph-cli`）都在 **2024** 端口提供服务。本指南
+                    用 `--port 8123` 固定 **8123** 端口，以匹配
+                    上文路由中的 `http://localhost:8123` 回退值。保留
+                    该参数，或者去掉它并把路由 URL 改为
+                    `http://localhost:2024`——但不要两者混用，否则
+                    runtime 将连接失败，且除了连接错误外没有任何诊断信息。
                   </Callout>
                 </Tab>
                 <Tab value="FastAPI">
@@ -709,20 +698,19 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
                   uv run main.py
                   ```
 
-                  This serves on **8123**, the port set in `main.py`'s
-                  `uvicorn.run(...)` call.
+                  它会在 **8123** 端口提供服务，即 `main.py` 中
+                  `uvicorn.run(...)` 调用里设置的端口。
                 </Tab>
               </Tabs>
                 </Tab>
               </Tabs>
 
-              Your agent will be available at `http://localhost:8123` for both
-              tabs above.
+              对于上面的两个 Tab，你的智能体都将通过 `http://localhost:8123` 访问。
           </Step>
           <Step>
-              ### Start your UI
+              ### 启动你的 UI
 
-              In a separate terminal, navigate to your frontend directory and start the development server:
+              另开一个终端，进入你的前端目录并启动开发服务器：
 
               <Tabs groupId="package-manager" items={['npm', 'pnpm', 'yarn', 'bun']}>
                   <Tab value="npm">
@@ -755,9 +743,9 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
     </TailoredContent>
     </Step>
     <Step>
-        ### 🎉 Start chatting!
+        ### 🎉 开始聊天！
 
-        Your AI agent is now ready to use! Try asking it some questions:
+        你的 AI 智能体现在已经可以使用了！试着问它几个问题：
 
         ```
         Can you tell me a joke?
@@ -772,25 +760,25 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
         ```
 
         <Accordions className="mb-4">
-            <Accordion title="Troubleshooting">
-                - **Connection issues? Keep `localhost`, don't swap in a literal IP.** Which loopback address reaches the agent depends on the runtime, and `0.0.0.0` is a bind-all address for a server, never a valid target in a client URL.
+            <Accordion title="故障排查">
+                - **连接出问题了？保留 `localhost`，不要换成字面 IP**。哪个回环地址能到达智能体取决于 runtime，而 `0.0.0.0` 是服务器的绑定所有接口地址，在客户端 URL 中永远不是有效目标。
 
                   <Tabs groupId="language_langgraph_agent" items={['Python', 'TypeScript']} default="Python" persist>
                     <Tab value="Python">
-                      `langgraph dev` (the Python CLI) defaults to `--host 127.0.0.1`, so both `http://127.0.0.1:8123` and `http://localhost:8123` reach it. `http://[::1]:8123` does not — the server is not listening on IPv6.
+                      `langgraph dev`（Python CLI）默认 `--host 127.0.0.1`，因此 `http://127.0.0.1:8123` 和 `http://localhost:8123` 都能访问它。`http://[::1]:8123` 则不行——服务器没有监听 IPv6。
                     </Tab>
                     <Tab value="TypeScript">
-                      `@langchain/langgraph-cli` (the `langgraphjs` binary) defaults to `--host localhost`, which Node resolves to IPv6 on a dual-stack machine, binding `::1` **only**. So `http://localhost:8123` and `http://[::1]:8123` reach it, while `http://127.0.0.1:8123` is refused by that same running server — switching to `127.0.0.1` is what breaks it. If you need IPv4, bind it explicitly with `langgraphjs dev --host 127.0.0.1`.
+                      `@langchain/langgraph-cli`（即 `langgraphjs` 可执行文件）默认 `--host localhost`，在双栈机器上 Node 会将其解析为 IPv6，并**只**绑定 `::1`。因此 `http://localhost:8123` 和 `http://[::1]:8123` 能访问它，而 `http://127.0.0.1:8123` 会被同一个正在运行的服务器拒绝——换成 `127.0.0.1` 反而会出问题。如果需要 IPv4，请用 `langgraphjs dev --host 127.0.0.1` 显式绑定。
                     </Tab>
                   </Tabs>
-                - Make sure your agent folder contains a `langgraph.json` file
-                - In the `langgraph.json` file, reference the path to a `.env` file
-                - Check that your OpenAI API key is correctly set in the `.env` file
-                - If using an existing agent, ensure your LangSmith API key is also configured
-                - Make sure you're in the same folder as your `langgraph.json` file when running the `langgraph dev` command
-                - **Connection refused from the runtime?** Check the port. A bare `langgraph dev` listens on `2024`; this guide's start command pins `8123` with `--port 8123`. The runtime's `LANGGRAPH_DEPLOYMENT_URL` (or its fallback) has to name the port the agent actually bound.
-                - **"graph is nullish" error (JavaScript starters):** This means the LangGraph CLI couldn't load your graph. Ensure the export name in your `langgraph.json` matches your code (e.g., `"starterAgent": "./src/agent.ts:graph"` requires `export const graph = ...` in `agent.ts`). Also verify all dependencies are installed with `npm install` in your agent directory.
-                - Make sure the runtime endpoint path matches the `runtimeUrl` in your CopilotKit provider
+                - 确保你的智能体文件夹中包含 `langgraph.json` 文件
+                - 在 `langgraph.json` 文件中指定 `.env` 文件的路径
+                - 检查 `.env` 文件中的 OpenAI API 密钥是否设置正确
+                - 如果使用现有智能体，请确保也已配置 LangSmith API 密钥
+                - 运行 `langgraph dev` 命令时，确保你位于 `langgraph.json` 文件所在的文件夹中
+                - **runtime 连接被拒绝？**检查端口。不带参数的 `langgraph dev` 监听 `2024`；而本指南的启动命令用 `--port 8123` 固定了 `8123`。runtime 的 `LANGGRAPH_DEPLOYMENT_URL`（或其回退值）必须指向智能体实际绑定的端口。
+                - **“graph is nullish” 报错（JavaScript 起步模板）**：这意味着 LangGraph CLI 无法加载你的图。确保 `langgraph.json` 中的导出名与你的代码一致（例如 `"starterAgent": "./src/agent.ts:graph"` 要求 `agent.ts` 中有 `export const graph = ...`）。同时请在智能体目录中运行 `npm install`，确认所有依赖都已安装。
+                - 确保 runtime 端点路径与你的 CopilotKit provider 中的 `runtimeUrl` 一致
             </Accordion>
         </Accordions>
 
@@ -802,36 +790,36 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
 
 </Steps>
 
-## Deploying to AWS?
+## 要部署到 AWS？
 
-If you're planning to deploy your LangGraph agent to AWS Bedrock AgentCore, see the [AgentCore deploy guide](/deploy-agentcore).
+如果你计划将 LangGraph 智能体部署到 AWS Bedrock AgentCore，请参阅 [AgentCore 部署指南](/deploy-agentcore)。
 
-## What's next?
+## 下一步
 
-Now that you have your basic agent setup, explore these advanced features:
+现在你已经完成了基本的智能体配置，来探索这些高级特性吧：
 
 <Cards>
   <Card
-    title="Implement Human in the Loop"
-    description="Allow your users and agents to collaborate together on tasks."
+    title="实现人机协同"
+    description="让你的用户与智能体协同完成任务。"
     href="/langgraph/human-in-the-loop"
     icon={<UserIcon />}
   />
   <Card
-    title="Utilize Shared State"
-    description="Learn how to synchronize your agent's state with your UI's state, and vice versa."
+    title="使用共享状态"
+    description="了解如何将智能体状态与 UI 状态相互同步。"
     href="/langgraph/shared-state"
     icon={<RepeatIcon />}
   />
   <Card
-    title="Add some generative UI"
-    description="Render your agent's progress and output in the UI."
+    title="添加生成式 UI"
+    description="在 UI 中渲染智能体的进度与输出。"
     href="/langgraph/generative-ui/tool-rendering"
     icon={<PaintbrushIcon />}
   />
   <Card
-    title="Setup frontend actions"
-    description="Give your agent the ability to call frontend tools, directly updating your application."
+    title="配置前端操作"
+    description="让你的智能体能够调用前端工具，直接更新你的应用。"
     href="/langgraph/frontend-tools"
     icon={<WrenchIcon />}
   />

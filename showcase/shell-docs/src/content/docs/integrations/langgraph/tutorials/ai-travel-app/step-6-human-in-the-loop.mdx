@@ -1,15 +1,12 @@
 ---
-title: "Step 6: Add human approval"
+title: "第 6 步：添加人工审批"
 ---
 
-The travel agent pauses before it adds, updates, or deletes trips. The React
-app shows the proposed change and sends the user's decision back to the paused
-run.
+旅行智能体在添加、更新或删除行程之前会先暂停。React 应用展示提议的变更，并把用户的决定发回暂停中的运行。
 
-## Pause the graph
+## 暂停图
 
-`agent/src/agent.py` routes trip tools through `trips_node` and compiles the
-graph with an interrupt after that node:
+`agent/src/agent.py` 让行程工具经过 `trips_node`，并在编译图时在该节点之后设置中断：
 
 ```python title="examples/v1/travel/agent/src/agent.py"
 graph_builder.add_edge("trips_node", "perform_trips_node")
@@ -20,13 +17,11 @@ graph = graph_builder.compile(
 )
 ```
 
-The interrupt gives the frontend time to approve or reject the tool call
-before `perform_trips_node` changes state.
+这个中断为前端争取了时间，让用户能在 `perform_trips_node` 修改状态之前批准或拒绝该工具调用。
 
-## Register the approval UI
+## 注册审批 UI
 
-The v2 `useHumanInTheLoop` hook pairs each trip tool with a React component.
-This example uses a Zod schema and the same `travel` agent ID as the provider:
+v2 的 `useHumanInTheLoop` hook 将每个行程工具与一个 React 组件配对。本例使用 Zod schema，并使用与 provider 相同的 `travel` 智能体 ID：
 
 ```tsx title="examples/v1/travel/lib/hooks/use-trips.tsx"
 import { useHumanInTheLoop } from "@copilotkit/react-core/v2";
@@ -42,8 +37,7 @@ useHumanInTheLoop({
 });
 ```
 
-The update and delete tools use the same hook. They pass current trip state as
-a dependency because their approval cards need it:
+更新与删除工具使用同一个 hook。它们把当前行程状态作为依赖传入，因为对应的审批卡片需要用到它：
 
 ```tsx title="examples/v1/travel/lib/hooks/use-trips.tsx"
 useHumanInTheLoop(
@@ -67,10 +61,9 @@ useHumanInTheLoop(
 );
 ```
 
-## Send the decision
+## 发送决策
 
-The hook's `respond` function resumes the paused run. The approval components
-enable their buttons only while the tool call is waiting for a result:
+hook 的 `respond` 函数会恢复暂停中的运行。审批组件只在工具调用等待结果时才启用按钮：
 
 ```tsx title="examples/v1/travel/components/humanInTheLoop/ActionButtons.tsx"
 import { ToolCallStatus } from "@copilotkit/react-core/v2";
@@ -89,13 +82,11 @@ import { ToolCallStatus } from "@copilotkit/react-core/v2";
 </Button>
 ```
 
-`sendResponse` awaits `respond` and keeps the buttons disabled while the
-request is in flight. It also keeps a failed result so the user can retry.
+`sendResponse` 会等待 `respond`，并在请求进行期间保持按钮禁用。它还会保留失败的结果，方便用户重试。
 
-## Handle a rejection in the agent
+## 在智能体中处理拒绝
 
-The response arrives as the latest `ToolMessage`. The agent stops the trip
-operation when its content is `CANCEL`:
+响应会作为最新的 `ToolMessage` 到达。当其内容为 `CANCEL` 时，智能体中止行程操作：
 
 ```python title="examples/v1/travel/agent/src/trips.py"
 async def perform_trips_node(state: AgentState, config: RunnableConfig):
@@ -110,5 +101,4 @@ async def perform_trips_node(state: AgentState, config: RunnableConfig):
     # Apply the approved add, update, or delete operation.
 ```
 
-Ask the running app to add or delete a trip. Approve one request and reject
-another to exercise both paths.
+让运行中的应用添加或删除一个行程。批准其中一个请求、拒绝另一个请求，把两条路径都走一遍。

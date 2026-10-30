@@ -1,27 +1,27 @@
 ---
 title: Deep Agents
-description: Leverage LangGraph Deep Agents to build sophisticated agentic applications.
+description: 利用 LangGraph Deep Agents 构建功能强大的智能体化应用。
 icon: "lucide/BrainCircuit"
 ---
-<Callout type="info" title="Deep Agents is now a first-class integration">
-  Deep Agents has been promoted to its own top-level integration. Head to the [Deep Agents integration](/deepagents) for the full documentation.
+<Callout type="info" title="Deep Agents 现已成为一等公民集成">
+  Deep Agents 已升级为独立的顶级集成。完整文档请前往 [Deep Agents 集成](/deepagents)。
 </Callout>
 
-## Prerequisites
+## 前置条件
 
-Before you begin, you'll need the following:
+开始之前，你需要准备以下内容：
 
-- An OpenAI API key
+- 一个 OpenAI API 密钥
 - Node.js 20+
-- Your favorite package manager
-- A LangSmith API key - only required if deploying to LangSmith Platform
+- 你喜欢的包管理器
+- 一个 LangSmith API 密钥——仅部署到 LangSmith Platform 时需要
 
-## Getting started
+## 开始使用
 <Steps>
     <Step>
-        ### Initialize your agent project
+        ### 初始化智能体项目
 
-        If you don't already have a Python project set up, create one using `uv`:
+        如果你还没有 Python 项目，可以使用 `uv` 创建一个：
 
         ```bash
         uv init my-agent
@@ -29,21 +29,20 @@ Before you begin, you'll need the following:
         ```
     </Step>
     <Step>
-        ### Add necessary dependencies
+        ### 添加必要的依赖
 
-        For this agent, we'll just need the `deepagents`, `langchain-openai`, and `copilotkit` packages:
+        这个智能体只需要 `deepagents`、`langchain-openai` 和 `copilotkit` 这几个包：
 
         ```bash
         uv add deepagents copilotkit langchain-openai
         ```
     </Step>
     <Step>
-        If you already have a LangGraph agent written, just reference the following code. In this step
-        we create a simple LangGraph agent for the sake of demonstration.
+        如果你已经写好了 LangGraph 智能体，只需参考以下代码。这一步我们为了演示而创建一个简单的 LangGraph 智能体。
 
         <Tabs groupId="deployment_method" items={['LangSmith', 'FastAPI']}>
             <Tab value="LangSmith">
-                First, we'll create a simple LangGraph agent:
+                首先，创建一个简单的 LangGraph 智能体：
 
                 ```python title="main.py"
                 from deepagents import create_deep_agent
@@ -64,7 +63,7 @@ Before you begin, you'll need the following:
                 graph = agent
                 ```
 
-                Then to test and deploy with LangSmith, we'll also need a `langgraph.json`
+                接着，为了用 LangSmith 测试和部署，我们还需要一个 `langgraph.json`
 
                 ```sh
                 touch langgraph.json
@@ -84,17 +83,17 @@ Before you begin, you'll need the following:
                 ```
             </Tab>
             <Tab value="FastAPI">
-                First, add the `ag-ui-langgraph`, `fastapi`, and `uvicorn` packages to your project:
+                首先，把 `ag-ui-langgraph`、`fastapi` 和 `uvicorn` 包添加到你的项目中：
 
                 ```bash
                 uv add ag-ui-langgraph fastapi uvicorn
                 ```
 
-                Then create a simple LangGraph agent, add a FastAPI app, and build attach our agent as an AG-UI endpoint.
+                然后创建一个简单的 LangGraph 智能体，添加 FastAPI 应用，并把我们的智能体挂载为 AG-UI 端点。
 
                 ```python title="main.py"
                 import os
-                from fastapi import FastAPI 
+                from fastapi import FastAPI
                 import uvicorn
 
                 # [!code highlight:2]
@@ -143,27 +142,27 @@ Before you begin, you'll need the following:
             </Tab>
         </Tabs>
 
-        <Callout type="info" title="What is AG-UI?">
-            AG-UI is an open protocol for frontend-agent communication.
+        <Callout type="info" title="AG-UI 是什么？">
+            AG-UI 是一个用于前端与智能体通信的开放协议。
         </Callout>
     </Step>
     <Step>
-        ### Configure your environment
+        ### 配置环境
 
-        Create a `.env` file in your agent directory and add your OpenAI API key:
+        在智能体目录中创建一个 `.env` 文件，并添加你的 OpenAI API 密钥：
 
         ```plaintext title=".env"
         OPENAI_API_KEY=your_openai_api_key
         ```
 
-        <Callout type="info" title="What about other models?">
-        The starter template is configured to use OpenAI's GPT-4o by default, but you can modify it to use any language model supported by LangGraph.
+        <Callout type="info" title="其他模型呢？">
+        起步模板默认配置为使用 OpenAI 的 GPT-4o，但你可以修改它以使用 LangGraph 支持的任何语言模型。
         </Callout>
     </Step>
     <Step>
-        ### Create your frontend
+        ### 创建前端
 
-        CopilotKit works with any React-based frontend. We'll use Next.js for this example.
+        CopilotKit 可以配合任何基于 React 的前端使用。本示例中我们使用 Next.js。
 
         ```bash
         npx create-next-app@latest frontend
@@ -171,16 +170,16 @@ Before you begin, you'll need the following:
         ```
     </Step>
     <Step>
-        ### Install CopilotKit packages
+        ### 安装 CopilotKit 包
 
         ```npm
         npm install @copilotkit/react-core @copilotkit/runtime
         ```
     </Step>
     <Step>
-        ### Setup Copilot Runtime
+        ### 设置 Copilot Runtime
 
-        Create an API route to connect CopilotKit to your LangGraph agent:
+        创建一个 API 路由，将 CopilotKit 连接到你的 LangGraph 智能体：
 
         ```sh
         mkdir -p app/api/copilotkit && touch app/api/copilotkit/route.ts
@@ -250,9 +249,9 @@ Before you begin, you'll need the following:
         </Tabs>
     </Step>
     <Step>
-        ### Configure CopilotKit Provider
+        ### 配置 CopilotKit Provider
 
-        Wrap your application with the CopilotKit provider:
+        用 CopilotKit provider 包裹你的应用：
 
         ```tsx title="app/providers.tsx"
         "use client";
@@ -268,8 +267,7 @@ Before you begin, you'll need the following:
         }
         ```
 
-        `app/layout.tsx` is a server component and cannot import the provider
-        directly, so it renders your client file instead:
+        `app/layout.tsx` 是服务端组件，无法直接导入 provider，因此它改为渲染你的客户端文件：
 
         ```tsx title="app/layout.tsx"
         // [!code highlight:2]
@@ -293,9 +291,9 @@ Before you begin, you'll need the following:
         ```
     </Step>
     <Step>
-    ### Add the chat interface
+    ### 添加聊天界面
 
-    Add the CopilotSidebar component to your page:
+    将 CopilotSidebar 组件添加到你的页面：
 
     ```tsx title="app/page.tsx"
     "use client";
@@ -327,8 +325,8 @@ Before you begin, you'll need the following:
     ```
     </Step>
     <Step>
-        ### Start your agent
-        From your agent directory, start the agent server:
+        ### 启动智能体
+        在智能体目录下，启动智能体服务器：
 
         <Tabs groupId="deployment_method" items={['LangSmith', 'FastAPI']}>
         <Tab value="LangSmith">
@@ -345,12 +343,12 @@ Before you begin, you'll need the following:
         </Tab>
         </Tabs>
 
-        Your agent will be available at `http://localhost:8123`.
+        你的智能体将通过 `http://localhost:8123` 提供服务。
     </Step>
     <Step>
-        ### Start your UI
+        ### 启动 UI
 
-        In a separate terminal, navigate to your frontend directory and start the development server:
+        另开一个终端，进入前端目录并启动开发服务器：
 
         <Tabs groupId="package-manager" items={['npm', 'pnpm', 'yarn', 'bun']}>
             <Tab value="npm">

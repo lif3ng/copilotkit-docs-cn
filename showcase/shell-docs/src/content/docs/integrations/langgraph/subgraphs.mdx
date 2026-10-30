@@ -1,6 +1,6 @@
 ---
-title: Subgraphs
-description: Use multiple agents as subgraphs in your application.
+title: 子图
+description: 在应用中将多个智能体用作子图。
 icon: "lucide/Network"
 ---
 
@@ -8,32 +8,32 @@ icon: "lucide/Network"
   id="subgraphs-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/subgraphs?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/subgraphs?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
 <Callout type="info">
-  This example demonstrates subgraphs in the [CopilotKit Feature
-  Viewer](https://feature-viewer.copilotkit.ai/langgraph/feature/subgraphs).
+  该示例在 [CopilotKit Feature
+  Viewer](https://feature-viewer.copilotkit.ai/langgraph/feature/subgraphs) 中演示了子图。
 </Callout>
 
-## What are Subgraphs?
+## 什么是子图？
 
-A subgraph is simply a graph used as a node inside another graph.
-Think of it as encapsulation for LangGraph: each subgraph is a self-contained unit that can be combined to build larger, more complex systems.
+子图就是被当作另一个图中的节点来使用的图。
+可以把它理解为 LangGraph 的封装：每个子图都是一个自包含的单元，可以组合起来构建更大、更复杂的系统。
 
-## When should I use this?
+## 何时应该使用它？
 
-Subgraphs are useful when you need to structure a graph into smaller, reusable pieces.
-They let you build multi-agent systems, reuse node sets across multiple graphs, and let different teams develop separate parts of a graph independently.
+当你需要把一个图拆分成更小、可复用的片段时，子图会很有用。
+它们让你能够构建多智能体系统、在多个图之间复用节点集合，并让不同团队独立开发图的各个部分。
 
-## How does CopilotKit support this?
+## CopilotKit 如何支持这一特性？
 
-CopilotKit supports streaming directly from subgraphs, so nested graphs can emit events in real time just like a single graph.
+CopilotKit 支持直接从子图进行流式传输，因此嵌套的图可以像单个图一样实时发出事件。
 
-Using this feature requires no extra steps on the agent side.
-All you need to do is subscribe to the agent state in your frontend:
+使用该特性在智能体一侧不需要任何额外步骤。
+你只需在前端订阅智能体状态即可：
 
 <FrontendOnly frontend="react">
 ```tsx
@@ -59,4 +59,4 @@ export class AgentStatusComponent {
 ```
 </FrontendOnly>
 
-The subgraph nodes will stream as usual, and you can also use `interrupt()` directly from a subgraph.
+子图节点会照常流式传输，你也可以直接在子图中使用 `interrupt()`。

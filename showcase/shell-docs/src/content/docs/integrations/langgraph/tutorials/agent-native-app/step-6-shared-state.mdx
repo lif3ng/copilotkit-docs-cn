@@ -1,28 +1,26 @@
 ---
-title: "Step 6: Shared State"
+title: "第 6 步：共享状态"
 ---
 
-In LangGraph, your agents are stateful. This means that they as your graph traverses nodes, the overall application state will be updated and persisted.
+在 LangGraph 中，智能体是有状态的。这意味着当图遍历各个节点时，整体应用状态会被更新并持久化。
 
-CopilotKit allows you to easily read and update this state through the use of two main hooks:
+CopilotKit 提供两个主要 hook，让你轻松读取和更新这个状态：
 
-- [`useCoAgent`](/reference/v1/hooks/useCoAgent) - Provides a way to read and write Agent state anywhere in your application.
-- [`useCoAgentStateRender`](/reference/v1/hooks/useCoAgentStateRender) - Provides a way to render Agent state in the chat.
+- [`useCoAgent`](/reference/v1/hooks/useCoAgent) - 提供在应用任意位置读写智能体状态的方式。
+- [`useCoAgentStateRender`](/reference/v1/hooks/useCoAgentStateRender) - 提供在聊天中渲染智能体状态的方式。
 
-With this in mind, our current goal is to create a bidirectional connection between the application's state and the LangGraph agent's state. This will
-allow us to render the agent's completed research in the right panel.
+明确这一点后，我们当前的目标是在应用状态与 LangGraph 智能体状态之间建立双向连接。这将让我们能够在右侧面板中渲染智能体完成的研究内容。
 
-For this, we'll be using the `useCoAgent` hook.
+为此，我们将使用 `useCoAgent` hook。
 
 <Callout>
-  The `useCoAgentStateRender` will be used in the next step to render the
-  agent's progress in the chat.
+  `useCoAgentStateRender` 将在下一步中用于在聊天中渲染智能体的进度。
 </Callout>
 
 <Steps>
 <Step>
-## Understanding our agent's state
-The state of our agent can be found in `agent/state.py`.
+## 理解智能体的状态
+智能体的状态定义在 `agent/state.py` 中。
 
 ```python title="agent/state.py"
 # ...
@@ -40,21 +38,21 @@ class ResearchState(MessagesState):
     logs: List[dict]  # list of dicts logs to be sent to frontend with 'message', 'status'
 ```
 
-There are a few things to note here, but let's focus on the `proposal` field and `sections` field.
+这里有几点需要注意，但我们先关注 `proposal` 字段和 `sections` 字段。
 
-- The `proposal` field is a dictionary that stores the proposed research structure before the user approves it.
-- The `sections` field is a list of dictionaries, each containing a `title`, `content`, and `idx`. This is the actual research that will be displayed in the right panel.
+- `proposal` 字段是一个字典，存储用户批准之前的研究结构提案。
+- `sections` 字段是一个字典列表，每一项都包含 `title`、`content` 和 `idx`。这就是将显示在右侧面板中的实际研究内容。
 
-We've already wired up the approval of the `proposal` field in the previous step, so now we need to wire up rendering for the `sections` field.
+我们在上一步中已经完成了 `proposal` 字段批准逻辑的接线，现在需要为 `sections` 字段接线渲染。
 
 </Step>
 <Step>
 
-## The `useCoAgent` hook
+## `useCoAgent` hook
 
-Our current goal is to create a bidirectional connection between these two states. Luckily, the [`useCoAgent`](/reference/v1/hooks/useCoAgent) hook makes this easy.
+我们当前的目标是在这两个状态之间建立双向连接。幸运的是，[`useCoAgent`](/reference/v1/hooks/useCoAgent) hook 让这一切变得简单。
 
-In the `useResearch` hook, we'll just replace our React state objects with the `useCoAgent` hook.
+在 `useResearch` hook 中，我们只需把 React 状态对象替换为 `useCoAgent` hook。
 
 ```tsx title="frontend/src/components/research-context.tsx" {3,8-11}
 // ...
@@ -106,30 +104,29 @@ export function useResearch() {
 ```
 
 <Callout>
-The `useCoAgent` hook is generic. What this means is that we can specify a type for that represents the state of the LangGraph agent.
-If you are going to specify a type, you should be very careful that the type has the same shape as the state of your LangGraph agent.
+`useCoAgent` hook 是泛型的。这意味着我们可以指定一个类型来表示 LangGraph 智能体的状态。如果你要指定类型，请务必确保该类型的结构与 LangGraph 智能体的状态完全一致。
 
-It is not recommended, but you can ditch the type parameter and instead get an `any` type.
+虽然不推荐，但你也可以舍弃类型参数，转而使用 `any` 类型。
 
 </Callout>
 
-In this example, we use the `useCoAgent` hook to wire up the application's state to the LangGraph agent's state.
+在这个示例中，我们使用 `useCoAgent` hook 把应用状态接到 LangGraph 智能体状态上。
 
-- For the generic type, we pass the `AgentState` type that was already defined for the application in `@/lib/types.ts`.
-- For the `name` parameter, we pass the name of the graph as defined in `agent/langgraph.json`.
-- For the `initialState` parameter, we pass the initial state of the LangGraph agent which is already defined in `@/lib/trips.ts`.
+- 对于泛型类型，我们传入 `AgentState` 类型，它已经在 `@/lib/types.ts` 中为应用定义好了。
+- 对于 `name` 参数，我们传入 `agent/langgraph.json` 中定义的图名称。
+- 对于 `initialState` 参数，我们传入 LangGraph 智能体的初始状态，它已经在 `@/lib/trips.ts` 中定义好了。
 
 </Step>
 </Steps>
 
-## Recap
+## 回顾
 
-Now we can see the final result of the research in the right panel! To recap, we did the following:
+现在我们可以在右侧面板中看到研究的最终结果了！回顾一下，我们做了以下事情：
 
-- Learned about the agent's state.
-- Added the `useCoAgent` hook to our application to render the `sections` field.
+- 了解了智能体的状态。
+- 在应用中添加了 `useCoAgent` hook 以渲染 `sections` 字段。
 
-Now, try running the agent again and going through the same steps. At the end, you'll see the completed research in the right panel.
+现在，试着再次运行智能体并重复相同的步骤。最后，你会在右侧面板中看到已完成的研究内容。
 
 ```
 Please research dogs!
@@ -145,7 +142,6 @@ Please research dogs!
   />
 </Frame>
 
-Now, we can completely run our agent from start to finish _and_ see the finalized research in the right window.
+现在，我们可以完整地从头到尾运行智能体，_并且_在右侧窗口中看到定稿的研究内容。
 
-However, you may notice that the research takes a long time to complete without any indication of progress. In the next step, we'll leverage the CoAgent concepts
-of **generative ui** to communicate the agent's progress in the chat.
+不过，你可能会注意到，研究需要很长时间才能完成，而且没有任何进度提示。在下一步中，我们将利用 CoAgent 的**生成式 UI（generative UI）**概念，在聊天中传达智能体的进度。

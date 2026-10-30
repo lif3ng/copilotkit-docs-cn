@@ -1,26 +1,23 @@
 ---
-title: "Step 8: Progressive State Updates"
+title: "第 8 步：渐进式状态更新"
 ---
 
-At this point, we've got a pretty functional application. We can run the agent, see the progress in the chat, and see the final research in the right panel.
+到这一步，我们的应用已经相当完善了。我们可以运行智能体、在聊天中查看进度、在右侧面板中查看最终研究结果。
 
-However, we're still missing one thing. We don't see the LLM actually generating the research, we just see the final result.
+不过，我们还缺一样东西。我们看不到 LLM 实际生成研究的过程，只能看到最终结果。
 
-In this step, we'll learn how to leverage predictive state rendering to render the agent's progress in the chat. Specifically, we'll be rendering the
-sections of the research as they are generated.
+在这一步中，我们将学习如何利用预测性状态渲染，在聊天中呈现智能体的进度。具体来说，我们将在研究的各个章节生成时实时渲染它们。
 
-For this, we'll be using the `copilotkit_customize_config`.
+为此，我们将使用 `copilotkit_customize_config`。
 
 <Callout>
-  The `copilotkit_customize_config` function will be used in the next step to
-  render the agent's progress in the chat.
+  `copilotkit_customize_config` 函数将在下一步中用于
+  在聊天中渲染智能体的进度。
 </Callout>
 
-## Create a copilotkit_customize_config and emit intermediate state
+## 创建 copilotkit_customize_config 并发出中间状态
 
-CopilotKit allows you to customize the configuration of how your frontend and agent interact with each other. In this case, we want to
-setup the `emit_intermediate_state` property. We define a list of objects which will be used to emit the state to the frontend based on
-tool calls.
+CopilotKit 允许你自定义前端与智能体彼此交互的配置。在本例中，我们要设置 `emit_intermediate_state` 属性。我们定义一个对象列表，用于在工具调用时把状态发送到前端。
 
 ```python title="agent/section_writer.py"
 from copilotkit.langchain import copilotkit_customize_config, copilotkit_emit_state // [!code ++]
@@ -61,17 +58,17 @@ async def section_writer(research_query, section_title, idx, state):
 
 ```
 
-There are three main pieces to predictively emit state:
+要预测性地发出状态，主要有三个组成部分：
 
-1. The `state_key` is the key of the agent's state that we want to emit.
-2. The `tool` is the tool that will be called to generate the state.
-3. The `tool_argument` is the argument that will be passed to the tool which will be the predicted state.
+1. `state_key` 是我们想要发出的智能体状态键名。
+2. `tool` 是将被调用以生成状态的工具。
+3. `tool_argument` 是将传给该工具的参数，也就是预测出的状态。
 
-## Recap
+## 回顾
 
-That's it! Now when the LLM calls the tools that we defined, the state will be predictively emitted to the frontend.
+就是这样！现在当 LLM 调用我们定义的工具时，状态会被预测性地发送到前端。
 
-To give it a try, go through the full flow of conducting research. You'll now be able to see the sections as they are being generated.
+试着完整走一遍开展研究的流程。现在你将能够看到各个章节逐步生成的过程。
 
 ```
 Please research dogs!
@@ -87,10 +84,9 @@ Please research dogs!
   muted
 />
 
-To recap, we did the following:
+回顾一下，我们做了以下事情：
 
-- Learned about the `copilotkit_customize_config` function.
-- Used the config to emit the state of the agent predictively
+- 了解了 `copilotkit_customize_config` 函数。
+- 使用该配置预测性地发出智能体的状态
 
-You've successfully created a CoAgent using the core concepts of CopilotKit. In the next step, we'll wrap up this tutorial by recapping the entire process
-and showing some next steps.
+你已经使用 CopilotKit 的核心概念成功创建了一个 CoAgent。在下一步中，我们将回顾整个流程并展示一些后续步骤，为本教程画上句号。

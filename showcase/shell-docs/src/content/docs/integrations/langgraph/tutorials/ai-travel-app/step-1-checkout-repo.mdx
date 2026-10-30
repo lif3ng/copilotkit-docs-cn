@@ -1,14 +1,12 @@
 ---
-title: "Step 1: Run the example"
+title: "第 1 步：运行示例"
 ---
 
 <Steps>
 <Step>
-### Check prerequisites
+### 检查前置条件
 
-Before you start, install Node.js 20.9.0+, pnpm, Python 3.12+, and
-[`uv`](https://docs.astral.sh/uv/getting-started/installation/). On macOS or
-Linux, you can install `uv` with its official installer:
+开始之前，请安装 Node.js 20.9.0 及以上版本、pnpm、Python 3.12 及以上版本，以及 [`uv`](https://docs.astral.sh/uv/getting-started/installation/)。在 macOS 或 Linux 上，可以用官方安装脚本安装 `uv`：
 
 ```shell
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -16,7 +14,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 </Step>
 <Step>
-### Clone the current repository
+### 克隆当前仓库
 
 ```shell
 git clone https://github.com/CopilotKit/CopilotKit.git
@@ -24,56 +22,52 @@ cd CopilotKit
 pnpm install
 ```
 
-The completed v2 example lives at `examples/v1/travel`. Its main parts
-are:
+完整的 v2 示例位于 `examples/v1/travel`，其主要组成部分如下：
 
-- `app/`: the Next.js page and v2 runtime route
-- `components/`: the map, chat UI, and approval cards
-- `lib/`: shared agent state, types, and React hooks
-- `agent/`: the Python LangGraph agent and AG-UI server
+- `app/`：Next.js 页面与 v2 运行时路由
+- `components/`：地图、聊天 UI 和审批卡片
+- `lib/`：共享智能体状态、类型和 React hooks
+- `agent/`：Python LangGraph 智能体和 AG-UI 服务器
 
 </Step>
 <Step>
-### Install the agent
+### 安装智能体
 
-From the repository root, install the Python dependencies with the example's
-script:
+在仓库根目录下，使用示例自带的脚本安装 Python 依赖：
 
 ```shell
 cd examples/v1/travel
 pnpm install:agent
 ```
 
-The script runs `uv sync` in the `agent/` directory.
+该脚本会在 `agent/` 目录中运行 `uv sync`。
 
 </Step>
 <Step>
-### Add the API keys
+### 添加 API 密钥
 
-Create `agent/.env` inside the travel example:
+在旅行示例中创建 `agent/.env`：
 
 ```txt title="examples/v1/travel/agent/.env"
 OPENAI_API_KEY=<your-openai-api-key>
 GOOGLE_MAPS_API_KEY=<your-google-maps-api-key>
 ```
 
-You can get an OpenAI key from the [OpenAI API dashboard](https://platform.openai.com/api-keys)
-and a Google Maps key from the [Google Maps Platform guide](https://developers.google.com/maps/documentation/places/web-service/get-api-key#creating-api-keys).
+OpenAI 密钥可在 [OpenAI API 控制台](https://platform.openai.com/api-keys)获取，Google Maps 密钥可参考 [Google Maps Platform 指南](https://developers.google.com/maps/documentation/places/web-service/get-api-key#creating-api-keys)获取。
 
 </Step>
 <Step>
-### Start the app and agent
+### 启动应用与智能体
 
-Run this command from `examples/v1/travel`:
+在 `examples/v1/travel` 目录下运行以下命令：
 
 ```shell
 pnpm dev
 ```
 
-This starts the Next.js app on [http://localhost:3000](http://localhost:3000)
-and the agent on port `8000`. Open the app and ask it to plan a trip.
+这会在 [http://localhost:3000](http://localhost:3000) 启动 Next.js 应用，并在 `8000` 端口启动智能体。打开应用，让它帮你规划一次旅行。
 
 </Step>
 </Steps>
 
-Next, tour the LangGraph agent that powers the example.
+接下来，一起来了解驱动这个示例的 LangGraph 智能体。

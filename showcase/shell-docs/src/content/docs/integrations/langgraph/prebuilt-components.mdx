@@ -1,35 +1,34 @@
 ---
-title: Prebuilt Components
+title: 预构建组件
 icon: "lucide/SendHorizontal"
-description: Drop-in chat components for your LangGraph agent.
+description: 为你的 LangGraph 智能体提供开箱即用的聊天组件。
 ---
 
 <OpsPlatformCTA
   variant="inline"
-  title="Want users to resume conversations across sessions?"
-  body="Persistent threads ship with CopilotKit Intelligence. Try it for free."
+  title="希望用户能跨会话继续对话？"
+  body="CopilotKit Intelligence 内置持久化线程。免费试用。"
   surface="docs_langgraph_prebuilt_components"
 />
 
-CopilotKit ships three prebuilt chat components that connect directly to your LangGraph agent. Each is a wrapper around `CopilotChat` with a different layout — pick the one that fits your app and you're done.
+CopilotKit 提供三个可直接连接你的 LangGraph 智能体的预构建聊天组件。每个都是 `CopilotChat` 的包装器，只是布局不同——选一个适合你应用的即可。
 
 <Callout type="info">
-  If you've completed the [quickstart](/langgraph/quickstart), you already have
-  one of these set up.
+  如果你已完成[快速开始](/langgraph/quickstart)，那么其中之一你已经配置好了。
 </Callout>
 
 <IframeSwitcher
   id="agentic-chat-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/agentic_chat?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/agentic_chat?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
-## Setup
+## 设置
 
-Import the default styles in your root layout:
+在你的根布局中导入默认样式：
 
 ```tsx title="layout.tsx"
 
@@ -37,7 +36,7 @@ Import the default styles in your root layout:
 
 ### CopilotChat
 
-A flexible chat component that can be placed anywhere in your app and sized as needed.
+一个灵活的聊天组件，可以放置在应用的任意位置，并按需调整尺寸。
 
 ```tsx title="page.tsx"
 // [!code word:CopilotChat]
@@ -56,13 +55,13 @@ export function YourComponent() {
 
 <img
   src="https://cdn.copilotkit.ai/docs/copilotkit/images/copilotchat-example.gif"
-  alt="CopilotChat example"
+  alt="CopilotChat 示例"
   className="w-full rounded-lg my-4"
 />
 
 ### CopilotSidebar
 
-Wraps your main content and provides a collapsible sidebar chat.
+包裹你的主要内容，并提供一个可折叠的侧边栏聊天。
 
 ```tsx title="page.tsx"
 // [!code word:CopilotSidebar]
@@ -84,13 +83,13 @@ export function YourApp() {
 
 <img
   src="https://cdn.copilotkit.ai/docs/copilotkit/images/sidebar-example.gif"
-  alt="CopilotSidebar example"
+  alt="CopilotSidebar 示例"
   className="w-full rounded-lg my-4"
 />
 
 ### CopilotPopup
 
-A floating chat bubble that sits alongside your content and toggles open/closed.
+一个悬浮的聊天气泡，位于你的内容旁边，可切换展开/收起。
 
 ```tsx title="page.tsx"
 // [!code word:CopilotPopup]
@@ -112,13 +111,13 @@ export function YourApp() {
 
 <img
   src="https://cdn.copilotkit.ai/docs/copilotkit/images/popup-example.gif"
-  alt="CopilotPopup example"
+  alt="CopilotPopup 示例"
   className="w-full rounded-lg my-4"
 />
 
-## Customization
+## 自定义
 
-All three components support the [slot system](/langgraph/custom-look-and-feel/slots) for deep customization — from Tailwind classes to full component replacement:
+这三个组件都支持[插槽系统（slot system）](/langgraph/custom-look-and-feel/slots)以进行深度自定义——从 Tailwind 类到完整替换组件：
 
 ```tsx title="page.tsx"
 <CopilotChat
@@ -142,7 +141,7 @@ All three components support the [slot system](/langgraph/custom-look-and-feel/s
 />
 ```
 
-## Next Steps
+## 下一步
 
-- [Custom Look & Feel](/langgraph/custom-look-and-feel) — Theme, restyle, or go fully headless with the slot system
-- [Programmatic Control](/langgraph/programmatic-control) — Drive your agent from code with `useAgent` and `copilotkit.runAgent()`
+- [自定义外观](/langgraph/custom-look-and-feel)——通过插槽系统定制主题、重设样式，或走向完全无头（headless）
+- [编程控制](/langgraph/programmatic-control)——用 `useAgent` 和 `copilotkit.runAgent()` 从代码驱动你的智能体

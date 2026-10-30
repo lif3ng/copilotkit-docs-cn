@@ -1,17 +1,15 @@
 ---
-title: "Step 4: Agentic Chat UI"
+title: "第 4 步：智能体化聊天 UI"
 ---
 
-At this point, we have a LangGraph agent running in LangGraph Studio and have a simple copilot. Now, let's
-combine the two together to make an copilot agent (CoAgent)!
+到这一步，我们已经有了运行在 LangGraph Studio 中的 LangGraph 智能体，也有了一个简单的 copilot。现在，我们把两者结合起来，打造一个 copilot 智能体（CoAgent）！
 
 <Steps>
 <Step>
-## Connect the agent to CopilotKit
-We need to make CopilotKit aware of our running LangGraph agent. To do this, we will setup a remote 
-endpoint to connect to our locally running agent.
+## 将智能体连接到 CopilotKit
+我们需要让 CopilotKit 感知到正在运行的 LangGraph 智能体。为此，我们将设置一个远程端点，连接到本地运行的智能体。
 
-Since we're using Copilot Cloud, this is as simple as running the following command for local development.
+由于我们使用的是 Copilot Cloud，只需在本地开发时运行以下命令即可。
 
 ```bash
 npx copilotkit@latest dev --port 8000
@@ -33,26 +31,24 @@ Press Ctrl+C to stop the tunnel
 ✔ 🚀 Local tunnel is live and linked to Copilot Cloud!
 ```
 
-This allows Copilot Cloud to know where to send requests to when the agent is called.
+这样，Copilot Cloud 就知道在调用智能体时该把请求发送到哪里。
 
 </Step>
 <Step>
-## Specify the agent to use
+## 指定要使用的智能体
 
-Now we need to let the CopilotKit provider know which agent to use, we can do this by specifying the `agent` prop.
+现在我们需要让 CopilotKit provider 知道要使用哪个智能体，可以通过指定 `agent` prop 来实现。
 
 <Accordions>
-<Accordion title="Multi-Agent Routing">
-By default, CopilotKit will intelligently route requests to the appropriate agent based on context. This allows 
-you to have multiple agents and actions and not have to worry about manually routing requests.
+<Accordion title="多智能体路由">
+默认情况下，CopilotKit 会根据上下文智能地将请求路由到合适的智能体。这样你就可以拥有多个智能体和操作，而无需手动路由请求。
 
-In our case however, we only have a single agent and its ideal to lock all requests to that agent. We can do this
-by updating the props of our `CopilotKit` provider.
+但在本例中，我们只有一个智能体，因此最好把所有请求都锁定到该智能体上。我们可以通过更新 `CopilotKit` provider 的 props 来实现。
 
 </Accordion>
 </Accordions>
 
-Our agent name is `agent` which is specified in the `langgraph.json` file.
+我们的智能体名称是 `agent`，它在 `langgraph.json` 文件中指定。
 
 ```tsx title="frontend/src/app/layout.tsx"
 // ...
@@ -67,14 +63,14 @@ Our agent name is `agent` which is specified in the `langgraph.json` file.
 </Step>
 </Steps>
 
-## Recap
+## 回顾
 
-And we're done! Here's what we did:
+大功告成！以下是我们做过的事情：
 
-- We connected the agent to CopilotKit.
-- We specified the agent to use.
+- 我们将智能体连接到了 CopilotKit。
+- 我们指定了要使用的智能体。
 
-Now when you head back to the app, you'll notice that we're talking to our LangGraph agent!
+现在回到应用，你会发现我们正在与 LangGraph 智能体对话！
 
 <Frame>
   <ImageZoom
@@ -85,4 +81,4 @@ Now when you head back to the app, you'll notice that we're talking to our LangG
   />
 </Frame>
 
-Next, let's process and sync the state between our application and the agent.
+接下来，让我们处理并在应用与智能体之间同步状态。

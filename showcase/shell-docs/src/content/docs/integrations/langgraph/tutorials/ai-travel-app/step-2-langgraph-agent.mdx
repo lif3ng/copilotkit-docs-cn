@@ -1,41 +1,37 @@
 ---
-title: "Step 2: Tour the LangGraph agent"
+title: "第 2 步：了解 LangGraph 智能体"
 ---
 
-The Python agent lives in `examples/v1/travel/agent`. The app runs it as
-an AG-UI server, so the browser and agent can exchange messages, state, tool
-calls, and approval results through one protocol.
+Python 智能体位于 `examples/v1/travel/agent`。应用将它作为 AG-UI 服务器运行，这样浏览器与智能体就能通过同一套协议交换消息、状态、工具调用和审批结果。
 
-## Agent structure
+## 智能体结构
 
-The source is split by responsibility:
+源码按职责划分：
 
-- `agent/src/state.py` defines the shared `AgentState`.
-- `agent/src/agent.py` builds and compiles the LangGraph graph.
-- `agent/src/chat.py` prompts the model and routes its tool calls.
-- `agent/src/search.py` searches Places API (New) and streams progress.
-- `agent/src/trips.py` applies approved trip changes.
-- `agent/main.py` serves the graph at `http://localhost:8000/copilotkit`.
+- `agent/src/state.py` 定义共享的 `AgentState`。
+- `agent/src/agent.py` 构建并编译 LangGraph 图。
+- `agent/src/chat.py` 向模型发送提示并分发其工具调用。
+- `agent/src/search.py` 搜索 Places API (New) 并流式展示进度。
+- `agent/src/trips.py` 应用已批准的行程变更。
+- `agent/main.py` 在 `http://localhost:8000/copilotkit` 上提供该图的服务。
 
-The graph has four nodes:
+这张图包含四个节点：
 
-1. `chat_node` asks the model what to do next.
-2. `search_node` searches for places and sends progress to the UI.
-3. `trips_node` pauses a proposed trip change for user review.
-4. `perform_trips_node` applies an approved change or handles a rejection.
+1. `chat_node` 询问模型下一步该做什么。
+2. `search_node` 搜索地点并将进度推送到 UI。
+3. `trips_node` 暂停提议的行程变更，等待用户审核。
+4. `perform_trips_node` 应用已批准的变更或处理拒绝。
 
-You can inspect the graph in `agent/static/agent-diagram.png`.
+你可以在 `agent/static/agent-diagram.png` 中查看这张图。
 
-## Run the agent by itself
+## 单独运行智能体
 
-From `examples/v1/travel`, run:
+在 `examples/v1/travel` 目录下运行：
 
 ```shell
 pnpm dev:agent
 ```
 
-`agent/main.py` loads `agent/.env`, wraps the compiled graph in
-`LangGraphAGUIAgent`, and mounts it at `/copilotkit`. Keep this process running
-while you start the UI with `pnpm dev:ui` in another terminal.
+`agent/main.py` 会加载 `agent/.env`，把编译好的图包装进 `LangGraphAGUIAgent`，并挂载到 `/copilotkit`。保持该进程运行，然后在另一个终端用 `pnpm dev:ui` 启动 UI。
 
-Next, tour the v2 React provider and runtime route that connect to this agent.
+接下来，一起来了解连接这个智能体的 v2 React provider 与运行时路由。

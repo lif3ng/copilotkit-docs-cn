@@ -1,63 +1,49 @@
 ---
-title: "Configurable"
+title: "可配置项（Configurable）"
 icon: "lucide/Bolt"
-description: "Choose the supported channel for LangGraph runtime values and execution settings."
+description: "为 LangGraph 运行时值与执行设置选择受支持的传递通道。"
 ---
 
-## Choose the right channel
+## 选择正确的通道
 
-Some LangGraph adapters merge browser-supplied `forwardedProps.config` into
-LangGraph's `RunnableConfig`. Those values remain browser-controlled and
-untrusted, even when a LangGraph config schema accepts them. Never use them for
-credentials, tenant identity, authorization, or server execution controls.
-Keep the trust boundary explicit and use the channel that matches the value:
+一些 LangGraph 适配器会把浏览器提供的 `forwardedProps.config` 合并进
+LangGraph 的 `RunnableConfig`。即使 LangGraph 的 config schema 接受这些值，它们仍然由浏览器控制、不可信。绝不要将它们用于凭据、租户身份、授权或服务器执行控制。请保持信任边界清晰，并根据值的类型选择对应的通道：
 
-| Value | Supported channel |
+| 值 | 受支持的通道 |
 | --- | --- |
-| UI preferences the model should see | Publish them with your frontend's agent-context API; see [Agent Config](/agent-config). |
-| Authentication and authorization | Send an `Authorization` header and validate it for every request; see [Authentication](/auth). |
-| Graph execution settings | Set them in the trusted backend that invokes or serves the graph. |
+| 模型需要看到的 UI 偏好 | 通过前端的 agent-context API 发布；参见 [Agent Config](/agent-config)。 |
+| 身份验证与授权 | 发送 `Authorization` 请求头，并对每个请求进行校验；参见[身份验证](/auth)。 |
+| Graph 执行设置 | 在调用或提供 graph 的可信后端中设置。 |
 
-<Callout type="warning" title="Do not send credentials as run properties">
-  Run properties are application payload, not an authentication or LangGraph
-  configuration channel. Validate credentials at the server boundary and pass
-  only the resolved identity to the graph.
+<Callout type="warning" title="不要把凭据作为运行属性发送">
+  运行属性属于应用载荷，不是身份验证或 LangGraph 配置通道。请在服务器边界校验凭据，只把解析后的身份传给 graph。
 </Callout>
 
-## Model-visible UI preferences
+## 模型可见的 UI 偏好
 
-For tone, expertise level, response length, selected records, or other
-non-secret values that should influence the model, publish them as agent
-context. The [Agent Config guide](/agent-config) shows the complete pattern and
-how CopilotKit middleware exposes the latest values on every turn.
+对于语气、专业水平、响应长度、所选记录等应当影响模型的非敏感值，请将其作为智能体上下文发布。[Agent Config 指南](/agent-config)展示了完整的模式，以及 CopilotKit middleware 如何在每一轮暴露最新值。
 
 <FrontendOnly frontend="react">
-  In React, publish the values with
-  [`useAgentContext`](/reference/v2/hooks/useAgentContext).
+  在 React 中，使用
+  [`useAgentContext`](/reference/v2/hooks/useAgentContext) 发布这些值。
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
-  In Angular, publish the values with
-  [`connectAgentContext`](/reference/angular/functions/connectAgentContext).
+  在 Angular 中，使用
+  [`connectAgentContext`](/reference/angular/functions/connectAgentContext) 发布这些值。
 </FrontendOnly>
 
-## Authentication
+## 身份验证
 
-Authentication belongs in request headers, not graph state or runtime
-properties. The [Authentication guide](/auth) covers both
-LangGraph Platform and self-hosted AG-UI endpoints. In both cases, validate the
-current request before the graph runs and inject only a resolved user or tenant
-identifier.
+身份验证应放在请求头中，而不是 graph 状态或运行时属性中。[身份验证指南](/auth)同时覆盖 LangGraph Platform 与自托管的 AG-UI 端点。两种情况下，都要在 graph 运行前校验当前请求，并只注入解析后的用户或租户标识符。
 
-## Trusted graph execution settings
+## 可信的 graph 执行设置
 
-Set graph configuration in backend code after validating any input that
-influences it. Do not accept a browser-supplied configuration object wholesale.
+在影响 graph 配置的输入通过校验之后，再于后端代码中设置 graph 配置。不要整体接受浏览器提供的配置对象。
 
 <Tabs groupId="language_langgraph_agent" items={['Python', 'TypeScript']} default="Python" persist>
   <Tab value="Python">
-    For a self-hosted AG-UI endpoint, construct a request-local
-    `LangGraphAGUIAgent` with backend-owned configuration:
+    对于自托管的 AG-UI 端点，使用由后端掌控的配置来构造一个请求级的 `LangGraphAGUIAgent`：
 
     ```python title="main.py"
     from copilotkit import LangGraphAGUIAgent
@@ -74,8 +60,7 @@ influences it. Do not accept a browser-supplied configuration object wholesale.
         )
     ```
 
-    A node can then read the validated value from the configuration supplied by
-    the server:
+    然后，节点就可以从服务器提供的配置中读取经过校验的值：
 
     ```python
     from langchain_core.runnables import RunnableConfig
@@ -85,14 +70,11 @@ influences it. Do not accept a browser-supplied configuration object wholesale.
         return state
     ```
 
-    Create the agent after authentication for each request, as shown in the
-    [self-hosted authentication guide](/auth).
+    请在每个请求完成身份验证后再创建智能体，具体参见[自托管身份验证指南](/auth)。
   </Tab>
 
   <Tab value="TypeScript">
-    Set runtime context and execution controls where your trusted backend
-    invokes the graph. `recursionLimit` is a top-level execution setting; your
-    application values belong in `context`:
+    在可信后端调用 graph 的地方设置运行时上下文与执行控制项。`recursionLimit` 是顶层的执行设置；你的应用值应放在 `context` 中：
 
     ```typescript title="agent.ts"
     const result = await graph.invoke(input, {
@@ -101,17 +83,15 @@ influences it. Do not accept a browser-supplied configuration object wholesale.
     });
     ```
 
-    Read the validated context through the node's LangGraph runtime. See
-    [LangGraph's runtime configuration guide](https://docs.langchain.com/oss/javascript/langgraph/use-graph-api#add-runtime-configuration)
-    for the matching context schema and node signature.
+    通过节点的 LangGraph 运行时读取经过校验的上下文。匹配的 context schema 与节点签名请参见
+    [LangGraph 运行时配置指南](https://docs.langchain.com/oss/javascript/langgraph/use-graph-api#add-runtime-configuration)。
   </Tab>
 </Tabs>
 
-## What not to do
+## 不该做的事
 
-- Do not put raw credentials in model-visible context or graph state.
-- Do not persist credentials merely to make them available on later turns.
-- Do not trust a value merely because an adapter placed it in `RunnableConfig`.
-- Do not let a browser choose recursion limits, callbacks, metadata, or other
-  server execution controls.
-- Do not reuse request-scoped identity between runs. Validate every request.
+- 不要把原始凭据放进模型可见的上下文或 graph 状态。
+- 不要仅仅为了在后续轮次可用而持久化凭据。
+- 不要仅因为某个适配器把值放进了 `RunnableConfig` 就信任它。
+- 不要让浏览器决定递归上限、回调、元数据或其他服务器执行控制项。
+- 不要在多次运行之间复用请求级身份。每个请求都要校验。

@@ -1,33 +1,29 @@
 ---
-title: Overview
+title: 概览
 icon: "lucide/Plane"
 ---
 
-# AI Travel Agentic Copilot Tutorial
+# AI Travel 智能体化 Copilot 教程
 
 <div>
-  <div>**Time to complete:** 20 minutes</div>
-  <div>**Difficulty:** Medium</div>
+  <div>**完成时间**：20 分钟</div>
+  <div>**难度**：中等</div>
 </div>
 
 <br />
 
 <YouTubeVideo videoId="9v3kXiOY3vg" defaultPlaybackRate={1.25} />
 
-## What you'll learn
+## 你将学到什么
 
-This tutorial is a code tour of the completed CopilotKit v2 travel example. You
-will run the app, inspect each integration point, and learn:
+本教程是对已完成的 CopilotKit v2 旅行示例的一次代码导览。你将运行该应用、逐一检查每个集成点，并学到：
 
-- How `useAgent` shares state between the UI and the agent
-- How `useRenderTool` renders streamed search progress
-- How `useHumanInTheLoop` pauses trip changes for user approval
-- How the v2 runtime connects the React app to a LangGraph agent
+- `useAgent` 如何在 UI 与智能体之间共享状态
+- `useRenderTool` 如何渲染流式传输的搜索进度
+- `useHumanInTheLoop` 如何暂停行程变更以等待用户批准
+- v2 运行时如何将 React 应用连接到 LangGraph 智能体
 
-The snippets match the current source under `examples/v1/travel`. You do
-not need a separate starter branch or apply each snippet as a patch. If you are
-updating an older app, use the [v1 to v2 migration guide](/migrate/v2) alongside
-this tour.
+这些代码片段与 `examples/v1/travel` 下的当前源码保持一致。你不需要单独的起步模板分支，也不必把每个片段当作补丁来应用。如果你要更新一个旧版应用，请在本次导览的同时参考 [v1 到 v2 迁移指南](/migrate/v2)。
 
 <Frame>
   <video
@@ -45,16 +41,16 @@ this tour.
   <Button size="lg" asChild className="flex gap-2 items-center">
     <Link href="https://github.com/CopilotKit/CopilotKit/tree/main/examples/v1/travel?ref=travel-tutorial" className="no-underline" target="_blank">
       <FaGithub className="w-6 h-6 mr-2" />
-      <span>View on GitHub</span>
+      <span>在 GitHub 上查看</span>
     </Link>
   </Button>
 
   <Button size="lg" asChild className="flex gap-2 items-center">
     <Link href="https://examples-coagents-ai-travel-app.vercel.app/" className="no-underline" target="_blank">
       <PiMonitor className="w-6 h-6 mr-2" />
-      <span>View live app</span>
+      <span>查看在线示例</span>
     </Link>
   </Button>
 </div>
 
-Next, clone the current repository and run the completed example.
+接下来，克隆当前仓库并运行这个已完成的示例。

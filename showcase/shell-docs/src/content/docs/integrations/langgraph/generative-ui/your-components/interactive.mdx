@@ -1,49 +1,47 @@
 ---
-title: Interactive
+title: 交互式
 icon: "lucide/Wrench"
-description: Create components that your agent can use to interact with the user.
+description: 创建你的智能体可用来与用户交互的组件。
 ---
 <IframeSwitcher
   id="frontend-tools-based-hitl-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/human_in_the_loop?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/human_in_the_loop?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
-## What is this?
-Frontend tools enable you to define client-side functions that your LangGraph agent can invoke, with execution happening entirely in the user's browser. When your agent calls a frontend tool,
-the logic runs on the client side, giving you direct access to the frontend environment.
+## 这是什么？
+前端工具让你能够定义 LangGraph 智能体可以调用的客户端函数，其执行完全发生在用户的浏览器中。当你的智能体调用前端工具时，
+逻辑会在客户端运行，让你能够直接访问前端环境。
 
-This can be utilized for to let [your agent control the UI](/langgraph/frontend-tools), [generative UI](/langgraph/frontend-tools), or for Human-in-the-loop interactions.
+它可以用来让[你的智能体控制 UI](/langgraph/frontend-tools)、实现[生成式 UI](/langgraph/frontend-tools)，或用于人机协同（human-in-the-loop）交互。
 
-In this guide, we cover the use of frontend tools for Human-in-the-loop.
+本指南介绍如何将前端工具用于人机协同（human-in-the-loop）。
 
-## When should I use this?
-Use frontend tools when you need your agent to interact with client-side primitives such as:
-- Reading or modifying React component state
-- Accessing browser APIs like localStorage, sessionStorage, or cookies
-- Triggering UI updates or animations
-- Interacting with third-party frontend libraries
-- Performing actions that require the user's immediate browser context
+## 什么时候应该使用它？
+当你需要智能体与以下客户端原语交互时，可以使用前端工具：
+- 读取或修改 React 组件状态
+- 访问 localStorage、sessionStorage 或 cookie 等浏览器 API
+- 触发 UI 更新或动画
+- 与第三方前端库交互
+- 执行需要用户当前浏览器上下文的操作
 
-## Implementation
+## 实现
 
 <Steps>
     <Step>
-      ### Run and connect your agent
+      ### 运行并连接你的智能体
       <RunAndConnect />
     </Step>
 
     <Step>
-        ### Create a frontend human-in-the-loop tool
+        ### 创建前端人机协同工具
 
-        Frontend tools can be leveraged in a variety of ways. One of those ways is to have a human-in-the-loop flow where the response
-        of the tool is gated by a user's decision.
+        前端工具的使用方式多种多样。其中一种方式是构建人机协同（human-in-the-loop）流程，让工具的响应由用户的决定来把关。
 
-        In this example we will simulate a "approval" flow for executing a command. First, use the `useHumanInTheLoop` hook to create a tool that
-        prompts the user for approval.
+        在本例中，我们将模拟一个执行命令的“审批”流程。首先，使用 `useHumanInTheLoop` hook 创建一个提示用户进行审批的工具。
 
         ```tsx title="page.tsx"
         import { useHumanInTheLoop } from "@copilotkit/react-core/v2" // [!code highlight]
@@ -77,16 +75,16 @@ Use frontend tools when you need your agent to interact with client-side primiti
         ```
     </Step>
     <Step>
-        ### Install the CopilotKit SDK
+        ### 安装 CopilotKit SDK
 
-        Now, we'll need to modify the agent to access these frontend tools. In your terminal, navigate to your agent's folder and continue from there!
+        接下来，需要修改智能体以访问这些前端工具。在终端中，进入你的智能体所在文件夹，然后从那里继续！
 
         <InstallSDKSnippet/>
     </Step>
     <Step>
-        ### Inheriting from CopilotKitState
+        ### 继承 CopilotKitState
 
-        To access the frontend tools provided by CopilotKit, you can inherit from CopilotKitState in your agent's state definition:
+        要访问 CopilotKit 提供的前端工具，可以在智能体的状态定义中继承 CopilotKitState：
 
         <Tabs groupId="language_langgraph_agent" items={['Python', 'TypeScript']} default="Python" persist>
             <Tab value="Python">
@@ -112,21 +110,21 @@ Use frontend tools when you need your agent to interact with client-side primiti
             </Tab>
         </Tabs>
 
-        By doing this, your agent's state will include the `copilotkit` property, which contains the frontend tools that can be accessed and invoked.
+        这样一来，智能体的状态就会包含 `copilotkit` 属性，其中含有可供访问和调用的前端工具。
     </Step>
     <Step>
-        ### Accessing Frontend Tools
+        ### 访问前端工具
 
-        Once your agent's state includes the `copilotkit` property, you can access the frontend tools and utilize them within your agent's logic.
+        一旦智能体的状态包含 `copilotkit` 属性，你就可以访问这些前端工具，并在智能体逻辑中使用它们。
 
-        Here's how you can call a frontend tool from your agent:
+        下面展示了如何从智能体中调用前端工具：
 
         <FrontEndToolsImpl />
 
-        These tools are automatically populated by CopilotKit and are compatible with LangChain's tool call definitions, making it straightforward to integrate them into your agent's workflow.
+        这些工具由 CopilotKit 自动填充，并与 LangChain 的工具调用定义兼容，因此可以轻松地将它们集成到智能体的工作流中。
     </Step>
     <Step>
-        ### Give it a try!
-        You've now given your agent the ability to directly call any frontend tools you've defined. These tools will be available to the agent where they can be used as needed.
+        ### 试一试！
+        现在，你的智能体已经能够直接调用你定义的任何前端工具。这些工具对智能体可用，可按需使用。
     </Step>
 </Steps>

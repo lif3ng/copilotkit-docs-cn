@@ -1,41 +1,39 @@
 ---
-title: Reading agent state
+title: 读取智能体状态
 icon: "lucide/ArrowLeft"
-description: Read the realtime agent state in your native application.
+description: 在原生应用界面中读取实时的智能体状态。
 ---
 <IframeSwitcher
   id="shared-state-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/shared_state?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/langgraph/feature/shared_state?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
 <Callout type="info">
-  This example demonstrates reading from shared state in the [CopilotKit Feature Viewer](https://feature-viewer.copilotkit.ai/langgraph/feature/shared_state).
+  本示例在 [CopilotKit Feature Viewer](https://feature-viewer.copilotkit.ai/langgraph/feature/shared_state) 中演示了如何读取共享状态。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-You can easily use the realtime agent state not only in the chat UI, but also in the native application UX.
+你不仅可以轻松地在聊天 UI 中使用实时的智能体状态，还可以在原生应用界面中使用它。
 
-## When should I use this?
+## 何时使用？
 
-You can use this when you want to provide the user with feedback about your agent's state. As your agent's
-state updates, you can reflect these updates natively in your application.
+当你想向用户提供关于智能体状态的反馈时，就可以使用它。随着智能体状态的更新，你可以在应用中原生地呈现这些更新。
 
-## Implementation
+## 实现步骤
 
 <Steps>
   <Step>
-    ### Run and connect your agent
+    ### 运行并连接你的智能体
     <RunAndConnect />
   </Step>
   <Step>
-    ### Define the Agent State
-    LangGraph is stateful. As you transition between nodes, that state is updated and passed to the next node. For this example,
-    let's assume that our agent state looks something like this.
+    ### 定义智能体状态
+    LangGraph 是有状态的。当你在节点之间流转时，状态会被更新并传递给下一个节点。本示例中，我们假设智能体状态大致如下。
 
     <Tabs groupId="language_langgraph_agent" items={["Python", "TypeScript"]} persist>
       <Tab value="Python">
@@ -90,9 +88,8 @@ state updates, you can reflect these updates natively in your application.
     </Tabs>
   </Step>
   <Step>
-    ### Use the `useAgent` Hook
-    With your agent connected and running all that is left is to call the `useAgent` hook, pass the agent's ID, and
-    read the state.
+    ### 使用 `useAgent` Hook
+    智能体连接并运行起来之后，剩下的就是调用 `useAgent` hook、传入智能体的 ID，然后读取状态。
 
     ```tsx title="ui/app/page.tsx"
     import { useAgent } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -118,28 +115,26 @@ state updates, you can reflect these updates natively in your application.
     }
     ```
     <Callout type="info">
-      The `agent.state` is reactive and will automatically update when the agent's state changes.
+      `agent.state` 是响应式的，会在智能体状态变化时自动更新。
     </Callout>
   </Step>
   <Step>
-    ### Give it a try!
-    As the agent state updates, your `state` variable will automatically update with it! In this case, you'll see the
-    language set to "english" as that's the initial state we set.
+    ### 试一试！
+    随着智能体状态的更新，你的 `state` 变量也会自动跟着更新！在本例中，你会看到 language 被设为 “english”，因为这是我们设置的初始状态。
 
     <Frame>
-      <ImageZoom src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/read-agent-state.png" alt="read agent state" width={1000} height={1000} className="my-0"/>
+      <ImageZoom src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/read-agent-state.png" alt="读取智能体状态" width={1000} height={1000} className="my-0"/>
     </Frame>
 
     <Callout type="info">
-      Pictured above is the [coagent starter](https://github.com/copilotkit/copilotkit/tree/main/examples/coagents-starter) with
-      the [implementation](#implementation) section applied!
+      上图展示的是应用了[实现步骤](#实现步骤)一节后的 [coagent 起步模板](https://github.com/copilotkit/copilotkit/tree/main/examples/coagents-starter)！
     </Callout>
   </Step>
 </Steps>
 
-## Rendering agent state in the chat
+## 在聊天中渲染智能体状态
 
-You can also render the agent's state in the chat UI using `useRenderTool` or by accessing `agent.state` from `useAgent`. The state is reactive and updates automatically.
+你也可以使用 `useRenderTool`，或通过 `useAgent` 访问 `agent.state`，在聊天 UI 中渲染智能体的状态。状态是响应式的，会自动更新。
 
 ```tsx title="ui/app/page.tsx"
 import { useAgent } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -160,10 +155,9 @@ function YourMainContent() {
 }
 ```
 
-## Intermediately Stream and Render Agent State
-By default, the LangGraph agent state will only update *between* LangGraph node transitions --
-which means state updates will be discontinuous and delayed.
+## 以中间状态流式渲染智能体状态
+默认情况下，LangGraph 智能体状态只会在 LangGraph 节点切换*之间*更新——这意味着状态更新是不连续且有延迟的。
 
-You likely want to render the agent state as it updates **continuously.**
+你可能希望在状态更新时能**连续地**渲染智能体状态。
 
-See **[emit intermediate state](/langgraph/shared-state/predictive-state-updates).**
+参见**[发出中间状态（emit intermediate state）](/langgraph/shared-state/predictive-state-updates)**。

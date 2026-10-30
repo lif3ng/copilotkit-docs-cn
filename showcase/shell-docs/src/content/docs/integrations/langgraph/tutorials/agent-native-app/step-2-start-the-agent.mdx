@@ -1,40 +1,36 @@
 ---
-title: "Step 2: Start the Agent"
+title: "第 2 步：启动智能体"
 ---
 
-Before we start integrating the LangGraph agent, let's understand how it works.
+在开始集成 LangGraph 智能体之前，我们先来了解它的工作原理。
 
-For the sake of this tutorial we won't be building the LangGraph together from scratch.
-Instead, we'll be using the LangGraph constructed in the `agent/` directory. It will
-contain all of the logic we need to build our research ANA except for the CopilotKit
-features, which we'll add together.
+出于本教程的目的，我们不会从零开始构建 LangGraph，而是直接使用 `agent/` 目录中已经构建好的 LangGraph。它包含了构建研究型 ANA 所需的全部逻辑，唯独不含 CopilotKit 相关特性——这部分我们将一起添加。
 
 <Callout>
-  If you're interested in a step-by-step guide for building a LangGraph agent,
-  you can checkout the [LangGraph quickstart
-  guide](https://docs.langchain.com/oss/python/langgraph/quickstart).
+  如果你想循序渐进地学习如何构建 LangGraph 智能体，可以查阅
+  [LangGraph 快速开始指南](https://docs.langchain.com/oss/python/langgraph/quickstart)。
 </Callout>
 
-Let's walk through the LangGraph agent to understand how it works before we integrate it into the application.
+在把 LangGraph 智能体集成到应用之前，我们先把它过一遍，理解它是如何工作的。
 
 <Steps>
 <Step>
-### Get API keys
-You'll need two API keys:
-- [OpenAI API key](https://platform.openai.com/api-keys)
-- [Tavily API key](https://tavily.com/)
+### 获取 API 密钥
+你需要两个 API 密钥：
+- [OpenAI API 密钥](https://platform.openai.com/api-keys)
+- [Tavily API 密钥](https://tavily.com/)
 
 </Step>
 <Step>
-### Setup the `.env` file
-Create and configure the agent's environment:
+### 配置 `.env` 文件
+创建并配置智能体的环境：
 
 ```shell
 cd agent
 touch .env
 ```
 
-Add your API keys:
+添加你的 API 密钥：
 
 ```txt title=".env"
 OPENAI_API_KEY=<your-openai-api-key>
@@ -43,19 +39,19 @@ TAVILY_API_KEY=<your-tavily-api-key>
 
 </Step>
 <Step>
-### Start the agent
-Install and run the LangGraph CLI:
+### 启动智能体
+安装并运行 LangGraph CLI：
 
 ```shell
-pip install -r requirements.txt # Install dependencies
-brew install langgraph-cli # Install LangGraph CLI
-langgraph dev --host localhost --port 8000 # Start the agent
+pip install -r requirements.txt # 安装依赖
+brew install langgraph-cli # 安装 LangGraph CLI
+langgraph dev --host localhost --port 8000 # 启动智能体
 ```
 
-This opens LangGraph Studio in your brwoser where you can visualize and interact with your agent.
+这会在浏览器中打开 LangGraph Studio，你可以在其中查看智能体的可视化并与它交互。
 
 <Callout>
-  The agent will be available at https://localhost:8000 for later steps.
+  该智能体将在 https://localhost:8000 上可用，供后续步骤使用。
 </Callout>
 
 <ImageZoom
@@ -68,34 +64,32 @@ This opens LangGraph Studio in your brwoser where you can visualize and interact
 </Step>
 <Step>
 
-### Understanding the LangGraph Agent
+### 理解 LangGraph 智能体
 
-As we're building this agent into an agentic experience, we'll want to understand how it works. The key concepts at play here are:
+由于我们要把这个智能体打造成智能体化的体验，就需要理解它的工作原理。这里涉及的关键概念有：
 
-- **State**: The state is the data that the agent is using to make and communicate its decisions. You can see all of the state variables in the bottom left of the screen. **State will only update between node transitions.**
-- **Nodes**: Nodes are the building blocks of a LangGraph agent. They are the steps that the agent will take to complete a task. In this case, we have nodes for the **agent**, **tools** and **human input** and **processing feedback**.
-- **Edges**: Edges are the arrows that connect nodes together. They define the logic for how the agent will move from one node to the next. They are defined in code and conditional logic is handled with a `route` function.
-- **Interrupts**: Interrupts are a way to allow for a user to work along side the agent and review its decisions. In this case, we have an **interrupt** after the **human** node which blocks the agent from proceeding until the user provides feedback.
+- **状态（State）**：状态是智能体用来做出决策并传达决策的数据。你可以在屏幕左下角看到所有的状态变量。**状态只会在节点转换之间更新**。
+- **节点（Nodes）**：节点是 LangGraph 智能体的构建单元，是智能体为完成任务所采取的步骤。在本例中，我们有 **agent**、**tools**、**human input** 和 **processing feedback** 等节点。
+- **边（Edges）**：边是连接节点的箭头，定义了智能体从一个节点移动到下一个节点的逻辑。它们在代码中定义，条件逻辑则通过 `route` 函数处理。
+- **中断（Interrupts）**：中断是一种让用户能够与智能体协同工作并审查其决策的机制。在本例中，**human** 节点之后有一个**中断**，它会阻止智能体继续推进，直到用户提供反馈。
 
 </Step>
 <Step>
-### Testing the LangGraph Agent
+### 测试 LangGraph 智能体
 
-You can submit a message to the agent by adding a message to the `messages` state variable and then clicking "Submit". This agent is paired
-down for this tutorial and is meant to represent a simple research agent.
+你可以在 `messages` 状态变量中添加一条消息，然后点击 “Submit”，即可向智能体提交消息。这个智能体是为本教程做了简化的版本，用于代表一个简单的研究智能体。
 
-We'll be making this fancy in later steps, but for now you can ask it to do some research and see what behavior we'll be
-integrating into the application.
+在后续步骤中我们会把它打造得更炫酷，但现在你可以先让它做一些研究，看看我们将把哪些行为集成到应用中。
 
 </Step>
 </Steps>
 
-## Recap
+## 回顾
 
-Now we have a running agent! It will be available at `https://localhost:8000`. Here's what we did:
+现在我们有了一个正在运行的智能体！它将在 `https://localhost:8000` 上可用。以下是我们做过的事情：
 
-- Installed LangGraph Studio
-- Setup the `.env` file
-- Started, visualized and tested the LangGraph agent
+- 安装了 LangGraph Studio
+- 配置了 `.env` 文件
+- 启动、可视化并测试了 LangGraph 智能体
 
-In the next step, we'll be integrating the LangGraph agent into the application as a Copilot Agent (CoAgent).
+在下一步中，我们将把 LangGraph 智能体作为 Copilot Agent（CoAgent）集成到应用中。

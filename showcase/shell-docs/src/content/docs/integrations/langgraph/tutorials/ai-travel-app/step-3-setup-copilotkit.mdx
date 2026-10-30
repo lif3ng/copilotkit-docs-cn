@@ -1,20 +1,18 @@
 ---
-title: "Step 3: Connect CopilotKit v2"
+title: "第 3 步：连接 CopilotKit v2"
 ---
 
-The travel app uses the CopilotKit v2 React and runtime entry points. Both are
-subpaths of packages already declared in `examples/v1/travel/package.json`:
+旅行应用使用 CopilotKit v2 的 React 与运行时入口。两者都是 `examples/v1/travel/package.json` 中已声明包的子路径：
 
-- React hooks, providers, and chat UI come from `@copilotkit/react-core/v2`.
-- Runtime classes and handlers come from `@copilotkit/runtime/v2`.
-- LangGraph adapters come from `@copilotkit/runtime/langgraph`.
+- React hooks、provider 和聊天 UI 来自 `@copilotkit/react-core/v2`。
+- 运行时类与处理器来自 `@copilotkit/runtime/v2`。
+- LangGraph 适配器来自 `@copilotkit/runtime/langgraph`。
 
-See the [v1 to v2 migration guide](/migrate/v2) for the full import map.
+完整的 import 映射请参阅 [v1 到 v2 迁移指南](/migrate/v2)。
 
-## Configure the React app
+## 配置 React 应用
 
-`app/page.tsx` imports the provider, chat configuration, sidebar, and styles
-from the v2 React entry point:
+`app/page.tsx` 从 v2 React 入口导入 provider、聊天配置、侧边栏和样式：
 
 ```tsx title="examples/v1/travel/app/page.tsx"
 import {
@@ -25,9 +23,7 @@ import {
 import "@copilotkit/react-core/v2/styles.css";
 ```
 
-The provider uses the local runtime by default. If
-`NEXT_PUBLIC_CPK_PUBLIC_API_KEY` is set, it uses that Copilot Cloud project
-instead:
+provider 默认使用本地运行时。如果设置了 `NEXT_PUBLIC_CPK_PUBLIC_API_KEY`，则会改用对应的 Copilot Cloud 项目：
 
 ```tsx title="examples/v1/travel/app/page.tsx"
 export default function Home() {
@@ -56,20 +52,17 @@ export default function Home() {
 }
 ```
 
-`CopilotChatConfigurationProvider` selects the `travel` agent for the chat.
-The state and tool hooks in the next steps use the same agent ID.
+`CopilotChatConfigurationProvider` 为聊天选择了 `travel` 智能体。后续步骤中的状态与工具 hook 会使用同一个智能体 ID。
 
-## Configure the local runtime
+## 配置本地运行时
 
-`app/api/copilotkit/[[...slug]]/route.ts` connects the browser-facing runtime
-to the agent. For a local-only route, use `HttpAgent` to call the AG-UI
-endpoint started in Step 2. Add its package from `examples/v1/travel`:
+`app/api/copilotkit/[[...slug]]/route.ts` 将面向浏览器的运行时连接到智能体。对于纯本地路由，使用 `HttpAgent` 调用第 2 步中启动的 AG-UI 端点。在 `examples/v1/travel` 目录下添加它的包：
 
 ```shell
 pnpm add @ag-ui/client@1.0.2
 ```
 
-Then configure the route:
+然后配置该路由：
 
 ```ts title="examples/v1/travel/app/api/copilotkit/[[...slug]]/route.ts"
 import {
@@ -95,10 +88,6 @@ export const GET = handler;
 export const POST = handler;
 ```
 
-The [checked-in route](https://github.com/CopilotKit/CopilotKit/blob/main/examples/v1/travel/app/api/copilotkit/%5B%5B...slug%5D%5D/route.ts)
-also supports deployed LangGraph graphs through a compatibility adapter that
-preserves the example's CopilotKit state and events. Keep that route when using
-`LANGGRAPH_DEPLOYMENT_URL` and `LANGSMITH_API_KEY`. Leave the deployment URL
-unset for the local server from Step 2.
+这份[仓库中自带的路由](https://github.com/CopilotKit/CopilotKit/blob/main/examples/v1/travel/app/api/copilotkit/%5B%5B...slug%5D%5D/route.ts)还通过一个兼容适配器支持已部署的 LangGraph 图，同时保留示例的 CopilotKit 状态与事件。使用 `LANGGRAPH_DEPLOYMENT_URL` 和 `LANGSMITH_API_KEY` 时请保留该路由。如果用的是第 2 步中的本地服务器，则不要设置部署 URL。
 
-Next, see how the React app reads and updates the agent's state.
+接下来，看看 React 应用如何读取和更新智能体的状态。

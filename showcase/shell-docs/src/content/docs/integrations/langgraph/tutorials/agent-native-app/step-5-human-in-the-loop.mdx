@@ -1,18 +1,16 @@
 ---
-title: "Step 5: Human in the Loop"
+title: "第 5 步：人机协同"
 ---
 
-Now that we have the ability to chat with our agent, we can move on to implementing human-in-the-loop. This is where the user can review the agent's output and provide feedback. We'll be
-implementing this in our application by allowing the user to review and approve an outline prior to the research being conducted.
+现在我们已经可以与智能体对话了，接下来开始实现人机协同（human-in-the-loop）。在这种模式下，用户可以审查智能体的输出并提供反馈。在我们的应用中，我们将允许用户在研究开始之前审查并批准一份大纲，以此来实现人机协同。
 
 <Steps>
 <Step>
-## Understanding Human-in-the-Loop
+## 理解人机协同
 
-In LangGraph, the current suggested way to implement human-in-the-loop is to use the [interrupt](https://docs.langchain.com/oss/python/langgraph/interrupts) method. Calling this
-function will pause the node at the call site and rerun the node with the user's decision. You can learn more about interrupt [here](https://docs.langchain.com/langsmith/interrupt-concurrent).
+在 LangGraph 中，目前建议使用 [interrupt](https://docs.langchain.com/oss/python/langgraph/interrupts) 方法来实现人机协同。调用该函数会在调用处暂停节点，之后带着用户的决定重新运行该节点。你可以在[这里](https://docs.langchain.com/langsmith/interrupt-concurrent)了解更多关于 interrupt 的内容。
 
-All together, this process will look like this:
+整个流程如下所示：
 
 <Frame>
   <img
@@ -21,17 +19,17 @@ All together, this process will look like this:
   />
 </Frame>
 
-The implementation of all of this is actually quite simple, but understanding how it all fits together is key.
+这一切的实现其实相当简单，关键是理解它们是如何组合在一起的。
 
 </Step>
 <Step>
-## Add `useLangGraphInterrupt` to the frontend
+## 在前端添加 `useLangGraphInterrupt`
 
-If you recall from when we started the agent, the interrupt will stop the node when its time to review a proposed research outline.
+还记得我们启动智能体时的内容吗？当需要审查一份研究大纲提案时，interrupt 会停止相应节点。
 
-CopilotKit allows us to render a UI to get the user's decision for this interrupt and respond accordingly via the `useLangGraphInterrupt` hook.
+CopilotKit 允许我们通过 `useLangGraphInterrupt` hook 渲染一个 UI，以获取用户对这个中断的决定并做出相应响应。
 
-In our `page.tsx` file, add the following code.
+在 `page.tsx` 文件中，添加以下代码。
 
 ```tsx title="frontend/src/app/page.tsx"
 // ...
@@ -65,27 +63,26 @@ export default function HomePage() {
 }
 ```
 
-Now, when the LangGraph is interrupted the `ProposalViewer` component will be rendered to the user with the `event.value` as the proposal. On submit, the hook's `resolve` function
-will be called with the user's decision.
+现在，当 LangGraph 被中断时，`ProposalViewer` 组件会渲染给用户，其中 `event.value` 作为提案。提交时，hook 的 `resolve` 函数会带着用户的决定被调用。
 
 <Callout>
-Checkout the `ProposalViewer` component code in the `frontend/src/components/ProposalViewer.tsx` file for more details about rendering.
+想了解更多渲染细节，可以查看 `frontend/src/components/ProposalViewer.tsx` 文件中的 `ProposalViewer` 组件代码。
 
-It's just a standard React component with some styling, a form, and a submit button.
+它只是一个标准的 React 组件，包含一些样式、一个表单和一个提交按钮。
 
 </Callout>
 </Step>
 </Steps>
 
-## Recap
+## 回顾
 
-It is really as simple as that! Now, we've implemented human-in-the-loop for our agent. To recap, we did the following:
+真的就这么简单！现在，我们已经为智能体实现了人机协同。回顾一下，我们做了以下事情：
 
-- Learned about human-in-the-loop in LangGraph.
-- Added the `useLangGraphInterrupt` hook to our application.
-- Rendered a `ProposalViewer` component to the user in the chat
+- 了解了 LangGraph 中的人机协同。
+- 在应用中添加了 `useLangGraphInterrupt` hook。
+- 在聊天中向用户渲染了 `ProposalViewer` 组件
 
-Try asking the agent to research something, like Dogs. Eventually you'll see it ask you for feedback about the proposal.
+试着让智能体研究一些东西，比如狗。最终你会看到它请求你对提案提供反馈。
 
 ```
 Please research dogs!
@@ -101,5 +98,4 @@ Please research dogs!
   />
 </Frame>
 
-Now, we can completely run our agent from start to finish to conduct research. However, you may notice that the research does not populate in the right window
-as it completes. In the next step, we'll leverage the CoAgent concept of shared state to populate the research in the right window.
+现在，我们可以完整地从头到尾运行智能体来开展研究了。不过，你可能会注意到，随着研究逐步完成，内容并没有填充到右侧窗口中。在下一步中，我们将利用 CoAgent 的共享状态概念，把研究内容填充到右侧窗口中。

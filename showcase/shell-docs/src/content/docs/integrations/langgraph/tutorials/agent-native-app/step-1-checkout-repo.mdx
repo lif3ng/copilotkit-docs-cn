@@ -1,26 +1,26 @@
 ---
-title: "Step 1: Checkout the repo"
+title: "第 1 步：检出仓库"
 ---
 
 <Steps>
 <Step>
-## Get the starting code
-We'll use the [research-canvas example](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/research-canvas) as our starting point. Clone the repository:
+## 获取起始代码
+我们将以 [research-canvas 示例](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/research-canvas)作为起点。克隆仓库：
 
 ```shell
 GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 https://github.com/CopilotKit/CopilotKit.git
 cd CopilotKit/examples/showcases/research-canvas/start
 ```
 
-The repository contains:
+该仓库包含：
 
-- `frontend/`: A NextJS application where we'll integrate our agent
-- `agent/`: A Python-based LangGraph agent we'll enhance with CopilotKit
+- `frontend/`：一个 Next.js 应用，我们将把智能体集成到其中
+- `agent/`：一个基于 Python 的 LangGraph 智能体，我们将用 CopilotKit 增强它
 
 </Step>
 <Step>
-## Install frontend dependencies
-Navigate to the frontend directory and install dependencies:
+## 安装前端依赖
+进入 frontend 目录并安装依赖：
 
 ```shell
 cd frontend
@@ -29,16 +29,16 @@ pnpm install
 
 </Step>
 <Step>
-## Start the application
-Launch the development server:
+## 启动应用
+启动开发服务器：
 
 ```shell
 pnpm run dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000) to see the initial application. You'll see an empty chat interface and document - this is our starting point.
+访问 [http://localhost:3000](http://localhost:3000) 查看初始应用。你会看到一个空的聊天界面和文档——这就是我们的起点。
 
 </Step>
 </Steps>
 
-Next, we'll explore how our LangGraph agent works.
+接下来，我们将探究我们的 LangGraph 智能体是如何工作的。

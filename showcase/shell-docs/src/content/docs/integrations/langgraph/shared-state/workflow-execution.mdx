@@ -1,30 +1,30 @@
 ---
-title: Workflow Execution
+title: 工作流执行
 icon: "lucide/Play"
-description: Decide which state properties are received and returned to the frontend
+description: 决定哪些状态属性会被接收并返回给前端
 ---
 
 import AngularStateWorkflow from "@/snippets/shared/angular/shared-state-workflow.mdx";
 
-## What is this?
+## 这是什么？
 
-Not all state properties are relevant for frontend-backend sharing.
-This guide shows how to ensure only the right portion of state is communicated back and forth.
+并非所有状态属性都适合在前端与后端之间共享。
+本指南将展示如何确保只有恰当的那部分状态在前后端之间来回传递。
 
-This guide is based on [LangGraph's Input/Output Schema feature](https://docs.langchain.com/oss/python/langgraph/use-graph-api#define-input-and-output-schemas)
+本指南基于 [LangGraph 的输入/输出 Schema 特性](https://docs.langchain.com/oss/python/langgraph/use-graph-api#define-input-and-output-schemas)
 
-## When should I use this?
+## 何时应该使用它？
 
-Depending on your implementation, some properties are meant to be processed internally, while some others are the way for the UI to communicate user input.
-In addition, some state properties contain a lot of information. Syncing them back and forth between the agent and UI can be costly, while it might not have any practical benefit.
+取决于你的具体实现，有些属性旨在供内部处理，而另一些属性则是 UI 传达用户输入的途径。
+此外，有些状态属性包含大量信息，在智能体与 UI 之间来回同步它们可能代价高昂，却未必带来实际收益。
 
-## Implementation
+## 实现
 
 <Steps>
   <Step>
-      ### Examine our old state
-      LangGraph is stateful. As you transition between nodes, that state is updated and passed to the next node. For this example,
-      let's assume that the state our agent should be using, can be described like this:
+      ### 查看原有状态
+      LangGraph 是有状态的。当你在节点之间流转时，状态会被更新并传递给下一个节点。在本示例中，
+      我们假设智能体应使用的状态可以描述如下：
       <Tabs groupId="language_langgraph_agent" items={['Python', 'TypeScript']} default="Python" persist>
         <Tab value="Python">
         ```python title="agent.py"
@@ -54,11 +54,11 @@ In addition, some state properties contain a lot of information. Syncing them ba
     </Tabs>
   </Step>
   <Step>
-    ### Divide state to Input and Output
-    Our example case lists several state properties, which with its own purpose:
-      - The question is being asked by the user, expecting the llm to answer
-      - The answer is what the LLM returns
-      - The resources list will be used by the LLM to answer the question, and should not be communicated to the user, or set by them.
+    ### 将状态划分为输入与输出
+    我们的示例列出了若干状态属性，它们各有用途：
+      - question 由用户提出，期望 LLM 给出回答
+      - answer 是 LLM 返回的内容
+      - resources 列表将由 LLM 用来回答问题，不应传达给用户，也不应由用户设置。
 
       <Tabs groupId="language_langgraph_agent" items={['Python', 'TypeScript']} default="Python" persist>
           <Tab value="Python">
@@ -189,11 +189,11 @@ In addition, some state properties contain a lot of information. Syncing them ba
       </Tabs>
   </Step>
   <Step>
-    ### Give it a try!
-    Now that we know which state properties our agent emits, we can inspect the state and expect the following to happen:
-    - While we are able to provide a question, we will not receive it back from the agent. If we are using it in our UI, we need to remember the UI is the source of truth for it
-    - Answer will change once it's returned back from the agent
-    - The UI has no access to resources.
+    ### 试一试！
+    现在我们已经知道智能体会发出哪些状态属性，可以检查该状态并预期会发生以下情况：
+    - 我们虽然能够提供 question，但不会从智能体那里收回它。如果要在 UI 中使用它，需要记住 UI 才是它的权威来源
+    - answer 会在从智能体返回后发生变化
+    - UI 无法访问 resources。
 
     <FrontendOnly frontend="react">
     ```tsx
