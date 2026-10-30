@@ -1,5 +1,5 @@
 {
-  "title": "LLM Adapters",
+  "title": "LLM 适配器",
   "pages": [
     "OpenAIAdapter",
     "OpenAIAssistantAdapter",

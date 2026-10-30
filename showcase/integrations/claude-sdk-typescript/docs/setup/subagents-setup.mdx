@@ -1,12 +1,9 @@
 <Steps>
   <Step>
-    ### Represent subagents as delegation tools
+    ### 将子智能体表示为委派工具
 
-    The Claude Agent SDK demo keeps a supervisor prompt and exposes delegation
-    tools for specialist agents. CopilotKit can then render delegation progress
-    while the supervisor coordinates the run. Start by giving the supervisor
-    one tool schema per specialist.
+    这个 Claude Agent SDK 示例保留了监督者（supervisor）提示词，并为各个专家智能体暴露委派工具。这样，在监督者协调整个运行过程时，CopilotKit 就能渲染委派进度。首先，为每个专家智能体给监督者提供一个对应的工具 schema。
 
-    <DemoCode file="src/agent/subagents-prompts.ts" region="supervisor-delegation-tools" title="subagents-prompts.ts - supervisor tool schemas" />
+    <DemoCode file="src/agent/subagents-prompts.ts" region="supervisor-delegation-tools" title="subagents-prompts.ts - 监督者工具 schema" />
   </Step>
 </Steps>

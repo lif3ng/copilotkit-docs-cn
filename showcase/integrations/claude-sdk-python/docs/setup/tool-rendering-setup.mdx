@@ -1,14 +1,10 @@
-The agent must also register this schema as an executable backend tool. This
-setup shows the connection.
+智能体还必须将该 schema 注册为可执行的后端工具。本配置展示了这一连接方式。
 
 <Steps>
   <Step>
-    ### Register the backend tools
+    ### 注册后端工具
 
-    `run_with_claude_agent_sdk` receives the tool schemas from the agent. It
-    converts each schema to an SDK tool and creates an in-process MCP server.
-    The adapter receives this server through `mcp_servers`. The matching
-    `allowed_tools` entries give Claude permission to call the tools.
+    `run_with_claude_agent_sdk` 从智能体接收工具 schema，将每个 schema 转换为一个 SDK 工具，并创建一个进程内 MCP 服务器。适配器通过 `mcp_servers` 接收该服务器。与之匹配的 `allowed_tools` 条目则授予 Claude 调用这些工具的权限。
 
     <DemoCode
       file="src/agents/claude_agent_sdk_adapter.py"
@@ -17,10 +13,9 @@ setup shows the connection.
   </Step>
 
   <Step>
-    ### Call the CopilotKit tool handler
+    ### 调用 CopilotKit 工具处理器
 
-    Each `sdk_tool_handler` calls the executable CopilotKit handler for its
-    schema. It returns the handler result to Claude as MCP tool content.
+    每个 `sdk_tool_handler` 会针对自己的 schema 调用可执行的 CopilotKit 处理器，并将处理器结果作为 MCP 工具内容返回给 Claude。
 
     <DemoCode
       file="src/agents/claude_agent_sdk_adapter.py"
@@ -30,7 +25,5 @@ setup shows the connection.
 </Steps>
 
 <Callout type="info">
-  This MCP path handles compatible requests that use backend tools only.
-  Requests with frontend tools or structured user content use the direct
-  Anthropic path. Requests with aimock transport also use this fallback.
+  这条 MCP 路径只处理仅使用后端工具的兼容请求。带前端工具或结构化用户内容的请求会走直接 Anthropic 路径；带 aimock 传输的请求同样会走这条回退路径。
 </Callout>

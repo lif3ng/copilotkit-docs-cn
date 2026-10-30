@@ -1,5 +1,8 @@
 {
-  "title": "Contributing",
+  "title": "参与贡献",
   "frontend": "universal",
-  "pages": ["code-contributions", "docs-contributions"]
+  "pages": [
+    "code-contributions",
+    "docs-contributions"
+  ]
 }

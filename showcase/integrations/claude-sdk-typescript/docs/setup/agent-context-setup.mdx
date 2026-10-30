@@ -1,10 +1,8 @@
 <Steps>
   <Step>
-    ### Add CopilotKit context to the Claude prompt
+    ### 将 CopilotKit 上下文加入 Claude 提示
 
-    CopilotKit forwards readable app context in the AG-UI run input. Append that
-    context to the Claude system prompt before starting the run so the agent can
-    answer with the current UI state in mind.
+    CopilotKit 会在 AG-UI 运行输入中转发可读的应用上下文。在启动运行之前，把这段上下文追加到 Claude 系统提示中，智能体就能结合当前 UI 状态作答。
 
     <DemoCode file="src/agent_server.ts" region="agent-context-setup" />
   </Step>

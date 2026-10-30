@@ -1,5 +1,8 @@
 {
-  "title": "Intelligence",
+  "title": "智能中枢",
   "icon": "custom/copilotkit-kite",
-  "pages": ["overview", "self-hosting"]
+  "pages": [
+    "overview",
+    "self-hosting"
+  ]
 }

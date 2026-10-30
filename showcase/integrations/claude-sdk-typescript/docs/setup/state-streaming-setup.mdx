@@ -1,10 +1,8 @@
 <Steps>
   <Step>
-    ### Stream partial state updates while Claude responds
+    ### 在 Claude 响应时流式传输部分状态更新
 
-    For streaming state, parse the agent's structured deltas as they arrive and
-    emit CopilotKit state updates before the final message is complete. This
-    branch runs inside the streamed tool-argument handler.
+    要实现状态流式传输，需要在智能体的结构化增量数据到达时解析它们，并在最终消息完成之前发出 CopilotKit 状态更新。该分支运行在流式传输的工具参数处理器内部。
 
     <DemoCode file="src/agent_server.ts" region="state-streaming-delta-emission" />
   </Step>

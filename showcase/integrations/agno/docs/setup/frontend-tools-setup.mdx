@@ -1,17 +1,10 @@
 <Steps>
   <Step>
-    ### Declare the component as an external tool
+    ### 将组件声明为外部工具
 
-    Agno's AG-UI interface does not forward the request's tool definitions to
-    the model. The model only sees tools declared on the `Agent`, so a
-    component registered with `useComponent` needs a matching declaration
-    whose body stays empty. Mark it `external_execution=True`: Agno pauses the
-    run, the browser renders the component, and the run resumes with the
-    result.
+    Agno 的 AG-UI 接口不会把请求中的工具定义转发给模型。模型只能看到声明在 `Agent` 上的工具，因此通过 `useComponent` 注册的组件需要一个对应的声明，且其函数体保持为空。将其标记为 `external_execution=True`：Agno 会暂停这次运行，浏览器渲染组件，然后运行带着结果恢复。
 
-    The name and the arguments have to match the `useComponent` registration
-    exactly. The docstring is what the model reads, so describe when to call
-    it there.
+    名称与参数必须和 `useComponent` 的注册完全一致。docstring 是模型会读到的内容，所以要在这里描述何时调用它。
 
     ```python title="src/agents/chart_agent.py"
     from agno.agent import Agent
@@ -42,11 +35,9 @@
 
   </Step>
   <Step>
-    ### Give the agent somewhere to store the paused run
+    ### 为智能体提供存放暂停运行的位置
 
-    Agno stores the paused run before the browser can return its result, so
-    the `Agent` that owns the external tool needs a database. An agent with an
-    external tool and no `db` cannot resume after the browser answers.
+    在浏览器返回结果之前，Agno 需要先把暂停的运行存储起来，因此持有外部工具的 `Agent` 需要一个数据库。带有外部工具却没有 `db` 的智能体，在浏览器作答之后无法恢复运行。
 
     ```python title="src/agents/chart_agent.py"
     from agno.db.sqlite import SqliteDb
@@ -54,9 +45,7 @@
     db = SqliteDb(db_file="tmp/agno.db")
     ```
 
-    `SqliteDb` needs `sqlalchemy` installed. For production use durable shared
-    storage such as `PgDb`, because an ephemeral container file cannot resume a
-    run on another instance.
+    `SqliteDb` 需要安装 `sqlalchemy`。生产环境请使用 `PgDb` 这类持久化的共享存储，因为临时性的容器文件无法在另一个实例上恢复运行。
 
   </Step>
 </Steps>

@@ -1,9 +1,6 @@
-The Built-in Agent runs in the same Node.js process as Channels, so it does
-not need an `AGENT_URL` or a second server. Follow the
-[Built-in Agent quickstart](/quickstart) to configure your model provider,
-then use the Runtime package already installed by the Channels runner.
+内置智能体（Built-in Agent）与渠道（Channels）运行在同一个 Node.js 进程中，因此不需要 `AGENT_URL`，也不需要第二个服务器。按照[内置智能体快速开始](/quickstart)配置你的模型提供方，然后使用 Channels 运行器已经安装好的 Runtime 包。
 
-Create a new agent for each channel thread:
+为每个渠道线程创建一个新的智能体：
 
 ```ts title="agent.ts"
 import { BuiltInAgent } from "@copilotkit/runtime/v2";

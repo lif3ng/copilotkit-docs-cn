@@ -1,11 +1,6 @@
-Pass `AGUIToolset()` in your `LlmAgent`'s `tools=` list to expose
-CopilotKit's frontend tools and generative UI components to the agent.
-Use an ADK-supported model available to your project.
+在你的 `LlmAgent` 的 `tools=` 列表中传入 `AGUIToolset()`，即可向智能体暴露 CopilotKit 的前端工具和生成式 UI 组件。请使用你的项目可用的、ADK 支持的模型。
 
-The callback below preserves the Gemini termination safeguard: it stops on
-final text with a `STOP` finish reason, while leaving partial responses and
-pending tool calls alone. It is defined here in full, not imported from
-`ag-ui-adk` or a showcase-only module.
+下面的回调保留了 Gemini 的终止安全防护：当最终文本带有 `STOP` 结束原因时即停止，同时不干扰部分响应和挂起中的工具调用。这里给出它的完整定义，而非从 `ag-ui-adk` 或 showcase 专属模块导入。
 
 ```python
 from ag_ui_adk import AGUIToolset
@@ -45,9 +40,8 @@ agent = LlmAgent(
 ```
 
 <Accordions>
-  <Accordion title="Install the SDK">
-    If `ag-ui-adk` isn't already in your project, add it so the imports
-    above resolve:
+  <Accordion title="安装 SDK">
+    如果你的项目中还没有 `ag-ui-adk`，请先添加它，以便上面的 import 能正常解析：
 
     ```bash
     pip install ag-ui-adk

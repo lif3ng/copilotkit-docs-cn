@@ -1,6 +1,6 @@
 <Steps>
   <Step>
-    ### Install the ADK + AG-UI bridge
+    ### 安装 ADK + AG-UI 桥接器
 
     ```bash
     pip install ag-ui-adk
@@ -8,20 +8,13 @@
 
   </Step>
   <Step>
-    ### Read CopilotKit context before each model call
+    ### 在每次模型调用前读取 CopilotKit 上下文
 
-    The adapter copies the AG-UI request's `context` list into ADK session
-    state at `CONTEXT_STATE_KEY` (the public constant for `"_ag_ui_context"`).
-    Read it from an instruction provider's `ctx.state`, a callback's
-    `callback_context.state`, or a tool's `tool_context.state`.
+    适配器会把 AG-UI 请求的 `context` 列表复制到 ADK 会话状态中的 `CONTEXT_STATE_KEY`（即 `"_ag_ui_context"` 的公开常量）下。可以从指令提供方的 `ctx.state`、回调的 `callback_context.state` 或工具的 `tool_context.state` 中读取它。
 
-    Each entry is a dictionary with `description` and `value` strings.
-    Object and array values registered with `useAgentContext` arrive as JSON
-    strings; use `json.loads(entry["value"])` when you need structured data.
+    每个条目都是一个包含 `description` 和 `value` 字符串的字典。通过 `useAgentContext` 注册的对象和数组值会以 JSON 字符串的形式到达；需要结构化数据时，使用 `json.loads(entry["value"])`。
 
-    An instruction provider can include the context in the model's prompt.
-    The fully defined callback preserves the Gemini termination safeguard
-    without stopping partial responses or pending tool calls:
+    指令提供方可以把上下文并入模型提示词。下面这个完整定义的回调保留了 Gemini 的终止安全防护，同时不会中断部分响应或挂起中的工具调用：
 
     ```python
     from ag_ui_adk import AGUIToolset, CONTEXT_STATE_KEY
@@ -69,9 +62,7 @@
     )
     ```
 
-    `AGUIToolset()` exposes frontend tools; it does not automatically add
-    context to the model's instructions. The instruction provider above
-    performs that step. Expose this agent through your `ADKAgent` endpoint.
+    `AGUIToolset()` 负责暴露前端工具；它不会自动把上下文加入模型指令。上述指令提供方完成的就是这一步。通过你的 `ADKAgent` 端点暴露这个智能体。
 
   </Step>
 </Steps>

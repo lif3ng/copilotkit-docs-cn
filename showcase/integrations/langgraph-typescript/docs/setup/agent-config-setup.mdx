@@ -1,6 +1,6 @@
 <Steps>
   <Step>
-    ### Install the CopilotKit LangGraph SDK
+    ### 安装 CopilotKit LangGraph SDK
 
     ```bash
     npm install @copilotkit/sdk-js
@@ -8,12 +8,9 @@
 
   </Step>
   <Step>
-    ### Wire CopilotKit state into your graph
+    ### 将 CopilotKit 状态接入你的图
 
-    Agent config flows from the UI through `useAgentContext` and arrives on
-    `state.copilotkit.context`. Use `CopilotKitStateAnnotation` to expose
-    that channel — your chat node reads it to assemble the system prompt
-    on every turn.
+    智能体配置从 UI 出发，经由 `useAgentContext` 传递，最终到达 `state.copilotkit.context`。使用 `CopilotKitStateAnnotation` 暴露这条通道——你的聊天节点会读取它，在每一轮组装系统提示（system prompt）。
 
     <DemoCode file="src/agent/agent-config.ts" region="agent-config-setup" />
 

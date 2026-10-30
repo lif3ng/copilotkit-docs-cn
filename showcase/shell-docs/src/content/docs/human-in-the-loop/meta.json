@@ -1,5 +1,10 @@
 {
-  "title": "Human-in-the-Loop",
+  "title": "人机协同",
   "icon": "lucide/User",
-  "pages": ["index", "useInterrupt", "headless", "governed-actions"]
+  "pages": [
+    "index",
+    "useInterrupt",
+    "headless",
+    "governed-actions"
+  ]
 }

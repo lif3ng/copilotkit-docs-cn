@@ -1,4 +1,7 @@
 {
-  "title": "Intelligence",
-  "pages": ["headless-ui", "self-hosting"]
+  "title": "智能中枢",
+  "pages": [
+    "headless-ui",
+    "self-hosting"
+  ]
 }

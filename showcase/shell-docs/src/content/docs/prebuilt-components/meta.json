@@ -1,5 +1,10 @@
 {
-  "title": "Prebuilt Components",
+  "title": "预构建组件",
   "icon": "lucide/MessageSquare",
-  "pages": ["chat", "sidebar", "popup", "chat-controls"]
+  "pages": [
+    "chat",
+    "sidebar",
+    "popup",
+    "chat-controls"
+  ]
 }

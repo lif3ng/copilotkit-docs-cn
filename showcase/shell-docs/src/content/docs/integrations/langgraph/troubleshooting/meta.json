@@ -1,4 +1,6 @@
 {
-  "title": "Troubleshooting Copilots",
-  "pages": ["migrate-to-agui"]
+  "title": "Copilot 故障排查",
+  "pages": [
+    "migrate-to-agui"
+  ]
 }

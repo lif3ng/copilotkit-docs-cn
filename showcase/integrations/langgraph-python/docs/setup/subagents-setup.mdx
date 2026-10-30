@@ -1,21 +1,18 @@
 <Steps>
   <Step>
-    ### Install the LangGraph Python SDK
+    ### 安装 LangGraph Python SDK
 
     <InstallPythonSDK />
 
   </Step>
   <Step>
-    ### Wire CopilotKit middleware into your graph
+    ### 将 CopilotKit 中间件接入你的图
 
-    Sub-agents are wired as tools on a supervisor `create_agent` call. The
-    supervisor's middleware list includes `CopilotKitMiddleware()` so the
-    delegation log slot streams back to the UI through shared state.
+    子智能体作为工具挂载到 supervisor 的 `create_agent` 调用上。supervisor 的中间件列表中包含 `CopilotKitMiddleware()`，因此委派日志插槽会通过共享状态流式回传到 UI。
 
     <DemoCode file="src/agents/subagents.py" region="subagent-setup" />
 
-    See `src/agents/subagents.py` for the canonical supervisor + three
-    sub-agents pattern with a live delegation log.
+    规范的 supervisor + 三个子智能体模式（带实时委派日志）见 `src/agents/subagents.py`。
 
   </Step>
 </Steps>

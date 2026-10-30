@@ -1,6 +1,6 @@
 <Steps>
   <Step>
-    ### Install the ADK + AG-UI bridge
+    ### 安装 ADK + AG-UI 桥接器
 
     ```bash
     pip install ag-ui-adk
@@ -8,18 +8,13 @@
 
   </Step>
   <Step>
-    ### Add `AGUIToolset()` to your supervisor agent
+    ### 在监督智能体中添加 `AGUIToolset()`
 
-    Sub-agents are tools on a supervisor `LlmAgent`. The showcase uses
-    `google.genai.Client.models.generate_content` for each sub-agent call —
-    much lighter than spawning a separate `LlmAgent` + `Runner` per
-    delegation. Delegation events are written to `tool_context.state` and
-    flow back to the UI through CopilotKit's shared-state channel.
+    子智能体（sub-agent）就是监督智能体 `LlmAgent` 上的工具。本 showcase 的每次子智能体调用都使用 `google.genai.Client.models.generate_content`——比每次委派都单独创建一个 `LlmAgent` + `Runner` 轻量得多。委派事件会写入 `tool_context.state`，并经由 CopilotKit 的共享状态通道回流到 UI。
 
     <DemoCode file="src/agents/subagents_agent.py" region="subagent-setup" />
 
-    See `src/agents/subagents_agent.py` for the supervisor + three
-    sub-agents pattern with a live delegation log.
+    监督智能体 + 三个子智能体的模式以及实时委派日志参见 `src/agents/subagents_agent.py`。
 
   </Step>
 </Steps>

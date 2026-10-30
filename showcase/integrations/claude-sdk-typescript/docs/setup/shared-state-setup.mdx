@@ -1,19 +1,16 @@
 <Steps>
   <Step>
-    ### Put shared state in the system prompt and tools
+    ### 将共享状态放入系统提示与工具
 
-    The demo exposes frontend preferences to Claude and gives the agent a tool
-    for writing notes back into CopilotKit state. Keep the state contract small,
-    typed, and mirrored by the UI components that read the same values.
+    本示例将前端偏好暴露给 Claude，并为智能体提供一个工具，用于把笔记写回 CopilotKit 状态。这个状态契约应保持小巧、有类型，并由读取相同值的 UI 组件与之镜像。
 
     <DemoCode file="src/agent/shared-state-read-write-prompt.ts" region="shared-state-setup" />
   </Step>
 
   <Step>
-    ### Pass the schema to the shared agent loop
+    ### 把 schema 传给共享智能体循环
 
-    The route reads the current preferences and notes, then registers
-    `SET_NOTES_TOOL_SCHEMA` with `runAgenticLoop`.
+    该路由读取当前的偏好与笔记，然后将 `SET_NOTES_TOOL_SCHEMA` 注册到 `runAgenticLoop`。
 
     <DemoCode
       file="src/agent_server.ts"
@@ -22,11 +19,9 @@
   </Step>
 
   <Step>
-    ### Select the Claude Agent SDK path
+    ### 选择 Claude Agent SDK 路径
 
-    Compatible requests use `runWithClaudeAgentSdk`. Requests with aimock
-    transport, frontend/runtime tools, extended thinking, or structured user
-    content use the direct Anthropic Messages API fallback.
+    兼容的请求会使用 `runWithClaudeAgentSdk`。带 aimock 传输、前端/运行时工具、扩展思考或结构化用户内容的请求，则使用直接 Anthropic Messages API 回退路径。
 
     <DemoCode
       file="src/claude-agent-sdk-adapter.ts"
@@ -40,11 +35,9 @@
   </Step>
 
   <Step>
-    ### Expose `set_notes` through MCP
+    ### 通过 MCP 暴露 `set_notes`
 
-    The adapter receives the in-process MCP server and its `allowedTools`
-    list. The schema becomes an executable SDK tool named
-    `mcp__copilotkit__set_notes`.
+    适配器接收进程内 MCP 服务器及其 `allowedTools` 列表。该 schema 会变成名为 `mcp__copilotkit__set_notes` 的可执行 SDK 工具。
 
     <DemoCode
       file="src/claude-agent-sdk-adapter.ts"
@@ -58,10 +51,9 @@
   </Step>
 
   <Step>
-    ### Replace the notes in shared state
+    ### 替换共享状态中的笔记
 
-    The backend handler validates the tool arguments and returns the updated
-    state. The adapter emits that state as a snapshot after the tool result.
+    后端处理器会校验工具参数并返回更新后的状态。适配器在工具结果之后以快照形式发出该状态。
 
     <DemoCode
       file="src/agent_server.ts"

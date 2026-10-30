@@ -1,7 +1,10 @@
 {
-  "title": "Other",
+  "title": "其他",
   "frontend": {
     "kind": "universal"
   },
-  "pages": ["contributing", "telemetry"]
+  "pages": [
+    "contributing",
+    "telemetry"
+  ]
 }

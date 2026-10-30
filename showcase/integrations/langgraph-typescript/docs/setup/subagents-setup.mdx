@@ -1,6 +1,6 @@
 <Steps>
   <Step>
-    ### Install the CopilotKit LangGraph SDK
+    ### 安装 CopilotKit LangGraph SDK
 
     ```bash
     npm install @copilotkit/sdk-js
@@ -8,11 +8,10 @@
 
   </Step>
   <Step>
-    ### Wire CopilotKit state + tools into your graph
+    ### 将 CopilotKit 状态与工具接入你的图
 
-    Sub-agents are tools on a supervisor agent. The supervisor's graph state
-    extends `CopilotKitStateAnnotation` so delegations stream back to the UI
-    through shared state in real time.
+    子智能体（sub-agent）是挂在监督智能体上的工具。监督智能体的图状态扩展了
+    `CopilotKitStateAnnotation`，从而让委派的任务通过共享状态实时流式回传到 UI。
 
     <DemoCode file="src/agent/subagents.ts" region="subagent-setup" />
 

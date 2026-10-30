@@ -1,5 +1,9 @@
 {
-  "title": "Generative UI",
+  "title": "生成式 UI",
   "icon": "lucide/Paintbrush",
-  "pages": ["tool-rendering", "state-rendering", "mcp-apps"]
+  "pages": [
+    "tool-rendering",
+    "state-rendering",
+    "mcp-apps"
+  ]
 }

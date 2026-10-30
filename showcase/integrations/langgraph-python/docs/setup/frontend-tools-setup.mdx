@@ -1,17 +1,14 @@
 <Steps>
   <Step>
-    ### Install the LangGraph Python SDK
+    ### 安装 LangGraph Python SDK
 
     <InstallPythonSDK />
 
   </Step>
   <Step>
-    ### Wire CopilotKit middleware into your graph
+    ### 将 CopilotKit 中间件接入你的图
 
-    Frontend tools registered with `useFrontendTool` are forwarded to your
-    agent at runtime. `CopilotKitMiddleware` is the bridge — drop it into
-    `create_agent`'s `middleware` list and the LLM sees the forwarded tool
-    definitions on every turn.
+    通过 `useFrontendTool` 注册的前端工具会在运行时转发给你的智能体。`CopilotKitMiddleware` 就是这座桥梁——把它放进 `create_agent` 的 `middleware` 列表，LLM 就能在每一轮看到这些被转发过来的工具定义。
 
     <DemoCode file="src/agents/frontend_tools.py" region="middleware" />
 

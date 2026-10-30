@@ -1,8 +1,14 @@
 {
-  "title": "Agentic Protocols",
+  "title": "智能体协议",
   "icon": "lucide/Zap",
   "frontend": {
     "kind": "universal"
   },
-  "pages": ["index", "ag-ui", "ag-ui-middleware", "mcp", "a2a"]
+  "pages": [
+    "index",
+    "ag-ui",
+    "ag-ui-middleware",
+    "mcp",
+    "a2a"
+  ]
 }

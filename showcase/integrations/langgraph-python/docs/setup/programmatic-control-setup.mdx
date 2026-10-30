@@ -1,24 +1,18 @@
 <Steps>
   <Step>
-    ### Install the LangGraph Python SDK
+    ### 安装 LangGraph Python SDK
 
     <InstallPythonSDK />
 
   </Step>
   <Step>
-    ### Wire CopilotKit middleware into your graph
+    ### 将 CopilotKit 中间件接入你的图
 
-    Programmatic control (`copilotkit.runAgent`, `agent.subscribe`,
-    `agent.addMessage`) drives runs through the same agent your chat UI
-    uses, so the backend wiring is the same one-line `CopilotKitMiddleware`
-    setup.
+    编程式控制（`copilotkit.runAgent`、`agent.subscribe`、`agent.addMessage`）通过与你的聊天 UI 所用相同的智能体来驱动运行，因此后端接线同样是那一行 `CopilotKitMiddleware` 配置。
 
     <DemoCode file="src/agents/frontend_tools.py" region="middleware" />
 
-    For the headless `useInterrupt` pattern, also use LangGraph's native
-    `interrupt(...)` inside a graph node and resume with
-    `forwardedProps: { command: { resume, interruptEvent } }` from the
-    frontend.
+    对于无头（headless）的 `useInterrupt` 模式，同样要在图节点内部使用 LangGraph 原生的 `interrupt(...)`，并在前端通过 `forwardedProps: { command: { resume, interruptEvent } }` 恢复运行。
 
   </Step>
 </Steps>

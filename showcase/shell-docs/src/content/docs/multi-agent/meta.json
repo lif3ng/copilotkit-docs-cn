@@ -1,8 +1,10 @@
 {
-  "title": "Multi-Agent",
+  "title": "多智能体",
   "icon": "lucide/Network",
   "frontend": {
     "kind": "universal"
   },
-  "pages": ["subagents"]
+  "pages": [
+    "subagents"
+  ]
 }

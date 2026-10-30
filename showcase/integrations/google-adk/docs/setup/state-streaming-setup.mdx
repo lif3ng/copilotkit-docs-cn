@@ -1,6 +1,6 @@
 <Steps>
   <Step>
-    ### Install the ADK + AG-UI bridge
+    ### 安装 ADK + AG-UI 桥接器
 
     ```bash
     pip install ag-ui-adk
@@ -8,24 +8,17 @@
 
   </Step>
   <Step>
-    ### Declare the predicted state mapping
+    ### 声明预测状态映射
 
-    ADK state streaming uses `PredictStateMapping` to map the streaming
-    `write_document` tool argument into `state["document"]`. Add
-    `AGUIToolset()` to the agent so CopilotKit can forward the state deltas to
-    the UI.
+    ADK 的状态流式传输使用 `PredictStateMapping` 把流式 `write_document` 工具参数映射到 `state["document"]`。为智能体添加 `AGUIToolset()`，CopilotKit 就能把状态增量转发给 UI。
 
     <DemoCode file="src/agents/shared_state_streaming_agent.py" region="state-streaming-middleware" />
 
   </Step>
   <Step>
-    ### Stop after the final model response
+    ### 在最终模型响应后停止
 
-    The agent above imports `stop_on_terminal_text` and registers it as its
-    `after_model_callback`. This prevents Gemini from issuing the same tool
-    call again after its final text response. See the canonical
-    [`stop_on_terminal_text` implementation](https://github.com/CopilotKit/CopilotKit/blob/main/showcase/integrations/google-adk/src/agents/shared_chat.py)
-    when adapting the callback for your project.
+    上面的智能体导入了 `stop_on_terminal_text` 并将其注册为自己的 `after_model_callback`。这可以防止 Gemini 在输出最终文本响应后再次发出同一个工具调用。在你的项目中适配该回调时，可参考标准的 [`stop_on_terminal_text` 实现](https://github.com/CopilotKit/CopilotKit/blob/main/showcase/integrations/google-adk/src/agents/shared_chat.py)。
 
   </Step>
 </Steps>

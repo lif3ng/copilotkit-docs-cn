@@ -1,6 +1,6 @@
 <Steps>
   <Step>
-    ### Install the ADK + AG-UI bridge
+    ### 安装 ADK + AG-UI 桥接器
 
     ```bash
     pip install ag-ui-adk
@@ -8,12 +8,9 @@
 
   </Step>
   <Step>
-    ### Add `AGUIToolset()` to your agent
+    ### 将 `AGUIToolset()` 添加到你的智能体
 
-    Agent config flows from the UI through `useAgentContext`. With
-    `AGUIToolset()` wired into your `LlmAgent`, the context entry is
-    available in session state on every turn — read it inside a
-    `before_model_callback` to inject preferences into the system prompt.
+    智能体配置经由 `useAgentContext` 从 UI 流入。将 `AGUIToolset()` 接入 `LlmAgent` 后，这条上下文条目在每一回合都会出现在会话状态中——在 `before_model_callback` 内读取它，即可把用户偏好注入系统提示词。
 
     <DemoCode file="src/agents/agent_config_agent.py" region="agent-config-setup" />
 

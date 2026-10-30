@@ -1,5 +1,11 @@
 {
-  "title": "Custom Look and Feel",
+  "title": "自定义外观",
   "icon": "lucide/LayoutDashboard",
-  "pages": ["css", "slots", "markdown", "headless-ui", "reasoning-messages"]
+  "pages": [
+    "css",
+    "slots",
+    "markdown",
+    "headless-ui",
+    "reasoning-messages"
+  ]
 }

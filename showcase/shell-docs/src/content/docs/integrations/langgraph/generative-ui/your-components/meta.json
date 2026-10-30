@@ -1,4 +1,8 @@
 {
-  "title": "Your Components",
-  "pages": ["display-only", "interactive", "interrupt-based"]
+  "title": "你的组件",
+  "pages": [
+    "display-only",
+    "interactive",
+    "interrupt-based"
+  ]
 }

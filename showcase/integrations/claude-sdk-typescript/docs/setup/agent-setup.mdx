@@ -1,6 +1,6 @@
 <Steps>
   <Step>
-    ### Install the Claude Agent SDK packages
+    ### 安装 Claude Agent SDK 相关包
 
     ```bash
     npm install @ag-ui/core @ag-ui/encoder @ag-ui/claude-agent-sdk @anthropic-ai/claude-agent-sdk@^0.2.58 @anthropic-ai/sdk zod
@@ -8,11 +8,9 @@
   </Step>
 
   <Step>
-    ### Bridge Claude Agent SDK to AG-UI
+    ### 将 Claude Agent SDK 桥接到 AG-UI
 
-    Use `ClaudeAgentAdapter` from `@ag-ui/claude-agent-sdk`. The adapter
-    receives the AG-UI run input, emits AG-UI events back to CopilotKit, and can
-    expose backend tools through an in-process Claude SDK MCP server.
+    使用来自 `@ag-ui/claude-agent-sdk` 的 `ClaudeAgentAdapter`。该适配器接收 AG-UI 运行输入，向 CopilotKit 发回 AG-UI 事件，并可以通过进程内的 Claude SDK MCP 服务器暴露后端工具。
 
     <DemoCode file="src/claude-agent-sdk-adapter.ts" region="claude-agent-sdk-mcp-adapter-wiring" />
 

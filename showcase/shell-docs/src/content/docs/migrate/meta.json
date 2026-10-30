@@ -1,5 +1,10 @@
 {
-  "title": "Migrate",
+  "title": "迁移",
   "icon": "lucide/RefreshCw",
-  "pages": ["ag-ui-1.0", "v2", "1.10.X", "1.8.2"]
+  "pages": [
+    "ag-ui-1.0",
+    "v2",
+    "1.10.X",
+    "1.8.2"
+  ]
 }

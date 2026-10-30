@@ -1,10 +1,8 @@
 <Steps>
   <Step>
-    ### Make runtime configuration explicit
+    ### 让运行时配置显式化
 
-    The Claude Agent SDK demo reads configuration from shared state and folds it
-    into the system prompt. This keeps the agent behavior visible to the UI and
-    lets users tune model behavior without rebuilding the backend.
+    Claude Agent SDK 示例从共享状态读取配置，并将其并入系统提示。这样既能让 UI 了解到智能体行为，也让用户无需重建后端即可调整模型行为。
 
     <DemoCode file="src/agent/agent-config-prompt.ts" region="agent-config-setup" />
   </Step>

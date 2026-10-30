@@ -1,10 +1,8 @@
 <Steps>
   <Step>
-    ### Register the fixed-schema tool at the endpoint
+    ### 在端点注册固定 schema 工具
 
-    The dedicated endpoint supplies `DISPLAY_FLIGHT_TOOL_SCHEMA` to the shared
-    agent loop. This is the first connection between the schema shown above and
-    the executable backend tool.
+    专用端点将 `DISPLAY_FLIGHT_TOOL_SCHEMA` 提供给共享智能体循环。这是上文展示的 schema 与可执行后端工具之间的第一处连接。
 
     <DemoCode
       file="src/agent_server.ts"
@@ -13,12 +11,9 @@
   </Step>
 
   <Step>
-    ### Select the Claude Agent SDK path
+    ### 选择 Claude Agent SDK 路径
 
-    A normal request has no runtime-provided tools, structured input, extended
-    thinking, or aimock headers, so `shouldUseClaudeAgentSdk` selects the
-    production `ClaudeAgentAdapter` path. The direct Anthropic Messages API
-    loop remains a compatibility fallback for those excluded request shapes.
+    普通请求不携带运行时提供的工具、结构化输入、扩展思考或 aimock 头，因此 `shouldUseClaudeAgentSdk` 会选择生产环境的 `ClaudeAgentAdapter` 路径。直接 Anthropic Messages API 循环则保留下来，作为这些被排除请求形态的兼容回退。
 
     <DemoCode
       file="src/claude-agent-sdk-adapter.ts"
@@ -32,12 +27,9 @@
   </Step>
 
   <Step>
-    ### Expose `display_flight` through an SDK MCP server
+    ### 通过 SDK MCP 服务器暴露 `display_flight`
 
-    `runWithClaudeAgentSdk` converts the Anthropic tool schema into an
-    in-process Claude SDK MCP tool, registers the server on
-    `ClaudeAgentAdapter`, and adds the fully-qualified
-    `mcp__copilotkit__display_flight` name to `allowedTools`.
+    `runWithClaudeAgentSdk` 将 Anthropic 工具 schema 转换为进程内的 Claude SDK MCP 工具，把该服务器注册到 `ClaudeAgentAdapter` 上，并将全限定名 `mcp__copilotkit__display_flight` 加入 `allowedTools`。
 
     <DemoCode
       file="src/claude-agent-sdk-adapter.ts"
@@ -51,11 +43,9 @@
   </Step>
 
   <Step>
-    ### Execute the tool and return A2UI operations
+    ### 执行工具并返回 A2UI 操作
 
-    When the MCP tool invokes `display_flight`, the backend dispatches to the
-    canonical handler, builds the fixed schema's A2UI operations, and returns
-    them as the tool result for the middleware to render.
+    当 MCP 工具调用 `display_flight` 时，后端会分派到标准处理器（canonical handler），构建固定 schema 的 A2UI 操作，并将其作为工具结果返回，交由中间件渲染。
 
     <DemoCode
       file="src/agent_server.ts"

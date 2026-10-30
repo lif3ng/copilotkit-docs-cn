@@ -1,5 +1,10 @@
 {
-  "title": "Generative UI",
+  "title": "生成式 UI",
   "icon": "lucide/Paintbrush",
-  "pages": ["your-components", "tool-rendering", "mcp-apps", "a2ui"]
+  "pages": [
+    "your-components",
+    "tool-rendering",
+    "mcp-apps",
+    "a2ui"
+  ]
 }

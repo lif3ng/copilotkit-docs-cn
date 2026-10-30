@@ -1,17 +1,14 @@
 <Steps>
   <Step>
-    ### Install the LangGraph Python SDK
+    ### 安装 LangGraph Python SDK
 
     <InstallPythonSDK />
 
   </Step>
   <Step>
-    ### Wire read-only agent context into your graph
+    ### 将只读智能体上下文接入你的图
 
-    `useAgentContext` publishes read-only UI values through
-    `CopilotKitMiddleware`. Attach the middleware to the agent and describe
-    how the model should use the frontend-supplied context in the system
-    prompt.
+    `useAgentContext` 通过 `CopilotKitMiddleware` 发布只读的 UI 值。把该中间件挂载到智能体上，并在系统提示中说明模型应如何使用这些由前端提供的上下文。
 
     <DemoCode file="src/agents/readonly_state_agent_context.py" region="agent-context-setup" />
 

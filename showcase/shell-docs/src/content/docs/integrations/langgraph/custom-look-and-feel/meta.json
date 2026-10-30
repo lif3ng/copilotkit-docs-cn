@@ -1,5 +1,9 @@
 {
-  "title": "Custom Look and Feel",
+  "title": "自定义外观",
   "icon": "lucide/LayoutDashboard",
-  "pages": ["css", "slots", "headless-ui"]
+  "pages": [
+    "css",
+    "slots",
+    "headless-ui"
+  ]
 }

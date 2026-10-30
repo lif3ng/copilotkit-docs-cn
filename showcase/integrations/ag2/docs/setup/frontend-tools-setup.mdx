@@ -1,12 +1,8 @@
 <Steps>
   <Step>
-    ### Nothing to wire on the agent
+    ### 智能体侧无需任何接线
 
-    AG2's AG-UI stream surfaces frontend-registered tools to the model on every
-    run, so the agent declares none of its own. A component registered with
-    `useComponent` reaches the model through the AG-UI request payload, and the
-    model calls it by name. Leave `tools` empty when the only tools in play
-    are frontend ones.
+    AG2 的 AG-UI 流会在每次运行时把前端注册的工具呈现给模型，因此智能体自身无需声明任何工具。通过 `useComponent` 注册的组件会经由 AG-UI 请求负载到达模型，模型按名称调用它。当参与其中的工具全部是前端工具时，把 `tools` 留空即可。
 
     ```python title="src/agents/chart_agent.py"
     from ag2 import Agent
@@ -25,11 +21,9 @@
 
   </Step>
   <Step>
-    ### Tell the model when to call it
+    ### 告诉模型何时调用它
 
-    This is the part that is easy to miss. The tool arrives on every run, but a
-    model with no instruction about it will answer in prose and never call it.
-    Name the tool in `prompt` and say what it is for.
+    这是最容易漏掉的一步。工具虽然每次运行都会送达，但如果模型没有收到任何相关指示，它就会用一段文字作答，而永远不会调用该工具。在 `prompt` 中点名这个工具，并说明它的用途。
 
     ```python title="src/agents/chart_agent.py"
     SYSTEM_PROMPT = (

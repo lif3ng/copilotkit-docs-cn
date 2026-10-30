@@ -1,21 +1,18 @@
-Follow the [LangGraph Python quickstart](/langgraph-python/quickstart) to
-configure the `sample_agent` graph. Start its existing LangGraph server:
+按照 [LangGraph Python 快速开始](/langgraph-python/quickstart) 配置 `sample_agent` 图。启动它自带的 LangGraph 服务器：
 
-```bash title="Agent application"
+```bash title="智能体应用"
 npx @langchain/langgraph-cli dev --port 8123 --no-browser
 ```
 
-Point the native LangGraph adapter at that deployment:
+将原生 LangGraph 适配器指向该部署：
 
 ```dotenv title=".env"
 LANGGRAPH_DEPLOYMENT_URL=http://localhost:8123
 ```
 
-The Runtime package installed by the Channels quickstart includes the native
-LangGraph adapter.
+通过 Channels 快速开始安装的 Runtime 包已包含原生 LangGraph 适配器。
 
-LangGraph Server speaks the LangGraph API, so use `LangGraphAgent` rather
-than `HttpAgent`. Return a fresh adapter for every channel thread:
+LangGraph Server 使用的是 LangGraph API，因此应选用 `LangGraphAgent` 而非 `HttpAgent`。为每个渠道线程返回一个全新的适配器：
 
 ```ts title="agent.ts"
 import { LangGraphAgent } from "@copilotkit/runtime/langgraph";

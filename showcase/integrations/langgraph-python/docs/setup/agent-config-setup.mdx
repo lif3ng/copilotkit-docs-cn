@@ -1,23 +1,18 @@
 <Steps>
   <Step>
-    ### Install the LangGraph Python SDK
+    ### 安装 LangGraph Python SDK
 
     <InstallPythonSDK />
 
   </Step>
   <Step>
-    ### Wire CopilotKit middleware into your graph
+    ### 将 CopilotKit 中间件接入你的图
 
-    Agent config flows from the UI into the agent via `useAgentContext` — the
-    frontend publishes a typed object and `CopilotKitMiddleware` injects it
-    into the model's prompt on every turn. Make sure the middleware is in
-    your `create_agent` call.
+    智能体配置经由 `useAgentContext` 从 UI 流入智能体——前端发布一个类型化对象，`CopilotKitMiddleware` 则在每一轮把它注入模型的提示中。请确保中间件已包含在你的 `create_agent` 调用里。
 
     <DemoCode file="src/agents/agent_config_agent.py" region="agent-config-setup" />
 
-    Read the resulting config inside your system prompt or a custom
-    middleware — see `src/agents/agent_config_agent.py` for the full
-    rulebook-driven shape used in the showcase.
+    在系统提示或自定义中间件中读取最终得到的配置——本 showcase 所用的完整 rulebook 驱动结构参见 `src/agents/agent_config_agent.py`。
 
   </Step>
 </Steps>

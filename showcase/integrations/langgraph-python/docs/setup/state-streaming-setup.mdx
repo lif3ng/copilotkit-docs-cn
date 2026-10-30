@@ -1,16 +1,14 @@
 <Steps>
   <Step>
-    ### Install the LangGraph Python SDK
+    ### 安装 LangGraph Python SDK
 
     <InstallPythonSDK />
 
   </Step>
   <Step>
-    ### Add state streaming middleware
+    ### 添加状态流式传输中间件
 
-    `StateStreamingMiddleware` maps a tool argument to an agent state key and
-    forwards partial tool-call arguments as state updates while the model is
-    still generating.
+    `StateStreamingMiddleware` 会将某个工具参数映射到一个智能体状态键，并在模型仍在生成时，把部分工具调用参数作为状态更新转发出去。
 
     <DemoCode file="src/agents/shared_state_streaming.py" region="state-streaming-middleware" />
 

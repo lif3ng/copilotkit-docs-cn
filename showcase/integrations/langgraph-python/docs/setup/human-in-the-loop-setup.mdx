@@ -1,22 +1,18 @@
 <Steps>
   <Step>
-    ### Install the LangGraph Python SDK
+    ### 安装 LangGraph Python SDK
 
     <InstallPythonSDK />
 
   </Step>
   <Step>
-    ### Wire CopilotKit middleware into your graph
+    ### 将 CopilotKit 中间件接入你的图
 
-    For `useHumanInTheLoop` tool-based HITL, the tool is defined entirely on
-    the frontend and forwarded to the agent. `CopilotKitMiddleware` is what
-    forwards it — drop it into your `create_agent` call.
+    对于基于 `useHumanInTheLoop` 工具的人机协同（human-in-the-loop，HITL），工具完全在前端定义，再转发给智能体。负责转发的正是 `CopilotKitMiddleware`——把它放进你的 `create_agent` 调用即可。
 
     <DemoCode file="src/agents/frontend_tools.py" region="middleware" />
 
-    For the `useInterrupt` graph-paused pattern, you'll also use LangGraph's
-    native `interrupt(...)` primitive inside a graph node — no extra
-    CopilotKit setup beyond the middleware above.
+    至于 `useInterrupt` 的图暂停模式，你还需要在图节点内部使用 LangGraph 原生的 `interrupt(...)` 原语——除了上面的中间件之外，无需任何额外的 CopilotKit 配置。
 
   </Step>
 </Steps>
