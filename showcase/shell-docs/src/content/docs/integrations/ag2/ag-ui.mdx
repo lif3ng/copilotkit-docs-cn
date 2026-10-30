@@ -1,17 +1,17 @@
 ---
 title: "AG-UI"
 icon: "lucide/Server"
-description: "The AG-UI protocol connects your frontend to your AI agents via event-based Server-Sent Events (SSE)."
+description: "AG-UI 协议通过基于事件的 Server-Sent Events（SSE）将你的前端连接到 AI 智能体。"
 ---
 import AGUI from "@/snippets/shared/backend/ag-ui.mdx";
 
 <Callout type="info">
-  On the AG2 side, `AGUIStream` (from the `ag2.ag_ui` module, AG2 1.1.2+) exposes any agent as an AG-UI endpoint that CopilotKit consumes directly — see the [quickstart](/ag2/quickstart) and the <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/" target="_blank">AG2 AG-UI integration docs</a>.
+  在 AG2 一侧，`AGUIStream`（来自 `ag2.ag_ui` 模块，AG2 1.1.2+）可以把任何智能体暴露为 CopilotKit 直接使用的 AG-UI 端点——参见[快速开始](/ag2/quickstart)与 <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/" target="_blank">AG2 AG-UI 集成文档</a>。
 </Callout>
 
-AG2 1.1.2+ also describes the agent in a **capabilities** document (`stream.capabilities()`), which `stream.build_asgi()` serves on a `GET` to the same endpoint. It holds the agent's identity, whether it accepts client-provided tools and state snapshots, its named sub-agents, and whether it supports interrupts. It is read off the agent before any run starts. A group AG2 cannot vouch for is omitted, which AG-UI reads as "says nothing", not "unsupported". See the <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/overview#capabilities" target="_blank">AG2 capabilities reference</a>.
+AG2 1.1.2+ 还会在一份 **capabilities** 文档（`stream.capabilities()`）中描述智能体，`stream.build_asgi()` 会在对同一端点的 `GET` 请求中提供该文档。文档包含智能体的身份、是否接受客户端提供的工具与状态快照、其具名子智能体，以及是否支持中断。该文档在任何运行开始之前都会从智能体读取。无法由 AG2 担保的组会被省略，AG-UI 将其解读为“什么都没说”，而不是“不支持”。参见 <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/overview#capabilities" target="_blank">AG2 capabilities 参考</a>。
 
-A hand-written `@app.post("/chat")` route serves no `GET`, so a request to it returns 405. Add a route that returns the document:
+手写的 `@app.post("/chat")` 路由不提供 `GET`，因此对它的请求会返回 405。请添加一个返回该文档的路由：
 
 ```python title="agent.py"
 @app.get("/chat")
@@ -20,6 +20,6 @@ async def capabilities() -> JSONResponse:
     return JSONResponse(stream.capabilities().model_dump(by_alias=True, exclude_none=True))
 ```
 
-`JSONResponse` comes from `fastapi.responses`.
+`JSONResponse` 来自 `fastapi.responses`。
 
 <AGUI components={props.components} />

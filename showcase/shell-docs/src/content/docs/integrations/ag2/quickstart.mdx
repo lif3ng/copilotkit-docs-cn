@@ -1,57 +1,57 @@
 ---
-title: Quickstart
-description: Turn your AG2 Agents into an agent-native application in 5 minutes.
+title: 快速开始
+description: 5 分钟内把你的 AG2 智能体变成智能体原生应用。
 icon: "lucide/Play"
 hideTOC: true
 ---
 
 import OpenInspectorStep from "@/snippets/shared/inspector/open-inspector-step.mdx";
 
-## Start with your coding agent
+## 从你的编码智能体开始
 
-Use this prompt to connect your AG2 agent to CopilotKit and verify a working conversation. Your coding agent will follow this guide in your project, or you can work through the manual steps below.
+使用这段提示词把你的 AG2 智能体接入 CopilotKit，并验证对话可以正常工作。你的编码智能体会在你的项目里按照本指南操作，你也可以跟着下方的手动步骤一步步来。
 
 <PageAgentPrompt />
 
-## Introduction
+## 简介
 
-This quickstart guide shows how to build a **Weather Agent** using AG2 and CopilotKit. In just minutes, you'll have a working application where users can ask for real-time weather conditions in any city worldwide — powered by AG2's `AGUIStream` over the AG-UI protocol and rendered with CopilotKit's chat UI.
+本快速开始指南演示如何使用 AG2 与 CopilotKit 构建一个**天气智能体**。只需几分钟，你就能得到一个可运行的应用：用户可以查询全球任意城市的实时天气——由 AG2 基于 AG-UI 协议的 `AGUIStream` 驱动，并用 CopilotKit 的聊天 UI 渲染。
 
 <Callout type="info">
-  CopilotKit consumes AG-UI 1.0 protocol events streamed by AG2 (1.1.2 or newer) over HTTP. See the <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/" target="_blank">AG2 AG-UI integration docs</a>.
+  CopilotKit 消费 AG2（1.1.2 或更新版本）通过 HTTP 流式传输的 AG-UI 1.0 协议事件。参见 <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/" target="_blank">AG2 AG-UI 集成文档</a>。
 </Callout>
 
-## AG2 Bootstrap Template
+## AG2 起步模板
 
-If you prefer a generated starter instead of cloning the repo, use the CopilotKit bootstrap template and select **AG2** during setup. This wires up an AG2 backend over AG-UI and a ready-to-run frontend.
+如果你不想克隆仓库，更想用生成好的起步模板，可以使用 CopilotKit bootstrap 模板，并在配置过程中选择 **AG2**。它会为你接好一个基于 AG-UI 的 AG2 后端和一个开箱即跑的前端。
 
 ```bash
 npx copilotkit@latest init
 ```
 
-Follow the prompts to pick AG2 and the features you want, then run the install/start commands it prints.
+按照提示选择 AG2 和你想要的特性，然后运行它打印出的安装/启动命令。
 
-## Prerequisites
+## 前置条件
 
-Before you begin, you'll need the following:
+开始之前，你需要准备以下内容：
 
-- **Python 3.10–3.14** for running the AG2 backend
-- <a href="https://docs.astral.sh/uv/getting-started/installation/" target="_blank">uv</a> (for Python dependency management)
-- <a href="https://nodejs.org/en/download" target="_blank">Node.js</a> 20.9 or newer
-- <a href="https://pnpm.io/installation" target="_blank">pnpm</a> (for frontend package management)
-- <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI API key</a>
+- **Python 3.10–3.14**，用于运行 AG2 后端
+- <a href="https://docs.astral.sh/uv/getting-started/installation/" target="_blank">uv</a>（用于 Python 依赖管理）
+- <a href="https://nodejs.org/en/download" target="_blank">Node.js</a> 20.9 或更新版本
+- <a href="https://pnpm.io/installation" target="_blank">pnpm</a>（用于前端包管理）
+- <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI API 密钥</a>
 
-## Getting started
+## 开始使用
 
 <Steps>
     <Step>
-        ### Set up CopilotKit Intelligence
+        ### 配置 CopilotKit 智能中枢
 
-        <SignupLink surface="docs_ag2_quickstart_step1">Sign in to cloud-hosted Intelligence</SignupLink>. Cloud-hosted setup uses a server-side project API key and does not issue `COPILOTKIT_LICENSE_TOKEN`. You will connect the app after you clone it below.
+        <SignupLink surface="docs_ag2_quickstart_step1">登录云端托管的智能中枢</SignupLink>。云端托管配置使用服务端项目 API 密钥，不会签发 `COPILOTKIT_LICENSE_TOKEN`。稍后克隆完应用，再把它连接上来。
     </Step>
 
     <Step>
-        ### Clone the AG2 Samples Repository
+        ### 克隆 AG2 示例仓库
 
         ```bash
         git clone https://github.com/ag2ai/ag2-samples.git
@@ -59,39 +59,39 @@ Before you begin, you'll need the following:
         npx copilotkit@latest project select
         ```
 
-        `project select` creates or selects an Intelligence project and writes its server-side API key to `.env` as `CPK_INTELLIGENCE_API_KEY`.
+        `project select` 会创建或选择一个智能中枢项目，并把其服务端 API 密钥以 `CPK_INTELLIGENCE_API_KEY` 的形式写入 `.env`。
     </Step>
     <Step>
-        ### Set Up the AG2 Backend
+        ### 配置 AG2 后端
 
-        #### Install the dependencies:
+        #### 安装依赖：
 
         ```bash
         uv sync
         ```
 
-        #### Set your `OPENAI_API_KEY` and `AUTH_SECRET`:
+        #### 设置你的 `OPENAI_API_KEY` 与 `AUTH_SECRET`：
 
-        The sample serves the agent only to a signed-in user. `AUTH_SECRET` signs and verifies the user's access token, so the backend and the frontend must use the same value. Any long random string works.
+        该示例只向已登录的用户提供智能体。`AUTH_SECRET` 用于签名并校验用户的访问令牌，因此后端与前端必须使用相同的值。任意长随机字符串都可以。
 
         ```sh
         export OPENAI_API_KEY="your_openai_api_key"
         export AUTH_SECRET="a-long-random-string"
         ```
 
-        #### Launch the AG2 weather agent:
+        #### 启动 AG2 天气智能体：
 
         ```bash
         uv run python -m backend
         ```
-        The backend server will start at http://localhost:8000 and serve the agent at `/weather`.
+        后端服务器将启动于 http://localhost:8000，并在 `/weather` 路径上提供智能体服务。
     </Step>
     <Step>
-        ### Set Up the CopilotKit UI
+        ### 配置 CopilotKit UI
 
-        The last step is to use CopilotKit's UI components to render the chat interaction with your agent.
+        最后一步是使用 CopilotKit 的 UI 组件来渲染与你的智能体的聊天交互。
 
-        In a new terminal:
+        在新终端中：
 
         ```bash
         cd ui
@@ -99,40 +99,40 @@ Before you begin, you'll need the following:
         AUTH_SECRET="a-long-random-string" pnpm dev
         ```
 
-        The frontend application will start at http://localhost:3000. Use the same `AUTH_SECRET` as the backend.
+        前端应用将启动于 http://localhost:3000。请使用与后端相同的 `AUTH_SECRET`。
 
         <Callout type="warn">
-            The sample's sign-in is a demonstration: it accepts any name and keeps the token in `localStorage`. Replace `verify_access_token` in `backend/auth.py` and the token route in the UI before reusing the pattern. See [Authentication](/ag2/auth).
+            该示例的登录仅作演示：它接受任意名字，并把令牌保存在 `localStorage` 中。在复用这套模式之前，请替换 `backend/auth.py` 中的 `verify_access_token` 以及 UI 中的令牌路由。参见[身份验证](/ag2/auth)。
         </Callout>
     </Step>
     <Step>
-        ### 🎉 Talk to your agent!
+        ### 🎉 和你的智能体对话吧！
 
-        Congrats! You've successfully integrated an AG2 Agent chatbot into your application. Enter a name to sign in, then try asking a few questions:
-
-        ```
-        What's the weather in London?
-        ```
+        恭喜！你已成功把一个 AG2 智能体聊天机器人集成到你的应用中。输入名字登录，然后试着问几个问题：
 
         ```
-        Weather in Tokyo
+        伦敦的天气怎么样？
         ```
 
         ```
-        What's the weather here?
+        东京的天气
         ```
 
-        The sample also shows the AG-UI 1.0 features next to the chat:
+        ```
+        这里的天气怎么样？
+        ```
 
-        | Feature | Try it |
+        该示例还在聊天旁边展示了 AG-UI 1.0 的各项特性：
+
+        | 特性 | 试试这样问 |
         | --- | --- |
-        | [Sub-agents](/ag2/multi-agent/subagents) (`ClothingAdvisor`, `TripPlanner`) | "What should I wear in Oslo?" |
-        | [Interrupts](/ag2/human-in-the-loop#approve-a-tool-call-with-interrupts) (`save_favorite_city` waits for approval) | "Save Lisbon to my favorites" |
-        | [Shared state](/ag2/shared-state) (the favorites panel) | Save a city, then watch the panel |
-        | Capabilities | `curl localhost:8000/weather` |
+        | [子智能体](/ag2/multi-agent/subagents)（`ClothingAdvisor`、`TripPlanner`） | “我在奥斯陆该穿什么？” |
+        | [中断](/ag2/human-in-the-loop#approve-a-tool-call-with-interrupts)（`save_favorite_city` 会等待批准） | “把里斯本保存到我的收藏” |
+        | [共享状态](/ag2/shared-state)（收藏面板） | 保存一个城市，然后观察面板 |
+        | 能力 | `curl localhost:8000/weather` |
 
         <Callout type="info">
-            Asking "What's the weather here?" will use your browser's location if you allow it. If location access is denied, the agent will ask you for a city name instead.
+            询问 “这里的天气怎么样？” 时，只要你允许，就会使用浏览器的定位。如果定位访问被拒绝，智能体会改为让你提供一个城市名。
         </Callout>
     </Step>
 
@@ -145,9 +145,9 @@ Before you begin, you'll need the following:
 
 ---
 
-## Connect your own AG2 agent
+## 接入你自己的 AG2 智能体
 
-The samples repository is a ready-made example. To expose any AG2 agent over AG-UI, install AG2 (1.1.2+) with the AG-UI and OpenAI extras and wrap the agent in `AGUIStream`:
+示例仓库是一个现成的例子。要通过 AG-UI 暴露任何 AG2 智能体，请安装带 AG-UI 与 OpenAI 附加依赖的 AG2（1.1.2+），并把智能体包进 `AGUIStream`：
 
 ```bash
 pip install "ag2[ag-ui,openai]>=1.1.2"
@@ -181,7 +181,7 @@ async def run_agent(
     )
 ```
 
-If you don't need custom auth, logging, or middleware around the endpoint, `AGUIStream.build_asgi()` builds a ready-to-mount ASGI endpoint instead:
+如果你不需要围绕该端点的自定义身份验证、日志或中间件，可以改用 `AGUIStream.build_asgi()` 构建一个可直接挂载的 ASGI 端点：
 
 ```python title="run_ag_ui.py"
 from fastapi import FastAPI
@@ -201,16 +201,16 @@ app = FastAPI()
 app.mount("/chat", stream.build_asgi())
 ```
 
-Point the `HttpAgent` in your Copilot Runtime at `http://localhost:8000/chat` and your agent is live in the UI. See the <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/" target="_blank">AG2 AG-UI integration docs</a> for supported protocol events, interrupts, capabilities, and shared-state details.
+把 Copilot Runtime 中的 `HttpAgent` 指向 `http://localhost:8000/chat`，你的智能体就会在 UI 中上线。受支持的协议事件、中断、能力与共享状态细节，参见 <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/" target="_blank">AG2 AG-UI 集成文档</a>。
 
-## What's next?
+## 下一步
 
-You've now got a Weather Agent running with CopilotKit! This demonstrates how quickly you can build practical AI applications by combining AG2's `AGUIStream` with CopilotKit's user interface components.
+现在你已经让一个天气智能体与 CopilotKit 一起跑起来了！这展示了把 AG2 的 `AGUIStream` 与 CopilotKit 的界面组件结合起来，能多快构建出实用的 AI 应用。
 
 <Cards>
   <Card
-    title="Implement Human in the Loop"
-    description="Allow your users and agents to collaborate together on tasks."
+    title="实现人机协同（human-in-the-loop）"
+    description="让你的用户与智能体在任务上协同合作。"
     href="/ag2/human-in-the-loop"
     icon={<UserIcon />}
   />

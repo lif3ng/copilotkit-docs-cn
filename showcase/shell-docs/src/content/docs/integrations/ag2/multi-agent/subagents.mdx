@@ -1,34 +1,28 @@
 ---
-title: "Subagents"
+title: "子智能体"
 icon: "lucide/Network"
-description: "Delegate work from one AG2 agent to another and render each delegation in the chat."
+description: "将工作从一个 AG2 智能体委托给另一个，并在聊天中渲染每一次委托。"
 ---
 
-## Introduction
+## 简介
 
-AG2 (1.0+) delegates by turning an agent into a tool. `Agent.as_tool()` returns a regular
-tool that, when the coordinator's model calls it, runs the other agent on its own isolated
-stream with its own history. The coordinator's context stays small, and the decision to
-delegate stays with the model.
+AG2（1.0+）通过把一个智能体变成工具来实现委托。`Agent.as_tool()` 返回一个普通工具，当协调者的模型调用它时，会在对方自己隔离的流中、以其自己的历史记录运行该智能体。协调者的上下文保持精简，而是否委托的决定权仍留在模型手中。
 
-CopilotKit sees each delegation twice: as an ordinary tool call, and as an AG-UI 1.0
-**subagent invocation** (`SUBAGENT_STARTED`, `SUBAGENT_FINISHED`, `SUBAGENT_ERROR`), so you can
-render "researching…" / "writing…" progress without any extra wiring on the backend.
+CopilotKit 会以两种形式看到每一次委托：既是一次普通工具调用，也是一次 AG-UI 1.0 **子智能体调用**（`SUBAGENT_STARTED`、`SUBAGENT_FINISHED`、`SUBAGENT_ERROR`），因此无需在后端做任何额外接线，你就能渲染 “正在研究……” / “正在撰写……” 这类进度。
 
 <Callout type="info">
-  CopilotKit consumes AG-UI protocol events streamed by AG2 over <code>/chat</code>. See the <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/" target="_blank">AG2 AG-UI integration docs</a> and the upstream <a href="https://docs.ag2.ai/docs/user-guide/subagents/" target="_blank">AG2 subagents guide</a>.
+  CopilotKit 消费 AG2 通过 <code>/chat</code> 流式传输的 AG-UI 协议事件。参见 <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/" target="_blank">AG2 AG-UI 集成文档</a> 与上游的 <a href="https://docs.ag2.ai/docs/user-guide/subagents/" target="_blank">AG2 子智能体指南</a>。
 </Callout>
 
-## Backend
+## 后端
 
-Install AG2 with the AG-UI and OpenAI extras:
+安装带 AG-UI 与 OpenAI 附加依赖的 AG2：
 
 ```bash
 pip install "ag2[ag-ui,openai]>=1.1.2"
 ```
 
-Build each specialist as a plain `Agent`, then hand them to the coordinator as tools. Only
-the coordinator is wrapped in `AGUIStream` — the specialists are reached through it:
+把每个专家智能体构建成普通的 `Agent`，再作为工具交给协调者。只有协调者被包在 `AGUIStream` 中——专家智能体通过它被访问：
 
 ```python title="agent.py"
 from typing import Annotated
@@ -88,14 +82,11 @@ async def run_agent(
     )
 ```
 
-`as_tool()` names the tool `task_<agent name>` by default — `task_researcher` and
-`task_writer` above. Pass `name=` to override it, and `description=` is required: it is the
-only thing the coordinator's model reads when deciding whether to delegate.
+`as_tool()` 默认把工具命名为 `task_<agent name>`——即上面的 `task_researcher` 和 `task_writer`。传入 `name=` 可以覆盖默认命名；`description=` 则是必填的：它是协调者的模型在决定是否委托时唯一会阅读的内容。
 
-## What reaches the frontend
+## 前端能收到什么
 
-Each delegation produces one tool call and one subagent invocation with its own
-`subagentRunId`, so two parallel delegations to the same agent can be told apart:
+每次委托都会产生一次工具调用和一次子智能体调用，后者带有自己的 `subagentRunId`，因此并行的两次对同一智能体的委托也能区分开：
 
 ```text
 RUN_STARTED
@@ -110,37 +101,20 @@ TEXT_MESSAGE_CHUNK
 RUN_FINISHED
 ```
 
-- A failed delegation ends with `SUBAGENT_ERROR` carrying the message, and the run carries on:
-  the coordinator's model is told the delegation failed and may recover. A cancelled or
-  timed-out one also ends with `SUBAGENT_ERROR` (`cancelled` or `expired`).
-- The events carry no usage; the run's own usage already includes what the delegation spent.
-- Delegations are no longer reported as `STEP_STARTED` / `STEP_FINISHED`. If you filtered on
-  `task:<agent name>` steps, subscribe to the `SUBAGENT_*` events instead.
-- If a specialist asks the human a question, it reaches the client like any other
-  [interrupt](/ag2/human-in-the-loop#approve-a-tool-call-with-interrupts), tagged with the
-  invocation's `subagentRunId`.
+- 失败的委托以携带消息的 `SUBAGENT_ERROR` 结束，而运行会继续进行：协调者的模型会被告知该委托已失败，并可能自行恢复。被取消或超时的委托同样以 `SUBAGENT_ERROR` 结束（`cancelled` 或 `expired`）。
+- 这些事件不携带用量信息；运行自身的用量已经包含了委托消耗的部分。
+- 委托不再以 `STEP_STARTED` / `STEP_FINISHED` 的形式上报。如果你之前基于 `task:<agent name>` 步骤做了过滤，请改为订阅 `SUBAGENT_*` 事件。
+- 如果专家智能体向人类提问，它会像其他任何[中断](/ag2/human-in-the-loop#approve-a-tool-call-with-interrupts)一样到达客户端，并附上该调用的 `subagentRunId` 标记。
 
-Two consequences worth knowing before you build UI on top of it:
+在基于它构建 UI 之前，有两个值得了解的后果：
 
-- **Delegations are ordinary tool calls.** Anything you can do for a tool call you can do
-  for a subagent — render it with `useRenderTool`, or let the default tool renderer show it.
-  See [Tool rendering](/ag2/generative-ui/tool-rendering).
-- **The specialist's own tool calls stay inside its stream.** `search_docs` above runs in the
-  researcher's isolated stream, so it does not appear as a separate `TOOL_CALL_*` pair in the
-  coordinator's AG-UI output. If you need that visibility, give the specialist its own
-  endpoint instead of delegating to it.
-- **Shared state does not flow back out of a specialist.** A delegation gets a *copy* of the
-  coordinator's conversation variables, and the specialist's writes to `context.variables` are
-  deliberately not merged back — concurrent delegations would otherwise clobber each other.
-  A specialist that writes state changes nothing the UI sees, and nothing fails. Return the
-  value from the delegation and have the coordinator write it instead. Dependencies are copied
-  in the same way, so `Inject(...)` keeps working inside a specialist.
+- **委托就是普通的工具调用**。凡是能对工具调用做的事，对子智能体同样适用——用 `useRenderTool` 渲染它，或交给默认的工具渲染器展示。参见[工具渲染](/ag2/generative-ui/tool-rendering)。
+- **专家智能体自己的工具调用留在它自己的流里。** 上面的 `search_docs` 运行在 `researcher` 的隔离流中，因此它不会作为单独的 `TOOL_CALL_*` 对出现在协调者的 AG-UI 输出里。如果你需要这种可见性，请为专家智能体提供自己的端点，而不是委托给它。
+- **共享状态不会从专家智能体流回。** 委托会拿到协调者会话变量的一个*副本*，而专家智能体对 `context.variables` 的写入被有意地不合并回去——否则并发委托会互相覆盖。写状态的专家智能体既不会改变 UI 所见的任何东西，也不会报错。请从委托中返回该值，改由协调者写入。依赖项也以同样方式复制，因此 `Inject(...)` 在专家智能体内部依然有效。
 
-## Track delegations with `agent.subscribe`
+## 用 `agent.subscribe` 跟踪委托
 
-For a side panel or a progress list, subscribe to the invocation events on the agent from
-`useAgent`. A run is still running until a finished or error event with its `subagentRunId`
-arrives, so no separate run record is needed:
+对于侧边面板或进度列表，通过 `useAgent` 拿到的 agent 订阅调用事件。在携带其 `subagentRunId` 的 finished 或 error 事件到达之前，该运行都视为仍在进行，因此不需要单独的运行记录：
 
 ```tsx title="components/agent-panel.tsx"
 import type {
@@ -186,9 +160,9 @@ export function SubagentPanel() {
 }
 ```
 
-## Render the delegation in the chat
+## 在聊天中渲染委托
 
-Because a delegation is a tool call, rendering it is the ordinary tool-rendering path:
+由于委托就是一次工具调用，渲染它走的是普通的工具渲染路径：
 
 ```tsx title="app/page.tsx"
 import { z } from "zod";
@@ -214,29 +188,23 @@ const YourMainContent = () => {
 };
 ```
 
-A named `useRenderTool` registration needs a `parameters` schema — only the wildcard
-(`name: "*"`) overload may omit it. Every `as_tool()` delegation takes the same two
-arguments, `objective` and an optional `context`, so the schema above works for any
-subagent.
+具名的 `useRenderTool` 注册需要 `parameters` 模式——只有通配（`name: "*"`）重载可以省略它。每次 `as_tool()` 委托都接受相同的两个参数：`objective` 和可选的 `context`，因此上面的模式适用于任何子智能体。
 
-## Choosing between delegation and one agent
+## 在委托与单智能体之间抉择
 
-Reach for `as_tool()` when a step needs its own instructions, its own tools, or its own
-history — a researcher that may make a dozen tool calls should not pollute the coordinator's
-context. Keep one agent when the work is a single prompt with a couple of tools: delegation
-costs an extra model round trip per hand-off.
+当某个步骤需要自己的指令、自己的工具或自己的历史时，就使用 `as_tool()`——一个可能要发起十几次工具调用的 `researcher` 不应污染协调者的上下文。当工作只是带少量工具的单个提示时，保持单智能体即可：每一次交接，委托都要多付出一次模型往返。
 
-## What's next?
+## 下一步
 
 <Cards>
   <Card
-    title="Tool rendering"
-    description="Render each delegation as it happens in the chat."
+    title="工具渲染"
+    description="在聊天中实时渲染每一次委托。"
     href="/ag2/generative-ui/tool-rendering"
   />
   <Card
-    title="Shared state"
-    description="Let the coordinator and your UI read and write the same state."
+    title="共享状态"
+    description="让协调者与你的 UI 读写同一份状态。"
     href="/ag2/shared-state"
   />
 </Cards>

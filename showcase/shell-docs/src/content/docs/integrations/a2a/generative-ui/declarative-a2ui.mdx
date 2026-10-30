@@ -1,10 +1,11 @@
 ---
-title: Declarative (A2UI)
+title: 声明式（A2UI）
 icon: "lucide/Bot"
-description: Use A2UI to declaratively generate user interfaces.
+description: 用 A2UI 以声明式方式生成用户界面。
 ---
 
-Build an A2A agent, configure it to use A2UI, use the A2UI composer to generate widgets, and render them in your CopilotKit powered app.
+构建一个 A2A 智能体，配置它使用 A2UI，用 A2UI Composer
+生成组件（widget），然后在你由 CopilotKit 驱动的应用中渲染它们。
 
 <div>
   <video
@@ -17,28 +18,33 @@ Build an A2A agent, configure it to use A2UI, use the A2UI composer to generate 
     className="rounded-xl shadow-lg mx-auto mt-auto w-5/6"
   />
   <div className="text-center text-sm text-muted-foreground mt-4">
-    Demo of the <a href="https://a2ui-editor.ag-ui.com">A2UI Composer</a> -
-    powered by CopilotKit
+    A2UI Composer 的演示——由 CopilotKit 提供支持
     <br />
   </div>
 </div>
 
-## Getting started
+## 快速开始
 
 <Steps>
   <Step>
-    ### Use the A2A starter template
+    ### 使用 A2A 起步模板
 
     ```bash
     git clone https://github.com/CopilotKit/CopilotKit.git
     cd CopilotKit/examples/integrations/a2a-a2ui
     ```
 
-    The archived `copilotkit/with-a2a-a2ui` starter now lives at this monorepo path. The current starter uses its local v0.8 renderer and emits a JSON list of v0.8 operation objects. This page documents that accepted starter payload. Migrating the starter to the v0.9 renderer and `a2ui_operations` envelope requires changes outside this documentation target.
+    已归档的 `copilotkit/with-a2a-a2ui`
+    起步模板现在位于这个 monorepo
+    路径。当前起步模板使用其本地的 v0.8
+    渲染器，并输出一份 v0.8
+    操作对象的 JSON 列表。本页记录的正是这份起步模板所接受的载荷。把起步模板迁移到
+    v0.9 渲染器与 `a2ui_operations`
+    信封所需的改动不在本文档的目标范围内。
 
   </Step>
   <Step>
-    ### Install dependencies
+    ### 安装依赖
 
     ```
     pnpm install
@@ -46,7 +52,7 @@ Build an A2A agent, configure it to use A2UI, use the A2UI composer to generate 
 
   </Step>
   <Step>
-    ### Run and connect your agent
+    ### 运行并连接你的智能体
 
     ```
     pnpm dev
@@ -55,14 +61,16 @@ Build an A2A agent, configure it to use A2UI, use the A2UI composer to generate 
   </Step>
 
   <Step>
-    ### Configure your agent to use A2UI
+    ### 配置你的智能体使用 A2UI
 
   </Step>
 
   <Step>
-    ### Setting up your agent with components
+    ### 为智能体配置组件
 
-    The starter's current agent accepts the v0.8 operation list below. Keep the operation order and shapes when adding your own components; each list entry is sent as an individual A2A data part by the starter agent.
+    起步模板当前的智能体接受下面这份 v0.8
+    操作列表。添加你自己的组件时，请保持操作的顺序与形态；列表中的每一项都会由起步模板智能体作为一个独立的
+    A2A data part 发送。
 
     ```python title="agent/prompt_builder.py"
       RESTAURANT_UI_EXAMPLES = """
@@ -117,29 +125,39 @@ Build an A2A agent, configure it to use A2UI, use the A2UI composer to generate 
       # ... more examples below
       ```
 
-    The widgets are injected into the agent's prompt, in this case using the `RESTAURANT_UI_EXAMPLES` variable.
-    Widgets are defined for the agent using an example of the JSON array it should output, wrapped in a comment block.
-    - A comment indicating the start of the example
-    - beginRendering: Starts the v0.8 surface
-    - surfaceUpdate: Defines the v0.8 component tree
-    - dataModelUpdate: Provides the v0.8 data model contents
-    - A comment indicating the end of the example
+    这些 widget 会被注入智能体的提示中，本例使用
+    `RESTAURANT_UI_EXAMPLES` 变量。widget
+    的定义方式是给智能体一个它应输出的 JSON
+    数组示例，并用注释块包裹起来。
+    - 标记示例开始的一条注释
+    - beginRendering：启动 v0.8 surface
+    - surfaceUpdate：定义 v0.8 组件树
+    - dataModelUpdate：提供 v0.8 数据模型内容
+    - 标记示例结束的一条注释
 
-    In the example repo, all of the widgets are defined in a single variable in the prompt_builder.py file, but you can structure them however you like,
-    they simply need to be injected into the agent's prompt in a clearly delineated way. The v0.9 SDK migration is not demonstrated by this starter page.
+    在示例仓库中，所有 widget 都定义在 prompt_builder.py
+    文件的同一个变量里，但你可以按任意方式组织它们；只需要以清晰划界
+    的方式注入智能体的提示即可。本起步模板页不演示 v0.9 SDK
+    迁移。
 
-    The current starter's v0.8 renderer displays the `Book Now` control without an `onClick` handler or action dispatch. The button is inert, so no click reaches the agent and the executor's `book_restaurant` branch is not reached. Adding action wiring is outside this documentation-only change.
+    当前起步模板的 v0.8
+    渲染器显示 `Book Now`
+    控件时，没有附加 `onClick`
+    处理器，也不派发动作。这个按钮是惰性的，因此没有任何点击到达
+    智能体，执行器的 `book_restaurant`
+    分支也不会被触及。补上动作接线不属于这份纯文档改动。
 
   </Step>
   <Step>
-    ### Generating components with the A2UI Composer
-    If you want an easy way to generate components, you can use the A2UI Composer.
-    Go to https://a2ui-composer.ag-ui.com/ to create your own components.
-    The composer will generate the JSON spec for you, all you have to do is copy and paste it into your agent's prompt.
+    ### 用 A2UI Composer 生成组件
+    如果你想要一种简单的组件生成方式，可以使用 A2UI Composer。
+    前往 https://a2ui-composer.ag-ui.com/
+    创建你自己的组件。Composer 会为你生成 JSON
+    规范，你只需复制并粘贴到智能体的提示里。
     <a href="https://a2ui-editor.ag-ui.com/gallery" target="_blank" rel="noopener noreferrer">
       <Image 
         src="/images/a2ui-composer.png" 
-        alt="Agentic Backend to Agentic Application" 
+        alt="从智能体后端到智能体应用" 
         width={4096} 
         height={2304}
         className="mx-auto w-1/2"
@@ -147,11 +165,17 @@ Build an A2A agent, configure it to use A2UI, use the A2UI composer to generate 
     </a>
   </Step>
   <Step>
-    ### Configuring your application to render A2UI
-    AG-UI handles communicating with your a2a agent, and passes the a2ui messages back and forth as `ActivityMessage` objects.
-    In order to render them in your frontend, you need to configure activity message rendering.
+    ### 配置你的应用渲染 A2UI
+    AG-UI 负责与你的 a2a
+    智能体通信，并以 `ActivityMessage`
+    对象的形式来回传递 a2ui
+    消息。要在前端渲染它们，你需要配置活动消息（activity
+    message）的渲染。
 
-    The current starter registers its local v0.8 renderer and its v0.8 theme. The setup below mirrors that `app/page.tsx`; the v0.9 renderer and `a2ui_operations` envelope are documented in the other A2UI integration guides.
+    当前起步模板注册了它本地的 v0.8 渲染器与 v0.8
+    主题。下面的配置与该 `app/page.tsx`
+    一致；v0.9 渲染器与 `a2ui_operations`
+    信封在其他 A2UI 集成指南中说明。
 
     ```tsx title="app/page.tsx"
     "use client";
@@ -603,9 +627,12 @@ Build an A2A agent, configure it to use A2UI, use the A2UI composer to generate 
 
   </Step>
   <Step>
-    ### Give it a try!
+    ### 动手试一试！
 
-    That's it! When your agent generates an A2UI message, it will be rendered in your frontend. The current starter's v0.8 `Book Now` control is inert because its renderer doesn't attach a click handler or dispatch an action. No button click reaches the agent until that starter behavior is implemented.
+    就这么简单！当你的智能体生成 A2UI
+    消息时，它会在你的前端渲染出来。当前起步模板的 v0.8 `Book Now`
+    控件是惰性的，因为它的渲染器没有附加点击处理器，也不派发动作。
+    在实现该起步行为之前，没有任何按钮点击会到达智能体。
 
   </Step>
 </Steps>

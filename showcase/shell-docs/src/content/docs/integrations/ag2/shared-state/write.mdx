@@ -1,7 +1,7 @@
 ---
-title: Writing agent state
+title: 写入智能体状态
 icon: "lucide/ArrowRight"
-description: Write to agent's state from your application.
+description: 从你的应用写入智能体的状态。
 ---
 <video
   src="https://cdn.copilotkit.ai/docs/copilotkit/videos/coagents/shared-state.mp4"
@@ -13,32 +13,32 @@ description: Write to agent's state from your application.
   muted
 />
 <Callout>
-  This video shows the result of `npx copilotkit@latest init` with the [implementation](#implementation) section applied to it.
+  此视频展示了 `npx copilotkit@latest init` 的初始化结果，并应用了[实现步骤](#实现步骤)一节的内容。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-This guide shows you how to write to your agent's state from your application.
+本指南介绍如何从你的应用写入智能体的状态。
 
 <Callout type="info">
-  CopilotKit consumes AG-UI protocol events streamed by AG2 over <code>/chat</code>. See the <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/" target="_blank">AG2 AG-UI integration docs</a>.
+  CopilotKit 会消费 AG2 通过 <code>/chat</code> 流式传输的 AG-UI 协议事件。参见 <a href="https://docs.ag2.ai/docs/user-guide/ag-ui/" target="_blank">AG2 AG-UI 集成文档</a>。
 </Callout>
 
-## When should I use this?
+## 什么时候使用？
 
-You can use this when you want to keep your interface and backend agent state synchronized. CopilotKit lets you update state from the UI, while AG2 consumes that state in subsequent turns.
+当你希望保持界面与后端智能体状态同步时，就可以使用它。CopilotKit 允许你从 UI 更新状态，而 AG2 会在后续轮次中消费该状态。
 
-## Implementation
+## 实现步骤
 
 <Steps>
   <Step>
-    ### Run and connect your agent
-    Start your AG2 backend and connect your CopilotKit frontend to the AG-UI `/chat` endpoint.
+    ### 运行并连接你的智能体
+    启动你的 AG2 后端，并将 CopilotKit 前端连接到 AG-UI 的 `/chat` 端点。
   </Step>
   <Step>
-    ### Define the Agent State
+    ### 定义智能体状态
 
-    In AG2, shared state lives in the agent's **conversation variables**. `AGUIStream` synchronizes them in both directions: state written from the UI (`agent.setState`) arrives on `RunAgentInput.state` and is merged into the variables for the run, and variable changes made by tools are streamed back as `STATE_SNAPSHOT` events automatically.
+    在 AG2 中，共享状态保存在智能体的**会话变量（conversation variables）**中。`AGUIStream` 会对它们进行双向同步：从 UI 写入的状态（`agent.setState`）通过 `RunAgentInput.state` 到达并被合并进本次运行的变量，而工具对变量所做的修改则会自动以 `STATE_SNAPSHOT` 事件的形式流式传回。
 
     ```python title="agent.py"
     from typing import Annotated
@@ -85,14 +85,13 @@ You can use this when you want to keep your interface and backend agent state sy
     ```
 
     <Callout type="warn">
-      Don't set a default for a UI-written key via `Agent(variables=...)` — agent variables take precedence over the incoming `RunAgentInput.state` on every run, so they would overwrite whatever the UI wrote with `agent.setState`. Provide defaults in the UI (or via `context.variables.setdefault` inside a tool) instead.
+      不要通过 `Agent(variables=...)` 为 UI 写入的键设置默认值——智能体变量在每次运行时都会优先于传入的 `RunAgentInput.state`，从而覆盖 UI 通过 `agent.setState` 写入的内容。请改为在 UI 中提供默认值（或在工具内部通过 `context.variables.setdefault` 提供）。
     </Callout>
 
   </Step>
   <Step>
-    ### Call `setState` function from the `useAgent` hook
-    `useAgent` returns an `agent` object with a `setState` function that you can use to update the agent state. Calling this
-    will update the agent state and trigger a rerender of anything that depends on the agent state.
+    ### 从 `useAgent` hook 调用 `setState` 函数
+    `useAgent` 会返回一个带有 `setState` 函数的 `agent` 对象，你可以用它更新智能体状态。调用它会更新智能体状态，并触发所有依赖该状态的部分重新渲染。
 
     ```tsx title="ui/app/page.tsx"
     import { useEffect } from "react";
@@ -136,26 +135,25 @@ You can use this when you want to keep your interface and backend agent state sy
     }
     ```
 
-    <Callout type="warn" title="Important">
-      The `agentId` parameter must exactly match the agent name you defined in your CopilotRuntime configuration (e.g., `my_agent` from the quickstart).
+    <Callout type="warn" title="重要">
+      `agentId` 参数必须与你在 CopilotRuntime 配置中定义的智能体名称完全一致（例如快速开始中的 `my_agent`）。
     </Callout>
 
   </Step>
   <Step>
-    ### Give it a try
-    You can now use `agent.setState` to update the agent state and `agent.state` to read it. Try toggling the language button
-    and talking to your agent. You'll see the language change to match the agent's state.
+    ### 试一试
+    现在你可以用 `agent.setState` 更新智能体状态，用 `agent.state` 读取它。试着点击切换语言的按钮并与你的智能体对话，你会看到语言随智能体的状态而变化。
   </Step>
 </Steps>
 
-## Advanced Usage
+## 高级用法
 
-### Re-run the agent with a hint about what's changed
+### 附带变更提示重新运行智能体
 
-The new agent state will be used next time the agent runs.
-If you want to re-run it manually, use `copilotkit.runAgent()`.
+新的智能体状态会在智能体下次运行时被使用。
+如果你想手动重新运行，可以使用 `copilotkit.runAgent()`。
 
-The agent will be re-run with the latest updated state. You can also add a hint message before re-running.
+智能体会以最新更新的状态重新运行。你也可以在重新运行前添加一条提示消息。
 
 ```tsx title="ui/app/page.tsx"
 import { useAgent, useCopilotKit } from "@copilotkit/react-core/v2";
@@ -189,7 +187,7 @@ function YourMainContent() {
 }
 ```
 
-### Intermediately Stream and Render Agent State
+### 流式传输并渲染中间智能体状态
 
-By default, `AGUIStream` emits a `STATE_SNAPSHOT` at the start of the run (only when the merged variables differ from the state the client sent) and at the end of the run (if `context.variables` changed since the last snapshot). A snapshot replaces the client's state wholesale, so each one carries the client's keys and the server's variables together.
-For smoother long-running workflows, emit intermediate snapshots from an async tool with `context.send(AGUIEvent(StateSnapshotEvent(snapshot=...)))` — see [Reading agent state](/ag2/shared-state/read) for a complete example.
+默认情况下，`AGUIStream` 会在运行开始时（仅当合并后的变量与客户端发送的状态不一致时）和运行结束时（若 `context.variables` 自上次快照以来发生了变化）各发出一个 `STATE_SNAPSHOT`。快照会整体替换客户端的状态，因此每个快照同时携带客户端的键与服务端的变量。
+对于长时间运行的工作流，如需更平滑的体验，可以在异步工具中通过 `context.send(AGUIEvent(StateSnapshotEvent(snapshot=...)))` 发出中间快照——完整示例参见[读取智能体状态](/ag2/shared-state/read)。
