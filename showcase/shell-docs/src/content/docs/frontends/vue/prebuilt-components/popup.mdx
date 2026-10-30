@@ -1,23 +1,18 @@
 ---
 title: CopilotPopup
 icon: "lucide/MessageCircle"
-description: Floating Vue chat launcher that opens an overlay window.
+description: 浮动的 Vue 聊天启动按钮，可打开一个浮层窗口。
 ---
 
-## What is this?
+## 这是什么？
 
-`<CopilotPopup>` is a floating launcher that opens a chat window over the page.
-It is the compact way to add a copilot without dedicating layout space to an
-always-visible panel.
+`<CopilotPopup>` 是一个浮动启动按钮，会在页面上方打开一个聊天窗口。它是在不为常驻面板占据布局空间的前提下添加 copilot 的紧凑方式。
 
-## When should I use this?
+## 何时应该使用它？
 
-Use the popup for task-focused chats that users open on demand. Use
-[CopilotSidebar](/vue/prebuilt-components/sidebar) when the chat belongs beside
-the workspace, or [`<CopilotChat>`](/vue/prebuilt-components/chat) when it
-belongs in the document flow.
+弹窗适合用户按需打开的、聚焦任务的对话。当聊天应位于工作区旁边时，使用 [CopilotSidebar](/vue/prebuilt-components/sidebar)；当聊天应位于文档流中时，使用 [`<CopilotChat>`](/vue/prebuilt-components/chat)。
 
-## Basic setup
+## 基础设置
 
 ```vue title="App.vue"
 <script setup lang="ts">
@@ -33,15 +28,10 @@ import "@copilotkit/vue/styles.css";
 </template>
 ```
 
-## Configuring the popup
+## 配置弹窗
 
-Alongside the shared chat props, `CopilotPopup` accepts `width`, `height`,
-`default-open`, and `click-outside-to-close`. Its `header` and `toggle-button`
-scoped slots receive the popup state and open/close actions. The component also
-forwards the regular chat interaction events.
+除了共享的聊天 prop 之外，`CopilotPopup` 还接受 `width`、`height`、`default-open` 和 `click-outside-to-close`。它的 `header` 和 `toggle-button` 作用域插槽会接收弹窗状态以及打开/关闭动作。该组件还会转发常规的聊天交互事件。
 
-## Styling
+## 样式
 
-See [CSS customization](/vue/custom-look-and-feel/css) for token overrides and
-[slots](/vue/custom-look-and-feel/slots) for template-level replacement of
-popup pieces.
+令牌覆盖请参见 [CSS 定制](/vue/custom-look-and-feel/css)；弹窗各部件的模板级替换请参见[插槽](/vue/custom-look-and-feel/slots)。

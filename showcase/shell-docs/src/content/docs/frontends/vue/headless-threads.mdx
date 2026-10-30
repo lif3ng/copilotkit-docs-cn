@@ -1,46 +1,46 @@
 ---
-title: Headless Threads
-description: "Build a custom thread UI with useThreads while CopilotKit handles persistence, replay, synchronization, and lifecycle infrastructure."
+title: 无头线程
+description: "使用 useThreads 构建自定义线程 UI，同时由 CopilotKit 处理持久化、重放、同步与生命周期基础设施。"
 icon: "lucide/MessageSquareMore"
 doc_type: how-to
 ---
 
-## What is this?
+## 这是什么？
 
-CopilotKit Rich Threads enable persistent, resumable multi-turn conversations. The `useThreads` composable lists, creates, renames, archives, and deletes CopilotKit Intelligence threads with realtime synchronization. Threads work with any agent framework because CopilotKit Intelligence stores conversation history server-side, so users can close their browser and pick up where they left off. It does not list or mutate native LangGraph, ADK, or other framework stores unless your backend explicitly bridges those systems.
+CopilotKit 富线程（Rich Threads）支持可持久化、可恢复的多轮对话。`useThreads` composable 可以列出、创建、重命名、归档和删除 CopilotKit Intelligence 线程，并提供实时同步。线程可与任何智能体框架配合使用，因为 CopilotKit Intelligence 在服务端存储会话历史，用户可以关闭浏览器后再从中断处继续。除非你的后端显式桥接了这些系统，否则它不会列出或修改原生的 LangGraph、ADK 或其他框架的存储。
 
 <IntelligenceOnboardingPrompt feature="threads" surface="docs_threads" />
 
-<Callout type="info" title="Prebuilt thread UI: Threads Drawer">
-  If your app came from a CopilotKit CLI starter, it may already include the prebuilt **[Threads Drawer](/vue/prebuilt-components/copilot-threads-drawer)**. Keep it for the shortest path to a production thread switcher. Use the `useThreads` steps below when adding custom thread UI or replacing the Drawer with your own layout and interactions, including thread rename.
+<Callout type="info" title="预构建线程 UI：Threads Drawer">
+  如果你的应用来自 CopilotKit CLI 起步模板，那么它可能已经包含了预构建的 **[Threads Drawer](/vue/prebuilt-components/copilot-threads-drawer)**。保留它即可获得通往生产级线程切换器的最短路径。当你要添加自定义线程 UI，或用你自己的布局与交互（包括线程重命名）替换该 Drawer 时，请使用下方的 `useThreads` 步骤。
 </Callout>
 
-## When should I use this?
+## 何时应该使用它？
 
-- Your app needs multiple saved conversations per user, like a chat-history sidebar.
-- Users should be able to resume a prior conversation across sessions or devices.
-- You want realtime sync so threads created on one tab appear on another.
-- You need to let users organize conversations by renaming or archiving them.
+- 你的应用需要为每个用户保存多个会话，例如聊天历史侧边栏。
+- 用户应当能够跨会话或跨设备恢复之前的对话。
+- 你需要实时同步，让在一个标签页中创建的线程出现在另一个标签页中。
+- 你需要让用户能够通过重命名或归档来整理对话。
 
-## Prerequisites
+## 前置条件
 
-- A CopilotKit application connected to CopilotKit Intelligence
-- The current `@copilotkit/vue` v2 package
-- A model provider key supported by your runtime
+- 已连接 CopilotKit Intelligence 的 CopilotKit 应用
+- 当前版本的 `@copilotkit/vue` v2 包
+- 你的运行时所支持的模型提供方密钥
 
-For multi-user applications, configure the runtime to [scope Rich Threads to the signed-in user](/vue/threads-lifecycle#scope-rich-threads-to-the-signed-in-user) before exposing thread lists or lifecycle actions.
+对于多用户应用，在暴露线程列表或生命周期操作之前，请先配置运行时[将富线程限定为已登录用户](/vue/threads-lifecycle#scope-rich-threads-to-the-signed-in-user)。
 
-## Implementation
+## 实现
 
-<Callout type="info" title="Migrating existing history?">
-  Threads capture new CopilotKit conversations once your app is connected to CopilotKit Intelligence. To move historical Google ADK or LangGraph conversations into the same store, start with [Import & Synchronize Thread History](/threads-import), or the framework-specific synchronization guide.
+<Callout type="info" title="迁移已有历史记录？">
+  一旦你的应用连接到 CopilotKit Intelligence，线程就会开始捕获新的 CopilotKit 对话。要将 Google ADK 或 LangGraph 的历史对话迁移到同一存储中，请从[导入与同步线程历史](/threads-import)或特定框架的同步指南开始。
 </Callout>
 
 <Steps>
   <Step>
-    ### Configure your Runtime with CopilotKit Intelligence
+    ### 使用 CopilotKit Intelligence 配置你的 Runtime
 
-    Your `CopilotRuntime` must be connected to CopilotKit Intelligence before the thread UI can list and resume conversations. CLI-created starters generate this setup; otherwise follow [Connect your runtime to Intelligence](/intelligence/connect-your-runtime).
+    在线程 UI 能够列出并恢复对话之前，你的 `CopilotRuntime` 必须已连接到 CopilotKit Intelligence。CLI 创建的起步模板会自动生成这一配置；否则请遵循[将你的运行时连接到 Intelligence](/intelligence/connect-your-runtime)。
 
     ```typescript title="server.ts"
     import {
@@ -65,19 +65,19 @@ For multi-user applications, configure the runtime to [scope Rich Threads to the
     });
     ```
 
-    Keep the project-scoped `CPK_INTELLIGENCE_API_KEY` on the server. Existing Intelligence-enabled apps should retain their current runtime configuration.
+    请将项目级别的 `CPK_INTELLIGENCE_API_KEY` 保留在服务端。已启用 Intelligence 的现有应用应保留其当前的运行时配置。
 
-    | Option | Default | Max | Description |
+    | 选项 | 默认值 | 最大值 | 说明 |
     | --- | --- | --- | --- |
-    | `lockTtlSeconds` | `20` | `3600` | How long a run lock is held before it expires. |
-    | `lockHeartbeatIntervalSeconds` | `15` | `3000` | How often the runtime renews the lock. |
-    | `lockKeyPrefix` | — | — | Optional Redis prefix when several apps share one instance. |
+    | `lockTtlSeconds` | `20` | `3600` | 运行锁在过期之前被持有的时长。 |
+    | `lockHeartbeatIntervalSeconds` | `15` | `3000` | 运行时续期锁的频率。 |
+    | `lockKeyPrefix` | — | — | 当多个应用共享一个 Redis 实例时可选的前缀。 |
   </Step>
 
   <Step>
-    ### List and manage threads with useThreads
+    ### 使用 useThreads 列出并管理线程
 
-    `useThreads` returns reactive refs for the thread list and loading state, plus mutation methods.
+    `useThreads` 返回线程列表与加载状态的响应式 ref，以及若干变更方法。
 
     ```vue title="src/components/ThreadSidebar.vue"
     <script setup lang="ts">
@@ -113,13 +113,13 @@ For multi-user applications, configure the runtime to [scope Rich Threads to the
     </template>
     ```
 
-    The array is sorted by recent activity and stays synchronized in realtime. `archiveThread` is a soft delete hidden from the default list; pass `includeArchived: true` to include archived threads. `deleteThread` is permanent and irreversible. Neither method shows a confirmation dialog, so add one where appropriate.
+    数组按最近活动排序，并保持实时同步。`archiveThread` 是软删除，已归档的线程会从默认列表中隐藏；传入 `includeArchived: true` 可包含已归档的线程。`deleteThread` 是永久且不可逆的。这两个方法都不会显示确认对话框，请在合适的位置自行添加。
   </Step>
 
   <Step>
-    ### Switch between threads
+    ### 在线程之间切换
 
-    Keep the list and chat inside one `CopilotChatConfigurationProvider`. Selecting a row with `setActiveThreadId(..., { explicit: true })` clears the current view, connects the chat to the selected thread, and replays its history. If a run is still active, the chat rejoins its stream.
+    将列表和聊天放在同一个 `CopilotChatConfigurationProvider` 内。通过 `setActiveThreadId(..., { explicit: true })` 选中某一行会清空当前视图、将聊天连接到所选线程并重放其历史。如果某次运行仍在进行，聊天会重新加入其流。
 
     ```vue title="src/App.vue"
     <script setup lang="ts">
@@ -144,22 +144,22 @@ For multi-user applications, configure the runtime to [scope Rich Threads to the
     ```
 
     <WhenFrameworkHas flag="thread_persistence_pattern" equals="langgraph">
-      <Callout type="info" title="LangGraph persistence">
-        CopilotKit forwards the explicit thread id as the AG-UI `threadId`. A LangGraph backend can use or map it to its own checkpoint identifier. LangGraph Platform ids must be UUIDs. Rename, archive, and delete affect CopilotKit Intelligence only unless your backend adds a bridge.
+      <Callout type="info" title="LangGraph 持久化">
+        CopilotKit 会将显式指定的线程 id 作为 AG-UI 的 `threadId` 转发。LangGraph 后端可以直接使用它，或将其映射为自己的检查点标识符。LangGraph Platform 的 id 必须是 UUID。重命名、归档和删除仅影响 CopilotKit Intelligence，除非你的后端自行添加了桥接。
       </Callout>
     </WhenFrameworkHas>
 
     <WhenFrameworkHas flag="thread_persistence_pattern" equals="adk-session">
-      <Callout type="info" title="ADK sessions">
-        An ADK backend can map the AG-UI `threadId` to an ADK session id. Durable ADK persistence still requires a durable ADK session service. `useThreads` manages CopilotKit Intelligence records, not ADK's native session store.
+      <Callout type="info" title="ADK 会话">
+        ADK 后端可以将 AG-UI 的 `threadId` 映射为 ADK 会话 id。持久的 ADK 持久化仍需要一个持久化的 ADK 会话服务。`useThreads` 管理的是 CopilotKit Intelligence 记录，而非 ADK 的原生会话存储。
       </Callout>
     </WhenFrameworkHas>
   </Step>
 
   <Step>
-    ### Add pagination for large thread lists
+    ### 为大型线程列表添加分页
 
-    Pass `limit` for cursor-based pagination and render `fetchMoreThreads` while more pages remain:
+    传入 `limit` 进行基于游标的分页，并在还有更多页时渲染 `fetchMoreThreads`：
 
     ```vue
     <script setup lang="ts">
@@ -184,9 +184,9 @@ For multi-user applications, configure the runtime to [scope Rich Threads to the
   </Step>
 </Steps>
 
-## Next steps
+## 后续步骤
 
-- **Prebuilt UI:** [Threads Drawer](/vue/prebuilt-components/copilot-threads-drawer) — the drop-in Vue thread switcher.
-- **Thread architecture:** [Threads & Persistence Architecture](/intelligence/threads-explained) — event replay and realtime sync.
-- **Production self-hosting:** [Self-host CopilotKit Intelligence](/intelligence/self-hosting).
-- **API reference:** [`useThreads`](/reference/vue/hooks/useThreads) — parameters, return values, and types.
+- **预构建 UI**：[Threads Drawer](/vue/prebuilt-components/copilot-threads-drawer) —— 开箱即用的 Vue 线程切换器。
+- **线程架构**：[线程与持久化架构](/intelligence/threads-explained) —— 事件重放与实时同步。
+- **生产环境自托管**：[自托管 CopilotKit Intelligence](/intelligence/self-hosting)。
+- **API 参考**：[`useThreads`](/reference/vue/hooks/useThreads) —— 参数、返回值与类型。

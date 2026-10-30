@@ -1,26 +1,20 @@
 ---
 title: CopilotChat
 icon: "lucide/MessageSquare"
-description: Inline Vue chat component that you can place anywhere and size as needed.
+description: 内联 Vue 聊天组件，可放置在任意位置并按需调整尺寸。
 ---
 
-## What is this?
+## 这是什么？
 
-`<CopilotChat>` is the base prebuilt Vue chat surface. Place it in any layout
-and size its container to fit. `CopilotSidebar` and `CopilotPopup` compose the
-same chat primitives with docked and overlay chrome.
+`<CopilotChat>` 是基础的预构建 Vue 聊天界面。可将它放入任意布局，并调整其容器尺寸以适配。`CopilotSidebar` 和 `CopilotPopup` 则以停靠式和浮层式外壳组合相同的聊天原语。
 
-## When should I use this?
+## 何时应该使用它？
 
-Choose `CopilotChat` for a dedicated chat page, an inline pane next to other
-content, or any layout where you do not need a launcher. Choose
-[CopilotSidebar](/vue/prebuilt-components/sidebar) for a collapsible docked
-surface and [CopilotPopup](/vue/prebuilt-components/popup) for an overlay.
+如果你需要一个专门的聊天页面、与其他内容并排的内联面板，或任何不需要启动按钮的布局，请选择 `CopilotChat`。如需可折叠的停靠式界面，请选择 [CopilotSidebar](/vue/prebuilt-components/sidebar)；如需浮层形式，请选择 [CopilotPopup](/vue/prebuilt-components/popup)。
 
-## Basic setup
+## 基础设置
 
-Import the components from `@copilotkit/vue/v2`, import the package stylesheet,
-and keep the chat below `CopilotKitProvider`:
+从 `@copilotkit/vue/v2` 导入组件，导入包的样式表，并确保聊天组件位于 `CopilotKitProvider` 之内：
 
 ```vue title="App.vue"
 <script setup lang="ts">
@@ -35,24 +29,22 @@ import "@copilotkit/vue/styles.css";
 </template>
 ```
 
-`runtime-url` identifies the runtime that serves the configured agent. The
-current Vue Showcase demonstrates this base `agentic-chat` surface.
+`runtime-url` 标识为所配置智能体提供服务的运行时。当前的 Vue Showcase 演示了这个基础的 `agentic-chat` 界面。
 
-## Common props and events
+## 常用 prop 与事件
 
-| Surface | Purpose |
+| 属性 | 用途 |
 | --- | --- |
-| `agent-id` | The runtime agent to use. |
-| `thread-id` | An explicit thread to connect to. |
-| `labels` | User-facing strings such as the title, placeholder, welcome text, and disclaimer. |
-| `welcome-screen` | Set to `false` to disable the empty state. |
-| `attachments` | Enable and configure file attachments. |
-| `auto-scroll` | Use `"pin-to-bottom"`, `"pin-to-send"`, `"none"`, or the legacy boolean shorthand. |
-| `@submit-message`, `@input-change`, `@select-suggestion` | Observe the corresponding chat interactions. |
-| `@stop` | Observe a stop action. |
-| `:on-error` | Bind a handler for CopilotKit runtime errors for this agent. |
+| `agent-id` | 要使用的运行时智能体。 |
+| `thread-id` | 要连接的显式线程。 |
+| `labels` | 面向用户的文案，例如标题、占位符、欢迎文本和免责声明。 |
+| `welcome-screen` | 设为 `false` 可禁用空状态。 |
+| `attachments` | 启用并配置文件附件。 |
+| `auto-scroll` | 可使用 `"pin-to-bottom"`、`"pin-to-send"`、`"none"`，或旧版布尔值简写。 |
+| `@submit-message`, `@input-change`, `@select-suggestion` | 观察相应的聊天交互。 |
+| `@stop` | 观察停止操作。 |
+| `:on-error` | 为该智能体的 CopilotKit 运行时错误绑定处理函数。 |
 
-## Styling and composition
+## 样式与组合
 
-Customize the surface with [CSS](/vue/custom-look-and-feel/css), named/scoped
-[slots](/vue/custom-look-and-feel/slots), or a [headless UI](/vue/custom-look-and-feel/headless-ui).
+你可以通过 [CSS](/vue/custom-look-and-feel/css)、具名/作用域[插槽](/vue/custom-look-and-feel/slots)或[无头 UI](/vue/custom-look-and-feel/headless-ui)来自定义该界面。

@@ -1,62 +1,53 @@
 ---
-title: "Fixed Schema A2UI"
+title: "固定模式 A2UI"
 icon: "lucide/FileJson"
-description: "Pre-defined A2UI schema with dynamic data. The fastest approach, with no LLM schema generation needed."
+description: "预定义的 A2UI schema 配合动态数据。速度最快的方式，无需 LLM 生成 schema。"
 snippet_cell: a2ui-fixed-schema
 ---
 
 <InlineDemo demo="a2ui-fixed-schema" llmRegion="a2ui-context" />
 
-In the fixed-schema approach, you design the UI schema once (by hand,
-or using the [A2UI Composer](https://a2ui-composer.ag-ui.com/)) and
-keep it on the agent side. The agent tool only provides the *data*;
-the surface appears instantly when the tool returns because nothing
-has to be generated at runtime.
+在固定模式（fixed schema）下，你只需设计一次 UI schema（手写，或使用
+[A2UI Composer](https://a2ui-composer.ag-ui.com/)），并将其保存在智能体一侧。
+智能体工具只提供*数据*；工具一返回，界面立即出现，因为运行时不需要生成任何东西。
 
-How the schema is *delivered* to the runtime is the only thing that
-varies between integrations:
+不同集成之间唯一的差异，在于 schema 是以何种方式*交付*给运行时的：
 
-- **Schema-loading** (including Strands TypeScript), the schema is saved
-  as a `.json` file next to the agent and loaded once at startup.
-- **Schema-inline** (spring-ai, ms-agent-dotnet), the schema is
-  declared inline as a typed literal in source. The host language
-  doesn't ship a `load_schema` JSON loader, so the structure is
-  compiled in directly.
-- **LLM-driven** (Mastra and Strands Python), the agent runs a secondary
-  LLM call to produce the operations container per-request. The catalog
-  is still fixed; the schema is generated on demand.
+- **Schema-loading**（包括 Strands TypeScript）：schema 保存为智能体旁的
+  一个 `.json` 文件，在启动时加载一次。
+- **Schema-inline**（spring-ai、ms-agent-dotnet）：schema 在源码中以内联的
+  类型化字面量声明。宿主语言没有提供 `load_schema` JSON 加载器，因此结构直接
+  编译进去。
+- **LLM-driven**（Mastra 和 Strands Python）：智能体运行一次辅助 LLM 调用，
+  按请求生成操作容器。组件目录仍然是固定的；schema 按需生成。
 
-Ask about a flight and the agent renders a fully structured card from a pre-defined schema:
+询问一个航班，智能体就会用预定义的 schema 渲染出一张结构完整的卡片：
 
-<Callout type="info" title="The flight card is an illustrative domain">
-  Everything below uses flight booking so the wiring has something concrete to
-  render — `display_flight`, `flight-fixed-catalog`, and the airport/airline
-  components are this page's example, not part of the API.
+<Callout type="info" title="航班卡片只是一个示例领域">
+  下文全部以机票预订为例，让接线有具体的东西可渲染 —— `display_flight`、
+  `flight-fixed-catalog` 以及机场/航空公司组件只是本页的示例，并非 API 的一部分。
 
-  What transfers is the **shape**: a fixed catalog, a tool that returns data
-  against it, and an operations container with `createSurface` +
-  `updateComponents` + `updateDataModel`. Keep your own application's
-  domain and substitute your own components and tool — a page teaching
-  the pattern is not a brief to build a flight booker.
+  真正可迁移的是**结构**：一个固定组件目录、一个按目录返回数据的工具，以及一个
+  包含 `createSurface` + `updateComponents` + `updateDataModel` 的操作容器。
+  保留你自己应用的领域，替换成你自己的组件和工具即可 —— 讲解模式的页面并不是
+  让你去构建一个机票预订应用的说明书。
 </Callout>
 
-## How it works
+## 工作原理
 
-1. The schema is made available to the agent, either loaded from a
-   JSON file at startup, declared inline, or generated per-request,
-   depending on the integration.
-2. The agent's `display_flight` tool receives data from the primary LLM
-   (origin / destination / airline / price).
-3. The tool returns an operations container with `createSurface` +
-   `updateComponents` + `updateDataModel` operations.
-4. The A2UI middleware intercepts the tool result and the frontend
-   renders the surface using the matching 5-component client catalog
-   (Title, Airport, Arrow, AirlineBadge, PriceTag, plus the built-ins).
+1. schema 会对智能体可用：视集成方式而定，或是在启动时从 JSON 文件加载，
+   或是内联声明，或是按请求生成。
+2. 智能体的 `display_flight` 工具从主 LLM 接收数据（出发地 / 目的地 /
+   航空公司 / 价格）。
+3. 该工具返回一个包含 `createSurface` + `updateComponents` +
+   `updateDataModel` 操作的操作容器。
+4. A2UI 中间件拦截工具结果，前端使用配套的 5 组件客户端目录渲染界面
+   （Title、Airport、Arrow、AirlineBadge、PriceTag，外加内置组件）。
 
-## Compositional schemas
+## 组合式 schema
 
-The example below ships a flight card assembled compositionally from
-small sub-components rather than one monolithic `FlightCard`:
+下面的示例展示了一张以组合方式由小型子组件拼装而成的航班卡片，而不是一个
+大一统的 `FlightCard`：
 
 ```
 Card
@@ -67,32 +58,26 @@ Card
      └─ Button       (Book)
 ```
 
-That tree lives backend-side, as a JSON file, an inline literal, or
-a per-request LLM output, depending on the integration. Components
-without data bindings (like `Title` or `Arrow`) carry their value
-inline; components bound to the LLM's data (like `Airport`) reference
-fields via JSON Pointer paths such as `{ "path": "/origin" }`. The
-A2UI binder resolves those paths *before* the React renderer runs, so
-your renderer receives the resolved value and never sees the path — but
-the *definition* still has to declare that prop as a literal-or-binding
-union, because that union is the only signal the binder has that the
-prop is bindable. See [Declare the component
-definitions](#declare-the-component-definitions).
+这棵树放在后端：视集成方式而定，可以是一个 JSON 文件、一个内联字面量，或
+每次请求的 LLM 输出。没有数据绑定的组件（如 `Title` 或 `Arrow`）直接内联
+携带取值；与 LLM 数据绑定的组件（如 `Airport`）则通过 JSON Pointer 路径
+引用字段，例如 `{ "path": "/origin" }`。A2UI 绑定器会在 React 渲染器运行
+*之前*解析这些路径，因此你的渲染器拿到的是解析后的值，根本看不到路径 ——
+但*定义*仍然必须把该 prop 声明为“字面量或绑定”的联合类型，因为这个联合
+类型是绑定器判断 prop 可绑定的唯一信号。参见[声明组件定义](#声明组件定义)。
 
-## The 5-component custom catalog
+## 由 5 个组件构成的自定义目录
 
-The frontend catalog declares just the domain-specific primitives
-(Title, Airport, Arrow, AirlineBadge, PriceTag) and merges in
-CopilotKit's basic catalog (Card, Column, Row, Text, Button, …) via
-`includeBasicCatalog: true`.
+前端组件目录只声明领域相关的原语（Title、Airport、Arrow、AirlineBadge、
+PriceTag），并通过 `includeBasicCatalog: true` 合并 CopilotKit 的基础组件
+目录（Card、Column、Row、Text、Button 等）。
 
 <Steps>
 <Step>
-### Install the renderer package
+### 安装渲染器包
 
-The catalog, definitions and renderers below all import from
-`@copilotkit/a2ui-renderer`. It ships separately from
-`@copilotkit/react-core`, and the definitions use `zod` for prop schemas:
+下文的组件目录、定义和渲染器都从 `@copilotkit/a2ui-renderer` 导入。它独立于
+`@copilotkit/react-core` 单独发布，定义部分使用 `zod` 来描述 prop schema：
 
 ```npm
 npm install @copilotkit/a2ui-renderer zod
@@ -100,42 +85,36 @@ npm install @copilotkit/a2ui-renderer zod
 </Step>
 
 <Step>
-### Declare the component definitions
+### 声明组件定义
 
-Each component declares its props as a Zod schema. Any prop the schema
-binds to the data model — anything that can arrive as
-`{ "path": "/origin" }` rather than a literal — **must** be declared as a
-union of the literal type and the binding object. That is what the
-`DynString` helper below is for, and why `Airport`'s `code` uses it
-rather than a plain `z.string()`.
+每个组件都把 props 声明为一个 Zod schema。凡是 schema 会绑定到数据模型的
+prop —— 也就是可能以 `{ "path": "/origin" }` 而非字面量形式到达的值 ——
+**必须**声明为字面量类型与绑定对象的联合类型。这正是下面 `DynString`
+辅助类型的用途，也是 `Airport` 的 `code` 使用它而不是普通 `z.string()`
+的原因。
 
-The binder decides whether to resolve a prop by *inspecting its Zod
-type*: a union with a `{ path }` member is treated as dynamic and
-resolved against the data model, while a plain literal type is treated
-as static and passed through untouched. So declaring a bound prop as
-`z.string()` does not merely lose type precision — it tells the binder
-not to resolve it, and the raw `{ path: "/origin" }` object reaches your
-renderer.
+绑定器通过*检查 prop 的 Zod 类型*来决定是否解析它：包含 `{ path }` 成员的
+联合类型会被视为动态，并针对数据模型进行解析；普通的字面量类型则被视为静态，
+原样透传。因此，把绑定的 prop 声明为 `z.string()` 不只是损失类型精度 ——
+它等于告诉绑定器不要解析这个 prop，原始的 `{ path: "/origin" }` 对象会
+直接到达你的渲染器。
 
-<Callout type="warn" title="Plain `z.string()` on a bound prop crashes the render">
-  Because the unresolved object reaches the renderer, the first thing
-  that renders it as text throws React's
-  [error #31](https://react.dev/errors/31):
-  `Objects are not valid as a React child (found: object with keys {path})`.
-  Nothing in that message points at the schema, so it reads as a renderer
-  bug rather than a missing union. If you hit it, check the prop's
-  declared type first.
+<Callout type="warn" title="绑定的 prop 用普通 `z.string()` 会导致渲染崩溃">
+  由于未解析的对象会到达渲染器，第一个把它当文本渲染的地方就会抛出 React 的
+  [error #31](https://react.dev/errors/31)：
+  `Objects are not valid as a React child (found: object with keys {path})`。
+  报错信息里没有任何指向 schema 的线索，所以看起来像是渲染器的 bug，而不是
+  漏了联合类型。遇到时先检查 prop 的声明类型。
 
-  Props that are never bound (`Arrow`, or a `variant` enum) are fine as
-  plain types. This applies only to props the schema binds.
+  从不绑定的 prop（`Arrow`，或 `variant` 枚举）用普通类型即可。这条规则
+  只适用于 schema 会绑定的 prop。
 </Callout>
 
-Once the union is declared, the binder resolves the path before your
-renderer runs, so the renderer still receives a plain string — the union
-describes what the *schema* may send, not what the renderer must handle.
-`@copilotkit/a2ui-renderer` re-exports A2UI's canonical
-`DynamicStringSchema` (plus `DynamicNumberSchema`, `DynamicBooleanSchema`
-and the matching types) if you would rather not hand-roll the union:
+一旦声明了联合类型，绑定器就会在你的渲染器运行前解析路径，因此渲染器拿到的
+仍然是普通字符串 —— 联合类型描述的是 *schema* 可能发送什么，而不是渲染器
+必须处理什么。如果你不想手写联合类型，`@copilotkit/a2ui-renderer` 重新导出了
+A2UI 的标准 `DynamicStringSchema`（以及 `DynamicNumberSchema`、
+`DynamicBooleanSchema` 和配套类型）：
 
 ```ts
 import { DynamicStringSchema } from "@copilotkit/a2ui-renderer";
@@ -145,60 +124,56 @@ import { DynamicStringSchema } from "@copilotkit/a2ui-renderer";
 </Step>
 
 <Step>
-### Implement the React renderers
+### 实现 React 渲染器
 
-TypeScript enforces that the renderer map's keys and prop shapes
-match the definitions exactly, so refactors stay safe:
+TypeScript 会强制渲染器映射的键和 prop 结构与定义完全一致，因此重构是安全的：
 
 <Snippet region="renderers-tsx" />
 </Step>
 
 <Step>
-### Wire the catalog
+### 接入组件目录
 
-`createCatalog(..., { includeBasicCatalog: true })` merges the custom
-renderers with CopilotKit's built-ins so the schema can reference
-`Card`, `Column`, `Row`, `Button` alongside the domain primitives:
+`createCatalog(..., { includeBasicCatalog: true })` 把自定义渲染器与
+CopilotKit 的内置组件合并，schema 就能在领域原语之外引用 `Card`、`Column`、
+`Row`、`Button`：
 
 <Snippet region="catalog-creation" />
 </Step>
 
 <WhenFrameworkHas flag="a2ui_pattern" equals="schema-loading">
 <Step>
-### Load the schema JSON at startup
+### 在启动时加载 schema JSON
 
-The integration parses the pre-authored JSON schema once at startup.
-The agent then reuses that component tree for every tool call:
+该集成在启动时解析一次预先编写好的 JSON schema。之后智能体在每次工具调用中
+复用这棵组件树：
 
 <Snippet region="backend-schema-json-load" />
 </Step>
 
 <Step>
-### Return render operations from the tool
+### 从工具返回渲染操作
 
-The agent tool returns an A2UI operations container. The A2UI middleware
-detects it in the tool result and forwards it to the frontend renderer.
-The LLM only supplies the four data fields (`origin`, `destination`,
-`airline`, `price`); the pre-authored schema defines the component tree:
+智能体工具返回一个 A2UI 操作容器。A2UI 中间件在工具结果中检测到它并转发给
+前端渲染器。LLM 只提供四个数据字段（`origin`、`destination`、`airline`、
+`price`）；组件树由预先编写的 schema 定义：
 
 <Snippet region="backend-render-operations" />
 
-Nothing about A2UI depends on how the agent itself is built — the operations
-container is just the tool's return value, so the tool drops into whatever agent
-you already have.
+A2UI 与智能体本身的构建方式毫无耦合 —— 操作容器只是工具的返回值，所以这个
+工具可以直接放进你已有的任何智能体。
 </Step>
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="a2ui_agent_form" equals="langgraph-state-graph">
 <Step>
-### Attach the tool to an existing `StateGraph`
+### 将工具接入现有的 `StateGraph`
 
-The snippets above stop at the tool. The reference cell builds its agent with
-`langchain.agents.create_agent` plus `CopilotKitMiddleware` — that is what
-those imports are for — but the construction itself is not shown. If you added
-A2UI to an agent you already wrote, you probably have a hand-built `StateGraph`
-instead. The tool is unchanged; put it in a `ToolNode` and leave the rest of the
-graph alone:
+上面的代码片段止步于工具本身。参考 cell 用
+`langchain.agents.create_agent` 加 `CopilotKitMiddleware` 搭建智能体 ——
+那些导入就是为此服务的 —— 但构建过程本身并没有展示。如果你是在已写好的
+智能体上添加 A2UI，用的很可能是手写的 `StateGraph`。工具保持不变；把它放进
+`ToolNode`，图的其余部分原样保留：
 
 ```python title="agent.py (LangGraph StateGraph form)"
 from langchain_openai import ChatOpenAI
@@ -226,42 +201,35 @@ builder.add_edge("tools", "call_model")
 graph = builder.compile()
 ```
 
-Keep whatever system prompt your agent already has. The reference cell's prompt
-tells the model to call `display_flight` exactly once and stop, because the tool
-result *is* the rendered card. Without it, the model tends to call the tool
-again, looking for a status code.
+智能体已有的 system prompt 保持不变。参考 cell 的提示词告诉模型只调用
+`display_flight` 一次然后停下，因为工具结果*本身就是*渲染好的卡片。不加这句，
+模型往往会再次调用工具，去寻找一个状态码。
 
-`CopilotKitMiddleware` is a `create_agent` middleware, so it has no
-`StateGraph` equivalent — and the fixed-schema path does not need one: the
-A2UI middleware that turns the tool result into a surface runs in the
-TypeScript runtime (see [Registering the runtime](#registering-the-runtime)
-below), not in the graph. Note that dropping it also drops the other things it
-does — frontend-tool injection and exposing agent state to the model — so keep
-`create_agent` if your agent relies on those.
+`CopilotKitMiddleware` 是 `create_agent` 的中间件，在 `StateGraph` 中没有
+对应物 —— 而且固定模式也用不着它：把工具结果变成界面的 A2UI 中间件运行在
+TypeScript 运行时里（见下文[注册运行时](#注册运行时)），而不在图里。注意，
+去掉它也会一并失去它的其他功能 —— 注入前端工具、把智能体状态暴露给模型 ——
+所以如果你的智能体依赖这些，请继续使用 `create_agent`。
 </Step>
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="a2ui_pattern" equals="schema-inline">
 <Step>
-### Define the schema inline
+### 内联定义 schema
 
-Spring AI / .NET don't ship a `load_schema` JSON helper, so the
-component tree is declared inline as a typed literal in source,
-equivalent to deserialising a `flight_schema.json` but compiled into
-the agent class. The structure is identical to the JSON form; only
-the surface syntax changes:
+Spring AI / .NET 没有提供 `load_schema` JSON 辅助工具，因此组件树在源码中
+以内联类型化字面量声明，相当于把 `flight_schema.json` 反序列化的结果直接
+编译进智能体类。结构与 JSON 形式完全相同，只是表面语法不同：
 
 <Snippet region="backend-schema-json-load" />
 </Step>
 
 <Step>
-### Return render operations from the tool
+### 从工具返回渲染操作
 
-The agent tool builds the same `createSurface` + `updateComponents` +
-`updateDataModel` operations container and returns it. The A2UI
-middleware detects the operations in the tool result and forwards
-them to the frontend renderer; the LLM only supplies the four data
-fields:
+智能体工具构建同样的 `createSurface` + `updateComponents` +
+`updateDataModel` 操作容器并返回。A2UI 中间件在工具结果中检测到这些操作并
+转发给前端渲染器；LLM 只提供那四个数据字段：
 
 <Snippet region="backend-render-operations" />
 </Step>
@@ -269,46 +237,41 @@ fields:
 
 <WhenFrameworkHas flag="a2ui_pattern" equals="llm-driven">
 <Step>
-### Generate the schema dynamically
+### 动态生成 schema
 
-Mastra and Strands Python take a different route: the agent tool runs a
-*secondary* LLM call with a forced tool choice that produces the
-operations container per-request. The frontend catalog is still fixed
-(same `Title`/`Airport`/`Arrow`/`AirlineBadge`/`PriceTag` primitives),
-but the schema is built on the fly. Schema construction and render
-emission happen in the same tool call.
+Mastra 和 Strands Python 走的是另一条路：智能体工具通过强制工具选择运行一次
+*辅助* LLM 调用，按请求生成操作容器。前端组件目录依然是固定的（同样是
+`Title`/`Airport`/`Arrow`/`AirlineBadge`/`PriceTag` 这些原语），但 schema
+是即时构建的。schema 构建与渲染输出发生在同一次工具调用中。
 
-Neither SDK ships an `a2ui.render(...)` equivalent here, so the tool
-assembles the `a2ui_operations` envelope itself — the operation builder
-below is part of what you copy. Note the operations are *nested*
-(`{ createSurface: {...} }`): a consumer dispatches on the operation
-key, so a flat `{ type: "create_surface" }` shape is ignored and the
-surface never paints.
+这两个 SDK 在这里都没有提供 `a2ui.render(...)` 的等价物，因此工具要自己组装
+`a2ui_operations` 信封 —— 下面的操作构建器也是你需要照搬的部分。注意这些
+操作是*嵌套*的（`{ createSurface: {...} }`）：消费方按操作键分发，扁平的
+`{ type: "create_surface" }` 形态会被忽略，界面永远不会绘制出来。
 
 <Snippet region="backend-render-operations" />
 </Step>
 </WhenFrameworkHas>
 </Steps>
 
-## Why compositional beats monolithic
+## 为什么组合式优于单体式
 
-A single big `FlightCard` component would be faster to write but would
-lock the design in place. Assembling the card from Card / Column /
-Row / Title / Airport / Arrow / AirlineBadge / PriceTag gives you:
+一个巨大的 `FlightCard` 组件写起来更快，但会把设计锁死。用 Card / Column /
+Row / Title / Airport / Arrow / AirlineBadge / PriceTag 拼装卡片，你能得到：
 
-- **Reusable primitives** the same `Airport` renderer works in
-  search results, booking confirmations, and future seat maps.
-- **Schema-level design iteration** re-arranging rows or swapping a
-  badge requires only a JSON edit; the renderer code is untouched.
-- **A2UI Composer compatibility** hand-written and Composer-built
-  schemas share the same primitive vocabulary.
+- **可复用的原语**：同一个 `Airport` 渲染器可用于搜索结果、预订确认，以及
+  未来的座位图。
+- **schema 层面的设计迭代**：调整行的排布或更换徽章只需改一次 JSON；渲染器
+  代码分毫不动。
+- **与 A2UI Composer 兼容**：手写的与 Composer 构建的 schema 共享同一套
+  原语词汇。
 
-## Registering the runtime
+## 注册运行时
 
-Your agent owns the tool in the fixed-schema approach, so you do not
-want the runtime to inject its own. Enable A2UI but turn injection off.
+在固定模式下，工具由你的智能体自己持有，所以你不希望运行时再注入它自己的。
+启用 A2UI，但关闭注入。
 
-Passing a catalog on the provider is enough to enable A2UI:
+在 provider 上传入组件目录就足以启用 A2UI：
 
 ```tsx title="app/page.tsx"
 <CopilotKit runtimeUrl="/api/copilotkit" a2ui={{ catalog: myCatalog }}>
@@ -316,10 +279,9 @@ Passing a catalog on the provider is enough to enable A2UI:
 </CopilotKit>
 ```
 
-Because a catalog auto-injects the A2UI tool by default, set
-`injectA2UITool: false` on the runtime so your agent's own tool is the
-only one in play. The middleware still auto-detects the operations the
-tool returns and renders the surface, with no subagent involved:
+由于组件目录默认会自动注入 A2UI 工具，请在运行时上设置
+`injectA2UITool: false`，让智能体自己的工具成为唯一在场的工具。中间件仍会
+自动检测工具返回的操作并渲染界面，全程无需子智能体参与：
 
 ```typescript title="app/api/copilotkit/route.ts"
 const runtime = new CopilotRuntime({
@@ -330,17 +292,15 @@ const runtime = new CopilotRuntime({
 
 <FrameworkSetup concept="a2ui-fixed-schema-setup" />
 
-## Action handlers (reference)
+## 操作处理器（参考）
 
-The canonical reference pairs fixed schemas with
-`action_handlers={...}` to declare optimistic UI swaps (e.g. replacing
-the flight schema with `BOOKED_SCHEMA` when the user clicks "Book").
-The Python SDK's `a2ui.render` does not yet accept `action_handlers`,
-so the cell omits them; the `booked_schema.json` sibling is retained
-so the swap can be wired up the moment the SDK exposes the handler
-kwarg.
+参考实现把固定模式与 `action_handlers={...}` 搭配，声明乐观 UI 切换（例如
+用户点击“Book”时把航班 schema 替换为 `BOOKED_SCHEMA`）。Python SDK 的
+`a2ui.render` 尚不支持 `action_handlers`，因此 cell 中省略了它们；
+`booked_schema.json` 这个同名文件仍然保留，以便 SDK 一旦暴露 handler
+kwarg 就能立即接线。
 
-When available, a button declares its action like this:
+等该能力可用后，按钮会这样声明它的 action：
 
 ```json
 {
@@ -357,20 +317,17 @@ When available, a button declares its action like this:
 }
 ```
 
-And the Python tool matches it with a handler keyed by the action
-name (plus a `"*"` catch-all). Until the SDK lands, handle the click on the
-frontend instead — see
-[Advanced — Action Handlers](/integrations/langgraph/generative-ui/a2ui/advanced#action-handlers) for the
-`createA2UIMessageRenderer` / `onAction` pattern.
+Python 工具则用一个以 action 名为键（外加一个 `"*"` 兜底）的处理器来匹配
+它。在 SDK 支持之前，请改为在前端处理点击 —— `createA2UIMessageRenderer` /
+`onAction` 模式参见
+[进阶 —— 操作处理器](/integrations/langgraph/generative-ui/a2ui/advanced#action-handlers)。
 
-## When should I use fixed schemas?
+## 什么时候应该使用固定模式？
 
-- The surface is well-known: flight cards, product tiles, order
-  summaries, dashboards.
-- You want deterministic, designer-controlled UI. No LLM schema drift.
-- You want the fastest possible first paint; no secondary LLM call.
+- 界面形态已知：航班卡片、商品磁贴、订单摘要、仪表盘。
+- 你想要确定性的、由设计师掌控的 UI。没有 LLM schema 漂移。
+- 你想要尽可能快的首次绘制；没有辅助 LLM 调用。
 
-If the UI must adapt per prompt, reach for
-**[dynamic schemas](./dynamic-schema)** instead.
+如果 UI 必须随提示而变，请改用**[动态模式](./dynamic-schema)**。
 
 <IntegrationGrid path="generative-ui/a2ui" />

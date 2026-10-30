@@ -1,24 +1,24 @@
 ---
-title: Governed Action Approval UI
+title: 受治理操作的审批 UI
 icon: "lucide/ShieldCheck"
-description: Gate side-effecting agent actions with an approval UI before they execute.
+description: 在智能体的操作产生副作用之前，用审批 UI 对其进行把关。
 hideTOC: true
 ---
 
-## What is this?
+## 这是什么？
 
-Some agent actions are safe to run immediately, while others should be blocked or paused for user approval before they create side effects. A governed action approval UI gives the user a clear checkpoint:
+有些智能体操作可以立即安全执行，而另一些则应在产生副作用之前被阻止或暂停，等待用户审批。受治理操作的审批 UI 为用户提供一个清晰的检查点：
 
-- **What** the agent wants to do
-- **Why** it wants to do it
-- **Which reference or policy decision** produced the verdict
-- **What happens next** if the user approves or rejects it
+- 智能体**想要做什么**
+- 它**为什么**想做这件事
+- **哪条参考依据或策略决定**给出了裁决
+- 用户批准或拒绝之后**接下来会发生什么**
 
-Use this pattern when the agent proposes an action such as sending an email, updating a record, creating a ticket, applying a discount, or calling any write API.
+当智能体提议发送邮件、更新记录、创建工单、应用折扣或调用任何写操作 API 之类的动作时，即可使用这一模式。
 
-## Action envelope
+## 操作信封
 
-Keep the approval payload small, serializable, and vendor-neutral. The agent or backend can attach any policy engine result to the action as long as the UI receives the same basic envelope:
+保持审批载荷小巧、可序列化且与具体供应商无关。只要 UI 收到的是同一个基础信封，智能体或后端可以在操作上附加任何策略引擎的结果：
 
 ```ts
 type GovernedAction = {
@@ -31,17 +31,17 @@ type GovernedAction = {
 };
 ```
 
-The frontend should handle each verdict deterministically:
+前端应当确定性地处理每一种裁决：
 
-| Verdict | UI behavior |
+| 裁决 | UI 行为 |
 | --- | --- |
-| `allow` | Execute the action without asking again, optionally showing an audit note. |
-| `deny` | Do not execute the action. Show the reason or reference and ask the agent to choose a safer path. |
-| `require_approval` | Render a user approval card. Execute only if the user approves. |
+| `allow` | 不再询问直接执行操作，可以选择性地展示一条审计说明。 |
+| `deny` | 不执行该操作。展示原因或参考依据，并让智能体选择一条更安全的路径。 |
+| `require_approval` | 渲染用户审批卡片。仅在用户批准后执行。 |
 
-## Inline approval with `useInterrupt`
+## 使用 `useInterrupt` 的内联审批
 
-If your runtime can pause an agent run, model the approval as an interrupt. The agent proposes the action, the UI renders the checkpoint, and the run resumes with the user's decision. Vue exposes the primary `resolve` and `cancel` methods on `slotProps`:
+如果你的运行时可以暂停智能体的运行，就可以把审批建模为一次中断。智能体提议操作，UI 渲染检查点，然后运行在拿到用户决定后继续。Vue 在 `slotProps` 上暴露了主要的 `resolve` 与 `cancel` 方法：
 
 ```vue title="src/components/GovernedActionApproval.vue"
 <script setup lang="ts">
@@ -104,7 +104,7 @@ watchEffect(() => {
 </template>
 ```
 
-On resume, the agent should execute only when it receives an approved response for the same action id and reference:
+恢复运行时，智能体只有在收到针对同一操作 id 与参考依据的已批准响应时才应执行：
 
 ```ts
 type ApprovalResponse = {
@@ -132,9 +132,9 @@ async function handleApproval(
 }
 ```
 
-## Tool-call approval with `useHumanInTheLoop`
+## 使用 `useHumanInTheLoop` 的工具调用审批
 
-For LLM-initiated pauses, register the approval checkpoint as a human-in-the-loop tool. The model asks to call `approve_governed_action`, your Vue component renders the card, and the tool result tells the agent whether it may continue:
+对于由 LLM 发起的暂停，将审批检查点注册为人机协同（human-in-the-loop）工具。模型请求调用 `approve_governed_action`，你的 Vue 组件渲染审批卡片，工具结果则告知智能体是否可以继续：
 
 ```vue title="src/components/GovernedActionTool.vue"
 <script setup lang="ts">
@@ -163,7 +163,7 @@ useHumanInTheLoop({
 <template><p>Governed action tool registered.</p></template>
 ```
 
-The render component receives partial `args` while the tool call streams and a `respond` callback only while the call is executing. It should call `respond` with the same `{ approved, actionId, reference }` envelope used by the interrupt path:
+在工具调用流式传输期间，渲染组件会收到不完整的 `args`，而 `respond` 回调只在该调用执行期间可用。它应以与中断路径相同的 `{ approved, actionId, reference }` 信封调用 `respond`：
 
 ```vue title="src/components/GovernedActionCard.vue"
 <script setup lang="ts">
@@ -214,9 +214,9 @@ watchEffect(() => {
 </template>
 ```
 
-## Provider setup
+## Provider 配置
 
-Both composables must run in components beneath `CopilotKitProvider`:
+两个 composable 都必须在 `CopilotKitProvider` 之下的组件中运行：
 
 ```vue title="src/App.vue"
 <script setup lang="ts">
@@ -234,16 +234,16 @@ import GovernedActionTool from "./components/GovernedActionTool.vue";
 </template>
 ```
 
-## Recommended guardrails
+## 推荐的防护措施
 
-- Check policy on the server before presenting the approval, not only in the browser.
-- Include a stable `action.id` and `reference` so the approval cannot be replayed for a different action.
-- Show the exact action arguments before the user approves.
-- Treat `deny` as terminal for that proposed action; do not execute a denied side effect from a later UI callback.
-- Log the proposal, verdict, user decision, and execution result so the action is auditable.
+- 在展示审批之前先在服务端检查策略，而不要只在浏览器中检查。
+- 包含稳定的 `action.id` 与 `reference`，防止该审批被重放用于其他操作。
+- 在用户批准前展示确切的操作参数。
+- 将 `deny` 视为对该提议操作的最终裁决；不要在稍后的 UI 回调中执行被拒绝的副作用。
+- 记录提议、裁决、用户决定与执行结果，使操作可审计。
 
-## Going further
+## 深入了解
 
-- [Pausing the Agent for Input](./useInterrupt) — use graph-enforced interrupts when the backend must stop before a side effect.
-- [HITL Overview](../human-in-the-loop) — compare tool-based and interrupt-based human-in-the-loop patterns.
-- [Frontend Tools](../frontend-tools) — register browser-side tools that can display approval UI or update application state.
+- [暂停智能体等待输入](./useInterrupt) —— 当后端必须在副作用产生前停下时，使用由图强制执行的中断。
+- [人机协同概览](../human-in-the-loop) —— 对比基于工具与基于中断的人机协同模式。
+- [前端工具](../frontend-tools) —— 注册可以在浏览器端展示审批 UI 或更新应用状态的工具。

@@ -1,41 +1,28 @@
 ---
-title: Prebuilt Components
+title: 预构建组件
 icon: "lucide/MessageSquare"
-description: Drop-in Vue chat components with a customization path from CSS to headless composition.
+description: 开箱即用的 Vue 聊天组件，提供从 CSS 到无头组合的定制路径。
 hideTOC: true
 ---
 
-## Prebuilt components for agentic chat
+## 面向智能体聊天的预构建组件
 
-`@copilotkit/vue/v2` ships three chat surfaces: [**CopilotChat**](/vue/prebuilt-components/chat),
-[**CopilotSidebar**](/vue/prebuilt-components/sidebar), and
-[**CopilotPopup**](/vue/prebuilt-components/popup). They share the same chat
-primitives while choosing different layouts. Pick the surface that fits the
-product; each handles streaming messages, tool rendering, suggestions, and
-Vue slot customization.
+`@copilotkit/vue/v2` 提供三种聊天界面：[**CopilotChat**](/vue/prebuilt-components/chat)、[**CopilotSidebar**](/vue/prebuilt-components/sidebar) 和 [**CopilotPopup**](/vue/prebuilt-components/popup)。它们共享相同的聊天原语，只是采用不同的布局。请选择适合产品的界面；每一种都能处理流式消息、工具渲染、建议以及 Vue 插槽定制。
 
-Use `CopilotThreadsDrawer` beside a supported surface when you need a
-conversation-history drawer, or use `useThreads` to build your own switcher.
+当需要会话历史抽屉时，可在受支持的界面旁使用 `CopilotThreadsDrawer`，或使用 `useThreads` 构建自己的切换器。
 
-## The customization ladder
+## 定制阶梯
 
-1. **Drop in a surface.** Render `CopilotChat`, `CopilotSidebar`, or
-   `CopilotPopup` below `CopilotKitProvider`.
-2. **Re-skin with CSS.** Import the Vue stylesheet and override the
-   `[data-copilotkit]` design tokens.
-3. **Recompose with slots.** Replace an empty state, message list, composer,
-   header, or launcher using Vue named and scoped slots.
-4. **Go headless.** Build your layout from `useAgent`, `useCopilotKit`, and
-   the public chat leaf components where needed.
+1. **放入一个界面**。在 `CopilotKitProvider` 之下渲染 `CopilotChat`、`CopilotSidebar` 或 `CopilotPopup`。
+2. **用 CSS 换肤**。导入 Vue 样式表并覆盖 `[data-copilotkit]` 设计令牌。
+3. **用插槽重组**。使用 Vue 具名插槽和作用域插槽替换空状态、消息列表、输入区、页眉或启动按钮。
+4. **走向无头**。根据需要，用 `useAgent`、`useCopilotKit` 和公开的聊天叶子组件构建你的布局。
 
-These layers are incremental. A custom welcome-screen slot and CSS token
-overrides can coexist; moving to a custom surface does not require copying the
-runtime connection logic.
+这些层级是渐进式的。自定义欢迎界面插槽与 CSS 令牌覆盖可以共存；迁移到自定义界面不需要复制运行时连接逻辑。
 
-## Drop-in chat
+## 开箱即用的聊天
 
-Import the Vue CSS once, wrap the application in `CopilotKitProvider`, and put
-the chat surface in the provider's default slot:
+只需导入一次 Vue CSS，用 `CopilotKitProvider` 包裹应用，并把聊天界面放进提供方的默认插槽：
 
 ```vue title="App.vue"
 <script setup lang="ts">
@@ -50,23 +37,16 @@ import "@copilotkit/vue/styles.css";
 </template>
 ```
 
-The Vue Showcase currently exposes this `agentic-chat` surface. Other
-prebuilt-component variations do not have a runnable Vue Showcase route yet.
+Vue Showcase 目前暴露的是这个 `agentic-chat` 界面。其他预构建组件变体尚无可运行的 Vue Showcase 路由。
 
-## Starter suggestions
+## 初始建议
 
-Call `useConfigureSuggestions` inside a child component of
-`CopilotKitProvider`. Its reactive configuration is then available to the
-nearest chat surface.
+在 `CopilotKitProvider` 的子组件中调用 `useConfigureSuggestions`。其响应式配置随后可供最近的聊天界面使用。
 
-## Pick a surface
+## 选择界面
 
-- [`<CopilotChat>`](/vue/prebuilt-components/chat): an inline pane that fills
-  the container you give it.
-- [`<CopilotSidebar>`](/vue/prebuilt-components/sidebar): a collapsible,
-  docked surface.
-- [`<CopilotPopup>`](/vue/prebuilt-components/popup): a floating launcher and
-  overlay chat.
+- [`<CopilotChat>`](/vue/prebuilt-components/chat)：填满你所给容器的内联面板。
+- [`<CopilotSidebar>`](/vue/prebuilt-components/sidebar)：可折叠的停靠式界面。
+- [`<CopilotPopup>`](/vue/prebuilt-components/popup)：浮动启动按钮加浮层聊天。
 
-For controlling a popup or sidebar from your own UI, and for feedback actions,
-see [Open, close, and feedback](/vue/prebuilt-components/chat-controls).
+如需从你自己的 UI 控制弹窗或侧边栏，以及使用反馈动作，参见[打开、关闭与反馈](/vue/prebuilt-components/chat-controls)。

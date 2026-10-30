@@ -1,17 +1,14 @@
 ---
-title: Open, close, and feedback
+title: 打开、关闭与反馈
 icon: "lucide/SlidersHorizontal"
-description: Control a Vue popup or sidebar from your UI and capture assistant-message feedback.
+description: 从你的 UI 控制 Vue 弹窗或侧边栏，并捕获助手消息反馈。
 ---
 
-Two common controls for the prebuilt chat are opening it from your own UI and
-capturing thumbs-up or thumbs-down feedback on assistant messages.
+预构建聊天有两个常见控制场景：从你自己的 UI 打开它，以及捕获助手消息上的点赞或点踩反馈。
 
-## Programmatically open or close chat
+## 以编程方式打开或关闭聊天
 
-Use the `toggle-button` scoped slot on `CopilotPopup` or `CopilotSidebar` to
-replace the launcher with your own UI. The slot receives the current open state
-and `toggle`, `open`, and `close` actions:
+在 `CopilotPopup` 或 `CopilotSidebar` 上使用 `toggle-button` 作用域插槽，用自己的 UI 替换启动按钮。该插槽会接收当前打开状态以及 `toggle`、`open` 和 `close` 动作：
 
 ```vue title="App.vue"
 <script setup lang="ts">
@@ -29,16 +26,11 @@ import { CopilotPopup } from "@copilotkit/vue/v2";
 </template>
 ```
 
-Set the initial state declaratively with `:default-open="true"` on
-`CopilotPopup` or `CopilotSidebar`. These Vue components do not expose a
-controlled `open` / `onOpenChange`-style API; use the scoped-slot actions to
-control the surface after it mounts.
+在 `CopilotPopup` 或 `CopilotSidebar` 上通过 `:default-open="true"` 声明式地设置初始状态。这些 Vue 组件没有暴露 `open` / `onOpenChange` 风格的受控 API；挂载后请使用作用域插槽中的动作来控制界面。
 
-## Capture message feedback
+## 捕获消息反馈
 
-Vue exposes assistant-message feedback as events. To render the default
-assistant message but observe its actions, provide it through the
-`assistant-message` slot of `CopilotChatMessageView`:
+Vue 将助手消息反馈以事件的形式暴露出来。若要在渲染默认助手消息的同时观察其动作，请通过 `CopilotChatMessageView` 的 `assistant-message` 插槽来提供它：
 
 ```vue title="ChatWithFeedback.vue"
 <script setup lang="ts">
@@ -72,7 +64,4 @@ function recordFeedback(message: { id: string }, value: "up" | "down") {
 </template>
 ```
 
-The buttons are part of `CopilotChatAssistantMessage`; custom
-`thumbs-up-button` and `thumbs-down-button` slots receive their imperative
-`onThumbsUp` and `onThumbsDown` actions. Labels are controlled with the chat
-configuration's `labels` prop.
+这些按钮属于 `CopilotChatAssistantMessage` 的一部分；自定义的 `thumbs-up-button` 和 `thumbs-down-button` 插槽会接收其命令式的 `onThumbsUp` 与 `onThumbsDown` 动作。文案由聊天配置的 `labels` prop 控制。

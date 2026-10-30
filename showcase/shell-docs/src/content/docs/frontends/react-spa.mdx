@@ -1,35 +1,35 @@
 ---
 title: React SPA
-description: Host Copilot Runtime for a React single-page app that has no server of its own.
+description: 为没有自己服务器的 React 单页应用托管 Copilot Runtime。
 icon: "lucide/Component"
 hideTOC: true
 ---
 
 import OpenInspectorStep from "@/snippets/shared/inspector/open-inspector-step.mdx";
 
-The rest of these docs are the React docs. [Frontend tools](/frontend-tools), [generative UI](/generative-ui), [human-in-the-loop](/human-in-the-loop), [headless UI](/headless), [prebuilt components](/prebuilt-components) and the [React reference](/reference/v2) all work unchanged in a Vite or Create React App project.
+本文档站的其余部分就是 React 文档。[前端工具](/frontend-tools)、[生成式 UI](/generative-ui)、[人机协同](/human-in-the-loop)、[无头 UI](/headless)、[预构建组件](/prebuilt-components)以及 [React 参考](/reference/v2)在 Vite 或 Create React App 项目中原样可用。
 
-Exactly one instruction does not carry over: **where Copilot Runtime lives.** The quickstarts assume Next.js serves your app and the runtime from one origin, so they use a relative `runtimeUrl` of `/api/copilotkit`. A single-page app has no server and no shared origin, so that path resolves to nothing. This page covers that one difference and sends you back to the pages above for everything else.
+只有一条说明不能照搬：**Copilot Runtime 部署在哪里**。各快速开始假定 Next.js 从同一源（origin）同时提供应用和运行时，因此使用相对的 `runtimeUrl`（`/api/copilotkit`）。单页应用没有服务器，也没有共享源，这个路径解析不出任何东西。本页只讲这一处差异，其余内容请回到上面的页面。
 
-## Start with your coding agent
+## 从编码智能体开始
 
-Use this prompt to connect your React single-page app to a separately hosted Copilot Runtime and verify a working conversation. You can also follow the manual steps below.
+使用下面的提示词把 React 单页应用连接到单独托管的 Copilot Runtime，并验证对话确实可用。也可以按下面的手动步骤操作。
 
 <PageAgentPrompt />
 
-## Prerequisites
+## 前置条件
 
-- An OpenAI API key (or another model provider supported by [Model Selection](/model-selection))
+- 一个 OpenAI API 密钥（或[模型选择](/model-selection)支持的其他模型提供方）
 - React 18+
-- Node.js 20.6+ (for `--env-file`)
+- Node.js 20.6+（用于 `--env-file`）
 
-## Getting started
+## 开始使用
 
 <Steps>
     <Step>
-        ### Create your React app
+        ### 创建你的 React 应用
 
-        If you don't have one already:
+        如果还没有：
 
         ```bash
         npm create vite@latest my-copilot-app -- --template react-ts
@@ -37,12 +37,12 @@ Use this prompt to connect your React single-page app to a separately hosted Cop
         npm install
         ```
 
-        An existing Create React App project works the same way — only the dev server command in the last step differs.
+        已有的 Create React App 项目同样适用——只有最后一步的 dev server 命令不同。
     </Step>
     <Step>
-        ### Install CopilotKit
+        ### 安装 CopilotKit
 
-        Install the React frontend package and `@copilotkit/runtime` for your local Copilot Runtime server:
+        安装 React 前端包，以及用于本地 Copilot Runtime 服务器的 `@copilotkit/runtime`：
 
         <Tabs groupId="package-manager" items={['npm', 'pnpm', 'yarn']}>
             <Tab value="npm">
@@ -66,9 +66,9 @@ Use this prompt to connect your React single-page app to a separately hosted Cop
         </Tabs>
     </Step>
     <Step>
-        ### Create the Copilot Runtime
+        ### 创建 Copilot Runtime
 
-        Your SPA has no server, so the runtime needs one of its own. Add a small Node server that hosts Copilot Runtime at `/api/copilotkit` on its own port and registers a `default` built-in agent:
+        你的 SPA 没有服务器，因此运行时需要自带一个。添加一个小的 Node 服务器，在它自己的端口上通过 `/api/copilotkit` 承载 Copilot Runtime，并注册一个 `default` 内置智能体：
 
         ```ts title="server.ts"
         import { createServer } from "node:http";
@@ -99,14 +99,14 @@ Use this prompt to connect your React single-page app to a separately hosted Cop
         });
         ```
 
-        <Callout type="warn" title="cors: true is required here, and it is not the default">
-          Your app and your runtime are on different origins, so the runtime has to opt into CORS. `createCopilotNodeListener` and `createCopilotRuntimeHandler` are **off by default** — omit `cors` and every browser request fails preflight. This differs from the Express and Hono adapters, which default to permissive CORS. See [Runtime endpoints](/backend/runtime-endpoints) for per-origin and credentialed configuration before you deploy.
+        <Callout type="warn" title="这里必须设 `cors: true`，且它并非默认值">
+          你的应用与运行时位于不同的源，因此运行时必须显式启用 CORS。`createCopilotNodeListener` 与 `createCopilotRuntimeHandler` **默认关闭 CORS**——省略 `cors` 时，每个浏览器请求都会在预检阶段失败。这一点与 Express 和 Hono 适配器不同，它们默认放行 CORS。部署前请参见[运行时端点](/backend/runtime-endpoints)了解按源配置与携带凭据的配置方式。
         </Callout>
     </Step>
     <Step>
-        ### Import the styles
+        ### 导入样式
 
-        Import the package stylesheet once in your app entry. It's self-contained, so the chat renders without any other CSS.
+        在应用入口导入一次包的样式表。它是自包含的，聊天无需任何其他 CSS 即可渲染。
 
         ```tsx title="src/main.tsx"
         import React from "react";
@@ -122,9 +122,9 @@ Use this prompt to connect your React single-page app to a separately hosted Cop
         ```
     </Step>
     <Step>
-        ### Connect to Copilot Runtime
+        ### 连接 Copilot Runtime
 
-        Point `CopilotKitProvider` at the runtime endpoint and drop in `CopilotChat`. Because the runtime registers an agent named `default`, the chat picks it up automatically.
+        把 `CopilotKitProvider` 指向运行时端点，并放入 `CopilotChat`。由于运行时注册了名为 `default` 的智能体，聊天会自动选用它。
 
         ```tsx title="src/App.tsx"
         import { CopilotKitProvider, CopilotChat } from "@copilotkit/react-core/v2";
@@ -141,11 +141,11 @@ Use this prompt to connect your React single-page app to a separately hosted Cop
         }
         ```
 
-        <Callout type="warn" title="The runtimeUrl must be absolute">
-          Every framework quickstart uses a relative `runtimeUrl="/api/copilotkit"`. That works **only** because Next.js serves the app and the runtime from the same origin. In a single-page app the runtime is a separate process on a separate port, so the URL has to name it in full — host and port included. Read it from an env var (`import.meta.env.VITE_COPILOT_RUNTIME_URL` in Vite) so you can point it at your deployed runtime in production.
+        <Callout type="warn" title="`runtimeUrl` 必须是绝对地址">
+          各框架快速开始都使用相对的 `runtimeUrl="/api/copilotkit"`。它之所以**能**用，只是因为 Next.js 从同一源提供应用和运行时。在单页应用中，运行时是独立端口上的独立进程，因此 URL 必须写全——包括主机和端口。请从环境变量读取它（Vite 中为 `import.meta.env.VITE_COPILOT_RUNTIME_URL`），以便生产环境指向已部署的运行时。
         </Callout>
 
-        To use a named agent from an integration quickstart, set `agentId` to the key registered in the runtime's `agents` map:
+        要使用某个集成快速开始中的命名智能体，把 `agentId` 设为运行时 `agents` 映射中注册的键：
 
         ```tsx
         <CopilotKitProvider
@@ -156,39 +156,38 @@ Use this prompt to connect your React single-page app to a separately hosted Cop
         </CopilotKitProvider>
         ```
 
-        `CopilotKitProvider` uses `agentId`; the `agent` prop shown in legacy `<CopilotKit>` examples is not a provider prop. Omit `agentId` when using the `default` agent above.
+        `CopilotKitProvider` 使用的是 `agentId`；旧版 `<CopilotKit>` 示例中出现的 `agent` prop 不是 provider 的 prop。使用上面的 `default` 智能体时，省略 `agentId` 即可。
 
-        <Callout type="info" title="Pick your chat layout">
-          `CopilotChat` is a full-height chat. Swap it for `CopilotSidebar` (a collapsible side panel) or `CopilotPopup` (a floating widget) for a different layout. They take the same props.
+        <Callout type="info" title="选择你的聊天布局">
+          `CopilotChat` 是全高的聊天。要换布局，可以换成 `CopilotSidebar`（可折叠侧边栏）或 `CopilotPopup`（浮动挂件）。它们接受相同的 props。
         </Callout>
     </Step>
     <Step>
-        ### Run the runtime and app
+        ### 启动运行时与应用
 
-        You are running two dev servers, so they need two different ports. Before creating the server credential file, add this entry to your project's `.gitignore`:
+        你要运行两个开发服务器，因此它们需要两个不同的端口。在创建服务器凭据文件之前，先在项目的 `.gitignore` 中加入这一项：
 
         ```gitignore title=".gitignore"
         .env
         ```
 
-        Create `.env` beside `server.ts`:
+        在 `server.ts` 旁创建 `.env`：
 
         ```dotenv title=".env"
         OPENAI_API_KEY=sk-...
         ```
 
-        Start Copilot Runtime from that directory in one terminal:
+        在一个终端中，从该目录启动 Copilot Runtime：
 
         ```bash
         npx tsx --env-file=.env server.ts
         ```
 
-        A standalone Node process does not load `.env` automatically. The flag loads it before runtime imports run, including `CPK_INTELLIGENCE_API_KEY` when you connect [Intelligence](/intelligence/quickstart). If the CLI wrote `.env` in a parent directory, point `--env-file` at that file instead. Keep server credentials out of `VITE_*` variables, which are exposed to the browser.
+        独立的 Node 进程不会自动加载 `.env`。这个 flag 会在运行时导入执行之前加载它——连接 [Intelligence](/intelligence/quickstart) 时也包括 `CPK_INTELLIGENCE_API_KEY`。如果 CLI 把 `.env` 写在了上级目录，就把 `--env-file` 指向那个文件。服务器凭据不要放进 `VITE_*` 变量，它们会暴露给浏览器。
 
-        The `--env-file` flag preserves variables already set in the shell.
-        If the project's `.env` should override those values for local
-        development, install `dotenv` and add this before constructing the
-        agent in `server.ts`:
+        `--env-file` flag 会保留 shell 中已设置的变量。
+        如果本地开发时项目的 `.env` 应覆盖这些值，请安装 `dotenv`，
+        并在 `server.ts` 中构造智能体之前加入以下代码：
 
         <Tabs groupId="package-manager" items={['npm', 'pnpm', 'yarn']}>
             <Tab value="npm">
@@ -208,7 +207,7 @@ Use this prompt to connect your React single-page app to a separately hosted Cop
             </Tab>
         </Tabs>
 
-        ```ts title="server.ts — load the project environment"
+        ```ts title="server.ts —— 加载项目环境变量"
         import { config } from "dotenv";
 
         config({
@@ -217,49 +216,39 @@ Use this prompt to connect your React single-page app to a separately hosted Cop
         });
         ```
 
-        This path selects the `.env` beside `server.ts`. Use `override: true`
-        only when that file should take precedence over the inherited shell
-        environment. Without it, an exported `OPENAI_API_KEY` wins even when
-        `.env` contains a different key, which can send calls to the wrong
-        project or cause model authentication errors. Keep the key server-side;
-        do not prefix it with `VITE_` or include it in frontend code.
+        这个路径选中的是 `server.ts` 旁边的 `.env`。只有当该文件应优先于继承的 shell 环境时，才使用 `override: true`。不加它时，导出的 `OPENAI_API_KEY` 会胜出，即使 `.env` 中是另一个密钥——这可能把请求发到错误的项目，或导致模型认证错误。密钥要留在服务端；不要加 `VITE_` 前缀，也不要放进前端代码。
 
-        Start the React app in another terminal:
+        在另一个终端中启动 React 应用：
 
         ```bash
         npm run dev
         ```
 
-        Vite serves on `http://localhost:5173` and the runtime on `8200`, so the defaults don't collide. If you need to move the app, pass `--port` — **Vite ignores the `PORT` environment variable**, unlike Create React App:
+        Vite 服务于 `http://localhost:5173`，运行时在 `8200`，默认值互不冲突。如果需要给应用换端口，传 `--port`——**Vite 会忽略 `PORT` 环境变量**，这与 Create React App 不同：
 
         ```bash
         npm run dev -- --port 3000
         ```
 
-        Before opening the app, confirm the runtime is ready:
+        在打开应用之前，先确认运行时就绪：
 
         ```bash
         curl --fail --silent --show-error http://localhost:8200/api/copilotkit/info
         ```
 
-        Wait until this succeeds and the JSON includes the `default` agent
-        registered above.
+        等这条命令成功、且 JSON 包含上面注册的 `default` 智能体后再继续。
 
-        If a dev script starts both processes together, wait for that same
-        runtime readiness check before opening the browser. A listening Vite
-        server does not mean the separate runtime is ready. Opening the app
-        too early can leave its initial runtime connection in an error state;
-        reload after `/info` succeeds if that has already happened.
+        如果某个 dev 脚本同时启动两个进程，打开浏览器前也要等待同样的运行时就绪检查。Vite 服务器开始监听并不意味着独立的运行时已就绪。打开过早会让应用的初始运行时连接停留在错误状态；如果已经发生，等 `/info` 成功后刷新页面即可。
 
-        Open the dev server URL, send a message, and you'll see it stream back through Copilot Runtime.
+        打开 dev server 的 URL，发送一条消息，你会看到它经由 Copilot Runtime 流式返回。
 
         <Accordions className="mb-4">
-            <Accordion title="Troubleshooting">
-                - **CORS errors, or requests failing on preflight**: Keep `cors: true` in `createCopilotNodeListener`. It is off by default, and this is the most common cause of a chat that renders but never responds.
-                - **404s on `/api/copilotkit`**: Your `runtimeUrl` is relative. A SPA needs the absolute `http://localhost:8200/api/copilotkit`.
-                - **No response from the agent**: Confirm the runtime server is running and `http://localhost:8200/api/copilotkit/info` returns agent information.
-                - **Chat renders unstyled**: Make sure you imported `@copilotkit/react-core/v2/styles.css` in your app entry.
-                - **Model auth errors or Intelligence remains unconfigured**: Confirm the runtime starts with `npx tsx --env-file=.env server.ts` and the selected env file contains the required server credentials. Vite loading its own env file does not configure the runtime process.
+            <Accordion title="故障排查">
+                - **CORS 错误，或请求在预检阶段失败**：在 `createCopilotNodeListener` 中保留 `cors: true`。它默认是关闭的，这也是“聊天渲染出来却始终不响应”最常见的原因。
+                - **`/api/copilotkit` 返回 404**：你的 `runtimeUrl` 是相对路径。SPA 需要绝对的 `http://localhost:8200/api/copilotkit`。
+                - **智能体无响应**：确认运行时服务器正在运行，且 `http://localhost:8200/api/copilotkit/info` 返回智能体信息。
+                - **聊天没有样式**：确保在应用入口导入了 `@copilotkit/react-core/v2/styles.css`。
+                - **模型认证错误或 Intelligence 未配置**：确认运行时以 `npx tsx --env-file=.env server.ts` 启动，且所选 env 文件包含必需的服务器凭据。Vite 加载自己的 env 文件并不会配置运行时进程。
             </Accordion>
         </Accordions>
     </Step>
@@ -268,24 +257,24 @@ Use this prompt to connect your React single-page app to a separately hosted Cop
     </Step>
 </Steps>
 
-## Next steps
+## 后续步骤
 
-The runtime is the only SPA-specific piece. From here the root React docs apply as written:
+运行时是唯一与 SPA 相关的部分。从这里开始，React 主文档可以按原文照用：
 
-- [Frontend tools](/frontend-tools) — let the agent call into your app
-- [Generative UI](/generative-ui) — render your own components from agent output
-- [Human-in-the-loop](/human-in-the-loop) — pause a run for user approval
-- [Headless UI](/headless) — build your own chat surface
-- [Prebuilt components](/prebuilt-components) — the chat, sidebar and popup layouts
-- [React reference](/reference/v2) — full provider, hook and component API
+- [前端工具](/frontend-tools) —— 让智能体调用你的应用
+- [生成式 UI](/generative-ui) —— 用智能体输出渲染你自己的组件
+- [人机协同](/human-in-the-loop) —— 暂停运行等待用户批准
+- [无头 UI](/headless) —— 构建你自己的聊天界面
+- [预构建组件](/prebuilt-components) —— 聊天、侧边栏与弹窗布局
+- [React 参考](/reference/v2) —— 完整的 provider、hook 与组件 API
 
-To connect an agent framework instead of `BuiltInAgent`, follow any [integration quickstart](/quickstart) and keep the `server.ts` host and absolute `runtimeUrl` from this page in place of its Next.js route handler.
+要连接智能体框架而不是 `BuiltInAgent`，任选一个[集成快速开始](/quickstart)照做，但保留本页的 `server.ts` 托管方式与绝对 `runtimeUrl`，用来替代其中的 Next.js 路由处理器。
 
-## Connect a remote agent with Intelligence
+## 使用 Intelligence 连接远程智能体
 
-Most integration quickstarts run the agent as its own server and show the runtime as a Next.js route handler. For a single-page app, put the same runtime in `server.ts`. This example registers an agent server at `http://localhost:8000/` with `HttpAgent` and connects the runtime to [Intelligence](/intelligence/quickstart).
+大多数集成快速开始把智能体作为独立服务器运行，并把运行时展示为 Next.js 路由处理器。对单页应用，把同样的运行时放进 `server.ts` 即可。本例用 `HttpAgent` 注册位于 `http://localhost:8000/` 的智能体服务器，并把运行时连接到 [Intelligence](/intelligence/quickstart)。
 
-Install the AG-UI client at the version that `@copilotkit/runtime` depends on:
+按照 `@copilotkit/runtime` 所依赖的版本安装 AG-UI 客户端：
 
 ```bash
 npm install @ag-ui/client@1.0.2
@@ -329,13 +318,13 @@ createServer(
 });
 ```
 
-<Callout type="warn" title="Replace the header identity before you deploy">
-  This `identifyUser` trusts the `x-user-id` header, so any caller can pick a user, and a request without the header shares the `anonymous` threads. Return the user from a verified session or token, and reject requests that have none. `identifyUser` does not scope the `threads/events` and `threads/state` routes, so add your own ownership check for them. See [Thread authorization](/auth#thread-authorization).
+<Callout type="warn" title="部署前替换基于 header 的身份标识">
+  这里的 `identifyUser` 信任 `x-user-id` header，任何调用者都能冒充任意用户，不带该 header 的请求则会共享 `anonymous` 线程。请从经过验证的会话或令牌返回用户，并拒绝没有凭据的请求。`identifyUser` 不会对 `threads/events` 与 `threads/state` 路由做范围限定，请为它们自行添加归属校验。参见[线程授权](/auth#thread-authorization)。
 </Callout>
 
-Run `npx copilotkit@latest project select` beside `server.ts` to write `CPK_INTELLIGENCE_API_KEY` to `.env`. Then start the runtime with `npx tsx --env-file=.env server.ts`, as in the steps above.
+在 `server.ts` 旁运行 `npx copilotkit@latest project select`，把 `CPK_INTELLIGENCE_API_KEY` 写入 `.env`。然后按上面步骤中的方式，用 `npx tsx --env-file=.env server.ts` 启动运行时。
 
-On the frontend, set `agentId` to the key in the `agents` map:
+在前端，把 `agentId` 设为 `agents` 映射中的键：
 
 ```tsx
 <CopilotKitProvider
@@ -346,4 +335,4 @@ On the frontend, set `agentId` to the key in the `agents` map:
 </CopilotKitProvider>
 ```
 
-With Intelligence, the run route does not stream events to the browser. The provider reads them from Intelligence over a websocket. See [Run and connect with Intelligence](/backend/runtime-endpoints#run-and-connect-with-intelligence).
+使用 Intelligence 时，run 路由不会把事件流式推给浏览器，provider 会通过 websocket 从 Intelligence 读取它们。参见[使用 Intelligence 运行与连接](/backend/runtime-endpoints#run-and-connect-with-intelligence)。

@@ -1,35 +1,35 @@
 ---
 title: Vue
-description: Connect a Vue app to Copilot Runtime with CopilotKit.
+description: 使用 CopilotKit 将 Vue 应用连接到 Copilot Runtime。
 icon: "lucide/Component"
 hideTOC: true
 ---
 
 import OpenInspectorStep from "@/snippets/shared/inspector/open-inspector-step.mdx";
 
-`@copilotkit/vue` provides Vue 3 components and composables for CopilotKit. This guide gets you to a working Vue app with a chat UI backed by a local [Copilot Runtime](/backend/copilot-runtime) and `BuiltInAgent`.
+`@copilotkit/vue` 为 CopilotKit 提供 Vue 3 组件与组合式函数（composables）。本指南带你搭好一个可用的 Vue 应用，其聊天 UI 由本地的 [Copilot Runtime](/backend/copilot-runtime) 与 `BuiltInAgent` 支撑。
 
-The runtime runs on your server, keeps model credentials out of the browser, and exposes the `default` agent that `CopilotChat` uses automatically.
+运行时在你的服务器上运行，把模型凭据挡在浏览器之外，并暴露 `default` 智能体供 `CopilotChat` 自动使用。
 
-## Start with your coding agent
+## 从编码智能体开始
 
-Use this prompt to connect your Vue app to Copilot Runtime with the selected agent backend, then verify a working conversation. You can also follow the manual steps below.
+使用下面的提示词把 Vue 应用连接到 Copilot Runtime（使用所选的智能体后端），然后验证对话确实可用。也可以按下面的手动步骤操作。
 
 <PageAgentPrompt />
 
-## Prerequisites
+## 前置条件
 
-- An OpenAI API key (or another model provider supported by [Model Selection](/model-selection))
+- 一个 OpenAI API 密钥（或[模型选择](/model-selection)支持的其他模型提供方）
 - Vue 3.3+
 - Node.js 20+
 
-## Getting started
+## 开始使用
 
 <Steps>
     <Step>
-        ### Create your Vue app
+        ### 创建你的 Vue 应用
 
-        If you don't have one already:
+        如果还没有：
 
         ```bash
         npm create vue@latest my-copilot-app
@@ -38,9 +38,9 @@ Use this prompt to connect your Vue app to Copilot Runtime with the selected age
         ```
     </Step>
     <Step>
-        ### Install CopilotKit
+        ### 安装 CopilotKit
 
-        Install the Vue frontend package and `@copilotkit/runtime` for your local Copilot Runtime server:
+        安装 Vue 前端包，以及用于本地 Copilot Runtime 服务器的 `@copilotkit/runtime`：
 
         <Tabs groupId="package-manager" items={['npm', 'pnpm', 'yarn']}>
             <Tab value="npm">
@@ -64,19 +64,15 @@ Use this prompt to connect your Vue app to Copilot Runtime with the selected age
         </Tabs>
     </Step>
     <Step>
-        ### Create the Copilot Runtime
+        ### 创建 Copilot Runtime
 
-        Add a small Node server that hosts Copilot Runtime at `/api/copilotkit` and registers a `default` built-in agent:
+        添加一个小的 Node 服务器，在 `/api/copilotkit` 上承载 Copilot Runtime，并注册一个 `default` 内置智能体：
 
-        <Callout type="warn" title="Already have an agent? Do not use BuiltInAgent">
-          `BuiltInAgent` is CopilotKit's own agent — it calls the model directly.
-          Registering it as `default` means chat talks to it, not to an agent you
-          already wrote. It replaces your agent rather than connecting to it.
+        <Callout type="warn" title="已有智能体？不要使用 BuiltInAgent">
+          `BuiltInAgent` 是 CopilotKit 自带的智能体——它直接调用模型。
+          把它注册为 `default` 意味着聊天对接的是它，而不是你已经写好的智能体。它是替换你的智能体，而不是连接它。
 
-          If you already have a LangGraph, CrewAI, Mastra, ADK, Pydantic AI, or
-          other agent, use your framework's quickstart for the runtime wiring so
-          it registers your agent instead. You can still use the Vue frontend
-          steps on this page.
+          如果你已有 LangGraph、CrewAI、Mastra、ADK、Pydantic AI 或其他智能体，请使用你框架的快速开始来完成运行时接线，让它注册你的智能体。本页的 Vue 前端步骤仍然适用。
         </Callout>
 
         ```ts title="server.ts"
@@ -108,14 +104,14 @@ Use this prompt to connect your Vue app to Copilot Runtime with the selected age
         });
         ```
 
-        <Callout type="info" title="Vite and Copilot Runtime run on separate origins">
-          Vite serves the Vue app (usually on `http://localhost:5173`) while this Node server runs on `http://localhost:8200`. Because the browser calls across those origins, `cors: true` is required for local development; the Node listener does not enable CORS by default.
+        <Callout type="info" title="Vite 与 Copilot Runtime 运行在不同源上">
+          Vite 提供 Vue 应用（通常在 `http://localhost:5173`），而这个 Node 服务器运行在 `http://localhost:8200`。由于浏览器要跨这两个源发起调用，本地开发必须设置 `cors: true`；Node 监听器默认不启用 CORS。
         </Callout>
     </Step>
     <Step>
-        ### Import the styles
+        ### 导入样式
 
-        Import the package stylesheet once in your app entry. It's self-contained, so the chat renders without any other CSS.
+        在应用入口导入一次包的样式表。它是自包含的，聊天无需任何其他 CSS 即可渲染。
 
         ```ts title="src/main.ts"
         import { createApp } from "vue";
@@ -126,9 +122,9 @@ Use this prompt to connect your Vue app to Copilot Runtime with the selected age
         ```
     </Step>
     <Step>
-        ### Connect to Copilot Runtime
+        ### 连接 Copilot Runtime
 
-        Point `CopilotKitProvider` at the runtime endpoint and drop in `CopilotChat`. Because the runtime registers an agent named `default`, the chat picks it up automatically.
+        把 `CopilotKitProvider` 指向运行时端点，并放入 `CopilotChat`。由于运行时注册了名为 `default` 的智能体，聊天会自动选用它。
 
         ```vue title="src/App.vue"
         <script setup lang="ts">
@@ -147,34 +143,34 @@ Use this prompt to connect your Vue app to Copilot Runtime with the selected age
         </template>
         ```
 
-        <Callout type="info" title="Pick your chat layout">
-          `CopilotChat` is the full-height chat surface. Use `CopilotSidebar` for a fixed side panel with open/close behavior, or `CopilotPopup` for a floating panel with a toggle button. They share core agent and chat wiring, but each surface also has layout-specific props and behavior.
+        <Callout type="info" title="选择你的聊天布局">
+          `CopilotChat` 是全高的聊天界面。`CopilotSidebar` 适合带开合行为的固定侧边栏，`CopilotPopup` 适合带切换按钮的浮动面板。它们共享核心的智能体与聊天接线，但每个界面还有各自的布局相关 props 与行为。
         </Callout>
     </Step>
     <Step>
-        ### Run the runtime and app
+        ### 启动运行时与应用
 
-        Start Copilot Runtime in one terminal:
+        在一个终端中启动 Copilot Runtime：
 
         ```bash
         export OPENAI_API_KEY=sk-...
         npx tsx server.ts
         ```
 
-        Start the Vue app in another terminal:
+        在另一个终端中启动 Vue 应用：
 
         ```bash
         npm run dev
         ```
 
-        Open the dev server URL (Vite prints it, usually `http://localhost:5173`), send a message, and you'll see it stream back through Copilot Runtime.
+        打开 dev server 的 URL（Vite 会打印出来，通常是 `http://localhost:5173`），发送一条消息，你会看到它经由 Copilot Runtime 流式返回。
 
         <Accordions className="mb-4">
-            <Accordion title="Troubleshooting">
-                - **Chat renders unstyled**: Make sure you imported `@copilotkit/vue/styles.css` in your app entry.
-                - **No response from the agent**: Confirm the runtime server is running and `http://localhost:8200/api/copilotkit/info` returns agent information.
-                - **CORS errors**: The Vite app and Node runtime use different origins. Keep `cors: true` in `createCopilotNodeListener` for local development; the Node listener is CORS-disabled by default. Configure an explicit allowed origin before deploying.
-                - **Model auth errors**: Confirm `OPENAI_API_KEY` is set in the terminal running `npx tsx server.ts`.
+            <Accordion title="故障排查">
+                - **聊天没有样式**：确保在应用入口导入了 `@copilotkit/vue/styles.css`。
+                - **智能体无响应**：确认运行时服务器正在运行，且 `http://localhost:8200/api/copilotkit/info` 返回智能体信息。
+                - **CORS 错误**：Vite 应用与 Node 运行时使用不同的源。本地开发时在 `createCopilotNodeListener` 中保留 `cors: true`；Node 监听器默认禁用 CORS。部署前请配置显式的允许源。
+                - **模型认证错误**：确认运行 `npx tsx server.ts` 的终端中设置了 `OPENAI_API_KEY`。
             </Accordion>
         </Accordions>
     </Step>
@@ -183,13 +179,13 @@ Use this prompt to connect your Vue app to Copilot Runtime with the selected age
     </Step>
 </Steps>
 
-## Where to go next
+## 接下来去哪里
 
-- [Copilot Runtime](/backend/copilot-runtime): the backend layer this frontend connects to.
-- [Built-in Agent quickstart](/integrations/built-in-agent/quickstart): a framework-neutral path if you want CopilotKit to own the agent too.
-- [Generative UI](/vue/generative-ui/tool-based): render a tool result as a card or another interactive surface instead of plain text.
-- [AG-UI Streams](/vue/AG-UI-Streams): persist conversations and work with the thread API directly.
-- [Threads Drawer](/vue/prebuilt-components/copilot-threads-drawer): add a ready-made thread switcher beside the chat.
-- [Vue API reference](/reference/vue): find the current `@copilotkit/vue/v2` component and composable APIs.
+- [Copilot Runtime](/backend/copilot-runtime)：本前端连接的后端层。
+- [内置智能体快速开始](/integrations/built-in-agent/quickstart)：如果你想让 CopilotKit 把智能体也一并管起来，这是一条与框架无关的路径。
+- [生成式 UI](/vue/generative-ui/tool-based)：把工具结果渲染成卡片或其他交互界面，而不是纯文本。
+- [AG-UI Streams](/vue/AG-UI-Streams)：持久化对话，并直接使用 thread API。
+- [Threads Drawer](/vue/prebuilt-components/copilot-threads-drawer)：在聊天旁边加一个现成的线程切换器。
+- [Vue API 参考](/reference/vue)：查找最新的 `@copilotkit/vue/v2` 组件与组合式函数 API。
 
-The Vue reference also covers slot-based customization, thread management, interrupts, and lazy-loaded custom elements for SSR.
+Vue 参考还涵盖基于插槽（slot）的自定义、线程管理、中断，以及面向 SSR 的懒加载自定义元素。

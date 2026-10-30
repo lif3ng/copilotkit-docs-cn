@@ -1,23 +1,18 @@
 ---
 title: CopilotSidebar
 icon: "lucide/PanelRight"
-description: Drop-in collapsible sidebar chat for Vue applications.
+description: 适用于 Vue 应用的开箱即用可折叠侧边栏聊天组件。
 ---
 
-## What is this?
+## 这是什么？
 
-`<CopilotSidebar>` is a prebuilt Vue chat surface that docks to the side of an
-app and can slide open on demand. It is a good fit for an in-app copilot that
-must remain accessible without replacing the main workspace.
+`<CopilotSidebar>` 是一个预构建的 Vue 聊天界面，停靠在应用一侧，并可按需滑出打开。它非常适合应用内的 copilot：既保持随时可用，又不替换主工作区。
 
-## When should I use this?
+## 何时应该使用它？
 
-Use the sidebar for persistent, collapsible chat next to your application
-content. Use [CopilotPopup](/vue/prebuilt-components/popup) for an overlay
-launcher or [`<CopilotChat>`](/vue/prebuilt-components/chat) for a fully
-embedded pane.
+侧边栏适合在应用内容旁边提供持久的、可折叠的聊天。需要浮层启动按钮时使用 [CopilotPopup](/vue/prebuilt-components/popup)；需要完全嵌入的面板时使用 [`<CopilotChat>`](/vue/prebuilt-components/chat)。
 
-## Basic setup
+## 基础设置
 
 ```vue title="App.vue"
 <script setup lang="ts">
@@ -33,18 +28,12 @@ import "@copilotkit/vue/styles.css";
 </template>
 ```
 
-## Configuring the sidebar
+## 配置侧边栏
 
-`CopilotSidebar` accepts the chat props plus `width` and `default-open`. Use
-the `header` scoped slot to replace the header and `toggle-button` to replace
-the launcher. Their slot props include the current open state and actions such
-as `toggle`, `open`, and `close`.
+`CopilotSidebar` 接受聊天 prop，外加 `width` 和 `default-open`。使用 `header` 作用域插槽替换页眉，使用 `toggle-button` 替换启动按钮。二者的插槽属性都包含当前打开状态以及 `toggle`、`open`、`close` 等动作。
 
-The component reports the same chat interaction events as `CopilotChat`,
-including `@submit-message`, `@input-change`, and `@select-suggestion`.
+该组件会上报与 `CopilotChat` 相同的聊天交互事件，包括 `@submit-message`、`@input-change` 和 `@select-suggestion`。
 
-## Styling
+## 样式
 
-Use [CSS customization](/vue/custom-look-and-feel/css) for design tokens or
-[slots](/vue/custom-look-and-feel/slots) to replace the header, launcher,
-message list, composer, and welcome state.
+设计令牌请参见 [CSS 定制](/vue/custom-look-and-feel/css)；替换页眉、启动按钮、消息列表、输入区和欢迎状态请参见[插槽](/vue/custom-look-and-feel/slots)。

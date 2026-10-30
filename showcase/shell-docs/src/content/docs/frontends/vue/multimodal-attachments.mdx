@@ -1,14 +1,12 @@
 ---
-title: Multimodal Attachments
+title: 多模态附件
 icon: "lucide/Paperclip"
-description: Let users send images, audio, video, and documents from a Vue chat.
+description: 让用户在 Vue 聊天中发送图片、音频、视频和文档。
 ---
 
-You can enable file attachments on `CopilotChat` without replacing the Vue
-composer. CopilotKit validates each file in the browser, shows previews, and
-adds ready attachments to the next agent message.
+你可以在 `CopilotChat` 上启用文件附件功能，而无需替换 Vue 输入区。CopilotKit 会在浏览器中校验每个文件、显示预览，并将准备就绪的附件附加到下一条智能体消息中。
 
-## Quick start
+## 快速开始
 
 ```vue title="App.vue"
 <script setup lang="ts">
@@ -23,12 +21,11 @@ import "@copilotkit/vue/styles.css";
 </template>
 ```
 
-Users can choose files with the attachment button, drag them onto the chat,
-or paste supported file items from the clipboard.
+用户可以通过附件按钮选择文件、将文件拖拽到聊天区域，或从剪贴板粘贴受支持的文件。
 
-## Configuration
+## 配置
 
-The `attachments` prop accepts an `AttachmentsConfig` object:
+`attachments` prop 接受一个 `AttachmentsConfig` 对象：
 
 ```vue
 <CopilotChat
@@ -40,37 +37,32 @@ The `attachments` prop accepts an `AttachmentsConfig` object:
 />
 ```
 
-| Option | Type | Default | Description |
+| 选项 | 类型 | 默认值 | 描述 |
 | --- | --- | --- | --- |
-| `enabled` | `boolean` | — | Enable file attachments in the composer. |
-| `accept` | `string` | `"*/*"` | MIME filter, including patterns such as `image/*` and extensions such as `.pdf`. |
-| `maxSize` | `number` | `20 * 1024 * 1024` | Maximum file size in bytes. |
-| `onUpload` | `(file: File) => AttachmentUploadResult \| Promise<AttachmentUploadResult>` | — | Upload the file yourself and return a data or URL source. |
-| `onUploadFailed` | `(error: AttachmentUploadError) => void` | — | Handle validation and upload failures. |
+| `enabled` | `boolean` | — | 在输入区中启用文件附件。 |
+| `accept` | `string` | `"*/*"` | MIME 过滤器，支持 `image/*` 之类的模式以及 `.pdf` 之类的扩展名。 |
+| `maxSize` | `number` | `20 * 1024 * 1024` | 最大文件大小（字节）。 |
+| `onUpload` | `(file: File) => AttachmentUploadResult \| Promise<AttachmentUploadResult>` | — | 自行上传文件，并返回 data 或 URL 形式的来源。 |
+| `onUploadFailed` | `(error: AttachmentUploadError) => void` | — | 处理校验失败和上传失败。 |
 
-`accept` and `maxSize` are client-side checks, not server-side security
-controls. Validate files again wherever your application stores or processes
-them.
+`accept` 与 `maxSize` 属于客户端校验，并非服务端安全控制。请在应用存储或处理文件的任何位置再次校验文件。
 
-## Supported file types
+## 支持的文件类型
 
-CopilotKit maps MIME types to four attachment modalities:
+CopilotKit 将 MIME 类型映射为四种附件模态：
 
-| Modality | MIME types | Default preview |
+| 模态 | MIME 类型 | 默认预览 |
 | --- | --- | --- |
-| Image | `image/*` | Thumbnail and lightbox. |
-| Audio | `audio/*` | Audio player. |
-| Video | `video/*` | Thumbnail, play button, and lightbox. |
-| Document | Other types | File name/icon; PDF and text can be previewed. |
+| 图片 | `image/*` | 缩略图与灯箱。 |
+| 音频 | `audio/*` | 音频播放器。 |
+| 视频 | `video/*` | 缩略图、播放按钮与灯箱。 |
+| 文档 | 其他类型 | 文件名/图标；PDF 与文本可预览。 |
 
-The selected model and backend converter still need to support the content. A
-model that cannot consume a modality can report a run error after the message
-has been sent; bind `:on-error` on `CopilotChat` for that path.
+所选模型和后端转换器仍需支持相应内容。无法处理某种模态的模型可能在消息发出后才报告运行错误；针对这种情况，请在 `CopilotChat` 上绑定 `:on-error`。
 
-## Custom upload handler
+## 自定义上传处理函数
 
-By default, Vue reads each file as base64 data and sends it inline. Return a
-hosted URL instead when your application stores uploads separately:
+默认情况下，Vue 会将每个文件读取为 base64 数据并内联发送。如果你的应用将上传内容单独存储，可以改为返回一个托管 URL：
 
 ```vue
 <script setup lang="ts">
@@ -88,11 +80,9 @@ async function upload(file: File) {
 </template>
 ```
 
-The other supported result is `{ type: "data", value, mimeType }`. Either
-variant can include a `metadata` object; the filename is added to attachment
-metadata automatically.
+另一种受支持的结果是 `{ type: "data", value, mimeType }`。两种变体都可以包含 `metadata` 对象；文件名会自动添加到附件元数据中。
 
-## Handling upload errors
+## 处理上传错误
 
 ```vue
 <script setup lang="ts">
@@ -117,18 +107,14 @@ function onUploadFailed(error: {
 </template>
 ```
 
-Validation failures use `invalid-type` or `file-too-large`; an upload handler
-or the default reader failing uses `upload-failed`. Errors after sending are
-reported through the chat `:on-error` callback instead.
+校验失败使用 `invalid-type` 或 `file-too-large`；上传处理函数或默认读取器失败则使用 `upload-failed`。消息发出后的错误会改通过聊天的 `:on-error` 回调上报。
 
-## How it works
+## 工作原理
 
-When the user sends a message, Vue:
+当用户发送消息时，Vue 会：
 
-1. Reads each file with the default reader or calls `onUpload`.
-2. Builds typed AG-UI content parts alongside the text part.
-3. Consumes the ready attachment queue and sends those parts with the user
-   message.
+1. 使用默认读取器读取每个文件，或调用 `onUpload`。
+2. 在文本部分之外构建带类型的 AG-UI 内容部分。
+3. 消费就绪的附件队列，并将这些部分随用户消息一起发送。
 
-Attachment sources use the standard AG-UI input-content shape, so the runtime
-and agent must support the modalities you accept.
+附件来源采用标准的 AG-UI 输入内容结构，因此运行时和智能体必须支持你所接受的模态。

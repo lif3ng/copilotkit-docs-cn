@@ -1,59 +1,55 @@
 ---
 title: "A2UI"
 icon: "lucide/FileJson"
-description: "Render rich, declarative UI surfaces from your agent using the A2UI protocol."
+description: "使用 A2UI 协议从你的智能体渲染丰富的声明式 UI 界面。"
 ---
 
-## What is this?
+## 这是什么？
 
-[A2UI](https://a2ui.org) (Agent-to-UI) is a declarative Generative UI
-specification, led by Google with CopilotKit as a launch and design
-partner. It lets your agent render structured UI components through a
-JSON-based schema instead of plain text: cards, rows, columns, badges,
-and price tags, all composed from a catalog of components you (or the
-platform) define.
+[A2UI](https://a2ui.org)（Agent-to-UI）是一份声明式生成式 UI 规范，由
+Google 主导，CopilotKit 作为发布与设计合作伙伴。它让你的智能体通过基于
+JSON 的 schema 渲染结构化 UI 组件，而不是纯文本：卡片、行、列、徽章、
+价格标签，全部由你（或平台）定义的组件目录组合而成。
 
-You can design and preview A2UI schemas visually using the
-[A2UI Composer](https://a2ui-composer.ag-ui.com/).
-
-<Callout type="info">
-  **Free course:** See this pattern built end-to-end in [Build Interactive Agents with Generative UI](https://www.deeplearning.ai/short-courses/build-interactive-agents-with-generative-ui/), a free DeepLearning.AI short course taught by CopilotKit's CEO covering the full Generative UI spectrum (Controlled, Declarative, and Open-Ended).
-</Callout>
-
-## The two approaches
-
-CopilotKit ships two complementary A2UI approaches:
-
-- **[Dynamic Schema](./a2ui/dynamic-schema)**: a secondary LLM
-  generates both the schema *and* the data. Maximum flexibility, so
-  the agent can produce any UI for any prompt.
-
-- **[Fixed Schema](./a2ui/fixed-schema)**: the component tree is
-  authored ahead of time as JSON. The agent only streams *data* into
-  the data model at runtime. Fastest, with no LLM schema generation.
-
-Both approaches share the same A2UI wire protocol and the same
-frontend renderer. The difference is *where the schema comes from* and
-*how data reaches the client*.
+你可以使用
+[A2UI Composer](https://a2ui-composer.ag-ui.com/)
+以可视化方式设计和预览 A2UI schema。
 
 <Callout type="info">
-  To let the agent render A2UI v1.0 with your own React components, in the chat
-  and in areas of your page, see [Components and surfaces](/generative-ui/components).
+  **免费课程**：想看这个模式的端到端构建，请看
+  [Build Interactive Agents with Generative UI](https://www.deeplearning.ai/short-courses/build-interactive-agents-with-generative-ui/)
+  —— 这是一门免费的 DeepLearning.AI 短课程，由 CopilotKit 的 CEO 讲授，
+  覆盖生成式 UI 的完整谱系（受控式、声明式与开放式）。
 </Callout>
 
-## How it works
+## 两种方式
 
-Every A2UI surface is assembled from three operations emitted by the
-agent and consumed by the frontend renderer:
+CopilotKit 提供两种互补的 A2UI 方式：
 
-1. **`createSurface`** initializes the surface with its catalog and must
-   come first.
-2. **`updateComponents`** defines the component tree (the schema) for
-   the surface.
-3. **`updateDataModel`** supplies the data that populates the
-   components via JSON Pointer paths.
+- **[动态模式](./a2ui/dynamic-schema)**：辅助 LLM 同时生成 schema*和*
+  数据。灵活性最大，智能体可以为任何提示生成任何 UI。
 
-The CopilotKit Python SDK provides helpers for each:
+- **[固定模式](./a2ui/fixed-schema)**：组件树提前以 JSON 形式编写好。
+  智能体在运行时只向数据模型流式传入*数据*。速度最快，没有 LLM schema
+  生成。
+
+两种方式共享同一套 A2UI 传输协议和同一个前端渲染器。差别在于 *schema 从
+哪里来*以及*数据如何到达客户端*。
+
+<Callout type="info">
+  要让智能体在聊天中以及页面各区域里，用你自己的 React 组件渲染
+  A2UI v1.0，请参见[组件与界面](/generative-ui/components)。
+</Callout>
+
+## 工作原理
+
+每个 A2UI 界面都由智能体发出、前端渲染器消费的三种操作组装而成：
+
+1. **`createSurface`** 用其组件目录初始化界面，必须是第一个操作。
+2. **`updateComponents`** 为界面定义组件树（即 schema）。
+3. **`updateDataModel`** 提供通过 JSON Pointer 路径填充组件的数据。
+
+CopilotKit Python SDK 为每个操作都提供了辅助函数：
 
 ```python
 from copilotkit import a2ui
@@ -64,16 +60,15 @@ a2ui.update_data_model(surface_id, {"items": data})
 a2ui.render(operations=[...])  # wraps in a2ui_operations and serializes
 ```
 
-## Setup
+## 设置
 
-A2UI turns on in one of two ways. Most apps use the first.
+启用 A2UI 有两种方式。大多数应用用第一种。
 
-### Pass a catalog on the provider (recommended)
+### 在 provider 上传入组件目录（推荐）
 
-Pass an A2UI catalog to the `<CopilotKit>` provider. The catalog tells
-the renderer which components your agent can draw, and it does two
-things for you automatically: it enables A2UI and it injects the A2UI
-tool into your agent. No `a2ui` block on the runtime is required.
+把 A2UI 组件目录传给 `<CopilotKit>` provider。目录告诉渲染器你的智能体能
+画哪些组件，而且它会自动替你做两件事：启用 A2UI，并把 A2UI 工具注入你的
+智能体。运行时上无需任何 `a2ui` 配置块。
 
 ```tsx title="app/page.tsx"
 import { CopilotKit } from "@copilotkit/react-core/v2";
@@ -83,12 +78,11 @@ import { CopilotKit } from "@copilotkit/react-core/v2";
 </CopilotKit>;
 ```
 
-### Enable on the runtime without a catalog
+### 不传组件目录时在运行时上启用
 
-If you do not pass a catalog, enable A2UI on the runtime instead.
-`a2ui: true` applies the middleware so the surfaces your agent emits
-are rendered; add `injectA2UITool: true` to also inject the render
-tool so the agent can generate surfaces dynamically:
+如果不传组件目录，则改为在运行时上启用 A2UI。`a2ui: true` 会应用中间件，
+让智能体发出的界面得到渲染；再加上 `injectA2UITool: true`，还会注入渲染
+工具，让智能体能够动态生成界面：
 
 ```typescript title="app/api/copilotkit/[[...slug]]/route.ts"
 import { CopilotRuntime, InMemoryAgentRunner } from "@copilotkit/runtime/v2";
@@ -100,41 +94,36 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-The middleware handles the wire protocol automatically, intercepting
-tool results that contain A2UI operations and rendering them as rich
-surfaces in the chat.
+中间件自动处理传输协议，拦截包含 A2UI 操作的工具结果，并在聊天中把它们
+渲染为丰富的界面。
 
 <Callout type="warn">
-With neither a catalog on the provider nor `a2ui` on the runtime, A2UI
-surfaces will not render. The operations fall through as plain tool
-results.
+  provider 上没有组件目录、运行时上也没有 `a2ui` 时，A2UI 界面不会渲染。
+  这些操作会作为普通工具结果直接透传。
 </Callout>
 
-### What gets injected
+### 注入的是什么
 
-When injection is on, the runtime adds a tool named `generate_a2ui` to
-your agent. Calling it runs a secondary LLM, a subagent, that designs
-the full A2UI surface (components, layout, and data) from your catalog,
-then streams it into the chat. You do not write this tool yourself. See
-[Dynamic Schema](./a2ui/dynamic-schema) for the full flow.
+开启注入后，运行时会向你的智能体添加一个名为 `generate_a2ui` 的工具。
+调用它会运行一个辅助 LLM（一个子智能体），根据你的组件目录设计完整的
+A2UI 界面（组件、布局和数据），然后流式输出到聊天中。这个工具不需要你
+自己写。完整流程参见[动态模式](./a2ui/dynamic-schema)。
 
-### Customize or opt out
+### 自定义或退出注入
 
-To take control instead of relying on auto-inject, set
-`injectA2UITool: false` and provide the tool yourself with the AG-UI
-factory (`get_a2ui_tools()` in Python, `getA2UITools()` in TypeScript),
-where you set the model, default catalog id, and more. An explicit
-`injectA2UITool: false` always wins, even when a catalog is present.
-This is also how the [Fixed Schema](./a2ui/fixed-schema) approach
-works: your agent owns a data-only tool and no subagent is injected.
+如果不想依赖自动注入，可以自己掌控：设置 `injectA2UITool: false`，并用
+AG-UI 工厂自行提供工具（Python 中是 `get_a2ui_tools()`，TypeScript 中是
+`getA2UITools()`），由你设定模型、默认目录 id 等更多选项。显式的
+`injectA2UITool: false` 总是生效，即使传了组件目录也一样。
+[固定模式](./a2ui/fixed-schema)正是这样工作的：你的智能体持有一个只出
+数据的工具，不注入任何子智能体。
 
-## Colors and dark mode
+## 颜色与深色模式
 
-The built-in basic catalog takes its colors from CSS variables. In dark mode
-(`.dark` on an ancestor of the chat) CopilotKit's stylesheet sets them from the
-chat theme, so cards, chips and buttons stay readable. To use your own colors,
-set the variables on the surface: `.a2ui-surface` in React and Vue,
-`copilot-a2ui-surface` in Angular.
+内置基础组件目录的颜色来自 CSS 变量。在深色模式下（聊天元素的某个祖先
+带有 `.dark`），CopilotKit 的样式表会根据聊天主题设置这些变量，因此卡片、
+标签和按钮保持可读。要使用自己的颜色，请在界面上设置这些变量：React 和
+Vue 中是 `.a2ui-surface`，Angular 中是 `copilot-a2ui-surface`。
 
 ```css
 .a2ui-surface {
@@ -146,21 +135,21 @@ set the variables on the surface: `.a2ui-surface` in React and Vue,
 }
 ```
 
-Values you set on the surface apply in both light and dark mode. Scope them
-with `.dark .a2ui-surface` to set dark colors only.
+在界面上设置的颜色值同时适用于浅色和深色模式。若只想设置深色配色，请用
+`.dark .a2ui-surface` 限定作用范围。
 
-## Choose your approach
+## 选择你的方式
 
 <Cards>
   <Card
-    title="Dynamic Schema"
+    title="动态模式"
     href="./a2ui/dynamic-schema"
-    description="A secondary LLM generates both the schema and data. Any UI from any prompt."
+    description="辅助 LLM 同时生成 schema 和数据。任何提示都能生成任何 UI。"
   />
   <Card
-    title="Fixed Schema"
+    title="固定模式"
     href="./a2ui/fixed-schema"
-    description="Pre-authored JSON schema, agent streams data. Fastest path to production-quality UI."
+    description="预先编写 JSON schema，智能体流式传入数据。通往生产级 UI 的最快路径。"
   />
 </Cards>
 

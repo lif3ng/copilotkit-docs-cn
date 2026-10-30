@@ -1,48 +1,48 @@
 ---
-title: Headless Interrupts
+title: 无头中断
 icon: "lucide/SquareDashedBottomCode"
-description: Resolve agent interrupts from any UI, without a chat interrupt slot.
+description: 在任意 UI 中处理智能体中断，而无需聊天中断插槽。
 hideTOC: true
 ---
 
-## What is this?
+## 这是什么？
 
-The `#interrupt` slot is the 80% path: it keeps the UI attached to a `<CopilotChat>` transcript and handles when to show the picker. This page covers the escape hatch: set `renderInChat: false` and render the reactive interrupt state anywhere in your Vue tree. The UI can take any shape — button grid, form, modal, keyboard shortcut — and no chat needs to be mounted.
+`#interrupt` 插槽是覆盖 80% 场景的路径：它让 UI 保持在 `<CopilotChat>` 会话记录之中，并处理何时显示选择器。本页介绍的是一条“逃生通道”：设置 `renderInChat: false`，在 Vue 树的任意位置渲染响应式的中断状态。UI 可以是任何形态——按钮网格、表单、模态框、键盘快捷键——而且完全不需要挂载聊天组件。
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="native">
 
-On a native interrupt runtime, the backend pauses the run and sends the interrupt to the client. The Vue composable exposes it through `slotProps`, then `resolve(...)` or `cancel(...)` resumes the run using the current AG-UI standard flow. Legacy `on_interrupt` events are also supported, with the transport differences described below.
+在原生中断运行时上，后端会暂停运行并将中断发送到客户端。Vue composable 通过 `slotProps` 将其暴露出来，随后 `resolve(...)` 或 `cancel(...)` 会按照当前的 AG-UI 标准流程恢复运行。同时也支持旧版 `on_interrupt` 事件，其传输层差异见下文。
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="promise-based">
 
-For promise-based integrations there is no native interrupt primitive. Build the same headless experience with `useHumanInTheLoop`: its frontend-tool handler holds a Promise open, application state renders the picker outside chat, and the user's answer resolves the tool call.
+对于基于 Promise 的集成，没有原生的中断原语。可以用 `useHumanInTheLoop` 构建相同的无头体验：它的前端工具处理器让一个 Promise 保持挂起，应用状态在聊天之外渲染选择器，而用户的回答会解决该工具调用。
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="interrupt_pattern" absent>
 
-> **Not available on this framework.** Headless runtime interrupts require a native interrupt transport. For other integrations, use [`useHumanInTheLoop`](../human-in-the-loop) for a tool-call-based pause/resume flow.
+> **此框架不支持该功能。**无头运行时中断需要原生的中断传输通道。对于其他集成，请使用 [`useHumanInTheLoop`](../human-in-the-loop) 实现基于工具调用的暂停/恢复流程。
 
 </WhenFrameworkHas>
 
-## When should I use this?
+## 何时应该使用它？
 
-- **Testing / Playwright fixtures** — a deterministic, chat-less button grid is easier to drive than a picker that appears after an LLM call.
-- **Non-chat UIs** — dashboards, side panels, inspector surfaces, or any place where you want the agent's interrupt without the transcript.
-- **Custom flow control** — when you need to know exactly when the interrupt arrived and when it was resolved.
-- **Research / debugging** — when you want to observe raw interrupt state without the chat abstraction.
+- **测试 / Playwright fixture** —— 一个确定性的、无聊天界面的按钮网格，比 LLM 调用后才出现的选择器更容易驱动。
+- **非聊天 UI** —— 仪表盘、侧边面板、检查器界面，或任何你想要智能体中断但不要会话记录的地方。
+- **自定义流程控制** —— 当你需要确切知道中断何时到达、何时被解决时。
+- **研究 / 调试** —— 当你想在脱离聊天抽象的情况下观察原始中断状态时。
 
-If you just want a picker in chat, use [`useInterrupt`](./useInterrupt) with the default `renderInChat: true` and the `#interrupt` slot.
+如果你只想要聊天中的选择器，请使用 [`useInterrupt`](./useInterrupt) 的默认 `renderInChat: true` 配合 `#interrupt` 插槽。
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="native">
 
-## The primitives
+## 基础原语
 
 <FrameworkSetup concept="programmatic-control-setup" />
 
-The simplest headless pattern uses `useInterrupt({ renderInChat: false })`. Instead of publishing the state into `<CopilotChat>`, the composable returns reactive refs that you place anywhere:
+最简单的无头模式使用 `useInterrupt({ renderInChat: false })`。这个 composable 不会把状态发布到 `<CopilotChat>`，而是返回响应式 ref，由你放置在任意位置：
 
 ```vue title="src/components/ApprovalPanel.vue"
 <script setup lang="ts">
@@ -63,36 +63,36 @@ const { slotProps } = useInterrupt({
 </template>
 ```
 
-`interrupt` carries the primary AG-UI `Interrupt` object (`{ id, reason, message?, responseSchema?, expiresAt?, ... }`). `resolve(payload)` submits the user's response; `cancel()` submits a cancelled response. Both return a `Promise<RunAgentResult | void>` — `void` while waiting on further interrupts when more than one is open.
+`interrupt` 携带主要的 AG-UI `Interrupt` 对象（`{ id, reason, message?, responseSchema?, expiresAt?, ... }`）。`resolve(payload)` 提交用户的响应；`cancel()` 提交一个已取消的响应。两者都返回 `Promise<RunAgentResult | void>` —— 当有多个中断同时打开时，在等待后续中断期间为 `void`。
 
-Under the hood, `useInterrupt` composes two public APIs:
+在内部，`useInterrupt` 组合了两个公开 API：
 
-1. **`agent.subscribe({ onCustomEvent, onRunStartedEvent, onRunFinishedEvent, onRunFinalized, onRunFailed })`** — standard interrupts arrive on `onRunFinishedEvent` with `{ outcome: "interrupt", interrupts: [...] }`; legacy interrupts arrive as a custom event named `on_interrupt`.
-2. **`copilotkit.runAgent({ agent, resume })`** for the standard transport, or **`copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })`** for the legacy transport — the same calls `resolve()` and `cancel()` make.
+1. **`agent.subscribe({ onCustomEvent, onRunStartedEvent, onRunFinishedEvent, onRunFinalized, onRunFailed })`** —— 标准中断通过 `onRunFinishedEvent` 到达，形如 `{ outcome: "interrupt", interrupts: [...] }`；旧版中断则作为名为 `on_interrupt` 的自定义事件到达。
+2. 标准传输通道使用 **`copilotkit.runAgent({ agent, resume })`**，旧版传输通道使用 **`copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })`** —— 这正是 `resolve()` 与 `cancel()` 内部所做的调用。
 
-The composable is careful to:
+这个 composable 会谨慎地做到：
 
-- Surface a standard interrupt only after the run finalizes, so the picker does not flash while the run is still streaming.
-- Clear stale pending state when a new run starts.
-- Drop staged state after a failed run so a transport error does not leave the UI stuck.
+- 只有在运行结束后才呈现标准中断，避免运行仍在流式传输时选择器闪现。
+- 在新运行开始时清除过期的挂起状态。
+- 在运行失败后丢弃暂存状态，避免传输错误让 UI 卡死。
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="promise-based">
 
-## The primitives
+## 基础原语
 
-Register a `useHumanInTheLoop` tool with a Vue render component that reflects the pending request into application state. The tool's handler remains pending until the component calls `respond(...)`; no runtime interrupt or chat slot is involved.
+注册一个 `useHumanInTheLoop` 工具，并用一个 Vue 渲染组件把挂起的请求反映到应用状态中。在该组件调用 `respond(...)` 之前，工具的处理器一直保持挂起；整个过程不涉及运行时中断或聊天插槽。
 
-Keep concurrent calls separate by tool-call id, clear pending state after the user responds, and make the render component visually empty if the actual picker lives elsewhere in the app.
+用工具调用 id 区分并发调用，在用户响应后清除挂起状态；如果真正的选择器位于应用的其他位置，就让渲染组件在视觉上保持空白。
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="native">
 
-## Driving it from plain UI
+## 从普通 UI 驱动
 
-Combine `useAgent`, `useCopilotKit`, and the headless interrupt state when the same page needs to start the run and resolve its pause:
+当同一个页面既要启动运行、又要解决其暂停时，可以组合使用 `useAgent`、`useCopilotKit` 与无头中断状态：
 
 ```vue title="src/components/HeadlessInterruptPanel.vue"
 <script setup lang="ts">
@@ -131,13 +131,13 @@ async function kickOff(prompt: string) {
 </template>
 ```
 
-If you need custom accumulation logic or a deterministic test fixture, subscribe to the agent directly. For ordinary product UI, the public `useInterrupt` composable already handles standard and legacy transports, multiple interrupts, cleanup, and resume submission.
+如果你需要自定义的累积逻辑或确定性的测试 fixture，可以直接订阅该智能体。对于普通的产品 UI，公开的 `useInterrupt` composable 已经处理了标准与旧版传输通道、多个中断、清理以及恢复提交。
 
 </WhenFrameworkHas>
 
-## Provider setup
+## Provider 配置
 
-The component calling these composables must be below `CopilotKitProvider`:
+调用这些 composable 的组件必须位于 `CopilotKitProvider` 之下：
 
 ```vue title="src/App.vue"
 <script setup lang="ts">
@@ -152,7 +152,7 @@ import HeadlessInterruptPanel from "./components/HeadlessInterruptPanel.vue";
 </template>
 ```
 
-## Going further
+## 深入了解
 
-- [Tool-based HITL with `useHumanInTheLoop`](../human-in-the-loop) — for LLM-initiated pauses where the model decides to ask the user.
-- [`useInterrupt`](./useInterrupt) — the chat-slot path, with `enabled` gating, handler preprocessing, and standard interrupt details.
+- [基于工具的人机协同与 `useHumanInTheLoop`](../human-in-the-loop) —— 适用于由 LLM 发起、由模型决定询问用户的暂停。
+- [`useInterrupt`](./useInterrupt) —— 聊天插槽路径，包含 `enabled` 门控、处理器预处理与标准中断细节。

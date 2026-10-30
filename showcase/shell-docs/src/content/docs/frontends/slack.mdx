@@ -1,41 +1,34 @@
 ---
-title: Connect and run your agent in Slack
-description: Run any supported agent framework in Slack through a cloud-hosted Intelligence connection.
+title: 在 Slack 中连接并运行你的智能体
+description: 通过云托管的 Intelligence 连接，在 Slack 中运行任何受支持的智能体框架。
 icon: "lucide/Slack"
 doc_type: tutorial
 ---
 
 import ChannelsInstall from "@/snippets/shared/channels/install.mdx";
 
-In this guide, you will connect an AG-UI agent to a managed Slack app,
-start a long-running Channels SDK listener, and verify a real workspace message.
-CopilotKit Intelligence holds the Slack credentials; your process holds the
-agent and application logic.
+在本指南中，你将把 AG-UI 智能体连接到托管 Slack 应用，启动一个长期运行的 Channels SDK 监听器，并用一条真实的工作区消息进行验证。CopilotKit Intelligence 保管 Slack 凭据；你的进程保管智能体与应用逻辑。
 
-New to the product? Start with the [Channels overview](/channels) to understand
-how the SDK, Runtime, Intelligence, and provider connection fit together.
+刚接触这个产品？先阅读 [Channels 概览](/channels)，了解 SDK、Runtime、Intelligence 与提供方连接如何协同工作。
 
-Before you continue, [configure the Channel in Intelligence](/channels/intelligence).
-You should have `CHANNEL_CODE` and `CPK_INTELLIGENCE_API_KEY`.
+继续之前，先[在 Intelligence 中配置 Channel](/channels/intelligence)。你应当已拿到 `CHANNEL_CODE` 与 `CPK_INTELLIGENCE_API_KEY`。
 
-## Start with your coding agent
+## 从编码智能体开始
 
-Use this prompt to connect your agent to Slack, start the Channels SDK listener, and verify a real workspace message. You can also follow the manual steps below.
+使用下面的提示词把智能体连接到 Slack、启动 Channels SDK 监听器，并用真实的工作区消息进行验证。也可以按下面的手动步骤操作。
 
 <PageAgentPrompt />
 
-## Before you start
+## 开始之前
 
-- Node.js 22 or later; the managed launcher requires the global `WebSocket`
-  available in Node.js 22+
-- A long-running Node host or container; serverless request handlers cannot own
-  the persistent gateway connection
+- Node.js 22 或更高版本；托管启动器依赖 Node.js 22+ 才有的全局 `WebSocket`
+- 一个长期运行的 Node 宿主或容器；serverless 请求处理器无法持有持久的网关连接
 
-## Build and run your Channel
+## 构建并运行你的 Channel
 
 <Steps>
   <Step>
-    ### Create the runner
+    ### 创建 runner
 
     ```bash title="Terminal"
     mkdir my-slack-channel
@@ -50,7 +43,7 @@ Use this prompt to connect your agent to Slack, start the Channels SDK listener,
     npm install -D tsx typescript @types/node
     ```
 
-    Add a NodeNext TypeScript configuration:
+    添加 NodeNext 的 TypeScript 配置：
 
     ```json title="tsconfig.json"
     {
@@ -70,26 +63,20 @@ Use this prompt to connect your agent to Slack, start the Channels SDK listener,
   </Step>
 
   <Step>
-    ### Connect your agent backend
+    ### 连接你的智能体后端
 
-    The Channels process can use any supported backend. The selector's
-    **Agent backend** controls the setup below. It must export a fresh
-    `makeAgent(threadId)` result for each Slack conversation; do not share one
-    stateful agent instance across threads.
+    Channels 进程可以使用任何受支持的后端。选择器中的 **Agent backend** 决定下面的配置。它必须为每个 Slack 会话导出全新的 `makeAgent(threadId)` 结果；不要跨线程共享同一个有状态的智能体实例。
 
     <FrameworkSetup concept="channels-agent-setup" />
 
   </Step>
 
   <Step>
-    ### Declare the managed Slack Channel
+    ### 声明托管 Slack Channel
 
-    Create the listener below. Replace `support-slack` with the exact Code shown
-    in Intelligence.
+    创建下面的监听器。把 `support-slack` 替换为 Intelligence 中显示的准确 Code。
 
-    Set `agent: makeAgent` on the Channel because this handler calls
-    `thread.runAgent()`. Channels do not inherit `runtime.agents`. A Channel
-    whose handlers reply directly without `runAgent()` can omit `agent`.
+    在 Channel 上设置 `agent: makeAgent`，因为这里的 handler 调用了 `thread.runAgent()`。Channel 不会继承 `runtime.agents`。如果 Channel 的 handler 不经 `runAgent()` 而直接回复，则可以省略 `agent`。
 
     ```ts title="channel.ts"
     import { createServer } from "node:http";
@@ -179,18 +166,12 @@ Use this prompt to connect your agent to Slack, start the Channels SDK listener,
     });
     ```
 
-    Creating the Node listener starts the Channel: it owns its own process
-    lifetime, so a declared Channel connects because it was declared. `ready()`
-    is therefore optional and purely await-and-observe — it resolves once
-    activation settles and rejects with the activation failure. Because it can
-    settle with setup still required, inspect `status()` before reporting the
-    Channel online. Skip `ready()` and activation failures land in your logs
-    instead.
+    创建 Node 监听器就会启动 Channel：它拥有自己的进程生命周期，声明的 Channel 因为被声明而自动连接。因此 `ready()` 是可选的、纯“等待并观察”——激活落定后 resolve，激活失败则 reject。由于它可能在仍需完成配置的情况下落定，请在宣布 Channel 上线前检查 `status()`。跳过 `ready()` 的话，激活失败只会出现在你的日志里。
 
   </Step>
 
   <Step>
-    ### Configure secrets and start
+    ### 配置密钥并启动
 
     ```dotenv title=".env"
     CPK_INTELLIGENCE_API_KEY=<project-api-key>
@@ -203,84 +184,66 @@ Use this prompt to connect your agent to Slack, start the Channels SDK listener,
     # INTELLIGENCE_GATEWAY_WS_URL=wss://realtime.intelligence.example.com
     ```
 
-    The lifecycle server uses port `3001` so it can run alongside a web app
-    on port `3000`. If `3001` is already in use, set `PORT` to another free port.
+    生命周期服务器使用端口 `3001`，以便与端口 `3000` 上的 Web 应用并行运行。如果 `3001` 已被占用，把 `PORT` 设为另一个空闲端口。
 
-    #### Where these values come from
+    #### 这些值从哪里来
 
-    Three variables matter here, and you supply only one:
+    这里有三个变量起作用，而你只需要提供一个：
 
-    - `OPENAI_API_KEY`, or the key for whichever model provider your agent uses.
-      This one is yours to create and paste.
-    - `CPK_INTELLIGENCE_API_KEY` is written for you by
-      `copilotkit project select`, which provisions the project and its key.
-    - `CHANNEL_CODE` is written for you by the onboarding run once it has
-      declared the Channel; the run knows the Code it just created.
+    - `OPENAI_API_KEY`，或你的智能体所用模型提供方的密钥。
+      这个由你自己创建并粘贴。
+    - `CPK_INTELLIGENCE_API_KEY` 由 `copilotkit project select` 替你写入，它会创建项目及其密钥。
+    - `CHANNEL_CODE` 由引导流程在声明 Channel 后替你写入；该流程知道自己刚创建的 Code。
 
-    So both Intelligence values land in the environment file your app loads and
-    you never copy either one by hand. Setting them yourself still works: see
-    [configure the runtime handoff](/channels/intelligence#configure-the-runtime-handoff)
-    for where each value appears in Intelligence.
+    这样两个 Intelligence 值都会落入你的应用加载的环境文件中，你无需手工复制其中任何一个。自己手动设置也可以：参见[配置运行时交接](/channels/intelligence#configure-the-runtime-handoff)，了解每个值在 Intelligence 中的位置。
 
-    Cloud-hosted Intelligence supplies both default base URLs. For a
-    self-hosted or non-production deployment, override both together. The REST
-    and realtime planes use separate hosts, so do not derive the WebSocket URL
-    from the API URL. Pass each as a bare base URL without `/api`, `/socket`,
-    `/runner`, or `/client`. Create the project-scoped runtime key from **API
-    Keys** in the Intelligence project sidebar.
+    云托管的 Intelligence 会提供两个默认 base URL。自托管或非生产部署则要同时覆盖两者。REST 与实时平面使用不同的主机，不要从 API URL 推导 WebSocket URL。两者都按裸 base URL 传入，不带 `/api`、`/socket`、`/runner` 或 `/client`。项目级运行时密钥请在 Intelligence 项目侧边栏的 **API Keys** 中创建。
 
-    Keep `.env` out of source control, start the selected agent backend, then
-    run:
+    把 `.env` 排除在版本控制之外，启动所选的智能体后端，然后运行：
 
     ```bash title="Terminal"
     node --env-file=.env --import tsx channel.ts
     ```
 
-    Intelligence should change from **Waiting for runtime** to **Online**.
+    Intelligence 应从 **Waiting for runtime** 变为 **Online**。
 
-    #### Know the healthy state
+    #### 了解健康状态
 
-    Starting the process is what connects the Channel, so it should become
-    **Online** on its own; the `await channels.ready(...)` in this guide only
-    waits for that to settle.
+    启动进程正是连接 Channel 的动作，因此它应当自行变为 **Online**；本指南中的 `await channels.ready(...)` 只是等待这一过程落定。
 
-    | Status | What to check |
+    | 状态 | 检查什么 |
     | --- | --- |
-    | **Disabled** | Enable the Channel before expecting delivery. |
-    | **Setup incomplete** | Finish the selected provider's required setup fields before starting the runtime. |
-    | **Setup failed** | Reopen platform setup and correct the rejected credentials or configuration. |
-    | **Waiting for runtime** | Start the process — creating the listener connects the Channel — and match its Code and provider to this Channel. |
-    | **Conflict** | Compare every replica's complete Channel declaration set. Identical replicas should elect one active owner and connected standbys; different but overlapping sets are unsafe. |
-    | **Offline** | Check the listener process, network, and Intelligence gateway connection. |
-    | **Delivery failing** | Check platform credentials, app permissions, and the provider response. |
-    | **Online** | The runtime is connected; send a real provider message to verify the full path. |
+    | **Disabled** | 先启用 Channel，再期待消息送达。 |
+    | **Setup incomplete** | 启动运行时前，先完成所选提供方要求的配置字段。 |
+    | **Setup failed** | 重新打开平台配置，修正被拒绝的凭据或配置。 |
+    | **Waiting for runtime** | 启动进程——创建监听器即会连接 Channel——并使其 Code 与提供方和本 Channel 匹配。 |
+    | **Conflict** | 对比每个副本的完整 Channel 声明集合。完全相同的副本应选出一个活跃主节点，其余为已连接的备节点；不同但有重叠的集合是不安全的。 |
+    | **Offline** | 检查监听器进程、网络与 Intelligence 网关连接。 |
+    | **Delivery failing** | 检查平台凭据、应用权限与提供方响应。 |
+    | **Online** | 运行时已连接；发送一条真实的提供方消息来验证完整链路。 |
 
   </Step>
 
   <Step>
-    ### Verify a real Slack message
+    ### 验证真实的 Slack 消息
 
-    Invite the app if needed, then mention it in a channel:
+    如有需要先邀请应用，然后在频道中 @ 它：
 
     ```text title="Slack"
     /invite @your-app
     @your-app summarize the decisions in this thread
     ```
 
-    Also test a direct message. A response in the real workspace validates the
-    Slack token pair, Intelligence delivery, gateway listener, AG-UI agent, and
-    reply path end to end.
+    也请测试一条私信。真实工作区中的回复能端到端验证 Slack 令牌对、Intelligence 送达、网关监听器、AG-UI 智能体以及回复链路。
 
   </Step>
 </Steps>
 
-## Tool-call progress
+## 工具调用进度
 
-Managed Slack keeps tool-call progress out of the streamed reply by default, so
-the conversation ends with a clean result. Tool lifecycle events still remain
-in Intelligence history and are available during replay.
+托管 Slack 默认不在流式回复中包含工具调用进度，因此对话以干净的结果收尾。工具生命周期事件仍会保留在 Intelligence 历史中，并可在回放时查看。
 
-Opt in per Channel when the live tool timeline is useful:
+当实时工具时间线有用时，可按 Channel 选择启用：
 
 ```ts title="channel.ts"
 const channel = createChannel({
@@ -291,32 +254,21 @@ const channel = createChannel({
 });
 ```
 
-## Troubleshooting
+## 故障排查
 
 <Accordions>
-  <Accordion title="The Channel stays at Waiting for runtime">
-    Confirm `CHANNEL_CODE` exactly matches the Intelligence Code and the
-    project-scoped `CPK_INTELLIGENCE_API_KEY` belongs to the same project. Provider
-    routing comes from the Slack connection attached in Intelligence, not from a
-    `createChannel` option.
+  <Accordion title="Channel 一直停留在 Waiting for runtime">
+    确认 `CHANNEL_CODE` 与 Intelligence 的 Code 完全一致，且项目级 `CPK_INTELLIGENCE_API_KEY` 属于同一个项目。提供方路由来自 Intelligence 中绑定的 Slack 连接，而不是某个 `createChannel` 选项。
   </Accordion>
-  <Accordion title="Startup reports setup_required">
-    Reopen the Channel in Intelligence and finish the Slack credential steps.
-    `ready()` settling does not by itself mean the provider is online.
+  <Accordion title="启动时报 setup_required">
+    在 Intelligence 中重新打开该 Channel，完成 Slack 凭据步骤。`ready()` 落定本身并不代表提供方已在线。
   </Accordion>
-  <Accordion title="The app is Online but never receives a mention">
-    Invite it to the channel, then verify the `xoxb-…` Bot User OAuth token and
-    Signing Secret came from the same Slack app. Intelligence cannot fully
-    detect valid but mismatched credentials during setup. If you updated the
-    manifest or scopes, reinstall the app and save the current bot token in
-    Intelligence before retrying.
+  <Accordion title="应用显示 Online 但从未收到 @ 消息">
+    把应用邀请进频道，然后核对 `xoxb-…` Bot User OAuth 令牌与 Signing Secret 是否来自同一个 Slack 应用。Intelligence 在配置阶段无法完全识别“有效但不匹配”的凭据。如果你更新过 manifest 或 scopes，请重新安装应用，并在 Intelligence 中保存当前的 bot 令牌后重试。
   </Accordion>
-  <Accordion title="The agent mixes conversations">
-    Ensure `makeAgent` creates a new agent for every `threadId` and assigns that
-    id where the selected framework requires it.
+  <Accordion title="智能体混淆了不同会话">
+    确保 `makeAgent` 为每个 `threadId` 创建新智能体，并在所选框架要求的地方赋上该 id。
   </Accordion>
 </Accordions>
 
-Next, [map application users and choose Memory grants](/channels/identity-and-memory),
-add [tools and context](/channels/tools), or build
-[interactive approvals](/channels/interactive).
+接下来，可以[映射应用用户并选择 Memory 授权](/channels/identity-and-memory)、添加[工具与上下文](/channels/tools)，或构建[交互式审批](/channels/interactive)。

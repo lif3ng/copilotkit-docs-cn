@@ -1,104 +1,76 @@
 ---
-title: "Dynamic Schema A2UI"
+title: "动态 schema 的 A2UI"
 icon: "lucide/Sparkles"
-description: "LLM-generated A2UI. A secondary LLM creates both the schema and data from any prompt."
+description: "由 LLM 生成的 A2UI。辅助 LLM 根据任意提示同时创建 schema 与数据。"
 snippet_cell: declarative-gen-ui
 ---
 
 <InlineDemo demo="declarative-gen-ui" />
 
-In the dynamic-schema approach, a secondary LLM generates the entire
-UI (schema, data, and layout) based on the conversation context.
-It's the most flexible A2UI flavor; the agent can render any UI for
-any request without pre-defined schemas.
+在动态 schema 方案中，由辅助 LLM 根据会话上下文生成整个 UI（schema、数据与布局）。这是最灵活的 A2UI 形态；智能体可以针对任何请求渲染任何 UI，而无需预定义 schema。
 
-## How it works
+## 工作原理
 
-1. The agent calls the A2UI tool to draw a surface, made available
-   when `injectA2UITool: true`.
-2. The runtime serializes your client-side catalog (component names +
-   Zod prop schemas) into the agent's `copilotkit.context` so the LLM
-   knows which components it may emit.
-3. The tool call streams through LangGraph as `TOOL_CALL_ARGS` events.
-4. The A2UI middleware intercepts the stream and renders cards
-   progressively as data items arrive.
+1. 智能体调用 A2UI 工具来绘制一个 surface；该工具在 `injectA2UITool: true` 时可用。
+2. 运行时把你客户端的 catalog（组件名 + Zod 属性 schema）序列化进 agent 的 `copilotkit.context`，让 LLM 知道它可以发出哪些组件。
+3. 工具调用以 `TOOL_CALL_ARGS` 事件的形式流经 LangGraph。
+4. A2UI 中间件拦截该流，并随着数据项陆续到达逐步渲染卡片。
 
-## The 3-file split
+## 三文件拆分
 
-The canonical Bring-Your-Own-Catalog (BYOC) layout keeps three files
-side-by-side under `frontend/src/app/a2ui/`:
+规范的 Bring-Your-Own-Catalog（BYOC）布局把三个文件并排放在 `frontend/src/app/a2ui/` 下：
 
-| File | What lives there |
+| 文件 | 存放内容 |
 |---|---|
-| `definitions.ts` | Zod props schema + human-readable descriptions for each custom component. Platform-agnostic, so the runtime can serialise it to the LLM. |
-| `renderers.tsx` | React implementations keyed by the same names. TypeScript enforces that every definition has a renderer. |
-| `catalog.ts` | `createCatalog(definitions, renderers, { includeBasicCatalog: true })`: merges your custom components with CopilotKit's built-in primitives. |
+| `definitions.ts` | 每个自定义组件的 Zod 属性 schema + 人类可读的描述。与平台无关，因此运行时可将其序列化给 LLM。 |
+| `renderers.tsx` | 以相同名称为键的 React 实现。TypeScript 保证每个定义都有对应的渲染器。 |
+| `catalog.ts` | `createCatalog(definitions, renderers, { includeBasicCatalog: true })`：把你的自定义组件与 CopilotKit 的内置基础组件合并。 |
 
 <Steps>
 <Step>
-### Declare your custom component definitions
+### 声明你的自定义组件定义
 
-Each entry pairs a Zod prop schema with a description. The description
-is crucial; the LLM reads it to decide which component to emit. The
-example below ships a small dashboard catalog (Card / StatusBadge /
-Metric / InfoRow / PrimaryButton):
+每个条目都把一个 Zod 属性 schema 与一段描述配对。描述至关重要；LLM 会阅读它来决定发出哪个组件。下面的示例自带一个小的仪表盘 catalog（Card / StatusBadge / Metric / InfoRow / PrimaryButton）：
 
 <Snippet region="definitions-zod" />
 </Step>
 
 <Step>
-### Implement the React renderers
+### 实现 React 渲染器
 
-Every key in `myDefinitions` must have a matching renderer. Props are
-statically typed against the Zod schema, so refactors stay safe:
+`myDefinitions` 中的每个键都必须有匹配的渲染器。属性依据 Zod schema 进行静态类型化，因此重构是安全的：
 
 <Snippet region="renderers-react" />
 </Step>
 
 <Step>
-### Wire definitions × renderers into a catalog
+### 把定义与渲染器组装成 catalog
 
-`createCatalog` is what you hand to the provider. Flip
-`includeBasicCatalog: true` to merge CopilotKit's built-ins
-(Column, Row, Text, Image, Card, Button, List, Tabs, …), so the LLM
-can compose custom + basic components interchangeably:
+你交给 provider 的是 `createCatalog`。把 `includeBasicCatalog: true` 打开，即可合并 CopilotKit 的内置组件（Column、Row、Text、Image、Card、Button、List、Tabs 等），让 LLM 能够交替组合自定义组件与基础组件：
 
 <Snippet region="create-catalog" />
 </Step>
 
 <Step>
-### Pass the catalog to the provider
+### 把 catalog 传给 provider
 
-A single prop (`a2ui={{ catalog }}`) is all the frontend needs; the
-provider registers the catalog and wires up the built-in A2UI
-activity-message renderer:
+前端只需要一个属性（`a2ui={{ catalog }}`）；provider 会注册 catalog，并接好内置的 A2UI 活动消息渲染器：
 
 <Snippet region="provider-a2ui-prop" />
 
-That is all the default path needs. The catalog auto-enables A2UI and
-injects the `generate_a2ui` tool, so the runtime needs no `a2ui` block.
-(No catalog? Turn it on from the runtime instead with
-`a2ui: { injectA2UITool: true }`.)
+默认路径需要的就是这些。catalog 会自动启用 A2UI 并注入 `generate_a2ui` 工具，因此运行时无需 `a2ui` 块。（没有 catalog？改为从运行时开启：`a2ui: { injectA2UITool: true }`。）
 </Step>
 </Steps>
 
-## I opted out of auto-inject, now what?
+## 我关闭了自动注入，现在怎么办？
 
-By not passing a catalog, not setting `injectA2UITool`, or by passing
-a catalog and setting `injectA2UITool: false`, you have opted out
-entirely. That means you hook up two pieces yourself: the
-`generate_a2ui` tool which lets your agent generate A2UI surfaces, and
-the `A2UIMiddleware` which lets those surfaces render.
+不传 catalog、不设置 `injectA2UITool`，或传了 catalog 但设置 `injectA2UITool: false`，你都算完全退出了自动注入。这意味着你需要自己接好两块东西：让智能体生成 A2UI surface 的 `generate_a2ui` 工具，以及让这些 surface 得以渲染的 `A2UIMiddleware`。
 
 <Steps>
 <Step>
-### The `A2UIMiddleware`
+### A2UIMiddleware
 
-The `A2UIMiddleware` is what turns the agent's `a2ui_operations` into
-rendered surfaces. Without it, the agent's output never becomes UI; it
-falls through as a plain tool result. It can also inject the
-`generate_a2ui` tool for you (`injectA2UITool: true`), letting you skip
-the next step. Attach it to the AG-UI agent:
+`A2UIMiddleware` 负责把 agent 的 `a2ui_operations` 变成渲染出来的 surface。没有它，agent 的输出永远变不成 UI，只会作为普通工具结果透传。它还能替你注入 `generate_a2ui` 工具（`injectA2UITool: true`），让你跳过下一步。把它附加到 AG-UI agent 上：
 
 ```typescript
 import { A2UIMiddleware } from "@ag-ui/a2ui-middleware";
@@ -108,11 +80,9 @@ agent.use(new A2UIMiddleware({ injectA2UITool: false }));
 </Step>
 
 <Step>
-### The A2UI agent tool
+### A2UI 智能体工具
 
-The `generate_a2ui` tool runs a secondary LLM (a subagent) that designs
-the surface, which is why you hand it a model. Build it with the AG-UI
-factory and add it to your agent's tools:
+`generate_a2ui` 工具会运行一个辅助 LLM（子智能体）来设计 surface，这正是你要给它指定模型的原因。用 AG-UI 工厂构建它，并加入 agent 的工具列表：
 
 ```python title="agent.py"
 from ag_ui_langgraph import get_a2ui_tools
@@ -128,33 +98,23 @@ tools = [my_other_tool, generate_a2ui]
 </Step>
 </Steps>
 
-## Progressive streaming
+## 渐进式流式传输
 
-The secondary LLM's `render_a2ui` tool call streams through LangGraph
-as `TOOL_CALL_ARGS` events. The A2UI middleware:
+辅助 LLM 的 `render_a2ui` 工具调用以 `TOOL_CALL_ARGS` 事件的形式流经 LangGraph。A2UI 中间件会：
 
-1. Waits for the full `components` array before emitting anything;
-   the schema must be complete before rendering starts.
-2. Extracts `surfaceId` + `root` from the partial JSON.
-3. Emits `createSurface` + `updateComponents` once the schema is
-   complete.
-4. Extracts complete `items` objects progressively and emits an
-   `updateDataModel` for each, so cards appear one by one as data
-   streams in.
+1. 先等待完整的 `components` 数组，再发出任何内容；schema 必须完整后才能开始渲染。
+2. 从部分 JSON 中提取 `surfaceId` 与 `root`。
+3. schema 完整后即发出 `createSurface` 与 `updateComponents`。
+4. 逐步提取完整的 `items` 对象，并为每个对象发出一次 `updateDataModel`，随着数据流入，卡片逐一显现。
 
-A built-in progress indicator shows while the schema is still
-generating and hides automatically once data items start arriving.
+在 schema 仍在生成时，会显示一个内置的进度指示器；一旦数据项开始到达，它就会自动隐藏。
 
-## When should I use dynamic schemas?
+## 何时应该使用动态 schema？
 
-- You don't know the UI shape ahead of time; the agent decides what
-  to show based on the user's request.
-- You want to prototype A2UI without committing to a schema file yet.
-- You're building a conversational dashboard where the layout varies
-  per turn.
+- 你事先不知道 UI 的形状；智能体根据用户的请求决定展示什么。
+- 你想先为 A2UI 做原型，暂时不想敲定 schema 文件。
+- 你正在构建一个对话式仪表盘，其布局逐轮变化。
 
-If the surface is well-known (e.g. a product card, a flight result),
-prefer a **[fixed schema](./fixed-schema)**; it's faster, cheaper,
-and the UI is deterministic.
+如果 surface 是众所周知的（例如商品卡片、航班结果），请优先使用**[固定 schema](./fixed-schema)**；它更快、更省成本，且 UI 是确定性的。
 
 <IntegrationGrid path="generative-ui/a2ui" />

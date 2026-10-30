@@ -1,61 +1,61 @@
 ---
-title: Pausing the Agent for Input
+title: 暂停智能体以等待输入
 icon: "lucide/CirclePause"
-description: Pause an agent run, hand control to a custom Vue component, and resume with the user's answer.
+description: 暂停智能体运行，把控制权交给自定义 Vue 组件，并带着用户的答案恢复运行。
 hideTOC: true
 ---
 
-## What is this?
+## 这是什么？
 
-`useInterrupt` lets your agent pause mid-run, hand control to the user through custom Vue UI, and resume with whatever the user returns. How that pause is implemented depends on the framework's runtime.
+`useInterrupt` 让你的智能体在运行中途暂停，通过自定义 Vue UI 把控制权交给用户，并带着用户返回的内容恢复运行。这一暂停如何实现取决于框架的运行时。
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="native">
 
-LangGraph ships a first-class [`interrupt()`](https://docs.langchain.com/oss/python/langgraph/interrupts) primitive that lets a running node suspend itself and hand control to the client. The run is frozen server-side until the client resolves the interrupt with a payload, at which point the node resumes as if `interrupt()` had simply returned that payload.
+LangGraph 提供一等公民的 [`interrupt()`](https://docs.langchain.com/oss/python/langgraph/interrupts) 原语，让正在运行的节点挂起自身并把控制权交给客户端。运行在服务端被冻结，直到客户端带着载荷解决该中断；此时节点恢复执行，就好像 `interrupt()` 只是返回了那个载荷。
 
-CopilotKit's `useInterrupt` is the frontend half of that contract: it subscribes to the paused run, exposes reactive interrupt state, and resumes the agent with the user's answer.
+CopilotKit 的 `useInterrupt` 是这一契约的前端部分：它订阅被暂停的运行，暴露响应式的中断状态，并带着用户的答案恢复智能体。
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="promise-based">
 
-Some runtimes cannot pause a run mid-tool the way LangGraph's `interrupt()` does. Use `useHumanInTheLoop` for the Promise-based frontend-tool path instead: the agent calls the tool, the client holds the request open, and the Promise resolves once the user answers. Same UX — agent pauses, user answers, agent resumes — different mechanism underneath.
+一些运行时无法像 LangGraph 的 `interrupt()` 那样在工具执行中途暂停运行。此时请改用 `useHumanInTheLoop` 走基于 Promise 的前端工具路径：智能体调用工具，客户端让请求保持打开，用户作答后 Promise 得到解决。UX 相同——智能体暂停、用户作答、智能体恢复——底层机制不同。
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="interrupt_pattern" absent>
 
-> **Not available on this framework.** `useInterrupt` is only meaningful when the underlying runtime exposes a native interrupt primitive. For other integrations, use [`useHumanInTheLoop`](../human-in-the-loop) instead — it is the standard hook for tool-call-based pause/resume flows and works on every framework that supports frontend tools.
+> **此框架不支持该功能。**`useInterrupt` 只有在底层运行时暴露原生中断原语时才有意义。对于其他集成，请改用 [`useHumanInTheLoop`](../human-in-the-loop) —— 它是基于工具调用的暂停/恢复流程的标准钩子，可用于所有支持前端工具的框架。
 
 </WhenFrameworkHas>
 
-## When should I use this?
+## 何时应该使用它？
 
-Reach for `useInterrupt` when the pause is a **graph-enforced checkpoint** where the code path _must_ stop and wait for a human, not an LLM-initiated tool call. Typical cases:
+当暂停是一个**由图强制执行的检查点**——代码路径*必须*停下来等待人工，而不是由 LLM 发起的工具调用——时，使用 `useInterrupt`。典型情况：
 
-- A sensitive action (payments, irreversible writes) must be approved
-- A required piece of state isn't known and can only be collected from the user
-- The agent explicitly reaches an approval node in a longer workflow
-- You want the server-side contract to be `interrupt(...)` and resume with a payload
+- 敏感操作（支付、不可逆写入）必须经过批准
+- 某项必需的状态未知，只能从用户处收集
+- 智能体在较长的工作流中明确到达一个审批节点
+- 你希望服务端契约是 `interrupt(...)` 并带着载荷恢复
 
-For LLM-initiated pauses where the model decides on the fly to ask the user, prefer [`useHumanInTheLoop`](../human-in-the-loop).
+对于由 LLM 发起、模型临时决定询问用户的暂停，请优先使用 [`useHumanInTheLoop`](../human-in-the-loop)。
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="native">
 
-## The backend: `interrupt()` inside a tool
+## 后端：工具内的 `interrupt()`
 
 <FrameworkSetup concept="human-in-the-loop-setup" />
 
-The agent can expose a `schedule_meeting` tool that issues an interrupt with the meeting context. The run freezes until the client resolves it; the resolution becomes the return value of `interrupt()`, which the tool then interprets for the model.
+智能体可以暴露一个 `schedule_meeting` 工具，它携带会议上下文发出中断。运行会冻结，直到客户端解决该中断；解决内容成为 `interrupt()` 的返回值，工具随后为模型解读它。
 
-Two things to note:
+有两点需要注意：
 
-- The payload, for example `{ "topic": topic, "attendee": attendee }`, is what the Vue frontend receives as `event.value`. Keep it a plain, serializable object containing the pause-time context the UI needs.
-- The return-side contract, such as `{ chosen_label, chosen_time }` or `{ cancelled: true }`, is entirely yours. The client can send any serializable resolve payload; the tool gives it meaning and must validate it before a side effect.
+- 载荷（例如 `{ "topic": topic, "attendee": attendee }`）就是 Vue 前端收到的 `event.value`。请保持它是一个简单的可序列化对象，包含 UI 所需的暂停时刻上下文。
+- 返回侧的契约（例如 `{ chosen_label, chosen_time }` 或 `{ cancelled: true }`）完全由你定义。客户端可以发送任何可序列化的解决载荷；由工具赋予其含义，并且必须在产生副作用之前对其进行校验。
 
-## The frontend: `useInterrupt` and the chat slot
+## 前端：`useInterrupt` 与聊天插槽
 
-Register `useInterrupt` in a descendant component. With the default `renderInChat: true`, the composable publishes the pending interrupt to `CopilotChat`; render it through the `#interrupt` scoped slot and call `resolve(...)` to resume:
+在后代组件中注册 `useInterrupt`。使用默认的 `renderInChat: true` 时，composable 会把待处理的中断发布到 `CopilotChat`；通过 `#interrupt` 作用域插槽渲染它，并调用 `resolve(...)` 恢复运行：
 
 ```vue title="src/components/MeetingChat.vue"
 <script setup lang="ts">
@@ -83,36 +83,36 @@ useInterrupt<{ topic: string; attendee: string }>({
 </template>
 ```
 
-Whatever you pass to `resolve` is round-tripped back to the agent as the return value of the matching interrupt.
+你传给 `resolve` 的任何内容都会原样往返，作为对应中断的返回值回到智能体。
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="promise-based">
 
-## The frontend: `useHumanInTheLoop` with a Promise-resolving handler
+## 前端：使用带 Promise 解决处理器的 `useHumanInTheLoop`
 
-`useHumanInTheLoop` registers a frontend tool whose handler stays pending until the rendered Vue component calls `respond(...)`. This is the frontend-tool equivalent of `useInterrupt`'s `event` / `resolve` pair.
+`useHumanInTheLoop` 注册一个前端工具，其处理器保持挂起，直到被渲染的 Vue 组件调用 `respond(...)`。这是 `useInterrupt` 的 `event` / `resolve` 组合在前端工具层面的对应物。
 
-## The backend: agent instructed to call the frontend tool
+## 后端：指示智能体调用前端工具
 
-The agent has no local implementation for the approval tool. The backend instructs the model to call it when input is required; AG-UI routes the tool call to the client, where the Promise-returning handler takes over.
+智能体没有这个审批工具的本地实现。后端指示模型在需要输入时调用它；AG-UI 把工具调用路由到客户端，由返回 Promise 的处理器接管。
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="interrupt_pattern" equals="native">
 
-### Key props
+### 关键 props
 
-- **`agentId`** — must match a runtime-registered agent. If omitted, the composable assumes the default agent. A mismatch means the interrupt never appears.
-- **`renderInChat`** — when `true`, `slotProps` are published to the chat's `#interrupt` slot. Set it to `false` when your own component renders the returned refs elsewhere.
-- **`handler`** — optionally preprocesses the interrupt, can resolve it early, and exposes its return value as `result`.
-- **`enabled`** — filters interrupt shapes before they are surfaced.
+- **`agentId`** —— 必须与运行时注册的智能体匹配。若省略，composable 会假定使用默认智能体。不匹配意味着中断永远不会出现。
+- **`renderInChat`** —— 为 `true` 时，`slotProps` 会发布到聊天的 `#interrupt` 插槽。当你的组件要在别处渲染返回的 ref 时，请将其设为 `false`。
+- **`handler`** —— 可选地对中断进行预处理，可以提前解决它，并将其返回值作为 `result` 暴露。
+- **`enabled`** —— 在中断呈现之前对其形态进行过滤。
 
-The Vue `#interrupt` slot receives `{ event, result, resolve }`. For the complete standard-interrupt surface — including `interrupt`, `interrupts`, and `cancel` — use the composable's returned `slotProps` with `renderInChat: false`.
+Vue 的 `#interrupt` 插槽收到 `{ event, result, resolve }`。要获得完整的标准中断接口——包括 `interrupt`、`interrupts` 与 `cancel`——请在 `renderInChat: false` 下使用 composable 返回的 `slotProps`。
 
-## Multiple interrupts? Add a type and gate with `enabled`
+## 多个中断？用 `type` 标记并用 `enabled` 门控
 
-If your graph issues more than one kind of interrupt, tag each payload with a `type` field and install one `useInterrupt` per shape, each gated by `enabled`:
+如果你的图会发出不止一种中断，就用 `type` 字段标记每个载荷，并为每种形态安装一个 `useInterrupt`，各自用 `enabled` 门控：
 
 ```ts
 useInterrupt({
@@ -126,9 +126,9 @@ useInterrupt({
 });
 ```
 
-## Preprocess with `handler`
+## 用 `handler` 预处理
 
-For cases where the interrupt can sometimes be resolved _without_ user input, pass a `handler` that runs before the UI is rendered. The handler can call `resolve(...)` itself to resume the agent early, or return a value exposed as `result`:
+当中断有时可以*无需*用户输入就被解决时，传入一个在 UI 渲染之前运行的 `handler`。该处理器可以自行调用 `resolve(...)` 提前恢复智能体，或返回一个作为 `result` 暴露的值：
 
 ```ts
 const { slotProps } = useInterrupt({
@@ -151,35 +151,35 @@ const { slotProps } = useInterrupt({
 
 </WhenFrameworkHas>
 
-## AG-UI standard interrupt flow vs. legacy
+## AG-UI 标准中断流程与旧版流程
 
-`useInterrupt` supports two interrupt transports. Understanding which one your agent uses helps you write the right UI.
+`useInterrupt` 支持两种中断传输通道。了解你的智能体使用哪一种，有助于你编写正确的 UI。
 
-### Standard flow (`RUN_FINISHED` with `outcome.type === "interrupt"`)
+### 标准流程（`RUN_FINISHED` 且 `outcome.type === "interrupt"`）
 
-When the agent backend conforms to the AG-UI protocol, it signals an interrupt by emitting a `RUN_FINISHED` event whose outcome carries the interrupts array:
+当智能体后端遵循 AG-UI 协议时，它通过发出一个 `RUN_FINISHED` 事件来标记中断，其 outcome 携带中断数组：
 
 ```text
 outcome.type === "interrupt"
 outcome.interrupts  // Interrupt[]
 ```
 
-The composable detects this on `onRunFinishedEvent` and exposes the interrupts after `onRunFinalized` fires. `slotProps.value` contains:
+composable 在 `onRunFinishedEvent` 上检测到这一点，并在 `onRunFinalized` 触发后暴露这些中断。`slotProps.value` 包含：
 
-- **`interrupt`** — the primary `Interrupt` (`interrupts[0]`), with shape `{ id, reason, message?, toolCallId?, responseSchema?, expiresAt?, metadata? }`.
-- **`interrupts`** — the full open set.
-- **`resolve(payload?, interruptId?)`** — records a resolved response for the targeted interrupt. The run resumes once every open interrupt has a response.
-- **`cancel(interruptId?)`** — records a cancelled response for the targeted interrupt. The same accumulate-then-submit logic applies.
+- **`interrupt`** —— 主 `Interrupt`（`interrupts[0]`），形态为 `{ id, reason, message?, toolCallId?, responseSchema?, expiresAt?, metadata? }`。
+- **`interrupts`** —— 全部打开的中断集合。
+- **`resolve(payload?, interruptId?)`** —— 为目标中断记录一条已解决的响应。一旦每个打开的中断都有响应，运行即恢复。
+- **`cancel(interruptId?)`** —— 为目标中断记录一条已取消的响应。同样适用先累积后提交的逻辑。
 
-### Legacy flow (`on_interrupt` custom event)
+### 旧版流程（`on_interrupt` 自定义事件）
 
-Older agents may emit a custom `on_interrupt` event. The composable exposes its payload in `event.value`, with `interrupt` set to `null` and `interrupts` to `[]`. Calling `resolve(payload)` resumes via `forwardedProps.command`, the legacy mechanism. `cancel()` dismisses the interrupt without resuming because the legacy transport has no cancel response.
+较旧的智能体可能发出自定义的 `on_interrupt` 事件。composable 在 `event.value` 中暴露其载荷，同时 `interrupt` 为 `null`、`interrupts` 为 `[]`。调用 `resolve(payload)` 会通过旧版机制 `forwardedProps.command` 恢复运行。`cancel()` 只会关闭中断而不恢复运行，因为旧版传输通道没有取消响应。
 
-### Priority
+### 优先级
 
-If both signals appear on the same run, the standard flow wins.
+如果两种信号出现在同一次运行中，以标准流程为准。
 
-### Approve / Cancel example
+### 批准 / 取消示例
 
 ```vue title="src/components/ApprovalPanel.vue"
 <script setup lang="ts">
@@ -197,11 +197,11 @@ const { slotProps } = useInterrupt({ renderInChat: false });
 </template>
 ```
 
-Both methods return the `RunAgentResult` once the run restarts, or `void` while waiting for responses to other open interrupts.
+两种方法都会在运行重启后返回 `RunAgentResult`，或在等待其他打开中断的响应期间返回 `void`。
 
-### Multi-interrupt behavior
+### 多中断行为
 
-Some agents issue more than one interrupt in a single run. Each interrupt has its own `id`; address them individually:
+一些智能体会在单次运行中发出多个中断。每个中断都有自己的 `id`；请逐一处理：
 
 ```vue
 <template>
@@ -215,15 +215,15 @@ Some agents issue more than one interrupt in a single run. Each interrupt has it
 </template>
 ```
 
-The agent run resumes only after **every** open interrupt has been addressed. If you omit `interruptId`, the primary interrupt is targeted; Vue warns when several are open.
+只有在**每一个**打开的中断都被处理之后，智能体运行才会恢复。如果省略 `interruptId`，则目标为主中断；当有多个中断打开时 Vue 会发出警告。
 
-### `responseSchema` — surface only, no client-side validation
+### `responseSchema` —— 仅用于展示，不做客户端校验
 
-The `Interrupt` type exposes a `responseSchema` JSON Schema that the agent can use to describe the expected payload. `useInterrupt` surfaces it on `interrupt.responseSchema` for your UI to read, but it does **not** validate `resolve` payloads against it. Validation is the agent's responsibility on resume.
+`Interrupt` 类型暴露一个 `responseSchema` JSON Schema，智能体可以用它描述期望的载荷。`useInterrupt` 会在 `interrupt.responseSchema` 上展示它供你的 UI 读取，但它**不会**据此校验 `resolve` 载荷。校验是智能体在恢复时的责任。
 
-## Provider setup
+## Provider 配置
 
-The component calling `useInterrupt` must be a descendant of `CopilotKitProvider`:
+调用 `useInterrupt` 的组件必须是 `CopilotKitProvider` 的后代：
 
 ```vue title="src/App.vue"
 <script setup lang="ts">
@@ -238,7 +238,7 @@ import MeetingChat from "./components/MeetingChat.vue";
 </template>
 ```
 
-## Going further
+## 深入了解
 
-- [Tool-based HITL with `useHumanInTheLoop`](../human-in-the-loop) — for LLM-initiated pauses.
-- [Headless interrupts](./headless) — render and resolve interrupts outside a chat surface.
+- [基于工具的人机协同与 `useHumanInTheLoop`](../human-in-the-loop) —— 适用于由 LLM 发起的暂停。
+- [无头中断](./headless) —— 在聊天界面之外渲染并解决中断。

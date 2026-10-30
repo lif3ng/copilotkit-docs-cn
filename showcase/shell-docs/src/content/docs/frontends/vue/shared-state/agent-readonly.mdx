@@ -1,33 +1,33 @@
 ---
-title: Agent Read-Only Context
-description: Publish UI values to the agent as a one-way read-only channel via useAgentContext.
+title: 智能体只读上下文
+description: 通过 useAgentContext 将 UI 值以单向只读通道发布给智能体。
 icon: "lucide/ArrowRight"
 hideTOC: true
 ---
 
-## What is this?
+## 这是什么？
 
-Sometimes you want the agent to *know* something about the current UI, like the logged-in user, the current page, or a recent activity log, but you don't want the agent to be able to modify it. That's what `useAgentContext` is for: a one-way **UI → agent** channel for read-only context.
+有时你希望智能体*了解*当前 UI 的一些信息，例如登录用户、当前页面或最近的活动日志，但又不想让智能体能够修改它们。这正是 `useAgentContext` 的用途：一条面向只读上下文的单向 **UI → 智能体** 通道。
 
-Unlike full shared state, where the UI and agent can both mutate the same state contract, `useAgentContext` values are pure inputs. The agent sees them on every turn through the runtime's context injection, but the context API exposes no setter or mutation tool.
+与完整共享状态（UI 与智能体双方都能修改同一份状态约定）不同，`useAgentContext` 的值是纯输入。智能体在每一轮都会通过运行时的上下文注入看到它们，但 context API 不暴露任何 setter 或修改工具。
 
-## When should I use this?
+## 何时应该使用它？
 
-Reach for `useAgentContext` instead of full shared state when:
+在以下情况下，请使用 `useAgentContext` 而非完整的共享状态：
 
-- The value is **UI-owned** and has no meaning to the agent beyond what the user is looking at right now.
-- The agent should read but never write, for example user identity, feature flags, selected record, or scroll position.
-- You want the value to unregister automatically when the component unmounts.
+- 该值**由 UI 持有**，对智能体而言除了用户当前正在查看的内容之外没有其他意义。
+- 智能体应当只读不写，例如用户身份、特性开关、选中的记录或滚动位置。
+- 你希望该值在组件卸载时自动注销。
 
-Think of it as "props for the agent."
+可以把它理解为“面向智能体的 props。”
 
-## How it works in code
+## 代码中的工作方式
 
-Call `useAgentContext({ description, value })` once per value you want to publish. Each call registers a reactive context entry with the runtime that is:
+对每个要发布的值调用一次 `useAgentContext({ description, value })`。每次调用都会向运行时注册一个响应式上下文条目，它会：
 
-- Refreshed whenever the supplied ref or getter changes.
-- Automatically removed when the component unmounts.
-- Surfaced to the agent through the backend's CopilotKit middleware on every turn.
+- 随所提供的 ref 或 getter 变化而刷新。
+- 在组件卸载时自动移除。
+- 在每一轮通过后端的 CopilotKit 中间件呈现给智能体。
 
 ```vue title="src/components/WorkspaceContext.vue"
 <script setup lang="ts">
@@ -47,11 +47,11 @@ useAgentContext({
 </template>
 ```
 
-The `description` is important: it is the human-readable label the agent sees alongside the value, so it knows what to do with it. Treat it like a parameter docstring. Keep secrets out of this channel; anything published here is intended for the agent to read.
+`description` 很重要：它是智能体随值一起看到的人类可读标签，智能体由此知道该如何处理这个值。请把它当作参数的 docstring 来对待。不要把机密信息放进这条通道；此处发布的任何内容都是供智能体读取的。
 
-## Wire it to your own state
+## 接入你自己的状态
 
-`useAgentContext` does not care where the value comes from: a local ref, a computed value, a router getter, Pinia, or another domain store. Pass a ref or getter and Vue re-registers the serialized context when the value changes.
+`useAgentContext` 并不关心值来自哪里：本地 ref、computed 值、路由 getter、Pinia 或其他领域存储都可以。传入 ref 或 getter，当值变化时 Vue 会重新注册序列化后的上下文。
 
 ```vue title="src/App.vue"
 <script setup lang="ts">
@@ -67,13 +67,13 @@ import WorkspaceContext from "./components/WorkspaceContext.vue";
 </template>
 ```
 
-## Read-only, by design
+## 设计上只读
 
-Because the agent never sees a setter or mutation tool for these values, the context registration itself cannot update them. That makes `useAgentContext` the right tool whenever the value is an input rather than a shared workspace both sides edit.
+由于智能体永远看不到这些值的 setter 或修改工具，上下文注册本身无法更新它们。因此，只要该值是一个输入、而非双方共同编辑的共享工作区，`useAgentContext` 就是合适的工具。
 
-When you need both reads *and* writes, use full **[Shared State](/vue/shared-state)**: `useAgent()` exposes `agent.state` and the same agent's `setState(...)` mutation path when the runtime supports shared state.
+当你需要既能读*又能*写时，请使用完整的**[共享状态](/vue/shared-state)**：当运行时支持共享状态时，`useAgent()` 会暴露 `agent.state`，以及同一个 agent 的 `setState(...)` 修改路径。
 
-## Related
+## 相关内容
 
-- **[Shared State (overview)](/vue/shared-state)** — bidirectional reads and writes.
-- **[State streaming](/vue/shared-state/streaming)** — stream agent-written state back to the UI during a run.
+- **[共享状态（概览）](/vue/shared-state)**——双向读写。
+- **[状态流式传输](/vue/shared-state/streaming)**——在运行期间把智能体写入的状态流回 UI。

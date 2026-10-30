@@ -1,44 +1,44 @@
 ---
-title: State Streaming
-description: Stream partial agent state updates to the UI while a tool call is still running.
+title: 状态流式传输
+description: 在工具调用仍在运行时，把部分智能体状态更新流式传输到 UI。
 icon: "lucide/Podcast"
 hideTOC: true
 snippet_cell: shared-state-streaming
 ---
 
-## What is this?
+## 这是什么？
 
-By default, agent state only updates *between* backend checkpoints, so a long-running tool call, such as writing a full document or drafting an email, appears to the UI as one big burst at the end. For agent-native apps, that feels broken: users expect to watch the output materialize.
+默认情况下，智能体状态只会在后端检查点*之间*更新，因此长时间运行的工具调用（例如撰写完整文档或起草电子邮件）在 UI 看来就是最后一次性大量涌现。对智能体原生应用而言，这种体验像是坏掉了：用户期望亲眼看着输出逐渐成形。
 
-**State streaming** forwards the value of a specific tool argument straight into an agent state key *as the argument is being generated*. The UI, subscribed through `useAgent`, re-renders every token.
+**状态流式传输**会在某个工具参数*生成的过程中*，把它的值直接转发进某个智能体状态键。通过 `useAgent` 订阅的 UI 会对每个 token 重新渲染。
 
-## When should I use this?
+## 何时应该使用它？
 
-Use state streaming whenever a tool's output is long-form text or a growing structured value and you want the user to see it assemble in real time. Common shapes:
+只要工具的输出是长篇文本或不断增长的结构化值，并且你希望用户实时看到它组装成形，就使用状态流式传输。常见形态：
 
-- A collaborative writing agent that emits a document
-- A research agent that accumulates a list of findings
-- A planning agent that builds up a step-by-step plan
+- 输出文档的协作写作智能体
+- 不断积累发现列表的研究智能体
+- 逐步构建分步计划的规划智能体
 
-Without streaming, the user stares at a spinner. With streaming, they see the answer grow token-by-token.
+没有流式传输时，用户只能盯着加载转圈。有了流式传输，他们能看到答案逐 token 生长。
 
-## The backend: one streaming state mapping
+## 后端：一条流式状态映射
 
 <FrameworkSetup concept="state-streaming-setup" />
 
-The backend pattern is always the same: map one streaming tool argument to one shared-state key. Middleware-backed frameworks usually expose this as a declarative mapping. Direct SDK adapters do the same work in their streaming loop by parsing partial tool arguments and emitting `STATE_SNAPSHOT` whenever the mapped value changes. When the LLM streams that argument, CopilotKit writes every partial value into shared state before the tool finishes executing.
+后端模式始终如一：把一个流式工具参数映射到一个共享状态键。基于中间件的框架通常以声明式映射的形式暴露这一能力。直接使用 SDK 的适配器则在它们的流式循环里完成同样的工作——解析部分工具参数，并在被映射的值每次变化时发出 `STATE_SNAPSHOT`。当 LLM 以流式生成该参数时，CopilotKit 会在工具执行结束前把每个部分值写入共享状态。
 
-<Snippet region="state-streaming-middleware" title="backend — streaming state mapping" />
+<Snippet region="state-streaming-middleware" title="后端——流式状态映射" />
 
-A few things to note:
+有几点需要注意：
 
-- The state key must exist in your agent state (`document` in this example).
-- The tool and argument names must match the exact LLM-facing tool call you want to forward.
-- When the tool call completes, its final return value is written to the same key, so the streamed partial eventually becomes the authoritative final value.
+- 状态键必须存在于你的智能体状态中（本示例中为 `document`）。
+- 工具名与参数名必须与你想转发的那个面向 LLM 的工具调用完全一致。
+- 工具调用完成后，其最终返回值会写入同一个键，因此流式传输的部分值最终会成为权威的最终值。
 
-## The frontend: useAgent + OnStateChanged
+## 前端：useAgent + OnStateChanged
 
-The UI side is identical to any other shared-state subscription: `useAgent` with `OnStateChanged` gives you a reactive `agent.value.state`. Add `OnRunStatusChanged` if you want a live/done indicator.
+UI 侧与其他任何共享状态订阅完全一样：带 `OnStateChanged` 的 `useAgent` 为你提供响应式的 `agent.value.state`。如果想要进行中/已完成指示器，再加上 `OnRunStatusChanged`。
 
 ```vue title="src/components/StreamingDocument.vue"
 <script setup lang="ts">
@@ -67,7 +67,7 @@ const state = computed(
 </template>
 ```
 
-From there, `state.document` is a string that grows on every token, and `agent.isRunning` tells you whether to show a streaming indicator.
+从这里开始，`state.document` 是一个随每个 token 增长的字符串，`agent.isRunning` 则告诉你是否该显示流式指示器。
 
 ```vue title="src/App.vue"
 <script setup lang="ts">
@@ -83,11 +83,11 @@ import StreamingDocument from "./components/StreamingDocument.vue";
 </template>
 ```
 
-If the runtime does not emit partial state snapshots, the UI sees only the final state. The Vue frontend cannot invent updates the backend never sends.
+如果运行时不发出部分状态快照，UI 就只能看到最终状态。Vue 前端无法凭空造出后端从未发送的更新。
 
-## Related
+## 相关内容
 
-- **[Shared State (overview)](/vue/shared-state)** — the bidirectional read and write pattern this extends.
-- **[Agent read-only context](/vue/shared-state/agent-readonly)** — for the inverse UI-to-agent one-way channel.
+- **[共享状态（概览）](/vue/shared-state)**——本功能所扩展的双向读写模式。
+- **[智能体只读上下文](/vue/shared-state/agent-readonly)**——方向相反的 UI 到智能体单向通道。
 
 <IntegrationGrid path="shared-state/streaming" exclude={["agno", "agent-spec", "spring-ai", "langroid"]} />

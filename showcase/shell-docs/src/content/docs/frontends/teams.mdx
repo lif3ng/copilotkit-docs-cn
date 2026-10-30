@@ -1,69 +1,44 @@
 ---
-title: Connect and run your agent in Microsoft Teams
-description: Run any supported agent framework in Teams through a cloud-hosted Intelligence connection.
+title: 在 Microsoft Teams 中连接并运行你的智能体
+description: 通过云托管的 Intelligence 连接，在 Teams 中运行任何受支持的智能体框架。
 icon: "lucide/MessagesSquare"
 doc_type: tutorial
 ---
 
 import ChannelsInstall from "@/snippets/shared/channels/install.mdx";
 
-In this guide, you will connect an AG-UI agent to a managed Microsoft Teams
-bot, start a long-running Channels SDK listener, and verify a real Microsoft
-Teams message. CopilotKit Intelligence owns the public messaging endpoint and
-Teams credentials; your process owns the agent and application logic.
+在本指南中，你将把 AG-UI 智能体连接到托管 Microsoft Teams 机器人，启动一个长期运行的 Channels SDK 监听器，并用一条真实的 Microsoft Teams 消息进行验证。CopilotKit Intelligence 负责公共消息端点与 Teams 凭据；你的进程负责智能体与应用逻辑。
 
-The bot is created in your own Microsoft tenant and belongs to you. Setup
-registers it in Teams Developer Portal — no Azure subscription and no Azure Bot
-resource are involved.
+机器人创建在你自己的 Microsoft 租户中，归你所有。配置流程会把它注册到 Teams Developer Portal——不涉及任何 Azure 订阅或 Azure Bot 资源。
 
-New to the product? Start with the [Channels overview](/channels) to understand
-how the SDK, Runtime, Intelligence, and provider connection fit together.
+刚接触这个产品？先阅读 [Channels 概览](/channels)，了解 SDK、Runtime、Intelligence 与提供方连接如何协同工作。
 
-Before you continue, [configure the Channel in Intelligence](/channels/intelligence).
-You should have `CHANNEL_CODE` and `CPK_INTELLIGENCE_API_KEY`.
+继续之前，先[在 Intelligence 中配置 Channel](/channels/intelligence)。你应当已拿到 `CHANNEL_CODE` 与 `CPK_INTELLIGENCE_API_KEY`。
 
-## Start with your coding agent
+## 从编码智能体开始
 
-Use this prompt to connect your agent to Microsoft Teams, start the Channels SDK listener, and verify a real channel message. You can also follow the manual steps below.
+使用下面的提示词把智能体连接到 Microsoft Teams、启动 Channels SDK 监听器，并用真实的频道消息进行验证。也可以按下面的手动步骤操作。
 
 <PageAgentPrompt />
 
-## What kind of bot this is
+## 这是哪种机器人
 
-Microsoft supports more than one kind of bot identity. Setup creates a
-**Teams-managed** bot: Teams Developer Portal owns the registration, and its app
-ID and client secrets live there under **Tools → Bot management**, in your
-directory, rotatable by your own admins. It is registered single-tenant, so it is
-scoped to your organization. Nothing is created in your Azure account and nothing
-is billable. If you stop using CopilotKit the registration stays in your
-Developer Portal; removing it is yours to do.
+Microsoft 支持不止一种机器人身份。配置流程创建的是 **Teams 托管**的机器人：注册归 Teams Developer Portal 所有，其 app ID 与客户端密钥就存放在你目录下的 **Tools → Bot management** 中，可由你自己的管理员轮换。它以单租户方式注册，因此作用范围限于你的组织。你的 Azure 账户中不会创建任何东西，也没有任何计费项。如果你停止使用 CopilotKit，注册仍会留在你的 Developer Portal 中；删除与否由你决定。
 
-The alternative Microsoft offers is an **Azure Bot** — a billable Azure Bot
-Service resource in your own subscription, needing a subscription, resource
-group, and region. Microsoft's Teams CLI recognizes only these two kinds; a
-self-managed Microsoft Entra app registration that you create and manage yourself
-is not something it can produce or consume.
+Microsoft 提供的另一种选择是 **Azure Bot**——你自己订阅中的一个计费的 Azure Bot Service 资源，需要订阅、资源组与区域。Microsoft 的 Teams CLI 只识别这两种；由你自己创建和管理的 Microsoft Entra 应用注册不属于它能产出或使用的类型。
 
-Treat the choice as permanent. Microsoft provides a one-way `teams app bot
-migrate` to Azure that replaces the existing registration, with nothing to
-migrate back. CopilotKit itself is indifferent to which kind you point a Channel
-at — Intelligence performs an ordinary client-credentials grant with the app ID,
-tenant ID, and secret — but the app ID is embedded in the app package as the bot
-ID, so changing identity means generating a fresh package, uploading it, and
-re-installing.
+请把这个选择当作不可逆的。Microsoft 提供单向的 `teams app bot migrate` 迁移到 Azure，它会替换现有注册，且没有迁回的途径。CopilotKit 本身并不在意 Channel 指向哪种——Intelligence 只是用 app ID、租户 ID 和密钥执行一次普通的客户端凭据授予——但 app ID 作为 bot ID 被嵌入应用包中，因此更换身份意味着重新生成应用包、上传并重新安装。
 
-## Before you start
+## 开始之前
 
-- Node.js 22 or later; the managed launcher requires the global `WebSocket`
-  available in Node.js 22+
-- A long-running Node host or container; serverless request handlers cannot own
-  the persistent gateway connection
+- Node.js 22 或更高版本；托管启动器依赖 Node.js 22+ 才有的全局 `WebSocket`
+- 一个长期运行的 Node 宿主或容器；serverless 请求处理器无法持有持久的网关连接
 
-## Build and run your Channel
+## 构建并运行你的 Channel
 
 <Steps>
   <Step>
-    ### Create the runner
+    ### 创建 runner
 
     ```bash title="Terminal"
     mkdir my-teams-channel
@@ -96,24 +71,20 @@ re-installing.
   </Step>
 
   <Step>
-    ### Connect your agent backend
+    ### 连接你的智能体后端
 
-    The selector's **Agent backend** controls the setup below. It must export a
-    fresh `makeAgent(threadId)` result for each Teams conversation.
+    选择器中的 **Agent backend** 决定下面的配置。它必须为每个 Teams 会话导出全新的 `makeAgent(threadId)` 结果。
 
     <FrameworkSetup concept="channels-agent-setup" />
 
   </Step>
 
   <Step>
-    ### Declare the managed Teams Channel
+    ### 声明托管 Teams Channel
 
-    Create the listener below. Replace `support-teams` with the exact Code shown
-    in Intelligence.
+    创建下面的监听器。把 `support-teams` 替换为 Intelligence 中显示的准确 Code。
 
-    Set `agent: makeAgent` on the Channel because this handler calls
-    `thread.runAgent()`. Channels do not inherit `runtime.agents`. A Channel
-    whose handlers reply directly without `runAgent()` can omit `agent`.
+    在 Channel 上设置 `agent: makeAgent`，因为这里的 handler 调用了 `thread.runAgent()`。Channel 不会继承 `runtime.agents`。如果 Channel 的 handler 不经 `runAgent()` 而直接回复，则可以省略 `agent`。
 
     ```ts title="channel.ts"
     import { createServer } from "node:http";
@@ -202,22 +173,14 @@ re-installing.
     });
     ```
 
-    Creating the Node listener starts the Channel: it owns its own process
-    lifetime, so a declared Channel connects because it was declared. `ready()`
-    is therefore optional and purely await-and-observe — it resolves once
-    activation settles and rejects with the activation failure. Because it can
-    settle with setup still required, inspect `status()` before reporting the
-    Channel online. Skip `ready()` and activation failures land in your logs
-    instead.
+    创建 Node 监听器就会启动 Channel：它拥有自己的进程生命周期，声明的 Channel 因为被声明而自动连接。因此 `ready()` 是可选的、纯“等待并观察”——激活落定后 resolve，激活失败则 reject。由于它可能在仍需完成配置的情况下落定，请在宣布 Channel 上线前检查 `status()`。跳过 `ready()` 的话，激活失败只会出现在你的日志里。
 
-    The runner does not expose a Teams webhook. Teams delivers to the
-    Intelligence messaging endpoint, which setup registered on the bot for
-    you.
+    runner 不暴露 Teams webhook。Teams 会投递到 Intelligence 消息端点——配置流程已替你把它注册到机器人上。
 
   </Step>
 
   <Step>
-    ### Configure secrets and start
+    ### 配置密钥并启动
 
     ```dotenv title=".env"
     CPK_INTELLIGENCE_API_KEY=<project-api-key>
@@ -230,112 +193,79 @@ re-installing.
     # INTELLIGENCE_GATEWAY_WS_URL=wss://realtime.intelligence.example.com
     ```
 
-    The lifecycle server uses port `3001` so it can run alongside a web app
-    on port `3000`. If `3001` is already in use, set `PORT` to another free port.
+    生命周期服务器使用端口 `3001`，以便与端口 `3000` 上的 Web 应用并行运行。如果 `3001` 已被占用，把 `PORT` 设为另一个空闲端口。
 
-    #### Where these values come from
+    #### 这些值从哪里来
 
-    Three variables matter here, and you supply only one:
+    这里有三个变量起作用，而你只需要提供一个：
 
-    - `OPENAI_API_KEY`, or the key for whichever model provider your agent uses.
-      This one is yours to create and paste.
-    - `CPK_INTELLIGENCE_API_KEY` is written for you by
-      `copilotkit project select`, which provisions the project and its key.
-    - `CHANNEL_CODE` is written for you by the onboarding run once it has
-      declared the Channel; the run knows the Code it just created.
+    - `OPENAI_API_KEY`，或你的智能体所用模型提供方的密钥。
+      这个由你自己创建并粘贴。
+    - `CPK_INTELLIGENCE_API_KEY` 由 `copilotkit project select` 替你写入，它会创建项目及其密钥。
+    - `CHANNEL_CODE` 由引导流程在声明 Channel 后替你写入；该流程知道自己刚创建的 Code。
 
-    So both Intelligence values land in the environment file your app loads and
-    you never copy either one by hand. Setting them yourself still works: see
-    [configure the runtime handoff](/channels/intelligence#configure-the-runtime-handoff)
-    for where each value appears in Intelligence.
+    这样两个 Intelligence 值都会落入你的应用加载的环境文件中，你无需手工复制其中任何一个。自己手动设置也可以：参见[配置运行时交接](/channels/intelligence#configure-the-runtime-handoff)，了解每个值在 Intelligence 中的位置。
 
-    Cloud-hosted Intelligence supplies both default base URLs. For a
-    self-hosted or non-production deployment, override both together. The REST
-    and realtime planes use separate hosts, so do not derive the WebSocket URL
-    from the API URL. Pass each as a bare base URL without `/api`, `/socket`,
-    `/runner`, or `/client`. Create the project-scoped runtime key from **API
-    Keys** in the Intelligence project sidebar.
+    云托管的 Intelligence 会提供两个默认 base URL。自托管或非生产部署则要同时覆盖两者。REST 与实时平面使用不同的主机，不要从 API URL 推导 WebSocket URL。两者都按裸 base URL 传入，不带 `/api`、`/socket`、`/runner` 或 `/client`。项目级运行时密钥请在 Intelligence 项目侧边栏的 **API Keys** 中创建。
 
-    Start the selected agent backend, then run:
+    启动所选的智能体后端，然后运行：
 
     ```bash title="Terminal"
     node --env-file=.env --import tsx channel.ts
     ```
 
-    Intelligence should report **Online**.
+    Intelligence 应显示 **Online**。
 
-    #### Know the healthy state
+    #### 了解健康状态
 
-    Starting the process is what connects the Channel, so it should become
-    **Online** on its own; the `await channels.ready(...)` in this guide only
-    waits for that to settle.
+    启动进程正是连接 Channel 的动作，因此它应当自行变为 **Online**；本指南中的 `await channels.ready(...)` 只是等待这一过程落定。
 
-    | Status | What to check |
+    | 状态 | 检查什么 |
     | --- | --- |
-    | **Disabled** | Enable the Channel before expecting delivery. |
-    | **Setup incomplete** | Finish the selected provider's required setup fields before starting the runtime. |
-    | **Setup failed** | Reopen platform setup and correct the rejected credentials or configuration. |
-    | **Waiting for runtime** | Start the process — creating the listener connects the Channel — and match its Code and provider to this Channel. |
-    | **Conflict** | Compare every replica's complete Channel declaration set. Identical replicas should elect one active owner and connected standbys; different but overlapping sets are unsafe. |
-    | **Offline** | Check the listener process, network, and Intelligence gateway connection. |
-    | **Delivery failing** | Check platform credentials, app permissions, and the provider response. |
-    | **Online** | The runtime is connected; send a real provider message to verify the full path. |
+    | **Disabled** | 先启用 Channel，再期待消息送达。 |
+    | **Setup incomplete** | 启动运行时前，先完成所选提供方要求的配置字段。 |
+    | **Setup failed** | 重新打开平台配置，修正被拒绝的凭据或配置。 |
+    | **Waiting for runtime** | 启动进程——创建监听器即会连接 Channel——并使其 Code 与提供方和本 Channel 匹配。 |
+    | **Conflict** | 对比每个副本的完整 Channel 声明集合。完全相同的副本应选出一个活跃主节点，其余为已连接的备节点；不同但有重叠的集合是不安全的。 |
+    | **Offline** | 检查监听器进程、网络与 Intelligence 网关连接。 |
+    | **Delivery failing** | 检查平台凭据、应用权限与提供方响应。 |
+    | **Online** | 运行时已连接；发送一条真实的提供方消息来验证完整链路。 |
 
   </Step>
 
   <Step>
-    ### Verify a real Teams message
+    ### 验证真实的 Teams 消息
 
-    Open the app in Teams, add it to a chat or team, then send:
+    在 Teams 中打开该应用，把它加入聊天或团队，然后发送：
 
     ```text title="Microsoft Teams"
     Summarize the decisions in this conversation.
     ```
 
-    In a team channel, mention the bot. A message that does not mention it is
-    ambient, and an ambient message only reaches your agent once a thread has
-    been subscribed to.
+    在团队频道中要 @ 机器人。不带 @ 的消息属于环境消息（ambient），而环境消息只有在线程被订阅后才会送达你的智能体。
 
-    A real response validates the bot registration, Intelligence messaging
-    endpoint, managed credentials, gateway listener, agent, and Adaptive Card
-    reply path.
+    一条真实回复能验证机器人注册、Intelligence 消息端点、托管凭据、网关监听器、智能体以及 Adaptive Card 回复链路。
 
   </Step>
 </Steps>
 
-## Troubleshooting
+## 故障排查
 
 <Accordions>
-  <Accordion title="The Channel stays at Waiting for runtime">
-    Confirm the Code matches `CHANNEL_CODE` and the API key belongs to the same
-    Intelligence project. Provider routing comes from the Teams connection
-    attached in Intelligence, not from a `createChannel` option.
+  <Accordion title="Channel 一直停留在 Waiting for runtime">
+    确认 Code 与 `CHANNEL_CODE` 一致，且 API 密钥属于同一个 Intelligence 项目。提供方路由来自 Intelligence 中绑定的 Teams 连接，而不是某个 `createChannel` 选项。
   </Accordion>
-  <Accordion title="Teams cannot reach the bot">
-    In Teams Developer Portal, open **Tools → Bot management**, select the bot,
-    and compare its endpoint address with the messaging endpoint shown in
-    Intelligence. They must match exactly, including no leading or trailing
-    space — Developer Portal rejects a padded value and reports it as a save
-    failure, which reads like a portal fault rather than a bad value. A bot with
-    the wrong endpoint completes setup and then never receives anything.
+  <Accordion title="Teams 无法触达机器人">
+    在 Teams Developer Portal 中打开 **Tools → Bot management**，选择该机器人，将其端点地址与 Intelligence 中显示的消息端点进行比对。两者必须完全一致，包括不能有首尾空格——Developer Portal 会拒绝带空白字符的值，并把它报告为保存失败，这看起来像门户故障而不是值填错了。端点填错的机器人能完成配置，但之后什么都收不到。
 
-    This is not your runner's `PORT`. The runner takes no inbound provider
-    traffic at all.
+    这不是你 runner 的 `PORT`。runner 完全不接收任何入站提供方流量。
   </Accordion>
-  <Accordion title="The app package is rejected">
-    Upload the complete zip that setup produced; do not unzip it and upload only
-    `manifest.json`. If the app is already in the team and you are re-adding it
-    to change permissions, remove it first — Teams settles app permissions only
-    while the app is being added.
+  <Accordion title="应用包被拒绝">
+    上传配置流程生成的完整 zip；不要解压后只上传 `manifest.json`。如果应用已在团队中，而你要重新添加它来修改权限，请先移除它——Teams 只在添加应用的过程中确定应用权限。
   </Accordion>
-  <Accordion title="Startup settles but does not become Online">
-    Inspect `channels.status()` after the guard in the runner. Finish any
-    **Setup incomplete** state in Intelligence. If Intelligence reports
-    **Conflict**, compare the complete Channel declaration set on every replica;
-    identical replicas should elect an active owner and standbys.
+  <Accordion title="启动已落定但未变为 Online">
+    检查 runner 中守卫之后的 `channels.status()`。在 Intelligence 中完成任何 **Setup incomplete** 状态。如果 Intelligence 报告 **Conflict**，对比每个副本上完整的 Channel 声明集合；完全相同的副本应选出一个活跃主节点与若干备节点。
   </Accordion>
 </Accordions>
 
-Next, [map application users and choose Memory grants](/channels/identity-and-memory),
-add [tools and context](/channels/tools), or build
-[interactive approvals](/channels/interactive).
+接下来，可以[映射应用用户并选择 Memory 授权](/channels/identity-and-memory)、添加[工具与上下文](/channels/tools)，或构建[交互式审批](/channels/interactive)。

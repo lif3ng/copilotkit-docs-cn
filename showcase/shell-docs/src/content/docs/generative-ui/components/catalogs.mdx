@@ -1,18 +1,21 @@
 ---
-title: "Catalogs"
+title: "组件目录"
 icon: "lucide/Library"
-description: "Declare the components the agent can render, with typed props, in one catalog."
+description: "在一个组件目录中声明智能体可渲染的组件，并带上类型化的 props。"
 ---
 
-## What is this?
+## 这是什么？
 
-The agent cannot render a component it does not know about. It also needs to know the props of each one, or it guesses, and a guessed price or a wrong prop breaks the page.
+智能体无法渲染它不知道的组件。它还需要知道每个组件的 props，否则只能靠
+猜，而猜出来的价格或错误的 prop 会把页面搞坏。
 
-A **catalog** lists the components that the agent can use. For each component it holds the React component, a description, and a schema of its props. The agent gets the descriptions and the schemas. Your app gets typed props.
+**组件目录**列出了智能体可以使用的组件。对每个组件，它保存 React 组件
+本身、一段描述，以及 props 的 schema。智能体拿到描述和 schema，你的应用
+拿到类型化的 props。
 
-## Create a catalog
+## 创建组件目录
 
-Declare the catalog once, at module level, with `createGenerativeUI`:
+用 `createGenerativeUI` 在模块级别声明一次组件目录：
 
 ```tsx title="app/catalog.tsx"
 import { z } from "zod";
@@ -58,28 +61,47 @@ export const shopUI = createGenerativeUI({
 });
 ```
 
-Then give it to the provider:
+然后把它交给 provider：
 
 ```tsx
 <CopilotKitProvider runtimeUrl="/api/copilotkit" generativeUI={{ ui: shopUI }}>
 ```
 
-The `id` names the catalog. Use a versioned id, for example `acme/shop@1`.
+`id` 为组件目录命名。请使用带版本的 id，例如 `acme/shop@1`。
 
-## What a component can declare
+## 组件可以声明什么
 
-- `component`: the React component that renders.
-- `description`: what the component is and when to use it. The agent reads it, so be specific.
-- `props`: the schema of the props that the agent sets.
-- `slots`: props that hold child components. `"single"` takes one child, and `"multiple"` takes a list.
-- A child reference inside the props schema: mark a prop with `child()` or `childList()` from `@copilotkit/react-core/v2/generative-ui`, anywhere in the schema, for example `tabs: z.array(z.object({ title: z.string(), child: child() }))`. The engine renders the referenced components and your component receives them as React nodes in place of the ids. This is how A2UI 1.0 marks references (`ComponentId`, `ChildList`); `slots` stays for the plain top-level case.
-- `events`, `bind`, and `writable`: actions, app state, and inputs. See [Connect app state and actions](/generative-ui/components/state-and-actions).
+- `component`：负责渲染的 React 组件。
+- `description`：这个组件是什么、什么时候用。智能体会读它，所以请写具体。
+- `props`：智能体设置的 props 的 schema。
+- `slots`：承载子组件的 props。`"single"` 接收一个子组件，`"multiple"`
+  接收一个列表。
+- props schema 内的子组件引用：用来自
+  `@copilotkit/react-core/v2/generative-ui` 的 `child()` 或 `childList()`
+  标记某个 prop，位置可以在 schema 中的任何地方，例如
+  `tabs: z.array(z.object({ title: z.string(), child: child() }))`。引擎会
+  渲染被引用的组件，你的组件收到的将是 React 节点而非 id。A2UI 1.0 就是
+  这样标记引用的（`ComponentId`、`ChildList`）；`slots` 保留给简单的顶层
+  场景。
+- `events`、`bind` 和 `writable`：操作、应用状态与输入。参见
+  [连接应用状态与操作](/generative-ui/components/state-and-actions)。
 
-Next to `id` and `component`, every component the agent writes may carry the A2UI 1.0 envelope: `catalogId` (must be the id of your UI), `metadata` (`{ "extensions": { ... } }`, kept for your own tooling) and `accessibility` (`label`, `description`, `live`, `hidden`; `label`, `description` and `hidden` may be bindings or function values). The engine resolves `accessibility` and keeps all three out of your props. `hidden` and `live` apply to every component: the engine wraps the component in an element with `aria-hidden` and `aria-live`. A `label` or a `description` needs an element with a role, so the standard components set them on their root or on their control. In your own component, call `useGenerativeUIAccessibility()` and spread the result on the root element. A component that must not be wrapped (a table row or cell) declares `accessibility: "self"` and applies the attributes itself.
+除 `id` 和 `component` 之外，智能体写出的每个组件都可以携带 A2UI 1.0
+信封：`catalogId`（必须是你 UI 的 id）、`metadata`
+（`{ "extensions": { ... } }`，保留给你自己的工具链）以及 `accessibility`
+（`label`、`description`、`live`、`hidden`；其中 `label`、`description` 和
+`hidden` 可以是绑定或函数值）。引擎会解析 `accessibility`，并且这三者都
+不会进入你的 props。`hidden` 和 `live` 适用于每个组件：引擎会把组件包进
+一个带 `aria-hidden` 和 `aria-live` 的元素。`label` 或 `description` 需要
+一个带 role 的元素，因此标准组件会把它们设置在自己的根元素或控件上。在
+你自己的组件中，调用 `useGenerativeUIAccessibility()` 并把结果展开到根
+元素上。不能被包装的组件（表格行或单元格）声明 `accessibility: "self"`
+并自行应用这些属性。
 
-## Type your components
+## 为组件标注类型
 
-`GenerativeUIComponentProps<typeof ui, "Name">` gives a component the exact props that the renderer passes. It reads them from the schema, so the component and the catalog cannot drift apart:
+`GenerativeUIComponentProps<typeof ui, "Name">` 让组件精确获得渲染器传入
+的 props。类型读取自 schema，因此组件与组件目录不会渐行渐远：
 
 ```tsx
 function ProductCard(props: GenerativeUIComponentProps<typeof shopUI, "ProductCard">) {
@@ -88,9 +110,11 @@ function ProductCard(props: GenerativeUIComponentProps<typeof shopUI, "ProductCa
 }
 ```
 
-## Pick a schema library
+## 选择 schema 库
 
-`props` takes any [Standard Schema](https://standardschema.dev) of an object. The agent gets the props as JSON Schema, so the schema must be able to give one:
+`props` 接受任何对象的
+[Standard Schema](https://standardschema.dev)。智能体拿到的 props 是
+JSON Schema 形式，因此 schema 必须能够给出一份：
 
 <Tabs items={["zod", "Valibot"]}>
   <Tab value="zod">
@@ -110,11 +134,13 @@ function ProductCard(props: GenerativeUIComponentProps<typeof shopUI, "ProductCa
   </Tab>
 </Tabs>
 
-These work: zod 3, zod 4.2 or later, ArkType, and Valibot with `@valibot/to-json-schema`. The schema must validate synchronously, because props are checked while a surface renders.
+可用的有：zod 3、zod 4.2 及以上、ArkType，以及配合
+`@valibot/to-json-schema` 使用的 Valibot。schema 必须支持同步校验，因为
+props 是在界面渲染时检查的。
 
-## Combine catalogs
+## 组合多个组件目录
 
-`extends` merges other catalogs into yours. The result has the types of every component:
+`extends` 把其他组件目录合并进你的目录。结果的类型涵盖每个组件：
 
 ```ts
 import { createGenerativeUI, standardUI } from "@copilotkit/react-core/v2/generative-ui";
@@ -126,11 +152,15 @@ export const appUI = createGenerativeUI({
 });
 ```
 
-A name can come from one catalog only. Two components named `Card` throw an error when the app loads. To replace a standard component, use [overrides](/generative-ui/components/standard-catalog#replace-a-component).
+一个名称只能来自一个组件目录。两个名为 `Card` 的组件会在应用加载时抛错。
+要替换标准组件，请使用
+[overrides](/generative-ui/components/standard-catalog#replace-a-component)。
 
-## Export the catalog for other A2UI tools
+## 为其他 A2UI 工具导出组件目录
 
-`exportA2UICatalog(ui)` writes your UI as an A2UI 1.0 catalog definition (the `catalog_definition.json` shape), for a validator, another renderer or a prompt builder:
+`exportA2UICatalog(ui)` 把你的 UI 写成 A2UI 1.0 组件目录定义（即
+`catalog_definition.json` 的形态），供校验器、其他渲染器或提示词构建器
+使用：
 
 ```ts
 import { exportA2UICatalog } from "@copilotkit/react-core/v2/generative-ui";
@@ -139,13 +169,21 @@ const catalog = exportA2UICatalog(appUI, { title: "Acme app" });
 fs.writeFileSync("acme-catalog.json", JSON.stringify(catalog, null, 2));
 ```
 
-Every component is an entry with `component` as a `const`, its model-set props, its events as `Action` references and its slots as `ComponentId` or `ChildList` references. A prop takes its literal schema, a `DataBinding` or a `FunctionCall`, because the renderer resolves dynamic values in any prop. Every function, built-in or declared, states `returnType` and `allowedCallers`; `calc` and `series` are listed like the others, so a reader without them knows what it cannot run.
+每个组件都是一个条目：`component` 作为 `const`，附带模型可设置的 props、
+以 `Action` 引用表示的事件，以及以 `ComponentId` 或 `ChildList` 引用表示
+的插槽。prop 可以取它的字面量 schema、`DataBinding` 或 `FunctionCall`，
+因为渲染器会解析任何 prop 中的动态值。每个函数——无论内置还是自定义
+声明——都要声明 `returnType` 和 `allowedCallers`；`calc` 和 `series` 与
+其他函数一样列出，这样缺少它们的消费方就知道哪些是自己无法运行的。
 
-## Positional parameter order
+## 位置参数顺序
 
-A2UI Express maps positional arguments using the order of properties in the catalog's JSON Schema. Its [schema-driven key mapping specification](https://a2ui.org/specification/proposals/express/a2ui_express/#schema-driven-key-mapping) defines that behavior. The choice of which parameters come first belongs to the catalog author.
+A2UI Express 按组件目录 JSON Schema 中属性的顺序映射位置参数。其
+[schema 驱动的键映射规范](https://a2ui.org/specification/proposals/express/a2ui_express/#schema-driven-key-mapping)
+定义了该行为。哪些参数排在前面，由组件目录作者决定。
 
-Declare `parameterOrder` to put a component's main content, children or actions first, across `props`, `slots` and `events`:
+声明 `parameterOrder`，就能让组件的主要内容、子组件或操作排在最前，横跨
+`props`、`slots` 和 `events`：
 
 ```tsx
 const ui = createGenerativeUI({
@@ -161,19 +199,32 @@ const ui = createGenerativeUI({
 });
 ```
 
-`exportA2UICatalog(ui)` emits `Panel.properties` in the order `component`, `title`, `children`, `color`. Express ignores the structural `component` discriminator, so the first positional argument is the title. `parameterOrder` is CopilotKit authoring/manifest metadata, **not an A2UI JSON Schema keyword**: the portable export applies it to the actual JSON property order.
+`exportA2UICatalog(ui)` 按 `component`、`title`、`children`、`color` 的
+顺序输出 `Panel.properties`。Express 会忽略结构性的 `component` 判别
+字段，因此第一个位置参数就是 title。`parameterOrder` 是 CopilotKit 的
+编写/清单元数据，**不是 A2UI JSON Schema 的关键字**：可移植的导出会把它
+落实到实际的 JSON 属性顺序上。
 
-Names must be unique declared props, slots or events. An ordered component cannot declare canonical integer-index names (`"0"` through `"4294967294"`): JavaScript sorts those keys numerically before other keys regardless of the requested order. Unlisted names follow in their existing declaration order: props, then slots, then events. Bound props and matched events are omitted from the model-facing signature. Catalogs without `parameterOrder` retain their existing export order. `extends`, `omit` and React-component `overrides` preserve the declared convention.
+名称必须是唯一的、已声明的 prop、插槽或事件。声明了顺序的组件不能使用
+规范的整数索引名（`"0"` 到 `"4294967294"`）：JavaScript 会把这些键按数值
+排序并放在其他键之前，与请求的顺序无关。未列出的名称按其既有声明顺序排在
+后面：先是 props，然后是插槽，最后是事件。绑定的 prop 和被匹配的事件不会
+出现在面向模型的签名中。没有 `parameterOrder` 的组件目录保持其既有导出
+顺序。`extends`、`omit` 和 React 组件 `overrides` 都会保留已声明的约定。
 
-Treat positional order as an API contract. Changing it can change the meaning of existing Express programs; named arguments keep their meaning. Keep short prefixes stable and use named arguments for optional styling. Preserve property order when serializing or transforming a catalog for Express.
+把位置顺序当作 API 契约对待。改动它可能改变现有 Express 程序的含义；
+命名参数则保持含义不变。让短前缀保持稳定，可选的样式参数用命名参数传递。
+为 Express 序列化或转换组件目录时，保持属性顺序不变。
 
-## What the agent sees
+## 智能体看到什么
 
-The agent gets each component with its description and the props that it can set. It does not see:
+智能体拿到每个组件时，会同时拿到它的描述和它可以设置的 props。它看不到：
 
-- Props that come from app state (`bind`).
-- Events that your own code handles.
+- 来自应用状态的 props（`bind`）。
+- 由你自己的代码处理的事件。
 
-To see this list, open the **Catalog** tab of the Generative UI pane in Inspector. It groups the components by the catalog that declared them, so you can see what `extends` added.
+要查看这份清单，请打开 Inspector 中生成式 UI 面板的 **Catalog** 标签页。
+它按声明组件的目录分组，方便你看到 `extends` 加进了什么。
 
-Next: start from the [standard catalog](/generative-ui/components/standard-catalog), then add your own components on top.
+下一步：从[标准组件目录](/generative-ui/components/standard-catalog)开始，
+再在其上添加你自己的组件。

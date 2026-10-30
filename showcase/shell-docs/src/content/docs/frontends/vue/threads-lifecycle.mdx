@@ -1,70 +1,70 @@
 ---
-title: Thread & History Lifecycle
-description: "How a threadId is created, how conversation history is restored, how to switch or start threads, and how CopilotKit threads relate to your agent framework's own persistence."
+title: 线程与历史生命周期
+description: "threadId 如何创建、会话历史如何恢复、如何切换或开启线程，以及 CopilotKit 线程与你的智能体框架自身持久化之间的关系。"
 icon: "lucide/History"
 doc_type: explanation
 ---
 
 import RestoreHistory from "@/snippets/vue/threads/restore-history.mdx";
 
-## What is this?
+## 这是什么？
 
-Every CopilotKit conversation is scoped to a **thread**, identified by a `threadId`. This page explains the full client lifecycle: how the id is created, how prior history is restored, how to switch or start threads, and where CopilotKit's threads end and your agent framework's own persistence begins.
+每段 CopilotKit 会话都限定在一个**线程**内，由 `threadId` 标识。本页讲解完整的客户端生命周期：id 如何生成、既有历史如何恢复、如何切换或开启线程，以及 CopilotKit 线程的边界在哪里、你的智能体框架自身的持久化又从哪里开始。
 
 <Callout type="info">
-  This page describes the current Vue v2 composables and components imported from `@copilotkit/vue/v2`.
+  本页描述的是从 `@copilotkit/vue/v2` 导入的当前 Vue v2 组合式函数与组件。
 </Callout>
 
-## The lifecycle at a glance
+## 生命周期一览
 
-1. **Mint.** When a chat mounts without an explicit `threadId`, the client generates a UUID v4.
-2. **Run.** Messages and tool calls stream under that id. If a server-side store is configured, they are persisted as they happen; a runtime with no persistence layer keeps nothing server-side.
-3. **Hydrate.** When a chat mounts with a known id, the client connects and replays persisted history into the UI.
-4. **Switch / start.** You select a known thread and restore it, or start a fresh one and clear the view.
+1. **生成。** 当聊天挂载时未提供显式 `threadId`，客户端会生成一个 UUID v4。
+2. **运行。** 消息与工具调用在该 id 下流式进行。如果配置了服务端存储，它们会在发生时即被持久化；没有持久化层的运行时则不在服务端保留任何内容。
+3. **水合。** 当聊天以已知 id 挂载时，客户端会建立连接并把已持久化的历史回放到 UI 中。
+4. **切换/开启。** 你可以选择一个已知线程并恢复它，或开启一个全新线程并清空视图。
 
-## How the threadId is created
+## threadId 如何生成
 
-When you do not supply one, CopilotKit mints a `threadId` on the client during component setup. The value is resolved by this precedence, highest first:
+当你不提供时，CopilotKit 会在组件设置期间在客户端生成一个 `threadId`。该值的解析遵循以下优先级（从高到低）：
 
-1. An explicit `threadId` prop on `<CopilotChat>` or `<CopilotChatConfigurationProvider>`; this is authoritative and drives replay.
-2. An active-thread override from `setActiveThreadId(...)`, a picked drawer row, or `startNewThread()`.
-3. A `threadId` inherited from a parent configuration provider.
-4. A non-authoritative `threadId` seed.
-5. Otherwise, a freshly minted UUID.
+1. `<CopilotChat>` 或 `<CopilotChatConfigurationProvider>` 上的显式 `threadId` 属性；它是权威的，并驱动回放。
+2. 来自 `setActiveThreadId(...)`、抽屉中被选中的行或 `startNewThread()` 的活动线程覆盖值。
+3. 从父配置提供方继承的 `threadId`。
+4. 非权威的 `threadId` 种子值。
+5. 否则，新生成一个 UUID。
 
-```vue title="Explicit threadId (recommended when you own persistence)"
+```vue title="显式 threadId（推荐在你自行管理持久化时使用）"
 <CopilotChat agent-id="my-agent" :thread-id="myThreadId" />
 ```
 
 <Callout type="warn">
-  **Auto-minted ids survive reactive re-renders but re-mint when the component remounts.** If a changed `:key`, route transition, or parent unmount/remount recreates the chat configuration, the fallback id changes and a new conversation begins. Mint and persist the id yourself when continuity must survive remounts.
+  **自动生成的 id 能在响应式重渲染中存活，但组件重新挂载时会重新生成。**如果变化的 `:key`、路由切换或父组件卸载/重挂载重建了聊天配置，后备 id 就会改变，一段新会话随之开始。当连续性必须跨越重挂载时，请自行生成并持久化该 id。
 </Callout>
 
-## How history is restored (hydration)
+## 历史如何恢复（水合）
 
-CopilotKit Vue v2 does **not** use an `initialMessages` prop to seed a conversation. History is restored in one of two ways.
+CopilotKit Vue v2 **不**使用 `initialMessages` 属性来播种会话。历史恢复有下面两种方式。
 
-**1. Server-side replay.** When a chat mounts with an explicit `threadId`, the client assigns `agent.threadId` and connects the agent. Persisted event history replays into the UI without manual message wiring:
+**1. 服务端回放。** 当聊天以显式 `threadId` 挂载时，客户端会赋值 `agent.threadId` 并连接 agent。已持久化的事件历史会回放到 UI 中，无需手动接线消息：
 
 ```vue
 <CopilotChat agent-id="my-agent" :thread-id="existingThreadId" />
 ```
 
 <Callout type="warn">
-  Replay requires a **server-side store to replay from**, such as CopilotKit Intelligence or a persisting `AgentRunner`. A self-hosted runtime with no persistence layer has nothing to replay, so the connection returns an empty stream. If history is not restoring, check the server-side store before the Vue code.
+  回放需要一个**可供回放的服务端存储**，例如 CopilotKit Intelligence 或具备持久化能力的 `AgentRunner`。没有持久化层的自托管运行时没有任何可回放的内容，因此连接会返回空流。如果历史没有恢复，先检查服务端存储，再看 Vue 代码。
 </Callout>
 
-For a fresh non-explicit thread, such as one created by `startNewThread()`, there is nothing to replay, so the view is cleared instead.
+对于全新的非显式线程（例如由 `startNewThread()` 创建的线程），没有可回放的内容，因此视图会被清空。
 
-**2. Manual hydration.** For non-platform or custom cases, read messages from your store and set them directly on the agent:
+**2. 手动水合。** 对于非平台或自定义场景，从你自己的存储读取消息并直接设置到 agent 上：
 
 <RestoreHistory components={props.components} />
 
-Read the current conversation from `agent.value.messages`; replace or append with `setMessages(...)` and `addMessage(...)`.
+从 `agent.value.messages` 读取当前会话；用 `setMessages(...)` 和 `addMessage(...)` 进行替换或追加。
 
-## Scope Rich Threads to the signed-in user
+## 将 Rich Threads 限定到登录用户
 
-Your application owns end-user authentication. For an Intelligence-enabled runtime, implement `identifyUser(request)` with the server-verified session or token and return a stable user id and name:
+终端用户的身份验证由你的应用负责。对于启用了 Intelligence 的运行时，用服务端校验过的会话或令牌实现 `identifyUser(request)`，并返回稳定的用户 id 与名称：
 
 ```ts title="server.ts"
 import { CopilotKitIntelligence, CopilotRuntime } from "@copilotkit/runtime/v2";
@@ -82,17 +82,17 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-CopilotKit Intelligence combines that application user identity with the project when it scopes lists, subscriptions, history, rename, archive, unarchive, and delete operations. The project runtime key is a separate server credential; do not treat the developer who created it as the application user.
+CopilotKit Intelligence 在划定列表、订阅、历史、重命名、归档、取消归档和删除操作的范围时，会把该应用用户身份与项目结合起来。项目运行时密钥是单独的服务端凭据；不要把创建它的开发者当作应用用户。
 
 <Callout type="warn">
-  A static `identifyUser` value is suitable only for a single-user demo. In a multi-user application, every request must resolve the authenticated application user or those users will share a thread scope.
+  静态的 `identifyUser` 值只适合单用户演示。在多用户应用中，每个请求都必须解析出经过身份验证的应用用户，否则这些用户将共享同一个线程范围。
 </Callout>
 
-See [Authentication](/auth) for forwarding and verifying auth context, and [Connect your runtime to Intelligence](/intelligence/connect-your-runtime) for the full Intelligence configuration.
+身份验证上下文的转发与校验请参阅[身份验证](/auth)，完整的 Intelligence 配置请参阅[将你的运行时连接到 Intelligence](/intelligence/connect-your-runtime)。
 
-## Switching threads and starting new ones
+## 切换线程与开启新线程
 
-Set the active thread to restore its history, or start a fresh conversation:
+设置活动线程以恢复其历史，或开启一段全新会话：
 
 ```vue title="src/components/ThreadControls.vue"
 <script setup lang="ts">
@@ -112,20 +112,20 @@ const config = useCopilotChatConfiguration();
 </template>
 ```
 
-- `setActiveThreadId(threadId, { explicit })`: `explicit: true`, the default, treats it as a known thread and replays history. `explicit: false` shows the welcome screen.
-- `startNewThread()`: resets to a freshly minted, non-explicit id. Custom sidebars must call this configuration method to mint and switch the active thread. To reproduce the built-in drawer's behavior, also call `useThreads().startNewThread()` to clear stale thread-store error state.
+- `setActiveThreadId(threadId, { explicit })`：默认的 `explicit: true` 会将其视为已知线程并回放历史；`explicit: false` 则显示欢迎界面。
+- `startNewThread()`：重置为全新生成的非显式 id。自定义侧边栏必须调用这个配置方法来生成并切换活动线程。要复现内置抽屉的行为，还需调用 `useThreads().startNewThread()` 以清除陈旧的线程存储错误状态。
 
 <Callout type="warn">
-  Both methods no-op and warn when the `threadId` is prop-controlled. If you drive threads imperatively, do not also pass an authoritative `threadId` prop. Pick one source of truth.
+  当 `threadId` 由属性控制时，这两个方法都会空操作并发出警告。如果你以命令式方式驱动线程，就不要同时传入权威的 `threadId` 属性。请选定唯一的事实来源。
 </Callout>
 
-## Creating a thread with your own API on the first message
+## 在首条消息时用自己的 API 创建线程
 
-A common ask is to intercept the first message, create a row through your own backend, and use its id before the conversation starts.
+一个常见需求是拦截首条消息，通过自己的后端创建一条记录，并在会话开始之前使用其 id。
 
-**On the built-in `<CopilotChat>`, the `submit-message` event is observational.** The component emits it and then continues its own add-message/run flow; it is not an async interception seam that can delay that same run.
+**在内置的 `<CopilotChat>` 上，`submit-message` 事件只是观察性的。**组件发出该事件后仍会继续自己的添加消息/运行流程；它不是可以延迟该次运行的异步拦截缝。
 
-**Recommended: mint up front and drive the id.** Create the thread before rendering the chat, or from the New chat action, then pass it through the configuration:
+**推荐做法：提前生成并驱动 id。**在渲染聊天之前，或在“新建聊天”动作中创建线程，然后通过配置传入：
 
 ```ts
 async function startConversation() {
@@ -134,7 +134,7 @@ async function startConversation() {
 }
 ```
 
-**At submit-time, use a headless input.** Compose your own input and handler, set the id on the agent before adding the message, then run the agent:
+**提交时方案：使用无头输入。**自行组合输入框与处理器，在添加消息之前把 id 设置到 agent 上，然后运行 agent：
 
 ```ts
 async function submit(text: string) {
@@ -149,37 +149,37 @@ async function submit(text: string) {
 ```
 
 <Callout type="warn">
-  For a run fired in the same handler, set the id on the **agent**. `setActiveThreadId(id)` updates configuration reactively and reaches the agent later, so an immediate run could still use the prior thread.
+  对于在同一处理器中触发的运行，请把 id 设置到 **agent** 上。`setActiveThreadId(id)` 会以响应式方式更新配置、稍后才到达 agent，因此立即执行的运行仍可能使用先前的线程。
 </Callout>
 
-## CopilotKit threads vs. your framework's checkpointer
+## CopilotKit 线程与你框架的 checkpointer 对比
 
-These are two different layers, correlated only by the shared `threadId`:
+这是两个不同的层，仅靠共享的 `threadId` 关联：
 
-| Layer | What it stores | Managed by |
+| 层 | 存储内容 | 管理方 |
 | --- | --- | --- |
-| **CopilotKit threads** | Conversation list and AG-UI event history, with realtime sync | CopilotKit Intelligence, through `useThreads` |
-| **Framework-native persistence** | Framework-internal state and checkpoints | Your agent, such as a LangGraph checkpointer |
+| **CopilotKit 线程** | 会话列表与 AG-UI 事件历史，支持实时同步 | CopilotKit Intelligence，通过 `useThreads` |
+| **框架原生持久化** | 框架内部的状态与检查点 | 你的 agent，例如 LangGraph checkpointer |
 
-A LangGraph checkpointer creates LangGraph's own checkpoint tables. It does not create a CopilotKit threads table. Conversely, CopilotKit rename/archive/delete actions do not reach into LangGraph, ADK, or other native stores unless your backend explicitly bridges them.
+LangGraph checkpointer 创建的是 LangGraph 自己的检查点表，它不会创建 CopilotKit 线程表。反过来，CopilotKit 的重命名/归档/删除操作也不会触及 LangGraph、ADK 或其他原生存储，除非你的后端显式地搭建了桥接。
 
-The bridge is the `threadId`: CopilotKit forwards an explicit id to the backend as the AG-UI `threadId`, which the framework can use directly or map to its own identifier.
+桥梁就是 `threadId`：CopilotKit 把显式 id 作为 AG-UI 的 `threadId` 转发给后端，框架既可直接使用它，也可映射到自己的标识符。
 
-### Future runs can remain durable in both places
+### 未来的运行可在两侧都保持持久
 
-After historical import, future conversations run through CopilotKit can be written to CopilotKit Intelligence while the agent continues using its durable native checkpointer or session service. Users get AG-UI replay, generative UI, multimodal history, and realtime continuity while the framework retains its own storage and analytics.
+历史导入之后，未来经 CopilotKit 运行的会话可以写入 CopilotKit Intelligence，同时 agent 继续使用其持久的原生 checkpointer 或会话服务。用户获得 AG-UI 回放、生成式 UI、多模态历史与实时连续性，框架则保留自己的存储与分析。
 
-This is coordinated persistence during future CopilotKit-mediated runs, not general database replication. CopilotKit lifecycle actions still apply only to the CopilotKit thread unless you build a bridge.
+这是未来由 CopilotKit 介入的运行期间的协调式持久化，而非通用的数据库复制。除非你搭建桥接，CopilotKit 的生命周期操作仍只作用于 CopilotKit 线程。
 
-## MCP Apps activity and history
+## MCP Apps 活动与历史
 
-MCP Apps render through activity messages, and rendering is a client-side concern. The visible iframe is re-derived from the replayed conversation when it loads; it is not a separately stored artifact.
+MCP Apps 通过活动消息渲染，渲染是客户端的事务。可见的 iframe 在加载时从回放的会话中重新推导而来；它不是单独存储的制品。
 
-If the server-side store replays the thread's tool-call and activity history, the Vue renderer runs again during hydration. There is no separate MCP Apps store to configure.
+如果服务端存储回放了该线程的工具调用与活动历史，Vue 渲染器会在水合期间再次运行。没有需要单独配置的 MCP Apps 存储。
 
-## See also
+## 另请参阅
 
-- [Headless Threads](/vue/headless-threads) — the full Vue `useThreads` API.
-- [Threads & Persistence Architecture](/intelligence/threads-explained) — server-side replay, resume, and realtime sync.
-- [Multi-conversation chat](/tutorials/multi-conversation-chat) — build a history sidebar.
-- [Importing and synchronizing thread history](/threads-import) — bring existing framework conversations into the platform.
+- [无头线程](/vue/headless-threads)——完整的 Vue `useThreads` API。
+- [线程与持久化架构](/intelligence/threads-explained)——服务端回放、恢复与实时同步。
+- [多会话聊天](/tutorials/multi-conversation-chat)——构建历史侧边栏。
+- [导入与同步线程历史](/threads-import)——把既有的框架会话带入平台。

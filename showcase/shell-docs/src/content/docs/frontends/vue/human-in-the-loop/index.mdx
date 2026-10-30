@@ -1,12 +1,12 @@
 ---
-title: HITL Overview
+title: 人机协同（HITL）概览
 icon: "lucide/User"
-description: Allow your agent and users to collaborate on complex tasks.
+description: 让智能体与用户协作完成复杂任务。
 ---
 
-## What is this?
+## 这是什么？
 
-Human-in-the-loop (HITL) lets an agent pause mid-run to collect input, confirmation, or a choice from the user, then resume with that answer folded back into its reasoning. It's what turns an autonomous workflow into a collaborative one: the agent keeps its context, the user keeps the steering wheel.
+人机协同（human-in-the-loop，HITL）让智能体在运行中途暂停，向用户收集输入、确认或选择，然后在答案并入其推理后继续运行。正是它把自动化工作流变成协作式工作流：智能体保留自己的上下文，用户握住方向盘。
 
 <video
   src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/human-in-the-loop-example.mp4"
@@ -18,33 +18,33 @@ Human-in-the-loop (HITL) lets an agent pause mid-run to collect input, confirmat
   muted
 />
 
-## When should I use this?
+## 何时应该使用它？
 
-Use HITL when you need:
+在以下情况下使用 HITL：
 
-- **Quality control** — a human gate at high-stakes decision points
-- **Edge cases** — graceful fallbacks when the agent's confidence is low
-- **Expert input** — lean on the user for domain knowledge the model lacks
-- **Reliability** — a more robust loop for real-world, production traffic
+- **质量控制** —— 在高风险决策点设置人工把关
+- **边界情况** —— 当智能体置信度较低时提供优雅的回退
+- **专家输入** —— 在模型缺乏领域知识时借助用户的力量
+- **可靠性** —— 为真实世界的生产流量提供更稳健的循环
 
-## Two patterns for HITL in CopilotKit
+## CopilotKit 中实现 HITL 的两种模式
 
 <FrameworkSetup concept="human-in-the-loop-setup" />
 
-CopilotKit ships two complementary ways to pause an agent turn and ask the human something. They look similar from the outside (the chat pauses, a custom component appears, the user answers, the run resumes), but they're wired differently on the backend, and each has its own niche.
+CopilotKit 提供两种互补的方式来暂停智能体回合并向用户提问。从外部看它们很相似（聊天暂停、出现一个自定义组件、用户作答、运行恢复），但它们在后端的接线方式不同，且各有各的适用场景。
 
-| Pattern | Who decides to pause? | Backend surface |
+| 模式 | 由谁决定暂停？ | 后端接点 |
 | --- | --- | --- |
-| `useHumanInTheLoop` | The **LLM**, by calling a registered client-side tool | A frontend-only tool description (Zod schema + `render`) |
-| `useInterrupt` | The **graph**, by calling `interrupt(...)` during a node | A server-side `interrupt()` call in your agent |
+| `useHumanInTheLoop` | **LLM**，通过调用一个已注册的客户端工具 | 仅前端的工具描述（Zod schema + `render`） |
+| `useInterrupt` | **图**，在节点执行期间调用 `interrupt(...)` | 智能体中服务端的 `interrupt()` 调用 |
 
-**Pick `useHumanInTheLoop`** when the pause is an _agent-initiated_ decision — the model chose to ask the user — and you want the picker UI inlined into the normal tool-call flow.
+当暂停是一次*由智能体发起*的决定——即模型选择询问用户——并且你希望选择器 UI 内联在正常的工具调用流程中时，**选择 `useHumanInTheLoop`**。
 
-**Pick `useInterrupt`** when the pause is a _graph-enforced_ checkpoint — the code path deterministically requires a human answer — and you want the runtime interrupt as the server-side contract.
+当暂停是一个*由图强制执行*的检查点——即代码路径确定性地需要人工回答——并且你希望以运行时中断作为服务端契约时，**选择 `useInterrupt`**。
 
-## Pattern 1 — `useHumanInTheLoop` (tool-based)
+## 模式 1 —— `useHumanInTheLoop`（基于工具）
 
-The app registers a HITL tool on the client with `useHumanInTheLoop`. When the LLM calls that tool, CopilotKit renders your Vue component and gives it a `respond` callback during the executing phase. The agent sees the answer as the tool result and continues from there.
+应用在客户端用 `useHumanInTheLoop` 注册一个 HITL 工具。当 LLM 调用该工具时，CopilotKit 渲染你的 Vue 组件，并在执行阶段为其提供 `respond` 回调。智能体把答案当作工具结果看到，并从那里继续。
 
 ```vue title="src/components/MeetingApproval.vue"
 <script setup lang="ts">
@@ -66,16 +66,16 @@ useHumanInTheLoop({
 <template><p>Meeting approval tool registered.</p></template>
 ```
 
-The picker UI can use static candidate slots, live availability, a calendar API, or any other application data. Mount the registration component beneath `CopilotKitProvider` so the composable can reach the runtime.
+选择器 UI 可以使用静态候选时段、实时可用性、日历 API 或任何其他应用数据。将注册组件挂载到 `CopilotKitProvider` 之下，composable 才能访问到运行时。
 
-## Pattern 2 — `useInterrupt` (graph-paused)
+## 模式 2 —— `useInterrupt`（图暂停）
 
-With a runtime interrupt, the pause is enforced by the graph itself: a node interrupts with a serializable payload, the run suspends, the client receives the payload, renders a UI, and resumes the run with the user's answer. CopilotKit's `useInterrupt` composable and `CopilotChat`'s `#interrupt` slot form the Vue render contract.
+使用运行时中断时，暂停由图本身强制执行：某个节点携带可序列化的载荷发出中断，运行挂起，客户端收到载荷、渲染 UI，然后带着用户的答案恢复运行。CopilotKit 的 `useInterrupt` composable 与 `CopilotChat` 的 `#interrupt` 插槽共同构成 Vue 渲染契约。
 
-See the [`useInterrupt` deep dive](/vue/human-in-the-loop/useInterrupt) for the full walkthrough, including the backend contract and Vue slot wiring.
+完整演练（包括后端契约与 Vue 插槽接线）请参阅 [`useInterrupt` 深度解析](/vue/human-in-the-loop/useInterrupt)。
 
-## Going headless
+## 走向无头
 
-Both patterns above can drive custom UI. For runtime interrupts, set `renderInChat: false` and use the reactive state returned by `useInterrupt`; for a frontend-tool pause, let the Promise-returning HITL tool drive application state. See the [headless interrupts guide](/vue/human-in-the-loop/headless) for the interrupt path.
+上述两种模式都可以驱动自定义 UI。对于运行时中断，设置 `renderInChat: false` 并使用 `useInterrupt` 返回的响应式状态；对于前端工具暂停，让返回 Promise 的 HITL 工具驱动应用状态。中断路径请参阅[无头中断指南](/vue/human-in-the-loop/headless)。
 
 <IntegrationGrid path="human-in-the-loop" />

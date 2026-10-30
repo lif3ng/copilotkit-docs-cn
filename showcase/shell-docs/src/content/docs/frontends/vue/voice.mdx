@@ -1,22 +1,17 @@
 ---
-title: Voice
-description: Add runtime-backed speech-to-text to a Vue chat composer.
+title: 语音
+description: 为 Vue 聊天输入框添加由运行时支持的语音转文字。
 icon: "lucide/Mic"
 ---
 
-You can add voice input to `CopilotChat` without wiring a separate microphone
-button. The component renders its transcription controls only when the runtime
-advertises `audioFileTranscriptionEnabled` and the browser supports
-`MediaRecorder`.
+你可以为 `CopilotChat` 添加语音输入，而无需另接一个麦克风按钮。只有当运行时声明了 `audioFileTranscriptionEnabled` 且浏览器支持 `MediaRecorder` 时，该组件才会渲染转录控件。
 
-## When to use this
+## 何时使用
 
-- Use voice input for hands-free, accessibility, mobile, kiosk, and long-form
-  prompts.
-- Use [multimodal attachments](/vue/multimodal-attachments) when the user is
-  sending an audio file rather than speaking live.
+- 语音输入适用于免提、无障碍、移动端、自助终端（kiosk）以及长篇提示等场景。
+- 当用户发送的是音频文件而非现场说话时，请使用[多模态附件](/vue/multimodal-attachments)。
 
-## Frontend setup
+## 前端配置
 
 ```vue title="App.vue"
 <script setup lang="ts">
@@ -31,18 +26,11 @@ import "@copilotkit/vue/styles.css";
 </template>
 ```
 
-When the user starts recording, the browser requests microphone permission.
-After recording finishes, the Vue component sends the audio to the runtime,
-places the returned transcript into the composer, and leaves it editable. The
-user submits it like any other message; Vue does not auto-send the transcript.
-Serve production pages over HTTPS so browsers can grant microphone access.
+当用户开始录音时，浏览器会请求麦克风权限。录音结束后，Vue 组件把音频发送给运行时，将返回的转录文本放入输入框，并保持其可编辑状态。用户像提交其他消息一样提交它；Vue 不会自动发送转录文本。生产环境页面应通过 HTTPS 提供，浏览器才会授予麦克风访问权限。
 
-The default REST transport posts multipart form data to
-`{runtimeUrl}/transcribe` with an `audio` field. With `use-single-endpoint`,
-the Vue client sends a JSON envelope to `runtimeUrl` containing base64 audio,
-`mimeType`, and `filename`.
+默认的 REST 传输会把 multipart 表单数据 POST 到 `{runtimeUrl}/transcribe`，附带一个 `audio` 字段。启用 `use-single-endpoint` 后，Vue 客户端会向 `runtimeUrl` 发送一个 JSON 信封，其中包含 base64 音频、`mimeType` 和 `filename`。
 
-Set the provider prop when your runtime exposes one single endpoint:
+当你的运行时只暴露单一端点时，设置该 provider 属性：
 
 ```vue
 <CopilotKitProvider
@@ -53,11 +41,9 @@ Set the provider prop when your runtime exposes one single endpoint:
 </CopilotKitProvider>
 ```
 
-## Custom audio handling
+## 自定义音频处理
 
-Pass `on-finish-transcribe-with-audio` when your application wants to receive
-the recorded `Blob` and handle transcription itself. This callback replaces the
-default runtime request, so it must put any resulting text into your own UI:
+当你的应用想接收录制的 `Blob` 并自行处理转录时，传入 `on-finish-transcribe-with-audio`。这个回调会取代默认的运行时请求，因此它必须把产生的文本放入你自己的 UI：
 
 ```vue
 <script setup lang="ts">
@@ -72,16 +58,11 @@ async function handleAudio(audio: Blob) {
 </template>
 ```
 
-The Vue package does not expose the React demo's `onTranscribed` canned-audio
-callback or a runnable voice Showcase route. For deterministic demos and
-tests, call your own handler with a recorded `Blob` instead of documenting a
-non-existent Vue prop.
+Vue 包不提供 React 演示中的 `onTranscribed` 预录音频回调，也没有可运行的语音 Showcase 路由。要做确定性的演示与测试，请用录制好的 `Blob` 调用你自己的处理器，而不要给一个并不存在的 Vue 属性写文档。
 
-## Configure the runtime
+## 配置运行时
 
-The mic appears only when the runtime has a `TranscriptionService`. Configure
-that service in your V2 runtime and mount the normal runtime handler. The
-service implements:
+只有当运行时拥有 `TranscriptionService` 时，麦克风才会出现。在你的 V2 运行时中配置该服务，并挂载常规的运行时处理器。该服务需实现：
 
 ```ts
 import {
@@ -101,13 +82,6 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-With the service configured, `GET /info` reports
-`audioFileTranscriptionEnabled: true` and `POST /transcribe` dispatches to
-`transcribeFile`. Without it, the runtime cannot produce a transcript even if
-the browser has a microphone.
+配置好该服务后，`GET /info` 会报告 `audioFileTranscriptionEnabled: true`，`POST /transcribe` 会分派到 `transcribeFile`。没有它，即使浏览器有麦克风，运行时也无法产出转录文本。
 
-See [Runtime HTTP endpoints](/backend/runtime-endpoints) for route mounting,
-request shapes, and server-side error handling. The V2 runtime maps service
-errors to transcription error codes such as `rate_limited`, `auth_failed`,
-`audio_too_long`, and `provider_error`; the Vue composer presents a retryable
-or actionable message and clears it after a short delay.
+路由挂载、请求结构与服务器端错误处理请参阅[运行时 HTTP 端点](/backend/runtime-endpoints)。V2 运行时会把服务错误映射为 `rate_limited`、`auth_failed`、`audio_too_long`、`provider_error` 等转录错误码；Vue 输入框会展示一条可重试或可操作的消息，并在短暂延迟后清除。

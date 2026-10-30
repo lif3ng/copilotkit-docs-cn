@@ -1,50 +1,50 @@
 ---
-title: "Threads Drawer"
+title: "线程抽屉"
 icon: "lucide/PanelLeft"
-description: "Drop-in threads drawer that lists, switches, and manages conversations next to your chat."
+description: "开箱即用的线程抽屉，可在聊天旁列出、切换和管理会话。"
 ---
 
-## What is this?
+## 这是什么？
 
-`<CopilotThreadsDrawer>` gives your app a ready-made conversation sidebar. Users can list, switch, start, archive, and delete their threads, and you wire up **no active-thread state** to make it work. Drop it next to your chat and it connects automatically through a shared chat configuration.
+`<CopilotThreadsDrawer>` 为你的应用提供一个开箱即用的会话侧边栏。用户可以列出、切换、开始、归档和删除自己的线程，而你**无需接入任何活动线程状态**即可让它工作。把它放在聊天旁边，它会通过共享的聊天配置自动建立连接。
 
-If your project was created from a CopilotKit CLI starter, the Drawer and its shared configuration may already be included. Otherwise, use the setup below to add it to an existing Vue application.
+如果你的项目是通过 CopilotKit CLI 起步模板创建的，抽屉及其共享配置可能已经包含在内。否则，请使用下面的设置把它添加到现有的 Vue 应用中。
 
-<Frame description="CopilotThreadsDrawer beside a CopilotChat. Selecting a thread replays its conversation with no active-thread wiring.">
+<Frame description="CopilotThreadsDrawer 与 CopilotChat 并排。选择一个线程即可回放其会话，无需任何活动线程接线。">
   <img
     src="/images/threads/support-desk-threads.png"
-    alt="A support desk application with a Threads Drawer listing customer conversations beside CopilotChat"
+    alt="一个客服台应用，CopilotChat 旁的线程抽屉列出了客户会话"
     className="w-full rounded-lg"
   />
 </Frame>
 
-Under the hood, the Vue component is an SSR-safe wrapper around the self-contained `copilotkit-threads-drawer` web component. It is fed by [`useThreads`](/reference/vue/hooks/useThreads) and the current chat configuration.
+在底层，该 Vue 组件是独立 `copilotkit-threads-drawer` Web 组件的一个 SSR 安全包装器。它的数据来自 [`useThreads`](/reference/vue/hooks/useThreads) 和当前聊天配置。
 
-Prefer to build your own thread UI? The same data and actions are available through `useThreads`; see [Headless Threads](/vue/headless-threads). Thread **rename** is one of those headless actions: the prebuilt drawer covers archive, unarchive, and delete, so use your own rows when rename is required.
+想构建自己的线程 UI？同样的数据和动作可以通过 `useThreads` 获得；参见[无头线程](/vue/headless-threads)。线程**重命名**就是其中一个无头动作：预构建抽屉仅覆盖归档、取消归档和删除，需要重命名时请使用你自己的行。
 
-## When should I use this?
+## 何时应该使用它？
 
-Use the drawer when you want:
+在以下情况下使用抽屉：
 
-- A persistent thread switcher beside your chat
-- Thread switching, new conversations, archive, and delete with zero wiring
-- A self-contained, themeable UI that follows your app's light/dark theme
-- A mobile-ready off-canvas drawer with its own launcher
+- 聊天旁边有一个持久的线程切换器
+- 零接线即可实现线程切换、新建会话、归档和删除
+- 自包含、可主题化、跟随应用明暗主题的 UI
+- 移动端就绪、自带启动按钮的屏幕外抽屉
 
-It requires CopilotKit Intelligence because threads are stored and synchronized server-side. <SignupLink surface="docs_drawer">Get a free developer account</SignupLink> to set that up.
+它需要 CopilotKit Intelligence，因为线程是在服务端存储和同步的。<SignupLink surface="docs_drawer">获取免费开发者账户</SignupLink>来完成设置。
 
-For multi-user applications, configure the runtime to [scope Rich Threads to the signed-in user](/vue/threads-lifecycle#scope-rich-threads-to-the-signed-in-user).
+对于多用户应用，请将运行时配置为[将 Rich Threads 限定到已登录用户](/vue/threads-lifecycle#scope-rich-threads-to-the-signed-in-user)。
 
 <OpsPlatformCTA
   variant="inline"
-  title="Threads run in CopilotKit Intelligence"
-  body="Get persistent threads and realtime sync on the free Developer tier."
+  title="线程运行在 CopilotKit Intelligence 上"
+  body="在免费 Developer 层级获得持久化线程和实时同步。"
   surface="docs_drawer"
 />
 
-## Set up the Threads Drawer
+## 设置线程抽屉
 
-Place `<CopilotThreadsDrawer>` next to `<CopilotChat>` and wrap **both** in a shared `<CopilotChatConfigurationProvider>`. That shared configuration lets the Drawer drive the chat: selecting a row connects the chat to that thread and replays its history; the New Conversation row resets the chat to a fresh welcome screen.
+将 `<CopilotThreadsDrawer>` 放在 `<CopilotChat>` 旁边，并把**两者**都包裹在同一个共享 `<CopilotChatConfigurationProvider>` 中。这份共享配置让抽屉能够驱动聊天：选中一行会把聊天连接到该线程并回放其历史记录；“新对话”行则会把聊天重置为全新的欢迎界面。
 
 ```vue title="src/App.vue"
 <script setup lang="ts">
@@ -72,14 +72,11 @@ import "@copilotkit/vue/styles.css";
 </template>
 ```
 
-That's the whole integration. A hand-built sidebar would track the active thread id and pass selection/new-thread handlers between the list and chat; the shared configuration owns that state for the Drawer.
+整个集成到此完成。如果手工构建侧边栏，你需要跟踪活动线程 id，并在列表和聊天之间传递选择/新建线程的处理函数；而共享配置会替抽屉持有这些状态。
 
-## Add your own "New conversation" button
+## 添加你自己的“新对话”按钮
 
-The Drawer has its own "New Conversation" row. Your app can also keep its own
-button, for example in a toolbar or a page header. Call `startNewThread()` from
-[`useCopilotChatConfiguration`](/reference/vue/hooks/useCopilotChatConfiguration),
-the same configuration method the Drawer calls for its own row.
+抽屉自带“新对话”行。你的应用也可以保留自己的按钮，例如放在工具栏或页面页眉中。调用 [`useCopilotChatConfiguration`](/reference/vue/hooks/useCopilotChatConfiguration) 提供的 `startNewThread()`——这正是抽屉为自身行调用的同一个配置方法。
 
 ```vue title="src/components/NewConversationButton.vue"
 <script setup lang="ts">
@@ -97,8 +94,7 @@ function startNewConversation() {
 </template>
 ```
 
-Put the button inside the same `<CopilotChatConfigurationProvider>` as the
-Drawer and chat:
+把按钮放在与抽屉和聊天相同的 `<CopilotChatConfigurationProvider>` 内：
 
 ```vue title="src/App.vue with a toolbar button"
 <script setup lang="ts">
@@ -130,20 +126,12 @@ import "@copilotkit/vue/styles.css";
 </template>
 ```
 
-How it works:
+工作原理：
 
-- Outside a configuration provider, `useCopilotChatConfiguration()` returns a
-  computed ref containing `null`, so the button does nothing.
-- `startNewThread()` gives the chat a new thread id and shows its welcome
-  screen. The Drawer reads the active thread from the same configuration, so
-  no row stays selected.
-- The new thread appears in the Drawer list after its first run. An empty
-  thread does not get a row.
-- If you set `threadId` on `<CopilotChatConfigurationProvider>`, your app
-  controls the thread. Then the configuration's `startNewThread()` and
-  `setActiveThreadId()` do nothing and log a warning. Keep the id in your own
-  state and pass the Drawer `onThreadSelect` and `onNewThread` callbacks. Your
-  button updates the same state:
+- 在配置提供方之外，`useCopilotChatConfiguration()` 返回一个包含 `null` 的 computed ref，因此按钮不会执行任何操作。
+- `startNewThread()` 会为聊天分配新的线程 id 并显示其欢迎界面。抽屉从同一配置读取活动线程，因此不会有任何行保持选中状态。
+- 新线程在首次运行后会出现在抽屉列表中。空线程不会获得对应行。
+- 如果你在 `<CopilotChatConfigurationProvider>` 上设置了 `threadId`，就由你的应用控制线程。此时配置的 `startNewThread()` 和 `setActiveThreadId()` 不会执行任何操作，只会记录警告。请把 id 保存在你自己的状态里，并向抽屉传入 `onThreadSelect` 和 `onNewThread` 回调。你的按钮更新同一个状态：
 
   ```vue title="src/components/ControlledChat.vue"
   <script setup lang="ts">
@@ -177,11 +165,9 @@ How it works:
   </template>
   ```
 
-  Render `ControlledChat` inside your `<CopilotKitProvider>`.
+  在你的 `<CopilotKitProvider>` 内渲染 `ControlledChat`。
 
-To show only your button, hide the Drawer's own new-conversation controls with
-their CSS parts. `new-thread-button` is the row in the open Drawer.
-`launcher-new-thread` is the (+) button in the closed or collapsed launcher.
+若只想显示你自己的按钮，可以通过 CSS parts 隐藏抽屉自带的新建会话控件。`new-thread-button` 是展开抽屉中的那一行；`launcher-new-thread` 是收起或折叠状态下启动按钮中的 (+) 按钮。
 
 ```css
 copilotkit-threads-drawer::part(new-thread-button),
@@ -190,29 +176,29 @@ copilotkit-threads-drawer::part(launcher-new-thread) {
 }
 ```
 
-## Configuring the drawer
+## 配置抽屉
 
-`<CopilotThreadsDrawer>` works with zero props. Its optional props are:
+`<CopilotThreadsDrawer>` 无需任何 prop 即可工作。其可选 prop 如下：
 
-| Prop             | Description                                                                                                    |
+| Prop             | 描述                                                                                                    |
 | ---------------- | -------------------------------------------------------------------------------------------------------------- |
-| `agentId`        | Agent whose threads to list; defaults to the chat configuration's agent.                                       |
-| `label`          | Accessible name for the drawer region and listbox; defaults to `"Threads"`.                                    |
-| `recentLabel`    | Heading above the list; defaults to `"Recent Conversations"`.                                                  |
-| `onThreadSelect` | Escape hatch to take over thread selection.                                                                    |
-| `onNewThread`    | Escape hatch to handle the New Conversation row.                                                               |
-| `onLicensed`     | Called when the user clicks Upgrade in the locked drawer. This is not a license-check completion notification. |
-| `licenseUrl`     | Override for the licensing destination.                                                                        |
-| `collapsible`    | Whether the expanded desktop drawer can collapse; defaults to `true`.                                          |
-| `limit`          | Page size. The drawer shows Load more while another page exists.                                               |
+| `agentId`        | 要列出其线程的智能体；默认为聊天配置中的智能体。                                       |
+| `label`          | 抽屉区域和列表框的无障碍名称；默认为 `"Threads"`。                                    |
+| `recentLabel`    | 列表上方的标题；默认为 `"Recent Conversations"`。                                                  |
+| `onThreadSelect` | 接管线程选择的逃生口。                                                                    |
+| `onNewThread`    | 处理“新对话”行的逃生口。                                                               |
+| `onLicensed`     | 用户在锁定抽屉中点击 Upgrade 时调用。这不是许可证校验完成的通知。 |
+| `licenseUrl`     | 覆盖许可证跳转目标地址。                                                                        |
+| `collapsible`    | 展开的桌面端抽屉是否可折叠；默认为 `true`。                                          |
+| `limit`          | 分页大小。只要还有下一页，抽屉就会显示 Load more。                                               |
 
-See the [Vue Threads Drawer reference](/reference/vue/components/CopilotThreadsDrawer) for the full prop and event types.
+完整的 prop 和事件类型请参见 [Vue 线程抽屉参考](/reference/vue/components/CopilotThreadsDrawer)。
 
-## Customization
+## 自定义
 
-The drawer renders in a shadow root with self-contained, theme-inheriting styles. Vue exposes bounded escape hatches:
+抽屉渲染在 shadow root 中，样式自包含并继承主题。Vue 提供了有限的定制逃生口：
 
-- **Named web-component slots:** project children with a `slot` attribute such as `header`, `empty`, `footer`, `memories`, or `launcher-icon`.
+- **命名 Web 组件插槽**：通过 `slot` 属性插入子元素，例如 `header`、`empty`、`footer`、`memories` 或 `launcher-icon`。
 
   ```vue
   <CopilotThreadsDrawer>
@@ -220,7 +206,7 @@ The drawer renders in a shadow root with self-contained, theme-inheriting styles
   </CopilotThreadsDrawer>
   ```
 
-- **Per-row content:** use the Vue `#row="{ thread }"` scoped slot. Defining it replaces every row's inner content, so reproduce the default markup inside the slot when you need a per-row fallback.
+- **逐行内容**：使用 Vue 的 `#row="{ thread }"` 作用域插槽。定义它会替换每一行的内部内容，因此如果需要逐行回退，请在插槽内复现默认标记。
 
   ```vue
   <CopilotThreadsDrawer>
@@ -230,15 +216,15 @@ The drawer renders in a shadow root with self-contained, theme-inheriting styles
   </CopilotThreadsDrawer>
   ```
 
-- **CSS parts and variables:** style the web component's structural `::part()` targets or override its `--cpk-drawer-*` custom properties. The reference lists the supported parts and tokens.
+- **CSS parts 与变量**：为 Web 组件的结构性 `::part()` 目标设置样式，或覆盖其 `--cpk-drawer-*` 自定义属性。参考页列出了受支持的 parts 和令牌。
 
-## License
+## 许可证
 
-Threads require CopilotKit Intelligence. Without a valid Threads license, the drawer shows a locked view in place of the list.
+线程需要 CopilotKit Intelligence。如果没有有效的 Threads 许可证，抽屉会显示一个锁定视图来代替列表。
 
-## Related
+## 相关内容
 
-- [AG-UI Streams overview](/vue/AG-UI-Streams): compare thread UI and deployment paths.
-- [Headless Threads](/vue/headless-threads): build a custom UI with the `useThreads` data layer.
-- [Threads Drawer reference (Vue)](/reference/vue/components/CopilotThreadsDrawer).
-- [CopilotChat](/reference/vue/components/CopilotChat): the chat the drawer connects to.
+- [AG-UI Streams 概览](/vue/AG-UI-Streams)：比较线程 UI 与部署路径。
+- [无头线程](/vue/headless-threads)：基于 `useThreads` 数据层构建自定义 UI。
+- [线程抽屉参考（Vue）](/reference/vue/components/CopilotThreadsDrawer)。
+- [CopilotChat](/reference/vue/components/CopilotChat)：抽屉所连接的聊天组件。

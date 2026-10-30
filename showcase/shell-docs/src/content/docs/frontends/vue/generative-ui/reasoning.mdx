@@ -1,35 +1,35 @@
 ---
-title: Reasoning
+title: 推理
 icon: "lucide/Brain"
-description: Surface the agent's thinking chain in the chat — default or fully custom.
+description: 在聊天中呈现智能体的思考链——可用默认渲染或完全自定义。
 hideTOC: true
 ---
 
-## What is this?
+## 这是什么？
 
-Some models emit **reasoning tokens**, internal reasoning traces that explain how the model is working toward its answer. CopilotKit surfaces these as first-class messages: when a `REASONING_MESSAGE_*` event arrives from the agent, the chat renders it inline so the user can follow the agent's thinking.
+一些模型会输出 **reasoning tokens**（推理 token），即解释模型如何一步步得出答案的内部推理轨迹。CopilotKit 将它们作为一等公民消息呈现：当来自智能体的 `REASONING_MESSAGE_*` 事件到达时，聊天会将其内联渲染，让用户可以跟随智能体的思路。
 
-Reasoning isn't a custom-renderer plumb-in; it's a dedicated message type on the chat view. You can either accept the built-in rendering or override the `reasoning-message` scoped slot with your own component.
+推理并不是需要自己接线的自定义渲染器；它是聊天视图上一种专门的消息类型。你既可以接受内置渲染，也可以用自己的组件覆盖 `reasoning-message` 作用域插槽。
 
-## When should I use this?
+## 什么时候应该用它？
 
-Expose reasoning in the UI when you want to:
+当你想实现以下目标时，在 UI 中展示推理：
 
-- Give users real-time insight into the agent's thought process
-- Show progress on long or multi-step problems
-- Debug prompt behavior during development
-- Brand the reasoning card to match the rest of your product
+- 让用户实时了解智能体的思考过程
+- 在漫长或多步骤的问题上展示进度
+- 在开发过程中调试提示行为
+- 为推理卡片定制品牌样式，与产品其余部分保持一致
 
-## Default reasoning rendering (zero-config)
+## 默认推理渲染（零配置）
 
-Out of the box, reasoning events render inside CopilotKit's built-in `CopilotChatReasoningMessage` card:
+开箱即用，推理事件会渲染在 CopilotKit 内置的 `CopilotChatReasoningMessage` 卡片中：
 
-- A **"Thinking…"** label with a pulsing indicator while the model reasons.
-- Auto-expanded content so users can follow the reasoning live.
-- Collapses to **"Thought for X seconds"** once reasoning finishes, with a chevron to re-expand.
-- Reasoning text rendered as Markdown.
+- 模型推理时显示 **“Thinking…”** 标签并伴有脉动指示器。
+- 内容自动展开，用户可以实时跟看推理过程。
+- 推理结束后折叠为 **“Thought for X seconds”**，并带有可重新展开的箭头。
+- 推理文本以 Markdown 渲染。
 
-No configuration is needed; if your model emits reasoning tokens, the card appears automatically:
+无需任何配置；只要你的模型会输出推理 token，卡片就会自动出现：
 
 ```vue title="src/App.vue"
 <script setup lang="ts">
@@ -43,9 +43,9 @@ import { CopilotChat, CopilotKitProvider } from "@copilotkit/vue/v2";
 </template>
 ```
 
-## Custom reasoning rendering
+## 自定义推理渲染
 
-For full control over the reasoning card, use the `reasoning-message` scoped slot. The slot receives the `ReasoningMessage` object (`.content` holds the streaming text), the full `messages` list, and `isRunning`, enough to decide whether this block is still streaming and whether it's the active trailing message:
+要完全掌控推理卡片，请使用 `reasoning-message` 作用域插槽。该插槽会收到 `ReasoningMessage` 对象（`.content` 保存流式文本）、完整的 `messages` 列表和 `isRunning`，足以判断这个块是否仍在流式输出、以及它是否是当前末尾的活动消息：
 
 ```vue title="src/AgentChat.vue"
 <script setup lang="ts">
@@ -64,12 +64,12 @@ import { CopilotChat } from "@copilotkit/vue/v2";
 </template>
 ```
 
-Render `AgentChat` as a descendant of the provider from the first example. Swap in your own component or markup to match your product's tone.
+将 `AgentChat` 渲染为第一个示例中 provider 的后代组件。换成你自己的组件或标记，以贴合产品的语气。
 
 <Callout type="info">
-  The Vue customization boundary is the `reasoning-message` scoped slot. React `messageView.reasoningMessage` component and sub-slot objects are not Vue APIs.
+  Vue 的自定义边界是 `reasoning-message` 作用域插槽。React 的 `messageView.reasoningMessage` 组件和子插槽对象不是 Vue 的 API。
 </Callout>
 
-Reasoning is produced by the model and forwarded by your agent/runtime. The Vue frontend cannot make a model emit reasoning; select a reasoning-capable model and make sure your adapter forwards AG-UI reasoning events. Only emit reasoning content that is safe for the end user to see.
+推理由模型产生，由你的智能体/运行时转发。Vue 前端无法让模型输出推理；请选择一个具备推理能力的模型，并确保你的适配器转发 AG-UI 推理事件。只输出终端用户可以安全查看的推理内容。
 
 <IntegrationGrid path="generative-ui/reasoning" />

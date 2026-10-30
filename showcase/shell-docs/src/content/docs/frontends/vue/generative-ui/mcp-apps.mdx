@@ -1,31 +1,27 @@
 ---
 title: "MCP Apps"
 icon: "lucide/Monitor"
-description: "Render interactive UI components from MCP servers directly in your chat interface."
+description: "在聊天界面中直接渲染来自 MCP 服务器的交互式 UI 组件。"
 ---
 
-## What is this?
+## 这是什么？
 
-MCP Apps are MCP servers that expose tools with associated UI resources. When the agent calls one of these tools, CopilotKit automatically fetches the resource and renders the UI component in the chat; no additional frontend code required.
+MCP Apps 是一类暴露了带关联 UI 资源工具的 MCP 服务器。当智能体调用其中一个工具时，CopilotKit 会自动获取该资源并在聊天中渲染对应的 UI 组件，无需编写任何额外的前端代码。
 
 <Callout type="info">
-  **Free course:** See this pattern built end-to-end in [Build Interactive
-  Agents with Generative
-  UI](https://www.deeplearning.ai/short-courses/build-interactive-agents-with-generative-ui/)
-  — a free DeepLearning.AI short course taught by CopilotKit's CEO covering the
-  full Generative UI spectrum (Controlled, Declarative, and Open-Ended).
+  **免费课程**：在 [Build Interactive Agents with Generative UI](https://www.deeplearning.ai/short-courses/build-interactive-agents-with-generative-ui/) 中查看此模式的端到端构建——这是一门由 CopilotKit CEO 讲授的 DeepLearning.AI 免费短课程，涵盖生成式 UI 的完整谱系（受控式、声明式与开放式）。
 </Callout>
 
-Key benefits:
+核心优势：
 
-- **Zero frontend code** — UI components are served by the MCP server
-- **Full interactivity** — components can use HTML, CSS, and JavaScript
-- **Secure sandboxing** — content runs in isolated iframes
-- **Thread persistence** — MCP Apps are stored in conversation history and restored on reconnect
+- **零前端代码** —— UI 组件由 MCP 服务器提供
+- **完全可交互** —— 组件可以使用 HTML、CSS 和 JavaScript
+- **安全沙箱** —— 内容运行在隔离的 iframe 中
+- **线程持久化** —— MCP Apps 会存入会话历史，并在重连时恢复
 
-## Wire the runtime to your MCP server(s)
+## 将运行时接入你的 MCP 服务器
 
-A single `mcpApps.servers` entry on the runtime is all it takes. The runtime auto-applies the MCP Apps middleware to every registered agent: each time an agent calls a tool backed by an MCP UI resource, the middleware fetches the resource and emits an `activity` event that Vue's built-in `MCPAppsActivityRenderer` renders inline in the chat as a sandboxed iframe.
+只需在运行时上添加一个 `mcpApps.servers` 条目即可。运行时会自动将 MCP Apps 中间件应用到每个已注册的智能体：每当智能体调用一个由 MCP UI 资源支撑的工具时，中间件就会获取该资源并发出一个 `activity` 事件，由 Vue 内置的 `MCPAppsActivityRenderer` 以沙箱化 iframe 的形式在聊天中内联渲染。
 
 ```ts title="server.ts"
 import { CopilotRuntime } from "@copilotkit/runtime/v2";
@@ -44,16 +40,13 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-<Callout type="info" title="Always pin a serverId">
-  In production, always provide a stable `serverId`. Without it, CopilotKit
-  hashes the server URL, and a URL change (for example between environments)
-  silently breaks restoration of MCP Apps persisted in earlier conversation
-  threads.
+<Callout type="info" title="始终固定 serverId">
+  在生产环境中，请始终提供一个稳定的 `serverId`。否则 CopilotKit 会对服务器 URL 做哈希，URL 一旦变化（例如在不同环境之间），先前会话线程中持久化的 MCP Apps 将无法恢复，且不会有任何报错。
 </Callout>
 
-## No frontend renderer needed
+## 无需前端渲染器
 
-Unlike custom activity types, the MCP Apps renderer is already registered by `CopilotKitProvider` out of the box. A plain `<CopilotChat />` is enough; no manual renderer wiring is required.
+与自定义活动类型不同，MCP Apps 渲染器已由 `CopilotKitProvider` 开箱即用地注册。一个普通的 `<CopilotChat />` 就够了，无需手动接线渲染器。
 
 ```vue title="src/App.vue"
 <script setup lang="ts">
@@ -67,31 +60,17 @@ import { CopilotChat, CopilotKitProvider } from "@copilotkit/vue/v2";
 </template>
 ```
 
-## Sandbox and widget storage
+## 沙箱与小组件存储
 
-Each MCP App runs in a sandboxed iframe with an opaque origin. A widget can't
-read your page's cookies, storage or DOM. It can't read responses from your
-APIs either, unless an API allows cross-origin requests, for example with
-`Access-Control-Allow-Origin: *`. It can still send requests, so protect
-state-changing endpoints against cross-site request forgery as you would for
-any other site. The trade-off is that the widget can't use `localStorage`,
-`sessionStorage`, `IndexedDB` or cookies of its own either.
+每个 MCP App 都运行在一个具有不透明 origin 的沙箱化 iframe 中。小组件（widget）无法读取你页面的 cookie、存储或 DOM；也无法读取你的 API 的响应，除非某个 API 允许跨源请求（例如设置了 `Access-Control-Allow-Origin: *`）。它仍然可以发送请求，因此请像对待其他站点一样，为会改变状态的端点做好跨站请求伪造防护。代价是小组件自己也无法使用 `localStorage`、`sessionStorage`、`IndexedDB` 或 cookie。
 
-Requests a widget makes that need CORS, such as `<script type="module">` and
-`fetch`, are sent with `Origin: null`. Serve public widget assets with
-`Access-Control-Allow-Origin: *`. Classic `<script src>` tags don't need CORS.
-To avoid CORS entirely, bundle the widget into a single HTML file, as the
-[ext-apps examples](https://github.com/modelcontextprotocol/ext-apps/tree/main/examples)
-do with `vite-plugin-singlefile`.
+小组件发出的需要 CORS 的请求（例如 `<script type="module">` 和 `fetch`）会以 `Origin: null` 发送。公开的小组件资源请以 `Access-Control-Allow-Origin: *` 提供。经典的 `<script src>` 标签不需要 CORS。若想彻底避开 CORS，可以把小组件打包成单个 HTML 文件，就像 [ext-apps 示例](https://github.com/modelcontextprotocol/ext-apps/tree/main/examples)使用 `vite-plugin-singlefile` 那样。
 
-The MCP Apps spec pairs `allow-same-origin` with a sandbox served from a
-separate origin. CopilotKit loads the sandbox inline, so it leaves
-`allow-same-origin` off rather than give widgets your page's origin.
+MCP Apps 规范将 `allow-same-origin` 与由独立 origin 提供的沙箱搭配使用。CopilotKit 是内联加载沙箱的，因此它选择不开启 `allow-same-origin`，而不是把页面的 origin 交给小组件。
 
-If you wrote a widget yourself and it needs storage, you can restore
-`allow-same-origin`:
+如果小组件是你自己编写的且需要存储，可以恢复 `allow-same-origin`：
 
-```vue title="Trusted widget configuration"
+```vue title="受信任的小组件配置"
 <script setup lang="ts">
 import { CopilotChat, CopilotKitProvider } from "@copilotkit/vue/v2";
 </script>
@@ -106,20 +85,17 @@ import { CopilotChat, CopilotKitProvider } from "@copilotkit/vue/v2";
 </template>
 ```
 
-<Callout type="warn" title="Only for widgets you trust">
-  With `allowSameOriginFallback`, every MCP App runs with your page's origin.
-  Any connected MCP server's widget can then read your cookies and storage and
-  act as the signed-in user. Don't enable it if you connect third-party MCP
-  servers.
+<Callout type="warn" title="仅用于你信任的小组件">
+  启用 `allowSameOriginFallback` 后，每个 MCP App 都会以你页面的 origin 运行。任何已连接 MCP 服务器的小组件都能读取你的 cookie 和存储，并以已登录用户的身份执行操作。如果连接了第三方 MCP 服务器，请不要启用。
 </Callout>
 
-## Transport types
+## 传输类型
 
-The middleware supports two transport types:
+中间件支持两种传输类型：
 
 ### HTTP
 
-Use this format to connect to an MCP server that accepts standard HTTP requests:
+使用这种格式连接接受标准 HTTP 请求的 MCP 服务器：
 
 ```typescript
 {
@@ -131,7 +107,7 @@ Use this format to connect to an MCP server that accepts standard HTTP requests:
 
 ### SSE
 
-Use this format to connect to an MCP server that streams events over a persistent connection:
+使用这种格式连接通过持久连接流式传输事件的 MCP 服务器：
 
 ```typescript
 {
@@ -144,13 +120,13 @@ Use this format to connect to an MCP server that streams events over a persisten
 }
 ```
 
-Keep credentials on the runtime; do not expose private MCP tokens in Vue code.
+凭据请保存在运行时侧；不要在 Vue 代码中暴露私有的 MCP token。
 
-## Example MCP servers
+## MCP 服务器示例
 
-Try these open-source MCP Apps servers to get started:
+试试这些开源的 MCP Apps 服务器来上手：
 
-- [Excalidraw](https://mcp.excalidraw.com) — collaborative whiteboard rendered in-chat
-- [modelcontextprotocol/ext-apps](https://github.com/modelcontextprotocol/ext-apps) — canonical reference implementations
+- [Excalidraw](https://mcp.excalidraw.com) —— 在聊天中渲染的协作白板
+- [modelcontextprotocol/ext-apps](https://github.com/modelcontextprotocol/ext-apps) —— 官方参考实现
 
 <IntegrationGrid path="generative-ui/mcp-apps" />
