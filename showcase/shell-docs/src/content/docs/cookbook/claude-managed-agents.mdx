@@ -1,52 +1,49 @@
 ---
 title: "Claude Managed Agents"
-description: "Connect CopilotKit to a hosted Claude Managed Agent over AG-UI, then render a backend tool call as interactive generative UI."
+description: "通过 AG-UI 将 CopilotKit 连接到一个托管的 Claude Managed Agent，并把一次后端工具调用渲染为可交互的生成式 UI。"
 icon: "custom/claude-managed-agents"
 showIcon: true
 doc_type: how-to
 ---
 
-[Claude Managed Agents](https://platform.claude.com/docs/en/managed-agents/overview) run Claude agents in
-Anthropic-hosted environments. Anthropic manages the model runtime and workspace; your app starts sessions,
-streams their events, and supplies any application-specific tools. This recipe connects one of those hosted
-agents to a compact [CopilotKit](https://www.copilotkit.ai/) chat over [AG-UI](https://docs.ag-ui.com/).
+[Claude Managed Agents](https://platform.claude.com/docs/en/managed-agents/overview) 在由 Anthropic 托管的环境中运行
+Claude 智能体。模型运行时与工作区由 Anthropic 管理；你的应用负责启动会话、流式传输事件，并提供应用所需的专属工具。
+本示例通过 [AG-UI](https://docs.ag-ui.com/) 把其中一个托管智能体接入一个精简的 [CopilotKit](https://www.copilotkit.ai/) 聊天界面。
 
-The example is a focused finance assistant. Ask what a recurring investment could grow to and the managed
-agent calculates in its hosted workspace, calls one backend tool, and CopilotKit renders an interactive growth
-projection inline. It is adapted from Anthropic's
-[Claude Managed Agents × CopilotKit quickstart](https://github.com/anthropics/claude-quickstarts/tree/main/managed-agents/copilot-kit-ag-ui),
-reduced to one interaction that fits a Cookbook pane.
+这个示例是一个专注的理财助手。问它一笔定期投资能增长到多少，托管智能体就会在其托管工作区中完成计算，调用一个后端工具，
+再由 CopilotKit 在聊天中内联渲染一个可交互的增长预测图表。示例改编自 Anthropic 的
+[Claude Managed Agents × CopilotKit 快速开始](https://github.com/anthropics/claude-quickstarts/tree/main/managed-agents/copilot-kit-ag-ui)，
+压缩成一次适合示例集面板的交互。
 
-## How it works
+## 工作原理
 
-- A one-time setup script creates a restricted hosted environment and a versioned managed agent.
-- `ManagedAgentsAgent` maps each CopilotKit thread to one Claude Managed Agents session.
-- The CopilotKit runtime exposes that agent through an AG-UI-compatible SSE endpoint.
-- The managed agent calls `show_growth_projection` with structured numbers.
-- `useRenderTool` matches that streamed tool call by name and mounts the React chart in the transcript.
+- 一次性配置脚本会创建一个受限的托管环境和一个带版本的托管智能体。
+- `ManagedAgentsAgent` 把每条 CopilotKit 线程映射到一个 Claude Managed Agents 会话。
+- CopilotKit 运行时通过一个兼容 AG-UI 的 SSE 端点暴露该智能体。
+- 托管智能体携带结构化的数值调用 `show_growth_projection`。
+- `useRenderTool` 按名称匹配这条流式工具调用，并把 React 图表挂载到会话记录中。
 
-<img alt="Architecture of the Claude Managed Agents recipe: a request flows from CopilotKit chat through CopilotSseRuntime and ManagedAgentsAgent to a Claude Managed Agent in an Anthropic-hosted workspace; the agent calls show_growth_projection, which streams back as an AG-UI tool event and is rendered by useRenderTool as an interactive React chart." src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzYwIiBoZWlnaHQ9IjMzMCIgdmlld0JveD0iMCAwIDc2MCAzMzAiIHJvbGU9ImltZyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8dGl0bGU+SG93IENvcGlsb3RLaXQgY29ubmVjdHMgdG8gYSBDbGF1ZGUgTWFuYWdlZCBBZ2VudCBhbmQgcmVuZGVycyBpdHMgdG9vbCBjYWxsPC90aXRsZT4KICA8ZGVzYz5BIHJlcXVlc3QgZmxvd3MgZnJvbSBDb3BpbG90S2l0IGNoYXQgdGhyb3VnaCBDb3BpbG90U3NlUnVudGltZSBhbmQgTWFuYWdlZEFnZW50c0FnZW50IHRvIGEgQ2xhdWRlIE1hbmFnZWQgQWdlbnQuIFRoZSBhZ2VudCdzIHNob3dfZ3Jvd3RoX3Byb2plY3Rpb24gY2FsbCByZXR1cm5zIHRocm91Z2ggb25lIGNvbXBhY3QgQUctVUkgZXZlbnQgZmxvdyBhbmQgdXNlUmVuZGVyVG9vbCByZW5kZXJzIHRoZSBpbnRlcmFjdGl2ZSBjaGFydC48L2Rlc2M+CgogIDxkZWZzPgogICAgPG1hcmtlciBpZD0iYXJyb3ciIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjciIG1hcmtlckhlaWdodD0iNyIgb3JpZW50PSJhdXRvLXN0YXJ0LXJldmVyc2UiPgogICAgICA8cGF0aCBkPSJNMCAwIDEwIDUgMCAxMFoiIGZpbGw9IiM4MzgzODkiLz4KICAgIDwvbWFya2VyPgogIDwvZGVmcz4KCiAgPHN0eWxlPgogICAgdGV4dCB7IGZvbnQtZmFtaWx5OiAiUGx1cyBKYWthcnRhIFNhbnMiLCAtYXBwbGUtc3lzdGVtLCBCbGlua01hY1N5c3RlbUZvbnQsICJTZWdvZSBVSSIsIHNhbnMtc2VyaWY7IH0KICAgIC5sYW5lIHsgZm9udC1mYW1pbHk6ICJTcGxpbmUgU2FucyBNb25vIiwgdWktbW9ub3NwYWNlLCBTRk1vbm8tUmVndWxhciwgbW9ub3NwYWNlOyBmb250LXNpemU6IDEwcHg7IGZvbnQtd2VpZ2h0OiA2MDA7IGxldHRlci1zcGFjaW5nOiAwLjdweDsgZmlsbDogIzU3NTc1QjsgfQogICAgLnRhZyB7IGZvbnQtZmFtaWx5OiAiU3BsaW5lIFNhbnMgTW9ubyIsIHVpLW1vbm9zcGFjZSwgU0ZNb25vLVJlZ3VsYXIsIG1vbm9zcGFjZTsgZm9udC1zaXplOiAxMHB4OyBmb250LXdlaWdodDogNjAwOyBsZXR0ZXItc3BhY2luZzogMC4zNXB4OyBmaWxsOiAjMkIyQjJCOyB9CiAgICAuaGVhZGluZyB7IGZvbnQtc2l6ZTogMTZweDsgZm9udC13ZWlnaHQ6IDY1MDsgZmlsbDogIzAxMDUwNzsgfQogICAgLmJvZHkgeyBmb250LXNpemU6IDEycHg7IGZvbnQtd2VpZ2h0OiA0NTA7IGZpbGw6ICM1NzU3NUI7IH0KICAgIC5jb2RlIHsgZm9udC1mYW1pbHk6ICJTcGxpbmUgU2FucyBNb25vIiwgdWktbW9ub3NwYWNlLCBTRk1vbm8tUmVndWxhciwgbW9ub3NwYWNlOyBmb250LXNpemU6IDExcHg7IGZvbnQtd2VpZ2h0OiA1MDA7IGZpbGw6ICMyQjJCMkI7IH0KICAgIC5hcnJvdy1sYWJlbCB7IGZvbnQtc2l6ZTogMTBweDsgZm9udC13ZWlnaHQ6IDUwMDsgZmlsbDogIzU3NTc1QjsgfQogIDwvc3R5bGU+CgogIDxyZWN0IHg9IjAuNSIgeT0iMC41IiB3aWR0aD0iNzU5IiBoZWlnaHQ9IjMyOSIgcng9IjE0IiBmaWxsPSIjRkFGQUZDIiBzdHJva2U9IiNEQkRCRTUiLz4KCiAgPHRleHQgY2xhc3M9ImxhbmUiIHg9IjI0IiB5PSIyNyI+UkVRVUVTVCBGTE9XPC90ZXh0PgoKICA8cmVjdCB4PSIyNCIgeT0iNDMiIHdpZHRoPSIyMTAiIGhlaWdodD0iMTA4IiByeD0iMTIiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iI0RCREJFNSIvPgogIDxyZWN0IHg9IjI3NSIgeT0iNDMiIHdpZHRoPSIyMTAiIGhlaWdodD0iMTA4IiByeD0iMTIiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iI0RCREJFNSIvPgogIDxyZWN0IHg9IjUyNiIgeT0iNDMiIHdpZHRoPSIyMTAiIGhlaWdodD0iMTA4IiByeD0iMTIiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iI0RCREJFNSIvPgoKICA8cmVjdCB4PSI0MCIgeT0iNTkiIHdpZHRoPSI5MSIgaGVpZ2h0PSIyMyIgcng9IjExLjUiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iI0RCREJFNSIvPgogIDxjaXJjbGUgY3g9IjUzIiBjeT0iNzAuNSIgcj0iNCIgZmlsbD0iI0JFQzJGRiIvPgogIDx0ZXh0IGNsYXNzPSJ0YWciIHg9IjY0IiB5PSI3NCI+RlJPTlRFTkQ8L3RleHQ+CiAgPHRleHQgY2xhc3M9ImhlYWRpbmciIHg9IjQwIiB5PSIxMDgiPkNvcGlsb3RLaXQgY2hhdDwvdGV4dD4KICA8dGV4dCBjbGFzcz0iYm9keSIgeD0iNDAiIHk9IjEzMCI+UHJvbXB0LCB0aHJlYWQsIGFuZCBpbmxpbmUgVUk8L3RleHQ+CgogIDxyZWN0IHg9IjI5MSIgeT0iNTkiIHdpZHRoPSI3NSIgaGVpZ2h0PSIyMyIgcng9IjExLjUiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iI0RCREJFNSIvPgogIDxjaXJjbGUgY3g9IjMwNCIgY3k9IjcwLjUiIHI9IjQiIGZpbGw9IiM4NUVDQ0UiLz4KICA8dGV4dCBjbGFzcz0idGFnIiB4PSIzMTUiIHk9Ijc0Ij5TRVJWRVI8L3RleHQ+CiAgPHRleHQgY2xhc3M9ImhlYWRpbmciIHg9IjI5MSIgeT0iMTA4Ij5Db3BpbG90U3NlUnVudGltZTwvdGV4dD4KICA8dGV4dCBjbGFzcz0iYm9keSIgeD0iMjkxIiB5PSIxMzAiPk1hbmFnZWRBZ2VudHNBZ2VudCBhZGFwdGVyPC90ZXh0PgoKICA8cmVjdCB4PSI1NDIiIHk9IjU5IiB3aWR0aD0iOTQiIGhlaWdodD0iMjMiIHJ4PSIxMS41IiBmaWxsPSIjRkZGRkZGIiBzdHJva2U9IiNEQkRCRTUiLz4KICA8Y2lyY2xlIGN4PSI1NTUiIGN5PSI3MC41IiByPSI0IiBmaWxsPSIjRkZBQzREIi8+CiAgPHRleHQgY2xhc3M9InRhZyIgeD0iNTY2IiB5PSI3NCI+QU5USFJPUElDPC90ZXh0PgogIDx0ZXh0IGNsYXNzPSJoZWFkaW5nIiB4PSI1NDIiIHk9IjEwOCI+Q2xhdWRlIE1hbmFnZWQgQWdlbnQ8L3RleHQ+CiAgPHRleHQgY2xhc3M9ImJvZHkiIHg9IjU0MiIgeT0iMTMwIj5Ib3N0ZWQgbW9kZWwgYW5kIHdvcmtzcGFjZTwvdGV4dD4KCiAgPGxpbmUgeDE9IjIzNCIgeTE9Ijk5IiB4Mj0iMjczIiB5Mj0iOTkiIHN0cm9rZT0iIzgzODM4OSIgc3Ryb2tlLXdpZHRoPSIxLjUiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPHRleHQgY2xhc3M9ImFycm93LWxhYmVsIiB4PSIyNTMuNSIgeT0iODkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkFHLVVJPC90ZXh0PgoKICA8bGluZSB4MT0iNDg1IiB5MT0iOTkiIHgyPSI1MjQiIHkyPSI5OSIgc3Ryb2tlPSIjODM4Mzg5IiBzdHJva2Utd2lkdGg9IjEuNSIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8dGV4dCBjbGFzcz0iYXJyb3ctbGFiZWwiIHg9IjUwNC41IiB5PSI4OSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+c2Vzc2lvbjwvdGV4dD4KCiAgPGxpbmUgeDE9IjI0IiB5MT0iMTc0LjUiIHgyPSI3MzYiIHkyPSIxNzQuNSIgc3Ryb2tlPSIjRTJFMkVBIi8+CiAgPHRleHQgY2xhc3M9ImxhbmUiIHg9IjI0IiB5PSIxOTciPlRPT0wgUkVUVVJOPC90ZXh0PgoKICA8cmVjdCB4PSIyNCIgeT0iMjEzIiB3aWR0aD0iNzEyIiBoZWlnaHQ9IjkxIiByeD0iMTIiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iI0RCREJFNSIvPgoKICA8Y2lyY2xlIGN4PSI0OCIgY3k9IjI0MSIgcj0iNCIgZmlsbD0iIzg1RUNDRSIvPgogIDx0ZXh0IGNsYXNzPSJjb2RlIiB4PSI2MCIgeT0iMjQ1Ij51c2VSZW5kZXJUb29sPC90ZXh0PgogIDx0ZXh0IGNsYXNzPSJoZWFkaW5nIiB4PSI0OCIgeT0iMjczIj5JbnRlcmFjdGl2ZSBjaGFydDwvdGV4dD4KICA8dGV4dCBjbGFzcz0iYm9keSIgeD0iNDgiIHk9IjI5MSI+UmVuZGVyZWQgaW4gdGhlIGNoYXQ8L3RleHQ+CgogIDxjaXJjbGUgY3g9IjMwMCIgY3k9IjI0MSIgcj0iNCIgZmlsbD0iI0JFQzJGRiIvPgogIDx0ZXh0IGNsYXNzPSJjb2RlIiB4PSIzMTIiIHk9IjI0NSI+QUctVUkgZXZlbnQ8L3RleHQ+CiAgPHRleHQgY2xhc3M9ImhlYWRpbmciIHg9IjMwMCIgeT0iMjczIj5TdHJ1Y3R1cmVkIGFyZ3VtZW50czwvdGV4dD4KICA8dGV4dCBjbGFzcz0iYm9keSIgeD0iMzAwIiB5PSIyOTEiPlN0cmVhbWVkIHRocm91Z2ggdGhlIHJ1bnRpbWU8L3RleHQ+CgogIDxjaXJjbGUgY3g9IjU1MiIgY3k9IjI0MSIgcj0iNCIgZmlsbD0iI0ZGQUM0RCIvPgogIDx0ZXh0IGNsYXNzPSJjb2RlIiB4PSI1NjQiIHk9IjI0NSI+c2hvd19ncm93dGhfcHJvamVjdGlvbjwvdGV4dD4KICA8dGV4dCBjbGFzcz0iaGVhZGluZyIgeD0iNTUyIiB5PSIyNzMiPkNsYXVkZSB0b29sIGNhbGw8L3RleHQ+CiAgPHRleHQgY2xhc3M9ImJvZHkiIHg9IjU1MiIgeT0iMjkxIj5DcmVhdGVkIGluIHRoZSBob3N0ZWQgc2Vzc2lvbjwvdGV4dD4KCiAgPGxpbmUgeDE9IjUzNiIgeTE9IjI2MSIgeDI9IjQ4OCIgeTI9IjI2MSIgc3Ryb2tlPSIjODM4Mzg5IiBzdHJva2Utd2lkdGg9IjEuNSIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8bGluZSB4MT0iMjg0IiB5MT0iMjYxIiB4Mj0iMjM2IiB5Mj0iMjYxIiBzdHJva2U9IiM4MzgzODkiIHN0cm9rZS13aWR0aD0iMS41IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgoKICA8cGF0aCBkPSJNNjMxIDE1MVYyMTEiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgzODM4OSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1kYXNoYXJyYXk9IjQgNCIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KPC9zdmc+Cg==" />
+<img alt="Claude Managed Agents 示例的架构：请求从 CopilotKit 聊天出发，经 CopilotSseRuntime 和 ManagedAgentsAgent 到达 Anthropic 托管工作区中的一个 Claude Managed Agent；该智能体调用 show_growth_projection，调用以 AG-UI 工具事件的形式流式返回，最终由 useRenderTool 渲染为可交互的 React 图表。" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzYwIiBoZWlnaHQ9IjMzMCIgdmlld0JveD0iMCAwIDc2MCAzMzAiIHJvbGU9ImltZyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8dGl0bGU+SG93IENvcGlsb3RLaXQgY29ubmVjdHMgdG8gYSBDbGF1ZGUgTWFuYWdlZCBBZ2VudCBhbmQgcmVuZGVycyBpdHMgdG9vbCBjYWxsPC90aXRsZT4KICA8ZGVzYz5BIHJlcXVlc3QgZmxvd3MgZnJvbSBDb3BpbG90S2l0IGNoYXQgdGhyb3VnaCBDb3BpbG90U3NlUnVudGltZSBhbmQgTWFuYWdlZEFnZW50c0FnZW50IHRvIGEgQ2xhdWRlIE1hbmFnZWQgQWdlbnQuIFRoZSBhZ2VudCdzIHNob3dfZ3Jvd3RoX3Byb2plY3Rpb24gY2FsbCByZXR1cm5zIHRocm91Z2ggb25lIGNvbXBhY3QgQUctVUkgZXZlbnQgZmxvdyBhbmQgdXNlUmVuZGVyVG9vbCByZW5kZXJzIHRoZSBpbnRlcmFjdGl2ZSBjaGFydC48L2Rlc2M+CgogIDxkZWZzPgogICAgPG1hcmtlciBpZD0iYXJyb3ciIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjciIG1hcmtlckhlaWdodD0iNyIgb3JpZW50PSJhdXRvLXN0YXJ0LXJldmVyc2UiPgogICAgICA8cGF0aCBkPSJNMCAwIDEwIDUgMCAxMFoiIGZpbGw9IiM4MzgzODkiLz4KICAgIDwvbWFya2VyPgogIDwvZGVmcz4KCiAgPHN0eWxlPgogICAgdGV4dCB7IGZvbnQtZmFtaWx5OiAiUGx1cyBKYWthcnRhIFNhbnMiLCAtYXBwbGUtc3lzdGVtLCBCbGlua01hY1N5c3RlbUZvbnQsICJTZWdvZSBVSSIsIHNhbnMtc2VyaWY7IH0KICAgIC5sYW5lIHsgZm9udC1mYW1pbHk6ICJTcGxpbmUgU2FucyBNb25vIiwgdWktbW9ub3NwYWNlLCBTRk1vbm8tUmVndWxhciwgbW9ub3NwYWNlOyBmb250LXNpemU6IDEwcHg7IGZvbnQtd2VpZ2h0OiA2MDA7IGxldHRlci1zcGFjaW5nOiAwLjdweDsgZmlsbDogIzU3NTc1QjsgfQogICAgLnRhZyB7IGZvbnQtZmFtaWx5OiAiU3BsaW5lIFNhbnMgTW9ubyIsIHVpLW1vbm9zcGFjZSwgU0ZNb25vLVJlZ3VsYXIsIG1vbm9zcGFjZTsgZm9udC1zaXplOiAxMHB4OyBmb250LXdlaWdodDogNjAwOyBsZXR0ZXItc3BhY2luZzogMC4zNXB4OyBmaWxsOiAjMkIyQjJCOyB9CiAgICAuaGVhZGluZyB7IGZvbnQtc2l6ZTogMTZweDsgZm9udC13ZWlnaHQ6IDY1MDsgZmlsbDogIzAxMDUwNzsgfQogICAgLmJvZHkgeyBmb250LXNpemU6IDEycHg7IGZvbnQtd2VpZ2h0OiA0NTA7IGZpbGw6ICM1NzU3NUI7IH0KICAgIC5jb2RlIHsgZm9udC1mYW1pbHk6ICJTcGxpbmUgU2FucyBNb25vIiwgdWktbW9ub3NwYWNlLCBTRk1vbm8tUmVndWxhciwgbW9ub3NwYWNlOyBmb250LXNpemU6IDExcHg7IGZvbnQtd2VpZ2h0OiA1MDA7IGZpbGw6ICMyQjJCMkI7IH0KICAgIC5hcnJvdy1sYWJlbCB7IGZvbnQtc2l6ZTogMTBweDsgZm9udC13ZWlnaHQ6IDUwMDsgZmlsbDogIzU3NTc1QjsgfQogIDwvc3R5bGU+CgogIDxyZWN0IHg9IjAuNSIgeT0iMC41IiB3aWR0aD0iNzU5IiBoZWlnaHQ9IjMyOSIgcng9IjE0IiBmaWxsPSIjRkFGQUZDIiBzdHJva2U9IiNEQkRCRTUiLz4KCiAgPHRleHQgY2xhc3M9ImxhbmUiIHg9IjI0IiB5PSIyNyI+UkVRVUVTVCBGTE9XPC90ZXh0PgoKICA8cmVjdCB4PSIyNCIgeT0iNDMiIHdpZHRoPSIyMTAiIGhlaWdodD0iMTA4IiByeD0iMTIiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iI0RCREJFNSIvPgogIDxyZWN0IHg9IjI3NSIgeT0iNDMiIHdpZHRoPSIyMTAiIGhlaWdodD0iMTA4IiByeD0iMTIiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iI0RCREJFNSIvPgogIDxyZWN0IHg9IjUyNiIgeT0iNDMiIHdpZHRoPSIyMTAiIGhlaWdodD0iMTA4IiByeD0iMTIiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iI0RCREJFNSIvPgoKICA8cmVjdCB4PSI0MCIgeT0iNTkiIHdpZHRoPSI5MSIgaGVpZ2h0PSIyMyIgcng9IjExLjUiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iI0RCREJFNSIvPgogIDxjaXJjbGUgY3g9IjUzIiBjeT0iNzAuNSIgcj0iNCIgZmlsbD0iI0JFQzJGRiIvPgogIDx0ZXh0IGNsYXNzPSJ0YWciIHg9IjY0IiB5PSI3NCI+RlJPTlRFTkQ8L3RleHQ+CiAgPHRleHQgY2xhc3M9ImhlYWRpbmciIHg9IjQwIiB5PSIxMDgiPkNvcGlsb3RLaXQgY2hhdDwvdGV4dD4KICA8dGV4dCBjbGFzcz0iYm9keSIgeD0iNDAiIHk9IjEzMCI+UHJvbXB0LCB0aHJlYWQsIGFuZCBpbmxpbmUgVUk8L3RleHQ+CgogIDxyZWN0IHg9IjI5MSIgeT0iNTkiIHdpZHRoPSI3NSIgaGVpZ2h0PSIyMyIgcng9IjExLjUiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iI0RCREJFNSIvPgogIDxjaXJjbGUgY3g9IjMwNCIgY3k9IjcwLjUiIHI9IjQiIGZpbGw9IiM4NUVDQ0UiLz4KICA8dGV4dCBjbGFzcz0idGFnIiB4PSIzMTUiIHk9Ijc0Ij5TRVJWRVI8L3RleHQ+CiAgPHRleHQgY2xhc3M9ImhlYWRpbmciIHg9IjI5MSIgeT0iMTA4Ij5Db3BpbG90U3NlUnVudGltZTwvdGV4dD4KICA8dGV4dCBjbGFzcz0iYm9keSIgeD0iMjkxIiB5PSIxMzAiPk1hbmFnZWRBZ2VudHNBZ2VudCBhZGFwdGVyPC90ZXh0PgoKICA8cmVjdCB4PSI1NDIiIHk9IjU5IiB3aWR0aD0iOTQiIGhlaWdodD0iMjMiIHJ4PSIxMS41IiBmaWxsPSIjRkZGRkZGIiBzdHJva2U9IiNEQkRCRTUiLz4KICA8Y2lyY2xlIGN4PSI1NTUiIGN5PSI3MC41IiByPSI0IiBmaWxsPSIjRkZBQzREIi8+CiAgPHRleHQgY2xhc3M9InRhZyIgeD0iNTY2IiB5PSI3NCI+QU5USFJPUElDPC90ZXh0PgogIDx0ZXh0IGNsYXNzPSJoZWFkaW5nIiB4PSI1NDIiIHk9IjEwOCI+Q2xhdWRlIE1hbmFnZWQgQWdlbnQ8L3RleHQ+CiAgPHRleHQgY2xhc3M9ImJvZHkiIHg9IjU0MiIgeT0iMTMwIj5Ib3N0ZWQgbW9kZWwgYW5kIHdvcmtzcGFjZTwvdGV4dD4KCiAgPGxpbmUgeDE9IjIzNCIgeTE9Ijk5IiB4Mj0iMjczIiB5Mj0iOTkiIHN0cm9rZT0iIzgzODM4OSIgc3Ryb2tlLXdpZHRoPSIxLjUiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+CiAgPHRleHQgY2xhc3M9ImFycm93LWxhYmVsIiB4PSIyNTMuNSIgeT0iODkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkFHLVVJPC90ZXh0PgoKICA8bGluZSB4MT0iNDg1IiB5MT0iOTkiIHgyPSI1MjQiIHkyPSI5OSIgc3Ryb2tlPSIjODM4Mzg5IiBzdHJva2Utd2lkdGg9IjEuNSIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8dGV4dCBjbGFzcz0iYXJyb3ctbGFiZWwiIHg9IjUwNC41IiB5PSI4OSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+c2Vzc2lvbjwvdGV4dD4KCiAgPGxpbmUgeDE9IjI0IiB5MT0iMTc0LjUiIHgyPSI3MzYiIHkyPSIxNzQuNSIgc3Ryb2tlPSIjRTJFMkVBIi8+CiAgPHRleHQgY2xhc3M9ImxhbmUiIHg9IjI0IiB5PSIxOTciPlRPT0wgUkVUVVJOPC90ZXh0PgoKICA8cmVjdCB4PSIyNCIgeT0iMjEzIiB3aWR0aD0iNzEyIiBoZWlnaHQ9IjkxIiByeD0iMTIiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZT0iI0RCREJFNSIvPgoKICA8Y2lyY2xlIGN4PSI0OCIgY3k9IjI0MSIgcj0iNCIgZmlsbD0iIzg1RUNDRSIvPgogIDx0ZXh0IGNsYXNzPSJjb2RlIiB4PSI2MCIgeT0iMjQ1Ij51c2VSZW5kZXJUb29sPC90ZXh0PgogIDx0ZXh0IGNsYXNzPSJoZWFkaW5nIiB4PSI0OCIgeT0iMjczIj5JbnRlcmFjdGl2ZSBjaGFydDwvdGV4dD4KICA8dGV4dCBjbGFzcz0iYm9keSIgeD0iNDgiIHk9IjI5MSI+UmVuZGVyZWQgaW4gdGhlIGNoYXQ8L3RleHQ+CgogIDxjaXJjbGUgY3g9IjMwMCIgY3k9IjI0MSIgcj0iNCIgZmlsbD0iI0JFQzJGRiIvPgogIDx0ZXh0IGNsYXNzPSJjb2RlIiB4PSIzMTIiIHk9IjI0NSI+QUctVUkgZXZlbnQ8L3RleHQ+CiAgPHRleHQgY2xhc3M9ImhlYWRpbmciIHg9IjMwMCIgeT0iMjczIj5TdHJ1Y3R1cmVkIGFyZ3VtZW50czwvdGV4dD4KICA8dGV4dCBjbGFzcz0iYm9keSIgeD0iMzAwIiB5PSIyOTEiPlN0cmVhbWVkIHRocm91Z2ggdGhlIHJ1bnRpbWU8L3RleHQ+CgogIDxjaXJjbGUgY3g9IjU1MiIgY3k9IjI0MSIgcj0iNCIgZmlsbD0iI0ZGQUM0RCIvPgogIDx0ZXh0IGNsYXNzPSJjb2RlIiB4PSI1NjQiIHk9IjI0NSI+c2hvd19ncm93dGhfcHJvamVjdGlvbjwvdGV4dD4KICA8dGV4dCBjbGFzcz0iaGVhZGluZyIgeD0iNTUyIiB5PSIyNzMiPkNsYXVkZSB0b29sIGNhbGw8L3RleHQ+CiAgPHRleHQgY2xhc3M9ImJvZHkiIHg9IjU1MiIgeT0iMjkxIj5DcmVhdGVkIGluIHRoZSBob3N0ZWQgc2Vzc2lvbjwvdGV4dD4KCiAgPGxpbmUgeDE9IjUzNiIgeTE9IjI2MSIgeDI9IjQ4OCIgeTI9IjI2MSIgc3Ryb2tlPSIjODM4Mzg5IiBzdHJva2Utd2lkdGg9IjEuNSIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KICA8bGluZSB4MT0iMjg0IiB5MT0iMjYxIiB4Mj0iMjM2IiB5Mj0iMjYxIiBzdHJva2U9IiM4MzgzODkiIHN0cm9rZS13aWR0aD0iMS41IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPgoKICA8cGF0aCBkPSJNNjMxIDE1MVYyMTEiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzgzODM4OSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1kYXNoYXJyYXk9IjQgNCIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4KPC9zdmc+Cg==" />
 
-## Try it live
+## 在线试用
 
-Use the suggested prompt, then adjust the contribution and return sliders in the resulting chart.
+使用建议的提示词，然后在生成的图表中调整投入与收益滑块。
 
 <iframe
   src="https://showcase-claude-managed-agents-production.up.railway.app"
-  title="Claude Managed Agents × CopilotKit live demo"
+  title="Claude Managed Agents × CopilotKit 在线演示"
   className="w-full h-[480px] sm:h-[600px] block rounded-xl border border-[var(--border)]"
 />
 
-## Prerequisites
+## 前置条件
 
-- Node.js 22 or newer.
-- An Anthropic Console account and API key with **Claude Managed Agents** access.
-- An Anthropic organization with 30-day data retention. The default `claude-fable-5` model is unavailable
-  under zero data retention.
+- Node.js 22 或更新版本。
+- 一个 Anthropic Console 账号，以及具备 **Claude Managed Agents** 访问权限的 API 密钥。
+- 一个启用了 30 天数据保留的 Anthropic 组织。默认模型 `claude-fable-5` 在零数据保留策略下不可用。
 
-## Run the example
+## 运行示例
 
-Clone CopilotKit and enter the standalone showcase:
+克隆 CopilotKit 并进入这个独立展示目录：
 
 ```bash
 git clone https://github.com/CopilotKit/CopilotKit.git
@@ -55,7 +52,7 @@ npm install
 cp .env.example .env
 ```
 
-Add your key to `.env`:
+把你的密钥添加到 `.env`：
 
 ```plaintext title=".env"
 ANTHROPIC_API_KEY=sk-ant-your_key
@@ -63,34 +60,32 @@ ANTHROPIC_API_KEY=sk-ant-your_key
 ANTHROPIC_MODEL=claude-haiku-4-5
 ```
 
-Provision the persistent environment and managed agent once, then start the server and frontend:
+一次性开通持久化环境与托管智能体，然后启动服务器和前端：
 
 ```bash
 npm run setup
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173). `npm run setup` writes the generated resource IDs to the
-gitignored `agent-ids.json`; rerunning it reuses those IDs instead of creating more billable resources. Use
-`npm run setup -- --force` only when you intentionally want a replacement environment and agent.
+打开 [http://localhost:5173](http://localhost:5173)。`npm run setup` 会把生成的资源 ID 写入被 gitignore 的
+`agent-ids.json`；重复执行时会复用这些 ID，而不会创建更多产生费用的资源。只有当你确实想要一套替换用的环境和智能体时，
+才使用 `npm run setup -- --force`。
 
-## Try it
+## 试用
 
-Select the suggested prompt or ask:
+选择建议的提示词，或直接提问：
 
 ```text
 If I invest $500/month at a 7% annual return, what will I have in 20 years?
 ```
 
-Claude passes the assumptions to `show_growth_projection` and keeps its prose short while the chart
-carries the result. Move either slider to explore the assumptions without starting another agent run. A
-follow-up in the same CopilotKit thread resumes the same managed session and workspace.
+Claude 会把这些假设传给 `show_growth_projection`，并保持文字简短，让图表来承载结果。拖动任一滑块即可调整假设，
+而无需再启动一次智能体运行。在同一条 CopilotKit 线程中的后续提问会恢复同一个托管会话与工作区。
 
-## The key pieces, in code
+## 代码中的关键部分
 
-The setup script creates long-lived managed resources. The environment blocks outbound hosts, package managers,
-and MCP servers, while the agent disables its complete built-in toolset. The runtime adds only the focused
-financial visualization tool when it creates a session:
+配置脚本会创建长期存续的托管资源。环境会封锁出站主机、包管理器和 MCP 服务器，智能体则禁用其全部内置工具集。
+运行时在创建会话时只添加这一个专注的财务可视化工具：
 
 ```ts title="server/src/setup.ts"
 const environment = await client.beta.environments.create({
@@ -119,15 +114,13 @@ const agent = await client.beta.agents.create({
 });
 ```
 
-The model is fixed when the managed agent is provisioned. Changing `ANTHROPIC_MODEL` later does not update that
-agent. Run `npm run setup -- --force` with the new model, then replace the generated environment and agent IDs
-wherever the demo is deployed.
+模型在托管智能体开通时即被固定。之后修改 `ANTHROPIC_MODEL` 不会更新该智能体。请带着新模型运行
+`npm run setup -- --force`，然后在演示部署的各处替换生成的环境与智能体 ID。
 
-At runtime, the AG-UI adapter owns managed-session creation and maps it to the CopilotKit thread. The visual tool
-is supplied as a session override, so changing its schema does not require a new managed-agent version.
-`CopilotSseRuntime` is imported under that exact name; it is CopilotKit's V2 runtime for direct SSE connections.
-The adapter requires only the managed agent and environment IDs, while this recipe adds `backendTools` for the
-interactive projection:
+在运行时，AG-UI 适配器负责托管会话的创建，并将其映射到 CopilotKit 线程。可视化工具以会话覆盖（session override）
+的方式提供，因此修改其 schema 无需发布新的托管智能体版本。`CopilotSseRuntime` 按这个确切名称导入；它是
+CopilotKit 用于直连 SSE 的 V2 运行时。适配器只需要托管智能体 ID 和环境 ID，本示例则额外添加了用于交互式预测图表的
+`backendTools`：
 
 ```ts title="server/src/index.ts"
 import { CopilotSseRuntime } from "@copilotkit/runtime/v2";
@@ -149,17 +142,15 @@ const runtime = new CopilotSseRuntime({
 configureDemoRunLimits(app, createCopilotRequestBodyParser());
 ```
 
-The runtime helper keeps the public demo bounded: it leaves `turnTimeoutMs` at 90 seconds and rejects request bodies
-over 256 KB. The adapter already serializes runs per thread.
+运行时辅助逻辑为公开演示设置了边界：`turnTimeoutMs` 保持 90 秒，并拒绝超过 256 KB 的请求体。适配器本身已按线程
+对运行进行串行化。
 
-Only the canonical `POST /api/copilotkit/agent/financial-assistant/run` path, with one optional trailing slash, can
-start the provider-backed agent. Run aliases, unknown agents, and suggestion routes are rejected before the runtime.
-Provider-like attempts are limited to 20 per client IP per minute before body parsing, and the process accepts
-2,000 successful run requests per 24-hour window. Other CopilotKit routes do not use these allowances.
+只有规范的 `POST /api/copilotkit/agent/financial-assistant/run` 路径（末尾最多带一个可选斜杠）可以启动这个由提供方
+支撑的智能体。运行别名、未知智能体和建议路由都会在进入运行时之前被拒绝。在解析请求体之前，类提供方请求按每个客户端
+IP 每分钟最多 20 次限流，且进程在每 24 小时窗口内最多接受 2,000 次成功的运行请求。其他 CopilotKit 路由不占用这些配额。
 
-The single [backend tool](/generative-ui/tool-rendering#the-backend-tool-definition) declares the exact data the
-UI needs. Its handler only acknowledges the render because the streamed tool call itself is the user-visible
-result:
+这个唯一的[后端工具](/generative-ui/tool-rendering#the-backend-tool-definition)声明了 UI 所需的确切数据。它的处理器只对
+渲染进行确认，因为流式工具调用本身就是用户看到的结果：
 
 ```ts title="server/src/financialAssistantTools.ts"
 export const financialAssistantTools: BackendCustomTool[] = [{
@@ -180,9 +171,8 @@ export const financialAssistantTools: BackendCustomTool[] = [{
 }];
 ```
 
-CopilotKit matches the AG-UI tool-call events by name with
-[`useRenderTool`](/reference/hooks/useRenderTool). The runnable example validates and coerces the streamed
-arguments with Zod before mounting the chart:
+CopilotKit 通过 [`useRenderTool`](/reference/hooks/useRenderTool) 按名称匹配 AG-UI 工具调用事件。可运行的示例在挂载
+图表前会用 Zod 校验并转换流式参数：
 
 ```tsx title="web/src/viz/renderers.tsx"
 useRenderTool(
@@ -199,16 +189,15 @@ useRenderTool(
 );
 ```
 
-## Deploy it
+## 部署
 
-The example supports a single-process deployment: build the Vite frontend, then let the Express server serve
-both `web/dist` and `/api/copilotkit`.
+示例支持单进程部署：先构建 Vite 前端，再让 Express 服务器同时提供 `web/dist` 和 `/api/copilotkit`。
 
 ```bash
 npm install && npm run build && npm start
 ```
 
-Set `ANTHROPIC_API_KEY` and the two IDs printed by `npm run setup`:
+设置 `ANTHROPIC_API_KEY` 以及 `npm run setup` 打印出的两个 ID：
 
 ```plaintext
 ANTHROPIC_ENVIRONMENT_ID=env_...
@@ -216,38 +205,34 @@ ANTHROPIC_AGENT_ID=agent_...
 ALLOWED_ORIGINS=https://your-app.example.com
 ```
 
-`ANTHROPIC_MODEL` is used by setup, not by the running server. To change models on Railway, reprovision first and
-then update `ANTHROPIC_ENVIRONMENT_ID` and `ANTHROPIC_AGENT_ID` with the replacement IDs.
+`ANTHROPIC_MODEL` 只在配置阶段使用，运行中的服务器不会读取它。要在 Railway 上更换模型，请先重新开通资源，
+再用新 ID 更新 `ANTHROPIC_ENVIRONMENT_ID` 和 `ANTHROPIC_AGENT_ID`。
 
-On Railway, the per-IP limiter uses Railway's `X-Real-IP` header and normalizes IPv6 client addresses with
-`express-rate-limit`. It does not enable Express proxy trust or use `X-Forwarded-For`. Missing or malformed
-`X-Real-IP` values share one conservative bucket; local and direct deployments use the socket-derived
-`request.ip` instead.
+在 Railway 上，按 IP 限流使用 Railway 的 `X-Real-IP` 请求头，并通过 `express-rate-limit` 对 IPv6 客户端地址做归一化。
+它不启用 Express 的代理信任，也不使用 `X-Forwarded-For`。缺失或格式非法的 `X-Real-IP` 值会共享同一个保守的限流桶；
+本地部署和直连部署则改用从 socket 推导出的 `request.ip`。
 
-<Callout type="warning" title="Protect the runtime before going public">
-  The example endpoint has no user authentication, and every message spends your Anthropic API credits.
-  When `ALLOWED_ORIGINS` is set, the server rejects requests without the exact matching Origin header, including
-  when the frontend and runtime are hosted separately. That browser check is not authentication because custom
-  clients can forge the header. The public demo therefore adds route-specific per-IP and process-wide in-memory
-  limits. The counters reset on restart and are not shared across replicas, and the 2,000-start allowance is not a
-  fixed dollar ceiling. Scope the API key to a dedicated, non-default
-  [Anthropic workspace](https://platform.claude.com/docs/en/manage-claude/workspaces) with the desired monthly spend
-  limit as the durable cost backstop. Put the runtime behind your application session check before using this
-  pattern in production.
+<Callout type="warning" title="公开上线前请保护好运行时">
+  示例端点没有任何用户身份验证，而且每条消息都会消耗你的 Anthropic API 额度。
+  设置 `ALLOWED_ORIGINS` 后，服务器会拒绝 Origin 请求头不完全匹配的请求，即使前端与运行时分开托管也是如此。
+  这种浏览器侧检查并不等于身份验证，因为自定义客户端可以伪造该请求头。因此，公开演示额外加入了按路由的每 IP 限制和
+  进程级的内存限制。这些计数器在重启后清零，也不会跨副本共享，且 2,000 次运行的上限并不是固定的美元限额。
+  请把 API 密钥限定在一个专用的非默认
+  [Anthropic 工作区](https://platform.claude.com/docs/en/manage-claude/workspaces)中，并设置期望的月度消费上限，
+  作为持久的成本兜底。在生产环境使用这一模式之前，请先把运行时置于你的应用会话校验之后。
 </Callout>
 
-The adapter's default session store is in memory. A server restart starts fresh managed sessions, while the
-provisioned environment and agent remain reusable. Replace it with a durable `SessionStore` if thread continuity
-must survive deploys or multiple server replicas.
+适配器默认的会话存储位于内存中。服务器重启后会从全新的托管会话开始，而已开通的环境和智能体仍可复用。如果线程的连续性
+必须跨越部署或多服务器副本存续，请将其替换为持久化的 `SessionStore`。
 
-## Going further
+## 进一步探索
 
-- Add another focused backend tool and matching `useRenderTool` component; the AG-UI transport does not change.
-- Persist the thread-to-session mapping in your database for multi-instance deployments.
-- Add user authentication, quotas, and audit logging before exposing a credit-spending runtime.
-- Add [AG-UI Streams](/AG-UI-Streams) through CopilotKit Intelligence so each savings scenario becomes a named,
-  persistent conversation whose messages and generated chart reopen across devices.
+- 再添加一个专注的后端工具和配套的 `useRenderTool` 组件；AG-UI 传输层无需任何改动。
+- 在多实例部署中，把线程到会话的映射持久化到你的数据库里。
+- 在对外暴露会消耗额度的运行时之前，先加上用户身份验证、配额和审计日志。
+- 通过 CopilotKit Intelligence 添加 [AG-UI Streams](/AG-UI-Streams)，让每个储蓄方案都成为一个具名的持久对话，
+  其中的消息与生成的图表可在不同设备上重新打开。
 
-## Get the code
+## 获取代码
 
-Full source: [`examples/showcases/claude-managed-agents`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/claude-managed-agents). The example includes the runtime and frontend.
+完整源码：[`examples/showcases/claude-managed-agents`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/claude-managed-agents)。示例包含运行时和前端。

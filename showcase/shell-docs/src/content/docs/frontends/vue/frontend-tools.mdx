@@ -1,29 +1,29 @@
 ---
-title: Frontend Tools
+title: 前端工具
 icon: "lucide/Wrench"
-description: Let your agent interact with and update your application's UI.
+description: 让智能体与你的应用 UI 交互并更新应用界面。
 ---
 
-## What is this?
+## 这是什么？
 
-Frontend tools let your agent define and invoke client-side functions that run entirely in the user's browser. Because the handler executes on the frontend, it has direct access to component state, browser APIs, and any third-party UI library the page already uses. That's how an agent can "reach into" the app: update Vue state, trigger animations, read `localStorage`, pop a toast, or steer the user's view.
+前端工具让你的智能体能够定义并调用完全运行在用户浏览器中的客户端函数。由于 handler 在前端执行，它可以直接访问组件状态、浏览器 API 以及页面已在使用的任何第三方 UI 库。智能体正是借此“伸入”应用：更新 Vue 状态、触发动画、读取 `localStorage`、弹出 toast，或引导用户的视图。
 
-This page covers the "agent drives the UI" shape of frontend tools. The same primitive also powers Generative UI and Human-in-the-loop; see those pages for interaction patterns.
+本页介绍前端工具在“智能体驱动 UI”形态下的用法。同一原语也支撑着生成式 UI 和人机协同（human-in-the-loop）；交互模式请参见相应页面。
 
-## When should I use this?
+## 什么时候应该用它？
 
-Use frontend tools when your agent needs to:
+当你的智能体需要以下能力时，使用前端工具：
 
-- Read or modify Vue component state
-- Access browser APIs like `localStorage`, `sessionStorage`, or cookies
-- Trigger UI updates, animations, or transitions
-- Show alerts, toasts, or notifications
-- Interact with third-party frontend libraries
-- Perform anything that requires the user's immediate browser context
+- 读取或修改 Vue 组件状态
+- 访问 `localStorage`、`sessionStorage` 或 cookie 等浏览器 API
+- 触发 UI 更新、动画或过渡
+- 显示警告框、toast 或通知
+- 与第三方前端库交互
+- 执行任何需要用户当前浏览器上下文的操作
 
-## How it works in code
+## 代码中的工作方式
 
-Register a frontend tool with `useFrontendTool`. Give it a name, a Zod schema for parameters, and a handler. The agent can then call it like any other tool and your frontend runs it in the browser.
+使用 `useFrontendTool` 注册一个前端工具。为它提供一个名称、一个描述参数的 Zod schema 和一个 handler。之后智能体就能像调用其他工具一样调用它，而你的前端会在浏览器中执行它。
 
 ```vue title="src/components/DashboardAgent.vue"
 <script setup lang="ts">
@@ -55,9 +55,9 @@ useFrontendTool(
 </template>
 ```
 
-The handler receives the parsed, type-safe parameters and can do anything the browser can: update state, call an API, or touch the DOM. Its return value is sent back to the agent as the tool result so the model can reason about what happened.
+handler 收到的是解析后、类型安全的参数，可以做浏览器能做的任何事：更新状态、调用 API 或操作 DOM。它的返回值会作为工具结果回传给智能体，让模型能够推断发生了什么。
 
-The second argument is an array of Vue watch sources. Include refs or getters read by the registration so the handler sees current values.
+第二个参数是 Vue 侦听源（watch sources）数组。把注册过程中读取到的 ref 或 getter 放进去，handler 才能拿到最新值。
 
 ```vue title="src/App.vue"
 <script setup lang="ts">
@@ -72,6 +72,6 @@ import DashboardAgent from "./components/DashboardAgent.vue";
 </template>
 ```
 
-Your agent discovers the name, description, and parameter schema through the runtime connection. Make descriptions narrow, validate inputs, and ask for explicit confirmation before irreversible actions. Privileged mutations, secret-bearing API calls, and authorization decisions belong on a trusted backend. For a tool that must wait for a user's answer, use `useHumanInTheLoop` instead.
+智能体通过运行时连接获知工具的名称、描述和参数 schema。描述要写得具体收窄，对输入做校验，并在执行不可逆操作前要求用户明确确认。涉及特权的变更、携带密钥的 API 调用和授权决策应放在可信的后端。如果某个工具必须等待用户答复，请改用 `useHumanInTheLoop`。
 
 <IntegrationGrid path="frontend-tools" />

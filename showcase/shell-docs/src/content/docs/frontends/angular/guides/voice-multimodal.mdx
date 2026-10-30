@@ -1,36 +1,25 @@
 ---
-title: Voice and multimodal input
-description: Add speech transcription, file attachments, and typed media content to an Angular chat.
+title: 语音与多模态输入
+description: 为 Angular 聊天添加语音转录、文件附件与类型化媒体内容。
 icon: "lucide/AudioLines"
 doc_type: how-to
 ---
 
-`CopilotChat` includes a microphone control and an attachment composer. Voice
-input is transcribed through Copilot Runtime and inserted into the composer as
-text. Multimodal input sends image or document content parts with the user's
-message.
+`CopilotChat` 内置麦克风控件与附件编辑器。语音输入经由 Copilot Runtime 转录，并以文本形式插入编辑器；多模态输入则在用户消息中附带图像或文档内容部分（content parts）。
 
-## What is voice and multimodal input?
+## 什么是语音与多模态输入？
 
-Voice input turns recorded speech into editable text before a message is sent.
-Multimodal input attaches typed image or document content parts to that
-message, so a compatible model can reason about more than text.
+语音输入会在消息发送前，把录制的语音转换为可编辑的文本。多模态输入则在该消息中附带类型化的图像或文档内容部分，使兼容的模型能够理解文本之外的信息。
 
-## Accept voice input
+## 接受语音输入
 
-No component option is required to display the microphone. The browser asks
-for microphone permission, records the audio, and sends it to the Runtime
-transcription endpoint. The resulting text remains editable before the user
-sends it.
+显示麦克风无需任何组件选项。浏览器会请求麦克风权限、录制音频，并将其发送到 Runtime 转录端点。生成的文本在用户发送之前仍可编辑。
 
-Serve production applications over HTTPS so browsers can grant microphone
-access.
+生产环境应用应通过 HTTPS 提供服务，浏览器才会授予麦克风访问权限。
 
-### Configure Runtime transcription
+### 配置 Runtime 转录
 
-Follow the [Voice backend setup](/voice#backend) to add a dedicated Runtime
-route and transcription service. Keep speech-provider credentials separate
-from credentials used for agent chat. For the Built-in Agent showcase, set:
+按照[语音后端配置](/voice#backend)添加专用的 Runtime 路由与转录服务。语音提供方的凭据应与智能体对话所用的凭据分开保管。对于内置智能体 Showcase，请设置：
 
 ```bash
 OPENAI_TRANSCRIPTION_API_KEY=your-api-key
@@ -38,24 +27,17 @@ OPENAI_TRANSCRIPTION_API_KEY=your-api-key
 OPENAI_TRANSCRIPTION_BASE_URL=https://your-speech-provider.example.com/v1
 ```
 
-The route must omit `transcriptionService` when the dedicated credential is
-absent. Copilot Runtime then reports `audioFileTranscriptionEnabled: false` on
-`/info`, and the chat hides the mic instead of exposing a control that cannot
-work. When the service is configured, the browser sends recorded audio to
-`/api/copilotkit-voice/transcribe`.
+缺少专用凭据时，路由必须省略 `transcriptionService`。此时 Copilot Runtime 会在 `/info` 中报告 `audioFileTranscriptionEnabled: false`，聊天界面会隐藏麦克风，而不是暴露一个无法使用的控件。配置转录服务后，浏览器会将录制的音频发送到 `/api/copilotkit-voice/transcribe`。
 
-Voice requests can call the same backend tools as typed requests. Register
-renderers only for the exact tool names your backend exposes:
+语音请求可以像键入的请求一样调用相同的后端工具。只需针对后端实际暴露的工具名称注册渲染器：
 
 <AngularSnippet region="voice-tool-renderers" />
 
-The renderer registration is optional. It changes how matching tool calls are
-displayed, not how speech is captured or transcribed.
+渲染器注册是可选的。它只会改变匹配工具调用的展示方式，不会影响语音的采集或转录。
 
-## Configure attachments
+## 配置附件
 
-Define an `AttachmentsConfig` and bind it to the chat surface. The runnable
-Showcase accepts images and PDFs up to 10 MiB:
+定义一个 `AttachmentsConfig` 并将其绑定到聊天界面。可运行的 Showcase 接受最大 10 MiB 的图像与 PDF：
 
 <AngularSnippet region="multimodal-attachments" />
 
@@ -63,27 +45,18 @@ Showcase accepts images and PDFs up to 10 MiB:
 <copilot-chat [attachments]="multimodalAttachments" />
 ```
 
-The `accept` value filters the file picker and `maxSize` provides immediate
-client feedback. They are not server-side security controls. Validate file
-type, size, and content again wherever uploads are stored or processed. Use
-the configuration's upload callbacks when files should go to object storage
-instead of traveling inline with a message.
+`accept` 值用于过滤文件选择器，`maxSize` 提供即时的客户端反馈。二者都不是服务端安全控制。在存储或处理上传文件的任何位置，都要再次校验文件类型、大小和内容。如果文件应存入对象存储，而不是随消息内联传输，请使用配置中的上传回调。
 
-## Send media programmatically
+## 以编程方式发送媒体
 
-For a bundled sample or custom uploader, add a user message whose `content`
-contains normal AG-UI content parts. The Showcase constructs a text part plus
-an image or document part:
+若要使用内置示例或自定义上传器，请添加一条用户消息，其 `content` 包含标准的 AG-UI 内容部分。Showcase 会构造一个文本部分，外加一个图像或文档部分：
 
 <AngularSnippet region="multimodal-message" />
 
-Add that message to the selected agent and run the agent. Keep the MIME type
-authoritative: use an `image` part for images and a `document` part for PDFs
-and other documents. The chosen model and backend converter must support each
-MIME type you accept.
+将该消息加入所选智能体并运行该智能体。MIME 类型必须作为权威依据：图像使用 `image` 部分，PDF 及其他文档使用 `document` 部分。所选模型和后端转换器必须支持你接受的每一种 MIME 类型。
 
-## Next steps
+## 后续步骤
 
-- [Voice input](/angular/features#voice)
-- [Multimodal attachments](/angular/features#multimodal)
-- [Chat UI configuration](/angular/guides/chat-ui)
+- [语音输入](/angular/features#voice)
+- [多模态附件](/angular/features#multimodal)
+- [聊天 UI 配置](/angular/guides/chat-ui)

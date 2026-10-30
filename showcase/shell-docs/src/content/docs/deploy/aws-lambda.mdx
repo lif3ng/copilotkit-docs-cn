@@ -1,36 +1,35 @@
 ---
 title: AWS Lambda
 icon: "lucide/Cloud"
-description: Run the CopilotKit runtime on AWS Lambda, including the response-streaming setup a chat UI requires.
+description: 在 AWS Lambda 上运行 CopilotKit 运行时，包括聊天 UI 所需的响应流式配置。
 ---
 
-The CopilotKit runtime is a Fetch handler, so it runs on Lambda without a server. The one thing that needs care is **streaming**: chat responses are served as Server-Sent Events, and a front door that buffers turns a live conversation into a long pause followed by the whole reply at once.
+CopilotKit 运行时本质上是一个 Fetch 处理器，因此不需要服务器就能跑在 Lambda 上。唯一需要上心的是**流式传输**：聊天响应以 Server-Sent Events 的形式送达，而一个会做缓冲的入口（front door）会把一场实时对话变成一段漫长的停顿，随后整个回复一次性涌出。
 
-## Start here: pick the right front door
+## 从这里开始：选对入口
 
-| Front door | Streams SSE? | Use it when |
+| 入口 | 是否支持 SSE 流式？ | 适用场景 |
 | --- | --- | --- |
-| **Lambda Function URL** with `InvokeMode: RESPONSE_STREAM` | Yes | The default. Nothing sits between the browser and the function. |
-| **API Gateway REST API** with `responseTransferMode: STREAM` | Yes | You need REST API features in front of the runtime — WAF, usage plans, a custom authorizer, or an existing REST API to extend. |
-| API Gateway **HTTP** API | No | Response streaming is REST-only. Buffered: 10 MB cap, 29-second timeout. |
-| Application Load Balancer | No | ALB has no streaming path for Lambda targets. |
+| 带 `InvokeMode: RESPONSE_STREAM` 的 **Lambda Function URL** | 是 | 默认之选。浏览器与函数之间没有任何中间环节。 |
+| 带 `responseTransferMode: STREAM` 的 **API Gateway REST API** | 是 | 你需要在运行时前面使用 REST API 特性——WAF、用量计划、自定义授权方，或要扩展的既有 REST API。 |
+| API Gateway **HTTP** API | 否 | 响应流式仅限 REST API。缓冲模式：上限 10 MB，超时 29 秒。 |
+| Application Load Balancer | 否 | ALB 对 Lambda 目标没有流式通道。 |
 
-<Callout type="warn" title="Streaming is opt-in on every path">
-  Both streaming front doors default to buffering — a Function URL to `BUFFERED` invoke mode,
-  an API Gateway integration to `responseTransferMode: BUFFERED`. Deploy either without
-  flipping the switch and chat appears to hang for the length of the agent run, then dumps
-  the entire reply in one piece.
+<Callout type="warn" title="每条路径上的流式传输都需显式开启">
+  两种流式入口默认都开启缓冲——Function URL 默认使用 `BUFFERED` 调用模式，
+  API Gateway 集成默认使用 `responseTransferMode: BUFFERED`。不打开开关就直接部署，
+  聊天会在智能体运行的整段时间里看似卡死，然后一次性倾倒出完整回复。
 </Callout>
 
-The handler code below is the same for both streaming paths; only the event shape and the infrastructure config differ.
+下面两种流式路径的处理函数代码完全相同；差异只在事件结构与基础设施配置。
 
-## Function URL with response streaming
+## 支持响应流式的 Function URL
 
-Response streaming requires three things: a Function URL with its invoke mode set to `RESPONSE_STREAM`, a handler wrapped in `awslambda.streamifyResponse`, and a Node.js managed runtime of version 20 or later. AWS supports response streaming from Node.js 18, but `@copilotkit/runtime` requires Node.js 20.
+响应流式需要满足三个条件：一个调用模式设为 `RESPONSE_STREAM` 的 Function URL、一个由 `awslambda.streamifyResponse` 包装的处理函数，以及 20 或更高版本的 Node.js 托管运行时。AWS 自 Node.js 18 起就支持响应流式，但 `@copilotkit/runtime` 要求 Node.js 20。
 
-### 1. The handler
+### 1. 处理函数
 
-Lambda Function URLs deliver events in payload format 2.0. Convert that into a `Request`, hand it to the CopilotKit handler, then pipe the `Response` body into the Lambda response stream.
+Lambda Function URL 以负载格式 2.0 送达事件。把它转换成 `Request`，交给 CopilotKit 处理函数，再把 `Response` 响应体接入 Lambda 响应流。
 
 ```ts title="src/handler.ts"
 import { Readable } from "node:stream";
@@ -95,7 +94,7 @@ export const handler = awslambda.streamifyResponse(
 );
 ```
 
-`awslambda` is a global injected by the managed Node.js runtime, so TypeScript needs to be told it exists:
+`awslambda` 是托管 Node.js 运行时注入的全局变量，因此需要让 TypeScript 知道它的存在：
 
 ```ts title="src/awslambda.d.ts"
 import type { Writable } from "node:stream";
@@ -118,9 +117,9 @@ declare global {
 export {};
 ```
 
-### 2. Set the invoke mode
+### 2. 设置调用模式
 
-Streaming is off by default. The Function URL must be created with `InvokeMode: RESPONSE_STREAM` — flipping it later requires updating the URL config, not the function.
+流式传输默认关闭。Function URL 必须在创建时就带上 `InvokeMode: RESPONSE_STREAM`——之后再想改，需要更新的是 URL 配置，而不是函数本身。
 
 <Tabs groupId="iac" items={["AWS CLI", "AWS CDK", "AWS SAM"]}>
 <Tab value="AWS CLI">
@@ -189,9 +188,9 @@ Resources:
 </Tab>
 </Tabs>
 
-### 3. Point the frontend at it
+### 3. 将前端指向它
 
-The Function URL is the origin; `basePath` is appended to it.
+Function URL 就是源地址；`basePath` 会附加在它后面。
 
 <FrontendOnly frontend="react">
 ```tsx
@@ -203,13 +202,12 @@ The Function URL is the origin; `basePath` is appended to it.
 </CopilotKit>
 ```
 
-<Callout type="info" title="About the explicit useSingleEndpoint">
-  The Function URL handler above serves multi-route, the default. Both `<CopilotKit>` and `<CopilotKitProvider>` negotiate the transport when the
-  prop is omitted, so this `{false}` is optional: it pins the multi-route REST
-  routes rather than probing for them. Drop the prop
-  if you took the buffered front door below and mounted the handler with
-  `mode: "single-route"`. See
-  [Provider and handler pairs](/backend/runtime-endpoints#provider-and-handler-pairs).
+<Callout type="info" title="关于显式的 useSingleEndpoint">
+  上面的 Function URL 处理函数提供的是多路由（multi-route）模式，即默认模式。
+  省略该 prop 时，`<CopilotKit>` 与 `<CopilotKitProvider>` 都会协商传输方式，
+  因此这里的 `{false}` 是可选的：它的作用是直接锁定多路由 REST 路由，而不是去逐一探测。
+  如果你选择的是下文的缓冲入口，并以 `mode: "single-route"` 挂载了处理函数，那么可以去掉这个 prop。参见
+  [提供方与处理器配对](/backend/runtime-endpoints#provider-and-handler-pairs)。
 </Callout>
 </FrontendOnly>
 
@@ -221,22 +219,21 @@ provideCopilotKit({
 ```
 </FrontendOnly>
 
-<Callout type="info" title="Verify streaming actually works">
-  `curl -N` on the run endpoint should print SSE events progressively. If the whole body
-  arrives at once, streaming is not active — check that the Function URL's invoke mode is
-  `RESPONSE_STREAM`, and that nothing buffering (an HTTP API, an ALB, a CloudFront
-  distribution without streaming configured) sits in front of it.
+<Callout type="info" title="验证流式是否真正生效">
+  在 run 端点上执行 `curl -N`，应当能看到 SSE 事件逐步输出。如果整个响应体一次性到达，
+  说明流式并未生效——请检查 Function URL 的调用模式是否为 `RESPONSE_STREAM`，
+  以及它前面是否还坐着一层会缓冲的东西（HTTP API、ALB，或未配置流式的 CloudFront 分发）。
 </Callout>
 
-## API Gateway REST API with response streaming
+## 支持响应流式的 API Gateway REST API
 
-REST APIs gained response streaming in November 2025. It is per-integration and off by default: setting `responseTransferMode` to `STREAM` makes API Gateway invoke the function through [`InvokeWithResponseStream`](https://docs.aws.amazon.com/lambda/latest/api/API_InvokeWithResponseStream.html) and forward bytes as they arrive, which also lifts the 10 MB response cap and the 29-second integration timeout that apply to buffered integrations.
+REST API 自 2025 年 11 月起支持响应流式。该能力按集成单独开启且默认关闭：把 `responseTransferMode` 设为 `STREAM` 后，API Gateway 会通过 [`InvokeWithResponseStream`](https://docs.aws.amazon.com/lambda/latest/api/API_InvokeWithResponseStream.html) 调用函数，并随字节到达即时转发，这同时解除了缓冲式集成适用的 10 MB 响应上限与 29 秒集成超时。
 
-Use this path when you want REST API features in front of the runtime. If you don't, the Function URL above is less to configure.
+如果你想在运行时前面使用 REST API 特性，就走这条路径。否则，上文的 Function URL 要配置的东西更少。
 
-### 1. Adapt the handler to payload format 1.0
+### 1. 将处理函数适配到负载格式 1.0
 
-The streaming half of the handler is unchanged — `awslambda.streamifyResponse` and `HttpResponseStream.from` emit exactly the metadata-plus-delimiter format API Gateway expects. What changes is the event: a REST proxy integration delivers payload format 1.0, not the 2.0 shape a Function URL sends.
+处理函数中流式的那一半保持不变——`awslambda.streamifyResponse` 与 `HttpResponseStream.from` 输出的正是 API Gateway 所期望的“元数据加分隔符”格式。变化的是事件：REST 代理集成送达的是负载格式 1.0，而不是 Function URL 发送的 2.0 形态。
 
 ```ts title="src/handler.ts"
 import type { APIGatewayProxyEvent } from "aws-lambda";
@@ -276,15 +273,15 @@ function toFetchRequest(event: APIGatewayProxyEvent): Request {
 }
 ```
 
-The `awslambda.streamifyResponse(...)` block from the Function URL section works as-is on top of this.
+Function URL 一节中的 `awslambda.streamifyResponse(...)` 代码块可以原样叠加在此之上。
 
-### 2. Configure the integration
+### 2. 配置集成
 
-Three settings matter: a Lambda **proxy** (`AWS_PROXY`) integration, a URI ending in `/response-streaming-invocations`, and `responseTransferMode: STREAM`. Streaming is not supported on non-proxy integration types.
+有三个设置很关键：Lambda **代理**（`AWS_PROXY`）集成、以 `/response-streaming-invocations` 结尾的 URI，以及 `responseTransferMode: STREAM`。非代理集成类型不支持流式传输。
 
 <Tabs groupId="iac" items={["AWS CLI", "AWS CDK", "AWS SAM"]}>
 <Tab value="AWS CLI">
-On an existing integration, patch the URI and the transfer mode together, then redeploy the stage:
+对于既有集成，同时修补 URI 与传输模式，然后重新部署阶段：
 
 ```bash
 aws apigateway update-integration \
@@ -300,7 +297,7 @@ aws apigateway update-integration \
 aws apigateway create-deployment --rest-api-id a1b2c3 --stage-name prod
 ```
 
-Note the API version in the URI path: `2021-11-15/.../response-streaming-invocations`, not the `2015-03-31/.../invocations` a buffered Lambda proxy integration uses. The permission is unchanged — `InvokeWithResponseStream` authorizes against `lambda:InvokeFunction`, so an existing `add-permission` grant still applies.
+注意 URI 路径中的 API 版本：是 `2021-11-15/.../response-streaming-invocations`，而不是缓冲式 Lambda 代理集成所用的 `2015-03-31/.../invocations`。权限保持不变——`InvokeWithResponseStream` 针对 `lambda:InvokeFunction` 进行授权，因此既有的 `add-permission` 授权依然有效。
 </Tab>
 <Tab value="AWS CDK">
 ```ts title="lib/stack.ts"
@@ -321,7 +318,7 @@ api.root.addResource("api").addResource("copilotkit").addResource("{proxy+}").ad
 );
 ```
 
-`responseTransferMode` needs a recent `aws-cdk-lib`; the construct sets the streaming invocation URI for you.
+`responseTransferMode` 需要较新版本的 `aws-cdk-lib`；该 construct 会替你设置好流式调用的 URI。
 </Tab>
 <Tab value="AWS SAM">
 ```yaml title="template.yaml"
@@ -342,23 +339,23 @@ CopilotKitMethod:
 </Tab>
 </Tabs>
 
-### 3. Plan around the streaming constraints
+### 3. 规避流式传输的限制
 
-- **Pick a Regional endpoint.** Streams are subject to an idle timeout: 5 minutes for Regional and private endpoints, but **30 seconds for edge-optimized ones**. An agent that thinks for longer than 30 seconds between SSE events will have its stream cut on an edge-optimized API. Fronting a Regional API with your own CloudFront distribution and raising its response timeout is the way to keep an edge cache.
-- **Raise the integration timeout.** It still defaults to 29 seconds. With `STREAM` you can take it up to 15 minutes on Regional and private APIs — match it to the Lambda timeout.
-- **`STREAM` disables buffered-only features** on that integration: endpoint caching, content encoding, and VTL response transformation. Compress inside the integration if you need it.
-- **Bandwidth.** The first 10 MB of each streamed response is uncapped; beyond that API Gateway throttles to 2 MB/s.
-- **A client timeout doesn't stop the function.** When API Gateway closes the connection, the Lambda keeps running and billing until it finishes or hits its own timeout.
+- **选择 Regional 端点。** 流受空闲超时约束：Regional 与私有端点为 5 分钟，而**边缘优化端点只有 30 秒**。如果智能体在两次 SSE 事件之间思考超过 30 秒，它的流会在边缘优化的 API 上被切断。想保留边缘缓存，办法是用自己的 CloudFront 分发架在 Regional API 前面，并调高其响应超时。
+- **调高集成超时。** 默认仍是 29 秒。使用 `STREAM` 时，在 Regional 与私有 API 上最高可调至 15 分钟——与 Lambda 超时保持一致即可。
+- **`STREAM` 会在该集成上禁用仅缓冲模式可用的特性**：端点缓存、内容编码与 VTL 响应转换。如有需要，请在集成内部完成压缩。
+- **带宽。** 每个流式响应的前 10 MB 不限量；超过后 API Gateway 限速为 2 MB/s。
+- **客户端超时不会让函数停下来。** 当 API Gateway 关闭连接后，Lambda 仍会继续运行并计费，直到执行完毕或触发自身超时。
 
-<Callout type="warn" title="The console test tab always buffers">
-  `TestInvokeMethod` and the console's **Test** tab buffer the stream and return it in one
-  piece, so a correctly configured integration still looks buffered there. Verify against a
-  deployed stage with `curl -i --no-buffer` instead.
+<Callout type="warn" title="控制台的测试标签页总是缓冲">
+  `TestInvokeMethod` 与控制台的 **Test** 标签页会先缓冲整个流再一次性返回，
+  因此配置正确的集成在那里看起来仍是缓冲的。请改用 `curl -i --no-buffer`
+  对已部署的阶段进行验证。
 </Callout>
 
-## Buffered fallback: HTTP APIs and ALB
+## 缓冲回退：HTTP API 与 ALB
 
-Behind an HTTP API or an Application Load Balancer there is no streaming path, so `serverless-http` adapting the Express handler is as good as it gets. Chat still functions end to end, but every response arrives in one piece at the end of the run.
+在 HTTP API 或 Application Load Balancer 之后没有流式通道，因此用 `serverless-http` 包装 Express 处理函数已是最好的做法。聊天功能端到端仍然可用，只是每个响应都会在运行结束时一次性到达。
 
 ```
 npm install express serverless-http @copilotkit/runtime
@@ -389,12 +386,12 @@ app.use(
 export const handler = serverlessHttp(app);
 ```
 
-Two constraints to plan around:
+需要提前规划的两个限制：
 
-- **10 MB response cap.** A long agent run with large tool results can exceed it, and the request fails rather than truncating.
-- **29-second integration timeout.** Agent runs longer than that return a 504 even though the Lambda keeps executing. On an HTTP API this ceiling is fixed; both limits are what `responseTransferMode: STREAM` lifts on a REST API.
+- **10 MB 响应上限。** 带着大型工具结果的长智能体运行可能超出该上限，此时请求会直接失败，而不是被截断。
+- **29 秒集成超时。** 超过该时长的智能体运行会返回 504，即便 Lambda 仍在继续执行。在 HTTP API 上这一上限不可更改；`responseTransferMode: STREAM` 在 REST API 上解除的正是这两个限制。
 
-Single-route mode pairs well here, since it collapses the runtime to one `POST` and avoids configuring a catch-all proxy resource:
+单路由（single-route）模式在这里很合适：它把运行时收拢为一个 `POST` 端点，免去了配置通配代理资源的麻烦：
 
 ```ts
 createCopilotExpressHandler({
@@ -405,9 +402,9 @@ createCopilotExpressHandler({
 });
 ```
 
-## Authentication
+## 身份验证
 
-Use the runtime's `onRequest` hook to reject unauthenticated calls before any routing happens. It works identically on every front door above.
+使用运行时的 `onRequest` 钩子，在任何路由发生之前就拒绝未通过身份验证的调用。它在上述每一种入口上的行为完全一致。
 
 ```ts
 const copilotHandler = createCopilotRuntimeHandler({
@@ -426,20 +423,20 @@ const copilotHandler = createCopilotRuntimeHandler({
 });
 ```
 
-For AWS-native auth instead, set the Function URL's `AuthType` to `AWS_IAM` and have callers sign requests with SigV4. That moves the check into IAM, but the browser can no longer call the URL directly — you need a signing proxy in between.
+若想改用 AWS 原生的身份验证，可把 Function URL 的 `AuthType` 设为 `AWS_IAM`，并让调用方用 SigV4 签名请求。这会把校验交给 IAM，但浏览器将无法再直接调用该 URL——你需要在中间加一层签名代理。
 
-See [Authentication](/auth) for forwarding user identity through to your agent.
+参见[身份验证](/auth)，了解如何把用户身份一路转发到你的智能体。
 
-## Operational notes
+## 运维注意事项
 
-- **Bundle your dependencies.** `@copilotkit/runtime` is not in any AWS-managed layer. Use `NodejsFunction` (CDK), `BuildMethod: esbuild` (SAM), or your own bundler.
-- **Construct the runtime outside the handler.** Putting `new CopilotRuntime(...)` at module scope means warm invocations reuse it rather than rebuilding it per request.
-- **Set the timeout to cover a full agent run.** Lambda's maximum is 15 minutes; the default of 3 seconds will cut off almost anything.
-- **Cold starts are visible in chat.** Provisioned concurrency is the usual fix if first-token latency matters.
-- **Streaming has its own limits.** A streamed response can reach 200 MB against the 6 MB buffered ceiling, but Lambda throttles to 2 MB/s past the first 6 MB (API Gateway, past the first 10 MB). Streaming also incurs cost, and a streamed run is billed for the full function duration even if the client disconnects.
+- **把依赖打包进部署包。** `@copilotkit/runtime` 不在任何 AWS 托管层（layer）中。请使用 `NodejsFunction`（CDK）、`BuildMethod: esbuild`（SAM），或你自己的打包器。
+- **在处理函数之外构造运行时。** 把 `new CopilotRuntime(...)` 放在模块作用域，热调用就能复用它，而无需每个请求都重建。
+- **把超时设置得足以覆盖一次完整的智能体运行。** Lambda 的上限是 15 分钟；默认的 3 秒几乎什么都会被切断。
+- **冷启动在聊天中能被感知。** 如果首 token 延迟很重要，预置并发（provisioned concurrency）是常规解法。
+- **流式传输有它自己的限制。** 流式响应可达 200 MB，而缓冲上限是 6 MB；但超过前 6 MB 后 Lambda 会限速 2 MB/s（API Gateway 则是超过前 10 MB 后）。流式还会产生额外费用，而且即使客户端断开连接，一次流式运行仍会按完整的函数执行时长计费。
 
-## Related
+## 相关内容
 
-- [Deploy to any runtime](/runtime-server-adapter) — the adapter reference these examples build on
-- [AWS AgentCore](/deploy/agentcore) — a managed AWS runtime for AG-UI agents, if you'd rather not operate Lambda yourself
-- [Authentication](/auth)
+- [部署到任意运行时](/runtime-server-adapter)——本页示例所基于的适配器参考
+- [AWS AgentCore](/deploy/agentcore)——面向 AG-UI 智能体的 AWS 托管运行时，适合不想自行运维 Lambda 的场景
+- [身份验证](/auth)

@@ -1,52 +1,37 @@
 ---
-title: Which Hook for Which Job
-description: Choose the right CopilotKit Vue composable for tools, rendering, human review, and custom chat surfaces.
+title: 哪个任务用哪个 Hook
+description: 为工具、渲染、人工审核与自定义聊天界面选择合适的 CopilotKit Vue 组合式函数。
 icon: "lucide/Map"
 doc_type: explanation
 ---
 
-CopilotKit Vue has composables for registering agent behavior and for deciding
-how agent output appears in chat. Call them from a component rendered below
-`CopilotKitProvider`, where Vue can inject the CopilotKit context.
+CopilotKit Vue 提供了一系列组合式函数，用于注册智能体行为，以及决定智能体输出在聊天中的呈现方式。请在渲染于 `CopilotKitProvider` 之下的组件中调用它们，这样 Vue 才能注入 CopilotKit 上下文。
 
-## The 30-second version
+## 30 秒速览
 
-| Composable | Use it when you want to |
+| 组合式函数 | 适用场景 |
 | --- | --- |
-| `useFrontendTool` | Give the agent a browser-side tool, optionally with inline UI. |
-| `useRenderTool` | Render a named tool call, or use `name: "*"` as the fallback. |
-| `useDefaultRenderTool` | Install the built-in or a custom fallback for otherwise-unrendered tool calls. |
-| `useComponent` | Register a Vue component as a named frontend tool renderer. |
-| `useHumanInTheLoop` | Pause a frontend tool until a user supplies a response. |
-| `useInterrupt` | Handle an agent interrupt and resume or cancel it. |
-| `useRenderActivityMessage` | Resolve a registered activity-message renderer for a custom surface. |
-| `useRenderCustomMessages` | Resolve registered before/after message renderers for a custom surface. |
+| `useFrontendTool` | 给智能体提供一个浏览器端工具，可选附带内联 UI。 |
+| `useRenderTool` | 渲染某个具名工具调用，或使用 `name: "*"` 作为兜底。 |
+| `useDefaultRenderTool` | 为未被渲染的工具调用安装内置或自定义的兜底渲染。 |
+| `useComponent` | 将一个 Vue 组件注册为具名的前端工具渲染器。 |
+| `useHumanInTheLoop` | 暂停某个前端工具，直到用户给出响应。 |
+| `useInterrupt` | 处理一个智能体中断，并恢复或取消它。 |
+| `useRenderActivityMessage` | 为自定义界面解析已注册的活动消息渲染器。 |
+| `useRenderCustomMessages` | 为自定义界面解析已注册的前置/后置消息渲染器。 |
 
-## How to choose
+## 如何选择
 
-- **The agent should run something in my app.** Use `useFrontendTool`. Define
-  its schema and handler; add `render` when the call also needs inline UI.
-- **A tool call should look different.** Use `useRenderTool` for one named
-  call, `useComponent` for a component-first frontend tool, or
-  `useDefaultRenderTool` for the fallback. In the prebuilt chat, named
-  `tool-call-<toolName>` and `tool-call` slots are the idiomatic template
-  customization path.
-- **The agent must stop for user input.** Use `useHumanInTheLoop` for a
-  tool-level approval or input gate; use `useInterrupt` for an
-  agent-initiated interrupt that you resolve or cancel.
-- **I am building my own surface.** Use `useAgent` for reactive messages and
-  run state, `useCopilotKit` for the runtime handle, and the activity/custom
-  message composables when you need those registered renderers.
+- **智能体需要在我的应用里执行某些操作**。使用 `useFrontendTool`。定义它的 schema 与 handler；当该调用还需要内联 UI 时，添加 `render`。
+- **工具调用的外观需要定制**。单个具名调用使用 `useRenderTool`，组件优先的前端工具使用 `useComponent`，兜底则使用 `useDefaultRenderTool`。在预构建聊天中，具名的 `tool-call-<toolName>` 与 `tool-call` 插槽是惯用的模板自定义路径。
+- **智能体必须停下来等待用户输入**。工具级的审批或输入门控使用 `useHumanInTheLoop`；由智能体发起、由你恢复或取消的中断使用 `useInterrupt`。
+- **我在构建自己的界面**。响应式消息与运行状态使用 `useAgent`，运行时句柄使用 `useCopilotKit`，需要那些已注册的渲染器时再使用活动/自定义消息相关的组合式函数。
 
-### Tool versus renderer
+### 工具与渲染器的区别
 
-`useFrontendTool` and `useComponent` register tools that an agent can call.
-`useRenderTool` and `useDefaultRenderTool` only control presentation, so they
-can render a backend tool without adding a browser handler. Vue components and
-templates should use slots for chat composition; composables remain useful for
-programmatic registration and custom surfaces.
+`useFrontendTool` 与 `useComponent` 注册的是智能体可以调用的工具。`useRenderTool` 与 `useDefaultRenderTool` 只控制呈现，因此它们可以渲染后端工具而无需添加浏览器端 handler。Vue 组件与模板应使用插槽进行聊天组合；组合式函数则适用于编程式注册和自定义界面。
 
-## Related
+## 相关阅读
 
 - [Frontend Tools](/vue/frontend-tools)
 - [Generative UI: tool-based UI](/vue/generative-ui/tool-based) and

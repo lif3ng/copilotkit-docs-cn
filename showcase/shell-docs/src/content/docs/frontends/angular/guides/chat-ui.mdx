@@ -1,32 +1,28 @@
 ---
-title: Chat UI and customization
-description: Add a full Angular chat, choose its layout, and customize messages, slots, labels, and styles.
+title: 聊天 UI 与自定义
+description: 添加完整的 Angular 聊天界面，选择其布局，并自定义消息、插槽、标签与样式。
 icon: "lucide/MessageSquare"
 doc_type: how-to
 ---
 
-`CopilotChat` gives you a complete chat surface backed by the agent from your
-Copilot Runtime. It owns message streaming, suggestions, the composer,
-attachments, transcription, and the active thread.
+`CopilotChat` 为你提供完整的聊天界面，由来自 Copilot Runtime 的智能体支撑。它负责消息流式传输、建议、输入框、附件、语音转写以及当前线程。
 
-This guide starts from the provider in the [Angular quickstart](/angular) and
-shows how to choose and customize the visible chat.
+本指南从 [Angular 快速开始](/angular)中的 provider 出发，展示如何选择并自定义可见的聊天界面。
 
-## Choose a chat surface
+## 选择聊天界面形态
 
-| Surface | Use it when |
+| 界面形态 | 适用场景 |
 | --- | --- |
-| `CopilotChat` | Chat belongs inside an existing page or panel. |
-| `CopilotPopup` | Chat should open from a floating launcher. |
-| `CopilotSidebar` | Chat should sit beside the main application or open as an overlay. |
-| `CopilotChatView` | You own the agent wiring and only need the chat layout. |
+| `CopilotChat` | 聊天需要嵌入现有页面或面板内部。 |
+| `CopilotPopup` | 聊天应从浮动启动按钮打开。 |
+| `CopilotSidebar` | 聊天应位于主应用旁边，或以浮层形式打开。 |
+| `CopilotChatView` | 你自行负责智能体接线，只需要聊天布局。 |
 
-All four are standalone Angular components.
+这四者都是独立的 Angular 组件。
 
-## Add an inline chat
+## 添加内嵌聊天
 
-Import `CopilotChat`, give its host a real height, and point it at an agent when
-you do not want the default agent.
+导入 `CopilotChat`，为其宿主元素设置实际高度，并在不想使用默认智能体时指定目标智能体。
 
 ```ts title="src/app/support-chat.component.ts"
 import { ChangeDetectionStrategy, Component } from "@angular/core";
@@ -53,16 +49,15 @@ import { CopilotChat } from "@copilotkit/angular";
 export class SupportChatComponent {}
 ```
 
-Import the package stylesheet once in the application's global stylesheet:
+在应用的全局样式表中导入一次包样式表：
 
 ```css title="src/styles.css"
 @import "@copilotkit/angular/styles.css";
 ```
 
-## Use a popup or sidebar
+## 使用弹窗或侧边栏
 
-Both modal surfaces manage focus, Escape closing, and launcher-focus restore.
-Their `open` model supports two-way binding.
+两种弹层形态都会管理焦点、Escape 关闭以及启动按钮焦点的恢复。它们的 `open` 模型支持双向绑定。
 
 ```ts title="src/app/app.component.ts"
 import { Component, signal } from "@angular/core";
@@ -93,13 +88,11 @@ export class AppComponent {
 }
 ```
 
-Compact viewports render the sidebar as a modal even when `mode` is `"docked"`.
-Only one open docked sidebar can own the page margin at a time.
+在窄小的视口中，即使 `mode` 为 `"docked"`，侧边栏也会以模态形式渲染。同一时刻只能有一个打开的停靠式侧边栏占据页面边距。
 
-## Replace an assistant message
+## 替换助手消息
 
-Pass a standalone component class to `assistantMessageComponent`. CopilotKit
-creates it for each assistant message and binds its `message` input.
+把一个独立组件类传给 `assistantMessageComponent`。CopilotKit 会为每条助手消息创建该组件，并绑定其 `message` 输入。
 
 ```ts title="src/app/custom-assistant-message.component.ts"
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
@@ -146,15 +139,11 @@ export class SupportChatComponent {
 }
 ```
 
-`CopilotChat` also accepts component or template slots for reasoning messages,
-the composer, and content after the transcript. Use `CopilotChatView` directly
-when you need its scroll view, disclaimer, feather, input-container, or
-scroll-to-bottom slots.
+`CopilotChat` 还接受用于推理消息、输入框以及会话记录之后内容的组件或模板插槽。当你需要滚动视图、免责声明、feather、输入容器或滚动到底部等插槽时，可直接使用 `CopilotChatView`。
 
-## Scope CSS changes
+## 限定 CSS 修改的作用范围
 
-The package stylesheet exposes stable chat classes. Put a scope class on your
-feature host so the change stays local.
+包样式表暴露了一组稳定的聊天类。在特性宿主元素上放一个作用域类，让修改保持在局部。
 
 ```css title="src/styles.css"
 .support-chat .copilotKitUserMessage {
@@ -171,10 +160,10 @@ feature host so the change stays local.
 }
 ```
 
-## Next steps
+## 后续步骤
 
 - [CopilotChat API](/reference/angular/components/CopilotChat)
-- [CopilotChatView slots](/reference/angular/components/CopilotChatView)
+- [CopilotChatView 插槽](/reference/angular/components/CopilotChatView)
 - [CopilotPopup API](/reference/angular/components/CopilotPopup)
 - [CopilotSidebar API](/reference/angular/components/CopilotSidebar)
-- [Runnable chat examples](/angular/features#agentic-chat)
+- [可运行的聊天示例](/angular/features#agentic-chat)

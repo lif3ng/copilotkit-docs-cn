@@ -1,48 +1,46 @@
 ---
 title: Angular
-description: Connect an Angular app to Copilot Runtime with CopilotKit.
+description: 用 CopilotKit 把 Angular 应用连接到 Copilot Runtime。
 icon: "lucide/Triangle"
 hideTOC: true
 ---
 
 import OpenInspectorStep from "@/snippets/shared/inspector/open-inspector-step.mdx";
 
-`@copilotkit/angular` provides Angular components, directives, and services for CopilotKit. This guide gets you to a working Angular app with a chat UI backed by [Copilot Runtime](/backend/copilot-runtime). When you select an agent backend in the sidebar, the backend step below changes with it; without a selection, the guide uses CopilotKit's `BuiltInAgent`.
+`@copilotkit/angular` 为 CopilotKit 提供 Angular 组件、指令与服务。本指南将带你得到一个可运行的 Angular 应用，其聊天 UI 由 [Copilot Runtime](/backend/copilot-runtime) 支撑。当你在侧边栏中选择一个智能体后端时，下方的后端步骤会随之变化；未选择时，指南使用 CopilotKit 的 `BuiltInAgent`。
 
-The runtime runs on your server, keeps model credentials out of the browser, and exposes the `default` agent that `CopilotChat` uses automatically.
+运行时跑在你自己的服务器上，把模型凭证挡在浏览器之外，并暴露 `CopilotChat` 会自动使用的 `default` 智能体。
 
 <OpsPlatformCTA
   variant="inline"
-  title="Take your Angular copilot from local to production"
-  body="Add threads, inspection, and cloud-hosted or self-hosted CopilotKit Intelligence without changing the Angular frontend APIs in this guide."
+  title="把你的 Angular copilot 从本地带到生产环境"
+  body="无需改动本指南中的 Angular 前端 API，即可添加线程、检查功能，以及云端托管或自托管的 CopilotKit Intelligence。"
   surface="docs:angular/quickstart:production"
 />
 
-## Start with your coding agent
+## 从你的编码智能体开始
 
-Use this prompt to connect your Angular app to Copilot Runtime with the selected agent backend, then verify a working conversation. You can also follow the manual steps below.
+使用这段提示词，把你的 Angular 应用连接到 Copilot Runtime（使用所选的智能体后端），然后验证对话可用。你也可以按照下方的手动步骤操作。
 
 <PageAgentPrompt />
 
-## What is CopilotKit for Angular?
+## CopilotKit for Angular 是什么？
 
-CopilotKit for Angular is the first-party, signal-based Angular frontend for
-AG-UI agents and Copilot Runtime. It provides complete chat surfaces and
-headless APIs, and it supports zoneless applications.
+CopilotKit for Angular 是面向 AG-UI 智能体与 Copilot Runtime 的第一方、基于 signal 的 Angular 前端。它提供完整的聊天界面与无头（headless）API，并支持无 zone（zoneless）应用。
 
-## Prerequisites
+## 前置条件
 
-- An OpenAI API key (or another model provider supported by [Model Selection](/model-selection))
+- 一个 OpenAI API 密钥（或[模型选择](/model-selection)支持的其他模型提供方）
 - Angular 22
 - Node.js 22
 
-## Getting started
+## 快速开始
 
 <Steps>
     <Step>
-        ### Create your Angular app
+        ### 创建你的 Angular 应用
 
-        If you don't have one already, pin the CLI to the supported major:
+        如果还没有应用，先把 CLI 固定到受支持的大版本：
 
         ```bash
         npx @angular/cli@22 new my-copilot-app
@@ -50,9 +48,9 @@ headless APIs, and it supports zoneless applications.
         ```
     </Step>
     <Step>
-        ### Install CopilotKit
+        ### 安装 CopilotKit
 
-        Install the Angular frontend package, `@angular/cdk`, and `@copilotkit/runtime` for your local Copilot Runtime server:
+        安装 Angular 前端包、`@angular/cdk`，以及用于本地 Copilot Runtime 服务器的 `@copilotkit/runtime`：
 
         <Tabs groupId="package-manager" items={['npm', 'pnpm', 'yarn']}>
             <Tab value="npm">
@@ -75,15 +73,15 @@ headless APIs, and it supports zoneless applications.
             </Tab>
         </Tabs>
 
-        <Callout type="info" title="Match @angular/cdk to your Angular version">
-          `@angular/cdk` must share your Angular major version. Most package managers resolve this for you, but if you hit a peer-dependency error, pin it explicitly (for example `@angular/cdk@^22`).
+        <Callout type="info" title="让 @angular/cdk 与你的 Angular 版本匹配">
+          `@angular/cdk` 必须与你的 Angular 大版本一致。大多数包管理器会替你解决这个问题，但如果遇到 peer-dependency 报错，请显式固定版本（例如 `@angular/cdk@^22`）。
         </Callout>
     </Step>
     <WhenAngularBackend selected={false}>
       <Step>
-        ### Create the Copilot Runtime
+        ### 创建 Copilot Runtime
 
-        Add a small Node server that hosts Copilot Runtime at `/api/copilotkit` and registers a `default` built-in agent:
+        添加一个小型 Node 服务器，在 `/api/copilotkit` 上承载 Copilot Runtime，并注册一个 `default` 内置智能体：
 
         ```ts title="server.ts"
         import { createServer } from "node:http";
@@ -114,58 +112,56 @@ headless APIs, and it supports zoneless applications.
         });
         ```
 
-        <Callout type="info" title="Angular runs the runtime as its own process">
-          Angular has no route handler, so Copilot Runtime is a **separate
-          process** from your app — a second terminal here, and a third once you
-          add an agent backend. Nothing proxies it for you, which is why
-          `runtimeUrl` below is an absolute URL rather than a relative path.
+        <Callout type="info" title="Angular 把运行时作为独立进程运行">
+          Angular 没有路由处理器，因此 Copilot Runtime 是与你应用**相互独立的
+          进程**——这里要开第二个终端，等你添加智能体后端后还要再开第三个。
+          没有任何东西替你代理它，这就是下文 `runtimeUrl`
+          是绝对 URL 而非相对路径的原因。
 
-          `8200` is only this guide's default. The server above reads `PORT`, so
-          move it without editing any source:
+          `8200` 只是本指南的默认值。上面的服务器会读取 `PORT`，因此
+          无需改动任何源码就能换端口：
 
           ```bash
           PORT=8250 npx tsx server.ts
           ```
 
-          Set `runtimeUrl` to the matching port when you do. Worth doing
-          deliberately if you run more than one CopilotKit project on the same
-          machine — the default collides, and a runtime that binds a port
-          another project is already using is a confusing failure to diagnose.
+          换端口后，把 `runtimeUrl` 设为对应的端口。如果你在同一台
+          机器上运行着不止一个 CopilotKit 项目，这一步值得刻意去做——
+          默认端口会冲突，而一个绑定到其他项目已占用端口的运行时，
+          排查起来非常令人困惑。
         </Callout>
       </Step>
     </WhenAngularBackend>
     <WhenAngularBackend selected>
       <Step>
-        ### Connect the selected agent backend
+        ### 连接所选的智能体后端
 
-        This URL keeps the agent backend selected. The Angular setup remains
-        shared; the backend setup below comes from that integration's canonical
-        showcase source.
+        此 URL 保持了所选的智能体后端。Angular 的设置保持共享不变；
+        下方的后端设置来自该集成的规范 showcase 源。
 
         <FrameworkSetup concept="agent-setup" />
 
-        <Callout type="info" title="Expose the selected backend through Copilot Runtime">
-          Configure Copilot Runtime to register this backend as the `default`
-          agent at `/api/copilotkit`. Continue with the selected backend's
-          [Copilot Runtime guide](backend/copilot-runtime) for its runtime
-          adapter, credentials, and server command. Do not replace it with the
-          `BuiltInAgent` server from the standalone Angular path.
+        <Callout type="info" title="通过 Copilot Runtime 暴露所选的后端">
+          配置 Copilot Runtime，把这个后端注册为 `/api/copilotkit` 上的
+          `default` 智能体。关于其运行时适配器、凭证与服务器命令，
+          请继续参阅所选后端的 [Copilot Runtime 指南](backend/copilot-runtime)。
+          不要用独立 Angular 路径中的 `BuiltInAgent` 服务器替换它。
         </Callout>
       </Step>
     </WhenAngularBackend>
     <Step>
-        ### Import the styles
+        ### 引入样式
 
-        Add the package stylesheet to your global styles. It's self-contained, so the chat renders without any other CSS.
+        把包的样式表加入你的全局样式。它自成一体，因此聊天组件无需任何其他 CSS 即可渲染。
 
         ```css title="src/styles.css"
         @import "@copilotkit/angular/styles.css"; /* [!code highlight] */
         ```
     </Step>
     <Step>
-        ### Connect to Copilot Runtime
+        ### 连接到 Copilot Runtime
 
-        Point `provideCopilotKit` at the runtime endpoint. The chat uses the agent that your runtime registers as `default`.
+        把 `provideCopilotKit` 指向运行时端点。聊天会使用你的运行时注册为 `default` 的智能体。
 
         ```ts title="src/app/app.config.ts"
         import { ApplicationConfig } from "@angular/core";
@@ -182,9 +178,9 @@ headless APIs, and it supports zoneless applications.
         ```
     </Step>
     <Step>
-        ### Add the chat UI
+        ### 添加聊天 UI
 
-        Import the `CopilotChat` component into your root component and drop it into the template.
+        把 `CopilotChat` 组件导入你的根组件，并放进模板中。
 
         ```ts title="src/app/app.ts"
         import { Component } from "@angular/core";
@@ -206,51 +202,50 @@ headless APIs, and it supports zoneless applications.
     </Step>
     <WhenAngularBackend selected={false}>
       <Step>
-        ### Run the runtime and app
+        ### 运行运行时与应用
 
-        Start Copilot Runtime in one terminal:
+        在一个终端启动 Copilot Runtime：
 
         ```bash
         export OPENAI_API_KEY=sk-...
         npx tsx server.ts
         ```
 
-        Start the Angular app in another terminal:
+        在另一个终端启动 Angular 应用：
 
         ```bash
         npm start
         ```
 
-        Open the dev server URL (the Angular CLI prints it, usually `http://localhost:4200`), send a message, and you'll see it stream back through Copilot Runtime.
+        打开开发服务器的 URL（Angular CLI 会打印出来，通常是 `http://localhost:4200`），发送一条消息，你会看到它经由 Copilot Runtime 流式返回。
 
         <Accordions className="mb-4">
-            <Accordion title="Troubleshooting">
-                - **Chat renders unstyled**: Make sure you imported `@copilotkit/angular/styles.css` in `src/styles.css`.
-                - **No response from the agent**: Confirm the runtime server is running and `http://localhost:8200/api/copilotkit/info` returns agent information.
-                - **CORS errors**: Keep `cors: true` in `createCopilotNodeListener` for local development, or configure CORS to allow your Angular app's origin in production.
-                - **Model auth errors**: Confirm `OPENAI_API_KEY` is set in the terminal running `npx tsx server.ts`.
-                - **Peer-dependency error on install**: `@angular/cdk` must match your Angular major version. Install the matching major, for example `@angular/cdk@^22` on Angular 22.
-                - **Production build exceeds the bundle budget**: CopilotKit pulls in markdown and syntax-highlighting dependencies, so a fresh app can exceed Angular's default 1 MB budget. Raise `budgets` in `angular.json` if your production build fails on size.
+            <Accordion title="故障排查">
+                - **聊天组件渲染无样式**：确认你已在 `src/styles.css` 中导入 `@copilotkit/angular/styles.css`。
+                - **智能体没有响应**：确认运行时服务器正在运行，且 `http://localhost:8200/api/copilotkit/info` 能返回智能体信息。
+                - **CORS 报错**：本地开发时在 `createCopilotNodeListener` 中保持 `cors: true`，生产环境则配置 CORS 允许你的 Angular 应用的源。
+                - **模型鉴权报错**：确认在运行 `npx tsx server.ts` 的终端中已设置 `OPENAI_API_KEY`。
+                - **安装时 peer-dependency 报错**：`@angular/cdk` 必须与你的 Angular 大版本匹配。请安装匹配的大版本，例如 Angular 22 上安装 `@angular/cdk@^22`。
+                - **生产构建超出包体积预算**：CopilotKit 会引入 markdown 与语法高亮依赖，因此新应用可能超出 Angular 默认的 1 MB 预算。如果生产构建因体积失败，请调高 `angular.json` 中的 `budgets`。
             </Accordion>
         </Accordions>
       </Step>
     </WhenAngularBackend>
     <WhenAngularBackend selected>
       <Step>
-        ### Run the backend, runtime, and Angular app
+        ### 运行后端、运行时与 Angular 应用
 
-        Start the selected agent backend and Copilot Runtime with the commands
-        from its runtime guide. Confirm
-        `http://localhost:8200/api/copilotkit/info` reports the `default`
-        agent, then start Angular:
+        按照其运行时指南中的命令启动所选的智能体后端与 Copilot Runtime。
+        确认 `http://localhost:8200/api/copilotkit/info` 报告了
+        `default` 智能体，然后启动 Angular：
 
         ```bash
         npm start
         ```
 
-        Open the Angular CLI URL (usually `http://localhost:4200`) and send a
-        message. The request now follows the selected path end to end:
-        Angular → Copilot Runtime → your selected agent backend.
+        打开 Angular CLI 打印的 URL（通常是 `http://localhost:4200`）并发送一条
+        消息。此时请求会端到端地走所选路径：
+        Angular → Copilot Runtime → 你所选的智能体后端。
       </Step>
     </WhenAngularBackend>
     <Step>
@@ -259,11 +254,11 @@ headless APIs, and it supports zoneless applications.
 
 </Steps>
 
-## Next steps
+## 下一步
 
-- [Runtime and backend docs](backend/copilot-runtime): configure the server, secure requests, and deploy without leaving the selected Angular surface.
-- [CopilotKit Intelligence](intelligence/overview): add threads, inspection, and cloud-hosted or self-hosted operations.
-- [Angular task guides](guides/chat-ui): build chat UI, tools, generative UI, interrupts, shared state, threads, memory, attachments, and headless UI.
-- [Angular feature examples](features): find runnable examples and canonical shared Angular source for each supported feature.
-- [Angular API reference](/reference/angular): use components, signals, tools, context, and runtime services.
-- [Production and lifecycle](/reference/angular/production-lifecycle): handle cleanup, errors, server rendering, hydration, zoneless Angular, and browser-only features.
+- [运行时与后端文档](backend/copilot-runtime)：配置服务器、保护请求安全，并在不离开所选 Angular 界面的情况下完成部署。
+- [CopilotKit Intelligence](intelligence/overview)：添加线程、检查功能，以及云端托管或自托管的运维能力。
+- [Angular 任务指南](guides/chat-ui)：构建聊天 UI、工具、生成式 UI、中断、共享状态、线程、记忆、附件与无头 UI。
+- [Angular 特性示例](features)：查找每个受支持特性的可运行示例与规范共享 Angular 源码。
+- [Angular API 参考](/reference/angular)：使用组件、signal、工具、上下文与运行时服务。
+- [生产与生命周期](/reference/angular/production-lifecycle)：处理清理、错误、服务器端渲染、水合（hydration）、无 zone Angular，以及仅浏览器可用的特性。

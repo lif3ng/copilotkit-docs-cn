@@ -1,38 +1,29 @@
 ---
-title: A2UI schemas, styling, and recovery
-description: Configure typed A2UI catalogs, Angular-owned styles, and incomplete-stream recovery.
+title: A2UI 模式、样式与恢复
+description: 配置类型化的 A2UI 目录、由应用管理的 Angular 样式，以及不完整流的恢复。
 icon: "lucide/PanelsTopLeft"
 doc_type: how-to
 ---
 
-A2UI renders declarative interface operations and snapshots inside Angular
-chat. Configure it with a catalog of allowed components; the renderer creates
-only components that the catalog defines.
+A2UI 在 Angular 聊天中渲染声明式的界面操作与快照。你需要通过一个目录（catalog）来配置允许使用的组件；渲染器只会创建目录中定义的组件。
 
-## What is A2UI?
+## 什么是 A2UI？
 
-A2UI is CopilotKit's declarative generative UI path for Angular. Instead of
-asking an agent to emit arbitrary component code, you give it a typed catalog
-and render only the operations that match that catalog.
+A2UI 是 CopilotKit 面向 Angular 的声明式生成式 UI 路径。你无需让智能体生成任意的组件代码，而是向它提供一个类型化的目录，只渲染与该目录匹配的操作。
 
-## Choose a schema strategy
+## 选择 schema 策略
 
-Catalog component definitions use Zod schemas for their props. A broad catalog
-lets the agent compose several application primitives. A fixed catalog narrows
-the generated interface to a specific domain and set of shapes.
+目录中的组件定义使用 Zod schema 描述其 props。宽泛的目录允许智能体组合多个应用基础组件；固定的目录则把生成的界面收窄到特定领域和一组特定形态。
 
-The flight example keeps its component vocabulary deliberately small:
+航班示例刻意保持了较小的组件词汇量：
 
 <AngularSnippet region="a2ui-fixed-schema" />
 
-Give each catalog a stable `catalogId`, then select it in the `a2ui` option
-passed to `provideCopilotKit`. The Showcase chooses a general catalog, a fixed
-flight catalog, or the recovery variant from the active feature:
+为每个目录指定一个稳定的 `catalogId`，然后在传给 `provideCopilotKit` 的 `a2ui` 选项中选中它。Showcase 会根据当前激活的特性，选择通用目录、固定的航班目录或恢复变体：
 
 <AngularSnippet region="a2ui-schema-and-recovery" />
 
-In an application config, pass the chosen catalog and lifecycle policy through
-the Angular provider:
+在应用配置中，通过 Angular provider 传入所选目录与生命周期策略：
 
 ```ts title="src/app/app.config.ts"
 provideCopilotKit({
@@ -44,14 +35,11 @@ provideCopilotKit({
 });
 ```
 
-A catalog is required: without one, A2UI stays off even when the runtime
-enables it, and CopilotKit logs a warning.
+目录是必需的：如果没有目录，即使运行时启用了 A2UI，它也会保持关闭，并且 CopilotKit 会记录一条警告。
 
-### Use existing web components
+### 使用现有 Web Components
 
-A catalog entry can also be a Custom Element, such as a component from an
-existing design system. Pass `{ tagName, element }` instead of an Angular
-component, and mix both kinds freely:
+目录条目也可以是 Custom Element，例如来自现有设计系统的组件。此时传入 `{ tagName, element }` 而非 Angular 组件，两种形式可以自由混用：
 
 ```ts title="src/app/a2ui-catalog.ts"
 const catalog = createAngularCatalog(
@@ -67,57 +55,34 @@ const catalog = createAngularCatalog(
 );
 ```
 
-CopilotKit registers the element, renders it in place of the node, and assigns
-the node's A2UI `ComponentContext` to its `context` property on every update.
-The element reads its props and writes to the data model through that context,
-for example with web_core's `GenericBinder`. Elements render in the browser
-only, not during server rendering.
+CopilotKit 会注册该元素，用它替代节点进行渲染，并在每次更新时把节点的 A2UI `ComponentContext` 赋给它的 `context` 属性。该元素通过这个上下文读取 props 并写入数据模型，例如借助 web_core 的 `GenericBinder`。自定义元素只在浏览器中渲染，不会在服务端渲染期间出现。
 
-By default, CopilotKit includes the catalog schema in agent context. Set
-`includeSchema: false` only when the server already supplies equivalent schema
-and generation instructions. Otherwise the agent cannot reliably know which
-components and props are valid. With `includeSchema: false`, the agent context
-lists only the catalog ID and the custom component names, so a LangGraph A2UI
-subagent gets the component names only unless you pass a composition guide
-through the CopilotKit middleware's A2UI guidelines.
+默认情况下，CopilotKit 会把目录 schema 包含在智能体上下文中。只有当服务端已经提供等价的 schema 和生成指令时，才应设置 `includeSchema: false`。否则智能体无法可靠地判断哪些组件和 props 是有效的。设置 `includeSchema: false` 后，智能体上下文只列出目录 ID 和自定义组件名称，因此 LangGraph A2UI 子智能体只能拿到组件名称，除非你通过 CopilotKit 中间件的 A2UI 指南传入组合指引。
 
-## Style rendered components
+## 为渲染的组件设置样式
 
-Catalog components are Angular components with application-owned class
-names. Style those classes in the global stylesheet so generated surfaces and
-their nested elements receive the same rules:
+目录组件是带有应用自有类名的 Angular 组件。请在全局样式表中为这些类编写样式，让生成的界面及其嵌套元素应用同一套规则：
 
 <AngularSnippet region="a2ui-styling" />
 
-Keep semantic state in explicit classes such as `a2ui-status-success` rather
-than asking the model to invent colors. You can also pass an A2UI `theme`
-through `provideCopilotKit` for renderer-level theme values; catalog CSS
-remains the right place for product-specific layout and visual states.
+将语义状态保留在 `a2ui-status-success` 这类显式类名中，而不是让模型自行发明颜色。你还可以通过 `provideCopilotKit` 传入 A2UI `theme` 来提供渲染器级别的主题值；产品特定的布局与视觉状态仍然适合放在目录 CSS 中。
 
-## Recover incomplete streams
+## 恢复不完整的流
 
-An interrupted stream can leave an A2UI surface without a terminal lifecycle
-event. Configure `recovery.showAfterMs` to avoid flashing recovery UI during a
-normal pause and `recovery.showAfterAttempts` to wait through transient retry
-attempts. The Showcase uses two seconds and two attempts, as shown in the
-catalog-selection snippet above.
+被中断的流可能导致 A2UI 界面收不到终止生命周期事件。配置 `recovery.showAfterMs` 可以避免在正常停顿时闪烁恢复 UI，配置 `recovery.showAfterAttempts` 则可以等短暂的重试尝试结束。Showcase 使用了两秒和两次尝试，如上面的目录选择代码片段所示。
 
-Use `recovery.debugExposure` only when users should see protocol diagnostics.
-Keep it hidden in consumer-facing chat, or choose a collapsed or verbose mode
-for internal debugging. Recovery thresholds affect client display; the server
-still owns activity lifecycle status and retry behavior.
+只有当需要让用户看到协议诊断信息时，才使用 `recovery.debugExposure`。在面向最终用户的聊天中保持隐藏，或在内部调试时选择折叠或详细模式。恢复阈值只影响客户端显示；活动生命周期状态与重试行为仍由服务端掌控。
 
-## Angular support boundaries
+## Angular 支持边界
 
-- **Hashbrown is unsupported.** The stable Hashbrown Angular package does not support the Angular 22 policy.
-  Do not add it to an Angular integration; use A2UI with a typed catalog instead.
-- **JSON Renderer is not applicable.** JSON Renderer does not provide an Angular renderer; use A2UI for declarative Angular interfaces.
+- **不支持 Hashbrown**。稳定版 Hashbrown Angular 包不支持 Angular 22 策略。不要把它加入 Angular 集成；请改用带类型化目录的 A2UI。
+- **JSON Renderer 不适用**。JSON Renderer 没有提供 Angular 渲染器；声明式 Angular 界面请使用 A2UI。
 
-These are authoritative framework support states, not missing examples.
+这些是权威的框架支持状态，并非缺少示例。
 
-## Next steps
+## 后续步骤
 
-- [Dynamic catalog](/angular/features#declarative-gen-ui)
-- [Fixed schema](/angular/features#a2ui-fixed-schema)
-- [Recovery behavior](/angular/features#a2ui-recovery)
-- [Other generative UI paths](/angular/guides/frontend-tools-generative-ui)
+- [动态目录](/angular/features#declarative-gen-ui)
+- [固定 schema](/angular/features#a2ui-fixed-schema)
+- [恢复行为](/angular/features#a2ui-recovery)
+- [其他生成式 UI 路径](/angular/guides/frontend-tools-generative-ui)

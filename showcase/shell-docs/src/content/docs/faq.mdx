@@ -1,79 +1,79 @@
 ---
-title: Common Questions
-description: We've got answers to some common questions!
+title: 常见问题
+description: 常见问题的答案都在这里！
 hideTOC: true
 ---
 
-# Common Questions
+# 常见问题
 
-We've got answers to some common questions!
+常见问题的答案都在这里！
 
 <Accordions>
-  <Accordion title="What is a Copilot?">
-    A Copilot is a trusted partner that lives in your application to help your users get things done.
-    There are two main types, the **Concierge** and the **Worker**.
+  <Accordion title="什么是 Copilot？">
+    Copilot 是驻留在你的应用中的可信伙伴，帮助你的用户把事情办成。
+    它主要有两种类型：**礼宾型**（Concierge）与**工作型**（Worker）。
 
-    ### Concierge
+    ### 礼宾型
 
-    The Concierge Copilot understands your application's capabilities and full user context. It translates
-    high-level user intent into actions by serving as an intelligent intermediary.
+    礼宾型 Copilot 了解你的应用的能力与完整的用户上下文。它作为智能中介，
+    把高层的用户意图转化为具体的操作。
 
-    For example, our [Banking Assistant](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/reskinnable-demo) implements Concierge Copilots
-    to help users manage their (_fake_) banking needs.
+    例如，我们的[银行助手](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/reskinnable-demo)就实现了礼宾型 Copilot，
+    帮助用户管理自己的（_模拟_）银行需求。
 
 
-    ### Worker
+    ### 工作型
 
-    The Worker Copilot is a domain-specific agent that can help users perform their core work tasks.
-    It serves as a partner to the user that is better at performing some tasks and worse at others.
-    Ultimately, it amplifies your users to produce better work than they thought possible. This pattern
-    is often used in backoffice copilots.
+    工作型 Copilot 是特定领域的智能体，能帮助用户完成核心的工作任务。
+    它是用户的搭档：擅长某些任务，而在另一些任务上稍逊一筹。
+    最终，它能让你的用户产出远超自己预期的成果。这种模式
+    常见于后台办公（backoffice）类 Copilot 中。
 
-    Think of the Worker Copilot as Cursor, Replit Agent, or Windsurf, but for any domain. For example,
-    see our [Open Researcher ANA](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/research-canvas).
+    可以把工作型 Copilot 想象成 Cursor、Replit Agent 或 Windsurf，只是面向任意领域。例如，
+    可以看看我们的[开放研究员 ANA](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/research-canvas)。
 
   </Accordion>
-  <Accordion title="What are the main features of CopilotKit?">
-    ### Batteries included chat components
-    Beautiful, powerful and customizable chat components just an import away.
+  <Accordion title="CopilotKit 的主要特性有哪些？">
+    ### 开箱即用的聊天组件
+    精美、强大且可定制的聊天组件，一次 import 即可使用。
     | | |
     |---------|-------------|
-    | **Chat** | Simple and powerful chat interface |
-    | **Pop-up** | The Chat component in a pop-up format |
-    | **Sidebar** | The Chat component in a sidebar format |
-    | **Copilot Textarea** | Powerful AI autocompletion as a drop-in replacement for any textarea |
-    | [**Headless**](/custom-look-and-feel/slots) | Full customization of the chat interfaces |
+    | **聊天** | 简单而强大的聊天界面 |
+    | **弹窗** | 以弹窗形式呈现的聊天组件 |
+    | **侧边栏** | 以侧边栏形式呈现的聊天组件 |
+    | **Copilot Textarea** | 强大的 AI 自动补全，可直接替换任何 textarea |
+    | [**无头**](/custom-look-and-feel/slots) | 完全自定义聊天界面 |
 
-    ### Deeply integrated Copilots
-    Give Copilots the ability to execute tools directly in your application.
+    ### 深度集成的 Copilot
+    赋予 Copilot 直接在你的应用中执行工具的能力。
     |  |  |
     |---------|-------------|
-    | **Copilot Readable State** | Enables Copilots to read and understand the application state |
-    | **Frontend Tools** | Copilots can execute tools in the application |
-    | [**Generative UI**](/generative-ui/your-components/display-only) | Render any component in the copilot chat interface |
-    | **AI Autosuggestions** | AI-powered autosuggestions in your AI chat interface |
-    | **Copilot Tasks** | Let your copilots execute tools proactively based on application state |
+    | **Copilot 可读状态** | 让 Copilot 能够读取并理解应用状态 |
+    | **前端工具** | Copilot 可以在应用中执行工具 |
+    | [**生成式 UI**](/generative-ui/your-components/display-only) | 在 copilot 聊天界面中渲染任意组件 |
+    | **AI 自动建议** | 在 AI 聊天界面中提供 AI 驱动的自动建议 |
+    | **Copilot 任务** | 让你的 copilot 基于应用状态主动执行工具 |
 
-    ### Rich agentic experiences
-    Integrate your LangChain agents into your product with ease.
+    ### 丰富的智能体体验
+    轻松把你的 LangChain 智能体集成到产品中。
     | |  |
     |---------|-------------|
-    | **Deep support for LangChain** | Bring your LangChain agents directly into your product |
-    | **Human-in-the-loop** | Allow your users to work with your agents to solve complex problems |
-    | **Shared state** | Render the state of your LangChain agents with less than 10 lines of code |
+    | **深度支持 LangChain** | 把 LangChain 智能体直接引入你的产品 |
+    | **人机协同（human-in-the-loop）** | 让你的用户与智能体协作解决复杂问题 |
+    | **共享状态** | 用不到 10 行代码渲染 LangChain 智能体的状态 |
 
   </Accordion>
-  <Accordion title="How does it all work?">
-    Great question! CopilotKit has three main components:
-    1. **CopilotKit UI**: The UI components that you use to build your Copilots and Agents.
-    2. **CopilotKit Runtime**: The runtime that you use to build your Copilots and Agents. This serves as the backend for your Copilots and Agents.
-    3. **CopilotKit SDK**: In more complex applications, you'll use the SDK to deeply integrate CopilotKit into your agents.
+  <Accordion title="这一切是如何运作的？">
+    问得好！CopilotKit 有三个主要组成部分：
+    1. **CopilotKit UI**：用于构建你的 Copilot 与智能体的 UI 组件。
+    2. **CopilotKit Runtime**：用于构建你的 Copilot 与智能体的运行时。它是你的 Copilot 与智能体的后端。
+    3. **CopilotKit SDK**：在更复杂的应用中，你会用 SDK 把 CopilotKit 深度集成到你的智能体中。
   </Accordion>
 
-  <Accordion title="Can I use any LLM with CopilotKit?">
-    Yes! CopilotKit supports most LLMs, including OpenAI, Anthropic, Google, and more. In addition, you can use any LLM that is supported by LangChain.
+  <Accordion title="CopilotKit 可以使用任意 LLM 吗？">
+    可以！CopilotKit 支持大多数 LLM，包括 OpenAI、Anthropic、Google 等。此外，任何 LangChain 支持的 LLM 都可以使用。
 
-    For more information, checkout our documentation on [bringing your own LLM](/model-selection).
+    更多信息请查阅关于[自带 LLM](/model-selection) 的文档。
 
   </Accordion>
 </Accordions>

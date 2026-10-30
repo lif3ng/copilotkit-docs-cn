@@ -1,6 +1,6 @@
 ---
 title: "Manufact"
-description: "Build an MCP App with Manufact's open-source mcp-use SDK, render it inline in CopilotKit's chat, then deploy it to Manufact Cloud."
+description: "用 Manufact 的开源 mcp-use SDK 构建一个 MCP App，在 CopilotKit 的聊天中内联渲染，然后部署到 Manufact Cloud。"
 icon: "custom/manufact"
 showIcon: true
 doc_type: how-to
@@ -16,60 +16,57 @@ agentPrompt: |
   If I don't have a CopilotKit app yet, start from https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/manufact-mcp-apps. Keep my existing model, provider, and runtime setup unchanged.
 ---
 
-[Manufact](https://manufact.com) builds [mcp-use](https://github.com/mcp-use/mcp-use), the
-open-source framework for MCP servers and MCP Apps, and **Manufact Cloud**, which hosts, monitors, and publishes
-them. An MCP App is an MCP tool that ships its own UI: when an agent calls the tool, the host renders that UI
-instead of returning raw JSON.
+[Manufact](https://manufact.com) 打造了 [mcp-use](https://github.com/mcp-use/mcp-use)——面向 MCP 服务器和 MCP App
+的开源框架，以及负责托管、监控和发布它们的 **Manufact Cloud**。MCP App 是自带 UI 的 MCP 工具：当智能体调用该
+工具时，宿主渲染的是这个 UI，而不是返回原始 JSON。
 
-This recipe builds a small MCP App with mcp-use: a `show-map` tool bound to a React map view. You connect it to
-CopilotKit's [Built-in Agent](/), and the map renders inline in the chat. Your web app bundles no map library,
-because the UI ships with the tool. As a bonus at the end, you host the MCP App on Manufact Cloud and point your
-app at its URL.
+本示例用 mcp-use 构建一个小型 MCP App：一个绑定到 React 地图视图的 `show-map` 工具。你把它接入 CopilotKit 的
+[内置智能体](/)，地图就会内联呈现在聊天中。你的 Web 应用无需打包任何地图库，因为 UI 随工具一起交付。最后还有
+加餐内容：把 MCP App 托管到 Manufact Cloud，并让你的应用指向它的 URL。
 
 <Image
   src="/images/cookbook/manufact-try-map-my-orders.webp"
-  alt="What this recipe builds: a CopilotKit chat that answers 'Map my orders' with the Fizzy Maps MCP App inline, a map of San Francisco titled 'Orders · San Francisco' with four colored markers."
+  alt="本示例构建的效果：CopilotKit 聊天回答“Map my orders”并内联展示 Fizzy Maps MCP App——一张旧金山地图，标题为“Orders · San Francisco”，带有四个彩色标记。"
   width={1990}
   height={1050}
   className="w-full rounded-xl border border-[var(--border)]"
 />
 
-## What you'll build
+## 你将构建什么
 
-A chat you can ask to map your orders. There are three pieces:
+一个可以让你要求“把订单标到地图上”的聊天。一共有三块：
 
-- **Fizzy Maps**, a tiny MCP App built with mcp-use. It has one tool, `show-map`, and a React view that draws the
-  map.
-- **Your web app**, a Next.js app with CopilotKit. It tells CopilotKit where Fizzy Maps lives and shares your
-  order data with the agent.
-- **The agent**, which decides when to call `show-map`. When it does, CopilotKit shows the map right in the chat.
+- **Fizzy Maps**：一个用 mcp-use 构建的小巧 MCP App。它只有一个工具 `show-map`，以及一个负责画地图的
+  React 视图。
+- **你的 Web 应用**：一个带 CopilotKit 的 Next.js 应用。它告诉 CopilotKit Fizzy Maps 的位置，并把你的订单数据
+  共享给智能体。
+- **智能体**：决定何时调用 `show-map`。当它调用时，CopilotKit 会直接在聊天中展示地图。
 
-The map code lives entirely in Fizzy Maps. Your web app never imports it.
+地图代码完全位于 Fizzy Maps 中。你的 Web 应用从不导入它。
 
-## Quick start
+## 快速开始
 
-Want to see it working first? The finished example lives in the CopilotKit repo. You'll need Node.js 22.22.2 or
-newer and an OpenAI API key.
+想先看它跑起来？成品示例就在 CopilotKit 仓库中。你需要 Node.js 22.22.2 或更新版本以及一个 OpenAI API 密钥。
 
 ```bash
 git clone --depth 1 https://github.com/CopilotKit/CopilotKit.git
 cd CopilotKit/examples/showcases/manufact-mcp-apps
 npm install
-cp web/.env.example web/.env  # then paste your OPENAI_API_KEY into it
+cp web/.env.example web/.env  # 然后把你的 OPENAI_API_KEY 粘贴进去
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and ask it to **Map my orders**. The steps below build the same
-thing from scratch, one piece at a time.
+打开 [http://localhost:3000](http://localhost:3000)，让它 **Map my orders**（把我的订单标到地图上）。下面的步骤
+会从零开始，一块一块构建同样的东西。
 
-## Build it step by step
+## 一步步构建
 
 <Steps>
 <Step>
 
-### Create your web app
+### 创建你的 Web 应用
 
-Start with a fresh Next.js app and add CopilotKit. Already have a CopilotKit app? Skip to the next step.
+从一个全新的 Next.js 应用开始并加入 CopilotKit。已经有 CopilotKit 应用了？直接跳到下一步。
 
 ```bash
 npx create-next-app@latest web --yes
@@ -77,7 +74,7 @@ cd web
 npm install @copilotkit/react-core @copilotkit/runtime
 ```
 
-CopilotKit's provider is a client component, so give it its own file:
+CopilotKit 的 provider 是一个客户端组件，所以给它单独一个文件：
 
 ```tsx title="app/providers.tsx"
 "use client";
@@ -95,7 +92,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 }
 ```
 
-Then replace `app/layout.tsx` so every page is wrapped in it:
+然后替换 `app/layout.tsx`，让每个页面都被它包裹：
 
 ```tsx title="app/layout.tsx"
 import { Providers } from "./providers"; // [!code highlight]
@@ -121,10 +118,9 @@ export default function RootLayout({
 </Step>
 <Step>
 
-### Scaffold the MCP App
+### 生成 MCP App 脚手架
 
-Open a second terminal in the folder that holds `web` (not inside it). Create the MCP App from mcp-use's MCP Apps
-template, then add the map library:
+在包含 `web` 的文件夹（不是其内部）再开一个终端。用 mcp-use 的 MCP Apps 模板创建 MCP App，然后添加地图库：
 
 ```bash
 npx create-mcp-use-app@latest fizzy-maps --template mcp-apps
@@ -134,16 +130,15 @@ npm install -D @types/leaflet
 rm -rf views/my-view
 ```
 
-The template comes with a demo view and two demo tools. You're replacing both, so the last line clears out the demo
-view.
+模板自带一个演示视图和两个演示工具。这两样都会被你替换掉，所以最后一行把演示视图清掉。
 
 </Step>
 <Step>
 
-### Describe a map as data
+### 把地图描述为数据
 
-Before writing any UI, decide what a map looks like as data: a center, a zoom level, and a list of markers. This
-one schema does three jobs. It's what the agent sends, what the tool returns, and what the view receives.
+在写任何 UI 之前，先确定地图作为数据长什么样：一个中心点、一个缩放级别和一组标记。这一个 schema 干三件事：
+它是智能体发送的内容、工具返回的内容，也是视图接收的内容。
 
 ```ts title="views/map-view/schema.ts"
 import { z } from "zod";
@@ -178,10 +173,10 @@ export type Marker = z.infer<typeof markerSchema>;
 </Step>
 <Step>
 
-### Add the `show-map` tool
+### 添加 `show-map` 工具
 
-Now replace `index.ts` with the tool. The `view` block is what turns a normal MCP tool into an MCP App. It points
-at a folder under `views/`, and mcp-use bundles the React component in that folder and serves it with the tool.
+现在用这个工具替换 `index.ts`。`view` 块正是把普通 MCP 工具变成 MCP App 的关键。它指向 `views/` 下的一个
+文件夹，mcp-use 会把该文件夹中的 React 组件打包，并随工具一起提供。
 
 ```ts title="index.ts"
 import { MCPServer } from "mcp-use";
@@ -223,21 +218,21 @@ export const showMap = server.tool(
 export default server;
 ```
 
-A few things worth knowing:
+几点值得了解：
 
-- The view's `name` has to match its folder name, `map-view`.
-- `structuredContent` goes to the view. `content` is the short text summary the model reads.
-- The view runs in a locked-down iframe, so `csp` lists the one outside host it needs: OpenStreetMap's tile
-  server, which serves the map images. Leave it out and you'll get markers on a blank gray box.
+- 视图的 `name` 必须与其文件夹名一致，即 `map-view`。
+- `structuredContent` 送给视图。`content` 是给模型阅读的简短文字摘要。
+- 视图运行在一个严格受限的 iframe 里，所以 `csp` 要列出它需要的唯一外部主机：提供地图图片的 OpenStreetMap
+  切片服务器。漏掉它，你就会看到灰色空白底板上的几个标记。
 
 </Step>
 <Step>
 
-### Draw the map
+### 绘制地图
 
-The view is a regular React component. `useToolContext` hands it the tool's result, and
-[react-leaflet](https://react-leaflet.js.org) turns that into a map: a `MapContainer`, a `TileLayer` for the map
-images, and one `CircleMarker` per marker.
+视图就是一个普通的 React 组件。`useToolContext` 把工具结果交给它，
+[react-leaflet](https://react-leaflet.js.org) 再把它变成地图：一个 `MapContainer`、一个负责地图图片的
+`TileLayer`，以及每个标记一个的 `CircleMarker`。
 
 ```tsx title="views/map-view/view.tsx"
 import { useToolContext } from "mcp-use/react";
@@ -307,7 +302,7 @@ export default function MapView() {
 }
 ```
 
-And a little CSS so the map fills its frame:
+再加一点 CSS，让地图填满它的容器：
 
 ```css title="views/map-view/view.css"
 html,
@@ -347,18 +342,17 @@ body,
 </Step>
 <Step>
 
-### Try it in the mcp-use Inspector
+### 在 mcp-use Inspector 中试用
 
-Start the MCP App. Your web app will use port 3000, so put this one on 3001:
+启动 MCP App。你的 Web 应用会占用 3000 端口，所以把这个放到 3001：
 
 ```bash
 npm run dev -- --port 3001
 ```
 
-This also opens the **mcp-use Inspector** at
-[http://localhost:3001/mcp/inspector](http://localhost:3001/mcp/inspector). It's Manufact's tool for trying an MCP
-server by hand, with no agent involved. Go to **Tools**, pick `show-map`, and fill in its fields with these values
-(the Inspector gives each key its own field). Then click **Execute**:
+这还会在 [http://localhost:3001/mcp/inspector](http://localhost:3001/mcp/inspector) 打开 **mcp-use Inspector**。
+它是 Manufact 提供的工具，可以在没有智能体参与的情况下手动试用 MCP 服务器。进入 **Tools**，选择 `show-map`，
+用下面的值填入各字段（Inspector 为每个键提供单独的字段）。然后点击 **Execute**：
 
 ```json
 {
@@ -378,29 +372,28 @@ server by hand, with no agent involved. Go to **Tools**, pick `show-map`, and fi
 
 <Image
   src="/images/cookbook/manufact-mcp-use-inspector.webp"
-  alt="The mcp-use Inspector with the show-map tool selected, its title, center, zoom, and markers fields filled in, and the rendered map view below the response."
+  alt="mcp-use Inspector 中已选中 show-map 工具，title、center、zoom 和 markers 字段已填好，响应下方是渲染出来的地图视图。"
   width={2300}
   height={1652}
   className="w-full rounded-xl border border-[var(--border)]"
 />
 
-If the map shows up here, the MCP App is done. Everything from here on happens in your web app.
+如果地图在这里显示出来了，MCP App 就完成了。从这里开始的一切都发生在你的 Web 应用里。
 
 </Step>
 <Step>
 
-### Connect it to CopilotKit
+### 接入 CopilotKit
 
-Back in `web`, create a `.env` file with your OpenAI key and the MCP App's address:
+回到 `web`，创建一个 `.env` 文件，写入你的 OpenAI 密钥和 MCP App 的地址：
 
 ```plaintext title=".env"
 OPENAI_API_KEY=sk-your_key
 MAP_MCP_URL=http://localhost:3001/mcp
 ```
 
-Then create the runtime route. The highlighted `mcpApps` block is the whole integration. It tells CopilotKit where
-Fizzy Maps lives. CopilotKit picks up its tools, gives them to the agent, and renders the map whenever `show-map`
-runs.
+然后创建运行时路由。高亮的 `mcpApps` 块就是全部集成内容。它告诉 CopilotKit Fizzy Maps 在哪里。CopilotKit 会
+拾取它的工具，交给智能体，并在 `show-map` 运行时渲染地图。
 
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts" doctest="component"
 import {
@@ -442,16 +435,14 @@ export const PATCH = handler;
 export const DELETE = handler;
 ```
 
-The `serverId` is how saved conversations find their MCP App later. If you keep it the same when you deploy, maps
-in older threads still load from the new URL.
+`serverId` 是已保存对话日后找到其 MCP App 的依据。部署时如果保持不变，旧线程中的地图仍能从新 URL 加载。
 
 </Step>
 <Step>
 
-### Share your orders and add the chat
+### 共享你的订单并添加聊天
 
-The agent needs real data to put on the map. This file holds a few sample orders and builds the exact arguments
-`show-map` expects:
+智能体需要真实数据才能标到地图上。这个文件存放几个示例订单，并构建出 `show-map` 所期望的完整参数：
 
 ```ts title="lib/orders.ts"
 const COLORS = { Packing: "blue", Shipping: "green", Delayed: "red" } as const;
@@ -510,7 +501,7 @@ export const orderMap = {
 };
 ```
 
-Then replace `app/page.tsx`. It hands that data to the agent with `useAgentContext` and shows a chat:
+然后替换 `app/page.tsx`。它用 `useAgentContext` 把这些数据交给智能体，并展示一个聊天：
 
 ```tsx title="app/page.tsx"
 "use client";
@@ -541,41 +532,41 @@ export default function Page() {
 }
 ```
 
-Notice what's missing: there's no map code here and no custom renderer. CopilotKit draws MCP Apps on its own.
+注意缺了什么：这里没有任何地图代码，也没有自定义渲染器。CopilotKit 自己就能绘制 MCP App。
 
 </Step>
 <Step>
 
-### Try it
+### 试用
 
-Leave the MCP App running in its terminal. In the `web` terminal, run `npm run dev`, open
-[http://localhost:3000](http://localhost:3000), and ask:
+让 MCP App 在它的终端里继续运行。在 `web` 终端中运行 `npm run dev`，打开
+[http://localhost:3000](http://localhost:3000)，然后提问：
 
 ```text
 Map my orders
 ```
 
-The agent calls `show-map` with your orders, and the map appears right in the chat:
+智能体带着你的订单调用 `show-map`，地图直接出现在聊天中：
 
 <Image
   src="/images/cookbook/manufact-try-map-my-orders.webp"
-  alt="The chat after asking 'Map my orders': an inline map of San Francisco titled 'Orders · San Francisco' with four colored markers."
+  alt="提问“Map my orders”后的聊天：一张内联的旧金山地图，标题为“Orders · San Francisco”，带有四个彩色标记。"
   width={1990}
   height={1050}
   className="w-full rounded-xl border border-[var(--border)]"
 />
 
-Now narrow it down:
+现在缩小范围：
 
 ```text
 Only show the delayed ones
 ```
 
-The agent calls `show-map` again with just the delayed order, and a fresh map shows up:
+智能体只带上延迟订单再次调用 `show-map`，一张新地图随之出现：
 
 <Image
   src="/images/cookbook/manufact-try-delayed.webp"
-  alt="The chat after asking 'Only show the delayed ones': a second map titled 'Delayed Orders · San Francisco' with a single red marker."
+  alt="提问“Only show the delayed ones”后的聊天：第二张地图，标题为“Delayed Orders · San Francisco”，只有一个红色标记。"
   width={2050}
   height={1030}
   className="w-full rounded-xl border border-[var(--border)]"
@@ -584,79 +575,77 @@ The agent calls `show-map` again with just the delayed order, and a fresh map sh
 </Step>
 <Step>
 
-### Look under the hood with the CopilotKit Inspector
+### 用 CopilotKit Inspector 查看内部机制
 
-See the kite button in the corner of your app? That's the [CopilotKit Inspector](/inspector). It shows up in
-development and watches the conversation between your app and the agent. It's a different tool from the mcp-use
-Inspector: that one talks to your MCP App directly, and this one shows what happened in your chat.
+看到应用角落的风筝按钮了吗？那就是 [CopilotKit Inspector](/inspector)。它在开发环境中出现，观察你的应用与
+智能体之间的对话。它和 mcp-use Inspector 是两种工具：后者直接与你的 MCP App 通信，而前者展示你的聊天里发生了
+什么。
 
-Open it and go to **AG-UI Events**. You'll see the whole map request play out. The agent streams its `show-map`
-call (`TOOL_CALL_ARGS`, then `TOOL_CALL_END`), the result comes back (`TOOL_CALL_RESULT`), and an
-`ACTIVITY_SNAPSHOT` carries the MCP App that CopilotKit draws in the chat.
+打开它并进入 **AG-UI Events**。你会看到整个地图请求的完整过程。智能体流式发出 `show-map` 调用（先是
+`TOOL_CALL_ARGS`，然后是 `TOOL_CALL_END`），结果返回（`TOOL_CALL_RESULT`），一条 `ACTIVITY_SNAPSHOT`
+携带着 CopilotKit 在聊天中绘制的 MCP App。
 
 <Image
   src="/images/cookbook/manufact-copilotkit-inspector.webp"
-  alt="The CopilotKit Inspector's AG-UI Events pane listing the run's events: TOOL_CALL_ARGS, TOOL_CALL_END, TOOL_CALL_RESULT, ACTIVITY_SNAPSHOT, and RUN_FINISHED."
+  alt="CopilotKit Inspector 的 AG-UI Events 面板，列出本次运行的事件：TOOL_CALL_ARGS、TOOL_CALL_END、TOOL_CALL_RESULT、ACTIVITY_SNAPSHOT 和 RUN_FINISHED。"
   width={1928}
   height={1486}
   className="w-full rounded-xl border border-[var(--border)]"
 />
 
-If a map ever fails to show up, start here. You'll see whether the agent called `show-map` at all, and what came
-back.
+如果地图某次没能出现，就从这里开始排查。你能看到智能体到底有没有调用 `show-map`，以及返回了什么。
 
 </Step>
 </Steps>
 
-## Bonus: host the MCP App on Manufact Cloud
+## 加餐：把 MCP App 托管到 Manufact Cloud
 
-So far Fizzy Maps runs on your laptop. Manufact Cloud can host it, which gives it a real URL that your deployed web
-app can reach. So can ChatGPT, Claude, or any other MCP client. From the `fizzy-maps` folder:
+到目前为止，Fizzy Maps 还跑在你的笔记本上。Manufact Cloud 可以托管它，给它一个你的已部署 Web 应用能够访问的
+真实 URL。ChatGPT、Claude 或任何其他 MCP 客户端也都可以。在 `fizzy-maps` 文件夹中运行：
 
 ```bash
 npx mcp-use login
 npx mcp-use deploy
 ```
 
-By default, `deploy` ships from your GitHub repo and walks you through connecting Manufact's GitHub App. No repo?
-Add `--no-github` to upload the folder as it is. If the app lives in a monorepo, point at it with `--root-dir`.
-When the deploy finishes, the CLI prints your server's URL. Put it in `web/.env` and restart the web app:
+默认情况下，`deploy` 会从你的 GitHub 仓库发布，并引导你连接 Manufact 的 GitHub App。没有仓库？加上
+`--no-github`，按原样上传该文件夹。如果应用位于 monorepo 中，用 `--root-dir` 指向它。部署完成后，CLI 会打印
+你服务器的 URL。把它放进 `web/.env` 并重启 Web 应用：
 
 ```plaintext title=".env"
 MAP_MCP_URL=https://<your-slug>.run.mcp-use.com/mcp
 ```
 
-That's the only change. Running `mcp-use deploy` again later redeploys the same server.
+只需要这一处改动。之后再运行 `mcp-use deploy` 会重新部署同一个服务器。
 
-One thing before you share that URL widely: anyone who has it can call your tools. That's fine for a read-only map
-of sample data. If your MCP App touches real user data, add
-[authentication in mcp-use](https://docs.mcp-use.com/v2/typescript/server/authentication/index) and pass the
-credential from your runtime with `headers` on the server entry. The browser never talks to the MCP App directly,
-so the credential stays on your server. Your `/api/copilotkit` route deserves the same care, since every message
-spends model credits. See [authentication](/auth).
+在把这个 URL 大范围分享之前，有一件事要清楚：任何拿到它的人都能调用你的工具。对一个只读的示例数据地图来说这
+没问题。如果你的 MCP App 会接触真实用户数据，请添加
+[mcp-use 中的身份验证](https://docs.mcp-use.com/v2/typescript/server/authentication/index)，并在服务器条目上
+通过 `headers` 从你的运行时传递凭据。浏览器从不直接与 MCP App 通信，所以凭据始终留在你的服务器上。你的
+`/api/copilotkit` 路由同样需要这种照看，因为每条消息都会消耗模型额度。参见[身份验证](/auth)。
 
-## Where to go next
+## 后续方向
 
-- **Make the map interactive.** Inside a view, `useCallTool()` from `mcp-use/react` calls other tools on the same
-  server, and `useSendFollowUp()` sends a message back into the chat. CopilotKit passes both through for you.
-- **Ship it to ChatGPT and Claude.** The same MCP App works in any MCP Apps host. Manufact's
-  [publish checks](https://docs.manufact.com/dashboard/publish-checks) and
-  [submission pack](https://docs.manufact.com/dashboard/submission-pack) get it ready for their app directories.
-- **Watch real traffic.** Manufact Cloud shows tool calls, sessions, and logs for your deployed server. See
-  [Usage & traffic](https://docs.manufact.com/dashboard/analytics).
-- **Read more.** The [mcp-use MCP Apps docs](https://docs.mcp-use.com/v2/typescript/mcp-apps) cover views in depth,
-  and [MCP Apps](/generative-ui/mcp-apps) covers CopilotKit's side.
+- **让地图可交互。**在视图内部，`mcp-use/react` 中的 `useCallTool()` 可以调用同一服务器上的其他工具，
+  `useSendFollowUp()` 可以把一条消息发回聊天。CopilotKit 会为你把这两者透传。
+- **发布到 ChatGPT 和 Claude。**同一个 MCP App 在任何 MCP Apps 宿主中都能运行。Manufact 的
+  [发布检查](https://docs.manufact.com/dashboard/publish-checks)和
+  [提交材料包](https://docs.manufact.com/dashboard/submission-pack)可以帮它准备好进入它们的应用目录。
+- **观察真实流量。**Manufact Cloud 会展示你已部署服务器的工具调用、会话和日志。参见
+  [Usage & traffic](https://docs.manufact.com/dashboard/analytics)。
+- **延伸阅读。**[mcp-use MCP Apps 文档](https://docs.mcp-use.com/v2/typescript/mcp-apps)深入讲解视图，
+  [MCP Apps](/generative-ui/mcp-apps) 则覆盖 CopilotKit 侧的内容。
 
-## Get the code
+## 获取代码
 
-The finished example is in the CopilotKit repo at
-[`examples/showcases/manufact-mcp-apps`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/manufact-mcp-apps).
-For the fuller Fizzy Business demo, with an order desk, a copilot, and a Playwright test suite, see
-[CopilotKit/mcp-apps-demo-night-talk](https://github.com/CopilotKit/mcp-apps-demo-night-talk).
+成品示例位于 CopilotKit 仓库的
+[`examples/showcases/manufact-mcp-apps`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/manufact-mcp-apps)。
+想看更完整的 Fizzy Business 演示——带订单台、copilot 和 Playwright 测试套件——请参见
+[CopilotKit/mcp-apps-demo-night-talk](https://github.com/CopilotKit/mcp-apps-demo-night-talk)。
 
 <Image
   src="/images/cookbook/manufact-fizzy-maps.webp"
-  alt="The fuller Fizzy Business demo: an order dashboard with a sparkling-water order table, and a copilot sidebar rendering the Fizzy Maps MCP App inline."
+  alt="更完整的 Fizzy Business 演示：带气泡水订单表的订单仪表盘，以及内联渲染 Fizzy Maps MCP App 的 copilot 侧边栏。"
   width={2000}
   height={1059}
   className="w-full rounded-xl border border-[var(--border)]"

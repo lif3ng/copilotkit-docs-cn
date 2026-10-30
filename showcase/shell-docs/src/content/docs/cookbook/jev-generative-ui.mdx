@@ -1,6 +1,6 @@
 ---
-title: "Jev: fast generative UI"
-description: "Use Jev to choose and rank prepared controls, render them through CopilotKit and AG-UI, and optionally improve those choices with Automatic Learning."
+title: "Jev：快速生成式 UI"
+description: "使用 Jev 选择预构建控件并为其排序，通过 CopilotKit 和 AG-UI 渲染，还可以用 Automatic Learning（可选）改进这些选择。"
 icon: "custom/typesafe"
 showIcon: true
 doc_type: how-to
@@ -16,32 +16,37 @@ agentPrompt: |
   Skip the optional Automatic Learning section unless I ask for it.
 ---
 
-“I need somewhere to work” could mean a quiet room for one person or a table for the whole team. Your agent needs to decide whether to ask a question or show some options. With Jev and CopilotKit, it can make that decision and put the next step on a button.
+“我需要个地方工作”可能意味着一个人用的安静房间，也可能是全团队用的长桌。你的智能体需要决定是先提一个问题，
+还是直接展示一些选项。有了 Jev 和 CopilotKit，它既能做出这个决定，还能把下一步放到一个按钮上。
 
-You’ll build a workspace picker in Next.js that asks clarifying questions, compares rooms, and remembers the user’s selection. Jev chooses the panel and ranks the options; CopilotKit connects it to your React UI through AG-UI. Start with three sample workspaces, then swap in your own catalog.
+你将在 Next.js 中构建一个工作区选择器，它会提出澄清性问题、比较各个房间，并记住用户的选择。Jev 负责挑选面板
+并为选项排序；CopilotKit 通过 AG-UI 把它接入你的 React UI。先从三个示例工作区开始，然后换成你自己的目录。
 
-| Part | Responsibility |
+| 角色 | 职责 |
 | --- | --- |
-| **Jev** | Makes structured judgments: which prepared control fits, and how well each candidate matches. |
-| **CopilotKit + AG-UI** | Connect the agent and React UI. AG-UI carries run events and state; CopilotKit exposes that state and sends user actions back. |
-| **Your application** | Owns schemas, components, fixed labels, candidate IDs, validation, and confirmed actions. |
-| **Intelligence, optionally** | Persists Threads, analyzes evidence into Insights and candidate Skills, and delivers approved versions. |
+| **Jev** | 做出结构化判断：哪个预构建控件合适，以及每个候选匹配得有多好。 |
+| **CopilotKit + AG-UI** | 连接智能体与 React UI。AG-UI 承载运行事件和状态；CopilotKit 把该状态暴露出来，并把用户操作传回。 |
+| **你的应用** | 掌管 schema、组件、固定标签、候选 ID、校验和已确认的操作。 |
+| **Intelligence（可选）** | 持久化 Threads，将证据分析为 Insights 和候选 Skills，并交付已批准的版本。 |
 
-You design the components and their labels. Jev decides which one fits the moment and what goes in it; AG-UI carries the result to your UI. Asking the right question is better agent behavior. Giving the user two useful buttons makes it better generative UI, too.
+组件和标签由你设计。Jev 决定此刻哪个组件合适、里面放什么内容；AG-UI 把结果送到你的 UI。问出正确的问题是更好的
+智能体行为；给用户两个有用的按钮，也让它成为更好的生成式 UI。
 
 <Callout type="info">
-This recipe renders [shared agent state](/shared-state). For tool-call-based rendering and other approaches, see [Generative UI](/concepts/generative-ui-overview).
+本示例渲染[共享智能体状态](/shared-state)。关于基于工具调用的渲染及其他方式，请参见[生成式 UI](/concepts/generative-ui-overview)。
 </Callout>
 
-## Before you start
+## 开始之前
 
-Use a Next.js App Router project with TypeScript, React 19, a root layout, and the `@/*` alias pointing to the project root. If your project uses `src/`, place all files below inside `src/` and point the alias there. Use Node.js 22 or later.
+使用一个带有 TypeScript、React 19、根布局和指向项目根目录的 `@/*` 别名的 Next.js App Router 项目。如果你的项目
+使用 `src/`，请把下面的所有文件放进 `src/`，并把别名指向那里。使用 Node.js 22 或更高版本。
 
 ```bash
 npm install @copilotkit/core@1.73.0 @copilotkit/react-core@1.73.0 @copilotkit/runtime@1.73.0 @ag-ui/client@1.0.1 @ag-ui/core@1.0.1 @typesafe-ai/sdk@0.6.0 rxjs@7.8.1 zod@4.6.5 @langchain/openai@1.5.13 @langchain/core@1.2.11
 ```
 
-Get a Jev key using the [TypeSafe quickstart](https://docs.typesafe.ai/introduction/quickstart). Add it and an OpenAI key to your server environment. Neither key belongs in a `NEXT_PUBLIC_` variable.
+按照 [TypeSafe 快速开始](https://docs.typesafe.ai/introduction/quickstart)获取一个 Jev 密钥。把它和一个 OpenAI
+密钥添加到你的服务器环境。这两个密钥都不应放进 `NEXT_PUBLIC_` 变量。
 
 ```dotenv title=".env.local"
 TYPESAFE_API_KEY=your-typesafe-key
@@ -49,14 +54,16 @@ OPENAI_API_KEY=your-openai-key
 OPENAI_MODEL=gpt-5.4
 ```
 
-The OpenAI model handles requests outside the two prepared panels. It is not called when Jev returns a usable panel. This local example stores a selection in agent state; it does not book a workspace or implement production authentication.
+OpenAI 模型处理这两个预构建面板之外的请求。当 Jev 返回可用面板时不会调用它。这个本地示例只把选择存入智能体状态；
+它不会预订工作区，也没有实现生产级的身份验证。
 
 <Steps>
 <Step>
 
-## Define the state and candidate IDs
+## 定义状态与候选 ID
 
-Start with three rooms and two panel types: a question and a comparison. Keep the user’s selection separate from the panel so browsing options never selects a room for them.
+先从三个房间和两种面板类型开始：一个提问面板和一个比较面板。把用户的选择与面板分开保存，这样浏览选项永远不会
+替用户选中某个房间。
 
 ```ts title="lib/workspaces.ts"
 import { z } from "zod";
@@ -68,7 +75,8 @@ export const candidates = [
 ];
 ```
 
-Next, add the shape of the UI state to the same file. `panel` describes what to show; `selectedId` records the room the user actually picked. The clarification options give users a quick way to explain what they need.
+接着，在同一个文件里添加 UI 状态的结构。`panel` 描述要显示什么；`selectedId` 记录用户实际选中的房间。澄清性选项
+让用户可以快速说明自己的需求。
 
 ```ts title="lib/workspaces.ts"
 export const PanelSchema = z.object({
@@ -92,11 +100,13 @@ export const clarificationOptions = [
 </Step>
 <Step>
 
-## Batch the control choice and candidate scores
+## 批量获取控件选择与候选评分
 
-Build `lib/choose-panel.ts` from the following three blocks, in order. The first opens `choosePanel`, and the last closes it.
+按顺序用下面三个代码块构建 `lib/choose-panel.ts`。第一块打开 `choosePanel`，最后一块将其闭合。
 
-Ask Jev two things in one call: “What should I show next?” and “How well does each room fit?” The [TypeSafe SDK](https://docs.typesafe.ai/sdk) evaluates these questions independently against the same state, then your code sorts the scores. Each question needs enough context to stand on its own.
+在一次调用里向 Jev 问两件事：“接下来该显示什么？”和“每个房间有多契合？”
+[TypeSafe SDK](https://docs.typesafe.ai/sdk) 会针对同一个状态独立评估这些问题，然后由你的代码对评分排序。
+每个问题都需要足够上下文，能独立成立。
 
 ```ts title="lib/choose-panel.ts"
 import { TypeSafeClient, choice, score } from "@typesafe-ai/sdk";
@@ -126,7 +136,7 @@ export async function choosePanel(
   };
 ```
 
-Continue inside `choosePanel` by adding one score question per room. Send all the questions together with the request and the available rooms.
+继续在 `choosePanel` 内部，为每个房间添加一个评分问题。把所有问题连同请求和可用房间一起发送。
 
 ```ts title="lib/choose-panel.ts"
   for (const candidate of candidates) {
@@ -142,7 +152,8 @@ Continue inside `choosePanel` by adding one score question per room. Send all th
   }, { signal });
 ```
 
-Now read the answers. Sort the rooms by fit, then build the panel Jev selected. Returning `null` tells the agent to handle the request with its language-model fallback.
+现在读取答案。按契合度给房间排序，然后构建 Jev 选中的面板。返回 `null` 就是告诉智能体用它的语言模型兜底来处理
+这个请求。
 
 ```ts title="lib/choose-panel.ts"
   const control = result.answers.control;
@@ -170,14 +181,15 @@ Now read the answers. Sort the rooms by fit, then build the panel Jev selected. 
 }
 ```
 
-Jev controls the order of the options; your catalog controls which rooms exist. The checks above catch missing scores or an unknown panel type before either reaches the UI.
+Jev 控制选项的顺序；你的目录决定存在哪些房间。上面的检查会在缺失评分或未知面板类型到达 UI 之前把它们拦下。
 
 </Step>
 <Step>
 
-## Emit AG-UI state and handle confirmed actions
+## 发出 AG-UI 状态并处理已确认的操作
 
-First, give the picker a fallback for requests that need an explanation. Create `lib/picker-agent.ts` and start with the imports and this helper. The helper uses normal async/await and returns text.
+首先，为选择器准备一个兜底，处理需要解释说明的请求。创建 `lib/picker-agent.ts`，从导入和这个辅助函数开始。
+该辅助函数使用普通的 async/await 并返回文本。
 
 ```ts title="lib/picker-agent.ts"
 import { AbstractAgent } from "@ag-ui/client";
@@ -203,7 +215,8 @@ async function explain(message: string, state: PickerState, signal: AbortSignal)
 }
 ```
 
-Append a helper for button responses. A room selection updates state directly: the user has already chosen, so Jev doesn’t need to choose again. A clarification answer becomes a more specific request for Jev.
+追加一个处理按钮响应的辅助函数。房间选择直接更新状态：用户已经做出选择，Jev 无需再选一次。澄清性回答则变成一个
+更具体的请求交给 Jev。
 
 ```ts title="lib/picker-agent.ts"
 function readAction(message: string, state: PickerState) {
@@ -225,7 +238,8 @@ function readAction(message: string, state: PickerState) {
 }
 ```
 
-Now bring those pieces together in the same file. Each turn starts from the current state, handles any button response, and asks Jev for a panel when needed. If Jev defers, `explain` supplies the answer.
+现在在同一个文件里把这些部分组装起来。每一轮都从当前状态出发，处理按钮响应（如有），并在需要时向 Jev 请求一个
+面板。如果 Jev 推迟决策，就由 `explain` 提供答案。
 
 ```ts title="lib/picker-agent.ts"
 async function respond(input: RunAgentInput, state: PickerState, signal: AbortSignal) {
@@ -242,7 +256,8 @@ async function respond(input: RunAgentInput, state: PickerState, signal: AbortSi
 }
 ```
 
-AG-UI carries the response back to React. Append `runPicker` to announce the run, clear the previous panel, and send the updated state. Text answers also become chat messages.
+AG-UI 把响应带回 React。追加 `runPicker` 来宣告运行开始、清除上一个面板，并发送更新后的状态。文本回答也会成为
+聊天消息。
 
 ```ts title="lib/picker-agent.ts"
 async function runPicker(
@@ -267,7 +282,9 @@ async function runPicker(
 }
 ```
 
-Finish the file with the adapter below. [AG-UI’s `AbstractAgent`](https://docs.ag-ui.com/sdk/js/client/abstract-agent) expects an RxJS `Observable` from `run`. This small wrapper connects your async function to that event stream and cancels its work when the user stops the run. The picker logic itself needs no RxJS operators.
+用下面的适配器完成这个文件。[AG-UI 的 `AbstractAgent`](https://docs.ag-ui.com/sdk/js/client/abstract-agent)
+期望 `run` 返回一个 RxJS `Observable`。这个小包装器把你的异步函数接到那条事件流上，并在用户停止运行时取消其工作。
+选择器逻辑本身不需要任何 RxJS 操作符。
 
 ```ts title="lib/picker-agent.ts"
 export class PickerAgent extends AbstractAgent {
@@ -292,14 +309,15 @@ export class PickerAgent extends AbstractAgent {
 }
 ```
 
-To add booking later, connect a tool that checks availability and permissions after the user confirms a room.
+以后要加预订功能时，接上一个工具，在用户确认房间后检查可用性与权限。
 
 </Step>
 <Step>
 
-## Connect the runtime and React controls
+## 连接运行时与 React 控件
 
-Register the picker with your runtime, then render its state in React. Each button sends the user’s answer back through CopilotKit to start the next turn.
+把选择器注册到你的运行时，然后在 React 中渲染它的状态。每个按钮都通过 CopilotKit 把用户的回答传回，从而开启
+下一轮。
 
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
 import { CopilotRuntime, createCopilotEndpoint } from "@copilotkit/runtime/v2";
@@ -314,7 +332,8 @@ const handler = (request: Request) => endpoint.fetch(request);
 export { handler as GET, handler as POST, handler as PATCH, handler as DELETE };
 ```
 
-Next, build `app/page.tsx` from the following blocks in order. Start with the provider and the picker’s local state. `useAgent` reads the state sent by your agent; `useCopilotKit` lets you start a turn.
+接着，按顺序用下面的代码块构建 `app/page.tsx`。先写 provider 和选择器的本地状态。`useAgent` 读取你的智能体
+发来的状态；`useCopilotKit` 让你可以开启一轮。
 
 ```tsx title="app/page.tsx"
 "use client";
@@ -340,7 +359,8 @@ function Picker() {
 
 ```
 
-Continue inside `Picker`. Subscribe to agent errors so the user sees a failed request, then add `send` to turn typed requests and button clicks into user messages. The `sending` guard prevents duplicate submissions.
+继续在 `Picker` 内部编写。订阅智能体错误，让用户能看到失败的请求；然后添加 `send`，把输入的请求和按钮点击转换
+为用户消息。`sending` 守卫可防止重复提交。
 
 ```tsx title="app/page.tsx"
   useEffect(() => {
@@ -362,7 +382,8 @@ Continue inside `Picker`. Subscribe to agent errors so the user sees a failed re
 
 ```
 
-Finish `Picker` by rendering the form and the current panel. Each option sends either a clarification answer or a room selection—the two message formats handled by `readAction` above.
+渲染表单和当前面板，完成 `Picker`。每个选项发送的要么是一个澄清性回答，要么是一次房间选择——正是上文
+`readAction` 处理的两种消息格式。
 
 ```tsx title="app/page.tsx"
   return <main>
@@ -391,30 +412,43 @@ Finish `Picker` by rendering the form and the current panel. Each option sends e
 </Step>
 <Step>
 
-## Try your workspace picker
+## 试用你的工作区选择器
 
-Start your development server and open the page. Ask “Help me find a workspace,” then try “Compare rooms for quiet work.” Answer a question or click a room to make your selection. For a request that needs an explanation, try “What does an enclosed workspace offer?”
+启动开发服务器并打开页面。先问“帮我找一个工作区”，再试试“比较适合安静工作的房间”。回答一个问题或点击一个房间
+来完成选择。对于需要解释说明的请求，试试“封闭式工作区能提供什么？”
 
-Your picker can now take a request, show a useful control, and act on the answer. To build a product comparison or scheduling assistant, swap the room catalog and panels for the options your users need.
+你的选择器现在可以接收请求、展示有用的控件，并根据回答采取行动。要构建产品比较或日程助手，只需把房间目录和面板
+换成你的用户需要的选项。
 
 </Step>
 </Steps>
 
-## Optional: improve decisions and UI with Automatic Learning
+## 可选：用 Automatic Learning 改进决策与 UI
 
-What if users keep correcting the same mistake? Perhaps “I need to focus” keeps bringing up the team table. [Automatic Learning](/learning) can turn those corrections into reusable Skills that help the agent make better choices.
+如果用户总在纠正同一个错误怎么办？也许“我需要专注”总是带出团队长桌。[Automatic Learning](/learning) 可以把这些
+纠正转化为可复用的 Skills，帮助智能体做出更好的选择。
 
-<Callout type="info" title="Let your coding agent handle setup">
-You can simply ask your coding agent to use the [CopilotKit CLI](/cli) to set up Automatic Learning for this app, including passing approved Skills into Jev. Start with the [Automatic Learning setup prompt](/learning#start-with-your-coding-agent). You only need to follow the manual steps below if you prefer to wire it up yourself.
+<Callout type="info" title="让编码智能体代劳配置">
+你可以直接让编码智能体使用 [CopilotKit CLI](/cli) 为这个应用配置 Automatic Learning，包括把已批准的 Skills 传入
+Jev。从 [Automatic Learning 配置提示词](/learning#start-with-your-coding-agent)开始。只有当你更愿意自己接线时，
+才需要按照下面的手动步骤操作。
 </Callout>
 
-To set it up manually, connect [Intelligence](/intelligence/quickstart), persist Threads, and assign a stable Learning container **before each Thread’s first run**. Associate each user’s Threads with their authenticated identity. The picker above works without this extension.
+手动配置时，需要接入 [Intelligence](/intelligence/quickstart)、持久化 Threads，并**在每个 Thread 的首次运行之前**
+分配一个稳定的 Learning container。把每个用户的 Threads 与其经过身份验证的身份关联起来。上面的选择器不做这个
+扩展也能工作。
 
-Collect completed interactions, including what users corrected and what happened next. Run Learning, inspect the Insights and their supporting Threads, then review the proposed Skills before publishing them. You can start an analysis manually or configure a recurring schedule.
+收集已完成的交互，包括用户纠正了什么、随后发生了什么。运行 Learning，查看这些 Insights 及其依据的 Threads，然后在
+发布前审阅提议的 Skills。你可以手动启动分析，也可以配置周期性计划。
 
-Next, make the approved Skills available to Jev. [Skill delivery](/intelligence/learned-skills) provides a registry of published Skills. The helper below reads their `SKILL.md` contents so you can pass them into `systemOne` as guidance. This is your application’s connection to Jev; installing a model adapter alone does not make that connection.
+接下来，让已批准的 Skills 对 Jev 可用。[Skill delivery](/intelligence/learned-skills) 提供一个已发布 Skills 的
+注册表。下面的辅助函数会读取它们的 `SKILL.md` 内容，让你能把它们作为指导传给 `systemOne`。这是你的应用与 Jev 的
+连接；仅安装一个模型适配器并不构成这条连接。
 
-Install `@copilotkit/intelligence-langgraph@1.71.2` alongside the pinned stack above and configure server-only `CPK_INTELLIGENCE_API_KEY` and `CPK_INTELLIGENCE_LEARNING_CONTAINER_ID`. Omit `CPK_INTELLIGENCE_SKILLS_REVISION` to follow the latest approved version, or set a published revision to keep using a specific set of Skills.
+在上述锁定版本的依赖栈之外安装 `@copilotkit/intelligence-langgraph@1.71.2`，并配置仅限服务器端的
+`CPK_INTELLIGENCE_API_KEY` 和 `CPK_INTELLIGENCE_LEARNING_CONTAINER_ID`。省略
+`CPK_INTELLIGENCE_SKILLS_REVISION` 即跟随最新已批准版本，或设置一个已发布的 revision 以继续使用特定的一组
+Skills。
 
 ```ts title="lib/learned-guidance.ts"
 import { SkillRegistry } from "@copilotkit/intelligence-langgraph";
@@ -434,8 +468,15 @@ export async function loadGuidance() {
 }
 ```
 
-In `picker-agent.ts`, import `loadGuidance` from `./learned-guidance`. Inside `respond`, immediately before `choosePanel`, call `const learned = await loadGuidance()` and replace its empty `[]` argument with `learned.guidance`. Let initialization failures reach the run-error handler; do not silently claim the learned configuration ran with empty guidance.
+在 `picker-agent.ts` 中，从 `./learned-guidance` 导入 `loadGuidance`。在 `respond` 内部、紧挨着 `choosePanel`
+之前，调用 `const learned = await loadGuidance()`，并把它的空 `[]` 参数替换为 `learned.guidance`。让初始化失败
+传到运行错误处理器；不要静默地以空指导继续运行，假装学习配置已生效。
 
-This extension only supplies Jev with instructions. If you replace the simple explanatory fallback with a native LangChain `createAgent`, attach `createSkillRegistryMiddleware({ registry })` and invoke the result of `skills.wrapAgent(agent)`, as shown in the [delivery guide](/intelligence/learned-skills#langgraph-typescript). That model-side loading mechanism is separate from passing text to Jev.
+这个扩展只是向 Jev 提供指令。如果你把简单的解释性兜底替换为原生 LangChain `createAgent`，请附加
+`createSkillRegistryMiddleware({ registry })` 并调用 `skills.wrapAgent(agent)` 的结果，如
+[交付指南](/intelligence/learned-skills#langgraph-typescript)所示。那个模型侧的加载机制与把文本传给 Jev 是
+两回事。
 
-Intelligence turns conversation evidence into reusable procedures, and you decide which ones to publish. Delivery adds those instructions to inference context; it doesn’t fine-tune Jev or rewrite your components. A Skill might help the picker recognize when to ask about noise preferences, then offer the right buttons to answer. That improves both the decision and the UI the user sees.
+Intelligence 把对话证据转化为可复用的流程，由你决定发布哪些。Delivery 把这些指令加入推理上下文；它不会微调
+Jev，也不会改写你的组件。一个 Skill 或许能帮选择器识别何时该询问噪声偏好，然后给出恰当的按钮来承接回答。这
+同时改进了决策和用户看到的 UI。

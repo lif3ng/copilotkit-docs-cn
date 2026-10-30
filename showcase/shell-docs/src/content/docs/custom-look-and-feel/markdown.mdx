@@ -1,15 +1,12 @@
 ---
-title: "Markdown Rendering"
+title: "Markdown 渲染"
 icon: "lucide/TextSelect"
-description: "Restyle the markdown in assistant messages, or replace the markdown renderer entirely, via the markdownRenderer slot."
+description: "通过 markdownRenderer 插槽重新设计助手消息中 markdown 的样式，或彻底替换 markdown 渲染器。"
 ---
 
-Assistant replies arrive as markdown. CopilotKit renders them through the
-`markdownRenderer` slot on `CopilotChatAssistantMessage`, whose default is a thin
-wrapper around [Streamdown](https://streamdown.ai) — a markdown renderer built for
-text that is still streaming in.
+助手回复以 markdown 形式到达。CopilotKit 通过 `CopilotChatAssistantMessage` 上的 `markdownRenderer` 插槽渲染它们，其默认值是 [Streamdown](https://streamdown.ai) 的一层轻量包装——Streamdown 是一个专为仍在流式输入的文本打造的 markdown 渲染器。
 
-You reach the slot by drilling down from the chat component:
+从聊天组件逐层深入即可触达该插槽：
 
 ```tsx title="page.tsx"
 <CopilotChat
@@ -23,15 +20,11 @@ You reach the slot by drilling down from the chat component:
 />
 ```
 
-Everything on this page works the same way on `CopilotSidebar` and
-`CopilotPopup`, and on `CopilotChatMessageView` (where the path starts one level
-in, at `assistantMessage`).
+本页的所有内容在 `CopilotSidebar` 和 `CopilotPopup` 上同样适用，在 `CopilotChatMessageView` 上也是如此（只是路径从下一层的 `assistantMessage` 开始）。
 
-## Restyle individual HTML tags
+## 重新设计单个 HTML 标签的样式
 
-This is the route to reach for first. The slot forwards its props to Streamdown,
-so a props override can set Streamdown's `components` map, which swaps the React
-component used for one HTML tag:
+这是你应当优先考虑的方式。该插槽会把自己的 props 转发给 Streamdown，因此通过 props 覆盖可以设置 Streamdown 的 `components` 映射，从而替换某个 HTML 标签所使用的 React 组件：
 
 ```tsx title="page.tsx"
 import { CopilotChat } from "@copilotkit/react-core/v2";
@@ -62,30 +55,17 @@ export function Chat() {
 }
 ```
 
-Three things are worth knowing about the props your component receives.
+关于组件收到的 props，有三点值得了解。
 
-**Drop `node`.** Every component is handed a `node` prop holding the parsed
-syntax-tree node. It is not a DOM attribute, so spreading it onto an element
-writes a literal `node="[object Object]"` into the HTML. Destructure it out, as
-above, and it disappears.
+**丢弃 `node`**。每个组件都会收到一个 `node` prop，其中保存了解析后的语法树节点。它不是 DOM 属性，如果把它展开到元素上，会在 HTML 里写入字面量 `node="[object Object]"`。像上面那样把它解构出来，它就会消失。
 
-**Spread the rest.** The remaining props come from the sanitized document, not
-from the raw model output. An `a` is handed `href`, `target` and `rel`, with
-`target="_blank" rel="noopener noreferrer"` already applied by the renderer's
-link hardening; an `img` is handed `src` and `alt`. Spreading them keeps that
-work. Rebuilding the element by hand throws it away.
+**展开其余 props**。其余 props 来自经过净化的文档，而不是原始模型输出。`a` 会收到 `href`、`target` 和 `rel`，其中 `target="_blank" rel="noopener noreferrer"` 已由渲染器的链接加固逻辑应用；`img` 会收到 `src` 和 `alt`。展开它们就能保留这些处理；手动重建元素则会把这些都丢掉。
 
-**You are replacing, not extending.** The default component for a tag carries
-Streamdown's own classes and a `data-streamdown` attribute — a default link
-renders as `<a class="wrap-anywhere font-medium text-primary underline"
-data-streamdown="link" …>`. Your component supplies neither unless you write
-them, so any CSS you have targeting `[data-streamdown="link"]` stops matching
-that tag.
+**你是替换，而非扩展**。标签的默认组件自带 Streamdown 的类名和 `data-streamdown` 属性——默认链接渲染为 `<a class="wrap-anywhere font-medium text-primary underline" data-streamdown="link" …>`。除非你自己写上，否则你的组件两者都不提供，因此任何针对 `[data-streamdown="link"]` 的 CSS 都不再匹配该标签。
 
-## Restyle the whole markdown block
+## 重新设计整个 markdown 块的样式
 
-To change the block as a whole rather than one tag, pass a class string. It is
-merged onto the markdown container:
+想整体改变这个块而不是单个标签，传入一个类名字符串即可。它会被合并到 markdown 容器上：
 
 ```tsx title="page.tsx"
 <CopilotChat
@@ -95,11 +75,9 @@ merged onto the markdown container:
 />
 ```
 
-## Replace the renderer
+## 替换渲染器
 
-Passing a component instead of an object replaces the renderer outright. It
-receives exactly one prop, `content`, holding the assistant message's raw
-markdown:
+传入一个组件而不是对象，就会彻底替换渲染器。它只接收一个 prop `content`，其中保存助手消息的原始 markdown：
 
 ```tsx title="page.tsx"
 const PlainText = ({ content }: { content: string }) => (
@@ -111,50 +89,33 @@ const PlainText = ({ content }: { content: string }) => (
 />;
 ```
 
-Reach for this only when you want a different markdown engine. Streamdown is
-doing real work that you take over with it: parsing markdown that is still
-half-written without flashing broken output, math and syntax highlighting, and
-sanitizing model-generated HTML. That last one matters — `content` is raw model
-output, so anything you render it with has to be safe against it.
+只有当你想换用其他 markdown 引擎时才走这条路。Streamdown 在实实在在地做工作，替换它就意味着由你接手：解析写到一半的 markdown 而不闪烁显示残缺输出、数学公式与语法高亮，以及对模型生成的 HTML 做净化。最后一项很关键——`content` 是原始模型输出，因此你用来渲染它的任何东西都必须能安全应对。
 
-## Custom tags are not supported
+## 不支持自定义标签
 
-You cannot teach the renderer a tag of your own, such as `<reference-chip>`.
-This is deliberate, and it is enforced twice.
+你无法让渲染器认识你自创的标签，比如 `<reference-chip>`。这是有意为之的设计，而且有两层强制保障。
 
-The type only accepts real HTML tag names, so a custom key is a compile error:
+类型只接受真实的 HTML 标签名，因此自定义键会导致编译错误：
 
 ```
 error TS2353: Object literal may only specify known properties,
 and '"reference-chip"' does not exist in type 'Components'.
 ```
 
-And at runtime the renderer sanitizes model output against an allowlist of
-standard HTML elements before any component mapping happens. An unknown tag is
-stripped, its text kept: `Hi <reference-chip id="42">Doc 42</reference-chip>.`
-renders as `<p>Hi Doc 42.</p>`, and a component registered for it is never
-called.
+而且在运行时，渲染器会在任何组件映射发生之前，先依据标准 HTML 元素白名单对模型输出做净化。未知标签会被剥离，文本保留：`Hi <reference-chip id="42">Doc 42</reference-chip>.` 会渲染成 `<p>Hi Doc 42.</p>`，为它注册的组件永远不会被调用。
 
-Tags that are on the allowlist do survive, and are overridable like any other —
-`<kbd>` and `<sup>` written directly in a reply render as real elements.
+白名单内的标签则能保留下来，并且可以像其他标签一样被覆盖——直接写在回复里的 `<kbd>` 和 `<sup>` 会渲染成真实元素。
 
-If you need a richer, non-textual surface in the conversation, that is what
-[generative UI](/generative-ui/tool-rendering) is for: the agent calls a tool and
-you render a React component for that tool call. Do not turn off sanitization to
-get a custom tag through.
+如果你在对话中需要更丰富的非文本界面，这正是[生成式 UI](/generative-ui/tool-rendering) 的用武之地：智能体调用一个工具，你为该工具调用渲染一个 React 组件。不要为了塞进自定义标签而关闭净化。
 
-## Other frontends
+## 其他前端
 
-This page describes the React API. The other frontends expose the same idea
-under different names, and the Streamdown `components` map is React-only:
+本页描述的是 React API。其他前端以不同的名称暴露同样的概念，而 Streamdown 的 `components` 映射仅适用于 React：
 
-- **Vue** uses a `message-renderer` scoped slot over `streamdown-vue`. See the
-  [Vue `CopilotChatAssistantMessage` reference](/reference/vue/components/CopilotChatAssistantMessage).
-- **Angular** uses a `#markdownRenderer` `ng-template` (or `markdownRendererComponent`)
-  over `marked`, so there is no `components` prop. See the
-  [Angular `CopilotChatAssistantMessage` reference](/reference/angular/components/CopilotChatAssistantMessage).
+- **Vue** 在 `streamdown-vue` 之上使用 `message-renderer` 作用域插槽。参见 [Vue `CopilotChatAssistantMessage` 参考](/reference/vue/components/CopilotChatAssistantMessage)。
+- **Angular** 在 `marked` 之上使用 `#markdownRenderer` `ng-template`（或 `markdownRendererComponent`），因此没有 `components` prop。参见 [Angular `CopilotChatAssistantMessage` 参考](/reference/angular/components/CopilotChatAssistantMessage)。
 
-## Reference
+## 参考
 
-- [`CopilotChatAssistantMessage`](/reference/components/CopilotChatAssistantMessage) — every slot on the assistant message.
-- [Slots](/custom-look-and-feel/slots) — how slot overrides work in general.
+- [`CopilotChatAssistantMessage`](/reference/components/CopilotChatAssistantMessage)——助手消息上的全部插槽。
+- [插槽](/custom-look-and-feel/slots)——插槽覆盖的总体工作方式。

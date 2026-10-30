@@ -1,61 +1,42 @@
 ---
-title: Fully Headless UI
-description: Build a Vue surface on CopilotKit’s reactive agent and runtime primitives.
+title: 完全无头 UI
+description: 基于 CopilotKit 的响应式智能体与运行时原语构建 Vue 界面。
 icon: "lucide/Settings"
 ---
 
-## What is this?
+## 这是什么？
 
-A headless UI gives you full control over the experience. You bring your own
-components, layout, and styling while CopilotKit handles agent communication,
-reactive message state, tool registration, and streaming. No `CopilotChat`
-shell is required: your Vue components compose the low-level primitives.
+无头 UI 让你完全掌控体验。组件、布局与样式都由你自己提供，而 CopilotKit 负责智能体通信、响应式消息状态、工具注册和流式传输。不需要 `CopilotChat` 外壳：由你的 Vue 组件来组合这些底层原语。
 
-## When should I use this?
+## 什么时候应该用它？
 
-Use headless UI when:
+在以下情况使用无头 UI：
 
-- The [slot system](/vue/custom-look-and-feel/slots) is not enough for the
-  layout you need.
-- You are embedding chat into an existing interface with its own patterns.
-- You are building a non-chat surface such as a dashboard, canvas, or
-  inspector that still talks to an agent.
-- You need direct control over which message roles and registered renderers
-  appear.
+- [插槽系统](/vue/custom-look-and-feel/slots)满足不了你需要的布局。
+- 你要把聊天嵌入一个已有自身设计模式的现有界面。
+- 你在构建仪表盘、画布或检查器等非聊天界面，但仍需要与智能体通信。
+- 你需要直接控制出现哪些消息角色和已注册渲染器。
 
-Going headless also transfers responsibility for the composer, accessibility,
-scroll behavior, attachments, reasoning, interrupts, and every message role to
-your application unless you deliberately compose the public Vue chat leaves.
+采用无头方式也意味着，输入框、无障碍访问、滚动行为、附件、推理、中断以及每种消息角色的处理职责都会转移到你的应用，除非你有意组合公开的 Vue 聊天叶子组件。
 
-## The core composables
+## 核心组合式函数
 
-These composables provide the same agent and runtime state used by the prebuilt
-chat:
+这些组合式函数提供了与预构建聊天相同的智能体与运行时状态：
 
-- `useAgent({ agentId })` exposes the reactive conversation (`messages`,
-  `isRunning`, state, and agent methods).
-- `useCopilotKit()` exposes the runtime ref used to call
-  `copilotkit.value.runAgent({ agent })`.
-- `useRenderActivityMessage()` resolves registered MCP Apps and other custom
-  activity renderers for the current agent scope.
-- `useRenderCustomMessages()` resolves registered before/after message
-  renderers for the active `CopilotChatConfigurationProvider`.
+- `useAgent({ agentId })` 暴露响应式会话（`messages`、`isRunning`、状态以及智能体方法）。
+- `useCopilotKit()` 暴露运行时 ref，用于调用 `copilotkit.value.runAgent({ agent })`。
+- `useRenderActivityMessage()` 为当前智能体作用域解析已注册的 MCP Apps 及其他自定义活动渲染器。
+- `useRenderCustomMessages()` 为生效的 `CopilotChatConfigurationProvider` 解析已注册的前置/后置消息渲染器。
 
-Composables must execute in a component below `CopilotKitProvider`; calling one
-above the provider has no injected runtime context.
+组合式函数必须在 `CopilotKitProvider` 之下的组件中执行；在 provider 之上调用时没有可注入的运行时上下文。
 
-<Callout type="info" title="Vue has no useRenderToolCall composable">
-  The current Vue public API can register renderers with `useRenderTool` and
-  `useDefaultRenderTool`, but it does not expose React's resolver-style
-  `useRenderToolCall`. Use `CopilotChatMessageView` when a custom outer layout
-  still needs the registered tool-rendering pipeline, or own tool-call
-  dispatch explicitly through Vue slots.
+<Callout type="info" title="Vue 没有 useRenderToolCall 组合式函数">
+  当前的 Vue 公开 API 可以通过 `useRenderTool` 和 `useDefaultRenderTool` 注册渲染器，但没有暴露 React 那种解析器风格的 `useRenderToolCall`。当自定义外层布局仍需要已注册的工具渲染管线时，请使用 `CopilotChatMessageView`；或者通过 Vue 插槽显式接管工具调用分发。
 </Callout>
 
-## Minimal example
+## 最小示例
 
-Start with a text-only message list and composer built from `useAgent` and
-`useCopilotKit`:
+先用 `useAgent` 和 `useCopilotKit` 搭一个纯文本的消息列表和输入框：
 
 ```vue title="HeadlessChat.vue"
 <script setup lang="ts">
@@ -97,8 +78,7 @@ async function submit() {
 </template>
 ```
 
-Render it below the runtime provider and a chat-configuration provider so
-agent-scoped custom renderers can resolve consistently:
+将它渲染在运行时 provider 和聊天配置 provider 之下，以便智能体作用域的自定义渲染器能够一致地解析：
 
 ```vue
 <CopilotKitProvider runtime-url="/api/copilotkit">
@@ -108,16 +88,11 @@ agent-scoped custom renderers can resolve consistently:
 </CopilotKitProvider>
 ```
 
-The trade-off is deliberate: this minimal example renders only text. Tool
-calls, reasoning messages, activity messages, interrupts, attachments, and
-custom before/after content do not appear until you wire them in.
+这个取舍是有意为之：这个最小示例只渲染文本。工具调用、推理消息、活动消息、中断、附件以及自定义的前置/后置内容，都需要你自己接入后才会出现。
 
-## Complete example
+## 完整示例
 
-For a custom outer layout that should retain CopilotKit's complete message
-composition, use the public Vue leaves rather than rebuilding their state
-machines. `CopilotChatMessageView` already dispatches assistant, user,
-reasoning, tool, activity, interrupt, and custom before/after content:
+如果自定义外层布局需要保留 CopilotKit 完整的消息组合能力，请使用公开的 Vue 叶子组件，而不是重建它们的状态机。`CopilotChatMessageView` 已经能分发助手、用户、推理、工具、活动、中断以及自定义前置/后置内容：
 
 ```vue title="RenderedMessages.vue"
 <script setup lang="ts">
@@ -150,47 +125,32 @@ const isRunning = computed(() => agent.value?.isRunning ?? false);
 </template>
 ```
 
-### The Vue composition equivalent
+### Vue 中的等价组合方式
 
-React's complete example manually builds `useRenderedMessages()` from
-`useRenderToolCall`, `useRenderActivityMessage`, and
-`useRenderCustomMessages`. Vue exposes the latter two resolvers but not
-`useRenderToolCall`, so there is no honest one-for-one manual hook recreation.
-`CopilotChatMessageView` is the supported public composition boundary when you
-need all registered tool renderers.
+React 的完整示例通过 `useRenderToolCall`、`useRenderActivityMessage` 和 `useRenderCustomMessages` 手动组装出 `useRenderedMessages()`。Vue 暴露了后两个解析器，但没有 `useRenderToolCall`，因此无法做到完全一一对应的手动复刻。当你需要全部已注册的工具渲染器时，`CopilotChatMessageView` 就是官方支持的公开组合边界。
 
-### Per-role dispatch
+### 按角色分发
 
-If you choose a completely manual renderer, switch on every AG-UI message role:
+如果你选择完全手动的渲染器，需要覆盖每一种 AG-UI 消息角色：
 
-- Assistant messages contain streamed text and optional tool calls.
-- User messages can contain text or multimodal content parts.
-- Reasoning messages can use `CopilotChatReasoningMessage`.
-- Activity messages can use `useRenderActivityMessage()`.
-- Before/after content can use `useRenderCustomMessages()` while inside
-  `CopilotChatConfigurationProvider`.
-- Interrupts require their own pending-state UI and resolve/cancel action.
+- 助手消息包含流式文本和可选的工具调用。
+- 用户消息可以包含文本或多模态内容片段。
+- 推理消息可以使用 `CopilotChatReasoningMessage`。
+- 活动消息可以使用 `useRenderActivityMessage()`。
+- 在 `CopilotChatConfigurationProvider` 内部，前置/后置内容可以使用 `useRenderCustomMessages()`。
+- 中断需要自己的待处理状态 UI 和恢复/取消操作。
 
-Missing a role means that content silently disappears from your custom
-surface.
+漏掉某个角色，对应的内容就会从你的自定义界面中无声消失。
 
-### Tool-call composition
+### 工具调用的组合
 
-The prebuilt message view resolves tool calls in this order: a named
-`tool-call-<name>` slot, the `tool-call` fallback slot, then renderers
-registered through `useRenderTool` / `useDefaultRenderTool`. Keep the public
-message view to retain that behavior. A fully manual Vue surface must own its
-tool-call rendering because no public resolver composable currently exposes
-the registered renderer as a callable function.
+预构建消息视图按以下顺序解析工具调用：具名的 `tool-call-<name>` 插槽、`tool-call` 兜底插槽，然后是通过 `useRenderTool` / `useDefaultRenderTool` 注册的渲染器。保留公开的消息视图即可保留这一行为。完全手动的 Vue 界面必须自行实现工具调用渲染，因为目前没有任何公开的解析器组合式函数把已注册的渲染器以可调用函数的形式暴露出来。
 
-### Bubble chrome
+### 气泡外观
 
-Keep bubble components as pure chrome around already-rendered public leaves.
-That lets your design system own spacing, colors, and layout without copying
-the message parsing, toolbar, Markdown, tool-call, or reasoning logic.
+把气泡组件做成纯粹的外观包装，套在已渲染好的公开叶子组件外面。这样你的设计系统只需掌控间距、颜色和布局，而无需复制消息解析、工具栏、Markdown、工具调用或推理逻辑。
 
-## Next steps
+## 后续步骤
 
-- [Slots](/vue/custom-look-and-feel/slots) for a lower-effort customization.
-- [CSS customization](/vue/custom-look-and-feel/css) when only the visual
-  design needs to change.
+- [插槽](/vue/custom-look-and-feel/slots)：更省力的自定义方式。
+- [CSS 自定义](/vue/custom-look-and-feel/css)：只需调整视觉设计时的选择。

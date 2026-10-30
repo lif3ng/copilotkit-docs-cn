@@ -1,80 +1,80 @@
 ---
-title: "Headless UI"
-description: "Build any UI — chat or not — on top of the CopilotKit primitives with zero UI opinions."
+title: "无头 UI"
+description: "基于 CopilotKit 底层原语构建任意 UI——聊天或非聊天均可，不预设任何 UI 形态。"
 icon: "lucide/Settings"
 snippet_cell: headless-complete
 ---
 
 <InlineDemo demo="headless-complete" />
 
-## What is this?
+## 这是什么？
 
-A headless UI gives you **full control** over the chat experience. You bring your own components, layout, and styling while CopilotKit handles agent communication, message management, tool-call rendering, and streaming. No `<CopilotChat>`, no slot overrides, just your components composed on top of the low-level hooks.
+无头（headless）UI 让你对聊天体验拥有**完全控制权**。你自带组件、布局与样式，CopilotKit 则负责智能体通信、消息管理、工具调用渲染和流式传输。不需要 `<CopilotChat>`，也不需要插槽覆盖，只需把你的组件搭建在底层钩子之上。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Use headless UI when:
+以下情况适合使用无头 UI：
 
-- The [slot system](/custom-look-and-feel/slots) isn't enough: you need a completely different layout.
-- You're embedding chat into an existing UI with its own patterns.
-- You're building a **non-chat surface** that still talks to an agent (a dashboard, a canvas, an inspector) and want `useRenderToolCall` / `useRenderActivityMessage` on their own.
-- You want to render generative UI primitives outside of a chat entirely.
+- [插槽系统](/custom-look-and-feel/slots)不够用时：你需要一个完全不同的布局。
+- 你要把聊天嵌入一个已有自身设计模式的现有 UI。
+- 你在构建一个仍要与智能体通信的**非聊天界面**（仪表盘、画布、检查器），并想单独使用 `useRenderToolCall` / `useRenderActivityMessage`。
+- 你想在聊天之外完全独立地渲染生成式 UI 原语。
 
-## The core hooks
+## 核心钩子
 
-Three hooks power it, and they're the same ones `<CopilotChat>` uses internally.
+支撑它的是三个钩子，也正是 `<CopilotChat>` 内部使用的那几个。
 
-- `useAgent({ agentId })` — exposes the current conversation (`messages`, `isRunning`) and the run-state object.
-- `useCopilotKit()` — returns the runtime handle you call `runAgent({ agent })` on.
-- `useRenderToolCall()` — returns a function that paints any registered tool call inline.
+- `useAgent({ agentId })`——暴露当前对话（`messages`、`isRunning`）以及运行状态对象。
+- `useCopilotKit()`——返回运行时句柄，你在其上调用 `runAgent({ agent })`。
+- `useRenderToolCall()`——返回一个函数，可把任意已注册的工具调用内联渲染出来。
 
-## Minimal example
+## 最小示例
 
-Start with a hand-rolled message list and composer built from `useAgent` + `useCopilotKit`:
+先用 `useAgent` + `useCopilotKit` 手写一个消息列表和输入组件：
 
 <Snippet cell="headless-simple" region="use-agent-simple" title="frontend/src/app/page.tsx — useAgent + useCopilotKit" />
 
-The message list is a plain `.map()` over `agent.messages`: user messages render as right-aligned bubbles, assistant messages render streamed text plus inline tool calls via `renderToolCall({ toolCall })`:
+消息列表就是对 `agent.messages` 做一次普通的 `.map()`：用户消息渲染成右对齐的气泡，助手消息则通过 `renderToolCall({ toolCall })` 渲染流式文本和内联工具调用：
 
-<Snippet cell="headless-simple" region="message-list-simple" title="frontend/src/app/page.tsx — message list" />
+<Snippet cell="headless-simple" region="message-list-simple" title="frontend/src/app/page.tsx — 消息列表" />
 
-No `<CopilotChat />`, no slots. The trade-off: you only get text and tool calls. Reasoning messages, activity messages, and custom before/after slots won't show up unless you wire them in yourself, which is exactly what the complete example covers.
+不用 `<CopilotChat />`，也不用插槽。代价是：你只能得到文本和工具调用。推理消息、活动消息以及自定义的前置/后置插槽都不会出现，除非你自己接入——这正是完整示例要讲的内容。
 
-## Complete example
+## 完整示例
 
-The `headless-complete` cell rebuilds the **full** generative-UI composition from the low-level hooks directly, without importing `<CopilotChatMessageView>`: text, tool calls, reasoning cards, A2UI + MCP Apps activity messages, and custom before/after message slots.
+`headless-complete` 单元直接用底层钩子重建了**完整的**生成式 UI 组合，无需导入 `<CopilotChatMessageView>`：文本、工具调用、推理卡片、A2UI + MCP Apps 活动消息，以及自定义的消息前置/后置插槽。
 
-### The `useRenderedMessages` hook
+### `useRenderedMessages` 钩子
 
-The cell's central piece is a hand-rolled `useRenderedMessages(messages, isRunning)` that returns the same flat list of messages, each augmented with a `renderedContent: ReactNode` field. This hook is a **manual recreation of what `<CopilotChatMessageView>` does**:
+该单元的核心是一个手写的 `useRenderedMessages(messages, isRunning)`，它返回同样的扁平消息列表，只是每条消息都附加了一个 `renderedContent: ReactNode` 字段。这个钩子是对 `<CopilotChatMessageView>` 所做工作的**手动复刻**：
 
-<Snippet region="use-rendered-messages-hook" title="frontend/src/app/use-rendered-messages.tsx — composition hook" />
+<Snippet region="use-rendered-messages-hook" title="frontend/src/app/use-rendered-messages.tsx — 组合钩子" />
 
-Three low-level hooks feed it:
+三个底层钩子为它提供支持：
 
-- `useRenderToolCall()` — returns the renderer for any registered tool call (per-tool via `useRenderTool` / `useComponent`, plus the wildcard from `useDefaultRenderTool`).
-- `useRenderActivityMessage()` — renders A2UI + MCP Apps activity messages for the current agent scope.
-- `useRenderCustomMessages()` — invokes `renderCustomMessage` hooks registered against the active `CopilotChatConfigurationProvider`, emitting `"before"` and `"after"` slots around every message.
+- `useRenderToolCall()`——返回任意已注册工具调用的渲染器（通过 `useRenderTool` / `useComponent` 按工具注册，外加 `useDefaultRenderTool` 提供的兜底通配）。
+- `useRenderActivityMessage()`——为当前智能体作用域渲染 A2UI + MCP Apps 活动消息。
+- `useRenderCustomMessages()`——调用注册在当前 `CopilotChatConfigurationProvider` 上的 `renderCustomMessage` 钩子，在每条消息前后发出 `"before"` 和 `"after"` 插槽。
 
-### Per-role dispatch
+### 按角色分发
 
-The role-switch mirrors `CopilotChatMessageView`'s `renderMessageBlock` exactly: assistant bodies get text and tool calls, user bodies get their text content, reasoning messages go through the `<CopilotChatReasoningMessage>` leaf, and activity messages route through `renderActivityMessage`:
+这段角色分支逻辑与 `CopilotChatMessageView` 的 `renderMessageBlock` 完全一致：助手消息体渲染文本与工具调用，用户消息体渲染其文本内容，推理消息经由 `<CopilotChatReasoningMessage>` 叶子组件，活动消息则路由到 `renderActivityMessage`：
 
-<Snippet region="manual-activity-message-rendering" title="frontend/src/app/use-rendered-messages.tsx — per-role dispatch" />
+<Snippet region="manual-activity-message-rendering" title="frontend/src/app/use-rendered-messages.tsx — 按角色分发" />
 
-### Tool-call composition
+### 工具调用组合
 
-For each `toolCall` on an assistant message, we look up the sibling `tool`-role message (keyed by `toolCallId`) and hand both to `renderToolCall`:
+对于助手消息上的每个 `toolCall`，我们先找到同组的 `tool` 角色消息（以 `toolCallId` 为键），然后把两者一起交给 `renderToolCall`：
 
-<Snippet region="manual-tool-call-rendering" title="frontend/src/app/use-rendered-messages.tsx — assistant + tool calls" />
+<Snippet region="manual-tool-call-rendering" title="frontend/src/app/use-rendered-messages.tsx — 助手消息 + 工具调用" />
 
-### Bubble chrome
+### 气泡外壳
 
-The `UserBubble` and `AssistantBubble` components are **pure chrome**: they receive the pre-rendered node from `useRenderedMessages` and drop it into a styled container. No chat primitives are imported here:
+`UserBubble` 和 `AssistantBubble` 组件是**纯外壳**：它们接收来自 `useRenderedMessages` 的预渲染节点，放进带样式的容器里。这里没有导入任何聊天原语：
 
-<Snippet region="custom-bubbles" title="frontend/src/app/{user,assistant}-bubble.tsx — pure chrome" />
+<Snippet region="custom-bubbles" title="frontend/src/app/{user,assistant}-bubble.tsx — 纯外壳" />
 
-## Next steps
+## 后续步骤
 
-- [Slots](/custom-look-and-feel/slots) — less work than going fully headless, often enough.
-- [CSS customization](/custom-look-and-feel/css) — when you just need to re-skin the defaults.
+- [插槽](/custom-look-and-feel/slots)——比完全无头省事，通常已经够用。
+- [CSS 自定义](/custom-look-and-feel/css)——当你只需要给默认外观换肤时。

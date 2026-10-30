@@ -1,19 +1,15 @@
 ---
-title: Frontend tools and generative UI
-description: Let an agent run browser code and render typed, protocol-driven, or sandboxed UI in Angular.
+title: 前端工具与生成式 UI
+description: 让智能体运行浏览器代码，并在 Angular 中渲染类型化、协议驱动或沙箱化的 UI。
 icon: "lucide/Wrench"
 doc_type: how-to
 ---
 
-Frontend tools let an agent call code inside the user's browser. Add a renderer
-to the same registration when the tool should show progress or a result in
-chat.
+前端工具让智能体可以调用用户浏览器中的代码。当工具需要在聊天中展示进度或结果时，在同一次注册中附加一个渲染器。
 
-## Let the agent display one of your components
+## 让智能体展示你的组件
 
-The simplest generative UI there is, and the only kind that needs nothing on the
-agent side. `registerComponent` registers a standalone component as a tool the
-agent can call to show it. The agent decides when, and fills the props.
+这是最简单的生成式 UI，也是唯一一种在智能体侧无需任何配置的类型。`registerComponent` 把一个独立组件注册为工具，智能体可以调用它来展示该组件。何时调用由智能体决定，props 也由它填充。
 
 ```ts title="src/app/incident-card.component.ts"
 import { Component, input } from "@angular/core";
@@ -53,38 +49,25 @@ registerComponent({
 });
 ```
 
-There is no `handler`, and nothing changes in your agent. The tool is declared by
-the frontend and forwarded over AG-UI, so this works the same behind a Python
-agent as a TypeScript one.
+这里没有 `handler`，智能体侧也不需要任何改动。该工具由前端声明并通过 AG-UI 转发，因此无论背后是 Python 智能体还是 TypeScript 智能体，行为都一致。
 
-<Callout type="warn" title="A well-formed component is not a correct one">
-  The model fills these props from what it knows. A card rendered over records
-  your application does not hold looks the same in the browser, in a screenshot,
-  and in a video as a correct one. Share the page's data with the agent using
-  [`CopilotKitAgentContext`](/reference/angular/directives/CopilotKitAgentContext),
-  then read the rendered fields against the records you hold.
+<Callout type="warn" title="组件格式正确不代表内容正确">
+  模型会根据它所知道的内容填充这些 props。一张基于你的应用并不持有的记录渲染出来的卡片，在浏览器、截图和视频里看起来与正确的卡片毫无差别。使用 [`CopilotKitAgentContext`](/reference/angular/directives/CopilotKitAgentContext) 把页面数据共享给智能体，然后对照你持有的记录核对渲染出的字段。
 </Callout>
 
-## Register a browser tool
+## 注册浏览器工具
 
-Call `registerFrontendTool` from an Angular injection context. The live
-Showcase example builds a typed tool config around a writable signal:
+在 Angular 注入上下文中调用 `registerFrontendTool`。线上 Showcase 示例围绕一个可写 signal 构建了类型化的工具配置：
 
 <AngularSnippet region="frontend-tool-registration" />
 
-Register that config from a component or service with
-`registerFrontendTool(createBackgroundTool(background))`. The registration is
-removed when that injector is destroyed.
+在组件或服务中通过 `registerFrontendTool(createBackgroundTool(background))` 注册该配置。当该注入器被销毁时，注册会随之移除。
 
-The schema advertises the input shape and supplies TypeScript inference.
-Runtime arguments arrive as parsed JSON; validate inside the handler when the
-action needs a hard trust boundary. The handler receives the calling agent,
-the raw tool call, and an optional abort signal as its second argument.
+schema 声明了输入的形状并提供 TypeScript 推断。运行时参数以解析后的 JSON 传入；当操作需要严格的信任边界时，请在 handler 内部进行校验。handler 的第二个参数会收到调用方智能体、原始工具调用以及一个可选的中止信号。
 
-## Render a tool result
+## 渲染工具结果
 
-A renderer is a standalone component with a required `toolCall` signal input.
-Its status moves through `"in-progress"`, `"executing"`, and `"complete"`.
+渲染器是一个带有必需 `toolCall` signal 输入的独立组件。其状态依次经历 `"in-progress"`、`"executing"` 和 `"complete"`。
 
 ```ts title="src/app/weather-card.component.ts"
 import { Component, input } from "@angular/core";
@@ -114,7 +97,7 @@ export class WeatherCardComponent implements ToolRenderer<WeatherArgs> {
 }
 ```
 
-Pass the class as `component` when the tool runs in the browser:
+当工具在浏览器中运行时，把该类作为 `component` 传入：
 
 ```ts
 registerFrontendTool({
@@ -131,8 +114,7 @@ registerFrontendTool({
 });
 ```
 
-Use `registerRenderToolCall` instead when the tool runs on the server and the
-browser only renders its call:
+当工具在服务端运行、浏览器只负责渲染其调用时，改用 `registerRenderToolCall`：
 
 ```ts
 registerRenderToolCall({
@@ -142,21 +124,19 @@ registerRenderToolCall({
 });
 ```
 
-## Choose a generative UI path
+## 选择生成式 UI 路径
 
-| Path | Best fit | Angular setup |
+| 路径 | 最适合的场景 | Angular 配置 |
 | --- | --- | --- |
-| Your components, display only | The agent should show a component and nothing else runs | `registerComponent` |
-| Your components | Known data shapes and application actions | `registerFrontendTool` or `registerRenderToolCall` with a component |
-| A2UI | A server emits A2UI operations or snapshots | Set `a2ui.catalog` in `provideCopilotKit` to turn on the built-in renderer; without a catalog A2UI stays off |
-| Open Generative UI | The agent produces streamed HTML, CSS, and script expressions | Set `openGenerativeUI` in `provideCopilotKit` |
-| MCP Apps | An MCP server returns an interactive app resource | Add `provideMCPApps()` from `@copilotkit/angular/mcp-apps` |
+| 你的组件，仅展示 | 智能体只需展示一个组件，不运行其他逻辑 | `registerComponent` |
+| 你的组件 | 数据形状已知且有应用操作 | `registerFrontendTool` 或 `registerRenderToolCall` 并附组件 |
+| A2UI | 服务端发出 A2UI 操作或快照 | 在 `provideCopilotKit` 中设置 `a2ui.catalog` 以启用内置渲染器；没有目录时 A2UI 保持关闭 |
+| Open Generative UI | 智能体生成流式 HTML、CSS 和脚本表达式 | 在 `provideCopilotKit` 中设置 `openGenerativeUI` |
+| MCP Apps | MCP 服务器返回交互式应用资源 | 添加来自 `@copilotkit/angular/mcp-apps` 的 `provideMCPApps()` |
 
 ### Open Generative UI
 
-An `openGenerativeUI` object opts the frontend into the built-in sandboxed
-renderer. Expose narrow host functions when generated UI must ask the
-application to act.
+`openGenerativeUI` 对象让前端接入内置的沙箱化渲染器。当生成的 UI 需要请求应用执行操作时，应暴露收窄范围的主机函数。
 
 ```ts title="src/app/app.config.ts"
 import { ApplicationConfig } from "@angular/core";
@@ -188,8 +168,7 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-Generated code runs in a sandboxed iframe without same-origin access. It calls
-only the host functions you list in `sandboxFunctions`.
+生成的代码运行在没有同源访问权限的沙箱 iframe 中。它只能调用你在 `sandboxFunctions` 中列出的主机函数。
 
 ### MCP Apps
 
@@ -206,13 +185,12 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-MCP resource and tool requests travel through the selected AG-UI agent. The
-browser provider does not take a server URL.
+MCP 资源与工具请求经由所选的 AG-UI 智能体传输。浏览器 provider 不接收服务器 URL。
 
-## Next steps
+## 后续步骤
 
 - [registerComponent API](/reference/angular/functions/registerComponent)
 - [registerFrontendTool API](/reference/angular/functions/registerFrontendTool)
 - [registerRenderToolCall API](/reference/angular/functions/registerRenderToolCall)
-- [Activity renderers](/reference/angular/functions/registerRenderActivityMessage)
-- [Runnable tool and generative UI examples](/angular/features#frontend-tools)
+- [活动渲染器](/reference/angular/functions/registerRenderActivityMessage)
+- [可运行的工具与生成式 UI 示例](/angular/features#frontend-tools)

@@ -1,21 +1,20 @@
 ---
-title: Shared state and agent context
-description: Read and write agent state with Angular signals, and send application-owned context to the agent.
+title: 共享状态与智能体上下文
+description: 使用 Angular signal 读写智能体状态，并把应用持有的上下文发送给智能体。
 icon: "lucide/Repeat2"
 doc_type: how-to
 ---
 
-Shared state and agent context solve two different data flows.
+共享状态与智能体上下文解决的是两种不同的数据流。
 
-| Data flow | Use |
+| 数据流 | 使用 |
 | --- | --- |
-| Agent and application both read and write the value | `injectAgentStore` and `agent.setState` |
-| The application owns the value and the agent only reads it | `connectAgentContext` or `CopilotKitAgentContext` |
+| 智能体与应用都要读写该值 | `injectAgentStore` 和 `agent.setState` |
+| 应用持有该值，智能体只读取 | `connectAgentContext` 或 `CopilotKitAgentContext` |
 
-## Read agent state
+## 读取智能体状态
 
-`injectAgentStore` returns a signal that resolves one agent. The store exposes
-messages, state, and run status as nested signals.
+`injectAgentStore` 返回一个解析到单个智能体的 signal。store 把消息、状态和运行状态以嵌套 signal 的形式暴露出来。
 
 ```ts title="src/app/workspace.component.ts"
 import { Component, computed } from "@angular/core";
@@ -59,21 +58,17 @@ export class WorkspaceComponent {
 }
 ```
 
-Read through `store().state()` so Angular tracks changes. Write through the
-plain AG-UI agent at `store().agent`. Replace the object instead of mutating it
-in place.
+通过 `store().state()` 读取，让 Angular 跟踪变化。通过 `store().agent` 处的普通 AG-UI 智能体进行写入。请替换整个对象，而不是原地修改。
 
-The same store gives you:
+同一个 store 还提供：
 
-- `store().messages()` for the current conversation
-- `store().isRunning()` for loading controls
-- `store().agent` for `setState`, `addMessage`, `runAgent`, and `abortRun`
+- `store().messages()` 获取当前会话
+- `store().isRunning()` 控制加载状态
+- `store().agent` 用于 `setState`、`addMessage`、`runAgent` 和 `abortRun`
 
-## Send read-only application context
+## 发送只读的应用上下文
 
-Use `connectAgentContext` for values such as the signed-in user's name,
-selected record, timezone, or current screen. Pass an accessor so signal reads
-stay reactive.
+对于登录用户的名称、选中的记录、时区或当前屏幕这类值，使用 `connectAgentContext`。传入一个取值函数，让 signal 读取保持响应式。
 
 ```ts title="src/app/account-context.component.ts"
 import { Component, signal } from "@angular/core";
@@ -103,15 +98,11 @@ export class AccountContextComponent {
 }
 ```
 
-The internal effect removes the old context and registers the new value when a
-read signal changes. It removes the final registration when the owning
-injector is destroyed. If you already have an `Injector`, pass it as
-`{ injector }`; that injector takes precedence over the ambient one.
+当读取的 signal 变化时，内部 effect 会移除旧上下文并注册新值。当所属注入器被销毁时，它会移除最后的注册。如果你已经持有 `Injector`，请以 `{ injector }` 传入；该注入器优先于环境注入器。
 
-## Bind context in a template
+## 在模板中绑定上下文
 
-Use `CopilotKitAgentContext` when the context is already shaped in the
-template.
+当上下文已经在模板中成形时，使用 `CopilotKitAgentContext`。
 
 ```ts title="src/app/selection-context.component.ts"
 import { Component, computed, signal } from "@angular/core";
@@ -133,21 +124,18 @@ export class SelectionContextComponent {
 }
 ```
 
-Render the directive only after you have a complete context. If it starts
-without one, later input changes do not create the first registration.
+只有在拿到完整上下文之后再渲染该指令。如果它启动时没有上下文，后续的输入变化也不会创建首次注册。
 
-## Keep ownership clear
+## 保持归属清晰
 
-- Use shared state for data that the agent may change.
-- Use context for application-owned facts.
-- Keep durable user preferences in your own data store; publish only the part
-  the current agent needs.
-- Scope `injectAgentStore` to the same agent id as the chat or workflow that
-  reads the state.
+- 智能体可能修改的数据，使用共享状态。
+- 应用持有的事实信息，使用上下文。
+- 持久的用户偏好保存在你自己的数据存储中；只发布当前智能体需要的部分。
+- 把 `injectAgentStore` 限定为与读取该状态的聊天或工作流相同的智能体 id。
 
-## Next steps
+## 后续步骤
 
 - [injectAgentStore API](/reference/angular/functions/injectAgentStore)
 - [connectAgentContext API](/reference/angular/functions/connectAgentContext)
 - [CopilotKitAgentContext API](/reference/angular/directives/CopilotKitAgentContext)
-- [Runnable state examples](/angular/features#shared-state-read-write)
+- [可运行的状态示例](/angular/features#shared-state-read-write)

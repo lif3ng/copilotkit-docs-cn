@@ -1,25 +1,22 @@
 ---
-title: Human-in-the-loop and interrupts
-description: Pause an Angular agent flow for a user decision, then resume it from a typed component or interrupt controller.
+title: 人机协同与中断
+description: 暂停 Angular 智能体流程以等待用户决策，然后从类型化组件或中断控制器恢复执行。
 icon: "lucide/UserRoundCheck"
 doc_type: how-to
 ---
 
-Human-in-the-loop flows pause agent work until a person supplies a decision.
-Angular has two paths with different owners.
+人机协同（human-in-the-loop）流程会暂停智能体的工作，直到用户作出决策。Angular 提供两条路径，归属方各不相同。
 
-| Pattern | Who chooses the pause? | Angular API |
+| 模式 | 由谁决定暂停？ | Angular API |
 | --- | --- | --- |
-| Human-in-the-loop tool | The agent calls a registered browser tool | `registerHumanInTheLoop` |
-| Interrupt | The backend agent emits an AG-UI interrupt | `AgentStore.interruptController`, `injectInterrupt` |
+| 人机协同工具 | 智能体调用已注册的浏览器工具 | `registerHumanInTheLoop` |
+| 中断 | 后端智能体发出 AG-UI 中断 | `AgentStore.interruptController`、`injectInterrupt` |
 
-Use a tool when the model should decide whether to ask. Use an interrupt when
-the backend workflow must stop at a fixed checkpoint.
+当应由模型决定是否询问时，使用工具。当后端工作流必须在固定检查点停止时，使用中断。
 
-## Register a decision tool
+## 注册决策工具
 
-The renderer receives a `toolCall` signal. Call `respond(result)` once the user
-has made a choice.
+渲染器会收到一个 `toolCall` signal。用户作出选择后调用 `respond(result)`。
 
 ```ts title="src/app/approval-card.component.ts"
 import { Component, input } from "@angular/core";
@@ -60,7 +57,7 @@ export class ApprovalCardComponent
 }
 ```
 
-Register the tool from the component or service that owns the decision UI:
+在拥有决策 UI 的组件或服务中注册该工具：
 
 ```ts title="src/app/approval-tools.service.ts"
 import { Injectable } from "@angular/core";
@@ -84,16 +81,11 @@ export class ApprovalToolsService {
 }
 ```
 
-There is no handler. CopilotKit supplies one that waits for `respond`, returns
-the decision to the agent, and continues the run. The registration is removed
-when the owning injector is destroyed.
+这里不需要 handler。CopilotKit 会提供一个，它等待 `respond`，把决策返回给智能体并继续运行。当所属注入器被销毁时，注册会随之移除。
 
-## Handle an interrupt from the store
+## 通过 store 处理中断
 
-An interrupt is a state of one conversation: this agent, this thread, this run
-is waiting for a decision. The store that already exposes that conversation's
-messages and state exposes its pending interrupt too, so a component that holds
-a store needs nothing else:
+中断是一次会话的状态：某个智能体、某个线程、某次运行正在等待决策。已经暴露该会话消息与状态的 store，同样会暴露其待处理的中断，因此持有 store 的组件无需其他任何东西：
 
 ```ts title="src/app/ticket-approval.component.ts"
 import { Component } from "@angular/core";
@@ -120,25 +112,14 @@ export class TicketApprovalComponent {
 }
 ```
 
-The controller is created and connected with the store, then destroyed when the
-store is torn down or replaced. Standard AG-UI interrupts already retained by
-the agent are visible immediately, and legacy `on_interrupt` events are observed
-for the store's full lifetime.
+控制器随 store 一起创建并连接，当 store 被拆除或替换时随之销毁。智能体已保留的标准 AG-UI 中断立即可见，旧版 `on_interrupt` 事件则在 store 的完整生命周期内持续被监听。
 
-## Handle an interrupt with a typed controller
+## 用类型化控制器处理中断
 
-`injectInterrupt` subscribes to one agent and exposes the pending decision as
-signals. It supports standard AG-UI interrupts and the legacy
-`on_interrupt` custom event. Use it when the store default is not enough — a
-typed payload, an `enabled` filter, or a `handler` that prepares data for the
-view.
+`injectInterrupt` 订阅单个智能体，并把待处理的决策以 signal 形式暴露出来。它支持标准 AG-UI 中断和旧版 `on_interrupt` 自定义事件。当 store 的默认能力不够用时使用它——例如需要类型化的 payload、`enabled` 过滤器，或为视图准备数据的 `handler`。
 
 <Callout type="warn">
-  Do not render an `injectInterrupt` controller and
-  `store().interruptController` for the same decision. Both independently
-  observe the agent, so the same interrupt becomes visible in both and two UI
-  actions could attempt to resume it. Render only the specialized controller
-  when you need filtering or typed handling.
+  不要为同一个决策同时渲染 `injectInterrupt` 控制器和 `store().interruptController`。二者各自独立监听智能体，同一次中断会在两边同时可见，两个 UI 操作可能同时尝试恢复它。当需要过滤或类型化处理时，只渲染专用的控制器。
 </Callout>
 
 ```ts title="src/app/interrupt-panel.component.ts"
@@ -193,26 +174,20 @@ export class InterruptPanelComponent {
 }
 ```
 
-The controller clears stale decisions when the thread changes. Calls to
-`resolve` or `cancel` share one in-flight resume promise, so a double click
-does not start two resume runs.
+线程切换时，控制器会清除过期的决策。对 `resolve` 或 `cancel` 的调用共享同一个进行中的恢复 promise，因此双击不会启动两次恢复运行。
 
-The runnable Showcase uses the same controller API in its route-aware feature:
+可运行的 Showcase 在其路由感知特性中使用了相同的控制器 API：
 
 <AngularSnippet region="interrupt-controller" />
 
-Use the controller's `enabled` option when several components listen to the
-same agent and each should accept only certain interrupt payloads. Use
-`handler` when the view needs async data prepared before it appears.
+当多个组件监听同一个智能体、且各自只应接受特定中断 payload 时，使用控制器的 `enabled` 选项。当视图在显示前需要准备异步数据时，使用 `handler`。
 
-## Place the decision UI
+## 放置决策 UI
 
-The tool renderer appears in the tool-call flow inside chat. An interrupt
-controller is headless: bind its signals anywhere in the application, including
-a route-level dialog, side panel, or task view.
+工具渲染器出现在聊天内部的工具调用流程中。中断控制器是无头（headless）的：可以把它的 signal 绑定到应用中的任何位置，包括路由级对话框、侧面板或任务视图。
 
-## Next steps
+## 后续步骤
 
 - [registerHumanInTheLoop API](/reference/angular/functions/registerHumanInTheLoop)
 - [injectInterrupt API](/reference/angular/functions/injectInterrupt)
-- [Runnable interrupt examples](/angular/features#gen-ui-interrupt)
+- [可运行的中断示例](/angular/features#gen-ui-interrupt)

@@ -1,25 +1,25 @@
 ---
-title: Authentication
-description: Authenticate Angular requests at Copilot Runtime and forward only the identity context your agent needs.
+title: 身份验证
+description: 在 Copilot Runtime 处验证 Angular 请求，只转发你的智能体所需的身份上下文。
 icon: "lucide/ShieldCheck"
 doc_type: how-to
 ---
 
-## What authentication protects
+## 身份验证保护什么
 
-CopilotKit authentication covers two boundaries:
+CopilotKit 的身份验证覆盖两个边界：
 
-1. Your Angular app sends its current session token to Copilot Runtime.
-2. Copilot Runtime validates that token before a run starts and forwards only
-   the approved identity or tenant context to the selected agent.
+1. 你的 Angular 应用把当前的会话令牌发送给 Copilot Runtime。
+2. Copilot Runtime 在运行开始前验证该令牌，并只把获批准的
+   身份或租户上下文转发给所选的智能体。
 
-Keep model credentials and service-to-service agent tokens on the server.
-Browser headers prove the end user's session; they are not a safe place for
-backend secrets.
+模型凭证与服务间（service-to-service）智能体令牌要保存在服务器上。
+浏览器请求头只能证明最终用户的会话，并不是存放
+后端机密的安全之处。
 
-## Send the current session
+## 发送当前会话
 
-Set initial headers in `provideCopilotKit`:
+在 `provideCopilotKit` 中设置初始请求头：
 
 ```ts title="src/app/app.config.ts"
 import { ApplicationConfig } from "@angular/core";
@@ -37,8 +37,7 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-When sign-in state changes after bootstrap, update the runtime connection
-through the `CopilotKit` service:
+当登录状态在应用启动后发生变化时，通过 `CopilotKit` 服务更新运行时连接：
 
 ```ts
 import { inject } from "@angular/core";
@@ -53,14 +52,14 @@ copilotKit.updateRuntime({
 });
 ```
 
-The runnable Angular Showcase uses the same header shape:
+可运行的 Angular Showcase 使用相同的请求头形态：
 
 <AngularSnippet region="runtime-auth-headers" />
 
-## Send cookies to a cross-origin runtime
+## 向跨域运行时发送 cookies
 
-To enable HTTP-only cookie authentication, set `credentials: "include"` and
-configure CORS on your runtime endpoint:
+要启用 HTTP-only cookie 身份验证，请设置 `credentials: "include"`，
+并在你的运行时端点上配置 CORS：
 
 ```ts title="src/app/app.config.ts"
 import { ApplicationConfig } from "@angular/core";
@@ -76,13 +75,13 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-Configure the runtime with `credentials: true` and the Angular app's exact
-origin. Credentialed CORS requests cannot use `*` as the allowed origin.
+在运行时上配置 `credentials: true` 以及 Angular 应用的确切
+源。带凭证的 CORS 请求不能使用 `*` 作为允许的源。
 
-## Validate every runtime request
+## 校验每一个运行时请求
 
-Use the runtime adapter's request hook to reject missing, expired, or
-unauthorized sessions before CopilotKit discovers or runs an agent:
+使用运行时适配器的请求钩子，在 CopilotKit 发现或运行智能体之前，拒绝缺失、过期或
+未授权的会话：
 
 ```ts title="server.ts"
 const handler = createCopilotExpressHandler({
@@ -103,14 +102,14 @@ const handler = createCopilotExpressHandler({
 });
 ```
 
-Apply authorization as well as authentication. A valid user token does not
-automatically grant access to every agent, tenant, or thread.
+在身份验证之外还要应用授权。一个有效的用户令牌并不意味着
+自动获得对所有智能体、租户或线程的访问权。
 
-## Forward identity deliberately
+## 有选择地转发身份
 
-Copilot Runtime forwards `authorization` and eligible `x-*` headers to a
-self-hosted agent, subject to its denylist. Prefer a small allowlist when your
-agent needs only specific context:
+Copilot Runtime 会把 `authorization` 与符合条件的 `x-*` 请求头转发给
+自托管智能体，并受其拒绝名单约束。如果你的智能体只需要特定上下文，
+建议使用一个小型允许名单：
 
 ```ts
 const runtime = new CopilotRuntime({
@@ -121,24 +120,23 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-Server-configured agent headers win over forwarded browser headers. Use that
-separation for service credentials, and never allow a browser-supplied header
-to override a backend token.
+服务器配置的智能体请求头优先于转发的浏览器请求头。请利用这种
+分离来存放服务凭证，绝不要允许浏览器提供的请求头
+覆盖后端令牌。
 
-## Production checklist
+## 生产环境检查清单
 
-- Validate `/info`, run, connect, stop, thread, and memory requests—not just
-  chat sends.
-- Derive user and tenant identifiers from the verified session instead of
-  trusting arbitrary browser values.
-- Scope thread operations to the authenticated user and project.
-- Clear frontend headers on sign-out with `updateRuntime({ headers: {} })`.
-- Configure CORS for the deployed Angular origin.
-- Log authorization failures without logging bearer tokens.
+- 对 `/info`、run、connect、stop、thread 与 memory 请求都做校验——而不只是
+  聊天发送。
+- 从已验证的会话派生用户与租户标识，而不是轻信任意的浏览器值。
+- 把线程操作限定在已验证的用户与项目范围内。
+- 登出时用 `updateRuntime({ headers: {} })` 清空前端请求头。
+- 为部署后的 Angular 源配置 CORS。
+- 记录授权失败，但不要记录 bearer 令牌。
 
-## Next steps
+## 下一步
 
 - [Copilot Runtime](/backend/copilot-runtime)
-- [Runtime HTTP endpoints](/backend/runtime-endpoints)
-- [Deploy to any runtime](/runtime-server-adapter)
-- [Angular API: CopilotKit](/reference/angular/services/CopilotKit)
+- [运行时 HTTP 端点](/backend/runtime-endpoints)
+- [部署到任意运行时](/runtime-server-adapter)
+- [Angular API：CopilotKit](/reference/angular/services/CopilotKit)

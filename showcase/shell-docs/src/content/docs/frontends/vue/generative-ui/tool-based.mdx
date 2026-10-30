@@ -1,29 +1,29 @@
 ---
-title: Components as Tools
+title: 作为工具的组件
 icon: "lucide/LayoutDashboard"
-description: Let your agent render rich Vue components directly in the chat by calling them as tools.
+description: 让智能体以调用工具的方式，直接在聊天中渲染丰富的 Vue 组件。
 ---
 
-## What is this?
+## 这是什么？
 
-Tool-based Generative UI is the simplest form of Generative UI: you register a Vue component with `useComponent`, and CopilotKit exposes it to the agent as a tool. When the agent calls the tool, CopilotKit renders your component inline in the chat, passing the tool's arguments straight through as typed props.
+基于工具的生成式 UI 是生成式 UI 中最简单的形式：你用 `useComponent` 注册一个 Vue 组件，CopilotKit 便会将它作为工具暴露给智能体。当智能体调用该工具时，CopilotKit 会在聊天中内联渲染你的组件，并把工具参数直接作为带有类型的 props 传入。
 
-Unlike [tool rendering](/vue/generative-ui/tool-rendering), which wraps a real backend tool in a custom UI, tool-based GenUI is the component. There is no handler, no user interaction, no server-side execution. The agent decides when to show it, populates the data, and CopilotKit paints it.
+[工具渲染](/vue/generative-ui/tool-rendering)是用自定义 UI 包装一个真实的后端工具；与之不同，基于工具的生成式 UI 本身就是那个组件。没有 handler，没有用户交互，也没有服务端执行。由智能体决定何时展示它并填入数据，而由 CopilotKit 将其绘制出来。
 
-## When should I use this?
+## 何时应该使用它？
 
-Use `useComponent` when you want to:
+在以下场景中使用 `useComponent`：
 
-- Display rich UI (cards, charts, tables, dashboards) inline in the chat
-- Show structured data the agent has derived from its reasoning
-- Render previews, status indicators, or visual summaries
-- Let the agent present information beyond plain text
+- 在聊天中内联展示丰富的 UI（卡片、图表、表格、仪表盘）
+- 展示智能体从推理中得出的结构化数据
+- 渲染预览、状态指示器或可视化摘要
+- 让智能体以纯文本之外的方式呈现信息
 
-For components that need user interaction, see [Human-in-the-loop](/vue/human-in-the-loop). For operational transparency around a real backend tool, see [Tool rendering](/vue/generative-ui/tool-rendering).
+对于需要用户交互的组件，请参阅[人机协同（human-in-the-loop）](/vue/human-in-the-loop)。要围绕真实的后端工具获得操作透明度，请参阅[工具渲染](/vue/generative-ui/tool-rendering)。
 
-## How it works in code
+## 代码中的工作原理
 
-`useComponent` takes a name, a Zod schema for its props, and the component to render. The runtime advertises that schema when it registers the frontend tool, and TypeScript infers the component props from it. Runtime arguments are JSON-parsed but are not validated against the schema.
+`useComponent` 接受一个名称、一个描述 props 的 Zod schema，以及要渲染的组件。运行时在注册这个前端工具时会公布该 schema，TypeScript 则据此推断组件的 props。运行时传入的参数会经过 JSON 解析，但不会依据 schema 进行校验。
 
 ```vue title="src/components/WeatherCard.vue"
 <script setup lang="ts">
@@ -38,7 +38,7 @@ defineProps<{ city: string; temperature: number; condition: string }>();
 </template>
 ```
 
-Vue composables execute during component setup, so the component calling `useComponent` must be a descendant of `CopilotKitProvider`.
+Vue 的 composable 在组件 setup 阶段执行，因此调用 `useComponent` 的组件必须是 `CopilotKitProvider` 的后代。
 
 ```vue title="src/components/AgentExperience.vue"
 <script setup lang="ts">
@@ -74,12 +74,12 @@ import AgentExperience from "./components/AgentExperience.vue";
 </template>
 ```
 
-The component itself is ordinary Vue: it reads only its props and can stream in as the agent fills the payload. It doesn't know anything about CopilotKit.
+组件本身就是一个普通的 Vue 组件：它只读取自己的 props，并可以在智能体填充数据的过程中流式呈现。它对 CopilotKit 一无所知。
 
 <Callout type="info">
-  The `name` you pass to `useComponent` is what the agent sees as the tool name. Make it a verb like `render_bar_chart` or `show_weather` so the LLM reliably picks it when the user asks for that visualization.
+  你传给 `useComponent` 的 `name` 就是智能体看到的工具名称。请用动词形式命名，例如 `render_bar_chart` 或 `show_weather`，这样当用户请求相应可视化时，LLM 才能可靠地选中它。
 </Callout>
 
-The model supplies the props, so validate consequential data against application state rather than treating a well-formed card as proof that the values are authorized or current.
+props 由模型提供，因此请结合应用状态对关键数据进行校验，而不要把一张格式完好的卡片当作这些值已获授权或仍然有效的证明。
 
 <IntegrationGrid path="generative-ui/tool-based" />

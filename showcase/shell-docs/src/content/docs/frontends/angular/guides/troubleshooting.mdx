@@ -1,18 +1,15 @@
 ---
-title: Troubleshooting Angular apps
-description: Diagnose Angular runtime connections, agent resolution, tools, threads, interrupts, SSR, and rendering failures.
+title: Angular 应用故障排查
+description: 诊断 Angular 的运行时连接、智能体解析、工具、线程、中断、SSR 与渲染故障。
 icon: "lucide/LifeBuoy"
 doc_type: how-to
 ---
 
-Use this page for failures in the Angular application layer. Runtime and
-protocol diagnostics remain available in the shared troubleshooting pages, so
-you can investigate the complete request without switching frontend docs.
+本页用于排查 Angular 应用层的故障。运行时与协议层面的诊断仍然在共享的故障排查页面中提供，因此你无需切换前端文档就能排查完整的请求链路。
 
-## Start at the connection boundary
+## 从连接边界开始
 
-Confirm that the browser is calling the same Copilot Runtime URL your server
-actually exposes:
+确认浏览器调用的 Copilot Runtime URL 与服务端实际暴露的地址一致：
 
 ```ts title="src/app/app.config.ts"
 import { provideCopilotKit } from "@copilotkit/angular";
@@ -26,17 +23,14 @@ export const appConfig = {
 };
 ```
 
-Then inspect `GET {runtimeUrl}/info`. A healthy response lists the expected
-agent ids. If the request fails:
+然后检查 `GET {runtimeUrl}/info`。健康的响应会列出预期的智能体 id。如果请求失败：
 
-- verify the path, origin, proxy, and deployment base URL;
-- verify the runtime process is running and allows the Angular origin;
-- check authentication headers without logging their values;
-- try `127.0.0.1` when local `localhost` resolution is unreliable.
+- 检查路径、来源、代理与部署 base URL；
+- 检查运行时进程是否在运行，并允许该 Angular 来源；
+- 检查身份验证请求头，但不要记录其值；
+- 当本地 `localhost` 解析不可靠时，尝试 `127.0.0.1`。
 
-The [`CopilotKit` service](/reference/angular/services/CopilotKit) exposes
-`runtimeConnectionStatus`, `runtimeUrl`, and the resolved `agents` as signals.
-Use them in a temporary diagnostic component:
+[`CopilotKit` 服务](/reference/angular/services/CopilotKit)以 signal 的形式暴露 `runtimeConnectionStatus`、`runtimeUrl` 和已解析的 `agents`。在一个临时诊断组件中使用它们：
 
 ```ts title="src/app/copilot-diagnostics.component.ts"
 import { Component, inject } from "@angular/core";
@@ -57,47 +51,34 @@ export class CopilotDiagnosticsComponent {
 }
 ```
 
-Remove diagnostics that expose topology or identifiers before production.
+上线前移除会暴露拓扑结构或标识符的诊断代码。
 
-## Agent id does not resolve
+## 智能体 id 无法解析
 
-`injectAgentStore("support")` and `<copilot-chat agentId="support" />` must use
-an id returned by the runtime or registered through `agents` or
-`selfManagedAgents`. After the runtime finishes connecting,
-`injectAgentStore` throws an error that includes the requested id and known
-agents when no match exists.
+`injectAgentStore("support")` 和 `<copilot-chat agentId="support" />` 必须使用由运行时返回、或通过 `agents` 或 `selfManagedAgents` 注册的 id。当运行时完成连接后，如果不存在匹配项，`injectAgentStore` 会抛出一个包含所请求 id 与已知智能体的错误。
 
-If you intend to use the default agent, either register an agent named
-`default` or pass the real id explicitly everywhere the chat, state, tools, or
-interrupt controller selects an agent.
+如果你想使用默认智能体，要么注册一个名为 `default` 的智能体，要么在聊天、状态、工具或中断控制器选择智能体的所有位置显式传入真实 id。
 
-## A frontend tool is missing or never runs
+## 前端工具缺失或从不运行
 
-Registrations are injector-scoped. Call `registerFrontendTool`,
-`registerRenderToolCall`, or `registerHumanInTheLoop` from a field initializer,
-constructor, provider factory, or another active injection context.
+注册的作用域限定在注入器内。请在字段初始化器、构造函数、provider 工厂或其他活跃的注入上下文中调用 `registerFrontendTool`、`registerRenderToolCall` 或 `registerHumanInTheLoop`。
 
-Check these in order:
+按顺序检查以下各项：
 
-1. The component or service that registers the tool is instantiated.
-2. Its injector has not been destroyed by route or conditional-view changes.
-3. The registered `agentId` matches the chat's agent.
-4. The tool description tells the model when it should call the tool.
-5. The input schema accepts the arguments emitted by the agent.
-6. The handler catches expected application failures and returns a deliberate
-   result instead of silently throwing.
+1. 注册工具的组件或服务已被实例化。
+2. 其注入器没有因路由或条件视图变化而被销毁。
+3. 注册的 `agentId` 与聊天的智能体匹配。
+4. 工具描述向模型说明了何时应调用该工具。
+5. 输入 schema 能接受智能体发出的参数。
+6. handler 捕获了预期的应用故障并返回明确的结果，而不是静默抛出异常。
 
-For a source-backed registration, see
-[Frontend tools and generative UI](/angular/guides/frontend-tools-generative-ui).
+带有源码支撑的注册示例见[前端工具与生成式 UI](/angular/guides/frontend-tools-generative-ui)。
 
-## A thread list or mutation fails
+## 线程列表或变更操作失败
 
-Use `listError()` for user-visible thread-list and mutation failures. The
-broader `error()` signal can also contain developer configuration errors such
-as a missing runtime URL or unavailable thread endpoints.
+用户可见的线程列表与变更失败请使用 `listError()`。更宽泛的 `error()` signal 还可能包含开发者配置错误，例如缺少运行时 URL 或线程端点不可用。
 
-Mutation methods return promises. Handle rejection and confirm before permanent
-deletion:
+变更方法返回 promise。请处理拒绝情况，并在永久删除前进行确认：
 
 ```ts
 await threads.renameThread(threadId, nextName).catch((error) => {
@@ -105,43 +86,31 @@ await threads.renameThread(threadId, nextName).catch((error) => {
 });
 ```
 
-See [`injectThreads`](/reference/angular/functions/injectThreads) for loading,
-pagination, realtime, and optimistic-mutation behavior.
+加载、分页、实时更新与乐观变更行为见 [`injectThreads`](/reference/angular/functions/injectThreads)。
 
-## An interrupt cannot resume
+## 中断无法恢复
 
-Read `injectInterrupt().error()` after a failed predicate, handler, or resume.
-Expired decisions use `InterruptExpiredError`. Resolve or cancel every pending
-interrupt id when the backend emits multiple simultaneous decisions.
+当 predicate、handler 或恢复操作失败后，读取 `injectInterrupt().error()`。过期决策使用 `InterruptExpiredError`。当后端同时发出多个决策时，要解决或取消每一个待处理的中断 id。
 
-The controller clears stale decisions when a thread changes or a new run
-starts. Do not cache it outside the injector that created it.
+线程变化或新运行开始时，控制器会清除过期决策。不要把它缓存到创建它的注入器之外。
 
-## SSR, hydration, or zoneless problems
+## SSR、水合或 zoneless 问题
 
-- Keep provider configuration and initial component inputs identical between
-  the server render and first browser render.
-- Do not start agent runs, resume interrupts, or access browser APIs during
-  server rendering.
-- Put application-owned DOM and media work behind an Angular platform guard or
-  `afterNextRender`.
-- Read CopilotKit signals from templates or computed signals so zoneless
-  change detection observes updates.
+- 保持服务端渲染与首次浏览器渲染之间的 provider 配置和初始组件输入完全一致。
+- 不要在服务端渲染期间启动智能体运行、恢复中断或访问浏览器 API。
+- 把应用自有的 DOM 与媒体操作放在 Angular 平台守卫或 `afterNextRender` 之后。
+- 从模板或 computed signal 中读取 CopilotKit signal，让 zoneless 变更检测能够观察到更新。
 
-The complete contract is in
-[Angular production and lifecycle](/reference/angular/production-lifecycle).
+完整约定见 [Angular 生产与生命周期](/reference/angular/production-lifecycle)。
 
-## Watch the live event stream
+## 观察实时事件流
 
-The [Inspector](/inspector) overlays the running application and reports the
-AG-UI event stream, the advertised agents, agent state, your registered tools,
-and the context you sent. It is a web component that an Angular application
-mounts itself; that page has the mount component and the production guard.
+[Inspector](/inspector) 会悬浮在运行中的应用之上，报告 AG-UI 事件流、已声明的智能体、智能体状态、你注册的工具以及发送的上下文。它是一个 Web Component，由 Angular 应用自行挂载；该页面包含挂载组件与生产环境守卫。
 
-## Continue through the shared stack
+## 继续排查共享层
 
-- [Common Copilot issues](/troubleshooting/common-issues)
-- [Runtime endpoints](/backend/runtime-endpoints)
-- [Runtime debug mode](/troubleshooting/debug-mode)
-- [AG-UI Event Inspector](/troubleshooting/event-inspector)
-- [Authentication](/angular/auth)
+- [常见 Copilot 问题](/troubleshooting/common-issues)
+- [运行时端点](/backend/runtime-endpoints)
+- [运行时调试模式](/troubleshooting/debug-mode)
+- [AG-UI 事件 Inspector](/troubleshooting/event-inspector)
+- [身份验证](/angular/auth)

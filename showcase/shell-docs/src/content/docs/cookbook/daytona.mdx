@@ -1,51 +1,48 @@
 ---
 title: "Daytona"
-description: "Give CopilotKit's Built-in Agent a tool that executes code in an isolated Daytona sandbox, then return the output to the chat."
+description: "为 CopilotKit 的内置智能体提供一个在隔离 Daytona 沙箱中执行代码的工具，并把输出返回给聊天。"
 icon: "custom/daytona"
 showIcon: true
 doc_type: how-to
 ---
 
-[Daytona](https://www.daytona.io) gives AI agents isolated cloud **sandboxes** — full Linux runtimes with
-their own filesystem, network, and CPU/RAM. This recipe adds a server tool to CopilotKit's
-[Built-in Agent](/) that runs code inside one of those sandboxes and returns the result to
-the chat, so the agent can execute code it writes without touching your host.
+[Daytona](https://www.daytona.io) 为 AI 智能体提供隔离的云端**沙箱**——带有独立文件系统、网络和 CPU/内存的完整
+Linux 运行时。本示例为 CopilotKit 的[内置智能体](/)添加一个服务端工具，在其中一个沙箱内运行代码并把结果返回给
+聊天，让智能体能够执行自己写出的代码，而不触碰你的主机。
 
-This guide assumes you already have a running Built-in Agent app. If you don't, follow the
-[Quickstart](/quickstart) first — it takes a few minutes.
+本指南假定你已经有一个正在运行的内置智能体应用。如果还没有，请先跟随[快速开始](/quickstart)——只需几分钟。
 
-## Try it live
+## 在线试用
 
-{/* Placeholder URL — update to the permanent demo deployment once it exists. */}
+{/* 占位 URL —— 待永久演示部署存在后更新。 */}
 
 <iframe
   src="https://showcase-daytona-runcode-production.up.railway.app"
-  title="Daytona runCode live demo"
+  title="Daytona runCode 在线演示"
   className="w-full h-[480px] sm:h-[600px] block rounded-xl border border-[var(--border)]"
 />
 
-## Prerequisites
+## 前置条件
 
-- A running Built-in Agent app (see the [Quickstart](/quickstart)).
-- A Daytona account and API key — create one in the [Daytona dashboard](https://app.daytona.io/dashboard/keys).
+- 一个正在运行的内置智能体应用（参见[快速开始](/quickstart)）。
+- 一个 Daytona 账号和 API 密钥——可在 [Daytona 控制台](https://app.daytona.io/dashboard/keys)中创建。
 
-Add the key to your `.env`:
+把密钥添加到你的 `.env`：
 
 ```plaintext title=".env"
 DAYTONA_API_KEY=your_daytona_api_key
 ```
 
-## Install the Daytona SDK
+## 安装 Daytona SDK
 
 ```npm
 npm install @daytonaio/sdk
 ```
 
-## Define the sandbox tool
+## 定义沙箱工具
 
-Add a `runCode` [server tool](/server-tools) and register it on your `BuiltInAgent`. The
-tool creates a fresh sandbox, runs the code, returns stdout, and cleans the sandbox up — so every call is
-isolated.
+添加一个 `runCode` [服务端工具](/server-tools)，并把它注册到你的 `BuiltInAgent` 上。该工具会创建一个全新的沙箱，
+运行代码，返回 stdout，然后清理沙箱——因此每次调用都是隔离的。
 
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts" doctest="component"
 import {
@@ -102,17 +99,16 @@ export const PATCH = handler;
 export const DELETE = handler;
 ```
 
-<Callout type="info" title="Sandbox networking on the free tier">
-  Daytona Tier 1 & 2 organizations run sandboxes with restricted networking, but package registries
-  (npm, PyPI) and major AI APIs (Anthropic, OpenAI, Google) are whitelisted — so this recipe works on the
-  free tier. Code that needs to reach arbitrary external URLs requires Tier 3+. See
-  [Daytona's limits](https://app.daytona.io/dashboard/limits).
+<Callout type="info" title="免费档位下的沙箱网络">
+  Daytona Tier 1 和 Tier 2 组织运行的沙箱网络受限，但包注册源（npm、PyPI）和主流 AI API
+  （Anthropic、OpenAI、Google）都在白名单中——因此本示例在免费档位即可运行。需要访问任意外部
+  URL 的代码则需要 Tier 3 及以上。参见 [Daytona 的限制](https://app.daytona.io/dashboard/limits)。
 </Callout>
 
-## Try it
+## 试用
 
-Start your app and ask the agent to run something. The tool runs Python by default, and the agent can
-pass `language` to run TypeScript or JavaScript instead:
+启动你的应用，让智能体运行点什么。工具默认运行 Python，智能体也可以传入 `language` 改为运行
+TypeScript 或 JavaScript：
 
 ```text
 Run a Python snippet that prints the first 10 Fibonacci numbers.
@@ -122,25 +118,23 @@ Run a Python snippet that prints the first 10 Fibonacci numbers.
 Run JavaScript that logs the current timestamp.
 ```
 
-The agent writes the code, calls `runCode`, and reports back the sandbox's output.
+智能体编写代码、调用 `runCode`，并把沙箱的输出汇报回来。
 
-## Going further
+## 进一步探索
 
-- **Reuse a sandbox** to avoid per-call startup cost: create one lazily and cache it instead of deleting it
-  each call. Pause it with `sandbox.stop()` when idle.
-- **Run a server and preview it** — expose a port with `sandbox.getPreviewLink(port)` to hand back a live
-  URL for an app the agent builds.
-- **Custom environments** — preinstall packages with a snapshot so sandboxes start ready to go.
-- **Any other language** — `codeRun` covers Python, TypeScript, and JavaScript. For anything else (Go,
-  Rust, a shell pipeline), use `sandbox.process.executeCommand(...)` instead, optionally on a custom image
-  with the toolchain installed.
+- **复用沙箱**以避免每次调用的启动开销：改为惰性创建并缓存沙箱，而不是每次调用都删除。空闲时用
+  `sandbox.stop()` 暂停它。
+- **运行服务器并预览**——用 `sandbox.getPreviewLink(port)` 暴露一个端口，为智能体构建的应用返回一个
+  可访问的 URL。
+- **自定义环境**——用快照预装软件包，让沙箱一启动即可使用。
+- **其他任意语言**——`codeRun` 覆盖 Python、TypeScript 和 JavaScript。除此之外（Go、Rust、shell 管道等），
+  请改用 `sandbox.process.executeCommand(...)`，还可以选择在装有相应工具链的自定义镜像上运行。
 
-See the [Daytona docs](https://www.daytona.io/docs) for the full SDK.
+完整 SDK 请参阅 [Daytona 文档](https://www.daytona.io/docs)。
 
-## Get started with a coding agent
+## 用编码智能体上手
 
-Paste this prompt into your coding agent (Cursor, Claude Code, etc.) to add the integration to an existing
-Built-in Agent app:
+把下面这段提示词粘贴到你的编码智能体（Cursor、Claude Code 等）中，即可把这个集成添加到现有的内置智能体应用：
 
 ```text
 In my existing CopilotKit Built-in Agent app, add a Daytona-backed code execution tool:

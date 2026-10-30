@@ -1,19 +1,13 @@
 ---
 title: Inspector
-description: The Inspector mounts itself in Angular applications. What changed, and what to remove if you mounted it by hand.
+description: Inspector 在 Angular 应用中会自动挂载。有何变化，以及手动挂载过的话需要移除什么。
 icon: "lucide/SearchCheck"
 doc_type: how-to
 ---
 
-`@copilotkit/angular` mounts the Inspector for you. It depends on
-`@copilotkit/web-inspector` directly, so there is nothing to install and no
-version to pin — the `CopilotKit` service creates `cpk-web-inspector`, supplies
-your application's core, and appends it to `document.body` after the first
-browser render.
+`@copilotkit/angular` 会自动挂载 Inspector。它直接依赖 `@copilotkit/web-inspector`，因此无需安装任何东西，也无需锁定版本——`CopilotKit` 服务会创建 `cpk-web-inspector` 元素，传入你应用的核心实例，并在首次浏览器渲染后将其追加到 `document.body`。
 
-**[Inspector](/inspector)** is the page to read for what the panes show and how
-`enableInspector` controls visibility. Angular sets it through
-`provideCopilotKit`:
+**[Inspector](/inspector)** 一页介绍了各个面板展示的内容，以及 `enableInspector` 如何控制可见性。Angular 通过 `provideCopilotKit` 设置它：
 
 ```ts title="src/app/app.config.ts"
 provideCopilotKit({
@@ -22,37 +16,21 @@ provideCopilotKit({
 });
 ```
 
-<Callout type="warn" title="Remove a hand-written mount before upgrading">
-  `@copilotkit/angular` did not mount the Inspector before **0.4.0**, and this
-  page previously described a `WebInspector` component that created the element
-  by hand. If your application still has that component, delete it — along with
-  its `<app-web-inspector />` usage and any direct `@copilotkit/web-inspector`
-  dependency in `package.json`.
+<Callout type="warn" title="升级前移除手动挂载">
+  **0.4.0** 之前，`@copilotkit/angular` 并不会挂载 Inspector，本页此前介绍的是手动创建元素的 `WebInspector` 组件。如果你的应用仍保留该组件，请将其删除——连同 `<app-web-inspector />` 的使用处，以及 `package.json` 中对 `@copilotkit/web-inspector` 的直接依赖。
 
-  Leaving it in place is worse than redundant. The framework reuses an existing
-  `cpk-web-inspector` rather than creating a second one, but the hand-written
-  component's `DestroyRef.onDestroy` removes that element unconditionally — so
-  a route change that destroys the component tears out the Inspector the
-  framework is now driving, and it does not come back without a full reload.
+  保留它不只是冗余，还会带来更糟的后果。框架会复用已存在的 `cpk-web-inspector`，而不是再创建一个，但手写组件的 `DestroyRef.onDestroy` 会无条件移除该元素——因此，一旦路由变更销毁了该组件，框架正在驱动的 Inspector 也会被一并拆除，且只有整页刷新才能恢复。
 </Callout>
 
-## Production and server rendering
+## 生产环境与服务器渲染
 
-Nothing to do for either.
+两者都无需任何操作。
 
-The `@copilotkit/web-inspector` import is a dynamic `import()` inside the
-service, so the bundler splits it into its own chunk and a production build
-never requests it. Mounting runs in `afterNextRender` behind an
-`isPlatformBrowser` check, so the element is never created during a server
-render. Both matter, because the web component registers itself against
-`customElements`, which does not exist on the server.
+`@copilotkit/web-inspector` 的导入是服务内部的一个动态 `import()`，打包器会将其拆分为独立的 chunk，生产构建永远不会请求它。挂载逻辑运行在 `afterNextRender` 中，并受 `isPlatformBrowser` 检查保护，因此服务器渲染期间绝不会创建该元素。这两点都很重要，因为该 Web 组件要向 `customElements` 注册自身，而服务器上并不存在 `customElements`。
 
-## Position the launcher
+## 调整启动器位置
 
-The launcher defaults to the top-right corner, and the element positions itself
-with an inline transform. Override both from your global stylesheet. A
-bottom-left corner keeps the launcher clear of the close button on a chat panel
-or sidebar:
+启动器默认位于右上角，元素通过内联 transform 定位。两者都可以在全局样式表中覆盖。放在左下角可以让启动器避开聊天面板或侧边栏的关闭按钮：
 
 ```css title="src/styles.css"
 cpk-web-inspector {
@@ -66,9 +44,9 @@ cpk-web-inspector {
 }
 ```
 
-## Next steps
+## 后续步骤
 
 - [Inspector](/inspector)
-- [Troubleshooting Angular apps](/angular/guides/troubleshooting)
+- [Angular 应用故障排查](/angular/guides/troubleshooting)
 - [AG-UI Event Inspector](/troubleshooting/event-inspector)
-- [Angular API: CopilotKit](/reference/angular/services/CopilotKit)
+- [Angular API：CopilotKit](/reference/angular/services/CopilotKit)

@@ -1,57 +1,47 @@
 ---
-title: "Slots (Subcomponents)"
+title: "插槽（子组件）"
 icon: "lucide/Brush"
-description: "Customize any part of the chat UI by overriding individual sub-components via slots."
+description: "通过插槽覆盖单个子组件，自定义聊天 UI 的任意部分。"
 snippet_cell: chat-slots
 ---
 
 <InlineDemo demo="chat-slots" />
 
-## What is this?
+## 这是什么？
 
-Every CopilotKit chat component is built from composable **slots**, named sub-components you can override individually. The slot system gives you three levels of customization without needing to rebuild the entire UI:
+每个 CopilotKit 聊天组件都由可组合的**插槽（slots）**构成——即可以逐个覆盖的具名子组件。插槽系统提供三个层级的自定义，无需重建整个 UI：
 
-1. **Tailwind classes** — pass a string to add/override CSS classes
-2. **Props override** — pass an object to override specific props on the default component
-3. **Custom component** — pass your own React component to fully replace a slot
+1. **Tailwind 类**——传入一个字符串来添加/覆盖 CSS 类
+2. **Props 覆盖**——传入一个对象来覆盖默认组件上的特定 props
+3. **自定义组件**——传入你自己的 React 组件来完全替换某个插槽
 
-Slots are recursive: you can drill into nested sub-components at any depth.
+插槽是递归的：你可以在任意深度逐层深入嵌套的子组件。
 
-## What it looks like in code
+## 代码长什么样
 
-The `chat-slots` cell above overrides three slots on a single `<CopilotChat>` —
-the welcome screen, the assistant message card, and the input's disclaimer.
-Each slot is just a prop; the demo extracts them into locals so the override
-points are easy to see.
+上方的 `chat-slots` 单元在单个 `<CopilotChat>` 上覆盖了三个插槽——欢迎屏、助手消息卡片和输入框下方的免责声明。每个插槽都只是一个 prop；示例把它们提取为局部变量，让覆盖点一目了然。
 
-### Welcome screen slot
+### 欢迎屏插槽
 
-The `welcomeScreen` prop replaces the empty-state view shown before the first
-message is sent. The demo swaps in a gradient card that still renders the
-default input and suggestions:
+`welcomeScreen` prop 会替换发送第一条消息之前显示的空状态视图。示例换上一个渐变卡片，同时仍渲染默认的输入框和建议：
 
-<Snippet region="register-welcome-slot" title="frontend/src/app/page.tsx — welcomeScreen slot" />
+<Snippet region="register-welcome-slot" title="frontend/src/app/page.tsx — welcomeScreen 插槽" />
 
-### Assistant message slot
+### 助手消息插槽
 
-Drill into `messageView={{ assistantMessage: ... }}` to wrap every assistant
-response. The cell wraps the default component with a tinted card and a small
-"slot" badge so you can see the override is active during the message flow:
+深入 `messageView={{ assistantMessage: ... }}` 即可包装每条助手回复。该单元给默认组件包上一层着色卡片和一个小小的 “slot” 徽标，让你在消息流转过程中能看到覆盖正在生效：
 
-<Snippet region="register-assistant-message-slot" title="frontend/src/app/page.tsx — assistantMessage slot" />
+<Snippet region="register-assistant-message-slot" title="frontend/src/app/page.tsx — assistantMessage 插槽" />
 
-### Disclaimer slot
+### 免责声明插槽
 
-The `input={{ disclaimer: ... }}` sub-slot lets you replace the small text
-shown below the input. The demo uses it to display a visibly tagged disclaimer
-so reviewers can tell the override is still in effect once the welcome screen
-is gone:
+`input={{ disclaimer: ... }}` 子插槽让你替换输入框下方显示的小字。示例用它展示一个带明显标记的免责声明，让评审者在欢迎屏消失后也能确认覆盖仍然生效：
 
-<Snippet region="register-disclaimer-slot" title="frontend/src/app/page.tsx — disclaimer slot" />
+<Snippet region="register-disclaimer-slot" title="frontend/src/app/page.tsx — disclaimer 插槽" />
 
-## Tailwind Classes
+## Tailwind 类
 
-The simplest way to customize a slot. Pass a Tailwind class string and it will be merged with the default component's classes.
+自定义插槽最简单的方式。传入一个 Tailwind 类名字符串，它会与默认组件的类名合并。
 
 ```tsx title="page.tsx"
 import { CopilotChat } from "@copilotkit/react-core/v2";
@@ -66,9 +56,9 @@ export function Chat() {
 }
 ```
 
-## Props Override
+## Props 覆盖
 
-Pass an object to override specific props on the default component. This is useful for adding `className`, event handlers, data attributes, or any other prop the default component accepts.
+传入一个对象来覆盖默认组件上的特定 props。适合添加 `className`、事件处理器、data 属性，或默认组件接受的任何其他 prop。
 
 ```tsx title="page.tsx"
 <CopilotChat
@@ -80,9 +70,9 @@ Pass an object to override specific props on the default component. This is usef
 />
 ```
 
-## Custom Components
+## 自定义组件
 
-For full control, pass your own React component. It receives all the same props as the default component.
+想要完全控制，就传入你自己的 React 组件。它会收到与默认组件完全相同的 props。
 
 ```tsx title="page.tsx"
 import { CopilotChat } from "@copilotkit/react-core/v2";
@@ -103,13 +93,13 @@ export function Chat() {
 }
 ```
 
-## Nested Slots (Drill-Down)
+## 嵌套插槽（逐层深入）
 
-Slots are recursive. You can customize sub-components at any depth by nesting objects.
+插槽是递归的。通过嵌套对象，你可以在任意深度自定义子组件。
 
-### Two levels deep
+### 两层深入
 
-Override the assistant message's toolbar within the message view:
+在消息视图中覆盖助手消息的工具栏：
 
 ```tsx title="page.tsx"
 <CopilotChat
@@ -123,9 +113,9 @@ Override the assistant message's toolbar within the message view:
 />
 ```
 
-### Three levels deep
+### 三层深入
 
-Override a specific button inside the assistant message toolbar:
+覆盖助手消息工具栏中的特定按钮：
 
 ```tsx title="page.tsx"
 <CopilotChat
@@ -139,11 +129,9 @@ Override a specific button inside the assistant message toolbar:
 />
 ```
 
-### Tool calls
+### 工具调用
 
-The `assistantMessage` slot holds `toolCallsView`, which renders the tool calls
-of one assistant message. Wrap the default `CopilotChatToolCallsView` to change
-the container while keeping your registered tool renderers:
+`assistantMessage` 插槽包含 `toolCallsView`，用于渲染一条助手消息的工具调用。包装默认的 `CopilotChatToolCallsView`，即可在保留已注册工具渲染器的同时更改容器：
 
 ```tsx title="page.tsx"
 import {
@@ -169,22 +157,15 @@ export function Chat() {
 }
 ```
 
-To see `CopilotChatToolCallsView` in progress, complete, expanded, and failed
-states, open the
-[`CopilotChatToolCallsView` stories](https://github.com/CopilotKit/CopilotKit/blob/main/examples/v2/react/storybook/stories/CopilotChatToolCallsView.stories.tsx)
-in the React Storybook.
+要查看 `CopilotChatToolCallsView` 的进行中、完成、展开和失败状态，请在 React Storybook 中打开 [`CopilotChatToolCallsView` stories](https://github.com/CopilotKit/CopilotKit/blob/main/examples/v2/react/storybook/stories/CopilotChatToolCallsView.stories.tsx)。
 
-To change how calls are grouped (a card, a line of text, a stack, or one
-summary per turn) without writing a component, set `toolCallDisplay` on the
-message view. See [Grouping tool calls](/generative-ui/tool-rendering#grouping-tool-calls).
+想在不编写组件的情况下更改调用的分组方式（一张卡片、一行文字、一个堆叠，或每轮一条摘要），可在消息视图上设置 `toolCallDisplay`。参见[工具调用分组](/generative-ui/tool-rendering#grouping-tool-calls)。
 
-The `assistantMessage` slot also holds `markdownRenderer`, which controls how
-assistant markdown is rendered. It has its own guide:
-[Markdown Rendering](/custom-look-and-feel/markdown).
+`assistantMessage` 插槽还包含 `markdownRenderer`，用于控制助手 markdown 的渲染方式。它有自己的指南：[Markdown 渲染](/custom-look-and-feel/markdown)。
 
-## Labels
+## 标签
 
-Customize any text string in the UI via the `labels` prop. This is a separate convenience prop on `CopilotChat`, `CopilotSidebar`, and `CopilotPopup`, not part of the slot system.
+通过 `labels` prop 自定义 UI 中的任意文本字符串。这是 `CopilotChat`、`CopilotSidebar` 和 `CopilotPopup` 上一个独立的便捷 prop，不属于插槽系统。
 
 ```tsx title="page.tsx"
 <CopilotChat
@@ -196,23 +177,23 @@ Customize any text string in the UI via the `labels` prop. This is a separate co
 />
 ```
 
-## Available Slots
+## 可用插槽
 
 ### `CopilotChat` / `CopilotSidebar` / `CopilotPopup`
 
-These are the root-level slot props available on all chat components:
+这些是所有聊天组件上都可用的根级插槽 props：
 
-| Slot | Description |
+| 插槽 | 说明 |
 |------|-------------|
-| `messageView` | The message list container. |
-| `scrollView` | The scroll container with auto-scroll behavior. |
-| `input` | The text input area with send/transcribe controls. |
-| `suggestionView` | The suggestion pills shown below messages. |
-| `welcomeScreen` | The initial empty-state screen (pass `false` to disable). |
+| `messageView` | 消息列表容器。 |
+| `scrollView` | 带自动滚动行为的滚动容器。 |
+| `input` | 带发送/语音转写控件的文本输入区。 |
+| `suggestionView` | 消息下方显示的建议胶囊。 |
+| `welcomeScreen` | 初始空状态屏幕（传 `false` 可禁用）。 |
 
-`CopilotSidebar` and `CopilotPopup` also have:
+`CopilotSidebar` 和 `CopilotPopup` 还有：
 
-| Slot | Description |
+| 插槽 | 说明 |
 |------|-------------|
-| `header` | The modal header bar. |
-| `toggleButton` | The open/close toggle button. |
+| `header` | 模态框顶栏。 |
+| `toggleButton` | 打开/关闭切换按钮。 |

@@ -1,24 +1,21 @@
 ---
-title: Threads, memory, attachments, and headless UI
-description: Build persistent and multimodal Angular agent experiences, or own the complete UI with signal-based APIs.
+title: 线程、记忆、附件与无头 UI
+description: 构建持久化与多模态的 Angular 智能体体验，或用基于 signal 的 API 完全掌控 UI。
 icon: "lucide/Layers3"
 doc_type: how-to
 ---
 
-`CopilotChat` covers the common conversation path. Use the lower-level Angular
-APIs when you need saved threads, user memory, file input, or a fully custom
-interface.
+`CopilotChat` 覆盖了常见的对话路径。当你需要保存的线程、用户记忆、文件输入或完全自定义的界面时，请使用更底层的 Angular API。
 
-## Resume a specific thread
+## 恢复指定线程
 
-Pass `threadId` to connect the chat to an existing conversation:
+传入 `threadId` 即可把聊天连接到已有的会话：
 
 ```html
 <copilot-chat agentId="support" [threadId]="selectedThreadId()" />
 ```
 
-For a custom thread list, use `injectThreads`. Its inputs accept plain values
-or signals.
+要自定义线程列表，使用 `injectThreads`。它的输入既接受普通值，也接受 signal。
 
 ```ts title="src/app/thread-list.component.ts"
 import { Component } from "@angular/core";
@@ -59,15 +56,9 @@ export class ThreadListComponent {
 }
 ```
 
-The list is server-authoritative and uses realtime updates when the platform
-supplies a WebSocket URL. Rename, archive, unarchive, and delete return
-promises. Deletion is permanent; ask the user before calling `deleteThread`.
+列表以服务端为准，并在平台提供 WebSocket URL 时使用实时更新。重命名、归档、取消归档和删除都返回 promise。删除是永久性的；调用 `deleteThread` 前请先询问用户。
 
-`CopilotThreadsDrawer` supplies a ready-made list, selection, filtering,
-pagination, and mutation controls. Put the drawer and chat under the same
-`provideCopilotChatConfiguration` provider so selection and new-thread actions
-update the chat. The drawer reads the platform's `threads` license feature and
-shows its locked state when that feature is unavailable.
+`CopilotThreadsDrawer` 提供开箱即用的列表、选择、筛选、分页和变更操作。把抽屉与聊天放在同一个 `provideCopilotChatConfiguration` provider 之下，让选择与新建线程操作能更新聊天。抽屉会读取平台的 `threads` 许可特性，在该特性不可用时显示其锁定状态。
 
 ```ts
 import { Component } from "@angular/core";
@@ -89,11 +80,9 @@ import {
 export class ConversationsComponent {}
 ```
 
-## Read and manage memory
+## 读取并管理记忆
 
-`injectMemories` exposes the current runtime-authenticated user's memory list.
-Check `isAvailable()` before showing memory controls because a runtime may not
-provide the memory routes.
+`injectMemories` 暴露当前经运行时验证的用户的记忆列表。在展示记忆操作前先检查 `isAvailable()`，因为运行时可能不提供记忆路由。
 
 ```ts title="src/app/memory-list.component.ts"
 import { Component } from "@angular/core";
@@ -132,14 +121,11 @@ export class MemoryListComponent {
 }
 ```
 
-`updateMemory` supersedes a memory with a full replacement and returns a new
-record with a new id. Re-send `content`, `kind`, and any
-`sourceThreadIds` you want to keep.
+`updateMemory` 以完整替换的方式更新一条记忆，并返回一个带新 id 的新记录。请重新发送 `content`、`kind` 以及想保留的所有 `sourceThreadIds`。
 
-## Enable attachments
+## 启用附件
 
-Pass an `AttachmentsConfig` to `CopilotChat`. The built-in input supports the
-file picker, drag and drop, and paste.
+向 `CopilotChat` 传入 `AttachmentsConfig`。内置输入框支持文件选择器、拖放和粘贴。
 
 ```ts title="src/app/media-chat.component.ts"
 import { Component } from "@angular/core";
@@ -167,15 +153,11 @@ export class MediaChatComponent {
 }
 ```
 
-Without `onUpload`, files are read as base64. Supply `onUpload` to place large
-files in your own storage and return a URL. The selected model and backend must
-support each content type you allow.
+不提供 `onUpload` 时，文件会以 base64 读取。提供 `onUpload` 可以把大文件放到你自己的存储中并返回 URL。所选模型与后端必须支持你允许的每种内容类型。
 
-## Build a headless chat
+## 构建无头聊天
 
-`injectAgentStore` gives you the state needed to render your own transcript and
-composer. Add the user message to the agent, then run that same agent through
-`CopilotKitCore`.
+`injectAgentStore` 为你提供渲染自建会话记录与输入框所需的状态。把用户消息添加到智能体，然后通过 `CopilotKitCore` 运行同一个智能体。
 
 ```ts title="src/app/headless-chat.component.ts"
 import { Component, inject, signal } from "@angular/core";
@@ -234,18 +216,16 @@ export class HeadlessChatComponent {
 }
 ```
 
-Add error handling around `runAgent` in production and disable repeated sends
-while `isRunning()` is true. The store tears down its agent subscription with
-the owning injector.
+在生产环境中，请为 `runAgent` 添加错误处理，并在 `isRunning()` 为 true 时禁用重复发送。store 会随所属注入器一起拆除其智能体订阅。
 
-The runnable Showcase factors that flow into this signal-first controller:
+可运行的 Showcase 把这条流程抽取成了这个 signal 优先的控制器：
 
 <AngularSnippet region="headless-chat-controller" />
 
-## Next steps
+## 后续步骤
 
 - [injectThreads API](/reference/angular/functions/injectThreads)
 - [injectAgentStore API](/reference/angular/functions/injectAgentStore)
-- [CopilotChat attachments input](/reference/angular/components/CopilotChat)
-- [Runnable headless example](/angular/features#headless-simple)
-- [Runnable multimodal example](/angular/features#multimodal)
+- [CopilotChat 附件输入](/reference/angular/components/CopilotChat)
+- [可运行的无头示例](/angular/features#headless-simple)
+- [可运行的多模态示例](/angular/features#multimodal)

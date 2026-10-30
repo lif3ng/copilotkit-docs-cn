@@ -1,21 +1,21 @@
 ---
 title: "Oracle Agent Memory"
-description: "Define an agent once in Oracle Agent Spec, run it on LangGraph over AG-UI, give it long-term memory on Oracle AI Database, and render it in CopilotKit with human-in-the-loop."
+description: "在 Oracle Agent Spec 中只定义一次智能体，在 LangGraph 上经 AG-UI 运行，用 Oracle AI Database 赋予其长期记忆，并以人机协同的方式渲染在 CopilotKit 中。"
 icon: "custom/oracle-agent-spec"
 showIcon: true
 doc_type: how-to
 ---
 
-[Oracle Agent Spec](https://github.com/oracle/agent-spec) is an open, framework-agnostic way to describe an agent as portable JSON — define it once, run it on any supported runtime. This recipe wires three things together: an Agent Spec agent running on **LangGraph**, served over the open [AG-UI](https://docs.ag-ui.com/) protocol, rendered in a [CopilotKit](https://www.copilotkit.ai/) chat, with **long-term memory** on Oracle AI Database so it remembers you across sessions.
+[Oracle Agent Spec](https://github.com/oracle/agent-spec) 是一种开放、与框架无关的智能体描述方式：把智能体表达为可移植的 JSON——只需定义一次，即可在任意受支持的运行时上运行。本示例把三件事串联在一起：一个运行在 **LangGraph** 上的 Agent Spec 智能体，通过开放的 [AG-UI](https://docs.ag-ui.com/) 协议对外提供服务，并渲染在 [CopilotKit](https://www.copilotkit.ai/) 聊天界面中；同时依托 Oracle AI Database 实现**长期记忆**，让它在跨会话时依然记得你。
 
-The example is a personal **travel concierge**: it remembers your preferences across sessions, searches flights, and books them with a **human-in-the-loop** confirmation card rendered by CopilotKit's generative UI.
+这个示例是一个私人**旅行礼宾助手**：它能跨会话记住你的偏好，搜索航班，并通过 CopilotKit 生成式 UI 渲染的**人机协同（human-in-the-loop）**确认卡片完成预订。
 
-## How it works
+## 工作原理
 
-- The agent is defined declaratively with `pyagentspec` and serialized to Agent Spec JSON.
-- The [`ag_ui_agentspec`](https://github.com/ag-ui-protocol/ag-ui) adapter loads that JSON and serves it as a FastAPI AG-UI endpoint on the LangGraph runtime.
-- CopilotKit consumes the AG-UI endpoint with an `HttpAgent` — the same protocol as any AG-UI agent.
-- Memory is the glue: a `recall_memory` tool reads durable preferences from Oracle Agent Memory, and each turn is persisted after the response streams — then a small reconcile pass supersedes outdated facts so an updated preference wins next time.
+- 智能体通过 `pyagentspec` 以声明式方式定义，并序列化为 Agent Spec JSON。
+- [`ag_ui_agentspec`](https://github.com/ag-ui-protocol/ag-ui) 适配器加载这份 JSON，并把它作为 FastAPI AG-UI 端点，跑在 LangGraph 运行时之上。
+- CopilotKit 使用 `HttpAgent` 消费该 AG-UI 端点——与任何 AG-UI 智能体使用相同的协议。
+- 记忆是粘合剂：`recall_memory` 工具从 Oracle Agent Memory 读取持久化偏好，每轮对话在响应流式传输结束后被持久化——随后一个轻量的对账（reconcile）步骤会取代过时的事实，确保更新后的偏好在下次生效。
 
 ```text
 CopilotKit (Next.js, V2) ──/api/copilotkit──▶ CopilotRuntime (HttpAgent)
@@ -28,82 +28,79 @@ CopilotKit (Next.js, V2) ──/api/copilotkit──▶ CopilotRuntime (HttpAgen
                                         oracleagentmemory → Oracle AI Database
 ```
 
-## Memory: what's CopilotKit, what's Oracle
+## Memory：哪些属于 CopilotKit，哪些属于 Oracle
 
-<img alt="Memory ownership across the stack: CopilotKit owns the chat UI and threads, the AG-UI transport, and the generative UI; your agent code is the seam — Agent Spec on LangGraph, the recall_memory tool, and persist + reconcile; Oracle Agent Memory owns the Oracle AI Database, fact extraction, and vector recall." src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzIwIiBoZWlnaHQ9IjM2MCIgdmlld0JveD0iMCAwIDcyMCAzNjAiIHJvbGU9ImltZyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8dGl0bGU+V2hhdCBDb3BpbG90S2l0IG93bnMgdmVyc3VzIHdoYXQgT3JhY2xlIG93bnMgaW4gdGhlIG1lbW9yeSBmZWF0dXJlPC90aXRsZT4KICA8ZGVzYz5UaHJlZSBjb2x1bW5zLiBDb3BpbG90S2l0IG93bnMgdGhlIGNoYXQgVUkgYW5kIHRocmVhZHMsIHRoZSBBRy1VSSB0cmFuc3BvcnQsIGFuZCB0aGUgZ2VuZXJhdGl2ZSBVSS4gWW91ciBhZ2VudCBjb2RlIGlzIHRoZSBzZWFtOiBBZ2VudCBTcGVjIG9uIExhbmdHcmFwaCwgdGhlIHJlY2FsbF9tZW1vcnkgdG9vbCwgYW5kIHBlcnNpc3QgcGx1cyByZWNvbmNpbGUuIE9yYWNsZSBBZ2VudCBNZW1vcnkgb3ducyB0aGUgT3JhY2xlIEFJIERhdGFiYXNlIHN0b3JhZ2UsIGZhY3QgZXh0cmFjdGlvbiwgYW5kIHZlY3RvciByZWNhbGwuIEEgdHVybiBmbG93cyBsZWZ0IHRvIHJpZ2h0IHRvIHJlY2FsbCwgdGhlbiB0aGUgYWdlbnQgcGVyc2lzdHMgYmFjayB0byBPcmFjbGUgYWZ0ZXIgdGhlIHR1cm4uPC9kZXNjPgogIDxzdHlsZT4KICAgIHRleHQgeyBmb250LWZhbWlseTogLWFwcGxlLXN5c3RlbSwgQmxpbmtNYWNTeXN0ZW1Gb250LCAiU2Vnb2UgVUkiLCBSb2JvdG8sIEhlbHZldGljYSwgQXJpYWwsIHNhbnMtc2VyaWY7IH0KICAgIC5oIHsgZm9udC1zaXplOiAxNHB4OyBmb250LXdlaWdodDogNTAwOyB9CiAgICAudCB7IGZvbnQtc2l6ZTogMTRweDsgZm9udC13ZWlnaHQ6IDUwMDsgfQogICAgLnMgeyBmb250LXNpemU6IDEycHg7IGZvbnQtd2VpZ2h0OiA0MDA7IH0KICAgIC5jYXAgeyBmb250LXNpemU6IDEyLjVweDsgZmlsbDogIzQ3NTU2OTsgfQogICAgLmNhcHRpdGxlIHsgZm9udC1zaXplOiAxM3B4OyBmb250LXdlaWdodDogNTAwOyBmaWxsOiAjMGYxNzJhOyB9CiAgICAuYXJyIHsgZm9udC1zaXplOiAxNnB4OyBmaWxsOiAjOTRhM2I4OyB9CiAgPC9zdHlsZT4KCiAgPHJlY3QgeD0iMC41IiB5PSIwLjUiIHdpZHRoPSI3MTkiIGhlaWdodD0iMzU5IiByeD0iMTQiIGZpbGw9IiNmZmZmZmYiIHN0cm9rZT0iI2U1ZTdlYiIvPgoKICA8IS0tIENvcGlsb3RLaXQgKGJsdWUpIC0tPgogIDxyZWN0IHg9IjI0IiB5PSIzNiIgd2lkdGg9IjIxMiIgaGVpZ2h0PSIzMCIgcng9IjgiIGZpbGw9IiNkYmVhZmUiIHN0cm9rZT0iIzNiODJmNiIvPgogIDx0ZXh0IGNsYXNzPSJoIiB4PSIxMzAiIHk9IjU2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMWUzYThhIj5Db3BpbG90S2l0PC90ZXh0PgogIDxyZWN0IHg9IjI0IiB5PSI4MCIgd2lkdGg9IjIxMiIgaGVpZ2h0PSI0NiIgcng9IjgiIGZpbGw9IiNlZmY2ZmYiIHN0cm9rZT0iIzNiODJmNiIvPgogIDx0ZXh0IGNsYXNzPSJ0IiB4PSIxMzAiIHk9IjEwMSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzFlM2E4YSI+Q2hhdCBVSSAmYW1wOyB0aHJlYWRzPC90ZXh0PgogIDx0ZXh0IGNsYXNzPSJzIiB4PSIxMzAiIHk9IjExNyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzFkNGVkOCI+dGhlIGNvbnZlcnNhdGlvbiBzdXJmYWNlPC90ZXh0PgogIDxyZWN0IHg9IjI0IiB5PSIxMzgiIHdpZHRoPSIyMTIiIGhlaWdodD0iNDYiIHJ4PSI4IiBmaWxsPSIjZWZmNmZmIiBzdHJva2U9IiMzYjgyZjYiLz4KICA8dGV4dCBjbGFzcz0idCIgeD0iMTMwIiB5PSIxNTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMxZTNhOGEiPkFHLVVJIHRyYW5zcG9ydDwvdGV4dD4KICA8dGV4dCBjbGFzcz0icyIgeD0iMTMwIiB5PSIxNzUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMxZDRlZDgiPnN0cmVhbXMgb3ZlciBTU0U8L3RleHQ+CiAgPHJlY3QgeD0iMjQiIHk9IjE5NiIgd2lkdGg9IjIxMiIgaGVpZ2h0PSI0NiIgcng9IjgiIGZpbGw9IiNlZmY2ZmYiIHN0cm9rZT0iIzNiODJmNiIvPgogIDx0ZXh0IGNsYXNzPSJ0IiB4PSIxMzAiIHk9IjIxNyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzFlM2E4YSI+R2VuZXJhdGl2ZSBVSTwvdGV4dD4KICA8dGV4dCBjbGFzcz0icyIgeD0iMTMwIiB5PSIyMzMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMxZDRlZDgiPmNoaXAsIGNhcmRzLCBISVRMPC90ZXh0PgoKICA8dGV4dCBjbGFzcz0iYXJyIiB4PSIyNDUiIHk9IjU3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4mIzg1OTQ7PC90ZXh0PgoKICA8IS0tIFlvdXIgYWdlbnQgY29kZSAoc2xhdGUpIC0tPgogIDxyZWN0IHg9IjI1NCIgeT0iMzYiIHdpZHRoPSIyMTIiIGhlaWdodD0iMzAiIHJ4PSI4IiBmaWxsPSIjZTJlOGYwIiBzdHJva2U9IiM5NGEzYjgiLz4KICA8dGV4dCBjbGFzcz0iaCIgeD0iMzYwIiB5PSI1NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzBmMTcyYSI+WW91ciBhZ2VudCBjb2RlPC90ZXh0PgogIDxyZWN0IHg9IjI1NCIgeT0iODAiIHdpZHRoPSIyMTIiIGhlaWdodD0iNDYiIHJ4PSI4IiBmaWxsPSIjZjFmNWY5IiBzdHJva2U9IiM5NGEzYjgiLz4KICA8dGV4dCBjbGFzcz0idCIgeD0iMzYwIiB5PSIxMDEiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwZjE3MmEiPkFnZW50IFNwZWMgKyBMYW5nR3JhcGg8L3RleHQ+CiAgPHRleHQgY2xhc3M9InMiIHg9IjM2MCIgeT0iMTE3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNDc1NTY5Ij5kZWNpZGVzIHdoZW4gdG8gcmVjYWxsPC90ZXh0PgogIDxyZWN0IHg9IjI1NCIgeT0iMTM4IiB3aWR0aD0iMjEyIiBoZWlnaHQ9IjQ2IiByeD0iOCIgZmlsbD0iI2YxZjVmOSIgc3Ryb2tlPSIjOTRhM2I4Ii8+CiAgPHRleHQgY2xhc3M9InQiIHg9IjM2MCIgeT0iMTU5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMGYxNzJhIj5yZWNhbGxfbWVtb3J5IHRvb2w8L3RleHQ+CiAgPHRleHQgY2xhc3M9InMiIHg9IjM2MCIgeT0iMTc1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNDc1NTY5Ij5xdWVyaWVzIE9yYWNsZSwgZmlsdGVyczwvdGV4dD4KICA8cmVjdCB4PSIyNTQiIHk9IjE5NiIgd2lkdGg9IjIxMiIgaGVpZ2h0PSI0NiIgcng9IjgiIGZpbGw9IiNmMWY1ZjkiIHN0cm9rZT0iIzk0YTNiOCIvPgogIDx0ZXh0IGNsYXNzPSJ0IiB4PSIzNjAiIHk9IjIxNyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzBmMTcyYSI+UGVyc2lzdCArIHJlY29uY2lsZTwvdGV4dD4KICA8dGV4dCBjbGFzcz0icyIgeD0iMzYwIiB5PSIyMzMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM0NzU1NjkiPnNhdmVzICZhbXA7IHN1cGVyc2VkZXMgZmFjdHM8L3RleHQ+CgogIDx0ZXh0IGNsYXNzPSJhcnIiIHg9IjQ3NSIgeT0iNTciIHRleHQtYW5jaG9yPSJtaWRkbGUiPiYjODU5NDs8L3RleHQ+CgogIDwhLS0gT3JhY2xlIEFnZW50IE1lbW9yeSAoY29yYWwpIC0tPgogIDxyZWN0IHg9IjQ4NCIgeT0iMzYiIHdpZHRoPSIyMTIiIGhlaWdodD0iMzAiIHJ4PSI4IiBmaWxsPSIjZmZlNGU2IiBzdHJva2U9IiNmYjcxODUiLz4KICA8dGV4dCBjbGFzcz0iaCIgeD0iNTkwIiB5PSI1NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzlmMTIzOSI+T3JhY2xlIEFnZW50IE1lbW9yeTwvdGV4dD4KICA8cmVjdCB4PSI0ODQiIHk9IjgwIiB3aWR0aD0iMjEyIiBoZWlnaHQ9IjQ2IiByeD0iOCIgZmlsbD0iI2ZmZjFmMiIgc3Ryb2tlPSIjZmI3MTg1Ii8+CiAgPHRleHQgY2xhc3M9InQiIHg9IjU5MCIgeT0iMTAxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWYxMjM5Ij5PcmFjbGUgQUkgRGF0YWJhc2U8L3RleHQ+CiAgPHRleHQgY2xhc3M9InMiIHg9IjU5MCIgeT0iMTE3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjYmUxMjNjIj5zdG9yZXMgZXZlcnkgcmVjb3JkPC90ZXh0PgogIDxyZWN0IHg9IjQ4NCIgeT0iMTM4IiB3aWR0aD0iMjEyIiBoZWlnaHQ9IjQ2IiByeD0iOCIgZmlsbD0iI2ZmZjFmMiIgc3Ryb2tlPSIjZmI3MTg1Ii8+CiAgPHRleHQgY2xhc3M9InQiIHg9IjU5MCIgeT0iMTU5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWYxMjM5Ij5GYWN0IGV4dHJhY3Rpb248L3RleHQ+CiAgPHRleHQgY2xhc3M9InMiIHg9IjU5MCIgeT0iMTc1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjYmUxMjNjIj5kaXN0aWxscyBkdXJhYmxlIGZhY3RzPC90ZXh0PgogIDxyZWN0IHg9IjQ4NCIgeT0iMTk2IiB3aWR0aD0iMjEyIiBoZWlnaHQ9IjQ2IiByeD0iOCIgZmlsbD0iI2ZmZjFmMiIgc3Ryb2tlPSIjZmI3MTg1Ii8+CiAgPHRleHQgY2xhc3M9InQiIHg9IjU5MCIgeT0iMjE3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWYxMjM5Ij5WZWN0b3IgcmVjYWxsPC90ZXh0PgogIDx0ZXh0IGNsYXNzPSJzIiB4PSI1OTAiIHk9IjIzMyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2JlMTIzYyI+c2VtYW50aWMgc2VhcmNoPC90ZXh0PgoKICA8bGluZSB4MT0iMjQiIHkxPSIyNjIiIHgyPSI2OTYiIHkyPSIyNjIiIHN0cm9rZT0iI2U1ZTdlYiIvPgogIDx0ZXh0IGNsYXNzPSJjYXB0aXRsZSIgeD0iMjQiIHk9IjI4NSIgdGV4dC1hbmNob3I9InN0YXJ0Ij5Ib3cgb25lIHR1cm4gZmxvd3M8L3RleHQ+CiAgPHRleHQgY2xhc3M9ImNhcCIgeD0iMjQiIHk9IjMwNyIgdGV4dC1hbmNob3I9InN0YXJ0Ij4mIzkzMTI7IHJlY2FsbCAmIzgyMTI7IENvcGlsb3RLaXQgJiM4NTk0OyBhZ2VudCAmIzg1OTQ7IE9yYWNsZSwgdGhlbiBnZW5lcmF0aXZlIFVJIHN0cmVhbXMgYmFjayB0byBjaGF0PC90ZXh0PgogIDx0ZXh0IGNsYXNzPSJjYXAiIHg9IjI0IiB5PSIzMjkiIHRleHQtYW5jaG9yPSJzdGFydCI+JiM5MzEzOyBwZXJzaXN0ICYjODIxMjsgYWZ0ZXIgdGhlIHR1cm4sIHRoZSBhZ2VudCBzYXZlcyBpdDsgT3JhY2xlIGV4dHJhY3RzIGFuZCBzdXBlcnNlZGVzIGZhY3RzPC90ZXh0Pgo8L3N2Zz4K" />
+<img alt="技术栈中的记忆职责划分：CopilotKit 负责聊天 UI 与线程、AG-UI 传输层以及生成式 UI；你的智能体代码是衔接层——LangGraph 上的 Agent Spec、recall_memory 工具以及持久化加对账；Oracle Agent Memory 负责 Oracle AI Database、事实抽取与向量召回。" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzIwIiBoZWlnaHQ9IjM2MCIgdmlld0JveD0iMCAwIDcyMCAzNjAiIHJvbGU9ImltZyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8dGl0bGU+V2hhdCBDb3BpbG90S2l0IG93bnMgdmVyc3VzIHdoYXQgT3JhY2xlIG93bnMgaW4gdGhlIG1lbW9yeSBmZWF0dXJlPC90aXRsZT4KICA8ZGVzYz5UaHJlZSBjb2x1bW5zLiBDb3BpbG90S2l0IG93bnMgdGhlIGNoYXQgVUkgYW5kIHRocmVhZHMsIHRoZSBBRy1VSSB0cmFuc3BvcnQsIGFuZCB0aGUgZ2VuZXJhdGl2ZSBVSS4gWW91ciBhZ2VudCBjb2RlIGlzIHRoZSBzZWFtOiBBZ2VudCBTcGVjIG9uIExhbmdHcmFwaCwgdGhlIHJlY2FsbF9tZW1vcnkgdG9vbCwgYW5kIHBlcnNpc3QgcGx1cyByZWNvbmNpbGUuIE9yYWNsZSBBZ2VudCBNZW1vcnkgb3ducyB0aGUgT3JhY2xlIEFJIERhdGFiYXNlIHN0b3JhZ2UsIGZhY3QgZXh0cmFjdGlvbiwgYW5kIHZlY3RvciByZWNhbGwuIEEgdHVybiBmbG93cyBsZWZ0IHRvIHJpZ2h0IHRvIHJlY2FsbCwgdGhlbiB0aGUgYWdlbnQgcGVyc2lzdHMgYmFjayB0byBPcmFjbGUgYWZ0ZXIgdGhlIHR1cm4uPC9kZXNjPgogIDxzdHlsZT4KICAgIHRleHQgeyBmb250LWZhbWlseTogLWFwcGxlLXN5c3RlbSwgQmxpbmtNYWNTeXN0ZW1Gb250LCAiU2Vnb2UgVUkiLCBSb2JvdG8sIEhlbHZldGljYSwgQXJpYWwsIHNhbnMtc2VyaWY7IH0KICAgIC5oIHsgZm9udC1zaXplOiAxNHB4OyBmb250LXdlaWdodDogNTAwOyB9CiAgICAudCB7IGZvbnQtc2l6ZTogMTRweDsgZm9udC13ZWlnaHQ6IDUwMDsgfQogICAgLnMgeyBmb250LXNpemU6IDEycHg7IGZvbnQtd2VpZ2h0OiA0MDA7IH0KICAgIC5jYXAgeyBmb250LXNpemU6IDEyLjVweDsgZmlsbDogIzQ3NTU2OTsgfQogICAgLmNhcHRpb24geyBmb250LXNpemU6IDEzcHg7IGZvbnQtd2VpZ2h0OiA1MDA7IGZpbGw6ICMwZjE3MmE7IH0KICAgIC5hcnIgeyBmb250LXNpemU6IDE2cHg7IGZpbGw6ICM5NGEzYjg7IH0KICA8L3N0eWxlPgoKICA8cmVjdCB4PSIwLjUiIHk9IjAuNSIgd2lkdGg9IjcxOSIgaGVpZ2h0PSIzNTkiIHJ4PSIxNCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZTVlN2ViIi8+CgogIDwhLS0gQ29waWxvdEtpdCAoYmx1ZSkgLS0+CiAgPHJlY3QgeD0iMjQiIHk9IjM2IiB3aWR0aD0iMjEyIiBoZWlnaHQ9IjMwIiByeD0iOCIgZmlsbD0iI2RiZWFmZSIgc3Ryb2tlPSIjM2I4MmY2Ii8+CiAgPHRleHQgY2xhc3M9ImgiIHg9IjEzMCIgeT0iNTYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMxZTNhOGEiPkNvcGlsb3RLaXQ8L3RleHQ+CiAgPHJlY3QgeD0iMjQiIHk9IjgwIiB3aWR0aD0iMjEyIiBoZWlnaHQ9IjQ2IiByeD0iOCIgZmlsbD0iI2VmZjZmZiIgc3Ryb2tlPSIjM2I4MmY2Ii8+CiAgPHRleHQgY2xhc3M9InQiIHg9IjEzMCIgeT0iMTAxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMWUzYThhIj5DaGF0IFVJICZhbXA7IHRocmVhZHM8L3RleHQ+CiAgPHRleHQgY2xhc3M9InMiIHg9IjEzMCIgeT0iMTE3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMWQ0ZWQ4Ij50aGUgY29udmVyc2F0aW9uIHN1cmZhY2U8L3RleHQ+CiAgPHJlY3QgeD0iMjQiIHk9IjEzOCIgd2lkdGg9IjIxMiIgaGVpZ2h0PSI0NiIgcng9IjgiIGZpbGw9IiNlZmY2ZmYiIHN0cm9rZT0iIzNiODJmNiIvPgogIDx0ZXh0IGNsYXNzPSJ0IiB4PSIxMzAiIHk9IjE1OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzFlM2E4YSI+QUctVUkgdHJhbnNwb3J0PC90ZXh0PgogIDx0ZXh0IGNsYXNzPSJzIiB4PSIxMzAiIHk9IjE3NSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzFkNGVkOCI+c3RyZWFtcyBvdmVyIFNTRTwvdGV4dD4KICA8cmVjdCB4PSIyNCIgeT0iMTk2IiB3aWR0aD0iMjEyIiBoZWlnaHQ9IjQ2IiByeD0iOCIgZmlsbD0iI2VmZjZmZiIgc3Ryb2tlPSIjM2I4MmY2Ii8+CiAgPHRleHQgY2xhc3M9InQiIHg9IjEzMCIgeT0iMjE3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMWUzYThhIj5HZW5lcmF0aXZlIFVJPC90ZXh0PgogIDx0ZXh0IGNsYXNzPSJzIiB4PSIxMzAiIHk9IjIzMyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzFkNGVkOCI+Y2hpcHMsIGNhcmRzLCBISVRMPC90ZXh0PgoKICA8dGV4dCBjbGFzcz0iYXJyIiB4PSIyNDUiIHk9IjU3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4mIzg1OTQ7PC90ZXh0PgoKICA8IS0tIFlvdXIgYWdlbnQgY29kZSAoc2xhdGUpIC0tPgogIDxyZWN0IHg9IjI1NCIgeT0iMzYiIHdpZHRoPSIyMTIiIGhlaWdodD0iMzAiIHJ4PSI4IiBmaWxsPSIjZTJlOGYwIiBzdHJva2U9IiM5NGEzYjgiLz4KICA8dGV4dCBjbGFzcz0iaCIgeD0iMzYwIiB5PSI1NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzBmMTcyYSI+WW91ciBhZ2VudCBjb2RlPC90ZXh0PgogIDxyZWN0IHg9IjI1NCIgeT0iODAiIHdpZHRoPSIyMTIiIGhlaWdodD0iNDYiIHJ4PSI4IiBmaWxsPSIjZjFmNWY5IiBzdHJva2U9IiM5NGEzYjgiLz4KICA8dGV4dCBjbGFzcz0idCIgeD0iMzYwIiB5PSIxMDEiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiMwZjE3MmEiPkFnZW50IFNwZWMgKyBMYW5nR3JhcGg8L3RleHQ+CiAgPHRleHQgY2xhc3M9InMiIHg9IjM2MCIgeT0iMTE3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNDc1NTY5Ij5kZWNpZGVzIHdoZW4gdG8gcmVjYWxsPC90ZXh0PgogIDxyZWN0IHg9IjI1NCIgeT0iMTM4IiB3aWR0aD0iMjEyIiBoZWlnaHQ9IjQ2IiByeD0iOCIgZmlsbD0iI2YxZjVmOSIgc3Ryb2tlPSIjOTRhM2I4Ii8+CiAgPHRleHQgY2xhc3M9InQiIHg9IjM2MCIgeT0iMTU5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMGYxNzJhIj5yZWNhbGxfbWVtb3J5IHRvb2w8L3RleHQ+CiAgPHRleHQgY2xhc3M9InMiIHg9IjM2MCIgeT0iMTc1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjNDc1NTY5Ij5xdWVyaWVzIE9yYWNsZSwgZmlsdGVyczwvdGV4dD4KICA8cmVjdCB4PSIyNTQiIHk9IjE5NiIgd2lkdGg9IjIxMiIgaGVpZ2h0PSI0NiIgcng9IjgiIGZpbGw9IiNmMWY1ZjkiIHN0cm9rZT0iIzk0YTNiOCIvPgogIDx0ZXh0IGNsYXNzPSJ0IiB4PSIzNjAiIHk9IjIxNyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzBmMTcyYSI+UGVyc2lzdCArIHJlY29uY2lsZTwvdGV4dD4KICA8dGV4dCBjbGFzcz0icyIgeD0iMzYwIiB5PSIyMzMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM0NzU1NjkiPnNhdmVzICZhbXA7IHN1cGVyc2VkZXMgZmFjdHM8L3RleHQ+CgogIDx0ZXh0IGNsYXNzPSJhcnIiIHg9IjQ3NSIgeT0iNTciIHRleHQtYW5jaG9yPSJtaWRkbGUiPiYjODU5NDs8L3RleHQ+CgogIDwhLS0gT3JhY2xlIEFnZW50IE1lbW9yeSAoY29yYWwpIC0tPgogIDxyZWN0IHg9IjQ4NCIgeT0iMzYiIHdpZHRoPSIyMTIiIGhlaWdodD0iMzAiIHJ4PSI4IiBmaWxsPSIjZmZlNGU2IiBzdHJva2U9IiNmYjcxODUiLz4KICA8dGV4dCBjbGFzcz0iaCIgeD0iNTkwIiB5PSI1NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzlmMTIzOSI+T3JhY2xlIEFnZW50IE1lbW9yeTwvdGV4dD4KICA8cmVjdCB4PSI0ODQiIHk9IjgwIiB3aWR0aD0iMjEyIiBoZWlnaHQ9IjQ2IiByeD0iOCIgZmlsbD0iI2ZmZjFmMiIgc3Ryb2tlPSIjZmI3MTg1Ii8+CiAgPHRleHQgY2xhc3M9InQiIHg9IjU5MCIgeT0iMTAxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWYxMjM5Ij5PcmFjbGUgQUkgRGF0YWJhc2U8L3RleHQ+CiAgPHRleHQgY2xhc3M9InMiIHg9IjU5MCIgeT0iMTE3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjYmUxMjNjIj5zdG9yZXMgZXZlcnkgcmVjb3JkPC90ZXh0PgogIDxyZWN0IHg9IjQ4NCIgeT0iMTM4IiB3aWR0aD0iMjEyIiBoZWlnaHQ9IjQ2IiByeD0iOCIgZmlsbD0iI2ZmZjFmMiIgc3Ryb2tlPSIjZmI3MTg1Ii8+CiAgPHRleHQgY2xhc3M9InQiIHg9IjU5MCIgeT0iMTU5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWYxMjM5Ij5GYWN0IGV4dHJhY3Rpb248L3RleHQ+CiAgPHRleHQgY2xhc3M9InMiIHg9IjU5MCIgeT0iMTc1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjYmUxMjNjIj5kaXN0aWxscyBkdXJhYmxlIGZhY3RzPC90ZXh0PgogIDxyZWN0IHg9IjQ4NCIgeT0iMTk2IiB3aWR0aD0iMjEyIiBoZWlnaHQ9IjQ2IiByeD0iOCIgZmlsbD0iI2ZmZjFmMiIgc3Ryb2tlPSIjZmI3MTg1Ii8+CiAgPHRleHQgY2xhc3M9InQiIHg9IjU5MCIgeT0iMjE3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWYxMjM5Ij5WZWN0b3IgcmVjYWxsPC90ZXh0PgogIDx0ZXh0IGNsYXNzPSJzIiB4PSI1OTAiIHk9IjIzMyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2JlMTIzYyI+c2VtYW50aWMgc2VhcmNoPC90ZXh0PgoKICA8bGluZSB4MT0iMjQiIHkxPSIyNjIiIHgyPSI2OTYiIHkyPSIyNjIiIHN0cm9rZT0iI2U1ZTdlYiIvPgogIDx0ZXh0IGNsYXNzPSJjYXB0aW9uIiB4PSIyNCIgeT0iMjg1IiB0ZXh0LWFuY2hvcj0ic3RhcnQiPkhvdyBvbmUgdHVybiBmbG93czwvdGV4dD4KICA8dGV4dCBjbGFzcz0iY2FwIiB4PSIyNCIgeT0iMzA3IiB0ZXh0LWFuY2hvcj0ic3RhcnQiPiYjOTMxMjsgcmVjYWxsICYjODIxMjsgQ29waWxvdEtpdCAmIzg1OTQ7IGFnZW50ICYjODU5NDsgT3JhY2xlLCB0aGVuIGdlbmVyYXRpdmUgVUkgc3RyZWFtcyBiYWNrIHRvIGNoYXQ8L3RleHQ+CiAgPHRleHQgY2xhc3M9ImNhcCIgeD0iMjQiIHk9IjMyOSIgdGV4dC1hbmNob3I9InN0YXJ0Ij4mIzkzMTM7IHBlcnNpc3QgJiM4MjEyOyBhZnRlciB0aGUgdHVybiwgdGhlIGFnZW50IHNhdmVzIGl0OyBPcmFjbGUgZXh0cmFjdHMgYW5kIHN1cGVyc2VkZXMgZmFjdHM8L3RleHQ+Cjwvc3ZnPgo=" />
 
-Oracle does the remembering, CopilotKit does the conversing, and your agent code is the seam between them. CopilotKit never touches the database — to it, `recall_memory` is just a tool that returns text — and Oracle never sees the chat protocol. Swap Oracle for another store and the frontend doesn't change a line.
+记忆由 Oracle 负责，对话由 CopilotKit 负责，你的智能体代码则是二者之间的衔接层。CopilotKit 从不接触数据库——对它而言，`recall_memory` 只是一个返回文本的工具——而 Oracle 也从不感知聊天协议。把 Oracle 换成其他存储，前端一行代码都不用改。
 
-## Try it live
+## 在线体验
 
-Talk to the concierge below. Tell it a travel preference, then open a
-**new thread** with **"+ New thread"** and ask about your preferences again — it
-recalls what you told it from memory persisted in Oracle AI Database, not from
-the current conversation.
+在下方与礼宾助手对话。告诉它一条你的旅行偏好，然后点击 **“+ 新建线程”** 打开一个**新线程**，再次询问你的偏好——它回忆起的内容来自持久化在 Oracle AI Database 中的记忆，而不是当前对话。
 
 <iframe
   src="https://showcase-oracle-agent-memory-production.up.railway.app"
-  title="Oracle Agent Spec × Memory live demo"
+  title="Oracle Agent Spec × Memory 在线演示"
   className="w-full h-[480px] sm:h-[600px] block rounded-xl border border-[var(--border)]"
 />
 
-## Prerequisites
+## 前置条件
 
-- **Python 3.12** (required — `oracleagentmemory` ships a cp312 wheel), [`uv`](https://docs.astral.sh/uv/), Node.js 20+
-- Docker (for the local Oracle AI Database) or your own Oracle AI Database
-- `OPENAI_API_KEY` (defaults use OpenAI via litellm)
+- **Python 3.12**（必需——`oracleagentmemory` 提供 cp312 wheel）、[`uv`](https://docs.astral.sh/uv/)、Node.js 20+
+- Docker（用于本地 Oracle AI Database），或使用你自己的 Oracle AI Database
+- `OPENAI_API_KEY`（默认配置通过 litellm 使用 OpenAI）
 
-<Callout type="warning" title="Pre-release dependencies">
-This frontend uses CopilotKit **V2** pre-release builds so Agent Spec's human-in-the-loop renders, and the `ag_ui_agentspec` adapter is installed from the `ag-ui` repo (not PyPI). Both are pinned in the manifests.
+<Callout type="warning" title="预发布依赖">
+该前端使用 CopilotKit **V2** 预发布版本，Agent Spec 的人机协同才能正常渲染；`ag_ui_agentspec` 适配器则安装自 `ag-ui` 仓库（而非 PyPI）。两者都已在清单文件中固定版本。
 </Callout>
 
-## Start the database and run the agent
+## 启动数据库并运行智能体
 
 ```bash
 git clone https://github.com/CopilotKit/CopilotKit.git
 cd CopilotKit/examples/showcases/oracle-agent-memory
 
-docker compose up -d                 # wait for "DATABASE IS READY TO USE"
-./db/setup-db.sh                     # create the cookbook DB user (idempotent)
+docker compose up -d                 # 等待出现 "DATABASE IS READY TO USE"
+./db/setup-db.sh                     # 创建示例集的数据库用户 (幂等)
 
 cd agent
-cp .env.example .env                 # add your OPENAI_API_KEY
+cp .env.example .env                 # 填入你的 OPENAI_API_KEY
 uv sync
 uv run uvicorn concierge.server:app --reload --port 8000
 ```
 
-## Run the frontend
+## 运行前端
 
 ```bash
 cd frontend
-cp .env.local.example .env.local     # optional; defaults to localhost:8000/run
+cp .env.local.example .env.local     # 可选; 默认指向 localhost:8000/run
 npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+打开 `http://localhost:3000`。
 
-## Try it
+## 试一试
 
-**Frontend at a glance:** the left panel lists your conversation threads with a **"+ New thread"** button. `search_flights` renders interactive flight-option cards with a **"Select this flight"** button, `recall_memory` shows a **"🧠 Remembered your preferences"** chip you can click to expand and see exactly which preferences it pulled, and booking surfaces a **"Confirm your booking"** card (Confirm / Cancel) that stamps into a **boarding-pass ticket** once confirmed.
+**前端一览**：左侧面板列出你的会话线程，并带有 **“+ 新建线程”** 按钮。`search_flights` 会渲染可交互的航班选项卡片，附有 **“选择此航班”** 按钮；`recall_memory` 会显示一枚 **“🧠 已记住你的偏好”** 徽标，点击即可展开，查看它究竟提取了哪些偏好；预订则会弹出 **“确认你的预订”** 卡片（确认 / 取消），确认后会盖印成一张**登机牌票券**。
 
-1. Tell it: *"I'm vegetarian, I fly from SFO, and I prefer an aisle seat."*
-2. Click **"+ New thread"** in the sidebar (instead of reloading), then ask: *"Find me a flight to Amsterdam."*
-3. It recalls your preferences from Oracle — home airport SFO, aisle seat, vegetarian meal — and surfaces flights like **AMS-001 (KLM KL606, nonstop, $740)** personalized to what it remembered, not what you said in this thread.
+1. 告诉它：*“我吃素，从 SFO 出发，喜欢靠过道的座位。”*
+2. 在侧边栏点击 **“+ 新建线程”**（而不是刷新页面），然后问：*“帮我找一趟去阿姆斯特丹的航班。”*
+3. 它从 Oracle 中召回你的偏好——出发机场 SFO、靠过道座位、素食餐——并据此给出 **AMS-001（KLM KL606，直飞，$740）** 等航班，个性化依据是它记住的内容，而不是你在本线程里说过的话。
 
-**Book it:** select a flight from the cards (or ask *"Book me flight AMS-001 to Amsterdam"*), then click **Confirm &amp; book** on the confirmation card to receive the boarding pass. `book_flight` is implemented as a CopilotKit **ClientTool** (`useHumanInTheLoop`) executed on the frontend, so the confirm→book step resolves within a single agent run. Follow-up messages in the same thread work too — search, pick, confirm, and keep chatting (see the note below).
+**完成预订**：从卡片中选择一个航班（或直接说 *“帮我预订飞往阿姆斯特丹的 AMS-001 航班”*），然后点击确认卡片上的 **确认并预订**，即可收到登机牌。`book_flight` 被实现为在前端执行的 CopilotKit **ClientTool**（`useHumanInTheLoop`），因此“确认→预订”这一步会在单次智能体运行内完成。同一线程中的后续消息也没问题——搜索、挑选、确认，然后继续聊（见下方说明）。
 
-<Callout type="info" title="Recall is eventually consistent">
-Memory is written and indexed asynchronously, so a fact you just taught becomes recallable after a brief delay (typically seconds). In a normal "come back later" session that delay is invisible; only a teach-then-ask within the same few seconds can outrun indexing.
+<Callout type="info" title="召回是最终一致的">
+记忆的写入与索引是异步进行的，因此你刚教给它的事实要经过短暂延迟（通常几秒）才能被召回。在正常的“稍后再来”式会话中，这一延迟完全无感；只有在几秒之内“先教后问”才可能跑赢索引速度。
 </Callout>
 
-<Callout type="info" title="Multi-turn works via a server-side workaround">
-Follow-ups after a server-tool call would otherwise hit an upstream Agent Spec × AG-UI adapter bug (`tool_call_id` correlation) that corrupts the replayed history and 400s on the next turn. The cookbook works around it in `agent/concierge/server.py` by replacing the adapter's incremental message merge with a full-history *replace* each turn, so multi-turn conversations — and the confirm→book human-in-the-loop — work end to end. The **"+ New thread"** step above proves cross-session recall (memory is user-scoped, so a fresh thread still remembers you) — not a workaround for broken follow-ups. Details + the upstream fix we're tracking: [`agentspec-multiturn-toolcall-correlation`](https://github.com/CopilotKit/CopilotKit/blob/main/examples/showcases/oracle-agent-memory/docs/known-issues/agentspec-multiturn-toolcall-correlation.md).
+<Callout type="info" title="多轮对话依赖服务端变通方案">
+在服务端工具调用之后继续追问，原本会触发上游 Agent Spec × AG-UI 适配器的一个 bug（`tool_call_id` 关联问题），破坏重放的历史记录并导致下一轮返回 400 错误。本示例在 `agent/concierge/server.py` 中绕过了它：每一轮都用完整历史的*整体替换*取代适配器的增量消息合并，从而使多轮对话——以及“确认→预订”的人机协同——能够端到端地正常工作。上文的 **“+ 新建线程”** 步骤验证的是跨会话召回（记忆按用户维度隔离，因此新线程依然记得你），并不是为追问功能缺陷打的补丁。详情与我们正在跟进的上游修复：[`agentspec-multiturn-toolcall-correlation`](https://github.com/CopilotKit/CopilotKit/blob/main/examples/showcases/oracle-agent-memory/docs/known-issues/agentspec-multiturn-toolcall-correlation.md)。
 </Callout>
 
-## The key pieces, in code
+## 关键代码解析
 
-Memory recall is exposed as an Agent Spec `ServerTool`, so the portable spec itself declares the capability; `book_flight` is a CopilotKit **ClientTool** so the confirmation card is rendered on the frontend via `useHumanInTheLoop` and the entire flow completes in a single agent run:
+记忆召回以 Agent Spec `ServerTool` 的形式暴露，因此可移植的规格本身就声明了这一能力；`book_flight` 则是 CopilotKit **ClientTool**，确认卡片通过 `useHumanInTheLoop` 在前端渲染，整个流程在单次智能体运行内完成：
 
 ```python title="agent/concierge/tools.py"
 book_flight_tool = ClientTool(
@@ -114,7 +111,7 @@ book_flight_tool = ClientTool(
 )
 ```
 
-The agent is defined once and serialized to portable JSON:
+智能体只定义一次，并序列化为可移植的 JSON：
 
 ```python title="agent/concierge/agent.py"
 return Agent(
@@ -126,17 +123,17 @@ return Agent(
 )
 ```
 
-The adapter has no post-run hook, so the server persists each turn to Oracle Agent Memory after the AG-UI stream drains (see `agent/concierge/server.py`).
+适配器没有运行后钩子，因此服务端在 AG-UI 流结束后，把每一轮写入 Oracle Agent Memory（见 `agent/concierge/server.py`）。
 
-## Going further
+## 进一步探索
 
-- **Per-user memory** — the cookbook defaults to a single `demo-user`. The stock adapter does not forward `forwarded_props`, so scope `user_id` via a FastAPI dependency / ContextVar (see `agent/concierge/tools.py`).
-- **Swap the runtime** — Agent Spec's adapter also supports Oracle's WayFlow runtime; the same spec runs on either.
-- **Memory reconciliation** — after each turn a small LLM pass (`reconcile_durable_memories` in `agent/concierge/reconcile.py`) prunes outdated or duplicate durable facts so an updated preference supersedes the old one on recall. Swap in your own policy (e.g. keep history, or reconcile on a schedule).
+- **按用户隔离记忆**——示例默认只使用单个 `demo-user`。原版适配器不会转发 `forwarded_props`，因此需要通过 FastAPI dependency / ContextVar 来界定 `user_id`（见 `agent/concierge/tools.py`）。
+- **更换运行时**——Agent Spec 的适配器同样支持 Oracle 的 WayFlow 运行时；同一份规格可在两者之上运行。
+- **记忆对账**——每轮结束后，一个轻量 LLM 步骤（`agent/concierge/reconcile.py` 中的 `reconcile_durable_memories`）会清理过时或重复的持久化事实，使更新后的偏好在召回时取代旧值。可以换成你自己的策略（例如保留历史，或按计划定期对账）。
 
-## Get started with a coding agent
+## 使用编码智能体开始构建
 
-Want to build this yourself? Paste this into your coding agent (Claude Code, Cursor, …):
+想自己动手构建？把下面这段话粘贴到你的编码智能体（Claude Code、Cursor 等）中：
 
 ```text
 Build a CopilotKit chat backed by a portable Oracle Agent Spec agent with
@@ -164,6 +161,6 @@ long-term memory on Oracle AI Database. Requirements:
 Walk me through it step by step, starting with the agent.
 ```
 
-## Get the code
+## 获取代码
 
-Full source: [`examples/showcases/oracle-agent-memory`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/oracle-agent-memory) — `agent/` (the Agent Spec agent) and `frontend/` (the CopilotKit V2 chat).
+完整源码:[`examples/showcases/oracle-agent-memory`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/oracle-agent-memory)——`agent/`（Agent Spec 智能体）与 `frontend/`（CopilotKit V2 聊天界面）。

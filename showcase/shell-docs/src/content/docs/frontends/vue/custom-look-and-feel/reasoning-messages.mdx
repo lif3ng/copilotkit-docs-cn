@@ -1,50 +1,45 @@
 ---
-title: Reasoning Messages
+title: 推理消息
 icon: "lucide/Brain"
-description: Customize the Vue display for reasoning messages emitted by an agent.
+description: 自定义智能体发出的推理消息在 Vue 中的展示方式。
 ---
 
-Some models emit reasoning tokens before their final response. CopilotKit
-surfaces the corresponding AG-UI reasoning messages automatically with a
-collapsible `CopilotChatReasoningMessage` card.
+一些模型会在给出最终回答之前先输出推理 token。CopilotKit 会通过一张可折叠的 `CopilotChatReasoningMessage` 卡片，自动呈现对应的 AG-UI 推理消息。
 
-## Default Behavior
+## 默认行为
 
-When reasoning events arrive, the built-in Vue card:
+当推理事件到达时，内置的 Vue 卡片会：
 
-- Shows **Thinking…** with a pulsating indicator while reasoning is active.
-- Expands automatically while the latest reasoning message streams.
-- Collapses and switches to **Thought for X seconds** when streaming finishes.
-- Renders the content as Markdown.
-- Provides a chevron toggle so the user can review the content later.
+- 在推理进行时显示 **Thinking…** 并伴有脉动指示器。
+- 在最新一条推理消息流式输出的过程中自动展开。
+- 流式输出结束后折叠，并切换为 **Thought for X seconds**。
+- 将内容渲染为 Markdown。
+- 提供一个箭头切换按钮，方便用户之后回看内容。
 
-No extra chat prop is required. If the selected agent emits reasoning
-messages, the default message view renders them.
+不需要额外的聊天 prop。只要所选智能体会发出推理消息，默认消息视图就会渲染它们。
 
-## Customizing the Reasoning Message
+## 自定义推理消息
 
-Compose a custom reasoning leaf in the `reasoning-message` slot of
-`CopilotChatMessageView`. The leaf itself provides scoped `header`,
-`content-view`, `toggle`, and `layout` slots.
+在 `CopilotChatMessageView` 的 `reasoning-message` 插槽中组合自定义的推理叶子组件。该叶子组件本身提供 `header`、`content-view`、`toggle` 和 `layout` 这几个作用域插槽。
 
-| Sub-component | Vue slot | Description |
+| 子组件 | Vue 插槽 | 说明 |
 | --- | --- | --- |
-| Header | `header` | Clickable bar with label and expand/collapse action. |
-| Content | `content-view` | Raw reasoning content and streaming state. |
-| Toggle | `toggle` | Expand/collapse wrapper data. |
-| Complete layout | `layout` | All message and subcomponent state for a full rearrangement. |
+| 头部 | `header` | 可点击的条，包含标签与展开/折叠操作。 |
+| 内容 | `content-view` | 原始推理内容与流式状态。 |
+| 切换 | `toggle` | 展开/折叠的包装数据。 |
+| 完整布局 | `layout` | 全部消息与子组件状态，可用于彻底重排。 |
 
-### Custom Header
+### 自定义头部
 
-Replace the header to change its icon, label, or styling. It receives:
+替换头部即可更改其图标、标签或样式。它会收到：
 
-| Prop | Type | Description |
+| Prop | 类型 | 说明 |
 | --- | --- | --- |
-| `isOpen` | `boolean` | Whether the content is expanded. |
-| `label` | `string` | `Thinking…` while streaming, then `Thought for X seconds`. |
-| `hasContent` | `boolean` | Whether reasoning text has arrived. |
-| `isStreaming` | `boolean` | Whether this latest reasoning message is streaming. |
-| `onClick` | `() => void` or `undefined` | Toggle action, present only when content exists. |
+| `isOpen` | `boolean` | 内容是否处于展开状态。 |
+| `label` | `string` | 流式输出期间为 `Thinking…`，结束后为 `Thought for X seconds`。 |
+| `hasContent` | `boolean` | 是否已收到推理文本。 |
+| `isStreaming` | `boolean` | 最新一条推理消息是否正在流式输出。 |
+| `onClick` | `() => void` 或 `undefined` | 切换操作，仅在有内容时存在。 |
 
 ```vue title="ChatWithReasoning.vue"
 <script setup lang="ts">
@@ -81,13 +76,11 @@ import {
 </template>
 ```
 
-Keep `onClick` attached when replacing the header; it owns the open/close
-transition and is intentionally absent when there is nothing to reveal.
+替换头部时请保留 `onClick` 的绑定；它负责展开/收起的切换，并且在没有内容可展示时会有意缺失。
 
-### Custom Content
+### 自定义内容
 
-Replace only the content area when the default header and toggle behavior are
-correct but the body needs a different presentation:
+当默认头部和切换行为符合需求、只是正文需要不同的呈现方式时，只替换内容区即可：
 
 ```vue
 <CopilotChatReasoningMessage
@@ -103,20 +96,17 @@ correct but the body needs a different presentation:
 </CopilotChatReasoningMessage>
 ```
 
-The Vue slot uses `content` for the raw string; React's `children` prop is not
-part of this API.
+Vue 插槽用 `content` 表示原始字符串；React 的 `children` prop 不属于这个 API。
 
-## Fully Custom Reasoning Message
+## 完全自定义推理消息
 
-For complete control, replace `reasoning-message` without composing the
-built-in leaf. The slot receives the same top-level state as the default
-component:
+若要完全掌控，可以直接替换 `reasoning-message` 而不组合内置叶子组件。插槽收到的顶层状态与默认组件相同：
 
-| Prop | Type | Description |
+| Prop | 类型 | 说明 |
 | --- | --- | --- |
-| `message` | `ReasoningMessage` | Reasoning message; `.content` contains the text. |
-| `messages` | `Message[]` | All messages in the conversation. |
-| `isRunning` | `boolean` | Whether the agent is currently running. |
+| `message` | `ReasoningMessage` | 推理消息；`.content` 包含文本。 |
+| `messages` | `Message[]` | 会话中的全部消息。 |
+| `isRunning` | `boolean` | 智能体当前是否正在运行。 |
 
 ```vue
 <CopilotChatMessageView :messages="messages" :is-running="isRunning">
@@ -129,14 +119,11 @@ component:
 </CopilotChatMessageView>
 ```
 
-This replacement owns expansion, Markdown rendering, duration labels, and
-accessibility; none of the built-in card behavior is retained automatically.
+这种替换方式需要自行实现展开、Markdown 渲染、时长标签和无障碍访问；内置卡片的任何行为都不会自动保留。
 
-## Layout Slot
+## 布局插槽
 
-Vue does not use React's render-prop children pattern. The built-in reasoning
-leaf exposes a `layout` scoped slot with the message plus structured
-`header`, `contentView`, and `toggle` state:
+Vue 不使用 React 的 render-prop children 模式。内置推理叶子组件暴露了一个 `layout` 作用域插槽，其中包含消息以及结构化的 `header`、`contentView` 和 `toggle` 状态：
 
 ```vue
 <CopilotChatReasoningMessage
@@ -155,6 +142,4 @@ leaf exposes a `layout` scoped slot with the message plus structured
 </CopilotChatReasoningMessage>
 ```
 
-Use `layout` only when you need to rearrange the whole card. The narrower
-`header`, `content-view`, and `toggle` slots preserve more of the default
-structure and behavior.
+只有在需要重排整张卡片时才使用 `layout`。粒度更细的 `header`、`content-view` 和 `toggle` 插槽能保留更多默认的结构和行为。

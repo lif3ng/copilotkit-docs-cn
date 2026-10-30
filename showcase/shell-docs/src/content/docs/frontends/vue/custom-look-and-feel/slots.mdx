@@ -1,39 +1,28 @@
 ---
-title: Slots (Subcomponents)
+title: 插槽（子组件）
 icon: "lucide/Brush"
-description: Customize Vue chat surfaces with named and scoped slots.
+description: 通过具名插槽与作用域插槽自定义 Vue 聊天界面。
 ---
 
-## What is this?
+## 这是什么？
 
-Every CopilotKit Vue chat component is composed from named slots. Use them to
-replace one visible piece while retaining the runtime connection, reactive
-message state, streaming behavior, and the rest of the prebuilt surface.
+每个 CopilotKit Vue 聊天组件都由具名插槽组合而成。借助插槽，你可以只替换某个可见部分，同时保留运行时连接、响应式消息状态、流式行为以及预构建界面的其余部分。
 
-Vue offers three practical levels of slot customization:
+Vue 提供三个实用的插槽自定义层次：
 
-1. **Classes and attributes on public leaves** — compose a leaf such as
-   `CopilotChatMessageView` and pass `class` or other attributes to it.
-2. **Scoped-slot composition** — consume the slot's data and actions while
-   replacing only that part of the template.
-3. **Custom components** — render your own Vue component inside the slot.
+1. **在公开叶子组件上添加类和属性** —— 组合诸如 `CopilotChatMessageView` 这样的叶子组件，并向它传递 `class` 或其他属性。
+2. **作用域插槽组合** —— 消费插槽的数据与操作，同时只替换模板中的那一部分。
+3. **自定义组件** —— 在插槽内渲染你自己的 Vue 组件。
 
-Slots are recursive: a root `message-view` slot can render the public message
-view, whose `assistant-message` slot can render the public assistant leaf,
-whose `copy-button` slot can replace one toolbar control. This is Vue's native
-equivalent of the React slot-object hierarchy; React-style component or
-props-override objects are not Vue APIs.
+插槽是递归的：根级 `message-view` 插槽可以渲染公开的消息视图，后者的 `assistant-message` 插槽可以渲染公开的助手叶子组件，再后者的 `copy-button` 插槽可以替换工具栏上的一个控件。这是 React 插槽对象层级在 Vue 中的原生等价物；React 风格的 component 或 props 覆盖对象并不是 Vue 的 API。
 
-## What it looks like in code
+## 代码中的样子
 
-The examples below replace the same three surfaces as the root guide: the
-welcome screen, assistant message card, and input disclaimer.
+下面的示例替换与根指南相同的三个部分：欢迎页、助手消息卡片和输入免责声明。
 
-### Welcome screen slot
+### 欢迎页插槽
 
-The `welcome-screen` slot replaces the empty state shown before the first
-message. Its scoped props include the input and suggestion actions, so a custom
-screen can still submit a message through the existing chat:
+`welcome-screen` 插槽替换首条消息出现之前的空状态。它的作用域 props 包含输入与建议操作，因此自定义页面仍然可以通过现有聊天提交消息：
 
 ```vue title="SupportChat.vue"
 <script setup lang="ts">
@@ -54,11 +43,9 @@ import { CopilotChat } from "@copilotkit/vue/v2";
 </template>
 ```
 
-### Assistant message slot
+### 助手消息插槽
 
-Use the `message-view` slot to compose the public message leaf components,
-then customize their own slots or events. This keeps the component hierarchy
-and provider ancestry intact:
+使用 `message-view` 插槽组合公开的消息叶子组件，再自定义它们各自的插槽或事件。这样可以保持组件层级和 provider 祖先链完整：
 
 ```vue title="SupportChat.vue"
 <script setup lang="ts">
@@ -90,16 +77,11 @@ import {
 </template>
 ```
 
-The message components expose further named slots for user messages, assistant
-toolbars and buttons, tool calls, reasoning messages, and activity messages.
-For activity rendering, `CopilotChatMessageView` first looks for
-`activity-<activityType>`, then `activity-message`.
+这些消息组件还暴露了更多具名插槽，覆盖用户消息、助手工具栏与按钮、工具调用、推理消息和活动消息。在活动渲染方面，`CopilotChatMessageView` 会先查找 `activity-<activityType>`，再查找 `activity-message`。
 
-### Disclaimer slot
+### 免责声明插槽
 
-The input's `disclaimer` slot replaces the text below the composer while
-leaving the textarea, send button, attachments, and transcription controls
-alone:
+输入框的 `disclaimer` 插槽替换输入区下方的文字，而不动文本域、发送按钮、附件和语音转写控件：
 
 ```vue
 <CopilotChat>
@@ -113,11 +95,9 @@ alone:
 </CopilotChat>
 ```
 
-## Tailwind Classes
+## Tailwind 类
 
-Vue does not accept a Tailwind string in place of a slot. Add `class` to the
-public leaf you compose inside the scoped slot, or add classes to your own
-markup:
+Vue 不接受用 Tailwind 字符串代替插槽。请给作用域插槽内组合的公开叶子组件添加 `class`，或给你自己的标记添加类：
 
 ```vue
 <CopilotChat>
@@ -131,10 +111,9 @@ markup:
 </CopilotChat>
 ```
 
-## Props Override
+## Props 覆盖
 
-React's slot-object props override has no direct Vue equivalent. Bind props,
-listeners, and attributes to the public Vue leaf rendered inside the slot:
+React 的插槽对象 props 覆盖在 Vue 中没有直接等价物。请把 props、监听器和属性绑定到插槽内渲染的公开 Vue 叶子组件上：
 
 ```vue
 <CopilotChat>
@@ -148,10 +127,9 @@ listeners, and attributes to the public Vue leaf rendered inside the slot:
 </CopilotChat>
 ```
 
-## Custom Components
+## 自定义组件
 
-For full control, render your own component. It receives the scoped data you
-choose to pass through:
+若要完全掌控，就渲染你自己的组件。它会收到你选择透传的作用域数据：
 
 ```vue
 <CopilotChat>
@@ -161,17 +139,15 @@ choose to pass through:
 </CopilotChat>
 ```
 
-Once you replace a complete slot, your component owns that part's rendering.
-Compose public leaves when you want to preserve CopilotKit's default behavior.
+一旦替换了完整的插槽，该部分的渲染就完全由你的组件负责。想保留 CopilotKit 的默认行为时，请组合公开叶子组件。
 
-## Nested Slots (Drill-Down)
+## 嵌套插槽（逐层深入）
 
-Named slots nest through public Vue leaves instead of nested configuration
-objects.
+具名插槽通过公开 Vue 叶子组件实现嵌套，而不是嵌套的配置对象。
 
-### Two levels deep
+### 两层嵌套
 
-Override the assistant toolbar while keeping the default message renderer:
+在保留默认消息渲染器的同时覆盖助手工具栏：
 
 ```vue
 <CopilotChat>
@@ -189,9 +165,9 @@ Override the assistant toolbar while keeping the default message renderer:
 </CopilotChat>
 ```
 
-### Three levels deep
+### 三层嵌套
 
-Replace a specific toolbar button and keep its imperative action attached:
+替换某个具体的工具栏按钮，同时保留其命令式操作：
 
 ```vue
 <CopilotChatAssistantMessage v-bind="assistantProps">
@@ -201,9 +177,9 @@ Replace a specific toolbar button and keep its imperative action attached:
 </CopilotChatAssistantMessage>
 ```
 
-## Labels
+## 文案标签
 
-Use the `labels` prop on a prebuilt surface for text-only changes:
+只改文字时，使用预构建界面上的 `labels` prop：
 
 ```vue
 <CopilotChat
@@ -215,57 +191,50 @@ Use the `labels` prop on a prebuilt surface for text-only changes:
 />
 ```
 
-Use slots for structure and behavior, and labels for the existing user-facing
-copy.
+结构与行为用插槽，既有的面向用户文案用 labels。
 
-## Available Slots
+## 可用插槽
 
 ### `CopilotChat` / `CopilotSidebar` / `CopilotPopup`
 
-The chat surfaces expose these root slots. Most are scoped with the state and
-actions needed to preserve the default behavior:
+聊天界面暴露这些根级插槽。大多数插槽的作用域都带有维持默认行为所需的状态和操作：
 
-| Slot | Description |
+| 插槽 | 说明 |
 | --- | --- |
-| `chat-view` | Complete chat view, including message, input, suggestion, attachment, and transcription state. |
-| `message-view` | Message-list composition; receives `messages` and `isRunning`. |
-| `scroll-view` | Scroll container, scroll actions, suggestions, and bottom-button state. |
-| `input` | Composer state plus submit, stop, attachment, and transcription actions. |
-| `suggestion-view` | Suggestion collection, loading indexes, and selection action. |
-| `welcome-screen` | Initial empty state with input and suggestion data. |
-| `welcome-message` | Only the default welcome copy area. |
-| `interrupt` | A pending interrupt and its resolver. |
+| `chat-view` | 完整聊天视图，包含消息、输入、建议、附件与语音转写状态。 |
+| `message-view` | 消息列表组合；接收 `messages` 与 `isRunning`。 |
+| `scroll-view` | 滚动容器、滚动操作、建议与底部按钮状态。 |
+| `input` | 输入区状态，以及提交、停止、附件与语音转写操作。 |
+| `suggestion-view` | 建议集合、加载索引与选择操作。 |
+| `welcome-screen` | 初始空状态，带输入与建议数据。 |
+| `welcome-message` | 仅默认欢迎文案区域。 |
+| `interrupt` | 一个待处理中断及其解决器。 |
 
-`CopilotSidebar` and `CopilotPopup` additionally expose:
+`CopilotSidebar` 与 `CopilotPopup` 还额外暴露：
 
-| Slot | Description |
+| 插槽 | 说明 |
 | --- | --- |
-| `header` | Modal header with open state and close actions. |
-| `toggle-button` | Launcher with `isOpen`, `toggle`, `open`, and `close`. |
+| `header` | 弹层头部，带打开状态与关闭操作。 |
+| `toggle-button` | 启动按钮，带 `isOpen`、`toggle`、`open` 与 `close`。 |
 
 ### `CopilotChatMessageView`
 
-| Slot | Description |
+| 插槽 | 说明 |
 | --- | --- |
-| `assistant-message` | Assistant message plus the full message list and run state. |
-| `user-message` | User message. |
-| `reasoning-message` | Reasoning message plus message list and run state. |
-| `tool-call-<name>` | One named tool-call renderer. |
-| `tool-call` | Fallback tool-call renderer. |
-| `activity-<type>` | One named activity-message renderer. |
-| `activity-message` | Fallback activity-message renderer. |
-| `message-before` / `message-after` | Metadata-aware content around each message. |
-| `cursor` | Streaming cursor. |
+| `assistant-message` | 助手消息，附完整消息列表与运行状态。 |
+| `user-message` | 用户消息。 |
+| `reasoning-message` | 推理消息，附消息列表与运行状态。 |
+| `tool-call-<name>` | 单个具名工具调用渲染器。 |
+| `tool-call` | 兜底工具调用渲染器。 |
+| `activity-<type>` | 单个具名活动消息渲染器。 |
+| `activity-message` | 兜底活动消息渲染器。 |
+| `message-before` / `message-after` | 每条消息前后可感知元数据的内容。 |
+| `cursor` | 流式光标。 |
 
-### Public message and input leaves
+### 公开的消息与输入叶子组件
 
-- `CopilotChatAssistantMessage` exposes `layout`, `message-renderer`,
-  `tool-calls-view`, `toolbar`, `toolbar-items`, and individual copy,
-  feedback, read-aloud, and regenerate button slots.
-- `CopilotChatUserMessage` exposes `layout`, `message-renderer`, `toolbar`,
-  `toolbar-items`, copy/edit buttons, and branch navigation.
-- `CopilotChatInput` exposes `layout`, `text-area`, `disclaimer`,
-  `add-menu-button`, `audio-recorder`, and the send/transcription controls.
+- `CopilotChatAssistantMessage` 暴露 `layout`、`message-renderer`、`tool-calls-view`、`toolbar`、`toolbar-items`，以及复制、反馈、朗读和重新生成按钮各自的插槽。
+- `CopilotChatUserMessage` 暴露 `layout`、`message-renderer`、`toolbar`、`toolbar-items`、复制/编辑按钮和分支导航。
+- `CopilotChatInput` 暴露 `layout`、`text-area`、`disclaimer`、`add-menu-button`、`audio-recorder` 以及发送/语音转写控件。
 
-Use the narrowest slot that expresses the change. It preserves more built-in
-behavior and reduces the amount of state and accessibility wiring you own.
+选用能表达该改动的最小粒度插槽。这样可以保留更多内置行为，并减少你需要自行维护的状态和无障碍接线。

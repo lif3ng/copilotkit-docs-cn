@@ -1,7 +1,7 @@
 ---
-title: Frontend Tools
+title: 前端工具
 icon: "lucide/Wrench"
-description: Let your agent interact with and update your application's UI.
+description: 让你的智能体与你的应用 UI 交互并对其进行更新。
 snippet_cell: frontend-tools
 ---
 
@@ -11,46 +11,38 @@ import InspectorPaneFrontendTools from "@/snippets/shared/inspector/open-inspect
 
 <InspectorPaneFrontendTools components={props.components} />
 
-## What is this?
+## 这是什么？
 
-Frontend tools let your agent define and invoke client-side functions that run entirely in the user's browser. Because the handler executes on the frontend, it has direct access to component state, browser APIs, and any third-party UI library the page already uses. That's how an agent can "reach into" the app: update React state, trigger animations, read `localStorage`, pop a toast, or steer the user's view.
+前端工具让你的智能体能够定义并调用完全在用户浏览器中运行的客户端函数。由于处理函数在前端执行，它可以直接访问组件状态、浏览器 API，以及页面已在使用的任何第三方 UI 库。智能体就是这样“伸进”应用里的：更新 React 状态、触发动画、读取 `localStorage`、弹出 toast，或引导用户的视角。
 
-This page covers the "agent drives the UI" shape of frontend tools. The same primitive also powers Generative UI and Human-in-the-loop; see those pages for interaction patterns.
+本页介绍的是前端工具的“智能体驱动 UI”这一形态。同一原语也支撑着生成式 UI（Generative UI）与人机协同（human-in-the-loop），交互模式请参阅对应页面。
 
-## When should I use this?
+## 什么时候该用它？
 
-Use frontend tools when your agent needs to:
+当你的智能体需要做以下事情时，就使用前端工具：
 
-- Read or modify React component state
-- Access browser APIs like `localStorage`, `sessionStorage`, or cookies
-- Trigger UI updates, animations, or transitions
-- Show alerts, toasts, or notifications
-- Interact with third-party frontend libraries
-- Perform anything that requires the user's immediate browser context
+- 读取或修改 React 组件状态
+- 访问 `localStorage`、`sessionStorage` 或 cookies 等浏览器 API
+- 触发 UI 更新、动画或过渡效果
+- 显示提醒、toast 或通知
+- 与第三方前端库交互
+- 执行任何需要用户当前浏览器上下文的操作
 
-## How it works in code
+## 代码中的工作方式
 
 <FrameworkSetup concept="frontend-tools-setup" />
 
-Register a frontend tool with `useFrontendTool`. Give it a name, a Zod schema for parameters, and a handler. The agent can then call it like any other tool and your frontend runs it in the browser.
+用 `useFrontendTool` 注册一个前端工具。为它提供一个名称、一个描述参数的 Zod schema，以及一个处理函数。此后智能体就能像调用其他工具一样调用它，而你的前端会在浏览器中执行它。
 
 <Snippet region="frontend-tool-registration" title="frontend/src/app/page.tsx — useFrontendTool" />
 
-The handler receives the parsed, type-safe parameters and can do anything
-the browser can: update state, call an API, touch the DOM. Its return value
-is sent back to the agent as the tool result so the model can reason about
-what happened.
+处理函数收到的是解析后、类型安全的参数，浏览器能做的事它都能做：更新状态、调用 API、操作 DOM。它的返回值会作为工具结果回传给智能体，让模型能够推理发生了什么。
 
 <Snippet region="frontend-tool-handler" title="frontend/src/app/page.tsx — handler body" />
 
-## Registering a list of tools
+## 注册一组工具
 
-`useFrontendTool` registers one tool per call, so it cannot be called in a loop
-over a list whose length changes between renders. When the set of tools comes
-from state, from props, or from a backend response, use
-[`useFrontendTools`](/reference/hooks/useFrontendTools) instead. It takes an
-array and runs a single effect over it, so the array can be empty on one render
-and hold twenty entries on the next.
+`useFrontendTool` 每次调用只注册一个工具，因此不能在长度会随渲染变化的列表上循环调用。当工具集合来自状态、props 或后端响应时，请改用 [`useFrontendTools`](/reference/hooks/useFrontendTools)。它接收一个数组并对其运行单个 effect，所以这个数组可以在一次渲染时为空，在下一次渲染时装着二十个条目。
 
 ```tsx
 useFrontendTools(
@@ -63,9 +55,6 @@ useFrontendTools(
 );
 ```
 
-Tools that leave the array are unregistered, tools that join it are registered,
-and a re-render that produces an equal list does not re-register anything. A
-description built from your data stays current on its own. The second argument
-is for values a handler closes over, such as `navigate` above.
+离开数组的工具会被注销，加入数组的工具会被注册，而重渲染产生的相同列表不会重复注册任何东西。由你的数据构建的描述会自动保持最新。第二个参数用于处理函数闭包捕获的值，比如上文的 `navigate`。
 
 <IntegrationGrid path="frontend-tools" />

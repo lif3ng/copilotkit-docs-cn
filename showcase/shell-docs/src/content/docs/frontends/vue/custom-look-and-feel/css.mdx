@@ -1,37 +1,30 @@
 ---
-title: CSS Customization
+title: CSS 自定义
 icon: "lucide/Palette"
-description: Theme CopilotKit Vue components with CSS design tokens.
+description: 使用 CSS 设计令牌为 CopilotKit Vue 组件定制主题。
 ---
 
-## What is this?
+## 这是什么？
 
-CopilotKit Vue has several plain-CSS ways to change the appearance of the
-prebuilt UI without changing its behavior. You can:
+CopilotKit Vue 提供了几种纯 CSS 的方式，可以在不改变预构建 UI 行为的前提下调整其外观。你可以：
 
-- Override the v2 design tokens to re-tint the whole UI.
-- Scope those tokens to one chat surface so they do not leak across the app.
-- Add structural CSS around stable CopilotKit roots and your own slot markup.
-- Change inherited fonts per surface.
-- Replace icons through Vue slots and user-facing copy through `labels`.
+- 覆盖 v2 设计令牌，为整个 UI 重新调色。
+- 将这些令牌限定在单个聊天界面内，避免泄漏到应用的其他部分。
+- 围绕稳定的 CopilotKit 根节点和你自己的插槽标记添加结构性 CSS。
+- 按界面更改继承的字体。
+- 通过 Vue 插槽替换图标，通过 `labels` 替换面向用户的文案。
 
-The Vue v2 components ship a Tailwind v4 theme based on the standard
-shadcn/ui token set. Import the package stylesheet once, then override CSS
-custom properties on `[data-copilotkit]` or an ancestor.
+Vue v2 组件自带一个基于标准 shadcn/ui 令牌集的 Tailwind v4 主题。只需引入一次包样式表，然后在 `[data-copilotkit]` 或其祖先元素上覆盖 CSS 自定义属性即可。
 
-Use [slots](/vue/custom-look-and-feel/slots) when you need to replace markup,
-and [headless UI](/vue/custom-look-and-feel/headless-ui) when you need your own
-surface.
+当需要替换标记时，请使用[插槽](/vue/custom-look-and-feel/slots)；当需要完全自建界面时，请使用[无头 UI](/vue/custom-look-and-feel/headless-ui)。
 
-## Scoping the theme
+## 限定主题作用域
 
 ```ts title="main.ts"
 import "@copilotkit/vue/styles.css";
 ```
 
-The components mark their roots with `data-copilotkit`. Put a class around one
-product area and scope every override below it when the rest of the application
-uses different tokens:
+组件会用 `data-copilotkit` 标记各自的根节点。当应用的其他部分使用不同的令牌时，可以在某个产品区域外层加一个类，并将下面所有覆盖都限定在该类之下：
 
 ```vue title="SupportChat.vue"
 <script setup lang="ts">
@@ -57,45 +50,36 @@ import { CopilotChat } from "@copilotkit/vue/v2";
 </style>
 ```
 
-## CSS Variables (Easiest)
+## CSS 变量（最简单）
 
-The easiest customization is a CSS-variable override because every nested Vue
-chat component picks it up automatically.
+最简单的自定义方式是覆盖 CSS 变量，因为每个嵌套的 Vue 聊天组件都会自动继承它。
 
-<Callout type="info" title="Vue uses the v2 token system">
-  The older `--copilot-kit-*` variables and `.copilotKit...` classes documented
-  for `@copilotkit/react-ui` style v1 React components do not style
-  `@copilotkit/vue/v2`. Vue's public stylesheet is
-  `@copilotkit/vue/styles.css` and uses the v2 tokens below.
+<Callout type="info" title="Vue 使用 v2 令牌体系">
+  针对 `@copilotkit/react-ui` 风格的 v1 React 组件所描述的旧版 `--copilot-kit-*` 变量和 `.copilotKit...` 类，对 `@copilotkit/vue/v2` 不生效。Vue 的公开样式表是 `@copilotkit/vue/styles.css`，使用下文的 v2 令牌。
 </Callout>
 
-## v2 Design Tokens (shadcn)
+## v2 设计令牌（shadcn）
 
-The tokens are scoped to `[data-copilotkit]` and wired into the prefixed
-Tailwind utilities through an `@theme inline` block. Override them on the
-CopilotKit root or any ancestor, just as you would in a shadcn project.
+这些令牌的作用域限定在 `[data-copilotkit]`，并通过一个 `@theme inline` 块接入带前缀的 Tailwind 工具类。可以在 CopilotKit 根节点或任意祖先元素上覆盖它们，与在 shadcn 项目中的做法一致。
 
-### Reference
+### 参考
 
-These are the most commonly overridden tokens. Each light value has a matching
-dark-mode value under `.dark [data-copilotkit]`. The full set lives in
-`@copilotkit/vue/styles.css`.
+以下是最常被覆盖的令牌。每个浅色值在 `.dark [data-copilotkit]` 下都有对应的暗色模式值。完整集合位于 `@copilotkit/vue/styles.css`。
 
-| Token | Description |
+| 令牌 | 说明 |
 | --- | --- |
-| `--background` / `--foreground` | Base surface and primary text. |
-| `--primary` / `--primary-foreground` | Action color and text on it. |
-| `--secondary` / `--secondary-foreground` | Secondary panels and cards. |
-| `--muted` / `--muted-foreground` | Subtle backgrounds and de-emphasized text. |
-| `--accent` / `--accent-foreground` | Hover and active state colors. |
-| `--border` / `--input` / `--ring` | Dividers, input outline, and focus ring. |
-| `--destructive` / `--destructive-foreground` | Error and danger states. |
-| `--card` / `--popover` (and `-foreground`) | Elevated surfaces. |
-| `--sidebar-*` | Sidebar-specific background, foreground, border, and ring tokens. |
-| `--radius` | Base corner radius; the smaller and larger radii derive from it. |
+| `--background` / `--foreground` | 基础表面与主文本。 |
+| `--primary` / `--primary-foreground` | 操作色及其之上的文本。 |
+| `--secondary` / `--secondary-foreground` | 次级面板与卡片。 |
+| `--muted` / `--muted-foreground` | 柔和背景与弱化文本。 |
+| `--accent` / `--accent-foreground` | 悬停与激活状态的颜色。 |
+| `--border` / `--input` / `--ring` | 分隔线、输入框轮廓与焦点环。 |
+| `--destructive` / `--destructive-foreground` | 错误与危险状态。 |
+| `--card` / `--popover`（及对应 `-foreground`） | 浮起表面。 |
+| `--sidebar-*` | 侧边栏专属的背景、前景、边框与 ring 令牌。 |
+| `--radius` | 基础圆角；更小与更大的圆角由它派生。 |
 
-The stylesheet recognizes a `.dark` ancestor. Override the same tokens under
-that ancestor to match your application's dark-mode switch:
+样式表能识别 `.dark` 祖先。在该祖先之下覆盖相同的令牌，即可与应用的暗色模式开关保持一致：
 
 ```css title="app.css"
 .dark [data-copilotkit] {
@@ -105,15 +89,11 @@ that ancestor to match your application's dark-mode switch:
 }
 ```
 
-Any valid CSS color works; `oklch()` is the default because it preserves
-perceived lightness more consistently across hues.
+任何有效的 CSS 颜色都可以；默认使用 `oklch()`，因为它在不同色相之间能更一致地保持感知亮度。
 
-## Custom CSS
+## 自定义 CSS
 
-Use your own wrapper classes and slot markup for structural changes. Vue v2's
-internal prefixed utility classes are implementation details, so avoid copying
-or overriding them as an API. Stable CopilotKit roots and your own classes make
-safer selectors:
+结构性改动请使用你自己的包装类和插槽标记。Vue v2 内部带前缀的工具类属于实现细节，请避免将其当作 API 来复制或覆盖。稳定的 CopilotKit 根节点加上你自己的类才是更安全的选择器：
 
 ```css title="app.css"
 .support-chat [data-copilotkit] {
@@ -126,15 +106,11 @@ safer selectors:
 }
 ```
 
-Use [slots](/vue/custom-look-and-feel/slots) to introduce
-`.support-message-card` or to replace structure. The Vue package does not
-expose the v1 React `.copilotKitMessages`, `.copilotKitInput`, or
-`.copilotKitUserMessage` class contract.
+请使用[插槽](/vue/custom-look-and-feel/slots)来引入 `.support-message-card` 或替换结构。Vue 包不提供 v1 React 的 `.copilotKitMessages`、`.copilotKitInput` 或 `.copilotKitUserMessage` 类约定。
 
-## Custom Fonts
+## 自定义字体
 
-Fonts inherit through the CopilotKit root, so scope a font to one surface or
-set it for every Vue chat:
+字体会通过 CopilotKit 根节点继承，因此可以将字体限定在单个界面，也可以为所有 Vue 聊天统一设置：
 
 ```css title="app.css"
 .support-chat [data-copilotkit] {
@@ -142,11 +118,9 @@ set it for every Vue chat:
 }
 ```
 
-## Custom Icons
+## 自定义图标
 
-Vue uses slots instead of an `icons` prop. `CopilotPopup` and
-`CopilotSidebar` expose a `toggle-button` slot with open state and actions, so
-you can replace the launcher and its icons together:
+Vue 使用插槽而非 `icons` prop。`CopilotPopup` 与 `CopilotSidebar` 暴露了一个携带打开状态和操作方法的 `toggle-button` 插槽，因此你可以把启动按钮及其图标一并替换：
 
 ```vue
 <CopilotPopup>
@@ -159,12 +133,11 @@ you can replace the launcher and its icons together:
 </CopilotPopup>
 ```
 
-The public `CopilotChatToggleButton` leaf also exposes `open-icon` and
-`close-icon` slots when you want to keep the default button behavior.
+如果想保留默认的按钮行为，公开的 `CopilotChatToggleButton` 叶子组件也暴露了 `open-icon` 和 `close-icon` 插槽。
 
-## Custom Labels
+## 自定义文案
 
-Customize user-facing copy through the `labels` prop:
+通过 `labels` prop 自定义面向用户的文案：
 
 ```vue
 <CopilotChat
