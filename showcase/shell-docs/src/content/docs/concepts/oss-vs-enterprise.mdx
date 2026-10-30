@@ -1,91 +1,90 @@
 ---
-title: Open source vs Intelligence
-description: Compare CopilotKit's open-source SDKs and runtime with Intelligence services for AG-UI Streams, User Memories, Automatic Learning, Product Analytics, and Channels.
+title: 开源版与 Intelligence 对比
+description: 对比 CopilotKit 的开源 SDK 与运行时和 Intelligence 服务：AG-UI Streams、User Memories、Automatic Learning、Product Analytics 与 Channels。
 icon: "lucide/Cloud"
 doc_type: explanation
 ---
 
-CopilotKit's **open-source SDKs and TypeScript runtime** connect your frontend to your agent without requiring a CopilotKit service. **CopilotKit Intelligence** adds AG-UI Streams, User Memories, Automatic Learning, Product Analytics, and Channels to that application. Choose the services your application needs while keeping your frontend and agent framework.
+CopilotKit 的**开源 SDK 与 TypeScript 运行时**可以把你的前端连接到 agent，无需任何 CopilotKit 服务。**CopilotKit Intelligence** 则为该应用加上 AG-UI Streams、User Memories、Automatic Learning、Product Analytics 和 Channels。你可以按应用所需挑选服务，同时保留自己的前端与 agent 框架。
 
-The TypeScript runtime is the default, most fully featured implementation and the only runtime that works without Intelligence. Python, Go, Ruby, and C#/.NET runtimes require cloud-hosted or self-hosted Intelligence. Their source is also open source; the distinction is the service they require. See [Runtime languages](/backend/copilot-runtime#runtime-languages) to choose a server implementation.
+TypeScript 运行时是默认且功能最完整的实现，也是唯一无需 Intelligence 即可工作的运行时。Python、Go、Ruby 和 C#/.NET 运行时需要云端托管或自托管的 Intelligence。它们的源码同样开源；区别在于它们所依赖的服务。请参阅[运行时语言](/backend/copilot-runtime#runtime-languages)来选择服务器实现。
 
-## The 30-second version
+## 30 秒版
 
-- **The open-source packages are enough for** building a working agentic application with framework-native APIs, prebuilt chat, frontend tools, gen-UI, and any AG-UI integration. The license is MIT. The packages run anywhere.
-- **Your own persistence remains an option.** LangGraph checkpointers, ADK session services, and application-owned storage can retain history without Intelligence. You own the storage and UI integration.
-- **CopilotKit Intelligence adds** conversation replay and continuity across devices, memory beyond one conversation, reviewed skills from real usage, usage data, and channel connections.
-- **CopilotKit Intelligence runs two ways** — [cloud-hosted](/intelligence/managed-intelligence-platform), or self-hosted on [Kubernetes](/intelligence/self-hosting) or [AWS ECS](/intelligence/self-hosting-ecs). Both deployments use the same app APIs.
+- **开源包足以**构建一个能跑起来的智能体化应用，涵盖框架原生 API、预构建聊天、前端工具、生成式 UI 和任何 AG-UI 集成。许可证为 MIT。这些包可在任何地方运行。
+- **自己的持久化仍是一种选择**。LangGraph checkpointer、ADK session 服务和应用自有的存储都可以在没有 Intelligence 的情况下保留历史。存储与 UI 集成由你掌控。
+- **CopilotKit Intelligence 增加了**跨设备的会话回放与连续性、超出单次会话的记忆、从真实使用中沉淀并经审核的技能、使用数据，以及渠道连接。
+- **CopilotKit Intelligence 有两种运行方式**——[云端托管](/intelligence/managed-intelligence-platform)，或在 [Kubernetes](/intelligence/self-hosting) 或 [AWS ECS](/intelligence/self-hosting-ecs) 上自托管。两种部署使用相同的应用 API。
 
-|                                                                         | Open source only             | Needs CopilotKit Intelligence |
+|                                                                         | 仅开源                       | 需要 CopilotKit Intelligence  |
 | ----------------------------------------------------------------------- | ---------------------------- | ----------------------------- |
-| Agent chat, frontend tools, agent state, gen-UI                         | Yes                          |                               |
-| Any AG-UI integration (LangGraph, Mastra, Built-in, custom)             | Yes                          |                               |
-| Framework-native or application-owned persistence                       | You operate and integrate it |                               |
-| Local Inspector for live events, tools, state, and connection debugging | Yes                          |                               |
-| AG-UI Streams with saved UI, resumable runs, and realtime sync           |                              | Yes                           |
-| User Memories and Automatic Learning                                    |                              | Yes                           |
-| Product Analytics and cloud-hosted channel connections                  |                              | Yes                           |
-| Inspector's saved Rich Threads and Automatic Learning panes             |                              | Yes                           |
-| Intelligence project administration and API keys                        |                              | Yes                           |
+| 智能体聊天、前端工具、智能体状态、生成式 UI                             | 是                           |                               |
+| 任何 AG-UI 集成（LangGraph、Mastra、内置、自定义）                      | 是                           |                               |
+| 框架原生或应用自有的持久化                                              | 由你运维和集成               |                               |
+| 本地 Inspector，用于调试实时事件、工具、状态和连接                      | 是                           |                               |
+| AG-UI Streams：保存的 UI、可恢复的运行与实时同步                        |                              | 是                            |
+| User Memories 与 Automatic Learning                                     |                              | 是                            |
+| Product Analytics 与云托管的渠道连接                                    |                              | 是                            |
+| Inspector 的 Rich Threads 保存视图与 Automatic Learning 面板            |                              | 是                            |
+| Intelligence 项目管理与 API 密钥                                        |                              | 是                            |
 
-## What's in the open-source core
+## 开源核心里有什么
 
-Everything you need to build a working agentic app, with no external service from CopilotKit:
+构建一个能跑起来的智能体化应用所需的一切，无需 CopilotKit 的任何外部服务：
 
 <FrontendOnly frontend="react">
 
-- **Frontend SDK** — `@copilotkit/react-core`, exporting hooks and prebuilt components for chat, tools, state, threads, and generative UI.
+- **前端 SDK**——`@copilotkit/react-core`，导出用于聊天、工具、状态、线程和生成式 UI 的 hooks 与预构建组件。
 
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
 
-- **Frontend SDK** — `@copilotkit/angular`, exporting standalone components, signal-based agent and thread APIs, typed tool registration, context, interrupts, and generative UI.
+- **前端 SDK**——`@copilotkit/angular`，导出独立组件、基于 signal 的 agent 与线程 API、带类型的工具注册、上下文、中断和生成式 UI。
 
 </FrontendOnly>
 
-- **Runtime** — `@copilotkit/runtime`, the request handler that mounts in your application server. Framework-agnostic core plus thin adapters for Express, Hono, Bun, Deno, Cloudflare Workers.
-- **AG-UI protocol** — open standard for agent ↔ frontend communication. 16 standardized event types, transport-agnostic.
-- **Built-in Agent** — `BuiltInAgent` runs an in-process agent loop (OpenAI / Anthropic / Google / any AI-SDK model) without requiring an external framework.
-- **Integrations** — first-party adapters for LangGraph (Python / TypeScript / FastAPI), Mastra, CrewAI, Pydantic AI, Microsoft Agent Framework, AWS Strands, Google ADK, and others.
-- **Generative UI primitives** — tool rendering, state rendering, headless APIs, and framework-native theming.
+- **运行时**——`@copilotkit/runtime`，挂载在你应用服务器中的请求处理器。框架无关的核心，外加 Express、Hono、Bun、Deno、Cloudflare Workers 的轻量适配器。
+- **AG-UI 协议**——agent ↔ 前端通信的开放标准。16 种标准化事件类型，传输无关。
+- **内置智能体**——`BuiltInAgent` 在进程内运行 agent 循环（OpenAI / Anthropic / Google / 任何 AI SDK 模型），无需外部框架。
+- **集成**——LangGraph（Python / TypeScript / FastAPI）、Mastra、CrewAI、Pydantic AI、Microsoft Agent Framework、AWS Strands、Google ADK 等的第一方适配器。
+- **生成式 UI 原语**——工具渲染、状态渲染、无头 API 和框架原生的主题定制。
 
-MIT licensed. Run it on any host, in any cloud, with any LLM provider.
+采用 MIT 许可证。可在任何主机、任何云、任何 LLM 提供方上运行。
 
-## What's in CopilotKit Intelligence
+## CopilotKit Intelligence 里有什么
 
-A **backend service** beside your runtime, with capabilities you can add as needed:
+一个位于运行时旁边的**后端服务**，能力可按需添加：
 
-- **[AG-UI Streams](/AG-UI-Streams)** — save conversations, UI, and inputs; reopen them across devices and reconnect to active runs.
-- **[User Memories](/intelligence/memories)** — retain facts beyond a single conversation, with user and project scopes.
-- **[Automatic Learning](/learning)** — turn real usage into skills you review and publish; use [Skill delivery](/intelligence/learned-skills) to make published skills available to your agent.
-- **[Product Analytics](/intelligence/analytics)** — understand how people use your agent and its tools.
-- **[Channels](/intelligence/channels)** — connect your existing agent to Slack or Microsoft Teams through cloud-hosted Intelligence. Both are generally available. The open-source Channels SDK also lets you operate your own channel runner.
-- **Project administration** — manage organizations, projects, API keys, and plans in the [cloud-hosted web app](/intelligence/managed-intelligence-platform).
+- **[AG-UI Streams](/AG-UI-Streams)**——保存对话、UI 和输入；跨设备重新打开，并重新接入进行中的运行。
+- **[User Memories](/intelligence/memories)**——在单次会话之外保留事实，支持用户与项目两种范围。
+- **[Automatic Learning](/learning)**——把真实使用转化为可供你审核和发布的技能；用 [Skill delivery](/intelligence/learned-skills) 让已发布的技能对你的 agent 可用。
+- **[Product Analytics](/intelligence/analytics)**——了解人们如何使用你的 agent 及其工具。
+- **[Channels](/intelligence/channels)**——通过云端托管的 Intelligence 把你现有的 agent 接入 Slack 或 Microsoft Teams。两者均已正式发布。开源 Channels SDK 还让你运行自己的渠道执行器。
+- **项目管理**——在[云端托管的 Web 应用](/intelligence/managed-intelligence-platform)中管理组织、项目、API 密钥和套餐。
 
-### Inspector with and without Intelligence
+### 有无 Intelligence 时的 Inspector
 
-[Inspector](/inspector) is available by default in development builds of React, Vue, and Angular browser apps. Use its local panes to debug your connection, live AG-UI events, tools, and state without Intelligence. Its **Rich Threads** and **Automatic Learning** panes require the corresponding Intelligence services to show saved conversations and learning data.
+[Inspector](/inspector) 默认内置于 React、Vue 和 Angular 浏览器应用的开发构建中。无需 Intelligence，即可用它的本地面板调试连接、实时 AG-UI 事件、工具和状态。其 **Rich Threads** 与 **Automatic Learning** 面板则需要相应的 Intelligence 服务，才能显示已保存的会话与学习数据。
 
-### Cloud-Hosted vs Self-Hosted
+### 云端托管与自托管
 
-Same CopilotKit Intelligence — you pick where it runs:
+同样的 CopilotKit Intelligence——由你选择它运行在哪里：
 
-- **[Cloud-hosted CopilotKit Intelligence](/intelligence/managed-intelligence-platform)** is the service CopilotKit operates. Sign up, get an API key, and point your runtime at it. Pick this when you want zero ops on the platform side.
-- **Self-hosted** runs in your infrastructure. Follow the [Kubernetes guide](/intelligence/self-hosting) for the Helm chart or the [AWS ECS guide](/intelligence/self-hosting-ecs) for the ECS bundle. You operate the services and their dependencies; use the deployment guide for the required infrastructure and credentials.
+- **[云端托管的 CopilotKit Intelligence](/intelligence/managed-intelligence-platform)** 是由 CopilotKit 运营的服务。注册、获取 API 密钥，并把运行时指向它。想在平台侧零运维时选这个。
+- **自托管**运行在你自己的基础设施中。Helm chart 请跟随 [Kubernetes 指南](/intelligence/self-hosting)，ECS bundle 请跟随 [AWS ECS 指南](/intelligence/self-hosting-ecs)。由你运维这些服务及其依赖；所需的基础设施与凭证请参考部署指南。
 
-Application code doesn't change between cloud-hosted and self-hosted — same frontend SDK and runtime APIs. Only the platform endpoint and credential set change.
+云端托管与自托管之间的应用代码没有差别——前端 SDK 与运行时 API 相同，只有平台端点与凭证集会变。
 
-## Licenses
+## 许可证
 
-The open-source SDKs and runtime use MIT. CopilotKit Intelligence and Showcase have
-separate terms.
+开源 SDK 与运行时采用 MIT 许可证。CopilotKit Intelligence 与 Showcase 各有单独的条款。
 
-## Where to go next
+## 后续阅读
 
-- **Existing agent framework** — start with your framework's overview and quickstart in the docs framework selector.
-- **Built-in Agent** — [Quickstart](/quickstart) starts an app when you want CopilotKit's built-in agent. No Intelligence credentials needed.
-- **CopilotKit Intelligence overview** — [CopilotKit Intelligence](/intelligence/overview) lists every platform capability and the per-feature setup.
-- **Cloud-hosted setup** — [Cloud-hosted CopilotKit Intelligence](/intelligence/managed-intelligence-platform) when CopilotKit operates the service.
-- **Self-hosted deployment** — [Kubernetes](/intelligence/self-hosting) or [AWS ECS](/intelligence/self-hosting-ecs) for your own infrastructure.
-- **Architecture deep-dive** — [CopilotKit Intelligence architecture](/intelligence/intelligence-platform) covers runtime/platform roles, project boundaries, threads, and realtime sync.
+- **既有 agent 框架**——在文档的框架选择器中，从你所用框架的概览与快速开始入手。
+- **内置智能体**——想用 CopilotKit 的内置智能体时，[快速开始](/quickstart)可以启动一个应用。无需 Intelligence 凭证。
+- **CopilotKit Intelligence 概览**——[CopilotKit Intelligence](/intelligence/overview) 列出每项平台能力及各特性的配置方法。
+- **云端托管配置**——由 CopilotKit 运营服务时，使用[云端托管的 CopilotKit Intelligence](/intelligence/managed-intelligence-platform)。
+- **自托管部署**——自己的基础设施可用 [Kubernetes](/intelligence/self-hosting) 或 [AWS ECS](/intelligence/self-hosting-ecs)。
+- **架构深入**——[CopilotKit Intelligence 架构](/intelligence/intelligence-platform)覆盖运行时/平台角色、项目边界、线程和实时同步。

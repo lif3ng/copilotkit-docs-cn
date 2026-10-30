@@ -1,31 +1,25 @@
 ---
-title: Deploy and operate
+title: 部署与运维
 icon: "lucide/ServerCog"
-description: Run a production Channels listener, expose truthful health checks, handle reconnects and shutdown, and diagnose Intelligence status.
+description: 运行生产级 Channels 监听器、暴露真实的健康检查、处理重连与关停，并诊断 Intelligence 状态。
 doc_type: how-to
 ---
 
 import ChannelsInstall from "@/snippets/shared/channels/install.mdx";
 
-A managed Channel is a long-running worker with an outbound realtime
-connection. It is not a serverless request handler. Deploy it like a queue
-consumer or WebSocket worker.
+托管 Channel 是一个持有出站实时连接的长驻 worker。它不是无服务器请求处理器。请像部署队列消费者或 WebSocket worker 一样部署它。
 
-## Use the tested runtime pair
+## 使用经过验证的运行时组合
 
 <ChannelsInstall />
 
-Run Node.js 22 or later. The managed launcher relies on the global `WebSocket`
-available in Node.js 22+.
+请运行 Node.js 22 或更高版本。托管启动器依赖 Node.js 22+ 中提供的全局 `WebSocket`。
 
-After changing either package, run the same real-provider smoke test used for
-the initial quickstart.
+更改其中任一 package 后，请运行与初始快速开始相同的真实提供方冒烟测试。
 
-## Settle before reporting ready
+## 先等激活落定再上报就绪
 
-Creating the Node listener starts the managed connection — a declared Channel
-connects because it was declared, with no start call to forget. Await `ready()`
-to observe that activation settling, then inspect `status()`:
+创建 Node 监听器即启动托管连接——声明的 Channel 因为被声明就会连接，不存在忘记调用 start 的问题。await `ready()` 以观察激活落定，然后检查 `status()`：
 
 ```ts title="health.ts"
 const channels = listener.channels;
@@ -38,52 +32,35 @@ if (initial.overall !== "online") {
 }
 ```
 
-`ready()` can resolve in `setup_required`; it means activation settled, not
-that delivery is healthy. Treat only `status().overall === "online"` as a
-healthy connected activation.
+`ready()` 可能在 `setup_required` 状态下 resolve；这意味着激活已落定，而不是投递健康。只有 `status().overall === "online"` 才视为健康的已连接激活。
 
-The runtime status values are:
+运行时状态值如下：
 
-| Runtime status   | Meaning                                                                                |
+| 运行时状态       | 含义                                                                                   |
 | ---------------- | -------------------------------------------------------------------------------------- |
-| `connecting`     | Activation has not settled                                                             |
-| `online`         | The managed connection is healthy and can claim delivery invitations                   |
-| `setup_required` | The Intelligence provider setup is incomplete                                          |
-| `reconnecting`   | The gateway connection dropped and is retrying                                         |
-| `error`          | Activation failed, or reconnect give-up (~60s default) marked the session not-sendable |
-| `stopped`        | The Channels control was stopped                                                       |
+| `connecting`     | 激活尚未落定                                                                             |
+| `online`         | 托管连接健康，可认领投递邀请                                                             |
+| `setup_required` | Intelligence 提供方配置未完成                                                            |
+| `reconnecting`   | 网关连接中断，正在重试                                                                   |
+| `error`          | 激活失败，或重连放弃（默认约 60 秒）将会话标记为不可发送                                  |
+| `stopped`        | Channels 控制器已停止                                                                    |
 
-Treat post-online `error` carefully: after reconnect give-up the client marks
-`error` while Phoenix **keeps retrying underneath**. A successful rejoin
-restores `online` without a process restart. Activation-time `error` (bad key,
-unreachable gateway, config) is different — fix configuration and restart the
-worker.
+对上线后的 `error` 要谨慎对待：重连放弃后，客户端会标记 `error`，而 Phoenix **仍在底层持续重试**。重加入成功后无需重启进程即可恢复 `online`。激活阶段的 `error`（密钥错误、网关不可达、配置问题）则不同——请修复配置并重启 worker。
 
-The Intelligence UI translates provider and runtime details into its own
-operator-facing states such as **Waiting for runtime**, **Conflict**,
-**Offline**, **Delivery failing**, and **Online**.
+Intelligence UI 会把提供方与运行时细节转换为自己的运维可见状态，例如 **Waiting for runtime**、**Conflict**、**Offline**、**Delivery failing** 和 **Online**。
 
-## Expose liveness and readiness separately
+## 分别暴露存活与就绪探针
 
-- Liveness answers whether the Node process and event loop are running.
-- Readiness answers whether `channels.status().overall` is `online`.
+- 存活（liveness）回答 Node 进程与事件循环是否在运行。
+- 就绪（readiness）回答 `channels.status().overall` 是否为 `online`。
 
-Do not restart immediately for a short `reconnecting` episode; the realtime
-client owns bounded reconnect and rejoin (default reconnect give-up window is
-about 60 seconds, then status becomes `error` while retries continue). Alert on
-`error`; restart only when your own outage budget is exceeded or activation
-failed before ever going online.
+短暂的 `reconnecting` 不要立即重启；实时客户端自身管理有界的重连与重加入（默认重连放弃窗口约为 60 秒，之后状态变为 `error`，但重试仍在继续）。对 `error` 告警；只有当超出你自己的中断预算，或激活在从未上线之前就失败时才重启。
 
-Poll `status()` from your health endpoint or monitoring loop. Do not cache the
-startup result forever because an online session can later become reconnecting
-or error.
+从你的健康检查端点或监控循环轮询 `status()`。不要永久缓存启动时的结果，因为一个在线会话之后可能转为 reconnecting 或 error。
 
-## Shut down cleanly
+## 干净地关停
 
-Register signal handlers before **creating the listener**, not just before
-`ready()`. Creating it begins activation, so a signal that arrives during the
-connect window must already have somewhere to land — otherwise it hits Node's
-default handler and leaves a live gateway session behind:
+要在**创建监听器**之前注册信号处理器，而不仅仅是在 `ready()` 之前。创建监听器即开始激活，因此连接窗口内到达的信号必须已有落点——否则它会命中 Node 的默认处理器，并遗留下一个仍存活的网关会话：
 
 ```ts title="channel.ts"
 let teardown: (() => Promise<void>) | undefined;
@@ -104,13 +81,11 @@ teardown = async () => {
 await listener.channels.ready({ timeoutMs: 30_000 });
 ```
 
-Give the worker enough termination grace to stop its managed sessions. Avoid
-cutting power before `channels.stop()` has released ownership when a graceful
-shutdown is possible.
+给 worker 足够的终止宽限期以停止其托管会话。在可以优雅关停的情况下，避免在 `channels.stop()` 释放所有权之前强行切断。
 
-## Store and rotate secrets
+## 保存并轮换密钥
 
-Keep these server-side:
+以下内容只保存在服务端：
 
 ```dotenv title=".env"
 CPK_INTELLIGENCE_API_KEY=<project-runtime-key>
@@ -121,55 +96,39 @@ CHANNEL_CODE=<exact-intelligence-code>
 # INTELLIGENCE_GATEWAY_WS_URL=wss://realtime.intelligence.example.com
 ```
 
-Cloud-hosted Intelligence supplies the default endpoints. For a
-self-hosted or non-production deployment, override both bases together. Do not
-derive one from the other or append `/api`, `/socket`, `/runner`, `/client`, or
-`/channels`.
+云端托管的 Intelligence 会提供默认端点。对于自托管或非生产部署，请同时覆盖两个 base。不要从一个推导另一个，也不要追加 `/api`、`/socket`、`/runner`、`/client` 或 `/channels`。
 
-Provider credentials stay in Intelligence. The runner should not contain Slack
-tokens or the Teams client secret. Rotate the project runtime key through your
-secret manager, restart the listener with the new value, and verify it returns
-to **Online**.
+提供方凭据保存在 Intelligence 中。runner 不应包含 Slack token 或 Microsoft Teams 的 client secret。通过你的密钥管理器轮换项目运行时密钥，用新值重启监听器，并确认它恢复为 **Online**。
 
-## Bound active replicas
+## 限制活跃副本
 
-Intelligence offers each prepared delivery to connected Runtimes that declare
-the matching Channel. One Runtime claims that delivery; other replicas can
-claim different deliveries at the same time.
+Intelligence 会把每一条准备好的投递提供给声明了匹配 Channel 的已连接 Runtime。一条投递由一个 Runtime 认领；其他副本可以同时认领不同的投递。
 
-Run the same build and Channel declarations on every replica. The managed
-listener bounds active and pending delivery work internally. A full Runtime
-declines an invitation before it claims the delivery, which leaves another
-eligible replica free to claim it. That capacity is not currently exposed as a
-public Channel configuration option.
+在每个副本上运行相同的构建与 Channel 声明。托管监听器在内部限制活跃与待处理的投递工作量。已满载的 Runtime 会在认领投递之前拒绝邀请，从而让另一个符合条件的副本得以认领它。该容量目前没有作为公开的 Channel 配置选项暴露出来。
 
-## Observe the full delivery path
+## 观测完整投递路径
 
-At minimum, record:
+至少要记录：
 
-- startup and the first non-online status
-- transitions to `reconnecting`, `error`, and back to `online`
-- Channel Code and provider, without credentials
-- application tool errors and their idempotency ids
-- `message.eventId`, `message.turnId`, and `message.deliveryId` for correlation
-- `thread.postFile()` failures
+- 启动过程与首个非 online 状态
+- 向 `reconnecting`、`error` 的转换以及恢复到 `online`
+- Channel Code 与提供方，不含凭据
+- 应用工具错误及其幂等 id
+- 用于关联的 `message.eventId`、`message.turnId` 和 `message.deliveryId`
+- `thread.postFile()` 失败
 
-Do not log message bodies, hydrated files, API keys, Slack tokens, Teams
-secrets, or raw provider payloads by default.
+默认情况下不要记录消息正文、已水合的文件、API 密钥、Slack token、Microsoft Teams secret 或原始提供方 payload。
 
-## Release checklist
+## 发布检查清单
 
-1. Build and typecheck the runner on Node.js 22.
-2. Confirm the exact package pair is in the lockfile.
-3. Start the intended replica set and wait for each listener to report `online`.
-4. Send a real provider message and verify a reply.
-5. Exercise one tool, one rich message, and one interaction.
-6. Restart with a pending approval and confirm your persistence promise.
-7. Test a brief network drop and observe `reconnecting` recovery.
-8. Send concurrent messages and verify replicas claim distinct deliveries
-   within their local bounds.
-9. Send `SIGTERM` and confirm graceful shutdown.
+1. 在 Node.js 22 上构建 runner 并进行类型检查。
+2. 确认 lockfile 中包含确切的 package 组合。
+3. 启动预期的副本集，并等待每个监听器报告 `online`。
+4. 发送一条真实提供方消息并验证收到回复。
+5. 实测一个工具、一条富消息和一次交互。
+6. 在有待处理审批的情况下重启，并验证你的持久化承诺。
+7. 测试一次短暂断网，观察 `reconnecting` 恢复。
+8. 发送并发消息，验证各副本在各自本地限额内认领互不相同的投递。
+9. 发送 `SIGTERM` 并确认优雅关停。
 
-Use the [Intelligence walkthrough](/channels/intelligence) for control-plane
-statuses and [persistence and scaling](/channels/persistence-and-scaling) for
-restart-safe application state.
+控制平面状态请参阅 [Intelligence 演练](/channels/intelligence)，重启安全的应用状态请参阅[持久化与扩展](/channels/persistence-and-scaling)。

@@ -1,11 +1,8 @@
 <Steps>
   <Step>
-    ### Nothing to wire on the agent
+    ### 无需在智能体端做任何接线
 
-    The AG-UI protocol forwards frontend tool definitions to the agent at
-    request time, so the backend agent declares no bespoke tools. The LLM sees
-    a component registered with `useComponent` through the AG-UI request payload
-    and picks it when the user asks for what it draws.
+    AG-UI 协议会在请求时把前端工具定义转发给智能体，因此后端智能体无需声明任何专用工具。LLM 通过 AG-UI 请求载荷看到用 `useComponent` 注册的组件，并在用户要求它所呈现的内容时选中该组件。
 
     ```python title="src/agents/chart_agent.py"
     from llama_index.llms.openai import OpenAI
@@ -15,10 +12,9 @@
 
   </Step>
   <Step>
-    ### Tell the model when to call it
+    ### 告诉模型何时调用它
 
-    The tool arrives on every run, but a model with no instruction about it will
-    answer in prose instead of calling it. Name the tool in the system prompt.
+    该工具会随每次运行一起送达，但如果模型没有收到任何关于它的指示，就会用文字作答而不是调用它。请在系统提示（system prompt）中写明这个工具的名字。
 
     ```python title="src/agents/chart_agent.py"
     SYSTEM_PROMPT = """You are a data visualization assistant.

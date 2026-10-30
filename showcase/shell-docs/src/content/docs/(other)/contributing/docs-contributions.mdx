@@ -1,24 +1,24 @@
 ---
-title: Documentation Contributions
+title: 文档贡献
 ---
 
-We move quickly and our docs sometimes lag the code, so contributions to the documentation site are very welcome.
+我们迭代很快，文档有时会滞后于代码，因此非常欢迎对文档站的贡献。
 
-The documentation site lives in `showcase/shell-docs` inside the [CopilotKit](https://github.com/CopilotKit/CopilotKit) monorepo. It is a [Fumadocs](https://fumadocs.dev/) site; the legacy Nextra `docs/` tree is being phased out and is no longer the right place to author new content.
+文档站位于 [CopilotKit](https://github.com/CopilotKit/CopilotKit) monorepo 中的 `showcase/shell-docs`。它是一个 [Fumadocs](https://fumadocs.dev/) 站点；旧版 Nextra 的 `docs/` 目录正在逐步淘汰，不再是撰写新内容的正确位置。
 
-## Prerequisites
+## 前置条件
 
-- [Node.js](https://nodejs.org/en/) 20.x or later
-- [pnpm](https://pnpm.io/) v10.x installed globally (`npm i -g pnpm@^10`)
-- [Nx](https://nx.dev/) — used to drive all tasks in the monorepo. You don't need to install it globally; the repo's `pnpm install` provides everything.
+- [Node.js](https://nodejs.org/en/) 20.x 或更高版本
+- 全局安装 [pnpm](https://pnpm.io/) v10.x（`npm i -g pnpm@^10`）
+- [Nx](https://nx.dev/)——用于驱动 monorepo 中的所有任务。无需全局安装，仓库的 `pnpm install` 会提供一切。
 
-## How To Contribute
+## 如何贡献
 
 <Steps>
   <Step>
-  ### Fork and clone the repository
+  ### 复刻并克隆仓库
 
-First, fork the [CopilotKit GitHub repository](https://github.com/CopilotKit/CopilotKit), then clone your fork:
+首先，复刻（fork）[CopilotKit GitHub 仓库](https://github.com/CopilotKit/CopilotKit)，然后克隆你的复刻：
 
 ```shell
 git clone https://github.com/<your-username>/CopilotKit
@@ -26,56 +26,56 @@ cd CopilotKit
 pnpm install
 ```
 
-`pnpm install` at the repo root installs every package in the workspace and wires up the lefthook pre-commit hook (lint, format, test) — running it once is required before your first commit.
+在仓库根目录运行 `pnpm install` 会安装 workspace 中的每个包，并配置好 lefthook pre-commit 钩子（lint、format、test）——首次提交之前必须运行一次。
 
   </Step>
   <Step>
-  ### Run the documentation site locally
+  ### 在本地运行文档站
 
-The shell-docs site is an Nx project (`@copilotkit/showcase-shell-docs`). Run it through Nx from the repo root:
+shell-docs 站点是一个 Nx 项目（`@copilotkit/showcase-shell-docs`）。在仓库根目录通过 Nx 运行它：
 
 ```shell
 nx run shell-docs:dev
 ```
 
-The site is served at [http://localhost:3003](http://localhost:3003). If you prefer to run it from the package directory, `cd showcase/shell-docs && pnpm dev` works too — both go through the same script.
+站点将在 [http://localhost:3003](http://localhost:3003) 上提供服务。如果你更愿意在包目录中运行，`cd showcase/shell-docs && pnpm dev` 也可以——两者走的是同一个脚本。
 
 <Callout type="info">
-Always prefer running tasks via Nx (`nx run`, `nx run-many`, `nx affected`) rather than the underlying tooling directly. This is the convention across the monorepo and ensures task dependencies are respected.
+请始终优先通过 Nx（`nx run`、`nx run-many`、`nx affected`）运行任务，而不是直接使用底层工具。这是整个 monorepo 的约定，可确保任务依赖得到遵守。
 </Callout>
 
   </Step>
   <Step>
-  ### Make your changes
+  ### 进行修改
 
-Documentation pages live under:
+文档页面位于：
 
 ```
 showcase/shell-docs/src/content/docs/
 ```
 
-A few conventions to keep in mind:
+需要记住的几条约定：
 
-- The site is built with **Fumadocs**. Content is authored in MDX. Frontmatter (`title`, `description`, `icon`, etc.) drives the sidebar and metadata.
-- For code samples, prefer the **`<Snippet>` region pattern** over hand-inlining code blocks. `<Snippet>` pulls real source from the showcase integrations under `showcase/integrations/<framework>/...` using region markers (e.g. `// region:my-region` … `// endregion:my-region`). This keeps every code sample tied to runnable demo code and lets us catch drift automatically. When in doubt, look at how an adjacent page references the same integration and follow that pattern.
-- Reference pages for hooks, components, and runtime APIs use a `<PropertyReference>` component to render the prop / parameter table. Match the style of an existing reference page in the same directory.
+- 站点使用 **Fumadocs** 构建。内容以 MDX 编写。Frontmatter（`title`、`description`、`icon` 等）驱动侧边栏和元数据。
+- 对于代码示例，优先使用 **`<Snippet>` region 模式**，而不是手工内联代码块。`<Snippet>` 使用 region 标记（如 `// region:my-region` … `// endregion:my-region`）从 `showcase/integrations/<framework>/...` 下的 showcase 集成中提取真实源码。这让每个代码示例都与可运行的演示代码绑定，让我们能够自动发现代码漂移。拿不准时，看看相邻页面是如何引用同一个集成的，并遵循该模式。
+- hook、组件和 runtime API 的参考页面使用 `<PropertyReference>` 组件来渲染 prop/参数表。请与同一目录中现有参考页面的风格保持一致。
 
 <Callout type="info">
-Please review your changes for grammar, spelling, and formatting, and confirm that links, code blocks, and images render correctly in the local dev server before opening a PR.
+打开 PR 之前，请检查自己的变更是否存在语法、拼写和格式问题，并确认链接、代码块和图片在本地开发服务器中正确渲染。
 </Callout>
 
   </Step>
   <Step>
 
-  ### Review changes and submit a pull request
+  ### 检查变更并提交 pull request
 
-Before pushing, the lefthook pre-commit hook will run lint, format, and tests on the affected projects via Nx. If anything fails, fix the issue and commit again — don't bypass the hook.
+推送之前，lefthook pre-commit 钩子会通过 Nx 对受影响的项目运行 lint、format 和测试。如有任何失败，请修复问题后重新提交——不要绕过钩子。
 
-When you're happy with the result, push and open a PR against the [CopilotKit/CopilotKit](https://github.com/CopilotKit/CopilotKit/pulls) repo. Thank you for your contribution!
+对结果满意后，推送并向 [CopilotKit/CopilotKit](https://github.com/CopilotKit/CopilotKit/pulls) 仓库发起 PR。感谢你的贡献！
 
   </Step>
 </Steps>
 
-## Need help?
+## 需要帮助？
 
-If you need help with anything, please don't hesitate to reach out on [Discord](https://discord.gg/6dffbvGU3D). There's a dedicated [#contributing](https://discord.com/channels/1122926057641742418/1183863183149117561) channel.
+如果有任何需要帮助的地方，请随时通过 [Discord](https://discord.gg/6dffbvGU3D) 联系我们。我们有专门的 [#contributing](https://discord.com/channels/1122926057641742418/1183863183149117561) 频道。

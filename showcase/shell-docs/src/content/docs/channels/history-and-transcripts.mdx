@@ -1,28 +1,22 @@
 ---
-title: History and transcripts
+title: 历史与会话记录
 icon: "lucide/MessagesSquareText"
-description: Distinguish Intelligence-managed conversation history from the optional SDK transcript store, and use each without duplicating turns.
+description: 区分 Intelligence 托管的对话历史与可选的 SDK 会话记录存储，并按需使用二者而不重复回合。
 doc_type: explanation
 ---
 
-Channels exposes two different history systems:
+Channels 暴露了两套不同的历史系统：
 
-- Intelligence-managed conversation history rebuilds the selected provider
-  thread for the agent.
-- SDK transcripts create an application-owned, identity-keyed record that can
-  span providers and conversations.
+- Intelligence 托管的对话历史为智能体重建所选提供方的会话线程。
+- SDK 会话记录（transcripts）创建由应用持有、以身份为键的记录，可以跨提供方与对话。
 
-Choose one based on the behavior you need. They are not interchangeable.
+根据你需要的行为选择其一。二者不可互换。
 
-## Use managed conversation history
+## 使用托管对话历史
 
-On each delivered turn, Intelligence fetches recent messages for that native
-conversation and seeds a fresh agent instance. The default history limit in the
-managed adapter is 20 messages.
+在每个被投递的回合上，Intelligence 会为该原生会话拉取近期消息，并以此初始化一个新的智能体实例。托管适配器中的默认历史上限是 20 条消息。
 
-The current inbound turn is not part of the fetched history. `runAgent()`
-automatically injects it when `prompt` is omitted. Build an explicit prompt when
-you need both the message text and hydrated attachments:
+当前入站回合不在拉取到的历史之中。省略 `prompt` 时，`runAgent()` 会自动注入它。当你同时需要消息文本与已水合附件时，请构建显式提示：
 
 ```ts title="channel.ts"
 channel.onMessage(async ({ thread, message }) => {
@@ -39,14 +33,11 @@ channel.onMessage(async ({ thread, message }) => {
 });
 ```
 
-Create a fresh agent for every `conversationKey`; the managed adapter assigns
-the reconstructed messages to that instance. Sharing one mutable agent between
-threads can leak or overwrite history.
+为每个 `conversationKey` 创建全新的智能体实例；托管适配器会把重建出的消息分配给该实例。在多个线程之间共享同一个可变智能体可能导致历史泄露或被覆盖。
 
-## Read the current provider thread
+## 读取当前提供方线程
 
-`thread.getMessages()` returns a best-effort, oldest-first text view of recent
-history:
+`thread.getMessages()` 返回近期历史的文本视图（尽力而为、由旧到新）：
 
 ```ts title="read-thread.ts"
 const messages = await thread.getMessages();
@@ -55,22 +46,14 @@ const transcript = messages
   .join("\n");
 ```
 
-On the managed path, history-fetch failures return `[]` instead of failing the
-turn. The method is text-oriented: binary image, audio, and video content is
-available to the agent through multimodal history, but is not reproduced as
-binary data in `ThreadMessage`.
+在托管路径上，历史拉取失败会返回 `[]` 而不是让回合失败。该方法是面向文本的：二进制的图片、音频和视频内容可通过多模态历史提供给智能体，但不会以二进制数据的形式复现在 `ThreadMessage` 中。
 
-## Add cross-platform SDK transcripts
+## 增加跨平台 SDK 会话记录
 
-Use SDK transcripts when your application needs a user-centric record across
-Slack and Teams. Configure top-level `identifyUser` and `store.transcripts`.
-When identity resolves to `null`, the transcript bridge skips personal reads
-and writes.
+当你的应用需要跨 Slack 和 Microsoft Teams 的以用户为中心的记录时，使用 SDK 会话记录。配置顶层的 `identifyUser` 与 `store.transcripts`。当身份解析为 `null` 时，会话记录桥会跳过个人读写。
 
-<Callout type="info" title="Resolve the current actor first">
-  Read [Identity and Memory](/channels/identity-and-memory) before using a
-  provider actor as an application user. A shared provider conversation has no
-  personal owner, and each event resolves its actor independently.
+<Callout type="info" title="先解析当前操作者">
+  在把提供方 actor 当作应用用户使用之前，先阅读[身份与记忆](/channels/identity-and-memory)。共享的提供方对话没有个人属主，且每个事件都会独立解析自己的 actor。
 </Callout>
 
 <FrontendOnly frontend="slack">
@@ -129,17 +112,13 @@ const channel = createChannel({
 
 </FrontendOnly>
 
-Provider user ids are not cross-platform identities. Resolve them to a stable
-application user id, verified email, or another identity your application
-controls. Returning `null` skips transcript storage for that turn.
+提供方用户 id 不是跨平台身份。请把它们解析为稳定的应用用户 id、已验证邮箱，或你的应用控制的另一种身份。返回 `null` 会跳过该回合的会话记录存储。
 
-The transcript list facet must be durable if this record must survive a restart.
-The default `MemoryStore` is not sufficient.
+如果该记录必须在重启后仍然存在，会话记录的列表 facet 必须是持久化的。默认的 `MemoryStore` 不够。
 
-## Let `runAgent` bridge the transcript once
+## 让 `runAgent` 只桥接一次会话记录
 
-Set `transcript: true` to inject prior SDK transcript entries, append the
-current user turn, run the agent, and capture its reply:
+设置 `transcript: true` 即可注入既有的 SDK 会话记录条目、追加当前用户回合、运行智能体并捕获其回复：
 
 ```ts title="channel.ts"
 channel.onMessage(async ({ thread, message }) => {
@@ -150,13 +129,11 @@ channel.onMessage(async ({ thread, message }) => {
 });
 ```
 
-Do not also call `channel.transcripts.append()` for the same user and assistant
-turns. `runAgent({ transcript: ... })` owns that bridge and manual appends would
-duplicate the record.
+不要对同一组用户与助手回合再调用 `channel.transcripts.append()`。`runAgent({ transcript: ... })` 负责该桥接，手动追加会造成记录重复。
 
-## Query and delete the application record
+## 查询与删除应用记录
 
-`channel.transcripts` is available after the runner starts the Channel:
+`channel.transcripts` 在 runner 启动 Channel 之后可用：
 
 ```ts title="transcripts.ts"
 const recent = await channel.transcripts.list({
@@ -169,24 +146,18 @@ const { deleted } = await channel.transcripts.delete({
 });
 ```
 
-`list()` returns entries oldest-first. You can filter by platform, thread id, or
-role. Managed entries use the native `"slack"` or `"teams"` provider. Resolve
-cross-provider identity through the application `userId`; use the platform
-filter only when you intentionally want one provider's entries.
+`list()` 按从旧到新的顺序返回条目。你可以按 platform、thread id 或 role 过滤。托管条目使用原生的 `"slack"` 或 `"teams"` 提供方。跨提供方身份请通过应用侧的 `userId` 解析；仅当你明确只想要某一个提供方的条目时才使用 platform 过滤。
 
-`delete()` removes the SDK-owned transcript for that user; provider history and
-any separate Intelligence retention policy remain independent.
+`delete()` 会移除该用户名下由 SDK 持有的会话记录；提供方历史以及 Intelligence 另行的保留策略保持独立。
 
-## Pick the right source
+## 选对数据来源
 
-| Need                                                | Use                                                                     |
+| 需求                                                | 使用                                                                    |
 | --------------------------------------------------- | ----------------------------------------------------------------------- |
-| Continue the current Slack or Teams conversation    | Managed conversation history                                            |
-| Inspect recent text in one provider thread          | `thread.getMessages()`                                                  |
-| Carry user context between Slack and Teams          | SDK transcripts with a stable identity                                  |
-| Store workflow progress                             | `thread.state()`                                                        |
-| Meet application deletion or retention requirements | A durable SDK transcript store plus your provider/Intelligence policies |
+| 继续当前的 Slack 或 Microsoft Teams 对话             | 托管对话历史                                                             |
+| 查看某个提供方线程中的近期文本                       | `thread.getMessages()`                                                  |
+| 在 Slack 与 Microsoft Teams 之间携带用户上下文       | 搭配稳定身份的 SDK 会话记录                                              |
+| 存储工作流进度                                       | `thread.state()`                                                        |
+| 满足应用的删除或保留要求                             | 持久化的 SDK 会话记录存储，外加你的提供方/Intelligence 策略               |
 
-See the [`Transcripts` reference](/reference/channels/classes/Transcripts) and
-[persistence guide](/channels/persistence-and-scaling) before enabling this in
-production.
+在生产环境启用这些能力之前，请参阅 [`Transcripts` 参考](/reference/channels/classes/Transcripts)与[持久化指南](/channels/persistence-and-scaling)。

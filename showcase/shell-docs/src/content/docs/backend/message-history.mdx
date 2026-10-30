@@ -1,57 +1,33 @@
 ---
-title: "Message history"
+title: "消息历史"
 icon: "lucide/Scissors"
-description: "Trim the conversation history CopilotKit forwards to an agent that already stores its own."
+description: "裁剪 CopilotKit 转发给已有自己存储的智能体的会话历史。"
 ---
 
-CopilotKit forwards the whole conversation on every run. The frontend holds the
-transcript, and each run carries it to your agent as `input.messages`. A
-stateless agent needs that, because the transcript is the only record of the
-conversation.
+CopilotKit 在每次运行时转发整个会话。前端持有会话记录，每次运行把它作为 `input.messages` 带给你的智能体。无状态智能体需要它，因为会话记录是这场对话唯一的存档。
 
-An agent that stores its own history does not need it. If your backend keeps a
-LangGraph checkpointer, Mastra memory, an AWS Strands `SessionManager`, or a
-Microsoft Agent Framework chat-history provider, then two copies of the
-conversation exist. This page shows how to forward less.
+自己存储历史的智能体则不需要它。如果你的后端保存着 LangGraph checkpointer、Mastra memory、AWS Strands 的 `SessionManager` 或 Microsoft Agent Framework 的聊天历史提供方，那么会话就存在两份拷贝。本页介绍如何转发得更少。
 
-Most applications need one prop: `messageFilter` on the provider. The rest of
-this page covers the cases it does not reach, which are trimming inside the
-runtime and trimming an agent you construct yourself.
+大多数应用只需要一个属性：provider 上的 `messageFilter`。本页其余部分覆盖它够不到的场景，即在运行时内裁剪和裁剪你自己构造的智能体。
 
-## When to trim
+## 何时裁剪
 
-Trim the forwarded history if your agent stores the conversation itself. Two
-symptoms point here:
+如果你的智能体自己存储会话，就裁剪转发的历史。两个征兆指向这里：
 
-- **Duplicated history.** Your agent merges the messages CopilotKit sends with
-  the messages it already stored, so the model receives every turn twice. Token
-  cost doubles. The merge can also separate a tool call from its result. A
-  backend whose stored history ends with a pending tool call appends the
-  forwarded copy after that call. The call is then no longer followed by its
-  result, and Anthropic rejects the run. This is the human-in-the-loop failure
-  reported on
-  [#1482](https://github.com/CopilotKit/CopilotKit/issues/1482#issuecomment-4555989351).
-- **Large requests.** The request body grows with the conversation. Long threads
-  raise latency on every turn, and a proxy can reject the request with HTTP 413.
+- **历史重复。**你的智能体把 CopilotKit 发来的消息与它已存储的消息合并，于是模型每一轮都收到两遍。Token 成本翻倍。合并还可能把工具调用与它的结果拆开。存储的历史若以一个待决的工具调用结尾，后端会把转发的拷贝追加到该调用之后。这个调用后面就不再跟着它的结果，Anthropic 会拒绝这次运行。这就是 [#1482](https://github.com/CopilotKit/CopilotKit/issues/1482#issuecomment-4555989351) 上报告的人机协同失败。
+- **请求过大。**请求体随会话增长。长线程抬高每一轮的延迟，代理还可能以 HTTP 413 拒绝请求。
 
-Do not trim if your agent is stateless. A stateless agent reads the conversation
-only from `input.messages`, so a trimmed payload erases its memory of the
-thread.
+如果你的智能体是无状态的，就不要裁剪。无状态智能体只从 `input.messages` 读取会话，裁剪后的载荷会抹掉它对线程的记忆。
 
-<Callout type="warn" title="Keep tool calls and tool results together">
-Every tool result you forward must reach the model with its tool call, and the
-call must be answered by the message right after it. A filter that keeps "the
-last message only" splits that pair and breaks human-in-the-loop runs.
+<Callout type="warn" title="把工具调用与工具结果放在一起">
+你转发的每个工具结果都必须连同它的工具调用一起到达模型，且该调用必须由紧随其后的消息应答。只保留“最后一条消息”的过滤器会拆散这对组合，破坏人机协同运行。
 
-`messageFilter` repairs the pair for you, so the browser recipe below is safe
-however blunt your rule is. A middleware filter has to do it itself, which is
-what `lastTurnOnly` is for.
+`messageFilter` 会替你修复这对组合，所以无论你的规则多么粗暴，下面的浏览器方案都是安全的。中间件过滤器必须自己做这件事，`lastTurnOnly` 正是为此而生。
 </Callout>
 
-## Trim from the browser
+## 从浏览器裁剪
 
-`messageFilter` on the provider decides what each run puts on the wire. Return
-the messages to send:
+provider 上的 `messageFilter` 决定每次运行发上线路的是什么。返回要发送的消息：
 
 <FrontendOnly frontend="react">
 ```tsx title="app/page.tsx"
@@ -111,52 +87,26 @@ import { CopilotKitProvider } from "@copilotkit/react-native";
 ```
 </FrontendOnly>
 
-This is the shortest fix for both symptoms at once. The request body shrinks,
-and your agent stops merging a second copy of the conversation into its own
-store. It reaches the agents CopilotKit discovers from `runtimeUrl`, which is
-the case most applications have.
+这是一揽子解决两个征兆的最短修复。请求体变小，你的智能体也不再往自己的存储里合并第二份会话拷贝。它作用于 CopilotKit 从 `runtimeUrl` 发现的智能体，这正是大多数应用的情况。
 
-A rule this blunt is safe here. CopilotKit repairs broken tool-call pairs before
-the request goes out, and the repair restores rather than discards: a forwarded
-tool result gets its call put back directly in front of it, and a forwarded call
-gets its result back. `slice(-1)` therefore cannot strand a human-in-the-loop
-approval.
+在这里，如此粗暴的规则是安全的。CopilotKit 会在请求发出前修复损坏的工具调用对，而且修复是恢复而非丢弃：被转发的工具结果，它的调用会被直接放回它前面；被转发的调用，它的结果会被找回。因此 `slice(-1)` 不会让人机协同审批悬空。
 
-Four things the filter does not touch:
+过滤器不碰的四样东西：
 
-- **The chat UI.** It rewrites the request body only. The transcript renders in
-  full.
-- **Agents you pass in yourself** through `selfManagedAgents`. Those instances
-  are yours, so use a middleware on them — see below.
-- **CopilotKit Intelligence runs.** That runtime is the store of record for the
-  thread, so the client does not get to truncate what reaches it.
-- **Suggestion runs.** A suggestion runs on a fresh thread, so the messages sent
-  with it are the only context the provider has.
+- **聊天 UI。**它只改写请求体。会话记录完整渲染。
+- **你自己传入的智能体**（通过 `selfManagedAgents`）。那些实例归你所有，请对它们使用中间件——见下文。
+- **CopilotKit Intelligence 运行。**那个运行时是线程的权威存储，客户端无权截断送达它的内容。
+- **建议运行。**建议运行在一个全新线程上，随它发送的消息是 provider 仅有的上下文。
 
-If the filter throws or returns something that is not an array, CopilotKit warns
-and sends the full thread. Trimming is an optimization, so a bug in it does not
-fail the run.
+如果过滤器抛错或返回了非数组的东西，CopilotKit 会告警并发送完整线程。裁剪是一种优化，它出 bug 不会让运行失败。
 
-Prefer a stable reference, such as `useCallback` in React. An inline arrow
-re-registers the filter on every render, which is harmless but needless.
+优先使用稳定的引用，比如 React 中的 `useCallback`。内联箭头函数会在每次渲染时重新注册过滤器，无害但没有必要。
 
-## Write a filter for middleware
+## 为中间件编写过滤器
 
-Use this instead when you trim inside the runtime, or on an agent you construct
-yourself. There is no repair pass on those paths, so the filter has to keep the
-pairs valid on its own. It needs two pieces: a filter that chooses the messages,
-and an [AG-UI middleware](/agentic-protocols/ag-ui-middleware) that applies it.
-Put both in one module.
+当你在运行时内裁剪，或在自己构造的智能体上裁剪时，改用这个方式。这些路径上没有修复环节，所以过滤器必须自己保持调用对有效。它需要两块：一个挑选消息的过滤器，和一个应用它的 [AG-UI 中间件](/agentic-protocols/ag-ui-middleware)。把两者放在同一个模块里。
 
-The filter below keeps the final turn, which is the last user message and
-everything after it. A tool call and its result normally sit inside one turn, so
-the pair survives. The rest covers the exception. A human-in-the-loop run can
-leave a tool call in an earlier turn, so the filter pulls that call back in. It
-pulls back only the calls that a forwarded result answers, because an assistant
-message can hold several tool calls and forwarding a call whose result you
-dropped recreates the error you are trying to avoid. It also puts each rescued
-call directly in front of the result that answers it, because a provider expects
-a tool call to be answered by the message right after it.
+下面的过滤器保留最后一轮，即最后一条用户消息及其后的所有内容。工具调用与它的结果通常位于同一轮内，因此这对组合得以幸存。其余部分处理例外情况。人机协同运行可能把一个工具调用留在更早的轮次，所以过滤器会把那个调用拉回来。它只拉回那些有转发结果应答的调用，因为一条助手消息可能持有多个工具调用，而转发一个你已丢弃其结果的调用，会重新制造你正想避免的错误。它还会把每个获救的调用直接放到应答它的结果前面，因为 provider 期望工具调用由紧随其后的消息应答。
 
 ```ts title="trim-history.ts" doctest="component"
 import {
@@ -240,15 +190,11 @@ export class TrimHistoryMiddleware extends Middleware {
 }
 ```
 
-Adapt the rule to what your backend stores. If your agent keeps the last ten
-turns, forward the same window.
+把规则适配到你后端存储的内容。如果你的智能体保留最后十轮，就转发同样的窗口。
 
-### Check it on a turn with two tool calls
+### 在含两个工具调用的一轮上验证
 
-One assistant message can hold several tool calls, and the kept turn can carry
-the result for only one of them. The rescue pass must forward that one call and
-drop the other, because a forwarded call whose result you dropped is the broken
-pair this page is about. Run this against your own filter:
+一条助手消息可以持有多个工具调用，而保留的轮次可能只带着其中一个的结果。救援环节必须转发那一个调用并丢弃另一个，因为转发了却丢了结果的调用正是本页讨论的损坏组合。用你自己的过滤器跑一跑这个：
 
 ```ts title="check-trim-history.ts" doctest="script"
 import { strict as assert } from "node:assert";
@@ -323,11 +269,9 @@ trimmedParallel.forEach((message, index) => {
 console.log("trim-history: forwarded only the answered call, next to its result");
 ```
 
-## Trim inside the runtime
+## 在运行时内裁剪
 
-The middleware rewrites `input.messages` before the run reaches your agent. It
-runs server-side, inside the runtime, so the browser cannot change it. Attach it
-to the agent before you register the agent with the runtime:
+中间件在运行到达你的智能体之前改写 `input.messages`。它在服务器端、运行时内部执行，浏览器无法改变它。在把智能体注册进运行时之前，先把它挂到智能体上：
 
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
 import { HttpAgent } from "@ag-ui/client";
@@ -342,27 +286,16 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-`.use()` is on `AbstractAgent`, so this works for any agent the runtime
-registers, whatever framework it wraps.
+`.use()` 定义在 `AbstractAgent` 上，因此无论包装的是哪个框架，运行时注册的任何智能体都适用。
 
-The runtime clones a registered agent for every run, and a clone keeps its
-middleware. One `.use()` call at startup therefore covers every run.
+运行时为每次运行克隆一个已注册的智能体，克隆体会带着它的中间件。因此启动时一次 `.use()` 调用就覆盖了每次运行。
 
-This placement fixes duplicated history. It does not shrink the request the
-browser sends, because the browser still posts the full transcript to your
-runtime. Use `messageFilter` for that, and note that it makes this placement
-redundant for most applications: reach for the runtime when the trimming rule
-has to be server-side, for example when it must hold whatever the frontend
-sends.
+这个位置能修复历史重复。它不会缩小浏览器发送的请求，因为浏览器仍把完整会话记录发到你的运行时。要缩小请用 `messageFilter`，并注意它让这个位置对大多数应用变得多余：当裁剪规则必须在服务器端时——比如必须约束前端发来的任何内容——才动用运行时。
 
-## Trim an agent you construct yourself
+## 裁剪你自己构造的智能体
 
-The same middleware shrinks the request body when you attach it to an agent
-instance you construct yourself, through
-[`selfManagedAgents` or the local development option](/backend/self-managed-agents).
-The filtered messages become the HTTP body, and the transcript in the UI stays
-whole. `selfManagedAgents` belongs to the Enterprise plan, so
-production use needs a `publicLicenseKey`.
+把同一个中间件挂到你自行构造的智能体实例上（通过
+[`selfManagedAgents` 或本地开发选项](/backend/self-managed-agents)），请求体也会缩小。过滤后的消息成为 HTTP 请求体，UI 中的会话记录保持完整。`selfManagedAgents` 属于 Enterprise 计划，生产使用需要 `publicLicenseKey`。
 
 <FrontendOnly frontend="react">
 ```tsx title="app/page.tsx"
@@ -399,27 +332,17 @@ export const appConfig = {
 </FrontendOnly>
 
 <Callout type="info">
-Use this only for agents you construct. CopilotKit owns the agents it discovers
-from `runtimeUrl`: a change to the runtime URL or the transport replaces one,
-and the replacement carries over the thread, the state and the messages, but not
-anything you attached yourself. `messageFilter` is the supported option for
-those, and it survives the replacement because CopilotKit re-applies it.
+这只用于你自己构造的智能体。CopilotKit 拥有它从 `runtimeUrl` 发现的智能体：运行时 URL 或传输方式的变更会替换它们，替换体会继承线程、状态和消息，但不会继承你自己挂上去的任何东西。对那些智能体，受支持的方式是 `messageFilter`，而且它能在替换中幸存，因为 CopilotKit 会重新应用它。
 </Callout>
 
-## What trimming does not change
+## 裁剪不改变什么
 
-- **The chat UI.** Trimming rewrites the payload of one run. The agent keeps its
-  own message list, and the transcript renders in full.
-- **Runtime persistence.** A runtime that stores threads records the events of
-  each run, so earlier turns stay in the thread.
-- **Agent state.** Neither mechanism touches `input.state`, `input.tools`, or
-  `input.context`. Only the message list changes.
+- **聊天 UI。**裁剪只改写一次运行的载荷。智能体保留自己的消息列表，会话记录完整渲染。
+- **运行时持久化。**存储线程的运行时会记录每次运行的事件，因此更早的轮次仍在线程里。
+- **智能体状态。**两种机制都不触及 `input.state`、`input.tools` 或 `input.context`。只有消息列表变化。
 
-## Related
+## 相关内容
 
-- [AG-UI Middleware](/agentic-protocols/ag-ui-middleware): the middleware
-  lifecycle and the `Middleware` base class.
-- [Self-managed agents](/backend/self-managed-agents): passing your own agent
-  instances to the frontend provider.
-- [AgentRunner and persistence](/backend/agent-runner): where the runtime keeps
-  thread history.
+- [AG-UI 中间件](/agentic-protocols/ag-ui-middleware)：中间件生命周期与 `Middleware` 基类。
+- [自管理智能体](/backend/self-managed-agents)：把你自己构造的智能体实例传给前端 provider。
+- [AgentRunner 与持久化](/backend/agent-runner)：运行时把线程历史保存在哪里。

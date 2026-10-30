@@ -1,10 +1,8 @@
 <Steps>
   <Step>
-    ### Nothing to wire on the agent
+    ### 无需在智能体端做任何接线
 
-    CopilotKit's runtime forwards frontend tool definitions to the agent at
-    request time, so the agent can call a component registered with
-    `useComponent` by name. There are no backend tools to declare.
+    CopilotKit 的运行时会在请求时把前端工具定义转发给智能体，因此智能体可以按名字调用用 `useComponent` 注册的组件。这里没有任何需要声明的后端工具。
 
     ```python title="src/agents/chart_agent.py"
     from agent_framework import Agent
@@ -17,11 +15,9 @@
 
   </Step>
   <Step>
-    ### Tell the model when to call it
+    ### 告诉模型何时调用它
 
-    The agent's job here is to recognize the intent in the user's message and
-    emit a tool call with structured data. Say so in the instructions, or the
-    model will answer in prose and the component will never render.
+    智能体在这里的任务是识别用户消息中的意图，并发出带有结构化数据的工具调用。请在 instructions 里明确说明这一点，否则模型会用文字作答，组件也永远不会渲染。
 
     ```python title="src/agents/chart_agent.py"
     SYSTEM_PROMPT = """

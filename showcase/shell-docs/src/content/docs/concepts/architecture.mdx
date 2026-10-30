@@ -1,20 +1,20 @@
 ---
-title: Architecture
-description: How CopilotKit's pieces fit together
+title: 架构
+description: CopilotKit 的各部分如何协同工作
 icon: "lucide/Boxes"
 doc_type: explanation
 ---
 
-CopilotKit is a three-layer stack — **frontend, runtime, agent** — connected by the open **[AG-UI](/agentic-protocols/ag-ui)** event protocol. The runtime lives in your own application server, so the only thing between your UI and your agent is a wire format you can inspect.
+CopilotKit 是一个三层栈——**前端、运行时、智能体**——由开放的 **[AG-UI](/agentic-protocols/ag-ui)** 事件协议连接。运行时位于你自己的应用服务器中，因此在你的 UI 与 agent 之间只隔着一种可审查的线上格式。
 
-## The 30-second version
+## 30 秒版
 
-- **Frontend.** A framework-native SDK and prebuilt chat components that connect your UI to a running agent.
-- **Runtime.** A request handler mounted in your app server (Next.js, Express, Hono, Bun, Deno, Workers). Brokers auth, tool calls, and the AG-UI stream.
-- **Agent.** Any AG-UI-compatible backend — Built-in, LangGraph, Mastra, CrewAI, Pydantic AI, MAF, or your own.
-- **AG-UI** is the wire format: 16 event types, transport-agnostic, framework-agnostic. Swap any layer without rewriting the others.
+- **前端**。框架原生的 SDK 与预构建聊天组件，把你的 UI 连接到运行中的 agent。
+- **运行时**。挂载在你应用服务器中的请求处理器（Next.js、Express、Hono、Bun、Deno、Workers）。负责中介身份验证、工具调用和 AG-UI 流。
+- **智能体**。任何兼容 AG-UI 的后端——内置智能体、LangGraph、Mastra、CrewAI、Pydantic AI、MAF，或你自己的实现。
+- **AG-UI** 是线上格式：16 种事件类型，传输无关、框架无关。可以替换任意一层而无需重写其他层。
 
-## The three layers
+## 三个层次
 
 <ImageZoom
   src="https://cdn.copilotkit.ai/docs/copilotkit/images/architecture-diagram.png"
@@ -23,47 +23,44 @@ CopilotKit is a three-layer stack — **frontend, runtime, agent** — connected
   height={1000}
 />
 
-### 1. Frontend
+### 1. 前端
 
-The application your users interact with. CopilotKit ships framework-native
-state and tool APIs plus prebuilt components such as `CopilotChat`,
-`CopilotSidebar`, and `CopilotPopup`. Use a prebuilt chat surface, build a
-fully custom UI with the headless APIs, or mix the two.
+用户直接交互的应用。CopilotKit 提供框架原生的状态与工具 API，以及 `CopilotChat`、`CopilotSidebar`、`CopilotPopup` 等预构建组件。可以使用预构建的聊天界面、用无头（headless）API 构建完全自定义的 UI，或两者混用。
 
-### 2. Runtime
+### 2. 运行时
 
-A request handler that mounts inside your application server (Next.js App Router, Express, Hono, Bun, Deno, Cloudflare Workers). The runtime accepts requests from the frontend, mediates auth and tool calls, and forwards work to your agent over AG-UI. For the framework-agnostic path you can instantiate a `BuiltInAgent` in-process and skip an external agent process entirely.
+挂载在你应用服务器内的请求处理器（Next.js App Router、Express、Hono、Bun、Deno、Cloudflare Workers）。运行时接收来自前端的请求，中介身份验证与工具调用，并通过 AG-UI 把工作转发给你的 agent。走框架无关路径时，你可以在进程内实例化一个 `BuiltInAgent`，完全跳过外部 agent 进程。
 
-### 3. Agent
+### 3. 智能体
 
-The agent backend you choose: LangGraph, Mastra, CrewAI, Pydantic AI, Microsoft Agent Framework, the Built-in Agent, or any custom AG-UI-compatible implementation. The agent runs your prompt, calls tools, emits state, and streams events back to the runtime.
+你选择的 agent 后端：LangGraph、Mastra、CrewAI、Pydantic AI、Microsoft Agent Framework、内置智能体（Built-in Agent），或任何自定义的兼容 AG-UI 实现。agent 运行你的提示、调用工具、发出状态，并把事件流式传回运行时。
 
-## AG-UI: the protocol bridge
+## AG-UI：协议桥梁
 
-CopilotKit doesn't lock you into one agent framework. The runtime talks to your agent over **[AG-UI](/agentic-protocols/ag-ui)**, an open, event-driven protocol that standardizes how agents communicate with applications:
+CopilotKit 不会把你锁死在某个 agent 框架上。运行时通过 **[AG-UI](/agentic-protocols/ag-ui)** 与你的 agent 通信——这是一个开放的、事件驱动的协议，用于标准化 agent 与应用之间的通信方式：
 
-- **Event-driven** — 16 standardized event types (text deltas, tool calls, state snapshots and deltas, run lifecycle) stream from the agent through the runtime to the frontend.
-- **Bidirectional** — users send input, agents respond, agents pause for human-in-the-loop input, frontends expose frontend tools the agent can invoke.
-- **Transport-agnostic** — SSE, WebSockets, webhooks, whatever your stack prefers.
-- **Framework-agnostic** — every supported integration ships a thin AG-UI adapter. Switch backends with one line of runtime configuration.
+- **事件驱动**——16 种标准化事件类型（文本增量、工具调用、状态快照与增量、运行生命周期）从 agent 经运行时流向前端。
+- **双向**——用户发送输入，agent 作出响应，agent 暂停以等待人机协同（human-in-the-loop）输入，前端暴露 agent 可调用的前端工具。
+- **传输无关**——SSE、WebSockets、webhook，任凭你的技术栈选择。
+- **框架无关**——每个受支持的集成都附带一个轻量 AG-UI 适配器。改一行运行时配置即可切换后端。
 
-> *"The future of agents isn't one company or one platform — it's an agentic ecosystem connected by protocols."*
+> *“智能体的未来不属于某一家公司或某一个平台——而是一个由协议连接起来的智能体化生态。”*
 
-Because the contract is a protocol — not an SDK lock-in — you can swap the agent layer without rewriting the frontend, run multiple agent backends side by side, and integrate with anything AG-UI-compatible: MCP servers, A2UI components, Oracle / Google / AWS agent platforms.
+由于这份契约是一个协议——而非 SDK 锁定——你可以在不重写前端的情况下更换 agent 层、并行运行多个 agent 后端，并与任何兼容 AG-UI 的东西集成：MCP 服务器、A2UI 组件、Oracle / Google / AWS 的 agent 平台。
 
-## Request flow at a glance
+## 请求流程一览
 
-1. A user sends a message in your frontend application.
-2. The frontend agent API posts to your runtime endpoint.
-3. Runtime opens an AG-UI session with the configured agent.
-4. Agent emits text, tool calls, and state updates as AG-UI events.
-5. Runtime streams the events back; the frontend renders them in real time.
-6. If the agent calls a frontend tool, the runtime relays the request, your browser handler runs, and the result flows back to the agent.
-7. Threads, persistence, and realtime sync (when configured) are mediated by [CopilotKit Intelligence](/intelligence/overview) — the platform backend that sits beside the runtime.
+1. 用户在你的前端应用中发送一条消息。
+2. 前端 agent API 向你的运行时端点发起请求。
+3. 运行时与所配置的 agent 建立 AG-UI 会话。
+4. agent 以 AG-UI 事件的形式发出文本、工具调用和状态更新。
+5. 运行时将这些事件流式传回；前端实时渲染它们。
+6. 如果 agent 调用了某个前端工具，运行时会转发该请求，你的浏览器端 handler 随之运行，结果再流回 agent。
+7. 线程（Threads）、持久化与实时同步（在配置后）由 [CopilotKit Intelligence](/intelligence/overview) 中介——它是位于运行时旁边的平台后端。
 
-## Where to go next
+## 后续阅读
 
-- **Practical setup** — [Quickstart](/quickstart) wires all three layers in ~10 minutes against the Built-in Agent.
-- **Protocol depth** — [AG-UI documentation](/agentic-protocols/ag-ui) covers every event type, transport option, and middleware hook.
-- **Backend choices** — [Agents & Backends](/) explains the runtime, custom agents, and the trade-offs between Built-in, external frameworks, and bring-your-own.
-- **CopilotKit Intelligence overview** — [CopilotKit Intelligence](/intelligence/overview) covers Threads, persistence, inspection, and the cloud-hosted or self-hosted decision.
+- **动手配置**——[快速开始](/quickstart)在大约 10 分钟内基于内置智能体打通全部三层。
+- **协议细节**——[AG-UI 文档](/agentic-protocols/ag-ui)覆盖每种事件类型、传输选项和中间件钩子。
+- **后端选择**——[智能体与后端](/)讲解运行时、自定义 agent，以及内置、外部框架与自备实现之间的取舍。
+- **CopilotKit Intelligence 概览**——[CopilotKit Intelligence](/intelligence/overview) 覆盖线程（Threads）、持久化、检查功能，以及云端托管与自托管的抉择。

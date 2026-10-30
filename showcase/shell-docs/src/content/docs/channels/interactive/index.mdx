@@ -1,43 +1,32 @@
 ---
-title: Interactive messages and approvals
+title: 交互消息与审批
 nav_title: Interactive messages and approvals
 icon: "lucide/MousePointerClick"
-description: Render portable Slack and Teams UI, handle actions, and resume interrupted agent runs without blocking a managed delivery.
+description: 渲染可移植的 Slack 与 Teams UI、处理操作，并在不阻塞托管投递的情况下恢复被中断的智能体运行。
 doc_type: how-to
 ---
 
-Channels JSX renders portable components as native channel UI. Use it for
-buttons, summaries, and human approval without maintaining provider payloads
-by hand.
+Channels JSX 把可移植组件渲染为原生渠道 UI。用它来做按钮、摘要和人机协同审批，而无需手工维护提供方 payload。
 
 <FrontendOnly frontend="slack">
 
-On Slack, Channels JSX renders as Block Kit. Button clicks return as
-`block_actions` events through the signed managed webhook.
+在 Slack 上，Channels JSX 渲染为 Block Kit。按钮点击会以 `block_actions` 事件的形式经由签名托管的 webhook 返回。
 
-<Callout type="info" title="Use the current Slack manifest">
-  Newly generated Slack manifests enable **Interactivity** and configure the
-  managed callback URL. If the app was created from an older manifest, open the
-  Channel in Intelligence, return to its Slack setup instructions, apply the
-  generated manifest, and reinstall the app before testing buttons. After the
-  reinstall, use the current Bot User OAuth token in Intelligence in case Slack
-  reissued it. See [Configure the Channel in Intelligence](/channels/intelligence).
+<Callout type="info" title="使用当前的 Slack manifest">
+  新生成的 Slack manifest 会启用 **Interactivity** 并配置托管回调 URL。如果应用是由旧 manifest 创建的，请在测试按钮之前：在 Intelligence 中打开该 Channel，回到它的 Slack 配置说明，套用生成的 manifest，并重新安装应用。重新安装后，请在 Intelligence 中使用当前的 Bot User OAuth token，以防 Slack 重新签发过。参见[在 Intelligence 中配置 Channel](/channels/intelligence)。
 </Callout>
 
 </FrontendOnly>
 
 <FrontendOnly frontend="teams">
 
-On Microsoft Teams, Channels JSX renders as Adaptive Cards. Buttons render with
-`Action.Submit`, and clicks return to the managed connection as message
-activities. A Teams `Action.Submit` activity can arrive without a source
-message ref; in that case, `message.ref.id` is empty.
+在 Microsoft Teams 上，Channels JSX 渲染为 Adaptive Cards。按钮以 `Action.Submit` 渲染，点击会以消息活动的形式返回托管连接。Teams 的 `Action.Submit` 活动可能在没有来源消息 ref 的情况下到达；此时 `message.ref.id` 为空。
 
 </FrontendOnly>
 
-## Enable Channels JSX
+## 启用 Channels JSX
 
-The package is ESM-only. Keep `"type": "module"` in `package.json` and add:
+该 package 仅支持 ESM。在 `package.json` 中保留 `"type": "module"`，并添加：
 
 ```json title="tsconfig.json"
 {
@@ -54,9 +43,9 @@ The package is ESM-only. Keep `"type": "module"` in `package.json` and add:
 }
 ```
 
-## Post a native action
+## 发送原生操作
 
-Define a named component and register it on the Channel:
+定义一个具名组件，并在 Channel 上注册它：
 
 ```tsx title="approval-card.tsx"
 import {
@@ -199,86 +188,52 @@ channel.onInterrupt<{ summary: string }>(
 
 </FrontendOnly>
 
-Registration lets the action registry rebuild a named component when a later
-click arrives. Keep component props JSON-serializable.
+注册让操作注册表能在后续点击到达时重建具名组件。请保持组件 props 可 JSON 序列化。
 
-Treat an interaction message as updateable only when `message.ref.id` is
-non-empty. The card update in this example is best-effort: a missing ref or a
-failed update must not prevent `thread.resume(value)` from continuing the
-approval.
+只有当 `message.ref.id` 非空时，才把交互消息当作可更新。本例中的卡片更新是尽力而为：ref 缺失或更新失败都不能阻止 `thread.resume(value)` 继续处理审批。
 
-## Use post-and-resume for managed approvals
+## 用发送-恢复模式处理托管审批
 
-Managed deliveries cannot wait inside `thread.awaitChoice()`. The click arrives
-as a separate claimed delivery, so blocking the first delivery would prevent the
-approval from being processed.
+托管投递不能在 `thread.awaitChoice()` 里等待。点击会作为一条单独的被认领投递到达，因此阻塞第一条投递会让审批无法被处理。
 
-For an agent that emits the SDK-supported `on_interrupt` event, the safe flow
-is:
+对于会发出 SDK 所支持 `on_interrupt` 事件的智能体，安全的流程是：
 
-1. The agent emits an `on_interrupt` event.
-2. `channel.onInterrupt` posts the registered component and returns.
-3. Intelligence acknowledges the original turn.
-4. A later click updates the card when possible and calls
-   `thread.resume(value)`.
-5. The SDK re-enters the agent with the approval result.
+1. 智能体发出 `on_interrupt` 事件。
+2. `channel.onInterrupt` 发送已注册的组件后立即返回。
+3. Intelligence 确认原始回合。
+4. 随后的点击在可能时更新卡片，并调用 `thread.resume(value)`。
+5. SDK 带着审批结果重新进入智能体。
 
-The selected agent framework decides how it emits and consumes the interrupt.
-Follow its [human-in-the-loop guide](/human-in-the-loop) for the agent-side
-interrupt; keep the Channel handler limited to portable presentation and
-`resume`.
+所选智能体框架决定它如何发出与消费中断。智能体侧的中断请遵循其[人机协同指南](/human-in-the-loop)；Channel 处理器只保留可移植的展示与 `resume`。
 
-<Callout type="info" title="Framework interrupt support is not universal">
-  The validated managed path is a DeepAgent tool-driven approval that emits
-  `on_interrupt`, returns from delivery, then resumes from a later interaction.
-  For every other backend, follow its human-in-the-loop guide and run a real
-  provider test that confirms the interrupt reaches `onInterrupt`, the handler
-  returns, the later click calls `resume`, and the agent consumes the value. Do
-  not assume native AG-UI interrupts are portable. The default
-  `sanitizeAgentEvents` behavior repairs a known event-validation issue; it
-  does not add framework interrupt support by itself.
+<Callout type="info" title="框架的中断支持并非普遍具备">
+  经过验证的托管路径是一个由 DeepAgent 工具驱动的审批：发出 `on_interrupt`、从投递中返回，然后从后续交互中恢复。对于其他所有后端，请遵循其人机协同指南，并运行一次真实提供方测试，确认中断到达 `onInterrupt`、处理器返回、后续点击调用了 `resume`、智能体消费了该值。不要假设原生 AG-UI 中断是可移植的。默认的 `sanitizeAgentEvents` 行为会修复一个已知的事件校验问题；它本身并不会增加框架中断支持。
 </Callout>
 
-<Callout type="warn" title="Restart durability needs a StateStore">
-  The managed realtime connection does not automatically persist SDK action
-  snapshots. The default MemoryStore keeps them only in the current process.
-  Registered components make recovery possible, but clicks on pre-restart
-  cards still require a durable
-  `createChannel({ store: { adapter } })` backend. See
-  [Threads and state](/channels/threads-and-state).
+<Callout type="warn" title="重启持久化需要 StateStore">
+  托管的实时连接不会自动持久化 SDK 操作快照。默认的 MemoryStore 只把它们保存在当前进程里。注册组件让恢复成为可能，但对重启前卡片的点击仍需要一个持久化的 `createChannel({ store: { adapter } })` 后端。参见[线程与状态](/channels/threads-and-state)。
 </Callout>
 
-## Capability differences
+## 能力差异
 
-Text and sections are the portable baseline. Interactive behavior also depends
-on the selected provider's app configuration:
+文本与分节（section）是可移植的基线。交互行为还取决于所选提供方的应用配置：
 
 <FrontendOnly frontend="slack">
 
-- Slack can deliver buttons, selects, and inputs through Block Kit. Current
-  generated manifests enable Interactivity; for an older app, open the Channel
-  in Intelligence, apply the generated manifest from its Slack setup
-  instructions, and reinstall it. See
-  [Configure the Channel in Intelligence](/channels/intelligence).
+- Slack 可以通过 Block Kit 投递按钮、下拉选择与输入框。当前生成的 manifest 已启用 Interactivity；对旧应用，请在 Intelligence 中打开该 Channel，从它的 Slack 配置说明中套用生成的 manifest，并重新安装。参见[在 Intelligence 中配置 Channel](/channels/intelligence)。
 
 </FrontendOnly>
 
 <FrontendOnly frontend="teams">
 
-- Teams can deliver `Action.Submit` buttons in Adaptive Cards as message
-  activities.
+- Teams 可以把 Adaptive Cards 中的 `Action.Submit` 按钮作为消息活动投递。
 
 </FrontendOnly>
 
-Other provider-specific features remain capability-gated:
+其他提供方专属特性仍受能力门控：
 
-- Incoming reactions can be handled when Intelligence delivers them, and the
-  managed adapter supports adding or removing documented portable reactions.
-- Modal open/submit callbacks are direct-adapter capabilities, not part of the
-  managed Slack or Teams realtime path.
-- Ephemeral messages, conversation titles, and suggested prompts may return
-  `{ ok: false }`; check the result when your workflow depends on them.
+- 收到的表情回应在 Intelligence 投递时即可处理，托管适配器支持添加或移除文档所列的可移植表情回应。
+- 模态框的打开/提交回调是直连适配器的能力，不属于托管的 Slack 或 Teams 实时路径。
+- 临时消息、会话标题和建议提示可能返回 `{ ok: false }`；当工作流依赖它们时，请检查返回结果。
 
-Use the [JSX callback reference](/reference/channels/types/JSXCallbacks) for
-handler arguments and the [Thread API](/reference/channels/classes/Thread) for
-post, update, and resume signatures.
+处理器参数请参阅 [JSX 回调参考](/reference/channels/types/JSXCallbacks)，post、update 与 resume 的签名请参阅 [Thread API](/reference/channels/classes/Thread)。

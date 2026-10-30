@@ -1,22 +1,18 @@
-Follow the
-[LangGraph TypeScript quickstart](/langgraph-typescript/quickstart) to
-configure the `starterAgent` graph. Start its existing LangGraph server:
+按照 [LangGraph TypeScript 快速开始](/langgraph-typescript/quickstart)配置 `starterAgent` 图。启动它现有的 LangGraph 服务器：
 
-```bash title="Agent application"
+```bash title="智能体应用"
 npx @langchain/langgraph-cli dev --port 8123 --no-browser
 ```
 
-Point the native LangGraph adapter at that deployment:
+将原生 LangGraph 适配器指向该部署：
 
 ```dotenv title=".env"
 LANGGRAPH_DEPLOYMENT_URL=http://localhost:8123
 ```
 
-The Runtime package installed by the Channels quickstart includes the native
-LangGraph adapter.
+Channels 快速开始所安装的 Runtime 包已包含原生 LangGraph 适配器。
 
-LangGraph Server speaks the LangGraph API, so use `LangGraphAgent` rather
-than `HttpAgent`. Return a fresh adapter for every channel thread:
+LangGraph Server 使用 LangGraph API 通信，因此要使用 `LangGraphAgent` 而非 `HttpAgent`。为每个渠道线程返回一个全新的适配器：
 
 ```ts title="agent.ts"
 import { LangGraphAgent } from "@copilotkit/runtime/langgraph";

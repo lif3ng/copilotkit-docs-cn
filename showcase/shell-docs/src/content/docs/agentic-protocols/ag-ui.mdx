@@ -1,50 +1,50 @@
 ---
 title: AG-UI
 icon: "lucide/Zap"
-description: Bring your agents from any framework to your users through AG-UI and CopilotKit.
+description: 通过 AG-UI 与 CopilotKit，把来自任何框架的智能体带给你的用户。
 ---
 
-## What is the AG-UI Protocol?
+## 什么是 AG-UI 协议？
 
-AG-UI is a lightweight, event-based protocol that standardizes how AI agents connect to user-facing applications.
-Built for simplicity and flexibility, it enables seamless integration between AI agents, real time user context, and user interfaces.
-AG-UI is an open standard, developed by the CopilotKit team and several agent framework partners.
+AG-UI 是一个轻量级、基于事件的协议，它标准化了 AI 智能体连接到面向用户的应用的方式。
+它为简洁与灵活而生，让 AI 智能体、实时用户上下文与用户界面之间能够无缝集成。
+AG-UI 是一个开放标准，由 CopilotKit 团队与多个智能体框架合作伙伴共同开发。
 
 <Image
   src="/images/agui-ecosystem-light.png"
-  alt="AG-UI Ecosystem Diagram"
+  alt="AG-UI 生态图"
   width={4096}
   height={2304}
   className="block dark:hidden"
 />
 <Image
   src="/images/agui-ecosystem-dark.png"
-  alt="AG-UI Ecosystem Diagram"
+  alt="AG-UI 生态图"
   width={4096}
   height={2304}
   className="hidden dark:block"
 />
 
-## How CopilotKit uses AG-UI
+## CopilotKit 如何使用 AG-UI
 
-CopilotKit uses AG-UI to abstract the connection between your applications and the AI Agents that power your copilots. Your agents can be built using any AG-UI supporting Agent Framework (a growing list, including LangGraph, Mastra, Pydantic AI and others). This abstraction has several advantages over bespoke framework integrations.
+CopilotKit 使用 AG-UI 来抽象你的应用与驱动你副驾的 AI 智能体之间的连接。你的智能体可以用任何支持 AG-UI 的智能体框架来构建（清单还在不断增长，包括 LangGraph、Mastra、Pydantic AI 等）。与定制的框架集成相比，这一抽象有几个优势。
 
-- **Flexibility and Interoperability**: By adhering to the AG-UI standard, CopilotKit components become interchangeable, allowing developers to use them with any AG-UI-compatible agent or to switch between different backend models without changing the UI.
-- **Unified Communication**: CopilotKit uses the AG-UI protocol to manage all the back-and-forth communication between the frontend and the AI agent, replacing custom WebSocket formats and text parsing.
-- **Frontend Tool Calls**: When an agent needs to use a tool that's integrated into the frontend application, AG-UI events facilitate this interaction.
+- **灵活性与互操作性**：遵循 AG-UI 标准，CopilotKit 组件变得可以互换，开发者可以把它们与任何 AG-UI 兼容的智能体搭配使用，或在不更换 UI 的情况下切换不同的后端模型。
+- **统一的通信**：CopilotKit 使用 AG-UI 协议来管理前端与 AI 智能体之间的全部往返通信，取代了自定义的 WebSocket 格式与文本解析。
+- **前端工具调用**：当智能体需要使用集成在前端应用中的工具时，AG-UI 事件会促成这一交互。
 
 <FrontendOnly frontend="react">
-- **UI Components**: CopilotKit provides React components that are built for the AG-UI protocol. These components use AG-UI events to receive and display streaming AI responses and other data from the agent, creating a rich user experience.
+- **UI 组件**：CopilotKit 提供为 AG-UI 协议而构建的 React 组件。这些组件使用 AG-UI 事件来接收并展示流式 AI 响应与来自智能体的其他数据，营造丰富的用户体验。
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
-- **UI Components**: CopilotKit provides Angular components that are built for the AG-UI protocol. These components use AG-UI events to receive and display streaming AI responses and other data from the agent, creating a rich user experience.
+- **UI 组件**：CopilotKit 提供为 AG-UI 协议而构建的 Angular 组件。这些组件使用 AG-UI 事件来接收并展示流式 AI 响应与来自智能体的其他数据，营造丰富的用户体验。
 </FrontendOnly>
 
 <FrontendOnly frontend="vue">
-- **UI Components**: CopilotKit provides Vue components that are built for the AG-UI protocol. These components use AG-UI events to receive and display streaming AI responses and other data from the agent, creating a rich user experience.
+- **UI 组件**：CopilotKit 提供为 AG-UI 协议而构建的 Vue 组件。这些组件使用 AG-UI 事件来接收并展示流式 AI 响应与来自智能体的其他数据，营造丰富的用户体验。
 </FrontendOnly>
 
-- **State Management**: The AG-UI protocol includes events for managing shared state between the frontend and the agent. CopilotKit can then use these events to keep the application's UI and the agent's state synchronized in real-time.
+- **状态管理**：AG-UI 协议包含用于管理前端与智能体之间共享状态的事件。CopilotKit 随后可以利用这些事件，让应用的 UI 与智能体的状态实时保持同步。
 
-To learn more, check out the [AG-UI](https://ag-ui.com) website.
+想了解更多，请访问 [AG-UI](https://ag-ui.com) 网站。

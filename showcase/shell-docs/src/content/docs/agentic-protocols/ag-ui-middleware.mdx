@@ -1,22 +1,19 @@
 ---
-title: AG-UI Middleware
+title: AG-UI 中间件
 icon: lucide/Layers
-description: Configure AG-UI middleware for your CopilotKit application.
+description: 为你的 CopilotKit 应用配置 AG-UI 中间件。
 hideTOC: true
 ---
 
-> AG-UI middleware is fundamentally an [AG-UI protocol](./ag-ui)
-> concept defined upstream in `@ag-ui/client`. This page covers how to
-> wire it into a CopilotKit runtime; for the protocol-level reference
-> (lifecycle, `runNextWithState`, the `Middleware` base class), see the
-> upstream guide at
-> [docs.ag-ui.com/sdk/js/client/middleware](https://docs.ag-ui.com/sdk/js/client/middleware).
+> AG-UI 中间件本质上是 [AG-UI 协议](./ag-ui)的一个概念，在上游的 `@ag-ui/client` 中定义。本页介绍如何
+> 把它接入 CopilotKit 运行时；协议层面的参考（生命周期、`runNextWithState`、`Middleware` 基类）请参阅上游指南
+> [docs.ag-ui.com/sdk/js/client/middleware](https://docs.ag-ui.com/sdk/js/client/middleware)。
 
-AG-UI agents expose a middleware layer via `agent.use(middleware)`, a powerful hook for logging, guardrails, request transformation, and event rewriting. Because CopilotKit runs the middleware server-side inside the [Copilot Runtime](/backend/copilot-runtime), it executes in a trusted environment where the client cannot tamper with it.
+AG-UI 智能体通过 `agent.use(middleware)` 暴露一个中间件层，这是一个强大的钩子，可用于日志记录、护栏（guardrails）、请求转换与事件重写。由于 CopilotKit 在 [Copilot Runtime](/backend/copilot-runtime) 内以服务端方式运行该中间件，它在一个可信环境中执行，客户端无法篡改。
 
-## Defining a Middleware
+## 定义中间件
 
-A middleware extends the `Middleware` base class from `@ag-ui/client` and implements `run(input, next)`. It receives the incoming `RunAgentInput` and returns an `Observable<BaseEvent>`, typically by subscribing to `runNextWithState(input, next)` and transforming the stream:
+中间件继承自 `@ag-ui/client` 的 `Middleware` 基类，并实现 `run(input, next)`。它会接收传入的 `RunAgentInput` 并返回一个 `Observable<BaseEvent>`，通常是订阅 `runNextWithState(input, next)` 并对流进行转换：
 
 ```ts title="my-middleware.ts"
 import {
@@ -44,9 +41,9 @@ export class LoggingMiddleware extends Middleware {
 }
 ```
 
-## Attaching Middleware to an Agent
+## 把中间件挂载到智能体上
 
-Call `.use(...)` on the agent before registering it with the runtime:
+在向运行时注册智能体之前，先对它调用 `.use(...)`：
 
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
 import { CopilotRuntime, InMemoryAgentRunner } from "@copilotkit/runtime/v2";
@@ -65,14 +62,14 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-## Built-in Middleware
+## 内置中间件
 
-The runtime ships first-class middleware options you can enable directly on `CopilotRuntime` without calling `.use()` on each agent:
+运行时内置了一流的中间件选项，你可以直接在 `CopilotRuntime` 上启用，而无需对每个智能体调用 `.use()`：
 
-- **`a2ui`** — apply `A2UIMiddleware` to all (or a subset of) registered agents. See [Copilot Runtime → A2UI](/backend/copilot-runtime#a2ui).
-- **`mcpApps`** — configure MCP servers for all agents from a single place. See [Copilot Runtime → mcpApps](/backend/copilot-runtime#mcpapps).
+- **`a2ui`** —— 对所有（或部分）已注册的智能体应用 `A2UIMiddleware`。参见 [Copilot Runtime → A2UI](/backend/copilot-runtime#a2ui)。
+- **`mcpApps`** —— 从一处为所有智能体配置 MCP 服务器。参见 [Copilot Runtime → mcpApps](/backend/copilot-runtime#mcpapps)。
 
-## Related
+## 相关内容
 
-- [Copilot Runtime](/backend/copilot-runtime) — the server-side layer that executes middleware.
-- [AG-UI Protocol](/backend/ag-ui) — the event stream the middleware operates on.
+- [Copilot Runtime](/backend/copilot-runtime) —— 执行中间件的服务端层。
+- [AG-UI 协议](/backend/ag-ui) —— 中间件所操作的事件流。

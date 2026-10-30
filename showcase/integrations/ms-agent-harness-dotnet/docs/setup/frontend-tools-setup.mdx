@@ -1,12 +1,8 @@
 <Steps>
   <Step>
-    ### Nothing to wire on the agent
+    ### 无需在智能体端做任何接线
 
-    The AG-UI hosting layer merges the request's tool definitions into the tool
-    list the model sees, so the agent declares none of its own. A component
-    registered with `useComponent` reaches the model by name. The harness takes
-    its tool list through `ChatOptions`, and leaving `Tools` empty is correct
-    when the only tools in play are frontend ones.
+    AG-UI 托管层会把请求中的工具定义合并进模型看到的工具列表，因此智能体自身无需声明任何工具。用 `useComponent` 注册的组件会按名字到达模型。harness 通过 `ChatOptions` 接收自己的工具列表，当参与其中的工具只有前端工具时，把 `Tools` 留空即可。
 
     ```csharp title="agent/ChartAgent.cs"
     using Microsoft.Agents.AI;
@@ -38,11 +34,9 @@
 
   </Step>
   <Step>
-    ### Tell the model when to call it
+    ### 告诉模型何时调用它
 
-    This is the part that is easy to miss. The tool arrives on every run, but a
-    model with no instruction about it will answer in prose and never call it.
-    Name the tool in `Instructions` and say what it is for.
+    这一步最容易漏掉。该工具会随每次运行一起送达，但如果模型没有收到任何关于它的指示，就会用文字作答，永远不会调用它。请在 `Instructions` 中写明这个工具的名字，并说明它的用途。
 
     ```csharp title="agent/ChartAgent.cs"
     private const string SystemPrompt = """

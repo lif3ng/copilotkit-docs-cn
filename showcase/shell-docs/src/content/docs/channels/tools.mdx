@@ -1,24 +1,21 @@
 ---
-title: Tools and context
+title: 工具与上下文
 icon: "lucide/Wrench"
-description: Give a Slack or Teams agent typed application actions and the right context for each managed turn.
+description: 为 Slack 或 Teams 智能体提供带类型的应用操作，以及每轮托管运行所需的恰当上下文。
 doc_type: how-to
 ---
 
-Channel tools let your agent call application code while it works in Slack or
-Teams. Context gives the agent information it should consider without exposing
-another callable action.
+渠道工具让你的 agent 在 Slack 或 Teams 中工作的同时调用应用代码。上下文则向 agent 提供它应当考虑的信息，而不暴露另一个可调用操作。
 
-Install the schema library used in these examples:
+安装这些示例用到的 schema 库：
 
 ```bash title="Terminal"
 npm install zod
 ```
 
-## Add a channel-level tool
+## 添加渠道级工具
 
-Use `defineChannelTool` for actions that are available in every conversation.
-The parameter schema becomes the tool's JSON schema and types the handler.
+对每条会话都可用的操作，请使用 `defineChannelTool`。参数 schema 会成为该工具的 JSON schema，并为 handler 提供类型。
 
 ```ts title="tools.ts"
 import { defineChannelTool } from "@copilotkit/channels";
@@ -37,7 +34,7 @@ export const getIncident = defineChannelTool({
 });
 ```
 
-Register it when you create the Channel:
+在创建 Channel 时注册它：
 
 <FrontendOnly frontend="slack">
 
@@ -85,19 +82,18 @@ const channel = createChannel({
 
 </FrontendOnly>
 
-Return information the model can act on:
+返回模型可以直接利用的信息：
 
-- Return raw objects or arrays for data tools.
-- Return a short confirmation when the handler already posted UI.
-- Return or throw the real failure reason so the model can recover.
-- Do not manually `JSON.stringify` successful data.
+- 数据类工具返回原始对象或数组。
+- handler 已经发布 UI 时，返回简短确认。
+- 返回或抛出真实失败原因，让模型可以自行恢复。
+- 不要手动对成功数据调用 `JSON.stringify`。
 
-Want the agent to turn data into an image? Post your own presentational React
-markup through [Posting JSX as images](/channels/posting-jsx-as-images).
+想让 agent 把数据变成图像？请通过[将 JSX 作为图像发布](/channels/posting-jsx-as-images)发布你自己的展示型 React 标记。
 
-## Add stable context
+## 添加稳定上下文
 
-Channel context is sent on every agent run:
+渠道上下文会在每次 agent 运行时发送：
 
 <FrontendOnly frontend="slack">
 
@@ -163,16 +159,13 @@ const channel = createChannel({
 
 </FrontendOnly>
 
-Keep this list stable and small. Fetch frequently changing data through a tool
-instead of embedding stale snapshots in every prompt.
+保持这份列表稳定且精简。频繁变化的数据应通过工具获取，而不是把过时的快照嵌入每条 prompt。
 
-## Use provider and user context for one turn
+## 为单轮使用提供方与用户上下文
 
-On a managed Channel, `message.platform`, `thread.platform`, and a
-channel-level tool's `ctx.platform` report the native origin (`"slack"` or
-`"teams"`).
+在托管 Channel 上，`message.platform`、`thread.platform` 以及渠道级工具的 `ctx.platform` 会报告原生来源（`"slack"` 或 `"teams"`）。
 
-Add native context when you run the agent:
+运行 agent 时添加原生上下文：
 
 ```ts title="channel.ts"
 channel.onMessage(async ({ thread, message }) => {
@@ -196,8 +189,7 @@ channel.onMessage(async ({ thread, message }) => {
 });
 ```
 
-If a tool must be scoped to the current person, define it inside the handler and
-pass it for that run. Its closure captures the trusted inbound identity:
+如果某个工具必须限定于当前用户，请在 handler 内定义它，并只为该次运行传入。它的闭包会捕获可信的入站身份：
 
 ```ts title="channel.ts"
 channel.onMessage(async ({ thread, message }) => {
@@ -218,13 +210,11 @@ channel.onMessage(async ({ thread, message }) => {
 });
 ```
 
-Treat provider actor IDs as external identifiers. Use the resolved application
-`user` for personal product data, and check it for `null` before a write.
+把提供方 actor ID 视为外部标识符。涉及个人产品数据时使用解析后的应用 `user`，并在写入前检查其是否为 `null`。
 
-## Render a tool result as native UI
+## 将工具结果渲染为原生 UI
 
-A tool can post a portable JSX message and return a short acknowledgement to
-the model:
+工具可以发布一条可移植的 JSX 消息，并向模型返回简短确认：
 
 ```tsx title="tools.tsx"
 import { defineChannelTool } from "@copilotkit/channels";
@@ -251,7 +241,7 @@ export const showIncident = defineChannelTool({
 });
 ```
 
-Enable Channels JSX before using this example:
+使用此示例前请先启用 Channels JSX：
 
 ```json title="tsconfig.json"
 {
@@ -264,25 +254,18 @@ Enable Channels JSX before using this example:
 
 <FrontendOnly frontend="slack">
 
-The portable message is rendered as Slack Block Kit before Intelligence sends
-it to the conversation.
+在 Intelligence 把消息发送到会话之前，可移植消息会被渲染为 Slack Block Kit。
 
 </FrontendOnly>
 
 <FrontendOnly frontend="teams">
 
-The portable message is rendered as a Microsoft Teams Adaptive Card before
-Intelligence sends it to the conversation.
+在 Intelligence 把消息发送到会话之前，可移植消息会被渲染为 Microsoft Teams Adaptive Card。
 
 </FrontendOnly>
 
-## Where MCP belongs
+## MCP 的适用位置
 
-Connect MCP servers to the selected agent backend. The Channels SDK forwards
-channel tools over AG-UI alongside the tools already exposed by that agent, so
-you do not need a second channel-specific MCP transport. Start with
-[MCP tools](/agentic-protocols/mcp), then use `defineChannelTool` only for
-actions that need the current channel conversation.
+将 MCP 服务器连接到所选的 agent 后端。Channels SDK 会通过 AG-UI 转发渠道工具，与该 agent 已暴露的工具并存，因此你不需要第二条渠道专用的 MCP 传输。从 [MCP 工具](/agentic-protocols/mcp)开始，然后只把 `defineChannelTool` 用于需要当前渠道会话的操作。
 
-Continue with [interactive messages and approvals](/channels/interactive), or
-use the [Channel API reference](/reference/channels/classes/Channel).
+继续阅读[交互式消息与审批](/channels/interactive)，或使用 [Channel API 参考](/reference/channels/classes/Channel)。

@@ -1,59 +1,47 @@
 ---
-title: Identity and Memory
+title: 身份与记忆
 icon: "lucide/Users"
-description: Resolve provider actors to application users and grant Intelligence Memory safely for each Channel run.
+description: 将提供方 actor 解析为应用用户，并在每次 Channel 运行中安全地授予 Intelligence Memory。
 doc_type: how-to
 ---
 
-Your Channel already receives provider-scoped conversations and actors. This
-guide maps those actors to your application's users, then grants user or project
-Memory explicitly for each agent run.
+你的 Channel 已经在接收提供方作用域的会话与 actor。本指南把这些 actor 映射到你应用的用户，然后在每次智能体运行中显式授予 user 或 project Memory。
 
-## Separate the conversation, actor, and application user
+## 区分会话、actor 与应用用户
 
-One provider conversation can contain several people. Channels therefore keeps
-three identities separate:
+一个提供方会话可能包含多个人。因此，Channels 把三种身份分开维护：
 
 <FrontendOnly frontend="slack">
 
-| Concept | Meaning | Scope |
+| 概念 | 含义 | 作用范围 |
 | ------- | ------- | ----- |
-| Conversation | Slack thread, channel, or DM represented by the Channels `Thread` | Shared Slack conversation |
-| Actor | Slack account that caused the current message, reaction, or interaction | Resolved for each event |
-| Application user | Canonical user returned by your `identifyUser` policy | Developer-owned project identity |
+| 会话 | 由 Channels 的 `Thread` 表示的 Slack 线程、频道或私聊 | 共享的 Slack 会话 |
+| Actor | 触发当前消息、表情回应或交互的 Slack 账户 | 每个事件单独解析 |
+| 应用用户 | 由你的 `identifyUser` 策略返回的规范用户 | 由开发者持有的项目身份 |
 
 </FrontendOnly>
 
 <FrontendOnly frontend="teams">
 
-| Concept | Meaning | Scope |
+| 概念 | 含义 | 作用范围 |
 | ------- | ------- | ----- |
-| Conversation | Teams chat, channel, or thread represented by the Channels `Thread` | Shared Teams conversation |
-| Actor | Teams account that caused the current message, reaction, or interaction | Resolved for each event |
-| Application user | Canonical user returned by your `identifyUser` policy | Developer-owned project identity |
+| 会话 | 由 Channels 的 `Thread` 表示的 Microsoft Teams 聊天、频道或线程 | 共享的 Microsoft Teams 会话 |
+| Actor | 触发当前消息、表情回应或交互的 Microsoft Teams 账户 | 每个事件单独解析 |
+| 应用用户 | 由你的 `identifyUser` 策略返回的规范用户 | 由开发者持有的项目身份 |
 
 </FrontendOnly>
 
-A `Thread` does not have a personal owner. The person who installed the app,
-started the conversation, or sent the first message does not become the Memory
-subject for later participants. Resolve the current actor independently on every
-event.
+`Thread` 没有个人属主。安装应用、发起会话或发出第一条消息的人，并不会成为后续参与者的 Memory 主体。每个事件都要独立解析当前 actor。
 
 <Steps>
   <Step>
-    ### Map the current provider actor
+    ### 映射当前提供方 actor
 
-    `identifyUser` receives the normalized provider, tenant, installation,
-    actor, conversation, and event. Return an application-controlled
-    `{ id, name }` when a trusted mapping exists, or `null` when the actor is
-    intentionally unlinked.
+    `identifyUser` 接收规范化后的 provider、tenant、installation、actor、conversation 和 event。当存在可信映射时，返回一个由应用控制的 `{ id, name }`；当 actor 被有意解除关联时，返回 `null`。
 
     <FrontendOnly frontend="slack">
 
-    For Slack, `tenant.id` identifies the workspace and `actor.id` identifies
-    the Slack account. Channels, private channels, group DMs, and shared
-    threads can all contain several actors, so include the workspace in the
-    external-identity key.
+    对于 Slack，`tenant.id` 标识工作区，`actor.id` 标识 Slack 账户。频道、私有频道、群组私聊和共享线程都可能包含多个 actor，因此要把工作区纳入外部身份键。
 
     ```ts title="channel.ts"
     import { createChannel } from "@copilotkit/channels";
@@ -78,9 +66,7 @@ event.
 
     <FrontendOnly frontend="teams">
 
-    For Microsoft Teams, `tenant.id` identifies the Microsoft tenant and
-    `actor.id` identifies the Teams account. Team channels and group chats can
-    contain several actors, so include the tenant in the external-identity key.
+    对于 Microsoft Teams，`tenant.id` 标识 Microsoft 租户，`actor.id` 标识 Microsoft Teams 账户。团队频道和群聊可能包含多个 actor，因此要把租户纳入外部身份键。
 
     ```ts title="channel.ts"
     import { createChannel } from "@copilotkit/channels";
@@ -103,24 +89,16 @@ event.
 
     </FrontendOnly>
 
-    Replace the map with a lookup in the account-linking data your application
-    owns. Do not automatically link accounts by email address, display name, or
-    handle. Those attributes can change or collide across provider tenants.
+    请把该 Map 替换为在你应用自有的账号关联数据中的查询。不要按邮箱地址、显示名或 handle 自动关联账号。这些属性在不同提供方租户之间可能变化或冲突。
 
-    Returning `null` means that the actor is deliberately unlinked. Throw only
-    when the identity system itself failed. When the adapter provides
-    `lookupProfile`, you may use it to enrich a confirmed provider identity,
-    but profile data does not establish a canonical application account by
-    itself.
+    返回 `null` 表示该 actor 被有意解除关联。只有在身份系统本身出错时才抛异常。当适配器提供 `lookupProfile` 时，你可以用它来补充一个已确认的提供方身份，但资料数据本身不能确立规范的应用账号。
 
   </Step>
 
   <Step>
-    ### Grant Memory for one run
+    ### 为单次运行授予 Memory
 
-    Intelligence Memory is off unless the current `runAgent` call grants
-    access. Each `user` or `project` scope accepts `"none"`, `"read"`, or
-    `"read-write"`:
+    除非当前 `runAgent` 调用授予访问权，否则 Intelligence Memory 处于关闭状态。每个 `user` 或 `project` 作用域接受 `"none"`、`"read"` 或 `"read-write"`：
 
     ```ts title="channel.ts"
     channel.onMessage(async ({ thread, message }) => {
@@ -134,23 +112,16 @@ event.
     });
     ```
 
-    Omitting a scope disables it for that run. Project-only Memory works when
-    `identifyUser` returns `null`; user Memory fails before the agent starts
-    unless the current event resolved to an application user.
+    省略某个作用域即在该次运行中禁用它。当 `identifyUser` 返回 `null` 时，仅 project 的 Memory 仍可工作；除非当前事件解析出了应用用户，否则 user Memory 会在智能体启动之前失败。
 
-    In a shared channel or group chat, project Memory is the safer default.
-    Grant user Memory only when the current turn clearly acts for the resolved
-    individual. Never reuse the installer, thread creator, or first participant
-    as the personal Memory subject for everyone else.
+    在共享频道或群聊中，project Memory 是更安全的默认选择。仅当当前回合明确是在为已解析的个人行事时，才授予 user Memory。绝不要把安装者、线程创建者或首个参与者当作其他所有人的个人 Memory 主体。
 
   </Step>
 
   <Step>
-    ### Choose the subject when resuming an approval
+    ### 恢复审批时选择主体
 
-    A resumed run can grant Memory too. In the callback for a registered
-    component, choose which trusted participant supplies the subject when you
-    grant user Memory:
+    恢复的运行同样可以授予 Memory。在已注册组件的回调中，授予 user Memory 时要选择由哪个可信参与者提供主体：
 
     ```tsx title="approval-button.tsx"
     import { Button } from "@copilotkit/channels/ui";
@@ -181,60 +152,41 @@ event.
     }
     ```
 
-    - `"initiator"` keeps the application user who started the continuation
-      chain.
-    - `"actor"` uses the application user resolved for the current interaction.
-    - Project-only Memory needs no subject.
-    - Callers cannot provide an arbitrary raw user ID.
+    - `"initiator"` 保留发起这条延续链的应用用户。
+    - `"actor"` 使用为当前交互解析出的应用用户。
+    - 仅 project 的 Memory 不需要主体。
+    - 调用方不能提供任意的原始用户 ID。
 
-    Use `"initiator"` when an approval belongs to the person who started the
-    workflow. Use `"actor"` when the current approver should supply the personal
-    context. See [Interactive messages and approvals](/channels/interactive)
-    for the complete registered component and post-and-resume flow.
+    当审批属于发起工作流的人时，使用 `"initiator"`。当应由当前审批人提供个人上下文时，使用 `"actor"`。完整的已注册组件与发送-恢复流程请参阅[交互消息与审批](/channels/interactive)。
 
   </Step>
 
   <Step>
-    ### Verify the identity boundary
+    ### 验证身份边界
 
-    Exercise the mapping with separate provider accounts before enabling it in
-    a shared conversation:
+    在共享会话中启用该映射之前，先用相互独立的提供方账号演练一遍：
 
-    1. Send a message from two actors in the same conversation. Confirm each
-       event looks up the full provider, tenant, and actor tuple and resolves
-       the correct application user independently.
-    2. Test an intentionally unlinked actor. A project-only run should work;
-       requesting user Memory should fail with
-       `channel_memory_user_required` before the agent starts.
-    3. If the Channel uses approvals, start a workflow as one user and click it
-       as another. Verify `"initiator"` preserves the starter and `"actor"`
-       selects the current approver.
-    4. Check application logs and telemetry. Record the stable error code and
-       your application user ID when needed, but do not log provider tokens,
-       message contents, or Memory contents.
+    1. 让两个 actor 在同一会话中各发一条消息。确认每个事件都会查询完整的 provider、tenant、actor 三元组，并独立解析出正确的应用用户。
+    2. 测试一个被有意解除关联的 actor。仅 project 的运行应当正常；请求 user Memory 则应在智能体启动之前以 `channel_memory_user_required` 失败。
+    3. 如果 Channel 使用审批，用一个用户启动工作流，再用另一个用户点击审批。验证 `"initiator"` 保留发起者，而 `"actor"` 选中的是当前审批人。
+    4. 检查应用日志与遥测。需要时记录稳定的错误码和你的应用用户 ID，但不要记录提供方 token、消息内容或 Memory 内容。
 
-    The boundary is ready when every event resolves its current actor, personal
-    Memory follows only that resolved user, and project Memory follows the
-    explicit grant for the run.
+    当每个事件都能解析出当前 actor、个人 Memory 只跟随该已解析用户、且 project Memory 只跟随该次运行的显式授权时，这条边界就算就绪了。
 
   </Step>
 </Steps>
 
-## Handle stable identity and Memory failures
+## 处理稳定的身份与 Memory 错误
 
-Identity and Memory validation fails before the agent runs. The public errors
-expose stable codes:
+身份与 Memory 校验会在智能体运行之前失败。公开的错误暴露稳定的错误码：
 
-| Code | Meaning |
+| 错误码 | 含义 |
 | ---- | ------- |
-| `channel_identity_invalid` | `identifyUser` returned neither `null` nor a non-empty `{ id, name }` user. |
-| `channel_identity_failed` | The custom identity resolver threw. |
-| `channel_memory_grant_invalid` | A Memory scope used an unsupported access value. |
-| `channel_memory_user_required` | The run requested user Memory without a resolved application user. |
-| `channel_memory_unavailable` | The Channel has no attached Intelligence Memory-capable runtime or adapter. |
-| `channel_memory_subject_required` | A resumed run requested user Memory without `"initiator"` or `"actor"`. |
+| `channel_identity_invalid` | `identifyUser` 返回的既不是 `null`，也不是非空的 `{ id, name }` 用户。 |
+| `channel_identity_failed` | 自定义身份解析器抛出了异常。 |
+| `channel_memory_grant_invalid` | 某个 Memory 作用域使用了不受支持的访问值。 |
+| `channel_memory_user_required` | 运行请求了 user Memory，但没有解析出应用用户。 |
+| `channel_memory_unavailable` | Channel 没有附带支持 Intelligence Memory 的运行时或适配器。 |
+| `channel_memory_subject_required` | 恢复的运行请求了 user Memory，但没有指定 `"initiator"` 或 `"actor"`。 |
 
-Use [Threads and state](/channels/threads-and-state) for conversation-scoped
-workflow state and [History and transcripts](/channels/history-and-transcripts)
-for provider history and SDK-owned user transcripts. Those records are separate
-from per-run Intelligence Memory.
+会话作用域的工作流状态请参阅[线程与状态](/channels/threads-and-state)，提供方历史与由 SDK 持有的用户会话记录请参阅[历史与会话记录](/channels/history-and-transcripts)。这些记录与每次运行的 Intelligence Memory 相互独立。

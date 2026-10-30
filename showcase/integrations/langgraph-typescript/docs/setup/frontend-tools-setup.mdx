@@ -1,6 +1,6 @@
 <Steps>
   <Step>
-    ### Install the CopilotKit LangGraph SDK
+    ### 安装 CopilotKit LangGraph SDK
 
     ```bash
     npm install @copilotkit/sdk-js
@@ -8,27 +8,17 @@
 
   </Step>
   <Step>
-    ### Wire CopilotKit state + tools into your graph
+    ### 将 CopilotKit 状态与工具接入你的图
 
-    Frontend tools registered with `useFrontendTool` arrive on the agent's
-    state at `state.copilotkit.actions`. Use `CopilotKitStateAnnotation` to
-    expose that channel on your graph, then call
-    `convertActionsToDynamicStructuredTools(...)` inside your chat node to
-    bind the LLM to those actions.
+    用 `useFrontendTool` 注册的前端工具会到达智能体状态的 `state.copilotkit.actions`。使用 `CopilotKitStateAnnotation` 在你的图上暴露这条通道，然后在你的聊天节点中调用 `convertActionsToDynamicStructuredTools(...)`，将 LLM 绑定到这些操作上。
 
     <DemoCode file="src/agent/frontend-tools.ts" region="setup" />
 
   </Step>
   <Step>
-    ### Call a frontend tool from a node with no model
+    ### 在没有模型的节点中调用前端工具
 
-    A node does not need a model to call a frontend tool. Return an
-    `AIMessage` with a `tool_calls` entry. This example calls the
-    `change_background` tool that the frontend above registers. When the run
-    ends, CopilotKit runs the matching `useFrontendTool` handler in the
-    browser. Then it starts a follow-up run with the result as a
-    `ToolMessage`. Route that run to a node that reads the result, so the
-    graph does not call the tool again:
+    节点无需模型即可调用前端工具：只需返回一条带 `tool_calls` 条目的 `AIMessage`。本例调用的正是上方前端注册的 `change_background` 工具。运行结束后，CopilotKit 会在浏览器中执行匹配的 `useFrontendTool` 处理器，随后带着该结果（作为 `ToolMessage`）发起一次后续运行。把这次运行路由到一个读取结果的节点，这样图就不会再次调用该工具：
 
     ```ts title="src/agent.ts"
     import { randomUUID } from "node:crypto";
@@ -79,9 +69,7 @@
       .compile();
     ```
 
-    The tool call must be in the graph state. `copilotkitEmitToolCall` alone
-    only streams the call. At the end of the run, the messages from the graph
-    state replace the streamed ones, so the handler never runs.
+    工具调用必须存在于图状态中。仅靠 `copilotkitEmitToolCall` 只会流式传输这次调用。运行结束时，图状态中的消息会取代已流式传输的那些消息，因此处理器永远不会执行。
 
   </Step>
 </Steps>

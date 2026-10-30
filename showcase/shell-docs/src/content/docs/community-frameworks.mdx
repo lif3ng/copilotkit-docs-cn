@@ -1,27 +1,27 @@
 ---
-title: Community frameworks
+title: 社区框架
 icon: "lucide/Users"
-description: Frontend packages for CopilotKit that the community builds and maintains.
+description: 由社区构建和维护的 CopilotKit 前端包。
 frontend: universal
 hidePageActions: true
 ---
 
-CopilotKit maintains official packages for React, React Native, Vue and Angular. Community frameworks add other frontends. People outside the core team build and maintain them.
+CopilotKit 为 React、React Native、Vue 和 Angular 维护官方包。社区框架补充其他前端，由核心团队之外的人构建和维护。
 
-## What community means
+## 社区的含义
 
-- **Tested with one version.** Each package lists the `@copilotkit/core` version it is tested with. Use that version.
-- **Updates are best effort.** A community package can fall behind CopilotKit releases. Report problems on GitHub. We read every report, but we do not promise a response time.
-- **Separate releases.** A community package releases on its own schedule. It does not block CopilotKit releases.
-- **Each package's README is its setup guide.** The CopilotKit documentation does not cover community packages.
+- **仅以一个版本测试**。每个包都会列出它经过测试的 `@copilotkit/core` 版本。请使用该版本。
+- **更新属于尽力而为**。社区包可能落后于 CopilotKit 的发布节奏。请在 GitHub 上报告问题。我们会阅读每一份报告，但不承诺响应时间。
+- **独立发布**。社区包按自己的节奏发布，不会阻塞 CopilotKit 的发布。
+- **每个包的 README 就是它的配置指南**。CopilotKit 文档不覆盖社区包。
 
-## Frameworks
+## 框架
 
-| Framework | Status | Tested with | Details |
+| 框架 | 状态 | 测试所用版本 | 详情 |
 | --------- | ------ | ----------- | ------- |
 
-## Request or contribute a framework
+## 请求或贡献框架
 
-To ask for a framework, [open an issue](https://github.com/CopilotKit/CopilotKit/issues/new/choose). Each request tells us which frontends people need.
+想请求某个框架，请[提交 issue](https://github.com/CopilotKit/CopilotKit/issues/new/choose)。每份请求都能让我们了解大家需要哪些前端。
 
-To build one, start from `@copilotkit/core`. It is the framework-neutral layer that the official packages use for agents, tools, context and threads. A community package adds the bindings and the chat UI for its framework.
+要构建一个框架，请从 `@copilotkit/core` 开始。它是框架无关的层，官方包用它处理 agent、工具、上下文和线程。社区包则为其框架添加绑定和聊天 UI。

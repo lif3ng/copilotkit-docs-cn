@@ -1,14 +1,10 @@
-Follow the [Mastra quickstart](/mastra/quickstart) and keep that application
-running with its existing command:
+按照 [Mastra 快速开始](/mastra/quickstart) 操作，并用其原有命令保持该应用运行：
 
-```bash title="Mastra application"
+```bash title="Mastra 应用"
 npm run dev
 ```
 
-Mastra's current Next.js example exposes CopilotKit's single-route protocol,
-not a URL that `HttpAgent` can call directly. Add this one multi-route bridge
-beside the existing route. It reuses the quickstart's registered `myAgent` while
-creating a request-scoped adapter for each incoming thread:
+Mastra 当前的 Next.js 示例暴露的是 CopilotKit 的单路由协议，而不是 `HttpAgent` 能直接调用的 URL。请在现有路由旁边添加下面这个多路由桥接。它复用快速开始中注册的 `myAgent`，同时为每个传入的线程创建一个请求作用域的适配器：
 
 ```ts title="src/app/api/copilotkit/[...path]/route.ts"
 import { getLocalAgent } from "@ag-ui/mastra";
@@ -51,19 +47,17 @@ export const POST = handler;
 export const OPTIONS = handler;
 ```
 
-The standalone Channels runner calls the bridge's concrete agent-run route:
+独立的渠道（Channels）运行器调用的是该桥接中具体的智能体运行路由：
 
 ```dotenv title=".env"
 AGENT_URL=http://localhost:3000/api/copilotkit/agent/myAgent/run
 ```
 
-If you registered a different Mastra agent id, replace `myAgent` in both the
-bridge and URL with that exact id.
+如果你注册的是别的 Mastra 智能体 id，请把桥接代码和 URL 中的 `myAgent` 都替换为那个确切的 id。
 
-Install the HTTP adapter in the Channels runner and create a fresh client for
-each channel thread:
+在渠道运行器中安装 HTTP 适配器，并为每个渠道线程创建一个全新的客户端：
 
-```bash title="Channels runner"
+```bash title="渠道运行器"
 npm install @ag-ui/client@0.0.59
 ```
 

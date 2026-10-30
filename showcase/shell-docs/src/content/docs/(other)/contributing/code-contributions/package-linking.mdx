@@ -1,19 +1,19 @@
 ---
-title: "Advanced: Package Linking"
+title: "进阶：包链接"
 ---
 
-In this guide, we'll teach you how to link the CopilotKit packages to your own project to test your changes. This way, you can run `pnpm run dev` in the CopilotKit monorepo, and see changes in your own project immediately.
+在本指南中，我们将教你如何把 CopilotKit 包链接到自己的项目来测试变更。这样，你就可以在 CopilotKit monorepo 中运行 `pnpm run dev`，并立即在自己的项目中看到变更。
 
-## Global Package Linking With `pnpm`
+## 使用 `pnpm` 进行全局包链接
 
-We will use pnpm's [global linking feature](https://pnpm.io/cli/link#pnpm-link---global) to link the CopilotKit packages to your own project.
+我们将使用 pnpm 的[全局链接功能](https://pnpm.io/cli/link#pnpm-link---global)把 CopilotKit 包链接到你的项目。
 
 <Steps>
   <Step>
-  ### In The CopilotKit Monorepo
-  Assuming you followed all steps in the contribution guide, you should have everything set up properly and ready to go.
+  ### 在 CopilotKit monorepo 中
+  假设你已按照贡献指南完成了所有步骤，那么一切应该都已就绪。
 
-Navigate to the CopilotKit monorepo and run the following command to link the packages globally:
+进入 CopilotKit monorepo，运行以下命令全局链接这些包：
 
 ```bash
 pnpm exec nx run-many -t link:global
@@ -21,52 +21,52 @@ pnpm exec nx run-many -t link:global
 
   </Step>
   <Step>
-  ### In Your Project
-  In your project, ensure you have pnpm configured. This will not prevent you from using npm or yarn as well. But for the purpose of global linking, you must use pnpm.
+  ### 在你的项目中
+  在你的项目中，确保已配置 pnpm。这并不妨碍你同时使用 npm 或 yarn，但就全局链接而言，你必须使用 pnpm。
 
 ```bash
 cd your-project
 pnpm i
 ```
 
-Next, link the desired package in your project:
+接下来，在项目中链接所需的包：
 
 <FrontendOnly frontend="react">
 ```bash
-# For example, to link the @copilotkit/react-core package:
+# 例如，链接 @copilotkit/react-core 包：
 pnpm link --global @copilotkit/react-core
 ```
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
 ```bash
-# Link the Angular package:
+# 链接 Angular 包：
 pnpm link --global @copilotkit/angular
 ```
 </FrontendOnly>
 
-You can run this for all packages, or just the ones you need. Your changes will now be synced.
+你可以对所有包执行此操作，也可以只链接需要的包。现在你的变更将会同步。
 
   </Step>
   <Step>
-  ### Unlinking
-  Once you are done, you can undo the global linking by running the following command in the CopilotKit monorepo:
+  ### 取消链接
+  完成之后，你可以在 CopilotKit monorepo 中运行以下命令来撤销全局链接：
 
 ```bash
 pnpm exec nx run-many -t unlink:global
 ```
 
-And then in your project:
+然后在你的项目中：
 
 ```bash
 pnpm install
 ```
 
-That's it, everything is now back to normal!
+大功告成，一切恢复正常！
 
   </Step>
 </Steps>
 
-## Need help?
+## 需要帮助？
 
-If you need help with anything, please don't hesitate to reach out to us on [Discord](https://discord.gg/6dffbvGU3D). We have a dedicated [#contributing](https://discord.com/channels/1122926057641742418/1183863183149117561) channel.
+如果有任何需要帮助的地方，请随时通过 [Discord](https://discord.gg/6dffbvGU3D) 联系我们。我们有专门的 [#contributing](https://discord.com/channels/1122926057641742418/1183863183149117561) 频道。

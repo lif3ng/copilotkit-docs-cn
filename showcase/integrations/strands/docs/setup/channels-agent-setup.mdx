@@ -1,25 +1,24 @@
-Follow the [AWS Strands quickstart](/strands/quickstart) to configure your
-Python agent. For its **Use an existing agent** path, start `main.py`:
+按照 [AWS Strands 快速开始](/strands/quickstart) 配置你的 Python 智能体。对于其中**使用现有智能体**这条路径，启动 `main.py`：
 
-```bash title="Agent application"
+```bash title="智能体应用"
 uv run main.py
 ```
 
-If you chose the CLI starter instead, keep its `npm run dev` process running.
+如果你选择的是 CLI 起步模板，请保持其 `npm run dev` 进程持续运行。
 
-The shared Strands agent is mounted at the server root:
+共享的 Strands 智能体挂载在服务器根路径：
 
 ```dotenv title=".env"
 AGENT_URL=http://localhost:8000/
 ```
 
-Install the HTTP adapter in the Channels process:
+在 Channels 进程中安装 HTTP 适配器：
 
-```bash title="Terminal"
+```bash title="终端"
 npm install @ag-ui/client@0.0.59
 ```
 
-Create a new HTTP adapter for every channel thread:
+为每个渠道线程创建一个新的 HTTP 适配器：
 
 ```ts title="agent.ts"
 import { HttpAgent } from "@ag-ui/client";

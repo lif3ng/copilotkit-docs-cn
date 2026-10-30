@@ -1,20 +1,15 @@
 ---
-title: Files and multimodal input
+title: 文件与多模态输入
 icon: "lucide/Paperclip"
-description: Pass managed Slack and Teams attachments to multimodal agents and post supported files back to the conversation.
+description: 将托管的 Slack 和 Microsoft Teams 附件传给多模态智能体，并把受支持的文件发回对话。
 doc_type: how-to
 ---
 
-Managed Channels can hydrate provider attachments into
-`message.contentParts`. The SDK carries text, images, audio, video, and PDF
-documents in one provider-neutral prompt shape.
+托管 Channel 可以把提供方附件水合（hydrate）为 `message.contentParts`。SDK 以一种提供方中立的提示形态承载文本、图片、音频、视频和 PDF 文档。
 
-## Pass attachments to the agent
+## 把附件传给智能体
 
-Managed conversation history does not contain the current inbound turn.
-`runAgent()` automatically chooses the inbound text or attachment parts when
-`prompt` is omitted. Build a combined prompt when the same turn can contain
-both `message.text` and `message.contentParts`:
+托管对话历史不包含当前入站回合。当省略 `prompt` 时，`runAgent()` 会自动选用入站文本或附件 part。当同一回合可能同时包含 `message.text` 和 `message.contentParts` 时，请构建组合提示：
 
 ```ts title="channel.ts"
 channel.onMessage(async ({ thread, message }) => {
@@ -31,113 +26,74 @@ channel.onMessage(async ({ thread, message }) => {
 });
 ```
 
-If you pass only `message.text`, the model will not receive hydrated binary
-attachments. If `contentParts` exists, do not append it to managed history
-yourself; `runAgent` adds the explicit prompt for this turn.
+如果只传 `message.text`，模型将不会收到已水合的二进制附件。如果存在 `contentParts`，不要自行把它追加到托管历史；`runAgent` 会为该回合添加显式提示。
 
-## Understand the content mapping
+## 理解内容映射
 
-| Provider file     | `AgentContentPart`                                             |
+| 提供方文件         | `AgentContentPart`                                             |
 | ----------------- | -------------------------------------------------------------- |
-| Image MIME type   | `{ type: "image", source: { type: "data", value, mimeType } }` |
-| Audio MIME type   | `{ type: "audio", source: ... }`                               |
-| Video MIME type   | `{ type: "video", source: ... }`                               |
+| 图片 MIME 类型     | `{ type: "image", source: { type: "data", value, mimeType } }` |
+| 音频 MIME 类型     | `{ type: "audio", source: ... }`                               |
+| 视频 MIME 类型     | `{ type: "video", source: ... }`                               |
 | PDF               | `{ type: "document", source: ... }`                            |
 | `text/*`          | UTF-8 `{ type: "text", text }`                                 |
-| Other binary type | A text note naming the attachment and MIME type                |
+| 其他二进制类型     | 一条说明附件名称与 MIME 类型的文字提示                           |
 
-The binary `value` is base64. Whether the agent actually understands a media
-part depends on its selected model and framework. Choose a multimodal model and
-test the exact media types you accept.
+二进制 `value` 为 base64。智能体是否真正理解某个媒体 part，取决于它所选的模型与框架。请选择多模态模型，并实测你接受的确切媒体类型。
 
-File retrieval is best-effort. A provider-ingest failure can omit the
-attachment before the SDK receives a file handle. If Intelligence delivers a
-handle but the SDK cannot hydrate it, the SDK inserts a short failure note
-instead of failing the whole turn.
+文件获取是尽力而为的。提供方摄取失败可能在 SDK 收到文件句柄之前就丢失附件。如果 Intelligence 交付了句柄但 SDK 无法水合它，SDK 会插入一条简短的失败提示，而不是让整个回合失败。
 
-<Callout type="info" title="Managed file-size ceiling">
-  Intelligence currently accepts individual inbound and outbound Channel files
-  up to 25 MiB. Provider limits can be lower.
+<Callout type="info" title="托管文件大小上限">
+  Intelligence 目前接受的单个入站与出站 Channel 文件最大为 25 MiB。提供方的限制可能更低。
 </Callout>
 
-## Slack file access
+## Slack 文件访问
 
 <FrontendOnly frontend="slack">
 
-Intelligence downloads files using the managed Slack bot token. The app must be
-in the conversation and have permission to read the file. Slack documents
-[`files:read`](https://api.slack.com/scopes/files%3Aread) as the scope that
-allows an app to download files from conversations it can access.
+Intelligence 使用托管的 Slack bot token 下载文件。应用必须在对话之中，且有读取该文件的权限。Slack 文档将 [`files:read`](https://api.slack.com/scopes/files%3Aread) 列为允许应用从其可访问的对话中下载文件的 scope。
 
-The current Intelligence-generated manifest requests both `files:read` and
-`files:write`. If the app predates that manifest:
+当前由 Intelligence 生成的 manifest 会同时请求 `files:read` 和 `files:write`。如果你的应用早于该 manifest：
 
-1. Open the Channel in Intelligence, return to its Slack setup instructions,
-   and apply the generated manifest so both bot token scopes are present. See
-   [Configure the Channel in Intelligence](/channels/intelligence).
-2. Reinstall the app so the workspace grants the scopes.
-3. Copy the current Bot User OAuth token into Intelligence if Slack reissued it.
-4. Invite the app to the source conversation.
-5. Send a new file and verify the model receives it.
+1. 在 Intelligence 中打开该 Channel，回到它的 Slack 配置说明，套用生成的 manifest，使两个 bot token scope 都存在。参见[在 Intelligence 中配置 Channel](/channels/intelligence)。
+2. 重新安装应用，让工作区授予这些 scope。
+3. 如果 Slack 重新签发了 Bot User OAuth token，请把当前值复制到 Intelligence。
+4. 把应用邀请进来源对话。
+5. 发送一个新文件，并验证模型收到了它。
 
-If attachments are omitted or arrive as retrieval-failure notes:
+如果附件缺失，或以获取失败提示的形式出现：
 
-1. Confirm the reinstalled bot token includes `files:read`.
-2. Confirm the app is a member of the source conversation.
-3. Send a new file and inspect the real agent turn.
+1. 确认重新安装后的 bot token 包含 `files:read`。
+2. 确认应用是来源对话的成员。
+3. 发送一个新文件，并检查真实的智能体回合。
 
 </FrontendOnly>
 
-## Teams file access
+## Microsoft Teams 文件访问
 
 <FrontendOnly frontend="teams">
 
-Teams exposes files differently by surface:
+Microsoft Teams 在不同界面上暴露文件的方式不同：
 
-- Personal 1:1 chat uploads can arrive as downloadable `file.download.info`
-  attachments.
-- Inline media such as images, audio, video, and PDFs with a Bot Connector
-  `contentUrl` can hydrate in chats or channels through the connector token.
-  This path does not require Graph consent.
-- In team channels, SharePoint-reference uploads and inline pasted images use
-  Microsoft Graph. Intelligence reads the channel message, then resolves its
-  reference files or hosted content.
-- Other group-chat file-upload shapes remain unsupported. Test every
-  attachment shape your workflow accepts.
+- 个人 1:1 聊天中的上传可能以可下载的 `file.download.info` 附件形式到达。
+- 带有 Bot Connector `contentUrl` 的内联媒体（图片、音频、视频和 PDF）可以通过 connector token 在聊天或频道中水合。该路径不需要 Graph 授权。
+- 在团队频道中，SharePoint 引用上传与内联粘贴的图片使用 Microsoft Graph。Intelligence 会读取频道消息，然后解析其引用文件或托管内容。
+- 其他群聊文件上传形态仍不受支持。请逐一实测你的工作流接受的每种附件形态。
 
-The generated Teams package already declares the supported `personal` and
-`team` bot scopes, sets `supportsFiles: true`, and requests
-`ChannelMessage.Read.Group` resource-specific consent. Upload that generated
-package as-is. Do not add `groupChat`; managed group chats are not supported.
-A team owner grants the resource-specific permission during installation.
+生成的 Microsoft Teams package 已经声明了受支持的 `personal` 和 `team` bot scope，设置了 `supportsFiles: true`，并请求 `ChannelMessage.Read.Group` 资源特定授权。请原样上传该生成的 package。不要添加 `groupChat`；不支持托管群聊。团队所有者会在安装期间授予该资源特定权限。
 
-For Graph-backed team-channel messages:
+对于由 Graph 支撑的团队频道消息：
 
-- The app manifest's `ChannelMessage.Read.Group` resource-specific consent lets
-  Intelligence read the channel message and inline hosted content. A team owner
-  grants it during installation; it does not need tenant-admin Graph consent.
-  Microsoft documents it as a
-  [resource-specific consent permission](https://learn.microsoft.com/en-us/microsoftteams/platform/graph-api/rsc/resource-specific-consent).
-- `Files.Read.All` is an **application** permission and covers only one case:
-  a file uploaded to a Team channel, which arrives as a SharePoint reference
-  rather than as content. It requires tenant-admin consent, so Teams setup
-  offers it and defaults to skipping it. A tenant that already consented to the
-  broader `Files.ReadWrite.All` satisfies this without a second grant.
+- 应用 manifest 的 `ChannelMessage.Read.Group` 资源特定授权让 Intelligence 能读取频道消息和内联托管内容。团队所有者在安装期间授予它；不需要租户管理员的 Graph 授权。Microsoft 将其记载为[资源特定授权权限](https://learn.microsoft.com/en-us/microsoftteams/platform/graph-api/rsc/resource-specific-consent)。
+- `Files.Read.All` 是一个**应用级**权限，且只覆盖一种情况：上传到团队频道的文件——它以 SharePoint 引用而非内容的形式到达。它需要租户管理员授权，因此 Microsoft Teams 配置流程会提供该选项并默认跳过。已同意更宽泛的 `Files.ReadWrite.All` 的租户无需再次授予即可满足此要求。
 
-This permission is optional and its absence does not hold the connection back
-from reporting ready. Without it the text turn still runs and the message is
-still delivered; only the referenced file is omitted or represented by a
-retrieval-failure note. Files shared in a 1:1 chat and images pasted into a
-channel do not go through SharePoint and are unaffected. Test personal chat,
-standard/private team channels, inline media, pasted images, and
-SharePoint-reference uploads separately.
+该权限是可选的，缺少它不会阻碍连接上报就绪。没有它时，文本回合仍会运行，消息仍会投递；只有被引用的文件会被省略，或以获取失败提示的形式呈现。在 1:1 聊天中分享的文件与粘贴到频道中的图片不经过 SharePoint，因此不受影响。请分别实测个人聊天、标准/私有团队频道、内联媒体、粘贴图片以及 SharePoint 引用上传。
 
 </FrontendOnly>
 
-## Post a file
+## 发送文件
 
-`thread.postFile()` takes bytes and returns a result instead of throwing for an
-unsupported provider capability:
+`thread.postFile()` 接收字节并返回结果，而不是在提供方能力不受支持时直接抛错：
 
 ```ts title="export-report.ts"
 const csv = new TextEncoder().encode(
@@ -156,42 +112,26 @@ if (!result.ok) {
 }
 ```
 
-On managed Channels, `result.ok` means Intelligence stored the managed asset,
-the provider acknowledged the file or image effect, and the SDK recorded the
-asset in canonical Thread history.
+在托管 Channel 上，`result.ok` 表示 Intelligence 已存储托管资产、提供方已确认文件或图片效果，且 SDK 已把该资产记录进规范的 Thread 历史。
 
 <FrontendOnly frontend="slack">
 
-Managed Slack uses Slack's external-upload flow and can send general file types.
-The generated manifest includes the `files:write` bot scope. Apply the current
-manifest and reinstall if the Slack app predates it. Check `result.ok`, then
-verify the real Slack message when provider-side display matters.
+托管 Slack 使用 Slack 的外部上传（external upload）流程，可以发送通用文件类型。生成的 manifest 包含 `files:write` bot scope。如果 Slack 应用早于当前 manifest，请套用当前 manifest 并重新安装。检查 `result.ok`，然后在提供方侧展示效果重要时再核对真实的 Slack 消息。
 
 </FrontendOnly>
 
 <FrontendOnly frontend="teams">
 
-Managed Teams supports general outbound files. In standard and private Team
-channels, Intelligence uploads the original bytes to the channel's SharePoint
-files area and sends a visible card or link. In personal chat, the same
-`postFile()` call starts Microsoft's native consent-card flow when required;
-acceptance completes the trusted upload and a decline remains a normal user
-choice. Images may use the inline Bot Connector path. Always check `result.ok`
-and send a text fallback when delivery is rejected.
+托管 Microsoft Teams 支持通用出站文件。在标准与私有团队频道中，Intelligence 会把原始字节上传到频道的 SharePoint 文件区，并发送一张可见的卡片或链接。在个人聊天中，同样的 `postFile()` 调用会在需要时启动 Microsoft 原生的同意卡片流程；接受即完成受信任上传，拒绝也只是一种正常的用户选择。图片可以使用内联 Bot Connector 路径。始终检查 `result.ok`，并在投递被拒绝时发送文本回退。
 
 </FrontendOnly>
 
-## Treat attachments as untrusted input
+## 将附件视为不可信输入
 
-- Validate declared MIME type and file signature before application-side
-  processing.
-- Put limits on decompression, parsing, page count, and extracted text.
-- Do not execute macros or uploaded code.
-- Resolve the provider user to an authenticated application identity before a
-  file can trigger a consequential write.
-- Avoid logging base64 content, signed download URLs, or document text.
+- 在应用侧处理之前，校验声明的 MIME 类型与文件签名。
+- 对解压、解析、页数与提取出的文本设置上限。
+- 不要执行宏或上传的代码。
+- 在文件能触发有实质影响的写入之前，先把提供方用户解析为经过身份验证的应用身份。
+- 避免记录 base64 内容、签名下载 URL 或文档文本。
 
-See the [`IncomingMessage`
-reference](/reference/channels/types/IncomingMessage) and
-[`AgentContentPart` reference](/reference/channels/types/AgentContentPart) for
-the exact public shapes.
+确切的公开形态请参阅 [`IncomingMessage` 参考](/reference/channels/types/IncomingMessage)与 [`AgentContentPart` 参考](/reference/channels/types/AgentContentPart)。

@@ -1,61 +1,59 @@
 ---
 title: "MCP"
-description: "Integrate Model Context Protocol (MCP) servers into your React applications"
+description: "将 Model Context Protocol（MCP）服务器集成到你的 React 应用中"
 icon: "lucide/Network"
 ---
 
-## Introduction
+## 简介
 
-The Model Context Protocol is an open standard that enables developers to build secure, two-way connections between their data sources and AI-powered tools. With MCP, you can:
+Model Context Protocol 是一项开放标准，让开发者能够在自己的数据源与 AI 驱动工具之间构建安全的双向连接。借助 MCP，你可以：
 
-- Connect AI applications to your data sources
-- Enable AI tools to access and utilize your data securely
-- Build AI-powered features that have context about your application
+- 将 AI 应用连接到你的数据源
+- 让 AI 工具安全地访问和利用你的数据
+- 构建具备应用上下文的 AI 驱动特性
 
-For further reading, check out the [Model Context Protocol](https://modelcontextprotocol.io/introduction) website.
+欲进一步了解，请访问 [Model Context Protocol](https://modelcontextprotocol.io/introduction) 网站。
 
-<Callout type="info" title="Looking for MCP Apps?">
-  If you want MCP servers to return **interactive UI components** that render
-  directly in the chat, check out [MCP
-  Apps](/generative-ui/mcp-apps).
+<Callout type="info" title="在找 MCP App？">
+  如果你想让 MCP 服务器返回直接在聊天中渲染的**交互式 UI 组件**，请查看 [MCP
+  App](/generative-ui/mcp-apps)。
 </Callout>
 
 <Image
   src="/images/any-agentic-backend-light.png"
-  alt="CopilotKit with Agentic Protocols"
+  alt="CopilotKit 与智能体协议"
   width={4096}
   height={2304}
   className="block dark:hidden w-full mx-auto"
 />
 <Image
   src="/images/any-agentic-backend-dark.png"
-  alt="CopilotKit with Agentic Protocols"
+  alt="CopilotKit 与智能体协议"
   width={4096}
   height={2304}
   className="hidden dark:block w-full mx-auto"
 />
 <div className="text-center text-sm text-muted-foreground mt-2 mb-8 w-3/5 mx-auto">
-  MCP is one of three prominent [agentic protocols](/agentic-protocols)
-  CopilotKit supports to connect agents to user-facing frontends
+  MCP 是 CopilotKit 支持的三大主流[智能体协议](/agentic-protocols)之一，用于将智能体连接到面向用户的前端
 </div>
 
-## When you do (and don't) need an MCP App
+## 什么时候需要（或不需要）MCP App
 
-"MCP server" covers three quite different things, and only one of them needs an [MCP App](/generative-ui/mcp-apps). Picking the wrong one means either building UI you didn't need or shipping a tool nobody can act on.
+“MCP 服务器”涵盖了三种截然不同的东西，其中只有一种需要 [MCP App](/generative-ui/mcp-apps)。选错了，就意味着要么构建了并不需要的 UI，要么交付了一个谁都无从操作的工具。
 
-Work out which kind of server you have:
+先弄清你面对的是哪一类服务器：
 
-| Your server… | What the user should see | What to build |
+| 你的服务器…… | 用户应该看到什么 | 应该构建什么 |
 | --- | --- | --- |
-| Reads data and returns it | Nothing, or a status line — the answer belongs in the agent's reply | Plain MCP tool. No renderer needed. |
-| Changes something (writes, sends, deletes) | What is about to happen, with a way to stop it | Plain MCP tool + a renderer, plus approval for anything irreversible |
-| Has its own interface (a form, a picker, a chart to interact with) | The interface itself | An MCP App with a UI resource |
+| 读取数据并返回 | 什么都不用，或一行状态提示——答案应体现在智能体的回复里 | 普通 MCP 工具。无需渲染器。 |
+| 改变某些东西（写入、发送、删除） | 即将发生的事情，并提供阻止它的方式 | 普通 MCP 工具 + 渲染器，对不可逆操作再加审批 |
+| 拥有自己的界面（表单、选择器、可交互的图表） | 界面本身 | 带 UI 资源的 MCP App |
 
-### Read-only context servers
+### 只读上下文服务器
 
-The most common case, and the one that needs the least. A docs search, a database query, a "look up this customer" tool — the tool result is *context for the model*, not something the user reads directly. The agent folds it into its answer, and that answer is the UI.
+这是最常见的情况，也是所需最少的情况。文档搜索、数据库查询、“查询这位客户”的工具——工具结果是*给模型的上下文*，而不是用户直接阅读的内容。智能体会把它融入自己的回答，而这个回答就是 UI。
 
-Connect the server and stop there. If you want the call to be visible rather than invisible, a wildcard renderer gives every tool call a status card without writing one renderer per tool:
+连接服务器即可，到此为止。如果你希望工具调用可见而非隐形，通配渲染器可以为每次工具调用提供一张状态卡片，而无需为每个工具单独写一个渲染器：
 
 ```tsx
 import { useDefaultRenderTool } from "@copilotkit/react-core/v2";
@@ -67,41 +65,40 @@ useDefaultRenderTool({
 });
 ```
 
-Reach for an MCP App here only if the *result* is genuinely interactive — a chart the user filters, not a table they read.
+只有当*结果*本身真正可交互时——比如用户可以筛选的图表，而非只是阅读的表格——才需要考虑 MCP App。
 
-### Action and mutation servers
+### 操作与变更服务器
 
-When a tool sends an email, files a ticket, or deletes a row, the user needs to see it — and usually needs to authorize it. That's still not an MCP App: it's a renderer plus human-in-the-loop.
+当工具要发送邮件、提交工单或删除一行记录时，用户需要看到它——而且通常需要授权。这仍然不是 MCP App：而是渲染器加人机协同（human-in-the-loop）。
 
-The renderer shows what happened. The approval step decides whether it happens at all, and belongs on anything the user can't undo. See [Human in the loop](/human-in-the-loop) for the approval flow, and [Tool rendering](/generative-ui/tool-rendering) for renderer options.
+渲染器展示发生了什么。审批步骤决定事情是否发生，凡是用户无法撤销的操作都应该有它。审批流程见[人机协同](/human-in-the-loop)，渲染器选项见[工具渲染](/generative-ui/tool-rendering)。
 
-A useful test: if you're considering an MCP App purely to render a confirmation button, you want human-in-the-loop instead. Approval is a CopilotKit concern, not a server-supplied UI.
+一个实用的判断标准：如果你考虑 MCP App 仅仅是为了渲染一个确认按钮，那你要的其实是人机协同。审批是 CopilotKit 的职责，而不是由服务器提供的 UI。
 
-### Interactive MCP Apps
+### 交互式 MCP App
 
-An MCP App is the right answer when the *server* owns the interface — it exposes a tool with an associated UI resource, and CopilotKit fetches and renders that resource in a sandboxed iframe with no frontend code from you.
+当*服务器*拥有界面时，MCP App 才是正确答案——它暴露一个带有关联 UI 资源的工具，CopilotKit 会获取该资源并在沙箱化的 iframe 中渲染，而你无需编写任何前端代码。
 
-That's worth it when the interaction is rich enough to need real UI (a seat picker, a configuration form, an embedded editor), and when the server author — not the app author — is the one who should define how it looks. The cost is that the server now ships and versions UI, so a read-only lookup doesn't justify it.
+当交互丰富到需要真正的 UI（座位选择器、配置表单、内嵌编辑器），并且应该由服务器作者——而非应用作者——来定义其外观时，这样做才值得。代价是服务器从此要发布 UI 并管理其版本，因此只读查询用不着它。
 
-See [MCP Apps](/generative-ui/mcp-apps) for setup.
+设置方法见 [MCP App](/generative-ui/mcp-apps)。
 
 <Callout type="info">
-  These aren't exclusive. One server can expose plain tools and App-backed tools side by
-  side; CopilotKit renders each call according to whether it carries a UI resource.
+  这几类并不互斥。同一个服务器可以同时暴露普通工具和由 App 支撑的工具；CopilotKit 会根据每次调用是否携带 UI 资源来决定如何渲染。
 </Callout>
 
-## Quickstart with CopilotKit
+## 使用 CopilotKit 快速开始
 
 <Steps>
   <Step>
-    ### Get an MCP Server
-    First, we need to make sure we have an MCP server to connect to. You can use any MCP SSE endpoint you have configured.
+    ### 获取 MCP 服务器
+    首先，我们需要确保有一个可连接的 MCP 服务器。你可以使用任何已配置的 MCP SSE 端点。
 
     <Accordions className="shadow-lg ring-1 ring-indigo-400 selected bg-gradient-to-r from-indigo-100/80 to-purple-200 dark:from-indigo-900/30 dark:to-purple-900/50">
-      <Accordion title="Get an MCP Server from Composio">
-        Composio provides a registry of ready-to-use MCP servers with simple authentication and setup.
+      <Accordion title="从 Composio 获取 MCP 服务器">
+        Composio 提供了开箱即用的 MCP 服务器注册表，认证和设置都很简单。
 
-        To get started, go to [Composio](https://mcp.composio.dev/), find a server that suits your needs and copy the SSE URL before continuing here.
+        要开始使用，请前往 [Composio](https://mcp.composio.dev/)，找到适合你需求的服务器并复制其 SSE URL，然后回到这里继续。
       </Accordion>
     </Accordions>
 
@@ -111,23 +108,23 @@ See [MCP Apps](/generative-ui/mcp-apps) for setup.
     id="cli"
     header={
         <div>
-            <p className="text-xl font-semibold">Use the CopilotKit CLI</p>
+            <p className="text-xl font-semibold">使用 CopilotKit CLI</p>
         </div>
     }
   >
     <TailoredContentOption
       id="use-cli"
-      title="Use the CopilotKit CLI"
-      description="I have a Next.js application and want to get started quickly."
+      title="使用 CopilotKit CLI"
+      description="我有一个 Next.js 应用，想快速上手。"
       icon={<SquareTerminal />}
     >
       <Step>
-        ### Run the CLI
-        Just run this following command in your Next.js application to get started!
+        ### 运行 CLI
+        在你的 Next.js 应用中运行以下命令即可开始！
 
         <Accordions>
-            <Accordion title="Don't have a Next.js application?">
-                No problem! Just use `create-next-app` to make one quickly.
+            <Accordion title="还没有 Next.js 应用？">
+                没问题！用 `create-next-app` 就能快速创建一个。
                 ```bash
                 npx create-next-app@latest
                 ```
@@ -141,14 +138,14 @@ See [MCP Apps](/generative-ui/mcp-apps) for setup.
     </TailoredContentOption>
     <TailoredContentOption
         id="do-it-manually"
-        title="Code along"
-        description="I want to deeply understand what's happening under the hood or don't have a Next.js application."
+        title="跟随编码"
+        description="我想深入理解底层原理，或者还没有 Next.js 应用。"
         icon={<SquareChartGantt />}
     >
       <Step>
-        #### Set up the CopilotKit Provider
+        #### 设置 CopilotKit Provider
 
-        Wrap your application with the `CopilotKit` provider:
+        用 `CopilotKit` provider 包裹你的应用：
 
         ```tsx
         "use client";
@@ -165,9 +162,9 @@ See [MCP Apps](/generative-ui/mcp-apps) for setup.
         ```
       </Step>
       <Step>
-        #### Connect to MCP Servers
+        #### 连接到 MCP 服务器
 
-        Create a component to manage MCP server connections:
+        创建一个组件来管理 MCP 服务器连接：
 
         ```tsx
         "use client";
@@ -195,9 +192,9 @@ See [MCP Apps](/generative-ui/mcp-apps) for setup.
         ```
       </Step>
       <Step>
-        #### Add the Chat Interface
+        #### 添加聊天界面
 
-        Add the `CopilotChat` component to your page:
+        将 `CopilotChat` 组件添加到你的页面：
 
         ```tsx
         "use client";
@@ -217,9 +214,9 @@ See [MCP Apps](/generative-ui/mcp-apps) for setup.
         ```
       </Step>
       <Step>
-        #### Visualize MCP Tool Calls (Optional)
+        #### 可视化 MCP 工具调用（可选）
 
-        Create a component to display MCP tool calls in your UI:
+        创建一个组件，在你的 UI 中展示 MCP 工具调用：
 
         ```tsx
         "use client";
@@ -241,9 +238,9 @@ See [MCP Apps](/generative-ui/mcp-apps) for setup.
         ```
       </Step>
       <Step>
-        #### Complete Implementation
+        #### 完整实现
 
-        Combine all components together:
+        将所有组件组合到一起：
 
         ```tsx
         "use client";
@@ -270,12 +267,12 @@ See [MCP Apps](/generative-ui/mcp-apps) for setup.
   </TailoredContent>
 </Steps>
 
-## Advanced Usage
+## 高级用法
 
-### Implementing the McpToolCall Component
+### 实现 McpToolCall 组件
 
 <details>
-<summary>Click to see the McpToolCall component implementation</summary>
+<summary>点击查看 McpToolCall 组件的实现</summary>
 
 ```tsx
 "use client";
@@ -359,22 +356,19 @@ export default function MCPToolCall({
 
 </details>
 
-### Self-Hosting Option
+### 自托管选项
 
 <details>
-<summary>Click here to learn how to use MCP with self-hosted runtime</summary>
+<summary>点击了解如何在自托管运行时中使用 MCP</summary>
 
-<Callout type="info" title="Self-Hosting vs Copilot Cloud">
-  The Copilot Runtime handles communication with LLMs, message history, and
-  state. You can self-host it or use{" "}
+<Callout type="info" title="自托管与 Copilot Cloud 的对比">
+  Copilot Runtime 负责与 LLM 的通信、消息历史与状态。你可以自托管它，也可以使用{" "}
   <LinkToCopilotCloud asButton={false}>Copilot Cloud</LinkToCopilotCloud>{" "}
-  (recommended). Learn more in our [Self-Hosting
-  Guide](/backend/copilot-runtime).
+  （推荐）。更多信息见[自托管
+  指南](/backend/copilot-runtime)。
 </Callout>
 
-Attach the MCP servers to the agent. The agent opens a client for each server
-at the start of a run and closes it when the run ends, so nothing is cached
-between requests:
+将 MCP 服务器挂载到智能体上。智能体会在一次运行开始时为每个服务器打开一个客户端，并在运行结束时关闭它，因此请求之间不会缓存任何内容：
 
 ```tsx title="app/api/copilotkit/route.ts"
 import { BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -404,15 +398,10 @@ export const POST = createCopilotRuntimeHandler({
 });
 ```
 
-See [MCP servers](/docs/integrations/built-in-agent/mcp-servers) for the HTTP
-transport, multiple servers, and `mcpClients` — which lets you own the client
-lifecycle when you need persistent connections or per-request credentials.
+HTTP 传输、多服务器配置以及 `mcpClients` 的用法见 [MCP 服务器](/docs/integrations/built-in-agent/mcp-servers)——当你需要持久连接或按请求凭证时，`mcpClients` 可以让你自己掌控客户端生命周期。
 
-<Callout type="warn" title="`createMCPClient` on the v1 runtime">
-  `new CopilotRuntime({ mcpServers, createMCPClient })` from
-  `@copilotkit/runtime` is the deprecated v1 API. It still works, but it keeps
-  one client per endpoint for the life of the runtime instead of opening and
-  closing one per run. Use the agent-level configuration above for new work.
+<Callout type="warn" title="v1 运行时上的 `createMCPClient`">
+  `@copilotkit/runtime` 中的 `new CopilotRuntime({ mcpServers, createMCPClient })` 是已弃用的 v1 API。它仍然可用，但它在运行时的整个生命周期内为每个端点保留一个客户端，而不是每次运行都打开再关闭。新项目请使用上面的智能体级配置。
 </Callout>
 
 </details>

@@ -1,18 +1,15 @@
 ---
-title: Rich messages and components
+title: 富文本消息与组件
 icon: "lucide/LayoutTemplate"
-description: Build portable channel UI that renders as Slack Block Kit or Microsoft Teams Adaptive Cards, with explicit provider fallbacks.
+description: 构建可移植的渠道 UI，既可渲染为 Slack Block Kit 也可渲染为 Microsoft Teams Adaptive Card，并提供明确的提供方回退。
 doc_type: how-to
 ---
 
-Channels JSX lets application code describe a message once and lets the
-selected provider renderer turn it into native UI. The same component can
-produce Slack Block Kit or a Microsoft Teams Adaptive Card.
+Channels JSX 让应用代码只需描述一次消息，再由所选的提供方渲染器将其转换为原生 UI。同一个组件既能产出 Slack Block Kit，也能产出 Microsoft Teams Adaptive Card。
 
-## Enable Channels JSX
+## 启用 Channels JSX
 
-Channels JSX does not use React at runtime. Point the TypeScript JSX transform
-at `@copilotkit/channels`:
+Channels JSX 在运行时不使用 React。将 TypeScript 的 JSX transform 指向 `@copilotkit/channels`：
 
 ```json title="tsconfig.json"
 {
@@ -29,10 +26,9 @@ at `@copilotkit/channels`:
 }
 ```
 
-Keep `"type": "module"` in `package.json` and use `.tsx` for files containing
-JSX.
+在 `package.json` 中保留 `"type": "module"`，并在包含 JSX 的文件中使用 `.tsx`。
 
-## Build a portable status card
+## 构建可移植的状态卡片
 
 ```tsx title="incident-card.tsx"
 import {
@@ -66,7 +62,7 @@ export function IncidentCard(props: {
 }
 ```
 
-Post the component from a message handler or tool:
+在消息处理器或工具中发布该组件：
 
 ```tsx title="channel.tsx"
 channel.onMessage(async ({ thread }) => {
@@ -81,70 +77,50 @@ channel.onMessage(async ({ thread }) => {
 });
 ```
 
-Use named components with JSON-serializable props when they contain callbacks,
-then register them in `createChannel({ components: [...] })`. Pure display
-components do not need registration.
+当组件包含回调时，应使用带 JSON 可序列化 props 的具名组件，并在 `createChannel({ components: [...] })` 中注册它们。纯展示组件无需注册。
 
-## Know what each provider renders
+## 了解各提供方的渲染结果
 
-| Channels component     | Slack                                                                          | Microsoft Teams                                                |
+| Channels 组件          | Slack                                                                          | Microsoft Teams                                                |
 | ---------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------- |
-| `Message`              | Flattens to Block Kit; the current managed connector does not forward `accent` | Flattens into an Adaptive Card; `accent` has no native mapping |
-| `Header`               | Header block                                                                   | Large bold text block                                          |
-| `Section`, `Markdown`  | Slack `mrkdwn` section                                                         | Wrapped Adaptive Card text                                     |
-| `Fields`, `Field`      | Section fields; honors `Field.label`                                           | Fact set; derives a label from `Label: value` text             |
-| `Context`              | Context block                                                                  | Small, subtle text                                             |
-| `Actions`, `Button`    | Actions block and button                                                       | Top-level `Action.Submit` or `Action.OpenUrl`                  |
-| `Select`, `Input`      | Native Block Kit controls                                                      | Adaptive Card inputs                                           |
-| `Image`, `Divider`     | Native image and divider blocks                                                | Image and separator                                            |
-| `Table`, `Row`, `Cell` | Native Slack table block                                                       | Adaptive Card 1.5 table                                        |
-| `Chart`                | Omitted by the Slack renderer                                                  | Teams chart extension where the client supports it             |
+| `Message`              | 扁平化为 Block Kit；当前托管连接器不转发 `accent`                              | 扁平化为 Adaptive Card；`accent` 没有原生对应物                |
+| `Header`               | 标头块                                                                         | 大号粗体文本块                                                 |
+| `Section`、`Markdown`  | Slack `mrkdwn` 区块                                                            | 包装为 Adaptive Card 文本                                      |
+| `Fields`、`Field`      | Section 内的字段；遵循 `Field.label`                                           | Fact 集合；从 `Label: value` 文本推导标签                      |
+| `Context`              | Context 块                                                                     | 小号低调文本                                                   |
+| `Actions`、`Button`    | Actions 块和按钮                                                               | 顶层 `Action.Submit` 或 `Action.OpenUrl`                       |
+| `Select`、`Input`      | 原生 Block Kit 控件                                                            | Adaptive Card 输入项                                           |
+| `Image`、`Divider`     | 原生图像与分隔线块                                                             | 图像和分隔线                                                   |
+| `Table`、`Row`、`Cell` | 原生 Slack 表格块                                                              | Adaptive Card 1.5 表格                                         |
+| `Chart`                | 被 Slack 渲染器忽略                                                            | 客户端支持时使用 Teams chart 扩展                              |
 
-Unknown or unsupported nodes are omitted instead of failing the whole message.
-That makes portable rendering resilient, but it also means the text around an
-optional visual must still carry the important result.
+未知或不支持的节点会被忽略，而不是导致整条消息失败。这让可移植渲染更具韧性，但也意味着可选可视化周围的文本仍须承载关键结果。
 
-To post your own React component as an image, see
-[Posting JSX as images](/channels/posting-jsx-as-images). To mix native text
-with React snapshots in one message, see
-[Render and carousel](/channels/render-and-carousel).
+要将你自己的 React 组件作为图像发布，请参阅[将 JSX 作为图像发布](/channels/posting-jsx-as-images)。要在一条消息中混用原生文本与 React 快照，请参阅[渲染与轮播](/channels/render-and-carousel)。
 
-`Select` and `Input` have different interaction behavior by provider. Managed
-Slack dispatches those controls directly. Managed Teams renders Adaptive Card
-fields and submits them with a `Button`'s `Action.Submit`; that Button callback
-receives the other named fields in `ctx.values`. Teams does not dispatch
-`Select.onSelect` or `Input.onSubmit` independently.
+`Select` 和 `Input` 的交互行为因提供方而异。托管 Slack 直接分发这些控件。托管 Teams 则渲染 Adaptive Card 字段，并通过某个 `Button` 的 `Action.Submit` 提交它们；该 Button 回调会在 `ctx.values` 中接收其他具名字段。Teams 不会单独分发 `Select.onSelect` 或 `Input.onSubmit`。
 
 <FrontendOnly frontend="slack">
 
-Slack text is translated from GitHub-flavored Markdown to `mrkdwn`. Collections
-and strings are clamped to Slack's native limits. If a message exceeds the
-top-level block budget, the renderer adds a truncation notice.
+Slack 文本会从 GitHub 风格的 Markdown 转换为 `mrkdwn`。集合与字符串会被限制在 Slack 的原生上限内。如果消息超出顶层块预算，渲染器会附加一条截断提示。
 
-Although the direct Slack renderer can return an attachment accent, the current
-cloud-hosted Intelligence post and update path forwards only blocks. Do not rely on
-`Message.accent` in a managed Slack workflow.
+虽然直连的 Slack 渲染器可以返回附件 accent，但当前云端托管的 Intelligence 发布与更新路径只转发块。在托管 Slack 工作流中不要依赖 `Message.accent`。
 
-Do not put essential information only in `Chart`: the Slack renderer currently
-skips chart nodes. Pair a chart with a `Section`, `Fields`, or `Table`.
+不要把关键信息只放在 `Chart` 中：Slack 渲染器目前会跳过 chart 节点。请将图表与 `Section`、`Fields` 或 `Table` 搭配使用。
 
 </FrontendOnly>
 
 <FrontendOnly frontend="teams">
 
-Teams renders Adaptive Card version 1.5. Chart nodes use Teams chart
-extensions; clients that do not support those extensions may omit the chart.
-Pair every chart with a text summary.
+Teams 渲染 Adaptive Card 1.5 版。chart 节点使用 Teams chart 扩展；不支持这些扩展的客户端可能会省略图表。请为每个图表搭配一段文本摘要。
 
-Button style is translated to positive or destructive when possible. Exact
-spacing, colors, and typography remain provider-owned.
+按钮样式会在可能时转换为正向或破坏性样式。具体的间距、颜色和排版仍由提供方决定。
 
 </FrontendOnly>
 
-## Update a message safely
+## 安全地更新消息
 
-`thread.post()` returns a `MessageRef` that can be updated during the current
-managed delivery:
+`thread.post()` 会返回一个 `MessageRef`，可在当前托管投递期间对其进行更新：
 
 ```tsx title="update.tsx"
 const ref = await thread.post(<IncidentCard {...incident} status="Loading" />);
@@ -152,30 +128,22 @@ const ref = await thread.post(<IncidentCard {...incident} status="Loading" />);
 await thread.update(ref, <IncidentCard {...incident} status="Investigating" />);
 ```
 
-Do not persist that ref and assume it remains updateable in a later delivery.
-For a later button click, use the interaction's `message.ref`, check that
-`message.ref.id` is non-empty, and treat the update as best-effort.
+不要持久化该 ref 并假定它在后续投递中仍可更新。对于稍后的按钮点击，请使用交互中的 `message.ref`，检查 `message.ref.id` 非空，并将更新视为尽力而为。
 
 <FrontendOnly frontend="slack">
 
-Managed Slack supports post, update, and delete frames.
+托管 Slack 支持 post、update 和 delete 帧。
 
 </FrontendOnly>
 
 <FrontendOnly frontend="teams">
 
-Managed Teams supports post, update, and delete frames.
+托管 Teams 支持 post、update 和 delete 帧。
 
 </FrontendOnly>
 
-## Keep provider-specific payloads at the edge
+## 将提供方专属负载留在边界
 
-The `{ raw: nativePayload, provider }` escape hatch is part of the low-level
-renderable type, but it is not portable. Tag Slack Block Kit with `provider:
-"slack"` and a Teams Adaptive Card object with `provider: "teams"`. A provider
-mismatch fails explicitly before the effect reaches the provider. Prefer
-Channels components in shared managed code.
+`{ raw: nativePayload, provider }` 这一逃生通道属于底层 renderable 类型的一部分，但它不具备可移植性。请为 Slack Block Kit 标注 `provider: "slack"`，为 Teams Adaptive Card 对象标注 `provider: "teams"`。提供方不匹配时，会在效果到达提供方之前显式失败。在共享的托管代码中请优先使用 Channels 组件。
 
-Use [interactive messages and approvals](/channels/interactive) for callbacks,
-or browse the [Channels UI reference](/reference/channels/components/Message)
-for component props.
+要使用回调，请参阅[交互式消息与审批](/channels/interactive)；要查看组件 props，请浏览[Channels UI 参考](/reference/channels/components/Message)。

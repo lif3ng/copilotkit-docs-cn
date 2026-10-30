@@ -1,35 +1,35 @@
 ---
 title: "Angular + Google ADK"
-description: "Connect an Angular frontend to a Google ADK agent over AG-UI, then add request identity, server-side policy, threads, and memory."
+description: "通过 AG-UI 将 Angular 前端连接到 Google ADK 智能体，再加上请求身份、服务端策略、线程与记忆。"
 icon: "custom/google-adk"
 showIcon: true
 doc_type: how-to
 ---
 
-This recipe assembles a production agentic app from three pieces: an **Angular** frontend built with [`@copilotkit/angular`](/angular), a **Google ADK** agent served over the open [AG-UI](https://docs.ag-ui.com/) protocol, and an optional [CopilotKit Intelligence](/intelligence/overview) layer for persistent threads and cross-session memory.
+本篇示例用三块拼出一个生产级智能体化应用：用 [`@copilotkit/angular`](/angular) 构建的 **Angular** 前端、通过开放 [AG-UI](https://docs.ag-ui.com/) 协议对外服务的 **Google ADK** 智能体，以及一个可选的 [CopilotKit Intelligence](/intelligence/overview) 层，用于持久化线程与跨会话记忆。
 
-Start with these two quickstarts:
+先完成这两个快速开始：
 
-- [Angular frontend](/angular) gets you a working Angular app with a chat UI backed by a local Copilot Runtime.
-- [ADK quickstart](/integrations/adk/quickstart) serves an ADK agent over AG-UI.
+- [Angular 前端](/angular)：让你得到一个可运行的 Angular 应用，带有由本地 Copilot Runtime 支撑的聊天 UI。
+- [ADK 快速开始](/integrations/adk/quickstart)：通过 AG-UI 对外提供一个 ADK 智能体。
 
-This recipe covers production concerns that arise after the two quickstarts are connected: shared chat state, request identity, model choice, server-side policy, threads, and memory.
+本篇示例覆盖两个快速开始接通之后出现的生产问题：共享聊天状态、请求身份、模型选择、服务端策略、线程与记忆。
 
-## How the pieces fit
+## 各部分如何配合
 
-The app has three processes:
+该应用有三个进程：
 
-1. The **Angular client** renders chat and generative UI and runs the agent.
-2. A **runtime / backend-for-frontend (BFF)** wires the Copilot Runtime, resolves the per-request user, enforces tool policy, proxies memory, and forwards each run to your agent. This layer handles identity, policy, and memory access.
-3. The **Google ADK agent** does the reasoning and emits generative UI. An optional deterministic specialist agent handles fixed payloads.
+1. **Angular 客户端**渲染聊天与生成式 UI，并运行 agent。
+2. **运行时 / 后端即前端（BFF）**接好 Copilot Runtime、解析每请求用户、执行工具策略、代理记忆，并把每次运行转发给你的 agent。这一层负责身份、策略与记忆访问。
+3. **Google ADK 智能体**负责推理并发出生成式 UI。一个可选的确定性专项 agent 处理固定负载。
 
-<Callout type="info" title="Validate identity and policy in the BFF">
-  Treat data from the browser as untrusted. Resolve the authenticated user, enforce tool policy, and scope memory requests on the server.
+<Callout type="info" title="在 BFF 中校验身份与策略">
+  把来自浏览器的数据当作不可信。在服务端解析已认证用户、执行工具策略，并为记忆请求划定范围。
 </Callout>
 
-## Share agent state across the chat surface
+## 在聊天界面间共享智能体状态
 
-Calls to `injectAgentStore("default")` resolve the same underlying agent. Components that use the same agent id observe the same messages and run state.
+调用 `injectAgentStore("default")` 会解析到同一个底层 agent。使用相同 agent id 的组件会观察到相同的消息与运行状态。
 
 ```ts title="chat.component.ts"
 import { Component } from "@angular/core";
@@ -47,27 +47,27 @@ export class ChatComponent {
 }
 ```
 
-<Callout type="info" title="Use one owner for custom submission logic">
-  A second composer may inject the same agent id and will observe the same agent. For consistent validation, attachments, and message submission, pass one submit function or service to each custom composer.
+<Callout type="info" title="自定义提交逻辑只设一个属主">
+  第二个输入框可以注入同一个 agent id，并观察到同一个 agent。为了让校验、附件和消息提交保持一致，请把同一个提交函数或服务传给每个自定义输入框。
 </Callout>
 
-<Callout type="warn" title="Do not fetch history for a brand-new thread">
-  **Symptom:** starting a new conversation throws before the first message.
-  **Cause:** a fresh thread id has no messages, so the history request errors.
-  **Fix:** only fetch history for an existing, user-selected thread. Run new conversations on a fresh id, and reload stored messages only when the bound thread id changes.
+<Callout type="warn" title="不要为全新线程拉取历史">
+  **症状**：开始新对话时，第一条消息尚未发出就抛错。
+  **原因**：全新的 thread id 没有任何消息，历史请求因此报错。
+  **修复**：只为已存在、由用户选中的线程拉取历史。新对话用全新 id 运行，只在绑定的 thread id 变化时才重新加载已存储的消息。
 </Callout>
 
-<Callout type="warn" title="Change runtime configuration between runs">
-  The runtime URL and request headers take part in agent resolution. Apply configuration changes before a run starts. Put non-secret values that change on each request in the run body instead.
+<Callout type="warn" title="在两次运行之间修改运行时配置">
+  运行时 URL 和请求头会参与 agent 解析。请在运行开始之前应用配置变更。每次请求都会变化且非机密的值请放进 run body。
 </Callout>
 
-## Send changing context with each run
+## 每次运行都发送变化的上下文
 
-<Callout type="warn" title="Do not use browser context as authorization">
-  A user id sent by the browser is untrusted. Resolve the authenticated user on the server. Use run context only to give the agent current, non-secret application state, and validate any identity value against the server session before using it to scope data.
+<Callout type="warn" title="不要把浏览器上下文当授权">
+  浏览器发来的 user id 不可信。请在服务端解析已认证用户。运行上下文只用于向 agent 提供当前、非机密的应用状态；任何身份值在用于划定数据范围之前，都必须对照服务端会话进行校验。
 </Callout>
 
-Use [`connectAgentContext`](/reference/angular/functions/connectAgentContext) to send current, non-secret application state with each run:
+使用 [`connectAgentContext`](/reference/angular/functions/connectAgentContext) 在每次运行时发送当前、非机密的应用状态：
 
 ```ts title="chat.component.ts"
 import { Component, signal } from "@angular/core";
@@ -84,7 +84,7 @@ export class ChatComponent {
 }
 ```
 
-Do not use this browser value as proof of identity. The BFF must compare it with the authenticated session or replace it with the server identity. If an ADK tool needs the validated user id, map that value into ADK session state in the BFF or agent adapter. The tool can then read the application-defined state key:
+不要把这个浏览器值当作身份证明。BFF 必须将其与已认证会话比对，或用服务端身份替换它。如果某个 ADK 工具需要经过校验的 user id，请在 BFF 或 agent 适配器中把该值映射进 ADK 会话状态。工具随后就能读取应用定义的状态键：
 
 ```python title="agent/main.py"
 def _user_id(tool_context) -> str | None:
@@ -96,48 +96,48 @@ def recall_for_user(tool_context) -> dict:
     return {"ok": True}
 ```
 
-The exact mapping belongs to your server bridge. Keep it explicit and test it with the version of the ADK adapter you deploy.
+具体映射属于你的服务端桥接层。保持显式，并用你实际部署的 ADK 适配器版本来测试它。
 
-## Choose a capable model
+## 选择一个够用的模型
 
-ADK uses Google's Gemini by default and also supports other models. See the [ADK quickstart](/integrations/adk/quickstart) for configuration.
+ADK 默认使用 Google 的 Gemini，也支持其他模型。配置请见 [ADK 快速开始](/integrations/adk/quickstart)。
 
-- Prefer a current model with reliable instruction following and tool use.
-- Test older or smaller models against your full tool and policy flow. They may skip steps in multi-part instructions.
-- Use a reasoning model when the task needs it, and account for its added latency and cost.
+- 优先选择指令遵循与工具使用可靠的新式模型。
+- 用完整的工具与策略流程测试较旧或较小的模型。它们可能漏掉多段指令中的步骤。
+- 任务需要时使用推理模型，并把其额外的延迟与成本算进去。
 
-<Callout type="tip" title="Check model access with your provider">
-  Confirm a model id actually exists for your account before wiring it in. On Gemini, for example:
+<Callout type="tip" title="向你的提供方确认模型可用性">
+  接入之前，先确认该 model id 在你的账户下确实存在。以 Gemini 为例：
   ```bash
   curl "https://generativelanguage.googleapis.com/v1beta/models?key=$GOOGLE_API_KEY" | grep '"name"'
   ```
 </Callout>
 
-Two more agent-side habits:
+再补两个 agent 侧的习惯：
 
-- **Keep MCP and tool timeouts short.** A long timeout lets a slow external tool server delay the first reply. A shorter timeout reports the failure sooner.
-- **Emit fixed generated-UI payloads from code.** A model may change JSON even when asked to return it unchanged.
+- **MCP 与工具超时保持短促**。过长的超时会让缓慢的外部工具服务器拖住第一条回复。较短的超时能更早报告失败。
+- **用代码发出固定的生成式 UI 负载**。即使要求模型原样返回 JSON，它也可能改动。
 
-## Enforce governance on the server
+## 在服务端执行治理
 
-<Callout type="warn" title="A client-side tool guard is presentation only">
-  **Symptom:** a tool you "hid" in the UI still gets called by the agent.
-  **Cause:** the browser is untrusted, and hiding a tool in the UI does nothing to the agent's tool list.
-  **Fix:** on the BFF, strip disallowed tools from the inbound run body so the model cannot call them, and filter the outbound generative-UI stream. Emit a single governance receipt rather than silently dropping output.
+<Callout type="warn" title="客户端的工具防护只影响展示">
+  **症状**：你在 UI 里“隐藏”的工具仍会被 agent 调用。
+  **原因**：浏览器不可信，在 UI 中隐藏工具对 agent 的工具列表毫无影响。
+  **修复**：在 BFF 上从入站 run body 中剔除不允许的工具，让模型无法调用它们，并过滤出站的生成式 UI 流。输出一条统一的治理回执，而不是静默丢弃输出。
 </Callout>
 
-- **Include the per-request allow-list in the run body.** A capability change then takes effect on the next run.
-- **Normalize capability-name casing** (for example `pieChart` versus `PieChart`) in both the inbound and outbound checks. A casing mismatch can bypass a policy check.
-- **Let generative-UI cards reflow, do not truncate.** Long dynamic labels overflow fixed-size cards. Let the layout grow rather than clipping content.
+- **把每请求的允许清单放进 run body**。能力变更即会在下一次运行生效。
+- **在入站与出站检查中都归一化能力名大小写**（例如 `pieChart` 与 `PieChart`）。大小写不一致可能绕过策略检查。
+- **让生成式 UI 卡片重排，而不是截断**。过长的动态标签会溢出固定尺寸的卡片。让布局随之增长，而不是裁剪内容。
 
-## Add persistent threads and memory (optional)
+## 添加持久化线程与记忆（可选）
 
-[CopilotKit Intelligence](/intelligence/overview) adds persistent [threads](/AG-UI-Streams) and durable cross-session memory. Handle a missing or unreachable platform without failing every request:
+[CopilotKit Intelligence](/intelligence/overview) 增加持久化的[线程](/AG-UI-Streams)与持久的跨会话记忆。要妥善处理平台缺失或不可达的情况，而不是让每个请求都失败：
 
-- **Auto-detect:** at startup, probe the platform health endpoint with a short timeout. If it is unreachable or unlicensed, fall back to an in-memory runner.
-- **Configurable endpoint:** use one base-URL environment variable for the runtime, the agent's memory client, and the health probe. Check the endpoint again after a restart.
+- **自动探测**：启动时用短超时探测平台健康端点。如果不可达或无许可，就回退到内存型 runner。
+- **端点可配置**：运行时、agent 的记忆客户端与健康探测共用一个 base URL 环境变量。重启之后再次检查该端点。
 
-Memory tools call the platform's streaming JSON-RPC `/mcp` endpoint, scoped per user:
+记忆工具调用平台的流式 JSON-RPC `/mcp` 端点，按用户划定范围：
 
 ```http
 POST {INTELLIGENCE_API_URL}/mcp
@@ -149,35 +149,35 @@ Accept: application/json, text/event-stream
  "params":{"name":"recall_memory","arguments":{}}}
 ```
 
-The response is a server-sent event stream. Read the JSON-RPC body from the first `data:` line and join the text content. Writes may include an embedding step and can take several seconds, so run them asynchronously and set a suitable timeout.
+响应是 server-sent 事件流。从第一个 `data:` 行读取 JSON-RPC 主体并拼接文本内容。写入可能包含嵌入（embedding）步骤、耗时数秒，因此请异步执行并设置合适的超时。
 
-<Callout type="warn" title="Query each supported memory scope">
-  **Symptom:** the agent clearly remembers things a custom memory panel never shows.
-  **Cause:** recall often defaults to *user* scope and caps at a small top-N, so a panel that hard-codes user scope hides project- or team-scoped memories.
-  **Fix:** if you build a memory browser, query both user and project scopes, de-duplicate, and merge.
+<Callout type="warn" title="逐一查询每个受支持的记忆范围">
+  **症状**：agent 明明记得某些内容，自定义记忆面板却从不显示。
+  **原因**：召回通常默认 *user* 范围并限制在很小的 top-N，硬编码 user 范围的面板会隐藏项目或团队范围的记忆。
+  **修复**：如果你要构建记忆浏览器，请同时查询 user 与 project 范围，去重后合并。
 </Callout>
 
-<Callout type="info" title="Self-hosting the platform">
-  Running CopilotKit Intelligence yourself has its own setup notes (license verification and the embedding service). See [Self-hosting](/intelligence/self-hosting).
+<Callout type="info" title="自托管平台">
+  自行运行 CopilotKit Intelligence 有单独的配置注意事项（许可验证与嵌入服务）。参见[自托管](/intelligence/self-hosting)。
 </Callout>
 
-## Production checklist
+## 生产清单
 
-1. Use one agent id across the chat surface. Share one submit function or service across custom composers.
-2. Resolve identity on the server. Send changing, non-secret application context with each run.
-3. Apply runtime URL and header changes between runs.
-4. Enforce tool policy on the server. Strip disallowed tools from inbound runs and filter outbound generated UI.
-5. Test a current agentic model against your full tool and policy flow, and confirm that your provider offers it.
+1. 聊天界面全程使用一个 agent id。自定义输入框之间共享同一个提交函数或服务。
+2. 在服务端解析身份。每次运行都发送变化的、非机密的应用上下文。
+3. 在两次运行之间应用运行时 URL 与请求头变更。
+4. 在服务端执行工具策略。从入站运行中剔除不允许的工具，并过滤出站的生成式 UI。
+5. 用完整的工具与策略流程测试当前主流的智能体模型，并确认你的提供方提供该模型。
 
-## Going further
+## 深入一步
 
-- **Local dev:** only your frontend dev server hot-reloads. A `tsx`/`node` BFF and a Python agent do not, so restart them after edits. Give each service a stable, non-colliding port and write them down.
-- **Custom chat UI:** Build welcome and empty states in your application, customize message rendering through `messageViewComponent`, and iterate the full message list when you need to interleave generated UI. See the [Angular guide](/angular).
-- **Threads in depth:** see [Threads explained](/intelligence/threads-explained).
+- **本地开发**：只有前端开发服务器会热重载。`tsx`/`node` BFF 与 Python agent 都不会，所以编辑后要重启它们。给每个服务分配一个稳定、互不冲突的端口并记录下来。
+- **自定义聊天 UI**：在你的应用中构建欢迎与空状态，通过 `messageViewComponent` 自定义消息渲染，需要在中间穿插生成式 UI 时迭代完整消息列表。参见 [Angular 指南](/angular)。
+- **线程详解**：参见[线程详解](/intelligence/threads-explained)。
 
-## Get started with a coding agent
+## 用编码智能体上手
 
-Paste this into your coding agent (Cursor, Claude Code, etc.) once you have the Angular and ADK quickstarts running:
+当 Angular 与 ADK 快速开始跑起来之后，把下面这段粘贴给你的编码智能体（Cursor、Claude Code 等）：
 
 ```text
 Update my Angular + Google ADK + CopilotKit app for multi-user production:

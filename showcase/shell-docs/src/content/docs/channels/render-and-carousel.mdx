@@ -1,12 +1,12 @@
 ---
-title: Render and carousel
-description: Mix native channel UI with React snapshots in one message using Render and Carousel.
+title: 渲染与轮播
+description: 使用 Render 和 Carousel 在一条消息中混排原生渠道 UI 与 React 快照。
 icon: "lucide/Images"
 ---
 
-You want native text plus React cards in one message. A header, a sale note, and a Buy button sit next to a product card that your app already draws in React.
+你想在一条消息里同时拥有原生文本和 React 卡片。一个标题、一条促销说明和一个“购买”按钮，旁边放着你应用里早已用 React 绘制的产品卡片。
 
-Wrap each snapshot in `<Render alt>`. Group the slides in `<Carousel>`. The SDK draws each snapshot to a PNG and keeps the rest as native channel UI.
+把每个快照包在 `<Render alt>` 里，把这些轮播页放进 `<Carousel>`。SDK 把每个快照绘制成 PNG，其余部分保持为原生渠道 UI。
 
 ```tsx
 <Message>
@@ -34,28 +34,28 @@ Wrap each snapshot in `<Render alt>`. Group the slides in `<Carousel>`. The SDK 
 </Message>
 ```
 
-`alt` is required and must not be blank on `<Render>`. Its canvas inherits `render.width` and `render.height`, defaulting to 720 by 480 pixels. Set `width` and `height` on an individual `<Render>` to override them.
+在 `<Render>` 上，`alt` 是必填项且不能为空。其画布继承 `render.width` 和 `render.height`，默认为 720×480 像素。在单个 `<Render>` 上设置 `width` 和 `height` 可以覆盖它们。
 
-`<Image url>` is still a public URL image. It does not take children. Inside a carousel, supply both a URL and nonblank `alt` text. A carousel accepts 1 to 10 slides; each `<CarouselCard>` allows one header, one section, one image or snapshot, and up to three native buttons.
+`<Image url>` 仍然是一个公共 URL 图片，不接受 children。在轮播中，要同时提供 URL 和非空的 `alt` 文本。一个轮播接受 1 到 10 页；每个 `<CarouselCard>` 允许一个 header、一个 section、一张图片或快照，以及最多三个原生按钮。
 
-Use `thread.post()` or `thread.update()` for messages containing `<Render>`. These native messages keep normal message references and button callbacks. Ephemeral snapshots are unsupported: `thread.postEphemeral()` rejects `<Render>` before posting.
+包含 `<Render>` 的消息请使用 `thread.post()` 或 `thread.update()`。这些原生消息保留正常的消息引用和按钮回调。不支持临时快照：`thread.postEphemeral()` 会在发送之前拒绝 `<Render>`。
 
-<Callout type="warn" title="No Channels Button inside Render">
-  A Channels `<Button>` inside `<Render>` throws. A host HTML button is fine. The snapshot is a PNG, so that HTML button does not receive clicks.
+<Callout type="warn" title="Render 内不能放 Channels 的 Button">
+  在 `<Render>` 内放 Channels 的 `<Button>` 会抛错。宿主 HTML 按钮则没问题。快照是 PNG，所以那个 HTML 按钮不会收到点击。
 </Callout>
 
-Set the renderer, fonts, and styles once on `createChannel({ render })`. `<Render>` needs `render.renderer`, the same as an image post. See [Posting JSX as images](/channels/posting-jsx-as-images).
+在 `createChannel({ render })` 上一次性设置渲染器、字体和样式。`<Render>` 需要 `render.renderer`，与图片发送相同。参见[将 JSX 作为图片发送](/channels/posting-jsx-as-images)。
 
-The Slack example posts this mix with `/carousel` or by asking the bot to show a carousel (`render_carousel` in `examples/slack`).
+Slack 示例通过 `/carousel` 或让机器人展示轮播（`examples/slack` 中的 `render_carousel`）来发送这种混排消息。
 
-This feature targets managed Slack and Teams:
+该特性面向托管的 Slack 和 Microsoft Teams：
 
-- **Slack:** the SDK stores each PNG and puts its file handle in `slack_file.id`. Intelligence stages the image in Slack before posting the native message or carousel. Native buttons keep their action callbacks.
-- **Teams:** the SDK embeds snapshots as data URIs in an Adaptive Card. The complete delivery packet, including all images, text, and actions, must fit the existing **64 KiB** limit. Oversized cards fail with an error explaining the limit. Reduce the snapshot dimensions, use public `<Image url>` images, or post a larger snapshot separately with `thread.post(jsx)`, which uses the managed upload path.
+- **Slack：**SDK 会存储每个 PNG 并把其文件句柄放进 `slack_file.id`。Intelligence 先把图片暂存到 Slack，再发送原生消息或轮播。原生按钮保留其操作回调。
+- **Teams：**SDK 把快照作为 data URI 嵌入 Adaptive Card。完整的投递包——包括所有图片、文本和操作——必须符合既有的 **64 KiB** 限制。超限的卡片会失败，并报错说明该限制。可以减小快照尺寸、改用公共 `<Image url>` 图片，或用 `thread.post(jsx)` 单独发送更大的快照（它走托管上传路径）。
 
-Run `pnpm channel` in `examples/slack` for the managed example. Existing direct adapters and Discord and WhatsApp behavior are unchanged.
+托管示例请到 `examples/slack` 中运行 `pnpm channel`。既有直连适配器以及 Discord 和 WhatsApp 的行为保持不变。
 
-| Managed platform | Carousel output |
+| 托管平台 | 轮播输出                       |
 | --- | --- |
-| Slack | Native carousel with interactive buttons |
-| Teams | Adaptive Card carousel with interactive actions |
+| Slack | 带交互按钮的原生轮播            |
+| Teams | 带交互操作的 Adaptive Card 轮播 |

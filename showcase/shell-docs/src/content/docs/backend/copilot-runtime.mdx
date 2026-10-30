@@ -1,19 +1,19 @@
 ---
 title: "Copilot Runtime"
-description: "The Copilot Runtime is the backend that connects your frontend to your AI agents, providing authentication, middleware, routing, and more."
+description: "Copilot Runtime 是连接前端与 AI 智能体的后端，提供身份验证、中间件、路由等能力。"
 icon: "lucide/Server"
 ---
 
 import AgentNameBinding from "@/snippets/agent-name-binding.mdx";
 import RuntimeLanguages from "@/snippets/runtime-languages.mdx";
 
-The Copilot Runtime is the backend layer that connects your frontend application to your AI agents. It's set up during the [quickstart](/quickstart) and is the recommended way to use CopilotKit.
+Copilot Runtime 是连接前端应用与 AI 智能体的后端层。它在[快速开始](/quickstart)中完成配置，是使用 CopilotKit 的推荐方式。
 
 <RuntimeLanguages />
 
-## Setting up the runtime
+## 设置运行时
 
-The runtime is a lightweight server endpoint that you add to your backend. Here's a minimal example using Next.js:
+运行时是你添加到自己后端的一个轻量服务端端点。以下是一个使用 Next.js 的最小示例：
 
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts" doctest="component"
 import {
@@ -40,7 +40,7 @@ export const PATCH = handler;
 export const DELETE = handler;
 ```
 
-Then point your frontend at the endpoint:
+然后把你的前端指向该端点：
 
 <FrontendOnly frontend="react">
 ```tsx
@@ -81,78 +81,67 @@ import { CopilotKitProvider } from "@copilotkit/vue/v2";
 ```
 </FrontendOnly>
 
-For Express, NestJS, or plain Node.js HTTP variants, see the [quickstart](/quickstart).
-For the exact HTTP routes the runtime exposes (and how to probe them with `curl`),
-see [Runtime HTTP endpoints](/backend/runtime-endpoints).
+Express、NestJS 或纯 Node.js HTTP 的变体见[快速开始](/quickstart)。
+运行时暴露的确切 HTTP 路由（以及如何用 `curl` 探测它们）见
+[运行时 HTTP 端点](/backend/runtime-endpoints)。
 
-<Callout type="info" title="Legacy vs. v2 runtime endpoints">
-  The `copilotRuntimeNextJSAppRouterEndpoint` / `copilotRuntimeNodeHttpEndpoint` / `copilotRuntimeNodeExpressEndpoint` / `copilotRuntimeNestEndpoint` helpers above are the **legacy** (v1) endpoint factories, imported from `@copilotkit/runtime`. The v2 runtime exposes a smaller, framework-agnostic API under `@copilotkit/runtime/v2`:
+<Callout type="info" title="旧版与 v2 运行时端点的对比">
+  上文的 `copilotRuntimeNextJSAppRouterEndpoint` / `copilotRuntimeNodeHttpEndpoint` / `copilotRuntimeNodeExpressEndpoint` / `copilotRuntimeNestEndpoint` 辅助函数是**旧版**（v1）端点工厂，从 `@copilotkit/runtime` 导入。v2 运行时在 `@copilotkit/runtime/v2` 下暴露了一个更小、与框架无关的 API：
 
-  | Legacy (`@copilotkit/runtime`) | v2 (`@copilotkit/runtime/v2`) |
+  | 旧版（`@copilotkit/runtime`） | v2（`@copilotkit/runtime/v2`） |
   | --- | --- |
   | `copilotRuntimeNextJSAppRouterEndpoint`, `copilotRuntimeNodeHttpEndpoint` (Fetch / Next.js App Router, Bun, Deno, Cloudflare Workers) | `createCopilotRuntimeHandler` |
-  | `copilotRuntimeNodeExpressEndpoint` (Express) | `createCopilotExpressHandler` (from `@copilotkit/runtime/v2/express`) |
+  | `copilotRuntimeNodeExpressEndpoint` (Express) | `createCopilotExpressHandler`（来自 `@copilotkit/runtime/v2/express`） |
 
-  Both styles work in v1.50. For new projects, use the v2 handlers. See [Deploy to any runtime](/runtime-server-adapter).
+  两种风格在 v1.50 中都可用。新项目请使用 v2 handler。见[部署到任意运行时](/runtime-server-adapter)。
 </Callout>
 
 <FrontendOnly frontend="react">
-<Callout type="warn" title="Switching to a v2 handler also switches the transport">
-  The legacy factories are single-route; the v2 handlers are multi-route by
-  default. The `<CopilotKit>` above sets no transport, so it detects the switch
-  on its own — but if you have pinned `useSingleEndpoint={true}` anywhere, drop
-  it or flip it to `{false}` when you move to a v2 handler. See
-  [Provider and handler pairs](/backend/runtime-endpoints#provider-and-handler-pairs).
+<Callout type="warn" title="切换到 v2 handler 也会切换传输方式">
+  旧版工厂是单路由的；v2 handler 默认是多路由的。上面的 `<CopilotKit>` 没有设置传输方式，所以它会自行检测这次切换——但如果你在任何地方固定了 `useSingleEndpoint={true}`，迁移到 v2 handler 时请删掉它或改为 `{false}`。见
+  [Provider 与 handler 的配对](/backend/runtime-endpoints#provider-and-handler-pairs)。
 </Callout>
 </FrontendOnly>
 
 <FrontendOnly frontend="vue">
-<Callout type="warn" title="Keep the transport automatic when possible">
-  `CopilotKitProvider` discovers the Runtime transport when
-  `use-single-endpoint` is omitted. If you must pin the mode, use
-  `:use-single-endpoint="true"` for a single-route handler or
-  `:use-single-endpoint="false"` for a multi-route handler.
+<Callout type="warn" title="尽可能保持传输方式自动协商">
+  省略 `use-single-endpoint` 时，`CopilotKitProvider` 会自动发现 Runtime 的传输方式。如果必须固定模式，单路由 handler 用
+  `:use-single-endpoint="true"`，多路由 handler 用
+  `:use-single-endpoint="false"`。
 </Callout>
 </FrontendOnly>
 
-## Agents
+## 智能体
 
-The runtime supports multiple agent types. `BuiltInAgent` is the primary agent class:
+运行时支持多种智能体类型。`BuiltInAgent` 是主要的智能体类：
 
-- **Simple mode:** pass a model string and let CopilotKit handle the rest. Best for quick setup. See [Quickstart](/quickstart).
-- **Factory mode:** bring your own AI SDK, TanStack AI, or custom LLM backend. Best when you need full control. See [Factory Mode](/backend/custom-agent).
+- **简单模式**：传入一个模型字符串，其余交给 CopilotKit 处理。最适合快速搭建。见[快速开始](/quickstart)。
+- **工厂模式**：自带 AI SDK、TanStack AI 或自定义 LLM 后端。最适合需要完全控制的场景。见[工厂模式](/backend/custom-agent)。
 
-To register agent logic you wrote yourself, extend AG-UI's `AbstractAgent`. See [Write your own AG-UI agent](/backend/custom-ag-ui-agent).
+要注册你自己编写的智能体逻辑，请继承 AG-UI 的 `AbstractAgent`。见[编写你自己的 AG-UI 智能体](/backend/custom-ag-ui-agent)。
 
-<Callout type="warn" title="Wiring an external agent: what to pass, and which URL">
-Two mistakes account for most failures here.
+<Callout type="warn" title="接入外部智能体：传什么，用哪个 URL">
+大多数失败都源于两个错误。
 
-`agents` takes `AbstractAgent` instances. A framework's own SDK client is not one — pass the
-`@ag-ui/<framework>` wrapper for it, or a plain `HttpAgent`, rather than the client itself.
+`agents` 接受 `AbstractAgent` 实例。框架自带的 SDK 客户端不是——请传它的
+`@ag-ui/<framework>` 包装器，或一个普通 `HttpAgent`，而不是客户端本身。
 
-And the URL an external agent takes is its **own** server or deployment, not
-`/api/copilotkit`. That path is the browser-to-runtime hop; this is the runtime-to-agent hop,
-and they are different addresses. Each integration guide names the exact URL its framework
-serves, including any required suffix.
+而且外部智能体接收的 URL 是它**自己的**服务器或部署地址，不是
+`/api/copilotkit`。那个路径是浏览器到运行时的一跳；这里是运行时到智能体的一跳，两者是不同的地址。每份集成指南都会写明其框架服务的确切 URL，包括任何必需的后缀。
 </Callout>
 
-<Callout type="warn" title="One agent instance runs one turn at a time">
-A `BuiltInAgent` refuses a second concurrent run on itself, with
-`Agent is already running. Call abortRun() first or create a new instance.` The instance in
-the examples here is created once at module scope, so on a server handling more than one
-person the second concurrent request is the one that fails.
+<Callout type="warn" title="一个智能体实例一次只运行一轮">
+`BuiltInAgent` 会拒绝自身的第二次并发运行，报
+`Agent is already running. Call abortRun() first or create a new instance.`。本页示例中的实例在模块作用域只创建一次，因此在服务多于一个人的服务器上，第二个并发请求就是失败的那个。
 
-Per-thread state lives in the runner, not the agent, so the fix is to give each concurrent
-run its own agent instance — construct it inside the request rather than at module scope —
-or to serialise turns per user. A single shared instance is fine for local development and
-for a single-user surface.
+按线程的状态保存在运行器里，而不是智能体里，所以修复方法是给每个并发运行各自的智能体实例——在请求内构造而非模块作用域——或按用户串行化各轮对话。单个共享实例用于本地开发和单用户界面没问题。
 </Callout>
 
 <AgentNameBinding />
 
-## The default agent
+## 默认智能体
 
-If you register an agent under the name `"default"`, CopilotKit's prebuilt UI components will use it automatically without any additional configuration on the frontend. This is useful when you have one primary agent and don't want to specify an `agentId` everywhere.
+如果你以 `"default"` 名称注册一个智能体，CopilotKit 的预构建 UI 组件会自动使用它，前端无需任何额外配置。当你只有一个主要智能体、不想在各处指定 `agentId` 时，这很有用。
 
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
 import { BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -165,32 +154,32 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-When you register multiple agents, the `"default"` agent is what powers the chat unless a specific agent is selected. Other agents can still be addressed by passing their `agentId` to a chat component or frontend agent API.
+注册多个智能体时，除非选择了特定智能体，否则由 `"default"` 智能体驱动聊天。其他智能体仍可通过把 `agentId` 传给聊天组件或前端智能体 API 来使用。
 
-## What the runtime provides
+## 运行时提供什么
 
-### Authentication & security
+### 认证与安全
 
-The runtime runs on your server, which means agent communication stays server-side. This gives you a trusted environment to enforce authentication, validate requests, and keep API keys secure. When you use the runtime, safe defaults prevent your agent endpoints from being exposed to unauthenticated access.
+运行时跑在你的服务器上，这意味着智能体通信保持在服务器端。这为你提供了一个可信环境来实施认证、校验请求并保障 API 密钥安全。使用运行时时，安全的默认值会防止你的智能体端点暴露给未认证访问。
 
-### AG-UI middleware
+### AG-UI 中间件
 
-The [AG-UI protocol](/backend/ag-ui) supports a middleware layer (`agent.use`) for logging, guardrails, request transformation, and more. Because the runtime runs server-side, this middleware executes in a trusted environment where it cannot be tampered with by the client.
+[AG-UI 协议](/backend/ag-ui)支持一个中间件层（`agent.use`），可用于日志、护栏、请求转换等。由于运行时在服务器端运行，该中间件在可信环境中执行，不会被客户端篡改。
 
-### Agent routing
+### 智能体路由
 
-When you register multiple agents, the runtime handles discovery and routing automatically. Your frontend doesn't need to know where each agent lives or how to reach it.
+注册多个智能体时，运行时自动处理发现与路由。你的前端不需要知道每个智能体在哪里、如何触达。
 
 ### CopilotKit Intelligence
 
-[Threads](/AG-UI-Streams), the [inspector](/inspector), and other CopilotKit Intelligence capabilities are provided through the runtime. These give you conversation persistence and debugging without extra setup.
+[线程](/AG-UI-Streams)、[检查器](/inspector)以及其他 CopilotKit Intelligence 能力都通过运行时提供。它们让你无需额外配置即可获得会话持久化与调试。
 
-The examples below take `intelligence` and `identifyUser` as given. `intelligence` is a `CopilotKitIntelligence` instance — see [Connect your runtime to Intelligence](/intelligence/quickstart) for the constructor and where the project API key comes from.
+下面的示例假定 `intelligence` 和 `identifyUser` 已经就绪。`intelligence` 是一个 `CopilotKitIntelligence` 实例——构造函数与项目 API 密钥的来源见[将你的运行时接入 Intelligence](/intelligence/quickstart)。
 
-#### Assign Threads to Learning Containers
+#### 把线程分配给学习容器
 
-Create a Learning Container in your Intelligence Project, then choose its stable
-ID in the Intelligence SDK:
+在你的 Intelligence Project 中创建一个 Learning Container，然后在 Intelligence SDK 中选定其稳定
+ID：
 
 ```ts title="runtime.ts"
 const intelligence = new CopilotKitIntelligence({
@@ -199,8 +188,8 @@ const intelligence = new CopilotKitIntelligence({
 });
 ```
 
-The selector receives the resolved application user and the AG-UI run input.
-The same API handles web and Channel runs:
+选择器会收到解析出的应用用户和 AG-UI 运行输入。
+同一 API 同时处理 Web 与 Channel 运行：
 
 ```ts title="runtime.ts"
 const intelligence = new CopilotKitIntelligence({
@@ -220,29 +209,20 @@ const intelligence = new CopilotKitIntelligence({
 });
 ```
 
-For web runs, `user` is the full result from `identifyUser`. For Channel runs,
-it is the application user resolved by the Channel identity strategy, or `null`
-when no application user was resolved. `input` contains the parsed run fields,
-including `threadId`, `runId`, `messages`, `state`, `tools`, `context`, and
-`forwardedProps`.
+对 Web 运行，`user` 是 `identifyUser` 的完整结果。对 Channel 运行，它是由 Channel 身份策略解析出的应用用户，未解析到应用用户时为 `null`。`input` 包含解析后的运行字段，包括 `threadId`、`runId`、`messages`、`state`、`tools`、`context` 和
+`forwardedProps`。
 
-The callback runs once for each attempted agent run. Return a 1–64 character
-stable ID made from lowercase letters, numbers, and single hyphens. Return
-`null` or `undefined` to leave the Thread unassigned. Always return the same ID
-for the same Thread. A Thread cannot move after its first assignment, and a
-Thread with an earlier agent run cannot receive its first assignment later.
+回调对每次尝试的智能体运行各执行一次。返回一个 1–64 字符的稳定 ID，由小写字母、数字和单个连字符组成。返回 `null` 或 `undefined` 表示不分配线程。同一个线程始终返回相同的 ID。线程在首次分配后不能移动，而且已有更早智能体运行的线程不能在事后才获得首次分配。
 
-The Runtime sends only the Container ID with the normal Thread create and lock
-calls. It does not upload transcripts. The Intelligence AgentRunner's persisted
-AG-UI events remain the source for Learning.
+Runtime 只在正常的线程创建与锁定调用中附带 Container ID。它不上传会话记录。Intelligence AgentRunner 持久化的 AG-UI 事件仍是 Learning 的数据来源。
 
-## Built-in middleware
+## 内置中间件
 
-The runtime exposes two first-class middleware options you can enable directly on `CopilotRuntime` without calling `.use()` on each agent manually.
+运行时提供两个一等公民中间件选项，可直接在 `CopilotRuntime` 上启用，无需对每个智能体手动调用 `.use()`。
 
 ### A2UI
 
-Pass `a2ui: {}` to automatically apply `A2UIMiddleware` to all registered agents:
+传入 `a2ui: {}` 即可自动把 `A2UIMiddleware` 应用到所有已注册的智能体：
 
 ```ts title="app/api/copilotkit/route.ts"
 const runtime = new CopilotRuntime({
@@ -251,15 +231,13 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-To scope it to specific agents only, pass an `agents` list:
+若只想作用于特定智能体，传入 `agents` 列表：
 
 ```ts
 a2ui: { agents: ["my-agent"] }
 ```
 
-On the frontend, the A2UI renderer activates automatically. No extra
-configuration is needed. Configure `a2ui` only when you want to override the
-default theme:
+在前端，A2UI 渲染器自动激活，无需额外配置。只有想覆盖默认主题时才配置 `a2ui`：
 
 <FrontendOnly frontend="react">
 ```tsx
@@ -282,7 +260,7 @@ provideCopilotKit({
 
 ### mcpApps
 
-Pass `mcpApps` to configure MCP servers for all agents from a single place:
+传入 `mcpApps`，在一个地方为所有智能体配置 MCP 服务器：
 
 ```ts title="app/api/copilotkit/route.ts"
 const runtime = new CopilotRuntime({
@@ -295,34 +273,34 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-Each server entry optionally accepts an `agentId` field to scope that server to a single agent. Without it, the server is available to all agents.
+每个 server 条目可选接受一个 `agentId` 字段，把该 server 限定到单个智能体。不传时，server 对所有智能体可用。
 
-Per-tool filtering belongs to `@ag-ui/mcp-apps-middleware`. The release the runtime depends on does not support `includeTools` or `excludeTools`. Supplying either key raises a configuration error instead of silently ignoring it. A newer middleware release alone does not change this: the runtime has to adopt the policy first. Follow [#5930](https://github.com/CopilotKit/CopilotKit/issues/5930) for that work.
+按工具过滤属于 `@ag-ui/mcp-apps-middleware` 的能力。运行时依赖的版本不支持 `includeTools` 或 `excludeTools`。提供其中任一键都会引发配置错误，而不是被悄悄忽略。仅升级中间件版本不会改变这一点：必须由运行时先采纳该策略。相关进展请关注 [#5930](https://github.com/CopilotKit/CopilotKit/issues/5930)。
 
-## Forwarding request headers to your agent
+## 向智能体转发请求头
 
-When a request reaches the runtime, some inbound headers are forwarded onto the outgoing call to your agent (the `/run` path that actually dispatches the agent). This is how a token configured by the frontend provider reaches a self-hosted agent — see [Authentication](/auth).
+当请求到达运行时，部分入站请求头会被转发到对你智能体的外发调用上（即真正分发智能体的 `/run` 路径）。前端 provider 配置的令牌就是这样到达自托管智能体的——见[身份验证](/auth)。
 
-By default the runtime forwards `authorization` and any `x-*` header, **minus** a built-in denylist of infrastructure, proxy, and platform headers that no legitimate agent integration needs forwarded from the edge. The denylist strips, among others:
+默认情况下，运行时转发 `authorization` 和任何 `x-*` 请求头，**但会扣除**一份内置拒绝清单——其中是任何正当的智能体集成都不需要从边缘转发的基础设施、代理与平台请求头。该清单会剔除的内容包括：
 
-- **Proxy / topology:** `x-forwarded-*`, `x-real-ip`
-- **Cloud / CDN tracing:** `x-amzn-trace-id`, `x-amz-*` (AWS), `x-azure-*`, `x-fastly-*`, `x-cloud-trace-context`, `x-cache`, `x-served-by`
-- **Platform-injected:** `x-vercel-*`, `x-middleware-*` (Next.js)
-- **CopilotKit platform:** `x-copilotcloud-*`, including `x-copilotcloud-public-api-key`
+- **代理 / 拓扑**：`x-forwarded-*`、`x-real-ip`
+- **云 / CDN 追踪**：`x-amzn-trace-id`、`x-amz-*`（AWS）、`x-azure-*`、`x-fastly-*`、`x-cloud-trace-context`、`x-cache`、`x-served-by`
+- **平台注入**：`x-vercel-*`、`x-middleware-*`（Next.js）
+- **CopilotKit 平台**：`x-copilotcloud-*`，包括 `x-copilotcloud-public-api-key`
 
-Everything else still forwards: `authorization`, and any custom application header like `x-tenant-id`, `x-api-key`, or `x-user-id`.
+其余的照常转发：`authorization`，以及任何自定义应用请求头，如 `x-tenant-id`、`x-api-key` 或 `x-user-id`。
 
-<Callout type="warn" title="Upgrade note: x-request-id is now stripped">
-Earlier runtime versions forwarded `x-request-id`. It is now stripped by default because it is predominantly a proxy-assigned trace id. If your agent relies on receiving your own `x-request-id`, re-enable it with `forwardHeaders: { allow: [...] }` or `useDefaultDenylist: false` (below).
+<Callout type="warn" title="升级须知：x-request-id 现已被剔除">
+更早的运行时版本会转发 `x-request-id`。现在默认剔除它，因为它主要是代理分配的追踪 id。如果你的智能体依赖接收你自己的 `x-request-id`，请用 `forwardHeaders: { allow: [...] }` 或 `useDefaultDenylist: false`（见下文）重新启用。
 </Callout>
 
-### Server-configured headers win
+### 服务器配置的请求头优先
 
-Headers you set on an agent (e.g. `new HttpAgent({ headers: { Authorization: "Bearer <service-token>" } })`) take precedence over a forwarded inbound header of the same name, matched case-insensitively. A service-to-service token you configured on the server is never silently overridden by a browser- or edge-injected inbound header ([#5782](https://github.com/CopilotKit/CopilotKit/pull/5782)).
+你在智能体上设置的请求头（如 `new HttpAgent({ headers: { Authorization: "Bearer <service-token>" } })`）优先于同名转发来的入站请求头，按大小写不敏感匹配。你在服务器上配置的服务间令牌，永远不会被浏览器或边缘注入的入站请求头悄悄覆盖（[#5782](https://github.com/CopilotKit/CopilotKit/pull/5782)）。
 
-### Configuring the policy
+### 配置策略
 
-Pass `forwardHeaders` to `CopilotRuntime` to tune what forwards:
+向 `CopilotRuntime` 传入 `forwardHeaders` 来调整转发行为：
 
 ```ts title="app/api/copilotkit/route.ts"
 const runtime = new CopilotRuntime({
@@ -335,33 +313,30 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-The options:
+可用选项：
 
-- **`deny`** / **`denyPrefixes`** — extra exact names / name-prefixes to strip. These **always** strip (deny wins), even in allowlist mode, so a security-motivated `deny` can never be defeated by an overlapping `allow`.
-- **`allow`** — switches to **allowlist mode**: only the listed headers forward, and the usual `authorization` / `x-*` eligibility no longer applies. Your `deny` / `denyPrefixes` still subtract from this set.
-- **`useDefaultDenylist`** — defaults to `true`. Set `false` to opt out of the built-in denylist and restore the previous wide-open behavior.
+- **`deny`** / **`denyPrefixes`**——要额外剔除的精确名称 / 名称前缀。它们**始终**剔除（deny 优先），即使在允许清单模式下也是如此，因此出于安全动机的 `deny` 绝不会被重叠的 `allow` 击败。
+- **`allow`**——切换到**允许清单模式**：只有列出的请求头会转发，通常的 `authorization` / `x-*` 准入规则不再适用。你的 `deny` / `denyPrefixes` 仍会从该集合中扣除。
+- **`useDefaultDenylist`**——默认 `true`。设为 `false` 可退出内置拒绝清单，恢复此前完全放开的行为。
 
-Empty or whitespace-only entries are ignored in every list.
+任何列表中的空项或纯空白项都会被忽略。
 
 ```ts
 // Allowlist mode: forward ONLY these two, nothing else.
 forwardHeaders: { allow: ["authorization", "x-tenant-id"] }
 ```
 
-<Callout type="warn" title="Allowlist mode bypasses the default denylist">
-In allowlist mode the built-in denylist does **not** apply — only your `allow` set (minus your own `deny`) forwards. Don't allow-list protected headers such as `x-copilotcloud-public-api-key` or `x-forwarded-*` unless you truly intend to forward them, since the default protection isn't there to catch them.
+<Callout type="warn" title="允许清单模式会绕过默认拒绝清单">
+在允许清单模式下，内置拒绝清单**不**生效——只有你的 `allow` 集合（再扣除你自己的 `deny`）会转发。除非你确实打算转发，否则不要把 `x-copilotcloud-public-api-key` 或 `x-forwarded-*` 这类受保护请求头加进允许清单，因为默认保护已经不在那里兜底了。
 </Callout>
 
-## Keeping quiet streams alive
+## 让安静的流保持存活
 
-A run can be silent for a long time while the agent reasons or waits on a slow tool. The runtime writes a `: keep-alive` SSE comment after 15 seconds without output so proxies and browsers with idle timeouts keep the connection open. Comments are transport frames: they never become AG-UI events. Tune or disable this with `sseKeepAliveIntervalSeconds` (`0` disables it).
+智能体推理或等待慢速工具时，一次运行可能长时间没有输出。运行时在 15 秒无输出后写入一条 `: keep-alive` SSE 注释，让有空闲超时的代理和浏览器保持连接打开。注释属于传输帧：它们绝不会变成 AG-UI 事件。可用 `sseKeepAliveIntervalSeconds` 调整或禁用（`0` 表示禁用）。
 
-## Connecting to an AG-UI agent directly
+## 直接连接到 AG-UI 智能体
 
-CopilotKit is built on the [AG-UI protocol](/backend/ag-ui), which is an open
-standard. If you want to connect your frontend directly to an AG-UI-compatible
-agent without the runtime, you can do so by registering agent instances with the
-frontend SDK:
+CopilotKit 构建在开放标准 [AG-UI 协议](/backend/ag-ui)之上。如果你想绕过运行时、把前端直接连接到兼容 AG-UI 的智能体，可以通过在前端 SDK 中注册智能体实例来实现：
 
 <FrontendOnly frontend="react">
 ```tsx
@@ -418,26 +393,24 @@ const myAgent = new HttpAgent({
 </FrontendOnly>
 
 <Callout type="warn">
-Direct agent connections are intended for development and prototyping. They are **not recommended for production** and are not officially supported by CopilotKit.
+直接连接智能体面向开发与原型阶段。**不建议在生产环境使用**，CopilotKit 也不提供官方支持。
 </Callout>
 
-If you intend to manage the agent connection yourself in production and have
-secured it, use the supported
-[`selfManagedAgents`](/backend/self-managed-agents) configuration instead of
-the local-development agent option.
+如果你打算在生产环境自行管理智能体连接且已做好安全防护，请使用受支持的
+[`selfManagedAgents`](/backend/self-managed-agents) 配置，而不是本地开发用的智能体选项。
 
-Key trade-offs:
+主要权衡：
 
-1. **Authentication is your responsibility.** The runtime's safe defaults do not apply.
-2. **Many ecosystem features won't work.** Runtime-backed middleware and other capabilities depend on the server-side path.
+1. **身份验证由你负责。**运行时的安全默认值不适用。
+2. **许多生态特性无法工作。**运行时支撑的中间件和其他能力依赖服务器端路径。
 
-### Comparison
+### 对比
 
-| | With Runtime | Direct Connection |
+| | 使用 Runtime | 直接连接 |
 |---|---|---|
-| **Authentication** | Safe defaults provided | You manage it |
-| **AG-UI Middleware** | Runs server-side | Not available |
-| **Agent Routing** | Automatic | Manual |
-| **Ecosystem Features** | Full support | Limited |
-| **CopilotKit Support** | Supported | Not supported |
-| **Setup** | Requires a backend endpoint | Frontend-only |
+| **身份验证** | 提供安全默认值 | 由你管理 |
+| **AG-UI 中间件** | 在服务器端运行 | 不可用 |
+| **智能体路由** | 自动 | 手动 |
+| **生态特性** | 完整支持 | 有限 |
+| **CopilotKit 支持** | 支持 | 不支持 |
+| **搭建** | 需要后端端点 | 仅前端 |

@@ -1,37 +1,30 @@
 ---
-title: Persistence and scaling
+title: 持久化与扩展
 icon: "lucide/Database"
-description: Make Slack and Teams workflow state restart-safe, implement the StateStore contract, and deploy within the managed listener's concurrency model.
+description: 让 Slack 与 Teams 的工作流状态重启安全，实现 StateStore 契约，并在托管监听器的并发模型内进行部署。
 doc_type: how-to
 ---
 
-Intelligence durably owns provider ingress and canonical Thread history.
-Redis-backed claims and ordered packets coordinate active provider delivery.
-Your Channels process still owns SDK workflow state. Those are separate
-persistence boundaries.
+Intelligence 以持久化方式持有提供方入口与规范的 Thread 历史。基于 Redis 的认领与有序包协调活跃的提供方投递。你的 Channels 进程仍持有 SDK 工作流状态。这是两个相互独立的持久化边界。
 
-## Know what is process-local by default
+## 了解默认情况下哪些是进程本地的
 
-Without `createChannel({ store: { adapter } })`, the SDK uses `MemoryStore`.
-These values disappear when the process restarts:
+如果没有 `createChannel({ store: { adapter } })`，SDK 会使用 `MemoryStore`。进程重启后，以下值会消失：
 
 - `thread.state()`
-- registered component snapshots used to restore callbacks
-- SDK transcript lists
-- SDK locks, deduplication windows, and queues
+- 用于恢复回调的已注册组件快照
+- SDK 会话记录列表
+- SDK 锁、去重窗口与队列
 
-Managed conversation history is different: Intelligence reconstructs recent
-provider turns even when the SDK store is in memory.
+托管对话历史则不同：即使 SDK 存储还在内存中，Intelligence 也能重建近期的提供方回合。
 
-<Callout type="warn" title="Online does not mean restart-safe">
-  The Intelligence **Online** state proves that the listener is connected. It
-  does not prove that a pending approval or application workflow survives a
-  deployment.
+<Callout type="warn" title="Online 不等于重启安全">
+  Intelligence 的 **Online** 状态只证明监听器已连接。它不能证明一个待处理的审批或应用工作流能在部署后幸存。
 </Callout>
 
-## Configure typed workflow state
+## 配置带类型的工作流状态
 
-Use a Standard Schema to type reads and validate complete replacement values:
+使用 Standard Schema 为读取添加类型，并校验完整的替换值：
 
 ```bash title="Terminal"
 npm install zod
@@ -109,27 +102,23 @@ channel.onMessage(async ({ thread, message }) => {
 
 </FrontendOnly>
 
-`setState(value)` replaces the whole value. It does not merge a partial patch.
-Store JSON-serializable values; remote backends do not preserve `Date`, `Map`,
-class instances, or functions.
+`setState(value)` 会替换整个值，不会合并部分补丁。请存储可 JSON 序列化的值；远程后端不会保留 `Date`、`Map`、类实例或函数。
 
-## Implement every StateStore facet
+## 实现 StateStore 的每个 facet
 
-A complete production store implements:
+一个完整的生产级存储要实现：
 
-| Facet   | Required behavior                                          |
+| Facet   | 必需行为                                                     |
 | ------- | ---------------------------------------------------------- |
-| `kv`    | Get, set with optional TTL, atomic consume, and delete     |
-| `list`  | Oldest-first append/range, cap, trim, delete, and list TTL |
-| `lock`  | Atomic acquire plus token-checked release                  |
-| `dedup` | Atomic first-seen check with TTL                           |
-| `queue` | FIFO enqueue/dequeue/depth with bounded overflow policy    |
+| `kv`    | 读取、带可选 TTL 的写入、原子消费与删除                      |
+| `list`  | 由旧到新的追加/范围读取、上限、裁剪、删除与列表 TTL           |
+| `lock`  | 原子获取加上基于 token 校验的释放                            |
+| `dedup` | 带 TTL 的原子首次可见检查                                    |
+| `queue` | 先进先出的入队/出队/深度，配合有界溢出策略                    |
 
-Locks, deduplication, and queues must be atomic across every process sharing the
-backend. Namespacing must prevent one project or Channel from reading another
-one's keys.
+锁、去重和队列在共享同一后端的每个进程之间都必须是原子的。命名空间必须能防止一个项目或 Channel 读到另一个的键。
 
-Run the SDK's Vitest conformance suite against your adapter:
+对你的适配器运行 SDK 的 Vitest 一致性测试套件：
 
 ```bash title="Terminal"
 npm install -D vitest
@@ -146,22 +135,20 @@ runStateStoreConformance(
 );
 ```
 
-Run it against the real backend:
+针对真实后端运行它：
 
 ```bash title="Terminal"
 npx vitest run state-store.test.ts
 ```
 
-The SDK ships `MemoryStore` and the conformance suite; it does not ship a fully
-durable Redis or Postgres implementation in the umbrella package.
+SDK 附带 `MemoryStore` 和一致性测试套件；umbrella package 中不附带完整持久化的 Redis 或 Postgres 实现。
 
-## Preserve interactive callbacks across restarts
+## 让交互回调跨重启保留
 
-A callback survives only when both conditions are true:
+只有同时满足以下两个条件，回调才能幸存：
 
-1. The JSX comes from a named component registered in
-   `createChannel({ components })`.
-2. The action snapshot is stored in a durable `StateStore`.
+1. JSX 来自注册在 `createChannel({ components })` 中的具名组件。
+2. 操作快照存储在持久化的 `StateStore` 中。
 
 <FrontendOnly frontend="slack">
 
@@ -191,55 +178,34 @@ const channel = createChannel({
 
 </FrontendOnly>
 
-Keep registered component props JSON-serializable and derive the handler from
-those props. Test by posting a card, restarting the process, then clicking the
-old card.
+保持已注册组件的 props 可 JSON 序列化，并从这些 props 推导处理器。测试方法：发送一张卡片，重启进程，然后点击旧卡片。
 
-## Match the managed concurrency model
+## 匹配托管的并发模型
 
-### Delivery claims (multi-replica)
+### 投递认领（多副本）
 
-Each prepared delivery has one claim winner. Every connected Runtime that
-declares the matching Channel can receive the invitation, check local capacity,
-and attempt the claim. Different replicas can serve different conversations at
-the same time; there is no Channel-wide leader.
+每条准备好的投递只有一个认领胜者。每个声明了匹配 Channel 的已连接 Runtime 都可以收到邀请、检查本地容量并尝试认领。不同副本可以同时服务不同会话；不存在 Channel 级的领导者。
 
-Keep each replica's Channel declarations and agent code aligned. The managed
-listener bounds active and pending delivery work internally. A Runtime that has
-reached its internal capacity declines new invitations before claiming them;
-that capacity is not currently a public Channel configuration option.
+保持每个副本的 Channel 声明与智能体代码一致。托管监听器在内部限制活跃与待处理的投递工作量。达到内部容量的 Runtime 会在认领之前拒绝新邀请；该容量目前不是公开的 Channel 配置选项。
 
-Provider effects use one ordered packet at a time. The SDK retries that exact
-packet after a known retry wait or reconnect. If a provider call becomes
-uncertain, Gateway records an uncertain terminal result instead of sending it
-again. Application tools still need their own idempotency keys when the
-application may call them more than once; use `message.eventId`,
-`message.turnId`, or a durable operation ID.
+提供方效果每次只使用一个有序包。SDK 会在已知的重试等待或重连之后重试同一个包。如果一次提供方调用结果变得不确定，Gateway 会记录一个不确定的终态结果，而不是再次发送。当应用可能多次调用某个工具时，应用工具仍需要自己的幂等键；可使用 `message.eventId`、`message.turnId` 或持久的操作 ID。
 
-### Turn concurrency (same conversation)
+### 回合并发（同一会话）
 
-Managed admission keeps one canonical Thread exclusive on a Runtime. A second
-invitation for that Thread is not claimed while the first delivery is active.
-Unrelated Threads continue in parallel within the managed listener's bounded
-capacity.
+托管准入让一个规范 Thread 在一个 Runtime 上独占。当第一条投递仍然活跃时，该 Thread 的第二条邀请不会被认领。无关的 Thread 在托管监听器的有界容量内并行继续。
 
-This delivery guard is separate from the SDK `store.concurrency` setting used
-by other adapter paths. Choose that setting for your application-state rules;
-do not use it to raise the managed same-Thread delivery limit. See
-[`StoreConfig`](/reference/channels/types/StoreConfig).
+这个投递守卫与其它适配器路径使用的 SDK `store.concurrency` 设置是分开的。请为你的应用状态规则选择该设置；不要用它来提高托管的同 Thread 投递上限。参见 [`StoreConfig`](/reference/channels/types/StoreConfig)。
 
-## Production checklist
+## 生产检查清单
 
-- Prefer an agent factory; singletons are cloned per run automatically.
-- Choose `store.concurrency` deliberately if you need serial workflow state.
-- Provide a durable store before promising restart-safe state or callbacks.
-- Run the StateStore conformance suite against the real backend.
-- Test a restart while a card is awaiting a click.
-- Make external writes idempotent.
-- Keep Channel declarations aligned across replicas and scale horizontally when
-  the managed listener's bounded local capacity is insufficient.
-- Alert on Intelligence **Conflict**, **Offline**, and **Delivery failing**.
-- Stop the listener on `SIGINT` and `SIGTERM`.
+- 优先使用智能体工厂；单例会在每次运行时自动克隆。
+- 如果需要串行的工作流状态，请有意识地设置 `store.concurrency`。
+- 在承诺重启安全的状态或回调之前，先提供持久化存储。
+- 针对真实后端运行 StateStore 一致性测试套件。
+- 在卡片等待点击时测试一次重启。
+- 让外部写入保持幂等。
+- 保持各副本的 Channel 声明一致；当托管监听器的有界本地容量不足时，进行水平扩展。
+- 对 Intelligence 的 **Conflict**、**Offline** 和 **Delivery failing** 告警。
+- 在收到 `SIGINT` 和 `SIGTERM` 时停止监听器。
 
-Continue with [history and transcripts](/channels/history-and-transcripts), or
-use the [`StateStore` reference](/reference/channels/types/StateStore).
+继续阅读[历史与会话记录](/channels/history-and-transcripts)，或使用 [`StateStore` 参考](/reference/channels/types/StateStore)。

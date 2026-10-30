@@ -1,6 +1,6 @@
 <Steps>
   <Step>
-    ### Install the CopilotKit LangGraph SDK
+    ### 安装 CopilotKit LangGraph SDK
 
     ```bash
     npm install @copilotkit/sdk-js
@@ -8,12 +8,9 @@
 
   </Step>
   <Step>
-    ### Map generated content into shared state while it streams
+    ### 在生成内容流式输出的同时将其映射到共享状态
 
-    Extend your graph state with `CopilotKitStateAnnotation`, then call
-    `copilotkitCustomizeConfig` with an `emitIntermediateState` mapping. This
-    forwards the `write_document.document` tool argument into `state.document`
-    while the model is still generating it.
+    用 `CopilotKitStateAnnotation` 扩展你的图状态，然后带上 `emitIntermediateState` 映射调用 `copilotkitCustomizeConfig`。这样就能在模型仍在生成时，把 `write_document.document` 工具参数转发到 `state.document` 中。
 
     <DemoCode file="src/agent/shared-state-streaming.ts" region="state-streaming-middleware" />
 

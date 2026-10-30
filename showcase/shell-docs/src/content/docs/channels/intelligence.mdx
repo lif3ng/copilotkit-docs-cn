@@ -1,30 +1,25 @@
 ---
-title: Configure the Channel in Intelligence
+title: 在 Intelligence 中配置 Channel
 nav_title: Configure the Channel in Intelligence
 icon: "lucide/CloudCog"
-description: Create a managed Channel, connect Slack or Teams, and hand its exact Code and runtime credentials to your SDK process.
+description: 创建托管 Channel，连接 Slack 或 Teams，并把其确切的 Code 与运行时凭据交给你的 SDK 进程。
 doc_type: how-to
 ---
 
-This walkthrough starts with an Intelligence project and ends with a configured
-platform connection waiting for your Channels SDK runtime.
+本演练从创建 Intelligence 项目开始，到一个已配置好、正等待你的 Channels SDK 运行时的平台连接结束。
 
-In the managed path, Intelligence owns the provider connection and durable
-delivery edge. Your long-running process owns the agent, application tools,
-interactive behavior, state, and deployment.
+在托管路径下，Intelligence 持有提供方连接与持久化的投递边缘。你的长驻进程则持有智能体、应用工具、交互行为、状态与部署。
 
-## Create and configure your Channel
+## 创建并配置你的 Channel
 
-Use the browser wizard below to create the Channel, store its provider
-credentials, and inspect its health and threads. It is the released setup path
-for both Slack and Microsoft Teams.
+使用下面的浏览器向导创建 Channel、保存其提供方凭据，并查看其健康状况与会话线程。它是 Slack 和 Microsoft Teams 的正式配置路径。
 
 <FrontendOnly frontend="slack">
 
 <OpsPlatformCTA
   variant="inline"
-  title="Get started with CopilotKit Intelligence"
-  body="Create a free project to configure and manage your Slack Channel."
+  title="开始使用 CopilotKit Intelligence"
+  body="创建一个免费项目来配置和管理你的 Slack Channel。"
   surface="docs:slack/quickstart:intelligence"
 />
 
@@ -34,8 +29,8 @@ for both Slack and Microsoft Teams.
 
 <OpsPlatformCTA
   variant="inline"
-  title="Get started with CopilotKit Intelligence"
-  body="Create a free project to configure and manage your Microsoft Teams Channel."
+  title="开始使用 CopilotKit Intelligence"
+  body="创建一个免费项目来配置和管理你的 Microsoft Teams Channel。"
   surface="docs:teams/quickstart:intelligence"
 />
 
@@ -43,44 +38,40 @@ for both Slack and Microsoft Teams.
 
 <Image
   src="/images/channels/intelligence-channels-overview.png"
-  alt="The CopilotKit Intelligence channel creation wizard showing the channel name, Code, and Slack and Teams platform options."
+  alt="CopilotKit Intelligence 渠道创建向导，显示渠道名称、Code 以及 Slack 和 Teams 平台选项。"
   width={3188}
   height={1778}
   className="my-8 w-full rounded-xl border border-fd-border"
 />
 
-<Callout type="info" title="One Channel can serve both providers">
-  Attach Slack, Microsoft Teams, or both to one Intelligence Channel. The
-  Channel uses one Code and one SDK handler set; each event and reply remains in
-  its originating provider conversation.
+<Callout type="info" title="一个 Channel 可以同时服务两个提供方">
+  可以把 Slack、Microsoft Teams 或两者附加到同一个 Intelligence Channel。该 Channel 使用一个 Code 和一套 SDK 处理器；每个事件与回复都保留在其来源提供方会话之中。
 </Callout>
 
 <Steps>
   <Step>
-    ### Open the Channels area
+    ### 打开 Channels 区域
 
-    In CopilotKit Intelligence, open your project, go to **Channels**, and click
-    **Add channel**. In an empty project, the action is **Create channel**.
+    在 CopilotKit Intelligence 中打开你的项目，进入 **Channels**，点击 **Add channel**。在空项目中，该操作显示为 **Create channel**。
 
-    The wizard has three phases: **Name & platforms**, **Setup**, and **Review**.
+    向导分为三个阶段：**Name & platforms**、**Setup** 和 **Review**。
 
   </Step>
 
   <Step>
-    ### Set the Display name and Code
+    ### 设置 Display name 与 Code
 
-    Enter a human-readable **Display name**. Intelligence derives the **Code**
-    automatically; click **Edit** only if you need to change it.
+    输入一个人类可读的 **Display name**。Intelligence 会自动推导 **Code**；只有需要修改时才点击 **Edit**。
 
-    The Code is part of the runtime contract:
+    Code 是运行时契约的一部分：
 
-    - 3–64 characters
-    - starts with a lowercase letter
-    - lowercase letters and numbers separated by single hyphens
-    - project-unique
-    - cannot be `channels`
+    - 3–64 个字符
+    - 以小写字母开头
+    - 小写字母和数字，由单个连字符分隔
+    - 在项目内唯一
+    - 不能为 `channels`
 
-    Your SDK declaration must use that exact Code:
+    你的 SDK 声明必须使用这个确切的 Code：
 
     ```ts title="channel.ts"
     import { createChannel } from "@copilotkit/channels";
@@ -93,60 +84,44 @@ for both Slack and Microsoft Teams.
     });
     ```
 
-    A mismatch leaves the Channel at **Waiting for runtime**.
+    如果不匹配，Channel 将停留在 **Waiting for runtime**。
 
   </Step>
 
   <Step>
-    ### Choose providers
+    ### 选择提供方
 
-    Select Slack, Microsoft Teams, or both. Each connection has its own setup
-    and installation steps but shares this Channel's Code and runtime
-    declaration.
+    选择 Slack、Microsoft Teams 或两者。每条连接都有自己的配置与安装步骤，但共享该 Channel 的 Code 和运行时声明。
 
     <FrontendOnly frontend="slack">
 
-    Configure Slack for this guide. You can attach Teams to the same Channel
-    now or later without changing the Code.
+    本指南以配置 Slack 为例。你可以现在或稍后把 Teams 附加到同一个 Channel，而无需更改 Code。
 
     </FrontendOnly>
 
     <FrontendOnly frontend="teams">
 
-    Configure Microsoft Teams for this guide. You can attach Slack to the same
-    Channel now or later without changing the Code.
+    本指南以配置 Microsoft Teams 为例。你可以现在或稍后把 Slack 附加到同一个 Channel，而无需更改 Code。
 
     </FrontendOnly>
 
-    Slack and Teams use the same managed delivery path. If a provider says
-    **Not on your plan**, change the project entitlement before continuing.
+    Slack 和 Teams 使用同样的托管投递路径。如果某个提供方显示 **Not on your plan**，请先更改项目权益再继续。
 
-    Cloud-hosted Intelligence support for Discord and WhatsApp shows **Coming
-    soon**. The Channels SDK already exports developer-operated direct adapters
-    for those providers.
+    云端托管的 Intelligence 对 Discord 和 WhatsApp 的支持显示为 **Coming soon**。Channels SDK 已经导出面向这些提供方的、由开发者自行运营的直连适配器。
 
   </Step>
 
   <FrontendOnly frontend="slack">
 
   <Step>
-    ### Connect Slack
+    ### 连接 Slack
 
-    1. Copy the generated manifest, open Slack's app-creation flow, and create
-       the app **From a manifest** using the YAML.
-    2. In **OAuth & Permissions**, click **Install to Workspace**. Approve the
-       complete scope set from the current manifest, reinstall after any scope
-       update, and paste the current `xoxb-…` **Bot User OAuth Token** into
-       **Bot token**. Slack can issue a new token after reinstall.
-    3. In **Basic Information → App Credentials**, copy the
-       **Signing Secret** into Intelligence.
-    4. Invite the app to a channel with `/invite @<app-handle>`, or open a
-       direct message with it.
+    1. 复制生成的 manifest，打开 Slack 的应用创建流程，使用该 YAML 通过 **From a manifest** 创建应用。
+    2. 在 **OAuth & Permissions** 中点击 **Install to Workspace**。批准当前 manifest 中的完整 scope 集合，任何 scope 更新后都要重新安装，并把当前的 `xoxb-…` **Bot User OAuth Token** 粘贴到 **Bot token** 中。重新安装后 Slack 可能会签发新 token。
+    3. 在 **Basic Information → App Credentials** 中，把 **Signing Secret** 复制到 Intelligence。
+    4. 用 `/invite @<app-handle>` 把应用邀请进频道，或与它开启一条私聊。
 
-    Slack sends signed Events API requests to the public Intelligence URL in
-    the generated manifest. Cloud-hosted Intelligence provides that URL; a
-    self-hosted deployment must expose it. Managed slash commands are not part
-    of the Channels product surface.
+    Slack 会向生成的 manifest 中的公开 Intelligence URL 发送经过签名的 Events API 请求。云端托管的 Intelligence 提供该 URL；自托管部署必须自行暴露它。托管斜杠命令不属于 Channels 的产品范围。
 
   </Step>
 
@@ -155,9 +130,9 @@ for both Slack and Microsoft Teams.
   <FrontendOnly frontend="teams">
 
   <Step>
-    ### Connect Microsoft Teams
+    ### 连接 Microsoft Teams
 
-    Intelligence creates the Channel draft, then shows you a command to run:
+    Intelligence 会创建 Channel 草稿，然后向你展示一条要运行的命令：
 
     ```bash title="Terminal"
     npx copilotkit@latest channels add \
@@ -165,117 +140,70 @@ for both Slack and Microsoft Teams.
       --adapter teams --provision
     ```
 
-    Use the wizard's copy button rather than retyping it. The wizard fills in
-    the project and channel ids that bind the Microsoft app it creates to this
-    exact Channel; retyping them is the most common way this goes wrong.
+    请使用向导的复制按钮，而不要手动重打。向导会填入 project 和 channel id，把创建的 Microsoft 应用绑定到这个确切的 Channel；手动重打是最常见的出错方式。
 
-    The command signs you in to Microsoft, creates a Teams bot in your own
-    tenant, and points it at the Intelligence messaging endpoint. You are not
-    asked for a client ID, tenant ID, or secret: the command reads them from
-    the bot it just created and stores them write-only in Intelligence. You
-    never edit `manifest.json`.
+    该命令会让你登录 Microsoft，在你自己的租户中创建一个 Teams 机器人，并把它指向 Intelligence 的消息端点。它不会要求你提供 client ID、tenant ID 或 secret：命令会从刚创建的机器人中读取这些信息，并以只写方式存储在 Intelligence 中。你永远不需要编辑 `manifest.json`。
 
-    It then writes `<channel-name>-teams-app.zip` next to where you ran it and
-    stops to hand that file to you. Microsoft exposes no install API, so
-    producing the package is as far as any tool can take you — the upload is
-    yours. Upload it from the **target team → … → Manage team → Apps**, not
-    from your personal Apps section: a personal-scope upload gives you a
-    working DM, no Team installation, and no way to promote it afterwards. The
-    command prints these steps with your package path filled in, then waits for
-    you to press Enter, and verifies the installation before it finishes.
+    随后它会在你运行命令的目录旁边写入 `<channel-name>-teams-app.zip`，并停下来把这个文件交给你。Microsoft 不提供安装 API，因此生成安装包是任何工具能做到的极限——上传这一步由你完成。请从**目标团队 → … → Manage team → Apps** 上传，而不要从你的个人 Apps 区域上传：个人作用域的上传只会给你一个可用的私聊，没有团队安装，事后也无法提升。命令会打印这些步骤并填入你的安装包路径，然后等待你按 Enter，并在结束前验证安装。
 
-    If Teams offers no upload option, the tenant disallows custom apps and an
-    administrator has to add the package for you. Stop with Ctrl-C and run the
-    same command again once it is installed — it resumes rather than creating a
-    second app.
+    如果 Teams 没有提供上传选项，说明该租户禁止自定义应用，需要管理员代你添加安装包。用 Ctrl-C 停止，待应用安装完成后再运行同一条命令——它会从断点继续，而不是创建第二个应用。
 
-    You need a Microsoft account that is allowed to upload a custom app to the
-    Team you pick. The bot is registered in Teams Developer Portal.
+    你需要一个 Microsoft 账户，且该账户有权向你选择的 Team 上传自定义应用。机器人会注册到 Teams Developer Portal。
 
-    If you customized the app name or icons, the wizard builds that branding in
-    your browser and its command carries an extra `--teams-package "./<file>"`.
-    Run it from the folder holding that download. The CLI validates the file,
-    builds the app from it, and deletes the local copy; an invalid or
-    mistargeted path is rejected before anything is removed. This does not
-    replace the Team upload above — it only decides how the app looks.
+    如果你自定义了应用名称或图标，向导会在浏览器中生成这些品牌素材，且其命令会带上额外的 `--teams-package "./<file>"`。请在保存该下载文件的文件夹中运行它。CLI 会校验文件、用它构建应用，然后删除本地副本；无效或指错目标的路径会在任何删除动作发生之前被拒绝。这不会取代上面的 Team 上传步骤——它只决定应用的外观。
 
-    #### The two permissions
+    #### 两个权限
 
-    Reading messages in a Team channel uses `ChannelMessage.Read.Group`, granted
-    by a Team owner as the app is added. This one is required — without it the
-    app is installed but deaf in channels.
+    读取 Team 频道中的消息使用 `ChannelMessage.Read.Group`，由 Team 所有者在添加应用时授予。这一项是必需的——没有它，应用虽能安装，但在频道中是“聋”的。
 
-    Reading a file someone uploads to a Team channel additionally needs the
-    `Files.Read.All` application permission, which a Microsoft administrator
-    must consent to. The command asks and defaults to skipping it. It is
-    genuinely optional: skip it and everything works except attachments
-    uploaded to a Team channel — files shared in a 1:1 chat and images pasted
-    into a channel are unaffected, and the message still arrives, just without
-    that attachment. It reads only; the app never creates, updates, or deletes.
-    You can grant it later.
+    读取有人上传到 Team 频道的文件，还需要额外的 `Files.Read.All` 应用级权限，且必须由 Microsoft 管理员同意。命令会询问并默认跳过它。它确实可选：跳过它后一切照常工作，唯独上传到 Team 频道的附件除外——在 1:1 聊天中分享的文件和粘贴到频道中的图片不受影响，消息仍会到达，只是缺了那个附件。它是只读权限；应用绝不会创建、更新或删除。你可以稍后再授予。
 
-    Teams settles app permissions only while the app is being added, so
-    changing your mind later means removing the app from the Team and adding it
-    again.
+    Microsoft Teams 只在添加应用的过程中确定应用权限，所以以后改变主意就意味着要把应用从 Team 中移除再重新添加。
 
-    #### What finishing does and does not prove
+    #### 完成配置能证明与不能证明的事
 
-    Finish by adding the app to a team. A personal-only installation does not
-    complete setup. Intelligence then reports **Created and installed**, which
-    means the bot exists, the credentials were accepted, and a Team
-    installation was recorded. It does not claim your runtime is online or that
-    a real message was ever delivered — that is the next guide.
+    把应用添加到一个 team 即完成收尾。仅个人范围的安装不算完成配置。随后 Intelligence 会显示 **Created and installed**，这意味着机器人已存在、凭据已被接受、并记录了一次 Team 安装。它并不表示你的运行时已上线，也不表示真实消息曾被投递——那是下一篇指南的内容。
 
-    Do not replace the messaging endpoint with your Channels runner URL.
-    Intelligence owns the public Teams edge, and the runner takes no inbound
-    provider traffic at all.
+    不要把消息端点替换成你的 Channels runner URL。Intelligence 持有公开的 Teams 边缘，runner 完全不接收入站提供方流量。
 
   </Step>
 
   </FrontendOnly>
 
   <Step>
-    ### Review and create
+    ### 检查并创建
 
-    In the **Review** phase, confirm the Display name, Code, and selected
-    platform, then click **Create channel**.
+    在 **Review** 阶段，确认 Display name、Code 与所选平台，然后点击 **Create channel**。
 
-    Credential validation is not an end-to-end message test.
+    凭据校验不是端到端的消息测试。
 
     <FrontendOnly frontend="slack">
 
-    A valid but mismatched Slack token pair can still fail at runtime.
+    有效但不匹配的 Slack token 组合仍可能在运行时失败。
 
     </FrontendOnly>
 
     <FrontendOnly frontend="teams">
 
-    **Created and installed** is provider setup, not runtime verification. Start
-    the long-running runtime and send a real Teams message before calling the
-    Channel working.
+    **Created and installed** 只代表提供方配置完成，不等于运行时验证。请先启动长驻运行时并发送一条真实的 Teams 消息，再认定 Channel 可用。
 
     </FrontendOnly>
 
   </Step>
 
   <Step>
-    ### Configure the runtime handoff
+    ### 配置运行时交接
 
-    On the new Channel page, open **Connect a runtime**. The **Environment file
-    (.env)** block names the Intelligence variables with blank values.
+    在新 Channel 页面上，打开 **Connect a runtime**。**Environment file (.env)** 区块列出了留空待填的 Intelligence 变量。
 
-    From the directory of your Channels process, sign in and select the project.
-    `project select` writes `CPK_INTELLIGENCE_API_KEY`.
+    在你的 Channels 进程所在目录中登录并选择项目。`project select` 会写入 `CPK_INTELLIGENCE_API_KEY`。
 
     ```bash title="Terminal"
     npx copilotkit@latest login
     npx copilotkit@latest project select
     ```
 
-    Set `CHANNEL_CODE` to the Code from this Channel. If the process does not
-    load that `.env` file, store the key in your secret manager. The project
-    **API Keys** page is the other way to copy a key. Configure the process
-    with:
+    把 `CHANNEL_CODE` 设置为该 Channel 的 Code。如果进程不加载那个 `.env` 文件，请把密钥存入你的密钥管理器。项目 **API Keys** 页面是复制密钥的另一条途径。用以下内容配置进程：
 
     ```dotenv title=".env"
     CPK_INTELLIGENCE_API_KEY=<project-api-key>
@@ -286,41 +214,27 @@ for both Slack and Microsoft Teams.
     # INTELLIGENCE_GATEWAY_WS_URL=wss://realtime.intelligence.example.com
     ```
 
-    Cloud-hosted Intelligence supplies both default base URLs. If you
-    override them for a self-hosted or non-production deployment, replace both
-    together. The REST and realtime planes use separate hosts, so do not derive
-    the WebSocket URL by changing the API URL's scheme. Pass bare base URLs:
-    the client appends `/api/...`, `/runner`, `/client`, or `/channels` itself.
-    Do not append `/api`, `/socket`, `/runner`, `/client`, or `/channels`.
+    云端托管的 Intelligence 提供两个默认 base URL。如果为自托管或非生产部署覆盖它们，请两个一起替换。REST 与实时平面使用不同的主机，因此不要通过修改 API URL 的 scheme 来推导 WebSocket URL。请传入不带路径的 base URL：客户端会自行追加 `/api/...`、`/runner`、`/client` 或 `/channels`。不要自行追加 `/api`、`/socket`、`/runner`、`/client` 或 `/channels`。
 
-    Open **API Keys** in the project sidebar to create and copy the
-    project-scoped runtime key.
+    在项目侧边栏中打开 **API Keys**，创建并复制项目作用域的运行时密钥。
 
-    You choose `CHANNEL_CODE` from the exact Code above, and the selected agent
-    framework adds its own backend variables. The SDK receives the Intelligence
-    values through the `apiKey` constructor property and optional `apiUrl` /
-    `wsUrl` overrides shown in the platform connection guides.
+    `CHANNEL_CODE` 取自上文那个确切的 Code，所选智能体框架会再加上它自己的后端变量。SDK 通过 `apiKey` 构造属性以及平台连接指南中展示的可选 `apiUrl` / `wsUrl` 覆盖项来接收 Intelligence 的值。
 
-    Never expose the Intelligence key, Slack tokens, or Teams client secret in
-    browser code or source control.
+    绝不要在浏览器代码或版本控制中暴露 Intelligence 密钥、Slack token 或 Microsoft Teams 的 client secret。
 
   </Step>
 </Steps>
 
-## Next step
+## 下一步
 
 <FrontendOnly frontend="slack">
 
-Your Slack Channel should now be **Waiting for runtime**. Continue to
-[Connect and run your agent](/slack/connect) with `CHANNEL_CODE` and
-`CPK_INTELLIGENCE_API_KEY`.
+你的 Slack Channel 现在应处于 **Waiting for runtime**。带着 `CHANNEL_CODE` 和 `CPK_INTELLIGENCE_API_KEY` 继续[连接并运行你的智能体](/slack/connect)。
 
 </FrontendOnly>
 
 <FrontendOnly frontend="teams">
 
-Your Microsoft Teams Channel should now be **Waiting for runtime**. Continue to
-[Connect and run your agent](/teams/connect) with `CHANNEL_CODE` and
-`CPK_INTELLIGENCE_API_KEY`.
+你的 Microsoft Teams Channel 现在应处于 **Waiting for runtime**。带着 `CHANNEL_CODE` 和 `CPK_INTELLIGENCE_API_KEY` 继续[连接并运行你的智能体](/teams/connect)。
 
 </FrontendOnly>

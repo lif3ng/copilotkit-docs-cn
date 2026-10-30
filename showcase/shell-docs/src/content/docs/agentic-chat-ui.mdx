@@ -1,17 +1,17 @@
 ---
-title: Chat Components
+title: 聊天组件
 icon: "lucide/MessageSquare"
-description: Customizable, drop-in components for building AI-powered chat interfaces
+description: 可定制、开箱即用的组件，用于构建 AI 驱动的聊天界面
 hideTOC: true
 snippet_cell: agentic-chat
 ---
 
 <InlineDemo demo="agentic-chat" />
 
-## Pre-built components for agentic chat
+## 面向智能体聊天的预构建组件
 
-CopilotKit's chat components give you a fully functional, customizable AI chat interface out of the box.
-They handle streaming, generative UI, and deep customization so you can focus on your agent's behavior, not UI plumbing.
+CopilotKit 的聊天组件让你开箱即得一个功能完整、可定制的 AI 聊天界面。
+它们负责处理流式传输、生成式 UI 和深度定制，让你专注于智能体的行为，而不是 UI 的管道工程。
 
 <video
   src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/agentic-chat-ui.mp4"
@@ -23,16 +23,14 @@ They handle streaming, generative UI, and deep customization so you can focus on
   muted
 />
 
-## What it looks like in code
+## 代码中的样子
 
-The live `agentic-chat` cell above is built from a single, small page. Wrap your UI in `<CopilotKit>` once (it wires the runtime, session, and agent registry) and drop `<CopilotChat>` wherever the chat should go:
+上方的 `agentic-chat` 实时单元由一个很小的单页构成。只需用 `<CopilotKit>` 包裹一次你的 UI（它会接好运行时、会话与智能体注册表），然后把 `<CopilotChat>` 放到任何需要聊天的地方：
 
 <Snippet region="provider-setup" title="frontend/src/app/page.tsx — CopilotKit provider" />
 
-Inside the chat, the `useConfigureSuggestions` hook lets you show contextual
-starter prompts. The example below uses it to seed a simple "Write a sonnet"
-suggestion:
+在聊天内部，`useConfigureSuggestions` hook 让你可以展示上下文相关的起步提示。下面的示例用它预置了一个简单的“写一首十四行诗”建议：
 
-<Snippet region="configure-suggestions" title="frontend/src/app/page.tsx — starter suggestions" />
+<Snippet region="configure-suggestions" title="frontend/src/app/page.tsx — 起步建议" />
 
-<IntegrationGrid path="chat" description="The chat components work with any AI backend. Pick your integration to get started." />
+<IntegrationGrid path="chat" description="聊天组件可与任何 AI 后端配合使用。选择你的集成方式即可开始。" />

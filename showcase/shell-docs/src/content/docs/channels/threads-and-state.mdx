@@ -1,26 +1,19 @@
 ---
-title: Threads and state
+title: 线程与状态
 icon: "lucide/History"
-description: Understand managed conversation identity and history, then persist the SDK state your Slack or Teams workflow owns.
+description: 理解托管会话的身份与历史，然后持久化你的 Slack 或 Teams 工作流所拥有的 SDK 状态。
 doc_type: explanation
 ---
 
-Every delivered Slack or Teams conversation becomes a Channels SDK `Thread`.
-It is the reply and workflow handle passed to `onMessage`, tools, interactions,
-and interrupt callbacks.
+每条已投递的 Slack 或 Teams 会话都会成为一个 Channels SDK `Thread`。它是传递给 `onMessage`、工具、交互和中断回调的回复与工作流句柄。
 
-<Callout type="info" title="A Channels thread is not an Intelligence thread">
-  A Channels `Thread` is one platform conversation inside the SDK. [Threads Drawer](/prebuilt-components/copilot-threads-drawer) provides the application UI for browsing and restoring agent conversations; use [`useThreads`](/reference/hooks/useThreads) to build a custom UI. They share
-  a stable thread id. They are different APIs.
+<Callout type="info" title="Channels 线程不是 Intelligence 线程">
+  Channels 的 `Thread` 是 SDK 内的一条平台会话。[Threads Drawer](/prebuilt-components/copilot-threads-drawer) 提供用于浏览和恢复智能体对话的应用 UI；可用 [`useThreads`](/reference/hooks/useThreads) 构建自定义 UI。两者共享同一个稳定的 thread id，但属于不同的 API。
 </Callout>
 
-## Conversation identity
+## 会话身份
 
-`thread.conversationKey` is the opaque, stable key Intelligence supplies for
-the native conversation. Do not parse it or infer workspace, team, channel, or
-thread identifiers from its value. The SDK passes that same value to your
-`agent(threadId)` factory (or sets it on a cloned singleton), which is why
-every quickstart creates a fresh agent and assigns its `threadId`.
+`thread.conversationKey` 是 Intelligence 为原生会话提供的不透明且稳定的键。不要解析它，也不要从其值推断 workspace、team、channel 或 thread 标识符。SDK 会把同一个值传给你的 `agent(threadId)` 工厂（或设置到克隆出的单例上），这正是每个快速开始都创建全新 agent 并赋予其 `threadId` 的原因。
 
 ```ts title="agent.ts"
 export function makeAgent(threadId: string) {
@@ -30,30 +23,19 @@ export function makeAgent(threadId: string) {
 }
 ```
 
-Prefer an agent **factory** so each turn gets an explicit new instance. You may
-also pass a singleton (`agent: shared`); under the hood the SDK calls
-`shared.clone()` per run so concurrent turns do not share one mutable object.
-Managed history is loaded onto that per-run agent after isolation.
+推荐使用 agent **工厂**，让每一轮都获得显式的新实例。你也可以传入单例（`agent: shared`）；SDK 会在每次运行时于底层调用 `shared.clone()`，使并发轮次不会共享同一个可变对象。托管历史会在隔离之后加载到该次运行的 agent 上。
 
-Managed delivery admission keeps one canonical conversation exclusive while
-unrelated conversations run in parallel. The SDK `store.concurrency` setting
-still governs other adapter paths and shared workflow state; it does not raise
-the managed same-Thread delivery limit.
+托管投递准入会让同一条规范会话保持独占，而不相关的会话并行运行。SDK 的 `store.concurrency` 设置仍管控其他适配器路径和共享工作流状态；它不会提高托管同 Thread 的投递上限。
 
-The native provider is available on both `message.platform` and
-`thread.platform`. Managed turns report `"slack"` or `"teams"`.
+原生提供方在 `message.platform` 和 `thread.platform` 上都可用。托管轮次会报告 `"slack"` 或 `"teams"`。
 
-<Callout type="info" title="Keep conversation and user identity separate">
-  A Thread can contain several provider actors and has no personal owner. See
-  [Identity and Memory](/channels/identity-and-memory) before attaching
-  application-user data or personal Memory to a turn.
+<Callout type="info" title="会话身份与用户身份要分开">
+  一个 Thread 可以包含多个提供方参与者，且没有个人属主。在把应用用户数据或个人 Memory 附加到某一轮之前，请先参阅[身份与记忆](/channels/identity-and-memory)。
 </Callout>
 
-## Welcome a new installation or conversation
+## 欢迎新安装或新会话
 
-`onWelcome` handles a provider installation or conversation-activation event.
-It is a lifecycle event, not a synthetic user message, so it does not run
-`onMessage` or add a made-up user turn to the conversation.
+`onWelcome` 处理提供方安装或会话激活事件。它是一个生命周期事件，而非合成的用户消息，因此不会运行 `onMessage`，也不会向会话添加虚构的用户轮次。
 
 ```ts title="channel.ts"
 channel.onWelcome(async ({ thread, user }) => {
@@ -63,15 +45,11 @@ channel.onWelcome(async ({ thread, user }) => {
 });
 ```
 
-The `user` is the nullable application user selected by `identifyUser` for that
-event. The provider account that caused the event remains available as `actor`.
+`user` 是 `identifyUser` 为该事件选出的可为空的应用用户。触发事件的提供方账户仍以 `actor` 的形式可用。
 
-## What Intelligence restores
+## Intelligence 恢复哪些内容
 
-For each new turn, the managed transport reconstructs recent conversation
-history for the agent. The current in-flight message is not in that fetched
-history. `runAgent()` automatically injects it when `prompt` is omitted; pass
-an explicit combined prompt when a turn can contain both text and attachments:
+对于每个新轮次，托管传输层会为 agent 重建最近的会话历史。当前进行中的消息不在所拉取的历史里。省略 `prompt` 时，`runAgent()` 会自动注入它；当一轮可能同时包含文本与附件时，请传入显式合并的 prompt：
 
 ```ts title="channel.ts"
 channel.onMessage(async ({ thread, message }) => {
@@ -88,14 +66,11 @@ channel.onMessage(async ({ thread, message }) => {
 });
 ```
 
-This history is the conversational record used to seed the agent. It is
-separate from application workflow state such as an approval step, selected
-environment, or form draft.
+这段历史是用于给 agent 提供上下文种子的对话记录。它与应用工作流状态（例如审批步骤、所选环境或表单草稿）是分开的。
 
-## Persist workflow state
+## 持久化工作流状态
 
-Use `thread.state()` and `thread.setState()` for JSON-serializable state keyed
-by `conversationKey`. A Standard Schema makes reads typed and validates writes:
+对以 `conversationKey` 为键的 JSON 可序列化状态，请使用 `thread.state()` 和 `thread.setState()`。Standard Schema 让读取具有类型，并对写入进行校验：
 
 ```bash title="Terminal"
 npm install zod
@@ -183,43 +158,30 @@ channel.onMessage(async ({ thread, message }) => {
 
 </FrontendOnly>
 
-`setState` replaces the stored value; it does not merge a partial patch.
+`setState` 会整体替换存储值，不会合并局部补丁。
 
-## Choose the persistence boundary deliberately
+## 有意选择持久化边界
 
-The managed realtime path restores platform conversation history, but it does
-not automatically wire a durable SDK `StateStore`. Without `store.adapter`,
-the default MemoryStore keeps these only in the current process:
+托管实时路径会恢复平台会话历史，但不会自动接好一个持久化的 SDK `StateStore`。没有 `store.adapter` 时，默认的 MemoryStore 只把这些内容保存在当前进程中：
 
 - `thread.state()`
-- registered interactive-action snapshots
-- SDK locks, deduplication windows, and queues
+- 已注册的交互式操作快照
+- SDK 锁、去重窗口和队列
 
-For production workflows that must survive a deploy, provide a durable
-application implementation of the
-[`StateStore` contract](/reference/channels/classes/Channel#statestore-contract).
-The contract includes key/value, list, lock, deduplication, and queue
-operations. Values must round-trip through JSON.
+对于必须跨部署存续的生产工作流，请为 [`StateStore` 契约](/reference/channels/classes/Channel#statestore-contract)提供一个持久化的应用侧实现。该契约包含键/值、列表、锁、去重和队列操作。值必须能经 JSON 往返无损。
 
-<Callout type="warn" title="Do not infer durability from Online status">
-  **Online** confirms a healthy managed connection that can receive delivery
-  invitations. Send a real provider message to test delivery. This status does
-  not prove your application workflow state survives a process restart, so test
-  a restart while an approval card is pending before shipping a durable
-  workflow.
+<Callout type="warn" title="不要从 Online 状态推断持久性">
+  **Online** 只确认托管连接健康、可以接收投递邀请。要测试投递，请发送一条真实的提供方消息。该状态并不能证明你的应用工作流状态能在进程重启后存续，因此在上线持久化工作流之前，请先在审批卡片待处理时测试一次重启。
 </Callout>
 
-## Operational checklist
+## 运维清单
 
-- Use one fresh agent per `conversationKey`.
-- Pass the current inbound message to `runAgent`.
-- Branch on `message.platform` for the current turn; `thread.platform` carries
-  the same native provider when only the Thread is available.
-- Store only JSON-serializable workflow data.
-- Replace, do not patch, values passed to `setState`.
-- Configure a durable `StateStore` before promising restart-safe approvals.
-- Stop the listener on `SIGINT` and `SIGTERM` so Intelligence can release the
-  runtime cleanly.
+- 每个 `conversationKey` 使用一个全新的 agent。
+- 把当前入站消息传给 `runAgent`。
+- 对当前轮次按 `message.platform` 分支；当只有 Thread 可用时，`thread.platform` 携带相同的原生提供方。
+- 只存储 JSON 可序列化的工作流数据。
+- 传给 `setState` 的值采用整体替换，而非局部修补。
+- 在承诺重启安全的审批之前，先配置好持久化的 `StateStore`。
+- 在收到 `SIGINT` 和 `SIGTERM` 时停止监听器，让 Intelligence 干净地释放运行时。
 
-See the [Thread API](/reference/channels/classes/Thread) for methods and
-[interactive approvals](/channels/interactive) for the managed resume flow.
+方法请参阅 [Thread API](/reference/channels/classes/Thread)，托管恢复流程请参阅[交互式审批](/channels/interactive)。

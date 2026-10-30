@@ -1,54 +1,54 @@
 ---
 title: Open Agent Spec
-description: Bring your Agent‑Spec agents to your users with CopilotKit via AG‑UI.
+description: 通过 CopilotKit 与 AG-UI，把你的 Agent Spec 智能体带给你的用户。
 icon: "lucide/FileCode"
 ---
 
 # Open Agent Spec x CopilotKit
 
-Open Agent Spec (Agent Spec), originally developed by Oracle, is a portable language for defining agentic systems. It defines building blocks for standalone agents and structured agentic workflows as well as common ways of composing them into multi-agent systems.
-Agent Spec enables users to author agents once and run them with any compatible runtime. Agent Spec decouples design from execution, helping deliver more predictable behavior across frameworks.
+Open Agent Spec（Agent Spec）最初由 Oracle 开发，是一种用于定义智能体化系统的可移植语言。它为独立智能体和结构化的智能体化工作流定义了构建块，也定义了将它们组合成多智能体系统的常见方式。
+Agent Spec 让用户能够一次编写智能体，然后在任何兼容的运行时上运行。Agent Spec 将设计与执行解耦，帮助跨框架交付更可预测的行为。
 
-Now, with the CopilotKit integration, you can bring your Agent Spec agents to an interactive UI using CopilotKit and AG‑UI. Use our Next.js starter to connect a CopilotKit UI to your Agent Spec FastAPI endpoint that streams AG‑UI events.
+现在，借助 CopilotKit 集成，你可以使用 CopilotKit 与 AG-UI 把你的 Agent Spec 智能体接入交互式 UI。使用我们的 Next.js 起步模板，将 CopilotKit UI 连接到你的 Agent Spec FastAPI 端点，该端点会流式输出 AG-UI 事件。
 
-This integration is centered on two components:
+这一集成围绕两个组件展开：
 
-- **Backend:** AG‑UI exporter for Agent Spec (`pyagentspec` Python package) at [the AG-UI GitHub repo](https://github.com/ag-ui-protocol/ag-ui/tree/main/integrations/agent-spec/python). It loads an Agent Spec config (yaml/json) and runs it on your chosen framework via supported Agent Spec adapters (currently LangGraph or WayFlow), translating Agent Spec tracing events into AG‑UI events and sending them to the CopilotKit-powered frontend via a FastAPI endpoint.
-- **Frontend:** CopilotKit UI (Next.js) that consumes AG‑UI events and renders chat, tool calls/results, and generative UI.
+- **后端**：Agent Spec 的 AG-UI 导出器（`pyagentspec` Python 包），位于 [AG-UI GitHub 仓库](https://github.com/ag-ui-protocol/ag-ui/tree/main/integrations/agent-spec/python)。它会加载 Agent Spec 配置（yaml/json），并通过受支持的 Agent Spec 适配器（目前是 LangGraph 或 WayFlow）在你选择的框架上运行它，把 Agent Spec 追踪事件转换为 AG-UI 事件，再经由 FastAPI 端点发送给由 CopilotKit 驱动的前端。
+- **前端**：CopilotKit UI（Next.js），负责消费 AG-UI 事件，并渲染聊天、工具调用/结果以及生成式 UI。
 
-Quickly scaffold the UI, then wire your backend endpoint that streams AG‑UI events.
+快速搭建 UI，然后接好你的流式输出 AG-UI 事件的后端端点。
 
-## Quickstart
+## 快速开始
 
 ```bash
 npx copilotkit@latest create
 ```
 
-Then set your backend endpoint (default `http://localhost:8000/copilotkit`):
+然后设置你的后端端点（默认为 `http://localhost:8000/copilotkit`）：
 
 ```dotenv title=".env.local"
 COPILOTKIT_REMOTE_ENDPOINT=http://localhost:8000/copilotkit
 ```
 
-Run your Agent Spec FastAPI server and start the Next.js app.
-For backend installation and endpoint wiring, follow the [Quickstart](/agent-spec/quickstart) and the per‑adapter guides: [LangGraph integration](/agent-spec/langgraph) and [WayFlow integration](/agent-spec/wayflow).
+运行你的 Agent Spec FastAPI 服务器并启动 Next.js 应用。
+后端安装与端点接线请遵循[快速开始](/agent-spec/quickstart)以及各适配器指南：[LangGraph 集成](/agent-spec/langgraph)与 [WayFlow 集成](/agent-spec/wayflow)。
 
-## How it works
+## 工作原理
 
-- Backend: Your FastAPI endpoint (from the AG-UI Agent Spec integration) emits AG‑UI SSE events.
-- Frontend: The Next.js template proxies requests to your backend using CopilotKit Runtime.
-- Protocol: AG‑UI spans/events power streaming text, tool calls and results, and run lifecycle.
+- 后端：你的 FastAPI 端点（来自 AG-UI Agent Spec 集成）发出 AG-UI SSE 事件。
+- 前端：Next.js 模板使用 CopilotKit Runtime 将请求代理到你的后端。
+- 协议：AG-UI 的 span/事件支撑流式文本、工具调用与结果，以及运行生命周期。
 
-## Repos and references
+## 仓库与参考
 
-- Example FastAPI server: `ag-ui/integrations/agent-spec/python/examples/server.py`
-- Endpoint helper: `ag-ui/integrations/agent-spec/python/ag_ui_agentspec/endpoint.py`
-- AG‑UI Agent Spec integration (Python): https://github.com/ag-ui-protocol/ag-ui/tree/main/integrations/agent-spec/python
-- AG‑UI Agent Spec tutorial (Agent Spec docs): https://oracle.github.io/agent-spec/26.1.0/howtoguides/howto_ag_ui.html
+- 示例 FastAPI 服务器：`ag-ui/integrations/agent-spec/python/examples/server.py`
+- 端点辅助模块：`ag-ui/integrations/agent-spec/python/ag_ui_agentspec/endpoint.py`
+- AG-UI Agent Spec 集成（Python）：https://github.com/ag-ui-protocol/ag-ui/tree/main/integrations/agent-spec/python
+- AG-UI Agent Spec 教程（Agent Spec 文档）：https://oracle.github.io/agent-spec/26.1.0/howtoguides/howto_ag_ui.html
 
-## Learn more about Agent Spec
+## 进一步了解 Agent Spec
 
-- Agent Spec docs home: https://oracle.github.io/agent-spec/development/docs_home.html
-- Specification overview: https://oracle.github.io/agent-spec/development/agentspec/index.html
-- API reference: https://oracle.github.io/agent-spec/development/api/index.html
-- Reference sheet: https://oracle.github.io/agent-spec/development/misc/reference_sheet.html
+- Agent Spec 文档主页：https://oracle.github.io/agent-spec/development/docs_home.html
+- 规范概览：https://oracle.github.io/agent-spec/development/agentspec/index.html
+- API 参考：https://oracle.github.io/agent-spec/development/api/index.html
+- 参考表：https://oracle.github.io/agent-spec/development/misc/reference_sheet.html

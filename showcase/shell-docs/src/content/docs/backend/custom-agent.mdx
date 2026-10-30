@@ -1,34 +1,31 @@
 ---
-title: "Use any model router"
+title: "使用任意模型路由器"
 icon: "lucide/Blocks"
-description: "Use BuiltInAgent's factory mode to bring your own AI SDK, TanStack AI, or custom LLM backend."
+description: "使用 BuiltInAgent 的工厂模式，自带 AI SDK、TanStack AI 或自定义 LLM 后端。"
 ---
 
-`BuiltInAgent`'s factory mode gives you full control over the LLM call. You provide
-a factory function that talks to any backend, and CopilotKit handles converting
-the stream to AG-UI events, managing lifecycle, and wiring it into the runtime.
+`BuiltInAgent` 的工厂模式让你完全掌控 LLM 调用。你提供一个与任意后端对话的工厂函数，CopilotKit 负责把流转换为 AG-UI 事件、管理生命周期，并将其接入运行时。
 
-## When to use Simple Mode vs Factory Mode
+## 何时用简单模式还是工厂模式
 
-| | Simple Mode | Factory Mode |
+| | 简单模式 | 工厂模式 |
 |---|---|---|
-| **Setup** | Minimal: pass a model string | You own the LLM call and stream |
-| **Model resolution** | Built-in (`"openai/gpt-4o"`) | You set up the model yourself |
-| **Tools, MCP, state tools** | Automatically wired | You wire them in your factory |
-| **Backend support** | Vercel AI SDK only | Any backend: AI SDK, TanStack AI, or custom |
-| **Best for** | Quick setup, standard use cases | Full control, non-standard backends |
+| **搭建** | 极简：传入一个模型字符串 | 你自己掌控 LLM 调用与流 |
+| **模型解析** | 内置（`"openai/gpt-4o"`） | 你自行配置模型 |
+| **工具、MCP、状态工具** | 自动接线 | 你在工厂里接线 |
+| **后端支持** | 仅 Vercel AI SDK | 任意后端：AI SDK、TanStack AI 或自定义 |
+| **最适合** | 快速搭建、标准场景 | 完全控制、非标准后端 |
 
 <Callout type="info">
-If simple mode covers your needs, stick with it. Use factory mode when you need
-control that simple mode doesn't offer.
+如果简单模式已满足你的需求，就用它。当你需要简单模式不提供的控制力时，再用工厂模式。
 </Callout>
 
-To write the whole agent yourself instead of a factory, extend AG-UI's
-`AbstractAgent`. See [Write your own AG-UI agent](/backend/custom-ag-ui-agent).
+要自己编写整个智能体而不是工厂函数，请继承 AG-UI 的
+`AbstractAgent`。见[编写你自己的 AG-UI 智能体](/backend/custom-ag-ui-agent)。
 
-## Quick Start
+## 快速开始
 
-You have an existing LLM backend and you want a CopilotKit copilot using it. Pick your backend:
+你已有自己的 LLM 后端，并想用它在 CopilotKit 上构建副驾。选择你的后端：
 
 <Tabs items={["AI SDK", "TanStack AI", "Custom"]}>
 <Tab value="AI SDK">
@@ -153,17 +150,17 @@ export default copilotEndpoint;
 </Tab>
 </Tabs>
 
-The frontend setup is the same as [BuiltInAgent](/quickstart): configure the
-CopilotKit provider and add a chat component.
+前端配置与 [BuiltInAgent](/quickstart) 相同：配置
+CopilotKit provider 并添加一个聊天组件。
 
-## How It Works
+## 工作原理
 
-Factory mode accepts a config with two fields:
+工厂模式接受包含两个字段的配置：
 
-- **`type`:** which backend you're using: `"aisdk"`, `"tanstack"`, or `"custom"`
-- **`factory`:** a function that receives the raw request and returns a backend-native stream
+- **`type`**：你在使用哪个后端：`"aisdk"`、`"tanstack"` 或 `"custom"`
+- **`factory`**：一个接收原始请求并返回后端原生流的函数
 
-The factory receives an `BuiltInAgentFactoryContext` (from `@copilotkit/runtime/v2`):
+工厂接收一个 `BuiltInAgentFactoryContext`（来自 `@copilotkit/runtime/v2`）：
 
 ```typescript
 interface BuiltInAgentFactoryContext {
@@ -174,29 +171,23 @@ interface BuiltInAgentFactoryContext {
 }
 ```
 
-CopilotKit handles everything else: `RUN_STARTED` and `RUN_FINISHED` lifecycle events, stream-to-AG-UI conversion, error handling, and abort/cancellation. Your factory never needs to emit lifecycle events.
+其余一切都由 CopilotKit 处理：`RUN_STARTED` 和 `RUN_FINISHED` 生命周期事件、流到 AG-UI 的转换、错误处理以及中止/取消。你的工厂永远不需要发出生命周期事件。
 
-<Callout type="warn" title="Don't call `.abort()` on the controller you were handed">
-`abortController` is passed in for backends like TanStack AI that require a full
-`AbortController` — hand it to them and let them own it. Aborting it yourself from inside the
-factory cancels the stream underneath CopilotKit rather than through it, so the run's own
-teardown does not happen. To cancel a run, call `abortRun()` on the agent. For anything that
-accepts a signal — the AI SDK, `fetch`, a custom backend — pass `abortSignal` instead.
+<Callout type="warn" title="不要对你拿到的控制器调用 `.abort()`">
+`abortController` 是为 TanStack AI 这类需要完整
+`AbortController` 的后端传入的——把它交给它们，让它们自己持有。在工厂内部自行中止它会从 CopilotKit 底下取消流，而不是通过 CopilotKit 取消，运行自身的清理也就不会发生。要取消运行，请对智能体调用 `abortRun()`。对任何接受 signal 的地方——AI SDK、`fetch`、自定义后端——请改传 `abortSignal`。
 </Callout>
 
-The `runner: new InMemoryAgentRunner()` in the examples above is the persistence
-backend that stores threads in process memory. To understand the runner
-abstraction and how to swap in durable persistence, see
-[AgentRunner & persistence](/backend/agent-runner).
+上面示例中的 `runner: new InMemoryAgentRunner()` 是把线程保存在进程内存中的持久化后端。要理解运行器抽象以及如何换入持久化的存储，见
+[AgentRunner 与持久化](/backend/agent-runner)。
 
-<Callout type="info" title="Using CopilotKit Intelligence? Replace runner with intelligence">
-  Intelligence stores the threads and runs for you, so remove `runner` and pass
-  `intelligence` (and `identifyUser`) to `CopilotRuntime` instead. The custom
-  agent and its `factory` do not change. See
-  [An existing runtime that already has a runner](/intelligence/quickstart#an-existing-runtime-that-already-has-a-runner).
+<Callout type="info" title="在用 CopilotKit Intelligence？用 intelligence 替换 runner">
+  Intelligence 会替你存储线程和运行，所以请移除 `runner`，改为向
+  `CopilotRuntime` 传入 `intelligence`（和 `identifyUser`）。自定义智能体及其 `factory` 无需改动。见
+  [已有运行器的现有运行时](/intelligence/quickstart#an-existing-runtime-that-already-has-a-runner)。
 </Callout>
 
-The factory can be async. Return a `Promise` if you need to do setup before streaming:
+工厂可以是异步的。如果需要在流式输出之前做一些准备，返回一个 `Promise`：
 
 ```typescript
 factory: async ({ input, abortSignal }) => {
@@ -205,9 +196,9 @@ factory: async ({ input, abortSignal }) => {
 }
 ```
 
-## Examples
+## 示例
 
-### With Tools
+### 带工具
 
 <Tabs items={["AI SDK", "TanStack AI", "Custom"]}>
 <Tab value="AI SDK">
@@ -234,8 +225,8 @@ const agent = new BuiltInAgent({
 });
 ```
 
-`convertToolsToVercelAITools` converts frontend-defined tools into AI SDK's
-`ToolSet` format automatically.
+`convertToolsToVercelAITools` 会自动把前端定义的工具转换为 AI SDK 的
+`ToolSet` 格式。
 </Tab>
 <Tab value="TanStack AI">
 ```typescript title="src/copilotkit.ts"
@@ -315,11 +306,11 @@ const agent = new BuiltInAgent({
 });
 ```
 
-With `type: "custom"`, you yield AG-UI events directly. See the [AG-UI event reference](/backend/ag-ui) for all available event types.
+使用 `type: "custom"` 时，你直接产出 AG-UI 事件。所有可用事件类型见 [AG-UI 事件参考](/backend/ag-ui)。
 </Tab>
 </Tabs>
 
-### With Reasoning (Thinking Models)
+### 带推理（思考模型）
 
 <Tabs items={["AI SDK", "TanStack AI"]}>
 <Tab value="AI SDK">
@@ -347,17 +338,17 @@ const agent = new BuiltInAgent({
 });
 ```
 
-Reasoning events (`REASONING_START`, `REASONING_MESSAGE_CONTENT`, `REASONING_END`) are automatically extracted from the AI SDK stream.
+推理事件（`REASONING_START`、`REASONING_MESSAGE_CONTENT`、`REASONING_END`）会自动从 AI SDK 流中提取。
 
 <Callout type="info">
-Pick the model with reasoning **visibility** in mind. From Claude Opus 4.7 onward (including Sonnet 5 and Opus 5), Anthropic defaults thinking `display` to `"omitted"` — the model still reasons, but no reasoning text comes back, so the events above arrive empty. `@ai-sdk/anthropic` does not expose `display` yet, so choose a model that defaults to summarized thinking (such as `claude-sonnet-4-6`) when you want the reasoning to be visible.
+选择模型时要考虑推理的**可见性**。从 Claude Opus 4.7 起（包括 Sonnet 5 与 Opus 5），Anthropic 默认把思考 `display` 设为 `"omitted"`——模型仍在推理，但不返回任何推理文本，于是上面的事件会是空的。`@ai-sdk/anthropic` 尚未暴露 `display`，所以想让推理可见时，请选择默认输出摘要式思考的模型（如 `claude-sonnet-4-6`）。
 </Callout>
 
-Using `BuiltInAgent` without a custom factory? The same options go through its `providerOptions` — see [Advanced Configuration](/advanced-configuration#provider-specific-options).
+在使用没有自定义工厂的 `BuiltInAgent`？同样的选项可以通过它的 `providerOptions` 传入——见[高级配置](/advanced-configuration#provider-specific-options)。
 </Tab>
 <Tab value="TanStack AI">
 <Callout type="warn">
-The TanStack AI converter does not surface reasoning events (`REASONING_START`, `REASONING_MESSAGE_CONTENT`, `REASONING_END`). Even if the underlying model supports thinking/reasoning, those events will not be forwarded to the frontend. Use the AI SDK backend if you need reasoning events.
+TanStack AI 转换器不会呈现推理事件（`REASONING_START`、`REASONING_MESSAGE_CONTENT`、`REASONING_END`）。即使底层模型支持思考/推理，这些事件也不会被转发到前端。需要推理事件请使用 AI SDK 后端。
 </Callout>
 
 ```typescript title="src/copilotkit.ts"
@@ -384,7 +375,7 @@ const agent = new BuiltInAgent({
 </Tab>
 </Tabs>
 
-### With System Prompt, Context, and State
+### 带系统提示、上下文与状态
 
 <Tabs items={["AI SDK", "TanStack AI"]}>
 <Tab value="AI SDK">
@@ -453,16 +444,13 @@ const agent = new BuiltInAgent({
 });
 ```
 
-`convertInputToTanStackAI` handles system/developer messages, `input.context`, and `input.state` automatically. Prepend your own prompt if needed.
+`convertInputToTanStackAI` 会自动处理 system/developer 消息、`input.context` 和 `input.state`。如有需要，在前面加上你自己的提示。
 </Tab>
 </Tabs>
 
-### With forwardedProps
+### 使用 forwardedProps
 
-Use `forwardedProps` only for non-secret, browser-controlled preferences. Validate
-each value against backend-owned limits before it affects execution. Never use
-these properties for credentials, tenant identity, authorization, or unrestricted
-model and provider selection.
+`forwardedProps` 只用于非机密、由浏览器控制的偏好。在每个值影响执行之前，先对照后端自有的界限校验它。绝不要用这些属性承载凭证、租户身份、授权，或不受限的模型与提供方选择。
 
 <Tabs items={["AI SDK", "TanStack AI"]}>
 <Tab value="AI SDK">
@@ -537,8 +525,8 @@ const agent = new BuiltInAgent({
 </Tab>
 </Tabs>
 
-The examples above accept only explicit model choices and a bounded temperature.
-Forward those preferences from the frontend provider:
+上面的示例只接受明确的模型选择和有界的 temperature。
+从前端 provider 转发这些偏好：
 
 <FrontendOnly frontend="react">
 ```tsx title="app/page.tsx"
@@ -550,13 +538,13 @@ Forward those preferences from the frontend provider:
 </CopilotKit>
 ```
 
-<Callout type="info" title="About the explicit useSingleEndpoint">
-  The route above serves multi-route, the default. `<CopilotKitProvider>`
-  negotiates the transport when the prop is omitted, but every released
-  `<CopilotKit>` still pins it to `true` internally — which selects the
-  single-route transport and 404s against a multi-route route. Keep the
-  `{false}`. See
-  [Provider and handler pairs](/backend/runtime-endpoints#provider-and-handler-pairs).
+<Callout type="info" title="关于显式设置的 useSingleEndpoint">
+  上面的路由提供的是多路由传输（默认形态）。`<CopilotKitProvider>`
+  在省略该属性时会协商传输方式，但当前发布的每个
+  `<CopilotKit>` 内部仍把它固定为 `true`——这会选择
+  单路由传输，并对多路由路径返回 404。请保留
+  `{false}`。见
+  [Provider 与 handler 的配对](/backend/runtime-endpoints#provider-and-handler-pairs)。
 </Callout>
 </FrontendOnly>
 
@@ -572,14 +560,14 @@ provideCopilotKit({
 ```
 </FrontendOnly>
 
-## Helper Utilities
+## 辅助工具
 
-These utilities are exported from `@copilotkit/runtime/v2` to help convert between CopilotKit's input format and your backend's expected format:
+这些工具函数从 `@copilotkit/runtime/v2` 导出，帮助你在 CopilotKit 的输入格式与后端期望的格式之间做转换：
 
-| Utility | Description |
+| 工具函数 | 描述 |
 |---|---|
-| `convertInputToTanStackAI(input)` | Converts `RunAgentInput` to `{ messages, systemPrompts }` for TanStack AI's `chat()`. Handles system/developer messages, context, and state. |
-| `convertMessagesToVercelAISDKMessages(messages)` | Converts AG-UI messages to Vercel AI SDK's `ModelMessage[]` format. |
-| `convertToolsToVercelAITools(tools)` | Converts frontend-defined tools (JSON Schema) to AI SDK's `ToolSet`. |
-| `convertToolDefinitionsToVercelAITools(tools)` | Converts `defineTool()` definitions (Standard Schema) to AI SDK's `ToolSet`. |
-| `resolveModel(spec)` | Resolves `"openai/gpt-4o"` strings to AI SDK `LanguageModel` instances. |
+| `convertInputToTanStackAI(input)` | 把 `RunAgentInput` 转换为 TanStack AI `chat()` 所需的 `{ messages, systemPrompts }`。处理 system/developer 消息、上下文与状态。 |
+| `convertMessagesToVercelAISDKMessages(messages)` | 把 AG-UI 消息转换为 Vercel AI SDK 的 `ModelMessage[]` 格式。 |
+| `convertToolsToVercelAITools(tools)` | 把前端定义的工具（JSON Schema）转换为 AI SDK 的 `ToolSet`。 |
+| `convertToolDefinitionsToVercelAITools(tools)` | 把 `defineTool()` 定义（Standard Schema）转换为 AI SDK 的 `ToolSet`。 |
+| `resolveModel(spec)` | 把 `"openai/gpt-4o"` 字符串解析为 AI SDK `LanguageModel` 实例。 |

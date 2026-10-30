@@ -1,6 +1,6 @@
 ---
-title: Which Hook for Which Job
-description: Choose the right CopilotKit v2 hook for tools, rendering, human review, and custom chat surfaces.
+title: 哪个任务用哪个 Hook
+description: 为工具、渲染、人工审核和自定义聊天界面选对 CopilotKit v2 hook。
 icon: "lucide/Map"
 doc_type: explanation
 frontend:
@@ -8,58 +8,36 @@ frontend:
   fallback: hide
 ---
 
-CopilotKit v2 has a focused set of hooks for letting the agent *do things* in
-your app and for *rendering* what it does. They split into two groups: hooks that
-register behavior, and hooks that register how a tool call looks in the chat.
-Use this page as the quick map, then follow each hook to its full reference.
+CopilotKit v2 提供了一组精炼的 hooks，用于让 agent 在你的应用中*做事*，以及*渲染*它所做的事情。它们分为两类：注册行为的 hooks，以及注册工具调用在聊天中外观的 hooks。把本页当作快速导览，然后顺着每个 hook 查看其完整参考。
 
-## The 30-second version
+## 30 秒版
 
-| Hook | Use it when you want to |
+| Hook | 适用场景 |
 | --- | --- |
-| [`useFrontendTool`](/reference/hooks/useFrontendTool) | Give the agent a client-side tool to call (run logic in the browser), with optional inline UI. |
-| [`useRenderTool`](/reference/hooks/useRenderTool) | Render the UI for a specific tool call by name (typed), without defining the tool's handler. |
-| [`useDefaultRenderTool`](/reference/hooks/useDefaultRenderTool) | Provide one wildcard renderer for any tool call that has no specific renderer. |
-| [`useComponent`](/reference/hooks/useComponent) | Register a React component as a named tool renderer (component-first generative UI). |
-| [`useHumanInTheLoop`](/reference/hooks/useHumanInTheLoop) | Pause the agent on a tool call and wait for the user to approve, edit, or supply input. |
-| [`useInterrupt`](/reference/hooks/useInterrupt) | Handle an agent-initiated interrupt and resume execution once the user responds. |
-| [`useRenderToolCall`](/reference/hooks/useRenderToolCall) | Get a render function for tool calls to drive your own custom chat surface (headless). |
+| [`useFrontendTool`](/reference/hooks/useFrontendTool) | 给 agent 一个可在客户端调用的工具（在浏览器中运行逻辑），并可选内联 UI。 |
+| [`useRenderTool`](/reference/hooks/useRenderTool) | 按名称（带类型）为特定工具调用渲染 UI，而无需定义工具的 handler。 |
+| [`useDefaultRenderTool`](/reference/hooks/useDefaultRenderTool) | 为任何没有专属渲染器的工具调用提供一个通配渲染器。 |
+| [`useComponent`](/reference/hooks/useComponent) | 把 React 组件注册为具名的工具渲染器（组件优先的生成式 UI）。 |
+| [`useHumanInTheLoop`](/reference/hooks/useHumanInTheLoop) | 在工具调用处暂停 agent，等待用户批准、编辑或提供输入。 |
+| [`useInterrupt`](/reference/hooks/useInterrupt) | 处理 agent 发起的中断，用户响应后恢复执行。 |
+| [`useRenderToolCall`](/reference/hooks/useRenderToolCall) | 获取工具调用的渲染函数，驱动你自己的自定义聊天界面（无头）。 |
 
-## How to choose
+## 如何选择
 
-Start with the verb.
+从动词入手。
 
-- **"The agent should *run* something in my app."** Use [`useFrontendTool`](/reference/hooks/useFrontendTool).
-  You define the tool's schema and handler; the agent calls it. Add a `render`
-  to also show inline UI for the call.
-- **"The agent's tool call should *look* like something."** Use a render hook.
-  Use [`useRenderTool`](/reference/hooks/useRenderTool) to render one named tool,
-  [`useComponent`](/reference/hooks/useComponent) to bind a React component to a
-  tool name, or [`useDefaultRenderTool`](/reference/hooks/useDefaultRenderTool)
-  as the catch-all for anything you didn't render explicitly.
-- **"The agent should *stop and ask me* before continuing."** Use
-  [`useHumanInTheLoop`](/reference/hooks/useHumanInTheLoop) for tool-level
-  approval/edit gates, or [`useInterrupt`](/reference/hooks/useInterrupt) for
-  agent-driven interrupts you resume with user input.
-- **"I'm building my *own* chat UI."** Use
-  [`useRenderToolCall`](/reference/hooks/useRenderToolCall). It returns the
-  renderer function so you can place tool-call output anywhere in a headless
-  layout.
+- **“agent 应该在我的应用里*运行*某个东西。”** 使用 [`useFrontendTool`](/reference/hooks/useFrontendTool)。你定义工具的 schema 与 handler，由 agent 调用。加上 `render` 还能为该调用显示内联 UI。
+- **“agent 的工具调用应该*呈现*成某个样子。”** 使用渲染类 hook。用 [`useRenderTool`](/reference/hooks/useRenderTool) 渲染某个具名工具，用 [`useComponent`](/reference/hooks/useComponent) 把 React 组件绑定到工具名，或用 [`useDefaultRenderTool`](/reference/hooks/useDefaultRenderTool) 兜底渲染你没显式处理的一切。
+- **“agent 应该在继续之前*停下来问我*。”** 工具级的批准/编辑门控用 [`useHumanInTheLoop`](/reference/hooks/useHumanInTheLoop)，由 agent 发起、以用户输入恢复的中断用 [`useInterrupt`](/reference/hooks/useInterrupt)。
+- **“我在构建*自己的*聊天 UI。”** 使用 [`useRenderToolCall`](/reference/hooks/useRenderToolCall)。它返回渲染函数，让你可以把工具调用输出放在无头布局的任何位置。
 
-### Tool vs. renderer
+### 工具与渲染器的区别
 
-Two hooks in this set *register a tool* the agent can call: `useFrontendTool`
-(schema and handler) and `useComponent` (a component-first
-shorthand that wraps `useFrontendTool` internally, registering a tool whose
-"handler" is rendering your component). The render-only hooks, `useRenderTool`,
-`useDefaultRenderTool`, and `useRenderToolCall`, *don't* define a tool; they
-only *render* tool calls, which can come from your frontend (`useFrontendTool` /
-`useComponent`) or from the agent/backend. That's why you can pair a backend
-tool with `useRenderTool` and never write a handler on the client.
+这组 hook 中有两个会*注册工具*供 agent 调用：`useFrontendTool`（schema 与 handler）和 `useComponent`（一种组件优先的简写，内部包装 `useFrontendTool`，注册一个“handler”就是渲染你的组件的工具）。只渲染的 hooks——`useRenderTool`、`useDefaultRenderTool` 和 `useRenderToolCall`——*并不*定义工具；它们只*渲染*工具调用，这些调用可能来自你的前端（`useFrontendTool` / `useComponent`），也可能来自 agent/后端。正因如此，你可以把后端工具与 `useRenderTool` 搭配，而完全不用在客户端写 handler。
 
-## Related
+## 相关内容
 
-- [Frontend Tools](/frontend-tools): the full guide to `useFrontendTool`.
-- [Generative UI](/generative-ui/tool-rendering): rendering tool calls as rich UI.
-- [Human in the Loop](/human-in-the-loop): approval and interrupt patterns.
-- [Hooks reference](/reference): every v2 hook in detail.
+- [前端工具](/frontend-tools)：`useFrontendTool` 的完整指南。
+- [生成式 UI](/generative-ui/tool-rendering)：把工具调用渲染为富 UI。
+- [人机协同](/human-in-the-loop)：批准与中断模式。
+- [Hooks 参考](/reference)：每个 v2 hook 的详细说明。

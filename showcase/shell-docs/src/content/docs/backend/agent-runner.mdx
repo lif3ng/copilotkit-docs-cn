@@ -1,23 +1,20 @@
 ---
-title: "AgentRunner and persistence"
+title: "AgentRunner 与持久化"
 icon: "lucide/Database"
-description: "Control how the runtime starts, reconnects to, and stops agent runs with AgentRunner."
+description: "使用 AgentRunner 控制运行时如何启动、重连和停止智能体运行。"
 ---
 
-The TypeScript CopilotKit runtime delegates agent execution and persistence to an
-`AgentRunner`. The runner turns `POST /agent/:id/run` into a live stream of
-AG-UI events, remembers a thread so `POST /agent/:id/connect` can attach to it,
-and stops a run on demand. Pick or subclass a runner when you need to control
-where conversation state lives.
+TypeScript 版 CopilotKit 运行时把智能体的执行与持久化委托给一个
+`AgentRunner`。运行器（runner）把 `POST /agent/:id/run` 变成 AG-UI 事件的实时流，记住线程以便 `POST /agent/:id/connect` 能重新挂接，并按需停止运行。当你需要控制会话状态的存放位置时，选择或继承一个运行器。
 
-<Callout type="info" title="TypeScript runner APIs">
-The runner classes and customization examples on this page belong to the TypeScript runtime. Python, Go, Ruby, and C#/.NET runtimes use Intelligence for persistence and do not expose these runner classes. See the [Intelligence quickstart](/intelligence/quickstart#connect-your-runtime) for their setup.
+<Callout type="info" title="TypeScript 运行器 API">
+本页的运行器类与自定义示例属于 TypeScript 运行时。Python、Go、Ruby 和 C#/.NET 运行时使用 Intelligence 做持久化，不暴露这些运行器类。它们的配置见 [Intelligence 快速开始](/intelligence/quickstart#connect-your-runtime)。
 </Callout>
 
-## The abstraction
+## 抽象
 
-`AgentRunner` is an abstract class with four methods, mirroring the runtime's
-[HTTP routes](/backend/runtime-endpoints):
+`AgentRunner` 是一个包含四个方法的抽象类，与运行时的
+[HTTP 路由](/backend/runtime-endpoints)一一对应：
 
 ```ts
 import type { Observable } from "rxjs";
@@ -35,50 +32,33 @@ abstract class AgentRunner {
 }
 ```
 
-`run` receives the `threadId`, the cloned `agent`, the AG-UI `RunAgentInput`, and
-any `persistedInputMessages`. `connect` receives the `threadId` (plus optional
-headers and a `joinCode`). The runner owns whatever storage backs those threads.
+`run` 接收 `threadId`、克隆后的 `agent`、AG-UI 的 `RunAgentInput` 以及可能存在的 `persistedInputMessages`。`connect` 接收 `threadId`（外加可选的请求头和一个 `joinCode`）。支撑这些线程的存储由运行器自己掌控。
 
-## The built-in runners
+## 内置运行器
 
-| Runner | Import | Use it for |
+| 运行器 | 导入 | 适用场景 |
 |---|---|---|
-| `InMemoryAgentRunner` | `@copilotkit/runtime/v2` | The default v2 runner. Stores thread runs in process memory. Use it for local development, single-instance deployments, or as a base class to extend. |
-| `SqliteAgentRunner` | `@copilotkit/sqlite-runner` | First-party, file-backed durable runner. Persists thread runs to a SQLite file so history survives restarts on a single instance. Requires the `better-sqlite3` peer dependency and a real (non-`:memory:`) `dbPath`. |
-| `IntelligenceAgentRunner` | `@copilotkit/runtime/v2` | Backs CopilotKit Intelligence with threads, cross-instance persistence, and threads/history features. Used automatically on an Intelligence runtime. |
-| `TelemetryAgentRunner` | `@copilotkit/runtime` | Legacy wrapper behavior. The root runtime composes telemetry around a runner when telemetry is enabled; `@copilotkit/runtime/v2` does not. |
+| `InMemoryAgentRunner` | `@copilotkit/runtime/v2` | 默认的 v2 运行器。把线程运行保存在进程内存中。适用于本地开发、单实例部署，或作为可继承的基类。 |
+| `SqliteAgentRunner` | `@copilotkit/sqlite-runner` | 第一方、基于文件的持久化运行器。把线程运行持久化到 SQLite 文件，历史在单实例重启后仍然保留。需要 `better-sqlite3` peer 依赖和一个真实的（非 `:memory:`）`dbPath`。 |
+| `IntelligenceAgentRunner` | `@copilotkit/runtime/v2` | 为 CopilotKit Intelligence 提供支撑，带来线程、跨实例持久化以及线程/历史特性。在 Intelligence 运行时上自动启用。 |
+| `TelemetryAgentRunner` | `@copilotkit/runtime` | 旧版包装器行为。根运行时在启用遥测时会在运行器外组合遥测；`@copilotkit/runtime/v2` 不会。 |
 
-If you don't pass a `runner`, the runtime uses `InMemoryAgentRunner`. Because it
-holds threads in process memory, history is lost on restart, **bounded** while
-the process runs (see [bounding in-memory history](#bounding-in-memory-history)),
-and **not shared across instances**. For a restart-resilient single-instance
-deployment, move to the first-party file-backed `SqliteAgentRunner` (from
-`@copilotkit/sqlite-runner`). For horizontal scaling across instances, move to
-CopilotKit Intelligence's `IntelligenceAgentRunner` or supply your
-own runner backed by a shared datastore.
+不传 `runner` 时，运行时使用 `InMemoryAgentRunner`。由于它把线程保存在进程内存中，历史会在重启后丢失，在进程运行期间是**有界的**（见[限制内存中的历史](#限制内存中的历史)），并且**不在实例间共享**。要获得能扛重启的单实例部署，请改用第一方基于文件的 `SqliteAgentRunner`（来自
+`@copilotkit/sqlite-runner`）。要跨实例横向扩展，请改用
+CopilotKit Intelligence 的 `IntelligenceAgentRunner`，或提供你自己基于共享数据存储的运行器。
 
-<Callout type="warn" title="The in-memory runner records no thread owner">
-Its store is keyed by `threadId` alone, so the runtime's
-[thread routes](/backend/runtime-endpoints#thread-routes) cannot tell one
-caller's threads from another's: `GET /threads/:threadId/messages` returns the
-history for any id it is given, `GET /threads` lists every thread in the
-process, and `POST /threads/clear` wipes all of them.
+<Callout type="warn" title="内存运行器不记录线程所有者">
+它的存储仅以 `threadId` 为键，因此运行时的
+[线程路由](/backend/runtime-endpoints#thread-routes)无法区分不同调用者的线程：`GET /threads/:threadId/messages` 会返回交给它的任何 id 的历史，`GET /threads` 列出进程内的每个线程，而 `POST /threads/clear` 会清空全部。
 
-That is fine for local development and for a deployment serving one person. If
-more than one person uses it, authorize those routes yourself before you ship.
-See [Thread authorization](/auth#thread-authorization) for the ownership-table
-pattern and the `onBeforeHandler` enforcement point.
+这对本地开发以及只服务一个人的部署没问题。如果使用的人不止一个，上线前请自行给这些路由加授权。
+归属表模式与 `onBeforeHandler` 执行点见
+[线程授权](/auth#thread-authorization)。
 
-Changing runner narrows the exposure rather than removing it. A runner serves
-the thread routes from its local store only when it opts in, and only
-`InMemoryAgentRunner` does, along with anything extending it such as
-`AgentCoreRunner`. `SqliteAgentRunner` opts out, so its read routes answer
-`422`. `IntelligenceAgentRunner` scopes most thread operations to the user your
-`identifyUser` returns, but `threads/events`, `threads/state` and `agent/stop`
-still read the thread by id alone.
+更换运行器只是缩小暴露面，而不是消除它。只有主动接入的运行器才会从本地存储服务线程路由，而只有 `InMemoryAgentRunner` 及其派生类（如 `AgentCoreRunner`）这么做了。`SqliteAgentRunner` 选择不接入，其读取路由一律返回 `422`。`IntelligenceAgentRunner` 会把大多数线程操作限定到 `identifyUser` 返回的用户，但 `threads/events`、`threads/state` 和 `agent/stop` 仍只凭 id 读取线程。
 </Callout>
 
-## Choosing a runner
+## 选择运行器
 
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
 import { CopilotRuntime, BuiltInAgent, InMemoryAgentRunner } from "@copilotkit/runtime/v2";
@@ -91,31 +71,23 @@ const runtime = new CopilotRuntime({
 ```
 
 <Callout type="info">
-The `runner` is configured once on the `CopilotRuntime` and applies to every
-agent it serves. The same runner handles `run`, `connect`, and `stop` for all
-registered agents.
+`runner` 在 `CopilotRuntime` 上配置一次，对它服务的每个智能体都生效。同一个运行器为所有已注册的智能体处理 `run`、`connect` 和 `stop`。
 </Callout>
 
-<Callout type="warn" title="Don't pass a `runner` on an Intelligence runtime">
-An Intelligence runtime wires `IntelligenceAgentRunner` itself, so it accepts no `runner` of
-your own. Passing one is a type error, and a JavaScript caller who gets past the types is
-refused at construction rather than having the option quietly dropped:
+<Callout type="warn" title="不要在 Intelligence 运行时上传 `runner`">
+Intelligence 运行时会自行接好 `IntelligenceAgentRunner`，因此不接受你自己传入的 `runner`。传入会在类型层面报错，而绕过类型检查的 JavaScript 调用者会在构造时被拒绝，而不是该选项被悄悄丢弃：
 
 ```text
 Intelligence Runtime auto-wires its own `runner`; passing `runner` alongside
 `intelligence` is not supported.
 ```
 
-Choosing a runner is a decision for a self-hosted runtime only. If you are converting an
-existing runtime, see [Connect your runtime to Intelligence](/intelligence/quickstart).
+选择运行器只针对自托管运行时。如果你正在改造现有运行时，见[将你的运行时接入 Intelligence](/intelligence/quickstart)。
 </Callout>
 
-## Bounding in-memory history
+## 限制内存中的历史
 
-`InMemoryAgentRunner` holds every thread's run history in a process-global
-store. That store is **bounded by default**, so a long-lived server evicts old
-history instead of growing until the Node.js heap is exhausted. Pass limits to
-the constructor when the defaults don't match your workload:
+`InMemoryAgentRunner` 把每个线程的运行历史保存在一个进程级全局存储中。该存储**默认有界**，因此长期运行的服务器会淘汰旧历史，而不是一直增长直到 Node.js 堆耗尽。当默认值不匹配你的负载时，向构造函数传入限制：
 
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
 import { CopilotRuntime, BuiltInAgent, InMemoryAgentRunner } from "@copilotkit/runtime/v2";
@@ -130,71 +102,32 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-| Option | Default | What it bounds |
+| 选项 | 默认值 | 限制的内容 |
 |---|---|---|
-| `maxThreads` | `1000` | Distinct threads retained. Past the cap, the least-recently-used thread is dropped whole. |
-| `maxRunsPerThread` | `100` | Runs retained per thread, evicted oldest-first. `Infinity` (or `0`) disables the cap — but this is the only *per-thread* bound (`maxBytes` only evicts other threads), so a single hot thread then grows unbounded; raise it to a large finite value instead. |
-| `maxBytes` | `536870912` (512 MiB) | Approximate total size of retained history across all threads. This is the primary guard; the two counts are secondary sanity limits. |
+| `maxThreads` | `1000` | 保留的不同线程数。超过上限后，最久未使用的线程会被整体丢弃。 |
+| `maxRunsPerThread` | `100` | 每个线程保留的运行数，最旧的先淘汰。`Infinity`（或 `0`）会禁用该上限——但这是唯一的*按线程*边界（`maxBytes` 只淘汰其他线程），禁用后单个热点线程就会无界增长；请改为把它调到一个较大的有限值。 |
+| `maxBytes` | `536870912`（512 MiB） | 所有线程保留历史的近似总大小。这是主防线；两个计数是次要的合理性限制。 |
 
-Whichever bound trips first wins. Two rules keep eviction safe:
+哪个边界先触发就由哪个生效。两条规则保证淘汰是安全的：
 
-- A thread with an **active or still-finalizing run is never evicted**, even if
-  that means temporarily exceeding a limit.
-- `maxBytes` is a **cross-thread ceiling**: it evicts other least-recently-used
-  threads and never trims the thread that just finished a run. A single hot
-  thread is bounded by `maxRunsPerThread`, not by `maxBytes`.
+- 拥有**进行中或仍在收尾的运行**的线程绝不会被淘汰，即使这意味着暂时超出某个限制。
+- `maxBytes` 是**跨线程的天花板**：它淘汰其他最久未使用的线程，绝不修剪刚完成一次运行的线程。单个热点线程由 `maxRunsPerThread` 约束，而不是 `maxBytes`。
 
-Eviction takes one of two forms, and they differ in what they remove and what
-stays visible:
+淘汰有两种形式，它们移除什么、保留什么可见各不相同：
 
-- **Whole-thread eviction** drops the entire least-recently-used thread — every
-  run, its events, and the thread's message snapshot. Both the thread-count cap
-  (`maxThreads`) and the byte ceiling (`maxBytes`) trigger it. A thread dropped
-  this way no longer appears in [`GET /threads`](/backend/runtime-endpoints), and
-  a later `connect()` has nothing left to replay for it.
-- **Run-cap trimming** (`maxRunsPerThread`) drops only the *oldest runs* of a
-  single over-cap thread and keeps the thread itself. The thread stays visible in
-  `GET /threads` with its original creation time, and its latest message snapshot
-  and newest run survive — only the trimmed runs' events are gone, so a later
-  `connect()` replays what remains.
+- **整线程淘汰**丢弃整个最久未使用的线程——它的每次运行、事件以及消息快照。线程数上限（`maxThreads`）与字节天花板（`maxBytes`）都会触发它。被这样丢弃的线程不再出现在 [`GET /threads`](/backend/runtime-endpoints) 中，之后的 `connect()` 也没有任何内容可为它回放。
+- **运行数上限修剪**（`maxRunsPerThread`）只丢弃单个超限线程的*最旧运行*，保留线程本身。线程仍以原创建时间显示在 `GET /threads` 中，其最新的消息快照和最新的运行得以幸存——只有被修剪运行的日志没了，之后的 `connect()` 会回放剩余内容。
 
-Either form logs the same one-line warning the first time it fires, then goes
-quiet. The warning is latched **once per store** (not once per eviction), so a
-busy thread that trims a run on every append still logs a single line rather than
-flooding your logs — but for the same reason every eviction after that first line
-is silent. The latch resets only when the store is cleared (`clearThreads()` /
-`POST /threads/clear`), after which one further warning can fire. Treat the line
-as a signal that eviction is happening, not a per-drop audit.
+两种形式首次触发时都会记录同一行警告，然后归于安静。该警告按**每个存储**锁存一次（不是每次淘汰一次），因此一个每次追加都要修剪运行的繁忙线程也只会记录一行，而不会刷爆日志——但同理，第一行之后的每次淘汰都是静默的。只有存储被清空（`clearThreads()` /
+`POST /threads/clear`）时锁存才会重置，之后可以再发出一条警告。把这行日志当作“淘汰正在发生”的信号，而不是逐次淘汰的审计记录。
 
-Eviction also weakens message de-duplication on that thread. `run()` strips
-already-seen messages from the next `RUN_STARTED` input by scanning the runs it
-still holds, so once a thread passes `maxRunsPerThread` and its oldest runs are
-dropped, a message that lived only in an evicted run is no longer recognized as
-seen — a later `connect()` or `run()` can re-present it, and the client may
-briefly show a historical message it already observed. This is a display
-artifact, not corruption. If a thread must never re-surface old messages, move
-to a durable runner, or raise `maxRunsPerThread` to a large finite value — do
-not set it to `Infinity` (or `0`), which removes the only per-thread bound
-(`maxBytes` evicts only *other* threads, never the hot thread itself) and lets a
-single long-lived thread grow until the heap is exhausted.
+淘汰还会削弱该线程上的消息去重。`run()` 通过扫描仍持有的运行，从下一次 `RUN_STARTED` 输入中剔除已见过的消息；因此一旦线程超过 `maxRunsPerThread` 且最旧的运行被丢弃，只存在于被淘汰运行中的消息就不再被识别为已见——之后的 `connect()` 或 `run()` 可能重新呈现它，客户端可能短暂显示一条它已经看过的历史消息。这是显示上的瑕疵，不是数据损坏。如果某个线程绝不能重现旧消息，请迁移到持久化运行器，或把 `maxRunsPerThread` 调到较大的有限值——不要设为 `Infinity`（或 `0`），那会移除唯一的按线程边界（`maxBytes` 只淘汰*其他*线程，从不淘汰热点线程自身），让单个长寿线程一直增长直到堆耗尽。
 
-<Callout type="warn" title="Limits are process-global">
-The in-memory store is shared by every `InMemoryAgentRunner` in the process, so
-these limits are too — the **last** runner constructed with limits wins for
-**all** in-memory threads, silently reconfiguring the bounds any earlier runner
-set. Don't count on a log to catch this: the clobber warning fires only when a
-runner passing limits is followed by *another* runner passing **different**
-limits. The common case — one runner on defaults and a second passing custom
-limits — is the first explicit override and logs nothing, as do identical
-re-sets and runners that pass only `onConcurrentRun`. Configure one consistent
-set of limits per process.
+<Callout type="warn" title="限制是进程级的">
+内存存储由进程内的每个 `InMemoryAgentRunner` 共享，这些限制也是——带限制构造的**最后一个**运行器会对**所有**内存线程生效，悄悄改写先前运行器设置的范围。别指望日志能帮你抓住这一点：覆盖警告只在一个传入限制的运行器之后又有*另一个*运行器传入**不同**限制时才会发出。常见情况——一个运行器用默认值，第二个传入自定义限制——属于首次显式覆盖，不会记录任何日志；相同的重复设置和只传 `onConcurrentRun` 的运行器同样如此。请为每个进程配置一套一致的限制。
 </Callout>
 
-Bounding prevents the crash; it does not make the runner durable. If losing
-history is unacceptable, move to a durable backend. The first-party
-`SqliteAgentRunner` (from `@copilotkit/sqlite-runner`) persists thread runs to a
-SQLite file so history survives restarts on a single instance — install its
-`better-sqlite3` peer dependency and give it a real, non-`:memory:` `dbPath`:
+限制只能防止崩溃，不能让运行器持久化。如果丢失历史不可接受，请迁移到持久化后端。第一方的 `SqliteAgentRunner`（来自 `@copilotkit/sqlite-runner`）把线程运行持久化到 SQLite 文件，历史在单实例重启后仍然保留——安装它的 `better-sqlite3` peer 依赖，并给它一个真实的、非 `:memory:` 的 `dbPath`：
 
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
 import { CopilotRuntime, BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -206,16 +139,12 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-For durability across horizontally scaled instances, move to CopilotKit
-Intelligence's `IntelligenceAgentRunner`, or supply your own runner
-backed by a shared datastore.
+要在横向扩展的实例间获得持久化，请改用 CopilotKit
+Intelligence 的 `IntelligenceAgentRunner`，或提供你自己基于共享数据存储的运行器。
 
-## Handling a second run on a busy thread
+## 处理忙碌线程上的第二次运行
 
-By default, calling `run()` on a thread that already has a run in flight throws
-`Thread already running`. That is the right behavior when a duplicate request
-means a bug. When your UX lets a user send a fast follow-up — or a wedged run
-needs to be displaced — opt into superseding instead:
+默认情况下，对一个已有运行在途的线程调用 `run()` 会抛出 `Thread already running`。当重复请求意味着 bug 时，这是正确的行为。当你的 UX 允许用户快速追问——或者一个卡死的运行需要被顶替——请改用顶替（supersede）选项：
 
 ```ts
 import { InMemoryAgentRunner } from "@copilotkit/runtime/v2";
@@ -223,19 +152,16 @@ import { InMemoryAgentRunner } from "@copilotkit/runtime/v2";
 const runner = new InMemoryAgentRunner({ onConcurrentRun: "supersede" });
 ```
 
-| Value | Behavior |
+| 取值 | 行为 |
 |---|---|
-| `"throw"` (default) | A concurrent `run()` on the same thread throws `Thread already running`. |
-| `"supersede"` | The in-flight run is aborted (the same path `stop()` takes) and the new run starts. The superseded run's partial output is discarded rather than written to history. |
+| `"throw"`（默认） | 同一线程上并发的 `run()` 会抛出 `Thread already running`。 |
+| `"supersede"` | 在途的运行被中止（与 `stop()` 走的路径相同），新运行开始。被顶替运行的部分输出会被丢弃，而不是写入历史。 |
 
-Unlike the memory limits, `onConcurrentRun` is per-runner — it applies only to
-the runner you pass it to.
+与内存限制不同，`onConcurrentRun` 是按运行器生效的——它只作用于你传入它的那个运行器。
 
-## Extending a runner for a custom backend
+## 为自定义后端扩展运行器
 
-The most common customization is **subclassing `InMemoryAgentRunner`** to layer
-your own persistence (or to reconcile history replayed by an external memory
-layer). Override only the methods you need and call `super` for the rest:
+最常见的自定义是**继承 `InMemoryAgentRunner`**，在其上叠加你自己的持久化（或对来自外部记忆层的回放历史做协调）。只覆写你需要的方法，其余调用 `super`：
 
 ```ts
 import { InMemoryAgentRunner } from "@copilotkit/runtime/v2";
@@ -253,23 +179,18 @@ export class MyRunner extends InMemoryAgentRunner {
 }
 ```
 
-For a complete production example, see the
-[AWS AgentCore integration](/deploy/agentcore). It extends
-`InMemoryAgentRunner` into an `AgentCoreRunner`, handles a `connect()` that
-arrives **before** any `run()` for a thread, and synthesizes missing tool-call
-results from a replayed history.
+完整的生产示例见
+[AWS AgentCore 集成](/deploy/agentcore)。它把
+`InMemoryAgentRunner` 扩展成 `AgentCoreRunner`，处理先于线程任何 `run()` **到达**的 `connect()`，并从回放的历史中补齐缺失的工具调用结果。
 
 <Callout type="warn">
-If `connect()` can be called for a thread your runner has never seen, such as a
-new thread id on first page load, handle that case explicitly. Otherwise the
-`POST /agent/:id/connect` route can return a 404 or an error before the user
-sends a message. See the [`/connect` 404 troubleshooting entry](/troubleshooting/common-issues#connect-route-returns-404-on-a-fresh-thread).
+如果 `connect()` 可能被调用在一个你的运行器从未见过的线程上，比如首次加载页面时的新线程 id，请显式处理这种情况。否则 `POST /agent/:id/connect` 路由可能在用户发送消息之前就返回 404 或报错。见 [`/connect` 返回 404 的故障排查条目](/troubleshooting/common-issues#connect-route-returns-404-on-a-fresh-thread)。
 </Callout>
 
-## Related
+## 相关内容
 
-- [Runtime HTTP endpoints](/backend/runtime-endpoints): the routes each runner method backs.
-- [Copilot Runtime](/backend/copilot-runtime): configuring the runtime and `runner`.
-- [AWS AgentCore](/deploy/agentcore): a custom runner subclass for an external memory layer.
-- [Common issues](/troubleshooting/common-issues#runtime-memory-keeps-growing-or-the-process-runs-out-of-heap): diagnosing runtime memory growth and eviction warnings.
-- [Self-host CopilotKit Intelligence](/intelligence/self-hosting): the durable, multi-instance `IntelligenceAgentRunner` backend.
+- [运行时 HTTP 端点](/backend/runtime-endpoints)：每个运行器方法支撑的路由。
+- [Copilot Runtime](/backend/copilot-runtime)：配置运行时与 `runner`。
+- [AWS AgentCore](/deploy/agentcore)：面向外部记忆层的自定义运行器子类。
+- [常见问题](/troubleshooting/common-issues#runtime-memory-keeps-growing-or-the-process-runs-out-of-heap)：诊断运行时内存增长与淘汰警告。
+- [自托管 CopilotKit Intelligence](/intelligence/self-hosting)：持久的、多实例的 `IntelligenceAgentRunner` 后端。

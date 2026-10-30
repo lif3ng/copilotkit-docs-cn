@@ -1,6 +1,6 @@
 <Steps>
   <Step>
-    ### Install the CopilotKit LangGraph SDK
+    ### 安装 CopilotKit LangGraph SDK
 
     ```bash
     npm install @copilotkit/sdk-js
@@ -8,12 +8,9 @@
 
   </Step>
   <Step>
-    ### Wire CopilotKit state + tools into your graph
+    ### 将 CopilotKit 状态与工具接入你的图
 
-    Programmatic control (`copilotkit.runAgent`, `agent.subscribe`,
-    `agent.addMessage`) drives runs through the same agent your chat UI
-    uses, so the backend wiring is the same `CopilotKitStateAnnotation`
-    setup.
+    编程式控制（`copilotkit.runAgent`、`agent.subscribe`、`agent.addMessage`）通过与你聊天 UI 所用的同一个智能体来驱动运行，因此后端接线同样是那套 `CopilotKitStateAnnotation` 配置。
 
     <DemoCode file="src/agent/frontend-tools.ts" region="setup" />
 

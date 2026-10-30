@@ -1,6 +1,6 @@
 ---
 title: "Google Antigravity"
-description: "Build an agent on Google Antigravity that fixes a repository's failing CI and proves the fix, while CopilotKit's chat shows the diff, the live test results and each approval."
+description: "在 Google Antigravity 上构建一个修复仓库失败 CI 并证明修复有效的智能体，由 CopilotKit 的聊天展示 diff、实时测试结果和每一次审批。"
 icon: "custom/antigravity"
 showIcon: true
 doc_type: how-to
@@ -23,74 +23,62 @@ agentPrompt: |
   If I don't have a CopilotKit app yet, start from https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor.
 ---
 
-[Google Antigravity](https://github.com/google-antigravity/antigravity-sdk-python) is Google's agent SDK. Its
-harness calls Gemini and gives the agent real tools: it reads and edits files and runs shell commands in a folder you
-choose. The
-[Antigravity AG-UI SDK (`ag-ui-antigravity`)](https://github.com/ag-ui-protocol/ag-ui/tree/main/integrations/antigravity/python)
-serves that agent over [AG-UI](https://docs.ag-ui.com/), so a [CopilotKit](https://www.copilotkit.ai/) app can chat
-with it.
+[Google Antigravity](https://github.com/google-antigravity/antigravity-sdk-python) 是 Google 的 agent SDK。它的 harness 调用 Gemini 并给 agent 提供真实的工具：在你选择的文件夹中读取和编辑文件、运行 shell 命令。[Antigravity AG-UI SDK（`ag-ui-antigravity`）](https://github.com/ag-ui-protocol/ag-ui/tree/main/integrations/antigravity/python)通过 [AG-UI](https://docs.ag-ui.com/) 对外服务该 agent，让 [CopilotKit](https://www.copilotkit.ai/) 应用可以与它对话。
 
-<Callout type="info" title="Antigravity in OpenBot">
-[OpenBot](https://github.com/CopilotKit/OpenBot) ships Google Antigravity as one of its Bots, built on the same Antigravity AG-UI SDK. If you want Antigravity in a ready-to-run, self-hosted app, start with [`agent-antigravity`](https://github.com/CopilotKit/OpenBot/tree/main/agent-antigravity).
+<Callout type="info" title="OpenBot 中的 Antigravity">
+[OpenBot](https://github.com/CopilotKit/OpenBot) 把 Google Antigravity 作为它的 Bot 之一提供，构建在同一个 Antigravity AG-UI SDK 之上。如果你想要一个开箱即跑、可自托管的应用中的 Antigravity，从 [`agent-antigravity`](https://github.com/CopilotKit/OpenBot/tree/main/agent-antigravity) 开始。
 </Callout>
 
-This recipe walks through **Repo Doctor**, an app that fixes broken CI on GitHub repos. It reads the CI results,
-runs the tests, reproduces the failure, then fixes the code, shows the change as a diff and proves the fix before
-pushing it. You approve or deny each risky step, or let auto-approve handle it, then download a report of the whole
-run.
+本篇示例带你走一遍 **Repo Doctor**：一个修复 GitHub 仓库损坏 CI 的应用。它读取 CI 结果、运行测试、复现失败，然后修复代码、以 diff 形式展示改动，并在推送前证明修复有效。你可以批准或拒绝每个有风险的步骤，或交给自动批准处理，最后下载整次运行的报告。
 
 <Image
   src="/images/cookbook/antigravity-hero.webp"
-  alt="Repo Doctor after fixing google-gemini/genai-processors: the conversation list on the left, a green test results card in the chat reading 'All 554 tests pass' followed by the pushed fix branch and the agent's summary, and a side panel showing the passing check, 554 of 554 tests passing across five test runs, and 22 approvals."
+  alt="Repo Doctor 修复 google-gemini/genai-processors 之后：左侧是会话列表，聊天中是一张绿色的测试结果卡片，显示“全部 554 个测试通过”，其后是已推送的修复分支和智能体的总结，右侧面板显示通过的检查、五次测试运行中 554/554 的测试通过数，以及 22 次审批。"
   width={3420}
   height={1968}
   className="w-full rounded-xl border border-[var(--border)]"
 />
 
-| Part | Responsibility |
-| --- | --- |
-| **Antigravity** | The harness. Calls Gemini and runs the built-in file and shell tools inside the conversation's folder. |
-| **Antigravity AG-UI SDK** | Serves the agent over AG-UI, pauses risky tools as interrupts, and syncs shared state. |
-| **Repo Doctor tools** | Clone the repository, read CI, install, test, run a check, show the diff, and push. |
-| **CopilotKit + AG-UI** | The chat, the approval cards, the diff card, the A2UI test results card, and the side panel. |
-| **CopilotKit Intelligence** | Saves each person's conversations and records Product Analytics. |
+| 组成部分               | 职责                                                                       |
+| ---------------------- | -------------------------------------------------------------------------- |
+| **Antigravity**        | harness。调用 Gemini，并在会话文件夹内运行内置的文件与 shell 工具。         |
+| **Antigravity AG-UI SDK** | 通过 AG-UI 对外服务 agent，把有风险的工具作为中断暂停，并同步共享状态。  |
+| **Repo Doctor 工具**   | 克隆仓库、读取 CI、安装、测试、运行检查、展示 diff 和推送。                 |
+| **CopilotKit + AG-UI** | 聊天、审批卡片、diff 卡片、A2UI 测试结果卡片和侧边面板。                    |
+| **CopilotKit Intelligence** | 保存每个人的会话并记录 Product Analytics。                             |
 
 <Callout type="info">
-This recipe renders tool calls and A2UI surfaces, and pauses the agent for approvals. For the background, see
-[Generative UI](/generative-ui) and [Human-in-the-loop](/human-in-the-loop).
+本篇示例渲染工具调用与 A2UI 界面，并暂停 agent 等待审批。背景知识请参阅[生成式 UI](/generative-ui)和[人机协同（human-in-the-loop）](/human-in-the-loop)。
 </Callout>
 
-## What you'll build
+## 你将构建什么
 
-A chat that takes a repository from failing CI to a pushed fix:
+一个带仓库从 CI 失败走到推送修复的聊天：
 
-- You name a public GitHub repository, or click one of the cards on the start screen.
-- The agent reads CI and tells you what is failing. Each risky step (an install, a check, a file edit, a push) shows
-  up as a card with **Approve** and **Deny**.
-- You watch the test results go from red to green in the chat, with the change shown as a diff.
-- At the end you get a pushed fix branch and a report you can download.
+- 你说出一个公开的 GitHub 仓库，或点击开始屏幕上的一张卡片。
+- agent 读取 CI 并告诉你哪里在失败。每个有风险的步骤（安装、检查、文件编辑、推送）都会以一张带 **Approve**（批准）与 **Deny**（拒绝）的卡片出现。
+- 你看着聊天中的测试结果从红变绿，改动以 diff 形式展示。
+- 最后你会得到一个已推送的修复分支和一份可下载的报告。
 
-The side panel keeps track of the repository, the check, every test run and every decision you made.
+侧边面板记录仓库、检查、每次测试运行和你做出的每个决定。
 
 <Image
   src="/images/cookbook/antigravity-repo-doctor-architecture.webp"
-  alt="Repo Doctor architecture: in the browser, the CopilotKit chat, approval card, diff card, test results and side panel talk to the CopilotKit runtime on Cloud Run; the runtime streams AG-UI events to the Python agent, whose Antigravity harness calls Gemini, edits the per-conversation workspace and runs the CI tools against GitHub; the runtime sends threads and analytics to CopilotKit Intelligence; workspaces are snapshotted to Cloud Storage and keys come from Secret Manager."
+  alt="Repo Doctor 架构：浏览器中的 CopilotKit 聊天、审批卡片、diff 卡片、测试结果和侧边面板与 Cloud Run 上的 CopilotKit 运行时通信；运行时把 AG-UI 事件流式传给 Python 智能体，其 Antigravity harness 调用 Gemini、编辑每会话工作区并对 GitHub 运行 CI 工具；运行时把线程与分析数据发送给 CopilotKit Intelligence；工作区快照存到 Cloud Storage，密钥来自 Secret Manager。"
   width={1858}
   height={1720}
   className="w-full rounded-xl border border-[var(--border)]"
 />
 
-## Before you start
+## 开始之前
 
-You'll need Node.js 22 or newer, [pnpm](https://pnpm.io/), Python 3.13, [uv](https://docs.astral.sh/uv/), `git`,
-and a C compiler for projects with native extensions (the Xcode command line tools on macOS). Get a Gemini API key
-from [Google AI Studio](https://aistudio.google.com/apikey).
+你需要 Node.js 22 或更新版本、[pnpm](https://pnpm.io/)、Python 3.13、[uv](https://docs.astral.sh/uv/)、`git`，以及为带原生扩展的项目准备的 C 编译器（macOS 上是 Xcode 命令行工具）。从 [Google AI Studio](https://aistudio.google.com/apikey) 获取 Gemini API 密钥。
 
-The agent installs and runs the cloned repository's code on your machine, so try it on repositories you trust.
+agent 会在你的机器上安装并运行被克隆仓库的代码，请只在你信任的仓库上尝试。
 
-## Quick start
+## 快速开始
 
-The finished example lives in the CopilotKit repo:
+成品示例位于 CopilotKit 仓库中：
 
 ```bash
 git clone --depth 1 https://github.com/CopilotKit/CopilotKit.git
@@ -98,22 +86,18 @@ cd CopilotKit/examples/showcases/antigravity-repo-doctor
 pnpm install && pnpm dev
 ```
 
-The first `pnpm dev` creates `.env`, installs the Python agent with uv and stops until you add your Gemini key. Add
-it and run `pnpm dev` again. Open [http://localhost:3000](http://localhost:3000), type your name in the navbar, and
-click the **google-gemini/genai-processors** card.
+第一次 `pnpm dev` 会创建 `.env`、用 uv 安装 Python agent，然后停下等你添加 Gemini 密钥。添加后再次运行 `pnpm dev`。打开 [http://localhost:3000](http://localhost:3000)，在导航栏输入你的名字，点击 **google-gemini/genai-processors** 卡片。
 
-The steps below build the same app one piece at a time. Every snippet comes from the example, and each title is the
-file it lives in, so you can open the full file next to the page. A `# ...` or `// ...` line marks code left out.
+下面的步骤一次一块地构建同一个应用。每个片段都来自该示例，每个标题就是它所在的文件，方便你对照页面打开完整文件。`# ...` 或 `// ...` 行表示省略的代码。
 
-## Build it step by step
+## 逐步构建
 
 <Steps>
 <Step>
 
-### Create the web app
+### 创建 Web 应用
 
-Repo Doctor is two processes: a Next.js app with the chat and the CopilotKit runtime, and a Python agent next to it
-in `agent/`. Start with the Next.js app and the CopilotKit packages, at the versions the example uses:
+Repo Doctor 是两个进程：一个带聊天和 CopilotKit 运行时的 Next.js 应用，以及旁边 `agent/` 里的 Python agent。先建 Next.js 应用并安装 CopilotKit 包，使用示例所用的版本：
 
 ```bash
 pnpm create next-app@16.4.1 repo-doctor --yes
@@ -121,11 +105,9 @@ cd repo-doctor
 pnpm add @copilotkit/react-core@1.79.0 @copilotkit/runtime@1.79.0 @copilotkit/a2ui-renderer@1.79.0 @ag-ui/client@1.0.2 zod@3.25.76
 ```
 
-`@copilotkit/a2ui-renderer` draws the test results card, and `@ag-ui/client` connects the runtime to the Python agent.
-The A2UI catalog needs zod 3, so `zod` stays on 3.25.76.
+`@copilotkit/a2ui-renderer` 负责绘制测试结果卡片，`@ag-ui/client` 把运行时连接到 Python agent。A2UI catalog 需要 zod 3，所以 `zod` 固定在 3.25.76。
 
-The provider wraps the app. It points at the runtime route, registers the A2UI catalog for the test results card
-(you'll build it in a later step), and turns on the CopilotKit Inspector in development:
+provider 包裹整个应用。它指向运行时路由、为测试结果卡片注册 A2UI catalog（你会在后面的步骤中构建它），并在开发环境打开 CopilotKit Inspector：
 
 ```tsx title="src/components/shell/app-shell.tsx"
 "use client";
@@ -157,8 +139,7 @@ export function AppShell(props: ShellProps) {
 }
 ```
 
-`src/app/page.tsx` renders `AppShell`, which lays out the chat in the middle and the side panel on the right. The
-chat is `CopilotChat`, pointed at the agent:
+`src/app/page.tsx` 渲染 `AppShell`，它把聊天排在中间、侧边面板排在右侧。聊天是 `CopilotChat`，指向该 agent：
 
 ```tsx title="src/components/chat/chat-panel.tsx"
 <CopilotChat
@@ -170,17 +151,14 @@ chat is `CopilotChat`, pointed at the agent:
 />
 ```
 
-`welcomeScreen` replaces the empty chat with the start screen and its repository cards. The full layout is in
-[`app-shell.tsx`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/src/components/shell/app-shell.tsx)
-and
-[`chat-panel.tsx`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/src/components/chat/chat-panel.tsx).
+`welcomeScreen` 用开始屏幕及其仓库卡片替换空聊天。完整布局在 [`app-shell.tsx`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/src/components/shell/app-shell.tsx) 和 [`chat-panel.tsx`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/src/components/chat/chat-panel.tsx)。
 
 </Step>
 <Step>
 
-### Create the agent
+### 创建智能体
 
-The agent is a uv project in `agent/`. Create it and add the Antigravity SDK and its AG-UI adapter in one go:
+agent 是 `agent/` 里的一个 uv 项目。创建它并一次性加入 Antigravity SDK 与其 AG-UI 适配器：
 
 ```bash
 uv init --package --name repo-doctor agent
@@ -188,19 +166,14 @@ cd agent
 uv add ag-ui-antigravity==0.2.1 google-antigravity==0.1.22 ag-ui-protocol==1.0.0 fastapi==0.143.2 "uvicorn[standard]==0.54.0" pydantic==2.14.1 pydantic-settings==2.16.0
 ```
 
-`google-antigravity` is the SDK with the harness, and
-[`ag-ui-antigravity`](https://github.com/ag-ui-protocol/ag-ui/tree/main/integrations/antigravity/python) serves it
-over AG-UI.
+`google-antigravity` 是带 harness 的 SDK，[`ag-ui-antigravity`](https://github.com/ag-ui-protocol/ag-ui/tree/main/integrations/antigravity/python) 通过 AG-UI 对外服务它。
 
-Copy these helpers from the [example's agent folder](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor):
+从[示例的 agent 文件夹](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor)复制这些辅助文件：
 
-- [`config.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/config.py) reads `.env` and sets the folders the agent works in.
-- `shell.py` runs commands, `workspace.py` manages the conversation's folder, and `project.py` works out the install
-  and test commands.
+- [`config.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/config.py) 读取 `.env` 并设置 agent 工作的文件夹。
+- `shell.py` 运行命令，`workspace.py` 管理会话文件夹，`project.py` 推导安装与测试命令。
 
-The agent is an `AntigravityAgent` from the Antigravity AG-UI SDK, here through a small subclass. The config picks
-the model and the prompt, lists the built-in tools the agent may use, points the harness at a workspace folder, and
-turns on approvals:
+agent 是 Antigravity AG-UI SDK 的 `AntigravityAgent`，这里通过一个小子类使用。配置选定模型与提示、列出 agent 可用的内置工具、把 harness 指向一个工作区文件夹，并打开审批：
 
 ```python title="agent/src/repo_doctor/agent.py"
 # ...
@@ -223,21 +196,16 @@ def create_agent(settings: Settings) -> ThreadScopedAntigravityAgent:
     )
 ```
 
-`tool_approval=True` pauses every tool call that is not in `auto_approve_tools`:
+`tool_approval=True` 会暂停所有不在 `auto_approve_tools` 中的工具调用：
 
-- **Runs on its own:** the read-only built-ins (list, search, find and view files), plus `clone_repo`, `ci_status`,
-  `run_tests` and `show_diff`.
-- **Waits for you:** installs, checks, file edits, shell commands and pushes.
+- **自行运行**：只读的内置工具（列出、搜索、查找和查看文件），以及 `clone_repo`、`ci_status`、`run_tests` 和 `show_diff`。
+- **等你批准**：安装、检查、文件编辑、shell 命令和推送。
 
-`ENABLED_BUILTINS` turns on the file and shell tools plus `finish`, which the harness needs to end a turn.
+`ENABLED_BUILTINS` 打开文件与 shell 工具，外加 `finish`——harness 结束一轮所必需。
 
-The prompt in
-[`prompts.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/prompts.py)
-tells the model which tool to use when, and that a fix only counts as verified when a check goes from failed to
-passed.
+[`prompts.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/prompts.py) 中的提示告诉模型何时用哪个工具，以及只有当检查从失败变为通过时，修复才算已验证。
 
-One call turns the agent into an AG-UI endpoint. `create_antigravity_app` returns a FastAPI app that serves the agent
-at `POST /`:
+一次调用就把 agent 变成 AG-UI 端点。`create_antigravity_app` 返回一个在 `POST /` 服务该 agent 的 FastAPI 应用：
 
 ```python title="agent/src/repo_doctor/server.py"
 from ag_ui_antigravity import create_antigravity_app
@@ -259,9 +227,7 @@ def main() -> None:
     uvicorn.run(create_app(), host=settings.agent_host, port=settings.agent_port)
 ```
 
-Both processes read the same `.env` at the project root. Put your Gemini key in it, and a GitHub token if you have
-one (a read-only token raises the CI lookups from 60 to 5,000 an hour). `AGENT_URL` tells the web app where the agent
-listens:
+两个进程读取项目根目录的同一个 `.env`。把 Gemini 密钥放进去，如果有的话再放一个 GitHub token（只读 token 能把 CI 查询限额从每小时 60 次提高到 5,000 次）。`AGENT_URL` 告诉 Web 应用 agent 监听在哪里：
 
 ```plaintext title=".env"
 GEMINI_API_KEY=
@@ -269,15 +235,14 @@ GITHUB_TOKEN=
 AGENT_URL=http://127.0.0.1:8000/
 ```
 
-Start the agent from `agent/` with `uv run python -m repo_doctor.server`. It listens on 127.0.0.1:8000.
+在 `agent/` 目录用 `uv run python -m repo_doctor.server` 启动 agent。它监听 127.0.0.1:8000。
 
 </Step>
 <Step>
 
-### Connect the runtime
+### 连接运行时
 
-The runtime route connects the chat to the Python agent over AG-UI. `HttpAgent` sends each run to the agent's URL,
-and the `a2ui` option turns on the A2UI middleware, which passes the agent's test results cards to the chat:
+运行时路由通过 AG-UI 把聊天连接到 Python agent。`HttpAgent` 把每次运行发送到 agent 的 URL，`a2ui` 选项打开 A2UI 中间件，把 agent 的测试结果卡片传递给聊天：
 
 ```ts title="src/app/api/copilotkit/[[...slug]]/route.ts"
 import { HttpAgent } from "@ag-ui/client";
@@ -306,42 +271,36 @@ export const PATCH = handler;
 export const DELETE = handler;
 ```
 
-The harness calls Gemini, so the runtime never calls a model itself. `injectA2UITool: false` tells the runtime that
-the agent writes its own A2UI surfaces, so the model gets no extra render tool. The left-out lines connect CopilotKit
-Intelligence when you add a key, which the CopilotKit Intelligence section covers.
+harness 调用 Gemini，运行时自身从不调用模型。`injectA2UITool: false` 告诉运行时 agent 自己编写 A2UI 界面，因此不会给模型额外的渲染工具。省略的行会在你添加密钥后连接 CopilotKit Intelligence，见 CopilotKit Intelligence 一节。
 
-Run `pnpm dev` in one terminal and the agent in another. Open [http://localhost:3000](http://localhost:3000) and say
-hello. The agent answers in the chat.
+在一个终端运行 `pnpm dev`，另一个终端运行 agent。打开 [http://localhost:3000](http://localhost:3000) 打个招呼。agent 会在聊天中回应。
 
 </Step>
 <Step>
 
-### Give the agent its CI tools
+### 给智能体配置 CI 工具
 
-The agent's own tools live in [`tools.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/tools.py):
+agent 自有的工具位于 [`tools.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/tools.py)：
 
-- `clone_repo` makes a shallow clone.
-- `ci_status` reads the latest GitHub Actions results and names the failed jobs and steps.
-- `install_dependencies` installs the project.
-- `run_tests` runs the test suite.
-- `run_check` runs one command that reproduces the failure.
-- `show_diff` returns the real `git diff`.
-- `git_push` commits the fix on a new branch and pushes it to a local repository, never to GitHub.
+- `clone_repo` 做浅克隆。
+- `ci_status` 读取最新的 GitHub Actions 结果，指出失败的 job 和步骤。
+- `install_dependencies` 安装项目。
+- `run_tests` 运行测试套件。
+- `run_check` 运行一条复现失败的命令。
+- `show_diff` 返回真实的 `git diff`。
+- `git_push` 在新分支上提交修复并推送到本地仓库，绝不推送到 GitHub。
 
-Each one is a plain async function with a docstring. The SDK reads the signature and the docstring and offers the
-function to the model next to Antigravity's built-in file tools.
+每个都是带 docstring 的普通 async 函数。SDK 读取函数签名与 docstring，把该函数连同 Antigravity 内置文件工具一起提供给模型。
 
 <Image
   src="/images/cookbook/antigravity-ci-tools.webp"
-  alt="The chat after asking 'Why is CI failing on google-gemini/genai-processors?': tool rows for the clone of main, a CI check showing Python package failing on build (3.11), build (3.12) and build (3.13), a read of .github/workflows/python-tests.yml, and the installed dependencies listed as package chips."
+  alt="询问“为什么 google-gemini/genai-processors 的 CI 在失败？”之后的聊天：克隆 main 的工具行、显示 Python package 在 build (3.11)、build (3.12) 和 build (3.13) 上失败的 CI 检查、对 .github/workflows/python-tests.yml 的读取，以及以包标签列出的已安装依赖。"
   width={1896}
   height={1626}
   className="w-full rounded-xl border border-[var(--border)]"
 />
 
-Tools keep a record of what happened in shared state, which the side panel reads later.
-`experimental_set_state` replaces that state and streams it to the browser right away, so this helper merges each
-change into the current state:
+工具把发生的事情记录在共享状态里，侧边面板稍后读取它。`experimental_set_state` 会整体替换该状态并立即流式传到浏览器，因此这个辅助函数把每次变更合并进当前状态：
 
 ```python title="agent/src/repo_doctor/tools.py"
 from ag_ui_antigravity import experimental_get_state, experimental_set_state
@@ -352,8 +311,7 @@ def _update_state(**changes: Any) -> None:
     experimental_set_state({**_state(), **changes})  # [!code highlight]
 ```
 
-`clone_repo` is the first tool the agent calls. It clones the repository, then stores what it learned under `repo`
-in shared state:
+`clone_repo` 是 agent 调用的第一个工具。它克隆仓库，然后把了解到的东西存到共享状态的 `repo` 下：
 
 ```python title="agent/src/repo_doctor/tools.py"
 async def clone_repo(repo_ref: str) -> dict[str, Any]:
@@ -392,29 +350,20 @@ async def clone_repo(repo_ref: str) -> dict[str, Any]:
     # ...
 ```
 
-A few things to notice:
+有几点值得注意：
 
-- Errors come back as `{"ok": False, "error": ...}` instead of being raised, so the model reads them and decides
-  what to do next.
-- `ensure_local_push_remote` renames the GitHub remote to `upstream`, turns off its push URL and adds a local bare
-  repository as `origin`. `git_push` then pushes to that bare repository by its path, not to `origin`, with git
-  hooks off, and refuses when the repository's config rewrites URLs. A push can never reach GitHub, even if a shell
-  command changes `origin`.
-- `ci_status` runs next. It lists the failed steps of each workflow, which is usually enough for the model to find
-  the matching command in the workflow file ([`ci.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/ci.py)).
+- 错误以 `{"ok": False, "error": ...}` 形式返回而不是抛出，让模型读到它们并决定下一步。
+- `ensure_local_push_remote` 把 GitHub remote 重命名为 `upstream`、关闭其推送 URL，并把一个本地裸仓库添加为 `origin`。`git_push` 随后按路径推送到该裸仓库而不是 `origin`，关闭 git hooks，并在仓库配置重写 URL 时拒绝执行。即使 shell 命令改动了 `origin`，推送也永远到不了 GitHub。
+- 接着运行 `ci_status`。它列出每个 workflow 的失败步骤，这通常足以让模型在 workflow 文件中找到对应的命令（[`ci.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/ci.py)）。
 
-`build_tools(workspace, settings)` returns the seven tools bound to one folder. `ThreadScopedAntigravityAgent` calls
-it for each conversation in `_build_agent` ([`agent.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/agent.py)), so two conversations
-never share a checkout.
+`build_tools(workspace, settings)` 返回绑定到同一文件夹的七个工具。`ThreadScopedAntigravityAgent` 在 `_build_agent` 中为每条会话调用它（[`agent.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/agent.py)），因此两条会话绝不会共享一个检出。
 
 </Step>
 <Step>
 
-### Prove the fix
+### 证明修复有效
 
-Passing tests alone do not prove that the fix addressed the failure CI saw. That is the job of `run_check`. The
-agent turns the failing CI step into one short command and runs it twice: before the fix, when it must fail, and
-after the fix, when it must pass:
+仅凭测试通过并不能证明修复解决了 CI 看到的失败。这是 `run_check` 的职责。agent 把失败的 CI 步骤变成一条短命令并运行两次：修复前必须失败，修复后必须通过：
 
 ```python title="agent/src/repo_doctor/tools.py"
 async def run_check(command: str, label: str) -> dict[str, Any]:
@@ -445,13 +394,12 @@ async def run_check(command: str, label: str) -> dict[str, Any]:
     }
 ```
 
-- The exit code decides passed or failed. A check that runs past two minutes counts as failed.
-- Every check is added to `checks` in shared state, so the side panel lists the failed run and the passed run
-  together.
+- 退出码决定通过或失败。运行超过两分钟的检查按失败计。
+- 每次检查都会加入共享状态的 `checks`，侧边面板因此能把失败的运行与通过的运行并列列出。
 
 <Image
   src="/images/cookbook/antigravity-prove-fix.webp"
-  alt="Two run_check cards for 'pytest genai_processors/tests/sql_cache_test.py': Check 1 failed with exit 2 before the fix, and Check 2 passed with exit 0 after it, its output ending in '7 passed in 1.19s'."
+  alt="两张针对“pytest genai_processors/tests/sql_cache_test.py”的 run_check 卡片：修复前 Check 1 以退出码 2 失败，修复后 Check 2 以退出码 0 通过，输出以“7 passed in 1.19s”结尾。"
   width={1092}
   height={1117}
   className="w-full rounded-xl border border-[var(--border)]"
@@ -460,12 +408,9 @@ async def run_check(command: str, label: str) -> dict[str, Any]:
 </Step>
 <Step>
 
-### Approve or deny each risky step
+### 批准或拒绝每个有风险的步骤
 
-When the model calls a tool that needs approval, the adapter keeps the call waiting and ends the run with an
-interrupt. Its reason is `tool_approval`, and its metadata carries the tool's name and arguments.
-[`useInterrupt`](/reference/hooks/useInterrupt) renders a card for it, and `resolve` sends your answer back with the
-interrupt's id, which continues the waiting call:
+当模型调用需要审批的工具时，适配器让该调用保持等待，并以一个中断结束运行。中断的 reason 是 `tool_approval`，元数据携带工具名与参数。[`useInterrupt`](/reference/hooks/useInterrupt) 为它渲染一张卡片，`resolve` 把你的答复连同中断 id 送回，从而继续那个等待中的调用：
 
 ```tsx title="src/components/chat/tool-renderers.tsx"
 useInterrupt({
@@ -492,30 +437,26 @@ useInterrupt({
 });
 ```
 
-The card sends `{ approved: true }` or `{ approved: false, message }`, the shape the adapter reads. A denied call
-is blocked, and your message goes back to the model so it knows why you said no.
+卡片发送 `{ approved: true }` 或 `{ approved: false, message }`，这正是适配器读取的形状。被拒绝的调用会被阻止，你的消息会回到模型那里，让它知道你为什么拒绝。
 
 <Image
   src="/images/cookbook/antigravity-approval-card.webp"
-  alt="An approval card in the chat titled 'Install dependencies', showing the exact uv install command, the note 'The agent is paused until you answer.' and the Add a note, Deny and Approve buttons."
+  alt="聊天中的一张标题为“Install dependencies”的审批卡片，展示确切的 uv install 命令、“智能体已暂停，等待你答复”的提示，以及 Add a note、Deny 和 Approve 按钮。"
   width={1272}
   height={817}
   className="w-full rounded-xl border border-[var(--border)]"
 />
 
-- The card shows exactly what will run: the install command, the check, the lines a file edit changes, or the
-  branch it pushes.
-- With the navbar's **Auto-approve** switch on, the card answers by itself. Pushes are on an always-ask list, so the
-  switch never answers them.
-- The agent logs every decision under `approvals` in shared state.
+- 卡片准确显示将要运行的内容：安装命令、检查命令、文件编辑会改动的行，或将要推送的分支。
+- 打开导航栏的 **Auto-approve** 开关后，卡片会自动答复。推送在“始终询问”清单上，所以该开关绝不会替它们答复。
+- agent 把每个决定记录在共享状态的 `approvals` 下。
 
 </Step>
 <Step>
 
-### Show the fix as a diff
+### 以 diff 形式展示修复
 
-`show_diff` returns the workspace's real `git diff` and a one-sentence summary from the model.
-[`useRenderTool`](/reference/hooks/useRenderTool) matches a tool call by name and draws it in the chat:
+`show_diff` 返回工作区真实的 `git diff` 和来自模型的一句话总结。[`useRenderTool`](/reference/hooks/useRenderTool) 按名称匹配工具调用并在聊天中绘制它：
 
 ```tsx title="src/components/chat/tool-renderers.tsx"
 const Any = z.record(z.unknown());
@@ -530,17 +471,15 @@ useRenderTool({
 });
 ```
 
-- `p.status` moves from `inProgress` to `executing` to `complete`.
-- `p.result` holds the tool's JSON result once it finishes.
-- `DiffBlock` waits for `complete`, then hands the summary and the patch to `DiffCard`, which draws each file with its
-  added and removed lines.
+- `p.status` 依次经历 `inProgress`、`executing` 到 `complete`。
+- 完成后 `p.result` 持有该工具的 JSON 结果。
+- `DiffBlock` 等待 `complete`，然后把总结与补丁交给 `DiffCard`，由它绘制每个文件新增和删除的行。
 
-The other tools get a row or a card the same way in
-[`tool-renderers.tsx`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/src/components/chat/tool-renderers.tsx).
+其他工具以同样的方式在 [`tool-renderers.tsx`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/src/components/chat/tool-renderers.tsx) 中获得一行或一张卡片。
 
 <Image
   src="/images/cookbook/antigravity-diff-card.webp"
-  alt="The Proposed fix diff card for genai-processors: two files changed, genai_processors/mcp.py and pyproject.toml, with the old lines in red and the new lines in green, under a one-sentence summary of the fix."
+  alt="genai-processors 的 Proposed fix diff 卡片：两个文件有改动（genai_processors/mcp.py 与 pyproject.toml），旧行标红、新行标绿，上方是对修复的一句话总结。"
   width={857}
   height={1095}
   className="w-full rounded-xl border border-[var(--border)]"
@@ -549,11 +488,9 @@ The other tools get a row or a card the same way in
 </Step>
 <Step>
 
-### Draw the test results with A2UI
+### 用 A2UI 绘制测试结果
 
-The test results card is an [A2UI](/generative-ui/a2ui) surface: the agent describes the card as components and
-data, and CopilotKit draws it with the app's own component. `run_tests` runs the suite, turns the output into a
-`TestReport`, and returns `a2ui_operations` next to the results the model reads:
+测试结果卡片是一个 [A2UI](/generative-ui/a2ui) 界面：agent 以组件与数据描述卡片，CopilotKit 用应用自己的组件绘制它。`run_tests` 运行测试套件，把输出变成 `TestReport`，并在模型可读的结果旁返回 `a2ui_operations`：
 
 ```python title="agent/src/repo_doctor/tools.py"
 async def run_tests(target: str = "") -> dict[str, Any]:
@@ -568,7 +505,7 @@ async def run_tests(target: str = "") -> dict[str, Any]:
     }
 ```
 
-`a2ui.py` builds the three operations: create the surface, set its one `TestReport` component, and fill its data:
+`a2ui.py` 构建三个操作：创建 surface、设置它唯一的 `TestReport` 组件、填充它的数据：
 
 ```python title="agent/src/repo_doctor/a2ui.py"
 # Must match CATALOG_ID in src/a2ui/catalog.tsx (the Next.js app).
@@ -602,12 +539,9 @@ def report_surface_operations(report: TestReport, *, run: int) -> list[dict[str,
     ]
 ```
 
-The component tree never changes. Every prop is a `{ path }` binding into the data model, and each run only fills
-the data. Each run also gets its own surface id, `test-run-1`, `test-run-2` and so on, so a new run adds a new card
-instead of replacing the last one.
+组件树从不变化。每个 prop 都是指向数据模型的 `{ path }` 绑定，每次运行只填充数据。每次运行还有自己的 surface id（`test-run-1`、`test-run-2` 等），因此新一轮运行会新增一张卡片，而不是替换上一张。
 
-On the web side, the definitions are the contract between the agent and the card: the components the agent may
-name, with a zod schema for each one's props. Each prop can be a value or a `{ path }` binding:
+在 Web 侧，definitions 是 agent 与卡片之间的契约：agent 可以点名的组件，以及每个组件 props 的 zod schema。每个 prop 可以是一个值，也可以是一个 `{ path }` 绑定：
 
 ```ts title="src/a2ui/definitions.ts"
 const binding = z.object({ path: z.string() });
@@ -632,9 +566,7 @@ export const definitions = {
 } satisfies CatalogDefinitions;
 ```
 
-`createCatalog` joins the definitions and a renderer that maps the props onto the app's own `TestReport` React
-component, under the same catalog id the agent uses. This is the `catalog` the provider registered in the first
-step:
+`createCatalog` 把 definitions 与一个渲染器组合起来，渲染器把 props 映射到应用自己的 `TestReport` React 组件上，并使用与 agent 相同的 catalog id。这就是第一步中 provider 注册的 `catalog`：
 
 ```tsx title="src/a2ui/catalog.tsx"
 "use client";
@@ -671,13 +603,11 @@ export const catalog = createCatalog(definitions, renderers, { // [!code highlig
 });
 ```
 
-`includeBasicCatalog: false` leaves out A2UI's basic components, so `TestReport` is the only component this catalog
-can draw. Each test run has its own surface, so every run stays in the chat, from the first red one to the final
-green one:
+`includeBasicCatalog: false` 不包含 A2UI 的基础组件，因此 `TestReport` 是这个 catalog 唯一能绘制的组件。每次测试运行都有自己的 surface，所以每一轮都留在聊天里，从第一轮红色到最后一轮绿色：
 
 <Image
   src="/images/cookbook/antigravity-test-results.webp"
-  alt="Two test results cards in the chat: Test run 1 is red, marked Failing, with 3 of 3 tests failing on collection errors listed by file; Test run 5 is green, marked Passing, reading 'All 554 tests pass' with a full green bar and the per-file results."
+  alt="聊天中的两张测试结果卡片：Test run 1 为红色，标记为 Failing，3/3 个测试因收集错误失败并按文件列出；Test run 5 为绿色，标记为 Passing，显示“全部 554 个测试通过”，带满格绿色进度条和按文件的结果。"
   width={1616}
   height={1859}
   className="mx-auto w-full max-w-xl rounded-xl border border-[var(--border)]"
@@ -686,9 +616,9 @@ green one:
 </Step>
 <Step>
 
-### Build the side panel
+### 构建侧边面板
 
-Every tool wrote its part of the story into shared state. This is its shape on the web side:
+每个工具都把自己那部分记录写进了共享状态。它在 Web 侧的形状如下：
 
 ```ts title="src/lib/agent-state.ts"
 const AgentState = z.object({
@@ -702,15 +632,14 @@ const AgentState = z.object({
 });
 ```
 
-Each field comes from one place:
+每个字段各有一个来源：
 
-- `repo` from `clone_repo`, and `install` from `install_dependencies`
-- `testRuns` gets a row from each `run_tests`, and `checks` one from each `run_check`
-- `approvals` gets each of your decisions
-- `push` from `git_push`
+- `repo` 来自 `clone_repo`，`install` 来自 `install_dependencies`
+- `testRuns` 从每次 `run_tests` 获得一行，`checks` 从每次 `run_check` 获得一条
+- `approvals` 收下你的每个决定
+- `push` 来自 `git_push`
 
-[`useAgent`](/reference/hooks/useAgent) gives the browser that state. One provider reads it once and shares it with
-the cards and the panel:
+[`useAgent`](/reference/hooks/useAgent) 把该状态交给浏览器。一个 provider 读取一次，并与卡片和面板共享：
 
 ```tsx title="src/lib/use-workspace.tsx"
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
@@ -720,118 +649,93 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 }
 ```
 
-The state comes over the network, so `parseAgentState` checks it with zod first. The panel in
-[`workspace-panel.tsx`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/src/components/shell/workspace-panel.tsx) then reads plain fields like `state.checks`
-and `state.approvals`.
+状态经由网络传输，所以 `parseAgentState` 先用 zod 校验它。[`workspace-panel.tsx`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/src/components/shell/workspace-panel.tsx) 中的面板随后读取 `state.checks`、`state.approvals` 这类普通字段。
 
-Because the approvals live in shared state, they come back when you reopen a conversation. **Download report** at the
-bottom builds a Markdown report in the browser from the same state and messages.
+由于审批存放在共享状态里，重新打开一条会话时它们会回来。底部的 **Download report** 用同样的状态与消息在浏览器里生成一份 Markdown 报告。
 
 </Step>
 <Step>
 
-### Try it on genai-processors
+### 在 genai-processors 上试一遍
 
-Start both servers: `pnpm dev` for the web app, and `uv run python -m repo_doctor.server` in `agent/`. (In the finished
-example, `pnpm dev` starts both.) Open [http://localhost:3000](http://localhost:3000), type your name in the navbar,
-and ask:
+启动两个服务：Web 应用用 `pnpm dev`，`agent/` 里用 `uv run python -m repo_doctor.server`。（在成品示例中，`pnpm dev` 会同时启动两者。）打开 [http://localhost:3000](http://localhost:3000)，在导航栏输入你的名字，然后提问：
 
 ```text
 Why is CI failing on google-gemini/genai-processors?
 ```
 
-Here is what happens, step by step:
+接下来会一步步发生这些事：
 
-1. The agent clones the repository and reads its CI. The workflow "Python package" fails at test collection.
-2. It asks to install the project with the same extras CI installs. Approve it.
-3. The first test results card is red.
-4. It asks to run a short check that reproduces the failure. Approve it, and the check fails.
-5. It asks to edit `pyproject.toml` and `genai_processors/mcp.py`. Approve it, and the diff card shows both changes.
-6. It reinstalls and runs the same check, which now passes. The final test results card is green: all 554 tests
-   pass.
-7. It asks to push the fix branch. Approve it, and the chat ends with a short summary. **Download report** in the
-   side panel saves the whole story.
+1. agent 克隆仓库并读取其 CI。workflow “Python package” 在测试收集阶段失败。
+2. 它请求以 CI 安装时所用的相同 extras 安装项目。批准它。
+3. 第一张测试结果卡片是红色的。
+4. 它请求运行一条复现失败的简短检查。批准它，检查如预期失败。
+5. 它请求编辑 `pyproject.toml` 与 `genai_processors/mcp.py`。批准它，diff 卡片会展示这两处改动。
+6. 它重新安装并运行同一条检查，这次通过。最终测试结果卡片是绿色的：全部 554 个测试通过。
+7. 它请求推送修复分支。批准它，聊天以一段简短总结收尾。侧边面板中的 **Download report** 会保存全过程。
 
-The model decides the order, so a run can take a slightly different path. Deny any step to see the agent stop and
-ask how you want to continue.
+顺序由模型决定，因此每次运行的路径可能略有不同。拒绝任意一步，可以看到 agent 停下来询问你想如何继续。
 
 </Step>
 <Step>
 
-### Look under the hood with the CopilotKit Inspector
+### 用 CopilotKit Inspector 查看内部机制
 
-Click the CopilotKit logo in the corner of your app to open the [CopilotKit Inspector](/inspector). The
-`enableInspector` prop on the provider turns it on in development, so you can watch everything that passes between
-your app and the agent.
+点击应用角落的 CopilotKit logo 打开 [CopilotKit Inspector](/inspector)。provider 上的 `enableInspector` 属性会在开发环境打开它，让你能观察应用与 agent 之间往来的一切。
 
-Go to **AG-UI Events**. One run looks like this:
+进入 **AG-UI Events**。一次运行看起来是这样的：
 
-- `RUN_STARTED` opens the run.
-- Each tool call streams in as `TOOL_CALL_START`, `TOOL_CALL_ARGS` and `TOOL_CALL_END`, and its result comes back as
-  `TOOL_CALL_RESULT`.
-- When `run_tests` returns, an `ACTIVITY_SNAPSHOT` of type `a2ui-surface` carries the test results card.
-- The agent's reply streams as `TEXT_MESSAGE_START`, `TEXT_MESSAGE_CONTENT` and `TEXT_MESSAGE_END`.
-- A `STATE_SNAPSHOT` carries the shared state the side panel reads.
-- `RUN_FINISHED` closes the run.
+- `RUN_STARTED` 开启这次运行。
+- 每个工具调用以 `TOOL_CALL_START`、`TOOL_CALL_ARGS` 和 `TOOL_CALL_END` 流式进入，其结果以 `TOOL_CALL_RESULT` 返回。
+- `run_tests` 返回时，一条类型为 `a2ui-surface` 的 `ACTIVITY_SNAPSHOT` 携带测试结果卡片。
+- agent 的回复以 `TEXT_MESSAGE_START`、`TEXT_MESSAGE_CONTENT` 和 `TEXT_MESSAGE_END` 流式呈现。
+- 一条 `STATE_SNAPSHOT` 携带侧边面板读取的共享状态。
+- `RUN_FINISHED` 结束这次运行。
 
 <Image
   src="/images/cookbook/antigravity-inspector.webp"
-  alt="The CopilotKit Inspector's AG-UI Events pane for the repo-doctor agent, listing RUN_STARTED, TOOL_CALL_START, TOOL_CALL_ARGS, TOOL_CALL_END and TOOL_CALL_RESULT for a git_push call, the TEXT_MESSAGE events of the agent's reply, a STATE_SNAPSHOT and RUN_FINISHED."
+  alt="CopilotKit Inspector 的 AG-UI Events 面板（repo-doctor 智能体），列出一次 git_push 调用的 RUN_STARTED、TOOL_CALL_START、TOOL_CALL_ARGS、TOOL_CALL_END 和 TOOL_CALL_RESULT，智能体回复的 TEXT_MESSAGE 事件，一条 STATE_SNAPSHOT 和 RUN_FINISHED。"
   width={1916}
   height={1478}
   className="w-full rounded-xl border border-[var(--border)]"
 />
 
-The **Agent** tab shows the current shared state, including every approval, and the messages so far with each tool
-call and its arguments.
+**Agent** 标签页显示当前共享状态（包括每次审批），以及到此为止的消息，含每次工具调用及其参数。
 
 <Image
   src="/images/cookbook/antigravity-inspector-agent.webp"
-  alt="The CopilotKit Inspector's Agent view for repo-doctor: 200 events, 127 messages, 43 tool calls and 0 errors, the current shared state with its approvals list, and the conversation's messages starting with the clone_repo tool call."
+  alt="CopilotKit Inspector 中 repo-doctor 的 Agent 视图：200 个事件、127 条消息、43 次工具调用和 0 个错误，带审批列表的当前共享状态，以及从 clone_repo 工具调用开始的会话消息。"
   width={1920}
   height={1676}
   className="w-full rounded-xl border border-[var(--border)]"
 />
 
-If a card never shows up, start here. You'll see whether the agent called the tool at all, and what came back.
+如果某张卡片始终不出现，就从这里查起。你会看到 agent 到底有没有调用那个工具，以及返回了什么。
 
 </Step>
 </Steps>
 
-## What the full example adds
+## 完整示例还包含什么
 
-The steps above cover the core of the app. The example also has these, each in its own file:
+上面的步骤覆盖了应用的核心。示例还有这些内容，各自位于独立文件中：
 
-- **A folder per conversation.** `ThreadScopedAntigravityAgent` gives each conversation its own workspace and tools,
-  and cleans everything up when you delete the conversation ([`agent.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/agent.py)).
-- **Saved conversations.** After a clone, a push and every run, the repository, the pushed branches and the
-  harness's conversation are saved to Cloud Storage, and restored after a restart ([`snapshot.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/snapshot.py)).
-- **An install guard.** Package installs through `run_command` are rejected before they run, so every install goes
-  through `install_dependencies`, and PyTorch always installs as CPU wheels ([`guards.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/guards.py)).
-- **Disk limits.** A conversation's Python venv is deleted when its session closes ([`venvs.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/venvs.py)).
-  The agent's own uv cache is pruned at startup and cleared when it grows past a limit ([`uvcache.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/uvcache.py)).
-- **More than Python.** The install and test commands are worked out from the repository's own files for Python,
-  Node, Go and Rust projects. A project whose toolchain is not installed is reported as unsupported instead of
-  failing halfway; the Cloud Run image includes Python and Node (npm, pnpm and Yarn) ([`project.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/project.py)).
-- **Local-only pushes and a clean environment.** API keys and GitHub tokens are removed from the environment that
-  shell commands and the cloned code inherit, and any push to a GitHub URL is sent to a host that does not exist ([`safety.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/safety.py)).
-- **The downloadable report.** A Markdown summary of the conversation, built in the browser from the messages and
-  shared state, with no model call ([`report.ts`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/src/lib/report.ts)).
+- **每条会话一个文件夹**。`ThreadScopedAntigravityAgent` 给每条会话自己的工作区与工具，并在删除会话时清理干净（[`agent.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/agent.py)）。
+- **保存的会话**。每次克隆、推送和运行之后，仓库、已推送的分支和 harness 的会话都会保存到 Cloud Storage，并在重启后恢复（[`snapshot.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/snapshot.py)）。
+- **安装防护**。通过 `run_command` 进行的包安装会在执行前被拒绝，因此所有安装都走 `install_dependencies`，PyTorch 始终安装为 CPU wheel（[`guards.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/guards.py)）。
+- **磁盘限额**。会话关闭时删除该会话的 Python venv（[`venvs.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/venvs.py)）。agent 自己的 uv 缓存在启动时修剪，超过上限时清空（[`uvcache.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/uvcache.py)）。
+- **不止 Python**。安装与测试命令会依据仓库自身的文件推导，支持 Python、Node、Go 和 Rust 项目。工具链未安装的项目会被报告为不支持，而不是中途失败；Cloud Run 镜像包含 Python 与 Node（npm、pnpm 和 Yarn）（[`project.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/project.py)）。
+- **仅限本地的推送与干净的环境**。shell 命令与被克隆代码继承的环境里移除了 API 密钥与 GitHub token，任何指向 GitHub URL 的推送都会被送往一个不存在的主机（[`safety.py`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/agent/src/repo_doctor/safety.py)）。
+- **可下载的报告**。一份会话的 Markdown 总结，在浏览器中由消息与共享状态构建，不调用模型（[`report.ts`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor/src/lib/report.ts)）。
 
-## CopilotKit Intelligence: save conversations and see Product Analytics
+## CopilotKit Intelligence：保存会话并查看 Product Analytics
 
-[CopilotKit Intelligence](/intelligence/quickstart) saves every conversation under the person who started it, and
-turns the runs into Product Analytics.
+[CopilotKit Intelligence](/intelligence/quickstart) 把每条会话保存在其发起人名下，并把运行转化为 Product Analytics。
 
-<Callout type="info" title="Let your coding agent handle setup">
-You can ask your coding agent to use the [CopilotKit CLI](/cli) to connect a CopilotKit Intelligence project to this
-app. It runs `npx copilotkit@latest login` and
-`npx copilotkit@latest project select --create repo-doctor --env-name .env`, which writes
-`CPK_INTELLIGENCE_API_KEY` to `.env`. Restart `pnpm dev` and a conversation list appears on the left.
+<Callout type="info" title="让编码智能体代劳配置">
+你可以让编码智能体使用 [CopilotKit CLI](/cli) 把一个 CopilotKit Intelligence 项目连接到本应用。它会运行 `npx copilotkit@latest login` 和 `npx copilotkit@latest project select --create repo-doctor --env-name .env`，把 `CPK_INTELLIGENCE_API_KEY` 写入 `.env`。重启 `pnpm dev` 后，左侧会出现会话列表。
 </Callout>
 
-These are the runtime lines left out earlier. With a key, the runtime connects CopilotKit Intelligence. Without one,
-runs stay in memory:
+这就是前面省略的运行时代码行。有密钥时，运行时会连接 CopilotKit Intelligence；没有时，运行只留在内存中：
 
 ```ts title="src/app/api/copilotkit/[[...slug]]/route.ts"
 const runtime = new CopilotRuntime({
@@ -866,41 +770,38 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-### Threads
+### 线程
 
-Every conversation is saved as a thread under the person who started it:
+每条会话都作为线程保存在发起人名下：
 
-- The name you type in the navbar becomes the user id, and `identifyUser` passes it with every run.
-- The conversation list on the left comes from [`useThreads`](/reference/hooks/useThreads). You can archive or delete a
-  conversation from it.
-- Use the same name on another device to pick up where you left off, with the cards, test results and approvals.
+- 你在导航栏输入的名字成为 user id，`identifyUser` 会随每次运行传递它。
+- 左侧的会话列表来自 [`useThreads`](/reference/hooks/useThreads)。你可以在其中归档或删除会话。
+- 在另一台设备上用同一个名字，即可带着卡片、测试结果和审批从中断处继续。
 
-See [AG-UI Streams](/AG-UI-Streams) for how they work.
+工作原理参见 [AG-UI Streams](/AG-UI-Streams)。
 
-In the CopilotKit Intelligence dashboard, open **Threads** to see every event of every run. A run that stopped for an
-approval ends with an `interrupt` outcome that holds the exact command waiting for an answer.
+在 CopilotKit Intelligence 仪表盘中打开 **Threads**，查看每次运行的每个事件。因审批而停下的运行会以 `interrupt` 结果结尾，其中保存着等待答复的确切命令。
 
 <Image
   src="/images/cookbook/antigravity-threads.webp"
-  alt="The Threads page in the CopilotKit Intelligence dashboard for the repo-doctor project, showing the conversation 'Why is CI failing on google-gemini/genai-processors?' as a list of run events. The expanded Run finished event has an interrupt outcome with the reason tool_approval and the install_dependencies command waiting for approval."
+  alt="CopilotKit Intelligence 仪表盘中 repo-doctor 项目的 Threads 页面，把会话“为什么 google-gemini/genai-processors 的 CI 在失败？”显示为运行事件列表。展开的 Run finished 事件带有 interrupt 结果，原因为 tool_approval，install_dependencies 命令正等待批准。"
   width={2822}
   height={1558}
   className="w-full rounded-xl border border-[var(--border)]"
 />
 
-The name is not a login: anyone who types it sees those conversations. Before real users get the link, replace
-`identifyUser` with the user from your own session.
+这个名字不是登录：任何输入它的人都能看到那些会话。在真实用户拿到链接之前，请用你自己会话中的用户替换 `identifyUser`。
 
 ### Product Analytics
 
-[Product Analytics](/intelligence/analytics) reads the same runs, with nothing extra to set up:
+[Product Analytics](/intelligence/analytics) 读取同样的运行，无需额外配置：
 
-- **Activity** shows how many people used the agent and which tools it calls most.
-- **Reliability** shows the error rate over time and the share of runs that finished without an error.
+- **Activity** 显示有多少人使用了 agent，以及它最常调用哪些工具。
+- **Reliability** 显示随时间变化的错误率和无错误完成的运行占比。
 
 <Image
   src="/images/cookbook/antigravity-analytics-activity.webp"
-  alt="The Product Analytics Activity tab: tiles for runtime events and active users, an event volume chart, active users per day, and the tool usage share across 900 tool calls."
+  alt="Product Analytics 的 Activity 标签页：运行时事件与活跃用户的指标卡、事件量图表、每日活跃用户，以及 900 次工具调用中的工具使用占比。"
   width={2000}
   height={1263}
   className="w-full rounded-xl border border-[var(--border)]"
@@ -908,22 +809,19 @@ The name is not a login: anyone who types it sees those conversations. Before re
 
 <Image
   src="/images/cookbook/antigravity-analytics-reliability.webp"
-  alt="The Product Analytics Reliability tab for the repo-doctor project: the error rate over time, error events, tool calls, and the share of clean runs."
+  alt="repo-doctor 项目的 Product Analytics Reliability 标签页：随时间变化的错误率、错误事件、工具调用，以及干净运行的占比。"
   width={2000}
   height={1268}
   className="w-full rounded-xl border border-[var(--border)]"
 />
 
-Active users are counted by the user id your app passes, so give each person a stable id.
+活跃用户按你的应用传递的 user id 统计，所以请给每个人一个稳定的 id。
 
-## Deploy to Google Cloud
+## 部署到 Google Cloud
 
-The whole app runs as one Cloud Run service: the UI, the CopilotKit runtime and the agent, built from one image.
-Secrets live in Secret Manager, and each conversation is saved to a Cloud Storage bucket. Run these from
-`examples/showcases/antigravity-repo-doctor` with the [gcloud CLI](https://cloud.google.com/sdk/docs/install), after
-`gcloud auth login`.
+整个应用作为一个 Cloud Run 服务运行：UI、CopilotKit 运行时和 agent 由同一个镜像构建。密钥存放在 Secret Manager，每条会话保存到一个 Cloud Storage bucket。`gcloud auth login` 之后，在 `examples/showcases/antigravity-repo-doctor` 目录用 [gcloud CLI](https://cloud.google.com/sdk/docs/install) 运行以下命令。
 
-Build the image:
+构建镜像：
 
 ```bash
 PROJECT=your-project
@@ -937,7 +835,7 @@ gcloud artifacts repositories create repo-doctor --repository-format=docker --lo
 gcloud builds submit --tag $IMAGE
 ```
 
-Put your keys in Secret Manager. This reads them from your `.env` without printing them:
+把密钥放进 Secret Manager。下面的命令从你的 `.env` 读取它们，但不会打印：
 
 ```bash
 secret() { grep "^$1=" .env | cut -d= -f2- | tr -d '\n"' | gcloud secrets create "$2" --data-file=-; }
@@ -946,7 +844,7 @@ secret CPK_INTELLIGENCE_API_KEY cpk-intelligence-api-key
 secret GITHUB_TOKEN github-token
 ```
 
-Create a service account that can only read those secrets and the bucket, and the bucket itself:
+创建一个只能读取那些密钥与 bucket 的服务账号，以及 bucket 本身：
 
 ```bash
 gcloud iam service-accounts create repo-doctor --display-name="Repo Doctor"
@@ -966,7 +864,7 @@ gcloud storage buckets add-iam-policy-binding gs://$BUCKET \
   --member=serviceAccount:$SA --role=roles/storage.objectUser
 ```
 
-Deploy it as a private service:
+把它部署为私有服务：
 
 ```bash
 gcloud run deploy repo-doctor \
@@ -982,55 +880,38 @@ APP_URL=$(gcloud run services describe repo-doctor --region $REGION --format='va
 gcloud run services update repo-doctor --region $REGION --update-env-vars APP_URL=$APP_URL
 ```
 
-Then open it on your machine through an authenticated proxy, at
-[http://localhost:8080](http://localhost:8080):
+然后在你自己的机器上通过认证代理打开它，地址是 [http://localhost:8080](http://localhost:8080)：
 
 ```bash
 gcloud run services proxy repo-doctor --region $REGION --port 8080
 ```
 
-The service runs exactly one instance that never scales to zero, because a conversation's live session and any
-approval card it waits on are held in memory. `--no-cpu-throttling` keeps the agent working while it waits for you.
+该服务恰好运行一个永不缩容到零的实例，因为一条会话的存活状态和它等待的审批卡片都保存在内存里。`--no-cpu-throttling` 让 agent 在等你时保持工作。
 
-After every run, the agent saves the conversation to its own folder in the bucket: the repository with its edits,
-the pushed fix branches, and the agent's session. If the service restarts, the next message in that conversation
-brings them back and the agent continues where it left off. Installed packages are not saved; the agent reinstalls
-them.
+每次运行之后，agent 会把会话保存到 bucket 中它自己的文件夹：带编辑的仓库、已推送的修复分支和 agent 的会话。如果服务重启，该会话中的下一条消息会把它们带回来，agent 从上次中断处继续。已安装的包不会被保存；agent 会重新安装。
 
-<Callout type="warning" title="Protect the service before going public">
-  Code from the cloned repositories runs inside the container with network access, and every message spends your
-  Gemini credits. Keep the service private and open it through `gcloud run services proxy`, or put it behind
-  [IAP](https://cloud.google.com/run/docs/securing/identity-aware-proxy-cloud-run). A production deployment needs
-  real authentication and a sandbox per conversation. Limiting outbound traffic to GitHub, Gemini and the package
-  registries is not set up here;
-  [the architecture notes](https://github.com/CopilotKit/CopilotKit/blob/main/examples/showcases/antigravity-repo-doctor/docs/architecture.md#locking-down-network-access)
-  describe how.
+<Callout type="warning" title="公开之前先保护服务">
+  被克隆仓库的代码会在容器内带网络访问运行，每条消息都消耗你的 Gemini 额度。请保持服务私有，并通过 `gcloud run services proxy` 打开，或放到 [IAP](https://cloud.google.com/run/docs/securing/identity-aware-proxy-cloud-run) 之后。生产部署需要真实的身份验证和每条会话独立的沙箱。把出站流量限制到 GitHub、Gemini 和包仓库在这里没有配置；
+  [架构说明](https://github.com/CopilotKit/CopilotKit/blob/main/examples/showcases/antigravity-repo-doctor/docs/architecture.md#locking-down-network-access)描述了怎么做。
 </Callout>
 
 <Image
   src="/images/cookbook/antigravity-cloud-run.webp"
-  alt="The repo-doctor service in the Google Cloud console's Cloud Run page, region us-central1, with the Observability tab showing request count, request latencies and container instance charts."
+  alt="Google Cloud 控制台 Cloud Run 页面中的 repo-doctor 服务，区域 us-central1，Observability 标签页显示请求数、请求延迟和容器实例图表。"
   width={3394}
   height={1544}
   className="w-full rounded-xl border border-[var(--border)]"
 />
 
-For logs, updates after a code change, and the public link option, see the
-[README](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor#deploy-to-google-cloud).
+日志、代码改动后的更新以及公开链接选项，参见 [README](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor#deploy-to-google-cloud)。
 
-## Where to go next
+## 后续阅读
 
-- **Add a tool.** Write another function in `tools.py` and a matching `useRenderTool` component. The AG-UI wiring
-  stays the same.
-- **Push to your own fork.** The example keeps pushes local on purpose, so pushing to a real repository needs a small
-  code change.
-- **Use your own repositories.** Swap the start-screen cards in `src/lib/example-repos.ts`.
-- **Read more.** [Human-in-the-loop](/human-in-the-loop) covers approvals and interrupts, and
-  [A2UI](/generative-ui/a2ui) covers agent-described UI.
+- **添加工具**。在 `tools.py` 里再写一个函数，并配上对应的 `useRenderTool` 组件。AG-UI 接线保持不变。
+- **推送到你自己的 fork**。示例刻意把推送限制在本地，推送到真实仓库需要小幅代码改动。
+- **使用你自己的仓库**。替换 `src/lib/example-repos.ts` 中的开始屏幕卡片。
+- **延伸阅读**。[人机协同（human-in-the-loop）](/human-in-the-loop)覆盖审批与中断，[A2UI](/generative-ui/a2ui) 覆盖由 agent 描述的 UI。
 
-## Get the code
+## 获取代码
 
-The finished example is in the CopilotKit repo at
-[`examples/showcases/antigravity-repo-doctor`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor).
-It includes the Python agent, the Next.js app, a Dockerfile for Cloud Run, and an end-to-end test with a scripted
-model.
+成品示例位于 CopilotKit 仓库的 [`examples/showcases/antigravity-repo-doctor`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/showcases/antigravity-repo-doctor)。它包含 Python agent、Next.js 应用、用于 Cloud Run 的 Dockerfile，以及一个使用脚本化模型的端到端测试。

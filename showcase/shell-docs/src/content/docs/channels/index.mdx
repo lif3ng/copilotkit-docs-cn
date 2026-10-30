@@ -1,114 +1,84 @@
 ---
-title: Channels
+title: 渠道
 nav_title: Overview
 icon: "lucide/MessagesSquare"
-description: Run one AG-UI agent in Slack, Microsoft Teams, and more through cloud-hosted Intelligence connections.
+description: 通过云端托管的 Intelligence 连接，在 Slack、Microsoft Teams 等渠道中运行一个 AG-UI 智能体。
 doc_type: explanation
 ---
 
-## Start with your coding agent
+## 从你的编程智能体开始
 
-Copy this prompt into your coding agent to choose a framework, set up your agent,
-and connect it to Slack or Microsoft Teams with CopilotKit Intelligence.
-Prefer to work through the setup yourself? Follow the guides below.
+把这段提示复制到你的编程智能体中，让它帮你选择框架、配置智能体，并通过 CopilotKit Intelligence 把它连接到 Slack 或 Microsoft Teams。更愿意自己完成配置？请遵循下面的指南。
 
 <ChannelsStartPrompt />
 
-Channels brings your agent into the conversations where work already happens.
-Your agent still runs in your infrastructure. CopilotKit Intelligence owns the
-channel connection (Slack, Teams, Discord, etc.), delivers each turn to your
-Channels SDK listener, and sends the response back as native channel UI.
+Channels 把你的智能体带入工作已经发生的对话之中。你的智能体依然运行在你自己的基础设施上。CopilotKit Intelligence 持有渠道连接（Slack、Teams、Discord 等），把每个回合投递给你的 Channels SDK 监听器，并把响应以原生渠道 UI 的形式发回去。
 
-## How Channels connects your agent
+## Channels 如何连接你的智能体
 
-Channels connects the agent and application logic you run to the provider
-connection managed by CopilotKit Intelligence. The diagram shows the boundaries
-between those systems and the path each message takes.
+Channels 把你运行的智能体与应用逻辑，连接到由 CopilotKit Intelligence 管理的提供方连接。下图展示了这些系统之间的边界，以及每条消息经过的路径。
 
 <Image
   src="/images/channels/channels-architecture-light.png"
-  alt="Channels architecture showing agent frameworks connected through AG-UI and the CopilotKit Runtime to the Channels SDK, with the channel runner — CopilotKit Intelligence's managed runner or your own — connecting to Slack, Microsoft Teams, WhatsApp, Discord, and more."
+  alt="Channels 架构图：智能体框架通过 AG-UI 和 CopilotKit Runtime 连接到 Channels SDK，再由渠道运行器——CopilotKit Intelligence 的托管运行器或你自己的运行器——连接到 Slack、Microsoft Teams、WhatsApp、Discord 等。"
   width={4000}
   height={2608}
   className="block dark:hidden my-8 w-full rounded-xl"
 />
 <Image
   src="/images/channels/channels-architecture-dark.png"
-  alt="Channels architecture showing agent frameworks connected through AG-UI and the CopilotKit Runtime to the Channels SDK, with the channel runner — CopilotKit Intelligence's managed runner or your own — connecting to Slack, Microsoft Teams, WhatsApp, Discord, and more."
+  alt="Channels 架构图：智能体框架通过 AG-UI 和 CopilotKit Runtime 连接到 Channels SDK，再由渠道运行器——CopilotKit Intelligence 的托管运行器或你自己的运行器——连接到 Slack、Microsoft Teams、WhatsApp、Discord 等。"
   width={4000}
   height={2608}
   className="hidden dark:block my-8 w-full rounded-xl"
 />
 
-As explained in the [CopilotKit Intelligence overview](/intelligence/overview),
-the dividing line between CopilotKit open source and CopilotKit Intelligence
-is durable data: functionality that runs without it is open source, while
-functionality built on connections to durable data — databases and the state
-kept in them — is part of CopilotKit Intelligence. A channel runner needs
-durable data to run correctly in production: simultaneous participants, race
-conditions, retries, and delivery guarantees all depend on it. CopilotKit
-Intelligence provides the managed channel runner, and channels running on it
-also get the rest of CopilotKit Intelligence, including Product Analytics,
-Automatic Learning, and governance. You can absolutely build and operate your
-own channel runner on the open-source Channels SDK — you implement the
-durable-data layer yourself.
+正如 [CopilotKit Intelligence 概览](/intelligence/overview)中所解释的，CopilotKit 开源版与 CopilotKit Intelligence 的分界线是持久化数据：不依赖它即可运行的功能属于开源版，而建立在持久化数据连接之上的功能——数据库及其中保存的状态——则属于 CopilotKit Intelligence。渠道运行器要在生产环境中正确运行就需要持久化数据：并发的参与者、竞态条件、重试与投递保证都依赖它。CopilotKit Intelligence 提供托管的渠道运行器，运行在其上的渠道还能获得 CopilotKit Intelligence 的其余能力，包括 Product Analytics、Automatic Learning 与治理。你当然可以在开源的 Channels SDK 上构建并运营自己的渠道运行器——只是持久化数据层要由你自己实现。
 
 <OpsPlatformCTA
   variant="inline"
-  title="More channels are on the way"
-  body="Slack and Microsoft Teams are generally available on cloud-hosted Intelligence. Direct SDK adapters also support Teams, Discord, and WhatsApp."
-  ctaLabel="Book time with an engineer"
+  title="更多渠道正在路上"
+  body="Slack 和 Microsoft Teams 已在云端托管的 Intelligence 上正式可用。直连 SDK 适配器也支持 Teams、Discord 和 WhatsApp。"
+  ctaLabel="预约工程师时间"
   surface="docs_channels_more_channels_contact"
   href="https://copilotkit.ai/talk-to-an-engineer"
   analyticsEvent="talk_to_us_clicked"
 />
 
-Each message moves through the same five stages:
+每条消息都经过同样的五个阶段：
 
-1. A person messages your app in Slack or Teams.
-2. CopilotKit Intelligence receives the platform event using the credentials
-   configured for that Channel.
-3. A persistent Intelligence gateway connection delivers the turn to your
-   long-running Channels SDK process.
-4. The SDK runs your agent over [AG-UI](/agentic-protocols/ag-ui), executes
-   channel tools, and renders the response.
-5. Intelligence sends the result back as native Slack Block Kit or Teams
-   Adaptive Card content.
+1. 有人在 Slack 或 Teams 中给你的应用发消息。
+2. CopilotKit Intelligence 使用为该 Channel 配置的凭据接收平台事件。
+3. 一条常驻的 Intelligence 网关连接把该回合投递给你长驻的 Channels SDK 进程。
+4. SDK 通过 [AG-UI](/agentic-protocols/ag-ui) 运行你的智能体，执行渠道工具，并渲染响应。
+5. Intelligence 把结果以原生 Slack Block Kit 或 Teams Adaptive Card 内容的形式发回。
 
-This split keeps platform credentials out of your agent process without moving
-your agent, tools, or business logic into CopilotKit.
+这种切分让平台凭据远离你的智能体进程，同时无需把你的智能体、工具或业务逻辑搬进 CopilotKit。
 
-| You run                                | CopilotKit Intelligence manages               |
+| 你自己运行                             | CopilotKit Intelligence 托管                  |
 | -------------------------------------- | --------------------------------------------- |
-| The agent and its model credentials    | Slack and Teams platform credentials          |
-| A long-running Channels SDK listener   | Platform ingress and credentialed delivery    |
-| Tools and approval business logic      | Runtime registration, health, and reconnects  |
-| Deployment, logs, and application auth | Conversation-history delivery to the listener |
+| 智能体及其模型凭据                      | Slack 和 Teams 平台凭据                        |
+| 长驻的 Channels SDK 监听器              | 平台入口与带凭据的投递                         |
+| 工具与审批业务逻辑                      | 运行时注册、健康状态与重连                     |
+| 部署、日志与应用侧身份验证              | 向监听器投递对话历史                           |
 
-## Production self-hosting: Run CopilotKit Intelligence in your own infrastructure
+## 生产级自托管：在你自己的基础设施中运行 CopilotKit Intelligence
 
-Production self-hosting keeps your Channels configuration, provider credentials,
-delivery state, and platform operations inside your network, giving your
-organization control over data residency, security, and infrastructure.
-You can fully self-host the Channels SDK. Onboarding guides are coming
-soon; in the meantime, if you're comfortable with Docker and Kubernetes, go
-right ahead — and we're happy to help.
-<DocsTrackedLink href="https://copilotkit.ai/talk-to-an-engineer" surface="docs_channels_self_hosting_contact">Book time with a CopilotKit engineer</DocsTrackedLink>.
+生产级自托管把你的 Channels 配置、提供方凭据、投递状态与平台运维都保留在你自己的网络内，让你的组织掌控数据驻留、安全与基础设施。你完全可以自托管 Channels SDK。上手指南即将推出；在此期间，如果你熟悉 Docker 和 Kubernetes，尽可以放手去做——我们也乐意提供帮助。
+<DocsTrackedLink href="https://copilotkit.ai/talk-to-an-engineer" surface="docs_channels_self_hosting_contact">预约 CopilotKit 工程师的时间</DocsTrackedLink>。
 
-## Next step
+## 下一步
 
 <FrontendOnly frontend="slack">
 
-Continue to [Configure the Channel in Intelligence](/channels/intelligence) to
-create the managed Slack connection.
+继续阅读[在 Intelligence 中配置 Channel](/channels/intelligence)，创建托管的 Slack 连接。
 
 </FrontendOnly>
 
 <FrontendOnly frontend="teams">
 
-Continue to [Configure the Channel in Intelligence](/channels/intelligence) to
-create the managed Microsoft Teams connection.
+继续阅读[在 Intelligence 中配置 Channel](/channels/intelligence)，创建托管的 Microsoft Teams 连接。
 
 </FrontendOnly>
 
-To post an app component as an image, see [Posting JSX as images](/channels/posting-jsx-as-images).
+要把应用组件作为图片发送，请参阅[将 JSX 作为图片发送](/channels/posting-jsx-as-images)。

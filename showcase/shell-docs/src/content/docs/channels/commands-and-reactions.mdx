@@ -1,52 +1,37 @@
 ---
-title: Commands and reactions
+title: 命令与表情回应
 icon: "lucide/Command"
-description: Understand managed command routing and handle provider reactions through typed Channels APIs.
+description: 了解托管命令路由机制，并通过类型化的 Channels API 处理提供方的表情回应。
 doc_type: how-to
 ---
 
-Managed Slack and Teams treat leading-slash text as ordinary message content.
-Reaction handlers let an agent respond to lightweight feedback without treating
-every emoji as a new chat message.
+托管的 Slack 和 Microsoft Teams 会把以斜杠开头的文本当作普通消息内容。表情回应处理器让智能体能够响应轻量级反馈，而无需把每个 emoji 都当作新的聊天消息。
 
-## Managed commands are not dispatched
+## 托管命令不会被分发
 
-The generated Slack manifest does not register slash commands, and managed
-Teams does not interpret `/name` prefixes. A message such as `/triage customer`
-therefore reaches `onMessage` or `onMention` as normal text.
+生成的 Slack manifest 不会注册斜杠命令，托管的 Microsoft Teams 也不会解释 `/name` 前缀。因此，像 `/triage customer` 这样的消息会以普通文本的形式到达 `onMessage` 或 `onMention`。
 
-`defineChannelCommand`, `commands`, and `onCommand` remain available for direct
-adapters that emit native command events. They do not opt a managed Slack or
-Teams Channel into command routing.
+`defineChannelCommand`、`commands` 和 `onCommand` 仍可用于会发出原生命令事件的直连适配器。它们不会让托管的 Slack 或 Microsoft Teams Channel 启用命令路由。
 
-## Route mentions and ordinary messages
+## 路由提及与普通消息
 
-Register `onMessage` for ordinary provider messages. A bot mention selects
-`onMention` when that handler is registered; otherwise the mention falls back
-to `onMessage`. Non-mention messages select `onMessage`, and one inbound message
-runs exactly one of those handler paths.
+为来自提供方的普通消息注册 `onMessage`。当 `onMention` 已注册时，机器人被提及会选中 `onMention`；否则该提及会回退到 `onMessage`。非提及消息会选中 `onMessage`，且一条入站消息只会运行其中一条处理器路径。
 
 <FrontendOnly frontend="slack">
 
-The current generated manifest subscribes to ordinary channel, private-channel,
-group-DM, and direct-message events in addition to `app_mention`. A Slack app
-created from an older manifest may need the current event subscriptions and bot
-scopes applied, followed by an app reinstall.
+当前生成的 manifest 除了订阅 `app_mention` 之外，还会订阅普通频道、私有频道、群组私聊（group DM）和私聊（DM）事件。由旧版 manifest 创建的 Slack 应用可能需要套用当前的事件订阅与机器人 scope，然后重新安装该应用。
 
 </FrontendOnly>
 
 <FrontendOnly frontend="teams">
 
-Teams messages use the same `onMessage` and `onMention` selection after managed
-ingress normalizes the activity.
+在托管入口对活动进行规范化处理后，Microsoft Teams 消息会使用同样的 `onMessage` 与 `onMention` 选择逻辑。
 
 </FrontendOnly>
 
-## Handle incoming reactions
+## 处理收到的表情回应
 
-Known Slack shortcodes and Teams reaction tokens are normalized to portable
-names. The portable outbound set is `thumbs_up`, `thumbs_down`, `heart`, `fire`,
-`eyes`, `refresh`, `thinking`, and `tada`.
+已知的 Slack shortcode 和 Microsoft Teams 表情回应 token 会被规范化为可移植名称。可移植的出站集合为 `thumbs_up`、`thumbs_down`、`heart`、`fire`、`eyes`、`refresh`、`thinking` 和 `tada`。
 
 ```ts title="channel.ts"
 channel.onReaction("eyes", async ({ added, thread, user }) => {
@@ -58,7 +43,7 @@ channel.onReaction("eyes", async ({ added, thread, user }) => {
 });
 ```
 
-Omit the emoji argument to receive every added and removed reaction:
+省略 emoji 参数即可接收所有新增与移除的表情回应：
 
 ```ts title="channel.ts"
 channel.onReaction(async ({ emoji, rawEmoji, added, thread }) => {
@@ -67,39 +52,29 @@ channel.onReaction(async ({ emoji, rawEmoji, added, thread }) => {
 });
 ```
 
-`emoji` is the normalized value when the SDK recognizes it. `rawEmoji` retains
-the provider token for custom or unmapped emoji.
+当 SDK 能够识别时，`emoji` 是规范化后的值。`rawEmoji` 则保留提供方的原始 token，用于自定义或未映射的 emoji。
 
-<Callout type="info" title="Output-free handlers are supported">
-  The SDK finalizes and acknowledges a managed turn even when its handler posts
-  no message. Managed delivery is still at-least-once, so make silent audit or
-  database writes idempotent.
+<Callout type="info" title="支持无输出的处理器">
+  即使处理器没有发送任何消息，SDK 也会完结并确认一个托管回合。托管交付仍为至少一次（at-least-once），因此请让静默的审计或数据库写入保持幂等。
 </Callout>
 
 <FrontendOnly frontend="slack">
 
-The generated Slack manifest subscribes to `reaction_added` and
-`reaction_removed`. Managed ingress routes reactions on bot output and on
-user-authored roots and replies back to their existing managed conversation;
-reactions on unrelated workspace messages are ignored.
+生成的 Slack manifest 会订阅 `reaction_added` 和 `reaction_removed`。托管入口会把机器人输出以及用户发出的根消息和回复上的表情回应，路由回其所在的既有托管对话；工作区中无关消息上的表情回应会被忽略。
 
 </FrontendOnly>
 
 <FrontendOnly frontend="teams">
 
-Teams `messageReaction` activities are normalized through the same handler.
-Classic reactions such as Like and Heart, plus recognized modern emoji tokens,
-map to the SDK's portable names.
+Microsoft Teams 的 `messageReaction` 活动会经过同一个处理器规范化。像“赞”（Like）和“心”（Heart）这类经典表情回应，以及可识别的现代 emoji token，都会映射到 SDK 的可移植名称。
 
-Outbound reaction add/remove uses Microsoft's public-preview reaction API.
-Managed setup verifies that API for the tenant and remains not ready when the
-tenant cannot use it.
+出站表情回应的新增/移除使用 Microsoft 的公开预览版表情回应 API。托管配置会针对租户验证该 API；当租户无法使用它时，配置将保持未就绪状态。
 
 </FrontendOnly>
 
-## Attach a reaction handler to one message
+## 为单条消息附加表情回应处理器
 
-Use `Message.onReaction` when only one posted component should react:
+当只有某一个已发送的组件需要对表情回应做出响应时，使用 `Message.onReaction`：
 
 ```tsx title="feedback-card.tsx"
 import { Message, Section } from "@copilotkit/channels/ui";
@@ -122,12 +97,9 @@ export function FeedbackCard({ answerId }: { answerId: string }) {
 }
 ```
 
-Register `FeedbackCard` in `createChannel({ components: [FeedbackCard] })`.
-Surviving a process restart also requires a durable `StateStore`, because the
-SDK must reload the component snapshot that owns the callback.
+在 `createChannel({ components: [FeedbackCard] })` 中注册 `FeedbackCard`。要在进程重启后继续生效，还需要一个持久化的 `StateStore`，因为 SDK 必须重新加载拥有该回调的组件快照。
 
-Add or remove the bot's reaction with the delivery-scoped reference from the
-current message or transcript:
+使用当前消息或会话记录中带投递作用域的引用，添加或移除机器人的表情回应：
 
 ```ts title="channel.ts"
 channel.onMessage(async ({ message, thread }) => {
@@ -136,11 +108,6 @@ channel.onMessage(async ({ message, thread }) => {
 });
 ```
 
-The portable set works on managed Slack and Teams. A provider-native string is
-allowed when your code branches on the native provider: use `message.platform`
-in a message handler or `reaction.thread.platform` in `onReaction`.
-Unsupported values fail explicitly.
+可移植集合适用于托管的 Slack 和 Microsoft Teams。当你的代码需要针对原生提供方分支处理时，允许使用提供方原生的字符串：在消息处理器中使用 `message.platform`，或在 `onReaction` 中使用 `reaction.thread.platform`。不支持的值会显式报错。
 
-See the [command reference](/reference/channels/functions/defineChannelCommand)
-and [Message reference](/reference/channels/components/Message) for the complete
-handler shapes.
+完整的处理器形态请参阅[命令参考](/reference/channels/functions/defineChannelCommand)和 [Message 参考](/reference/channels/components/Message)。

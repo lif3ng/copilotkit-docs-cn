@@ -1,22 +1,22 @@
 ---
-title: "Overview"
+title: "概览"
 icon: "lucide/Zap"
-description: "CopilotKit connects to your agents through the Agentic Protocol of your choice"
+description: "CopilotKit 通过你选择的智能体协议连接到你的智能体"
 ---
 
-CopilotKit is fully compatible with three major agentic protocols: AG-UI, MCP, and A2A.  
-Learn about these protocols and how to connect your app to agents which support them using CopilotKit.
+CopilotKit 完全兼容三大主流智能体协议：AG-UI、MCP 和 A2A。  
+了解这些协议，以及如何使用 CopilotKit 将你的应用连接到支持它们的智能体。
 
 <Image
   src="/images/venn-agentic-light.svg"
-  alt="Agentic Protocols - Venn Diagram"
+  alt="智能体协议 - 维恩图"
   width={4096}
   height={2304}
   className="block dark:hidden mb-8 w-full mx-auto"
 />
 <Image
   src="/images/venn-agentic-dark.svg"
-  alt="Agentic Protocols - Venn Diagram"
+  alt="智能体协议 - 维恩图"
   width={4096}
   height={2304}
   className="hidden dark:block mb-8 w-full mx-auto"
@@ -33,7 +33,7 @@ Learn about these protocols and how to connect your app to agents which support 
           borderBottom: "2px solid #e5e7eb",
         }}
       >
-        Connection
+        连接
       </th>
       <th
         style={{
@@ -43,7 +43,7 @@ Learn about these protocols and how to connect your app to agents which support 
           borderBottom: "2px solid #e5e7eb",
         }}
       >
-        Protocol
+        协议
       </th>
       <th
         style={{
@@ -53,7 +53,7 @@ Learn about these protocols and how to connect your app to agents which support 
           borderBottom: "2px solid #e5e7eb",
         }}
       >
-        Purpose
+        用途
       </th>
     </tr>
   </thead>
@@ -66,7 +66,7 @@ Learn about these protocols and how to connect your app to agents which support 
           verticalAlign: "top",
         }}
       >
-        <strong>Agent ↔ User Interaction</strong>
+        <strong>智能体 ↔ 用户交互</strong>
       </td>
       <td
         style={{
@@ -89,8 +89,7 @@ Learn about these protocols and how to connect your app to agents which support 
         (Agent–User Interaction Protocol)
       </td>
       <td style={{ padding: "12px", borderBottom: "1px solid #e5e7eb" }}>
-        The open, event-based standard that connects agents to user-facing
-        applications — enabling real-time, multimodal, interactive experiences.
+        开放、基于事件的标准，用于将智能体连接到面向用户的应用——实现实时、多模态的交互体验。
       </td>
     </tr>
     <tr>
@@ -101,7 +100,7 @@ Learn about these protocols and how to connect your app to agents which support 
           verticalAlign: "top",
         }}
       >
-        <strong>Agent ↔ Tools & Data</strong>
+        <strong>智能体 ↔ 工具与数据</strong>
       </td>
       <td
         style={{
@@ -124,8 +123,7 @@ Learn about these protocols and how to connect your app to agents which support 
         (Model Context Protocol)
       </td>
       <td style={{ padding: "12px", borderBottom: "1px solid #e5e7eb" }}>
-        Open standard that lets agents securely connect to external systems —
-        tools, workflows, and data sources.
+        开放标准，让智能体能够安全地连接外部系统——工具、工作流与数据源。
       </td>
     </tr>
     <tr>
@@ -136,7 +134,7 @@ Learn about these protocols and how to connect your app to agents which support 
           verticalAlign: "top",
         }}
       >
-        <strong>Agent ↔ Agent</strong>
+        <strong>智能体 ↔ 智能体</strong>
       </td>
       <td
         style={{
@@ -159,65 +157,61 @@ Learn about these protocols and how to connect your app to agents which support 
         (Agent to Agent)
       </td>
       <td style={{ padding: "12px", borderBottom: "1px solid #e5e7eb" }}>
-        Defines how agents coordinate and share work across distributed agentic
-        systems.
+        定义智能体如何在分布式智能体化系统中协调并分担工作。
       </td>
     </tr>
     <tr>
       <td style={{ padding: "12px", verticalAlign: "top" }}>
-        <strong>Agent ↔ Generative UI </strong>
+        <strong>智能体 ↔ 生成式 UI </strong>
       </td>
       <td style={{ padding: "12px", verticalAlign: "top" }}>
-        <strong>[A2UI](/generative-ui/a2ui)</strong> (Google)
+        <strong>[A2UI](/generative-ui/a2ui)</strong>（Google）
         <br />
-        <strong>[MCP Apps](/generative-ui/mcp-apps)</strong> (MCP
-        Ecosystem)
+        <strong>[MCP Apps](/generative-ui/mcp-apps)</strong>（MCP 生态）
         <br />
-        <strong>Open-JSON-UI</strong> (OpenAI)
+        <strong>Open-JSON-UI</strong>（OpenAI）
       </td>
       <td style={{ padding: "12px" }}>
-        Declarative, LLM-friendly [generative UI specs](/generative-ui)
-        that define <em>what</em> to render and how to structure agent responses
-        visually. CopilotKit fully supports all of these.
+        声明式、对 LLM 友好的[生成式 UI 规范](/generative-ui)，定义渲染*什么*以及如何以可视化方式组织智能体响应。CopilotKit 完整支持以上所有规范。
       </td>
     </tr>
   </tbody>
 </table>
 
-## **Mixing and Matching Protocols**
+## **协议混搭**
 
-CopilotKit lets developers connect to any of these protocols **directly or in combination.**
-CopilotKit can connect through any of the Interaction Protocols to your agentic backend.
+CopilotKit 让开发者能够**直接或组合使用**以上任意协议。
+CopilotKit 可以通过任意一种交互协议连接到你的智能体后端。
 
 <Image
   src="/images/any-agentic-backend-light.png"
-  alt="Any Agentic Backend"
+  alt="任意智能体后端"
   width={4096}
   height={2304}
   className="block dark:hidden mb-8 w-full mx-auto"
 />
 <Image
   src="/images/any-agentic-backend-dark.png"
-  alt="Any Agentic Backend"
+  alt="任意智能体后端"
   width={4096}
   height={2304}
   className="hidden dark:block mb-8 w-full mx-auto"
 />
 
-Or, since AG-UI also includes **handshakes** with both **MCP** and **A2A**, CopilotKit can connect to MCP or A2A supporting agents through AG-UI.
+另外，由于 AG-UI 本身也内置了与 **MCP** 和 **A2A** 的**握手**机制，CopilotKit 可以通过 AG-UI 连接支持 MCP 或 A2A 的智能体。
 
-This means that if your host agent connects to subagents using **MCP** or **A2A**, their UI properties can be propagated all the way through to the user-facing application — while preserving **full security, policy, and observability controls.**
+这意味着，如果你的宿主智能体通过 **MCP** 或 **A2A** 连接子智能体，它们的 UI 属性可以一路传递到面向用户的应用——同时保留**完整的安全、策略与可观测性控制**。
 
 <Image
   src="/images/mcp-and-a2a-through-agui-light.png"
-  alt="MCP and A2A through AG-UI"
+  alt="通过 AG-UI 使用 MCP 与 A2A"
   width={4096}
   height={2304}
   className="block dark:hidden mt-8 w-full mx-auto"
 />
 <Image
   src="/images/mcp-and-a2a-through-agui-dark.png"
-  alt="MCP and A2A through AG-UI"
+  alt="通过 AG-UI 使用 MCP 与 A2A"
   width={4096}
   height={2304}
   className="hidden dark:block mt-8 w-full mx-auto"

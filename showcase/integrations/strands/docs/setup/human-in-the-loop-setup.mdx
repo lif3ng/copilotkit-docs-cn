@@ -1,13 +1,8 @@
 <Steps>
   <Step>
-    ### Pause a tool with Strands' native interrupt
+    ### 使用 Strands 原生中断暂停工具
 
-    AWS Strands ships a first-class
-    [interrupt primitive](https://strandsagents.com/docs/user-guide/concepts/interrupts/).
-    A tool declared with `@tool(context=True)` calls
-    `tool_context.interrupt(name, reason=...)`, which halts the agent loop and
-    hands `reason` to the client as the interrupt payload. The AG-UI adapter
-    finishes the run with `RUN_FINISHED` carrying `outcome.type == "interrupt"`.
+    AWS Strands 提供了一流的[中断原语](https://strandsagents.com/docs/user-guide/concepts/interrupts/)（interrupt primitive）。通过 `@tool(context=True)` 声明的工具可以调用 `tool_context.interrupt(name, reason=...)`，该调用会暂停智能体循环，并把 `reason` 作为中断载荷交给客户端。AG-UI 适配器随后以携带 `outcome.type == "interrupt"` 的 `RUN_FINISHED` 结束本次运行。
 
     <DemoCode
       file="src/agents/interrupt_agent.py"
@@ -15,29 +10,19 @@
       title="src/agents/interrupt_agent.py"
     />
 
-    The resume payload arrives wrapped: an answer as `{"response": ...}`, a
-    client-side cancel as `{"cancelled": True}`. The adapter wraps it because
-    Strands' resume gate is truthiness-based, so a bare falsy answer would
-    re-raise the same interrupt forever.
+    恢复载荷送达时是包装过的：答案形如 `{"response": ...}`，客户端取消形如 `{"cancelled": True}`。适配器之所以要做包装，是因为 Strands 的恢复闸门基于真值判断，裸的假值答案会导致同一个中断被永久反复触发。
 
   </Step>
   <Step>
-    ### Keep the pausing tool off a client-executed name
+    ### 暂停型工具不要占用客户端执行的名称
 
-    `useHumanInTheLoop` registers its tool on the FRONTEND, so a name used
-    there cannot also be a pausing backend tool. This showcase mounts a
-    dedicated interrupt agent and points the interrupt demos' agent names at
-    it, leaving `schedule_meeting` on the shared agent free for the
-    frontend-tool flow.
+    `useHumanInTheLoop` 在前端（FRONTEND）注册其工具，因此前端用过的名称不能再同时用作暂停型后端工具。本演示站挂载了一个专用的中断智能体，并把中断演示的智能体名称指向它，从而让共享智能体上的 `schedule_meeting` 空出来，供前端工具流程使用。
 
   </Step>
   <Step>
-    ### Resume in the same process, or across a restart
+    ### 在同一进程中恢复，或跨重启恢复
 
-    Pause and resume on the same running process need no extra wiring. For a
-    resume that survives a restart, give the agent a Strands `SessionManager`
-    through `StrandsAgentConfig.session_manager_provider`; the adapter
-    persists its interrupt checkpoint into that session.
+    在同一个运行中的进程里暂停和恢复无需额外接线。要让恢复操作在重启后依然有效，请通过 `StrandsAgentConfig.session_manager_provider` 为智能体提供一个 Strands `SessionManager`；适配器会把中断检查点持久化到该会话中。
 
   </Step>
 </Steps>

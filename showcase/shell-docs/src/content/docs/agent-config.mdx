@@ -1,6 +1,6 @@
 ---
-title: Agent Config
-description: Forward typed configuration from your UI into the agent's reasoning loop.
+title: 智能体配置
+description: 将类型化的配置从你的 UI 传递到智能体的推理循环中。
 icon: "lucide/SlidersHorizontal"
 snippet_cell: agent-config
 frontend: universal
@@ -8,36 +8,33 @@ frontend: universal
 
 <InlineDemo demo="agent-config" />
 
-You have a working agent and want the user to be able to tune how it behaves: tone, expertise level, response length, language, persona. By the end of this guide, your UI will own a typed config object that the agent reads on every run and rebuilds its system prompt from.
+你已经有一个可用的智能体，希望用户能够调整它的行为方式：语气、专业水平、响应长度、语言、人设。学完本指南后，你的 UI 将持有一个类型化的配置对象，智能体在每次运行时都会读取它并据此重建系统提示。
 
-## When to use this
+## 何时使用
 
-Reach for agent config whenever the agent's behaviour depends on user-controllable settings that don't fit naturally as chat input:
+只要智能体的行为依赖于不适合作为聊天输入的用户可控设置，就适合使用智能体配置：
 
-- **Tone, voice, persona**: "playful", "formal", "casual"
-- **Expertise level**: "beginner", "intermediate", "expert"
-- **Response shape**: short / medium / long, structured / prose, language
-- **Domain switches**: which knowledge base to consult, which tool subset to enable
+- **语气、语调、人设**：“俏皮”“正式”“随和”
+- **专业水平**：“初学者”“中级”“专家”
+- **响应形态**：短 / 中 / 长、结构化 / 散文式、语言
+- **领域切换**：查询哪个知识库、启用哪部分工具子集
 
-If the values are a *channel* the user occasionally tunes (a settings panel, a toolbar of selects), agent config is the right shape. If the values are *content* the agent should write back to (notes, a document, a plan), use [Shared State](/shared-state) instead.
+如果这些值是用户偶尔调整的*渠道*（设置面板、一排下拉选择器），那么智能体配置就是正确的形态。如果这些值是智能体应当写回的*内容*（笔记、文档、计划），请改用[共享状态](/shared-state)。
 
-How agent config flows from the UI into the agent's reasoning loop depends on your runtime architecture. Agents living behind a runtime read it from agent state on every run, while in-process agents receive the same object as forwarded properties on the provider — same UX, slightly different wiring on each side.
+智能体配置如何从 UI 流入智能体的推理循环，取决于你的运行时架构。位于运行时之后的智能体在每次运行时从智能体状态中读取它，而进程内智能体则以转发属性（forwarded properties）的形式在提供方上接收同一个对象——用户体验相同，只是两侧的接线略有不同。
 
 <WhenFrameworkHas flag="agent_config_pattern" equals="shared-state">
 
-## How it works
+## 工作原理
 
 <FrameworkSetup concept="agent-config-setup" />
 
-Agent config is a typed object the frontend owns and publishes to the agent as
-runtime context. The backend reads that context entry and turns it into a
-system prompt.
+智能体配置是一个由前端持有、并作为运行时上下文发布给智能体的类型化对象。后端读取该上下文条目并将其转换为系统提示。
 
 <FrontendOnly frontend="react">
-Hold the typed config in React state, then mirror every change into the agent
-through `useAgentContext`:
+将类型化配置保存在 React state 中，然后通过 `useAgentContext` 把每次变更同步给智能体：
 
-```tsx title="frontend/src/app/page.tsx — UI publishes the typed config"
+```tsx title="frontend/src/app/page.tsx — UI 发布类型化配置"
 function ConfigContextRelay({ config }: { config: AgentConfig }) {
   useAgentContext({
     description: "Agent response preferences",
@@ -53,9 +50,7 @@ function ConfigContextRelay({ config }: { config: AgentConfig }) {
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
-Hold the config in an Angular signal and publish a computed context with
-`connectAgentContext`. The runnable Angular Showcase uses this exact
-signal-to-context bridge:
+将配置保存在 Angular signal 中，并通过 `connectAgentContext` 发布计算得到的上下文。可运行的 Angular Showcase 正是使用了这个从 signal 到上下文的桥接：
 
 <AngularSnippet
   region="agent-config-context"
@@ -63,33 +58,28 @@ signal-to-context bridge:
 />
 </FrontendOnly>
 
-The framework setup above shows the exact backend bridge for the selected
-agent. In every framework, the flow is the same: read the latest valid context
-from the current run and use it to build the system prompt for that turn.
+上面的框架配置展示了所选智能体对应的确切后端桥接。在所有框架中，流程都是一样的：从当前运行中读取最新的有效上下文，并用它构建该轮次的系统提示。
 
-```text title="Backend flow"
+```text title="后端流程"
 config = latestValidConfig(currentRun.context)
 systemPrompt = buildSystemPrompt(config)
 model.invoke(systemPrompt, currentUserRequest)
 ```
 
-The agent reads the latest typed config at the start of every turn, rebuilds the system prompt, runs the turn. This is the same shape as the [shared-state write-side pattern](/shared-state#writing-to-agent-state); agent config is just a specific use of that pattern with a UI-owned typed object on top.
+智能体在每轮开始时读取最新的类型化配置，重建系统提示，然后执行该轮次。这与[共享状态的写入侧模式](/shared-state#writing-to-agent-state)是同一个形态；智能体配置只是该模式的一种具体用法，在其上叠加了一个由 UI 持有的类型化对象。
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="agent_config_pattern" equals="runtime-properties">
 
-## How it works
+## 工作原理
 
-The runtime owns the agent in-process, so config travels through frontend
-runtime properties rather than agent state. There's no separate backend service
-to push state into: the typed object becomes the input to the agent factory
-directly.
+运行时以进程内方式持有智能体，因此配置经由前端运行时属性而非智能体状态传递。不需要单独的后端服务来推送状态：类型化对象直接成为智能体工厂的输入。
 
 <FrontendOnly frontend="react">
-Pass the typed object as `properties` on `<CopilotKit>`:
+将类型化对象作为 `properties` 传给 `<CopilotKit>`：
 
-```tsx title="frontend/src/app/page.tsx — config flows through the provider"
+```tsx title="frontend/src/app/page.tsx — 配置经由提供方传递"
 <CopilotKit
   runtimeUrl="/api/copilotkit"
   properties={{ tone, expertise, responseLength }}
@@ -101,7 +91,7 @@ Pass the typed object as `properties` on `<CopilotKit>`:
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
-Update runtime properties whenever the Angular signal changes:
+每当 Angular signal 变化时更新运行时属性：
 
 ```ts title="src/app/agent-config.component.ts"
 import { Component, effect, inject, signal } from "@angular/core";
@@ -130,9 +120,9 @@ export class AgentConfigComponent {
 ```
 </FrontendOnly>
 
-The runtime hands the same object to the agent factory on every call as `input.forwardedProps`. The factory uses those fields to build a system prompt before returning the agent for that turn:
+运行时在每次调用时都会把同一个对象作为 `input.forwardedProps` 交给智能体工厂。工厂在返回该轮次的智能体之前，会用这些字段构建系统提示：
 
-```ts title="backend/agent factory — synthesise the system prompt per turn"
+```ts title="backend/agent factory — 每轮合成系统提示"
 export const agentConfigFactory = async (input: AgentFactoryInput) => {
   const { tone, expertise, responseLength } = input.forwardedProps ?? {};
   const systemPrompt = buildSystemPrompt(tone, expertise, responseLength);

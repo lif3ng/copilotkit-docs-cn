@@ -1,116 +1,107 @@
 ---
-title: Generative UI
+title: 生成式 UI
 icon: "lucide/Sparkles"
-description: How CopilotKit lets agents drive UI — the primitives it ships, what each one is for, and how to pick the right one.
+description: CopilotKit 如何让智能体驱动 UI——它提供了哪些原语、各自用途是什么，以及如何选对。
 doc_type: explanation
 ---
 
-Generative UI in CopilotKit is the set of primitives that let an agent decide what appears on the screen — from rendering a specific application component you've built, to composing layouts from a catalog, to embedding sandboxed UI shipped by an MCP server.
+CopilotKit 中的生成式 UI 是一组原语，让 agent 决定屏幕上出现什么——从渲染你构建的特定应用组件，到从目录中组合布局，再到嵌入 MCP 服务器随附的沙箱化 UI。
 
-## What CopilotKit ships
+## CopilotKit 提供了什么
 
-Six primitives. Each one solves a different problem.
+六种原语，各自解决不同的问题。
 
-| Primitive | What it does |
+| 原语 | 作用 |
 |---|---|
-| **[Components as Tools](/generative-ui/tool-based)** | Register an application component as a frontend tool; the agent calls it and CopilotKit renders it inline with typed inputs. |
-| **[Tool Call Rendering](/generative-ui/tool-rendering)** | Map your agent's existing backend tool calls to custom UI cards showing live status, arguments, and results. |
-| **[State Rendering](/generative-ui/state-rendering)** | Subscribe to the agent's streamed state and re-render UI as values arrive. |
-| **[Reasoning](/generative-ui/reasoning)** | Render the model's reasoning tokens inline as a first-class message type (default card, or fully custom). |
-| **[A2UI](/generative-ui/a2ui)** | Render UI from a declarative schema the agent emits, composed against a catalog you register. Two flavors: [Dynamic Schema](/generative-ui/a2ui/dynamic-schema) (LLM generates the schema) and [Fixed Schema](/generative-ui/a2ui/fixed-schema) (you author the schema, agent supplies data). |
-| **[MCP Apps](/generative-ui/mcp-apps)** | Embed UI that an MCP server ships alongside its tools, rendered in a sandboxed iframe. No frontend renderer required. |
+| **[组件即工具](/generative-ui/tool-based)** | 将应用组件注册为前端工具；agent 调用它，CopilotKit 以带类型的输入将其内联渲染。 |
+| **[工具调用渲染](/generative-ui/tool-rendering)** | 把 agent 现有的后端工具调用映射为自定义 UI 卡片，实时展示状态、参数和结果。 |
+| **[状态渲染](/generative-ui/state-rendering)** | 订阅 agent 流式传来的状态，值到达时重新渲染 UI。 |
+| **[推理过程](/generative-ui/reasoning)** | 把模型的推理 token 作为一等消息类型内联渲染（默认卡片或完全自定义）。 |
+| **[A2UI](/generative-ui/a2ui)** | 根据 agent 发出的声明式 schema 渲染 UI，并对照你注册的目录进行组合。两种形态：[动态 Schema](/generative-ui/a2ui/dynamic-schema)（LLM 生成 schema）与[固定 Schema](/generative-ui/a2ui/fixed-schema)（你编写 schema，agent 提供数据）。 |
+| **[MCP Apps](/generative-ui/mcp-apps)** | 嵌入 MCP 服务器随其工具一起提供的 UI，在沙箱化的 iframe 中渲染。无需前端渲染器。 |
 
 <FrontendOnly frontend="react">
 ### React API
 
-Use `useComponent` to register a React component as a frontend tool. Use
-`useRenderTool` when the tool runs on the backend and React only controls how
-the call appears.
+使用 `useComponent` 把 React 组件注册为前端工具。当工具在后端运行、React 只控制调用的呈现方式时，使用 `useRenderTool`。
 
 <Callout type="info">
-  **Prefer to learn by building?** [Build Interactive Agents with Generative UI](https://www.deeplearning.ai/short-courses/build-interactive-agents-with-generative-ui/) is a free DeepLearning.AI short course taught by CopilotKit's CEO. It walks through the Generative UI patterns end-to-end with React, LangChain, and AG-UI.
+  **更喜欢动手学习？** [Build Interactive Agents with Generative UI](https://www.deeplearning.ai/short-courses/build-interactive-agents-with-generative-ui/) 是一门免费的 DeepLearning.AI 短课程，由 CopilotKit 的 CEO 讲授。它用 React、LangChain 和 AG-UI 端到端地讲解生成式 UI 模式。
 </Callout>
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
 ### Angular API
 
-Pass a standalone Angular component to `registerFrontendTool` when the tool
-runs in the browser. Use `registerRenderToolCall` when the tool runs on the
-backend and Angular only controls how the call appears.
+当工具在浏览器中运行时，把独立的 Angular 组件传给 `registerFrontendTool`。当工具在后端运行、Angular 只控制调用的呈现方式时，使用 `registerRenderToolCall`。
 
 <Callout type="info">
-  **Prefer to learn by building?** Follow [Frontend tools and generative UI](/angular/guides/frontend-tools-generative-ui) for a complete Angular example with typed tools, standalone renderer components, A2UI, Open Generative UI, and MCP Apps.
+  **更喜欢动手学习？** 请跟随[前端工具与生成式 UI](/angular/guides/frontend-tools-generative-ui)，查看一个完整的 Angular 示例，涵盖带类型的工具、独立渲染器组件、A2UI、Open Generative UI 和 MCP Apps。
 </Callout>
 </FrontendOnly>
 
 <FrontendOnly frontend="vue">
 ### Vue API
 
-Use `useComponent` to register a Vue component as a frontend tool. Use
-`useRenderTool` when the tool runs on the backend and Vue controls how the call
-appears.
+使用 `useComponent` 把 Vue 组件注册为前端工具。当工具在后端运行、Vue 控制调用的呈现方式时，使用 `useRenderTool`。
 
 <Callout type="info">
-  **Prefer to learn by building?** Start with [Components as Tools](/generative-ui/tool-based)
-  for a Vue example that registers a component during setup.
+  **更喜欢动手学习？** 从[组件即工具](/generative-ui/tool-based)开始，查看一个在配置阶段注册组件的 Vue 示例。
 </Callout>
 </FrontendOnly>
 
-## Pick one
+## 如何选择
 
-Match the row that sounds like your situation:
+找到符合你处境的那一行：
 
-| You want to… | Use |
+| 你想… | 使用 |
 |---|---|
-| Let the agent render a specific application component you've already built | **[Components as Tools](/generative-ui/tool-based)** |
-| Brand the cards CopilotKit draws for your agent's existing backend tools | **[Tool Call Rendering](/generative-ui/tool-rendering)** |
-| Update UI as the agent's state changes (progress, drafts, dashboards) | **[State Rendering](/generative-ui/state-rendering)** |
-| Surface the model's thinking chain in the chat | **[Reasoning](/generative-ui/reasoning)** |
-| Let the agent compose layouts from a catalog you define | **[A2UI](/generative-ui/a2ui)** — [Fixed Schema](/generative-ui/a2ui/fixed-schema) if the surface is known, [Dynamic Schema](/generative-ui/a2ui/dynamic-schema) if it isn't |
-| Embed someone else's MCP-hosted UI in the chat | **[MCP Apps](/generative-ui/mcp-apps)** |
+| 让 agent 渲染你已构建的特定应用组件 | **[组件即工具](/generative-ui/tool-based)** |
+| 为 CopilotKit 为 agent 现有后端工具绘制的卡片定制品牌外观 | **[工具调用渲染](/generative-ui/tool-rendering)** |
+| 随 agent 状态变化更新 UI（进度、草稿、仪表盘） | **[状态渲染](/generative-ui/state-rendering)** |
+| 在聊天中展示模型的思考链 | **[推理过程](/generative-ui/reasoning)** |
+| 让 agent 从你定义的目录中组合布局 | **[A2UI](/generative-ui/a2ui)** —— 界面已知时用[固定 Schema](/generative-ui/a2ui/fixed-schema)，未知时用[动态 Schema](/generative-ui/a2ui/dynamic-schema) |
+| 在聊天中嵌入他人托管在 MCP 上的 UI | **[MCP Apps](/generative-ui/mcp-apps)** |
 
-## How the primitives compare
+## 各原语的比较
 
-These primitives sit along a spectrum from author-controlled to
-agent-invented. Same frontend application, same runtime, same AG-UI protocol —
-the choice is per-feature, not per-product.
+这些原语分布在一条从作者掌控到 agent 自创的光谱上。同一个前端应用、同一个运行时、同一个 AG-UI 协议——选择按特性粒度做出，而非按产品粒度。
 
-- **Controlled** — you wrote the component; the agent only picks *which* one to render and *what data* to pass. Highest predictability, highest engineering cost per capability. *Components as Tools, Tool Call Rendering, State Rendering, Reasoning.*
-- **Declarative** — the agent emits a structured spec; the frontend composes from a catalog you registered. Creativity inside a guardrail. *A2UI (Dynamic and Fixed Schema).*
-- **Open-Ended** — the UI is invented elsewhere (an MCP server) and you sandbox it. Highest expressive range, hardest to guarantee accessibility / brand / security. *MCP Apps.*
+- **受控**——组件由你编写；agent 只挑选渲染*哪一个*、传入*什么数据*。可预测性最高，每项能力的工程成本也最高。*组件即工具、工具调用渲染、状态渲染、推理过程。*
+- **声明式**——agent 发出结构化规格说明；前端从你注册的目录中组合。护栏之内的创造力。*A2UI（动态与固定 Schema）。*
+- **开放式**——UI 在别处（MCP 服务器）被创造，由你做沙箱隔离。表达范围最大，但最难保证无障碍访问 / 品牌 / 安全。*MCP Apps。*
 
-## Where to go next
+## 后续阅读
 
 <Cards>
   <Card
-    title="Components as Tools"
+    title="组件即工具"
     href="/generative-ui/tool-based"
-    description="Register an application component as a tool the agent can call."
+    description="把应用组件注册为 agent 可调用的工具。"
   />
   <Card
-    title="Tool Call Rendering"
+    title="工具调用渲染"
     href="/generative-ui/tool-rendering"
-    description="Custom UI for your agent's backend tool calls."
+    description="为 agent 的后端工具调用定制 UI。"
   />
   <Card
-    title="State Rendering"
+    title="状态渲染"
     href="/generative-ui/state-rendering"
-    description="UI that re-renders as the agent's state streams in."
+    description="随 agent 状态流入而重新渲染的 UI。"
   />
   <Card
-    title="Reasoning"
+    title="推理过程"
     href="/generative-ui/reasoning"
-    description="Render the model's reasoning tokens inline."
+    description="内联渲染模型的推理 token。"
   />
   <Card
     title="A2UI"
     href="/generative-ui/a2ui"
-    description="Declarative UI from an agent-emitted schema."
+    description="来自 agent 所发 schema 的声明式 UI。"
   />
   <Card
     title="MCP Apps"
     href="/generative-ui/mcp-apps"
-    description="Embed MCP-hosted UI in a sandboxed iframe."
+    description="在沙箱化的 iframe 中嵌入 MCP 托管的 UI。"
   />
 </Cards>

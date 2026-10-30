@@ -1,28 +1,22 @@
 ---
 title: "Arcade"
-description: "Give CopilotKit's Built-in Agent OAuth-backed tools (Gmail, Google News) through Arcade, and render the authorization step as generative UI in the chat."
+description: "通过 Arcade 为 CopilotKit 的内置智能体提供 OAuth 支撑的工具（Gmail、Google News），并把授权步骤作为生成式 UI 渲染在聊天中。"
 icon: "custom/arcade"
 showIcon: true
 doc_type: how-to
 ---
 
-[Arcade](https://www.arcade.dev) is an MCP runtime for production agents: it brokers per-user
-OAuth, vaults and refreshes tokens, and runs a large catalog of agent-optimized tools, all
-without the credentials ever reaching the LLM. This recipe gives CopilotKit's [Built-in Agent](/) a set of
-Arcade-backed tools (send Gmail, read the inbox, search Google News) and renders Arcade's one-time
-**authorization** step as a generative-UI **Connect** card right in the chat. Approve it once, and
-the agent completes the action.
+[Arcade](https://www.arcade.dev) 是面向生产级 agent 的 MCP 运行时：它中介每用户 OAuth、保管并刷新令牌，运行一大批为 agent 优化的工具，而凭证始终不会到达 LLM。本篇示例为 CopilotKit 的[内置智能体](/)配置一组 Arcade 支撑的工具（发送 Gmail、读取收件箱、搜索 Google News），并把 Arcade 一次性的**授权**步骤作为生成式 UI 的 **Connect** 卡片直接渲染在聊天里。批准一次，agent 就能完成操作。
 
-This guide assumes you already have a running Built-in Agent app. If you don't, follow the
-[Quickstart](/quickstart) first. It takes a few minutes.
+本指南假设你已经有一个运行中的内置智能体应用。如果没有，请先跟随[快速开始](/quickstart)，只需几分钟。
 
-## Prerequisites
+## 前置条件
 
-- A running Built-in Agent app (see the [Quickstart](/quickstart)).
-- An Arcade account and API key. Create one in the [Arcade dashboard](https://api.arcade.dev/dashboard).
-- An OpenAI API key (or any provider the Built-in Agent supports).
+- 一个运行中的内置智能体应用（见[快速开始](/quickstart)）。
+- 一个 Arcade 账户和 API 密钥。在 [Arcade 控制台](https://api.arcade.dev/dashboard)创建。
+- 一个 OpenAI API 密钥（或内置智能体支持的任何提供方）。
 
-Add them to your `.env`:
+把它们加进你的 `.env`：
 
 ```plaintext title=".env"
 ARCADE_API_KEY=arc_your_key
@@ -30,26 +24,20 @@ ARCADE_USER_ID=you@example.com
 OPENAI_API_KEY=sk-your_key
 ```
 
-`ARCADE_USER_ID` is the stable id Arcade scopes every authorization and tool call to. In production
-you derive it per request from your authenticated session, which is what makes the agent safe for
-multiple users. For local testing, use the email you signed up to Arcade with.
+`ARCADE_USER_ID` 是 Arcade 用来划定每次授权与工具调用范围的稳定 id。在生产环境中，你应从已认证会话按请求推导它，这正是 agent 对多用户安全的关键。本地测试时，用你注册 Arcade 的邮箱。
 
-## Install the Arcade SDK
+## 安装 Arcade SDK
 
 ```npm
 npm install @arcadeai/arcadejs
 ```
 
-## Add an authorize-then-execute helper
+## 添加先授权后执行的辅助函数
 
-This is the heart of the integration. `runArcadeTool` authorizes the user for a tool and, **only
-if** the user hasn't connected yet, hands the auth URL back to the chat instead of blocking.
-Otherwise it executes the tool and returns its structured output.
+这是集成的核心。`runArcadeTool` 为工具授权用户；**仅当**用户尚未连接时，把授权 URL 交回聊天而不是阻塞。否则它会执行工具并返回结构化输出。
 
-<Callout type="info" title="Failures come back as data, not exceptions">
-  Arcade reports a tool's *runtime* failures as data (`success === false` / `output.error`), not as
-  a thrown exception. If you only read `output.value`, a failed send renders a green "success" card,
-  so the helper checks for errors explicitly and returns an `{ error }` shape the UI can show.
+<Callout type="info" title="失败以数据返回，而非异常">
+  Arcade 把工具的*运行时*失败作为数据报告（`success === false` / `output.error`），而不是抛出异常。如果只读 `output.value`，一次失败的发送会渲染成绿色“成功”卡片，因此这个辅助函数显式检查错误，并返回 UI 可以展示的 `{ error }` 形状。
 </Callout>
 
 ```ts title="lib/arcade.ts"
@@ -126,13 +114,9 @@ export async function runArcadeTool({
 }
 ```
 
-## Define the Arcade tools and mount the agent
+## 定义 Arcade 工具并挂载智能体
 
-Each CopilotKit tool is a thin `defineTool` wrapper that calls `runArcadeTool` with an
-[Arcade tool name](https://www.arcade.dev/tools). `searchNews` needs no auth; Gmail does. Keep tool
-descriptions about *what the tool does*. The agent learns the Connect-then-retry protocol from the
-system prompt and the tool's result, not from prose in the description it can misread. Match each
-tool's parameter names to the Arcade tool's own schema, or unknown params are silently dropped.
+每个 CopilotKit 工具都是一个薄薄的 `defineTool` 包装器，调用 `runArcadeTool` 并传入一个 [Arcade 工具名](https://www.arcade.dev/tools)。`searchNews` 无需授权；Gmail 需要。工具描述只写*这个工具做什么*。agent 从系统提示和工具结果中学习“先连接再重试”的协议，而不是从它可能误读的描述散文中。把每个工具的参数名与 Arcade 工具自身的 schema 对齐，否则未知参数会被静默丢弃。
 
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
 import {
@@ -239,19 +223,13 @@ export const DELETE = handler;
 export const OPTIONS = handler;
 ```
 
-<Callout type="info" title="Single-route transport">
-  This recipe pins `useSingleEndpoint` on the provider, so the client POSTs every
-  call as a `{ method, params, body }` envelope to the base path. Mount a single-route handler to
-  match (`createCopilotRuntimeHandler({ mode: "single-route" })`), and `createCopilotRuntimeHandler`
-  is the preferred primitive, so avoid the deprecated `createCopilotEndpointSingleRoute` / hono
-  adapters. Omitting the prop would let the client detect the mode instead.
+<Callout type="info" title="单路由传输">
+  本篇示例在 provider 上固定 `useSingleEndpoint`，客户端因此把每次调用作为 `{ method, params, body }` 信封 POST 到基路径。服务端要挂载对应的单路由 handler（`createCopilotRuntimeHandler({ mode: "single-route" })`）；`createCopilotRuntimeHandler` 是推荐的原语，避免使用已弃用的 `createCopilotEndpointSingleRoute` / hono 适配器。省略该属性会让客户端自行探测模式。
 </Callout>
 
-## Render the authorization step as generative UI
+## 将授权步骤渲染为生成式 UI
 
-On the client, `useRenderTool` subscribes to each tool call. When the result is
-`authorizationRequired`, render a **Connect** card with the `authUrl`; otherwise render the result.
-This is the generative-UI moment: the OAuth handshake becomes a card in the chat.
+在客户端，`useRenderTool` 订阅每次工具调用。当结果是 `authorizationRequired` 时，渲染一张带 `authUrl` 的 **Connect** 卡片；否则渲染结果。这就是生成式 UI 的时刻：OAuth 握手变成聊天里的一张卡片。
 
 ```tsx title="app/page.tsx"
 "use client";
@@ -289,7 +267,7 @@ export default function Page() {
 }
 ```
 
-The `AuthorizationCard` is just a normal component with a link styled as a button:
+`AuthorizationCard` 只是一个普通组件，内含样式化为按钮的链接：
 
 ```tsx title="components/authorization-card.tsx"
 // Tool output flows into an href, so only ever link to a real http(s) URL,
@@ -327,73 +305,51 @@ function AuthorizationCard({ provider, authUrl }: { provider: string; authUrl: s
 }
 ```
 
-Wrap your app in the v2 `<CopilotKit>` provider (`runtimeUrl="/api/copilotkit"` plus
-`useSingleEndpoint` to match the single-route handler) and import
-`@copilotkit/react-core/v2/styles.css`, exactly as in the Built-in Agent quickstart.
+用 v2 的 `<CopilotKit>` provider 包裹你的应用（`runtimeUrl="/api/copilotkit"`，加上 `useSingleEndpoint` 以匹配单路由 handler），并导入 `@copilotkit/react-core/v2/styles.css`，与内置智能体快速开始完全一致。
 
-## Try it
+## 试一试
 
-Start your app and ask the agent to do something that needs a connection:
+启动你的应用，让 agent 做一件需要连接的事：
 
 ```text
 Send an email to me@example.com with the subject "Hello from my agent" and a friendly one-liner.
 ```
 
-The first time, the agent calls `sendEmail`, Arcade reports authorization is required, and the chat
-shows a **Connect Gmail** card. Click it, approve in the new tab, come back, and say:
+第一次，agent 调用 `sendEmail`，Arcade 报告需要授权，聊天显示一张 **Connect Gmail** 卡片。点击它，在新标签页中批准，回来后说：
 
 ```text
 Done, go ahead.
 ```
 
-The agent re-calls `sendEmail`; this time Arcade returns `completed` and the email sends. Now chain
-a no-auth tool into an authed one:
+agent 重新调用 `sendEmail`；这次 Arcade 返回 `completed`，邮件发出。现在把一个无需授权的工具与一个需授权的工具串起来：
 
 ```text
 Find the latest news on open-source AI agents and email me a 3-bullet summary.
 ```
 
-`searchNews` runs instantly (no auth); `sendEmail` reuses the Gmail connection you already granted.
+`searchNews` 立即运行（无需授权）；`sendEmail` 复用你已授予的 Gmail 连接。
 
-## How it works
+## 工作原理
 
-- **Authorization is evaluated at runtime, per user.** `tools.authorize` returns `completed` only
-  when this `user_id` already holds the required scopes. That's why the same code works for one user
-  locally and thousands in production. Pass each user's id.
-- **The model never sees a token.** Credentials are vaulted by Arcade; `execute` runs the tool
-  server-side and returns only the structured result to the agent.
-- **Failures come back as data, not exceptions.** A runtime error is `success: false` /
-  `output.error`. Check for it so you don't render a false success.
-- **The auth step is non-blocking.** Returning the `authUrl` (instead of waiting on the server) is
-  what lets CopilotKit render it as a card and keeps the chat responsive.
+- **授权在运行时按用户求值**。`tools.authorize` 只在这个 `user_id` 已持有所需 scope 时返回 `completed`。这就是同一段代码既能在本地服务一个用户、也能在生产环境服务数千用户的原因。请传入每个用户的 id。
+- **模型永远看不到令牌**。凭证由 Arcade 保管；`execute` 在服务端运行工具，只把结构化结果返回给 agent。
+- **失败以数据返回，而非异常**。运行时错误是 `success: false` / `output.error`。要检查它，以免渲染出假成功。
+- **授权步骤不阻塞**。返回 `authUrl`（而不是在服务端等待）让 CopilotKit 能把它渲染成卡片，并保持聊天响应流畅。
 
-<Callout type="warn" title="Before you deploy this publicly">
-  The runtime can read and send email on your keys, so treat `/api/copilotkit` like any privileged
-  endpoint:
+<Callout type="warn" title="公开部署之前">
+  运行时可以用你的密钥读取和发送邮件，因此要像对待任何特权端点一样对待 `/api/copilotkit`：
 
-  - **Authenticate the runtime** with an `onRequest` hook that throws a `Response` for unauthorized
-    calls. Validate your real session (the example fails closed in production until you wire one).
-  - **Scope every call to a real user.** Resolve the Arcade `user_id` per request from a
-    server-verified session (not a spoofable client header, and not one shared env value) via the
-    `agents: ({ request }) => ...` factory. A single `ARCADE_USER_ID` for all visitors is one shared
-    token vault.
-  - **Use disposable keys** and a throwaway Google account for any public demo, add rate limiting,
-    and set CSP / HSTS / `X-Frame-Options`.
+  - **为运行时做身份验证**：用一个 `onRequest` 钩子对未授权调用抛出 `Response`。校验你的真实会话（在你接入之前，示例在生产环境中默认拒绝）。
+  - **把每次调用限定到真实用户**：通过 `agents: ({ request }) => ...` 工厂，从经服务端校验的会话按请求解析 Arcade `user_id`（不要用可伪造的客户端请求头，也不要用共享的环境变量值）。所有访客共用一个 `ARCADE_USER_ID` 就是共用一个令牌保管库。
+  - **使用一次性密钥**和一次性的 Google 账户做任何公开演示，加上限流，并设置 CSP / HSTS / `X-Frame-Options`。
 </Callout>
 
-## Going further
+## 深入一步
 
-Arcade is a *runtime*, not a single connector. The three tools here are the on-ramp. Scale up
-roughly in this order:
+Arcade 是一个*运行时*，不是单个连接器。这里的三个工具只是入口。大致按以下顺序扩展：
 
-- **From 3 tools to thousands.** Instead of hand-writing a `defineTool` per tool, pull formatted
-  tool definitions from Arcade and generate the wrappers, the bridge from a demo to a real toolset
-  (GitHub, Slack, Notion, Google Calendar, Jira, and more). Browse the
-  [tool catalog](https://www.arcade.dev/tools).
-- **MCP gateways.** Expose exactly the tools an agent should have behind a single OAuth-protected
-  [MCP gateway](https://docs.arcade.dev), the same authorize-then-execute model, managed centrally,
-  with per-user scoping built in. This is the production shape.
-- **Human-in-the-loop confirmation.** Gate destructive tools behind CopilotKit's `useHumanInTheLoop`
-  so the user approves the arguments before the tool runs.
+- **从 3 个工具到数千个**。与其为每个工具手写 `defineTool`，不如从 Arcade 拉取格式化的工具定义并生成包装器——这是从演示跨越到真实工具集（GitHub、Slack、Notion、Google Calendar、Jira 等）的桥梁。浏览[工具目录](https://www.arcade.dev/tools)。
+- **MCP 网关**。把 agent 应有的工具恰好暴露在一个受 OAuth 保护的 [MCP 网关](https://docs.arcade.dev)之后：同样的先授权后执行模型、集中管理、内置按用户划定范围。这是生产形态。
+- **人机协同确认**。把破坏性工具放到 CopilotKit 的 `useHumanInTheLoop` 之后，让用户在工具运行前批准参数。
 
-See the [Arcade docs](https://docs.arcade.dev) for the full tool reference and auth model.
+完整的工具参考与授权模型见 [Arcade 文档](https://docs.arcade.dev)。

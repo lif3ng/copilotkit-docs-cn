@@ -1,58 +1,44 @@
 ---
-title: "Runtime HTTP endpoints"
+title: "运行时 HTTP 端点"
 icon: "lucide/Network"
-description: "The HTTP routes exposed by the CopilotKit runtime for self-hosting, proxying, and debugging."
+description: "CopilotKit 运行时暴露的 HTTP 路由，用于自托管、代理与调试。"
 ---
 
-When you mount the CopilotKit runtime with `createCopilotExpressHandler`,
-`createCopilotHonoHandler`, `copilotRuntimeNextJSAppRouterEndpoint`, or any of the
-other framework adapters, it serves a small set of HTTP routes under the
-`basePath` you choose, such as `/api/copilotkit`. Most applications never call
-these routes directly. The frontend proxy (`ProxiedCopilotRuntimeAgent`) calls
-them for you. When you self-host behind a reverse proxy, lock down auth, or debug
-a connection failure with `curl`, use this page to confirm what the runtime
-exposes.
+当你用 `createCopilotExpressHandler`、
+`createCopilotHonoHandler`、`copilotRuntimeNextJSAppRouterEndpoint` 或其他任何框架适配器挂载 CopilotKit 运行时，它会在你选择的
+`basePath` 下服务一小组 HTTP 路由，比如 `/api/copilotkit`。大多数应用从不需要直接调用这些路由。前端代理（`ProxiedCopilotRuntimeAgent`）会替你调用。当你把运行时自托管在反向代理之后、要锁定认证，或要用 `curl` 调试连接失败时，用本页确认运行时到底暴露了什么。
 
-<Callout type="info" title="Other runtime languages">
-Python, Go, Ruby, and C#/.NET runtimes require Intelligence and serve multi-route endpoints. Use `useSingleEndpoint={false}` with the React provider; do not send a single-route envelope to those servers. The JavaScript handler factories, legacy endpoints, and optional TypeScript features below are specific to the TypeScript runtime. See the [Intelligence quickstart](/intelligence/quickstart#connect-your-runtime) for native server setup.
+<Callout type="info" title="其他运行时语言">
+Python、Go、Ruby 和 C#/.NET 运行时要求 Intelligence 并服务多路由端点。React provider 请使用 `useSingleEndpoint={false}`；不要向那些服务器发送单路由信封。下文的 JavaScript handler 工厂、旧版端点与可选 TypeScript 特性都是 TypeScript 运行时特有的。原生服务器配置见 [Intelligence 快速开始](/intelligence/quickstart#connect-your-runtime)。
 </Callout>
 
-## Provider and handler pairs
+## Provider 与 handler 的配对
 
-The browser provider and the Runtime handler have to agree on the **transport**.
-CopilotKit ships more than one name for each half, and they are not
-interchangeable: each provider setting requires a matching handler mode.
-Different pages and older apps show different pairs, so this table is the
-mapping:
+浏览器 provider 与 Runtime handler 必须在**传输方式**上达成一致。
+CopilotKit 为每一半都提供了不止一个名字，而且它们不可互换：每种 provider 设置都要求匹配的 handler 模式。不同页面和旧应用展示着不同的配对，所以这张表就是映射关系：
 
 <FrontendOnly frontend="react">
 
-| Provider                                 | `useSingleEndpoint` | Transport                          | Needs handler | Route file                      |
+| Provider                                 | `useSingleEndpoint` | 传输方式                           | 所需 handler  | 路由文件                        |
 | ---------------------------------------- | ------------------- | ---------------------------------- | ------------- | ------------------------------- |
-| `<CopilotKit>` or `<CopilotKitProvider>` | omitted             | `auto` — detected from the Runtime | either        | matches the handler             |
-| `<CopilotKit>` or `<CopilotKitProvider>` | `{true}`            | `single`                           | single-route  | `route.ts`, `POST`              |
-| `<CopilotKit>` or `<CopilotKitProvider>` | `{false}`           | `rest`                             | multi-route   | `[[...slug]]/route.ts`, 4 verbs |
+| `<CopilotKit>` 或 `<CopilotKitProvider>` | 省略                | `auto`——从 Runtime 探测            | 皆可          | 与 handler 匹配                 |
+| `<CopilotKit>` 或 `<CopilotKitProvider>` | `{true}`            | `single`                           | 单路由        | `route.ts`、`POST`              |
+| `<CopilotKit>` 或 `<CopilotKitProvider>` | `{false}`           | `rest`                             | 多路由        | `[[...slug]]/route.ts`、4 个动词 |
 
-`<CopilotKit>` is a backward-compatible wrapper that renders
-`<CopilotKitProvider>` internally. Both are exported from
-`@copilotkit/react-core/v2`, and since 1.70.2 both treat an omitted
-`useSingleEndpoint` the same way: the transport is `auto`, so the client probes
-the Runtime and matches whichever mode it serves.
+`<CopilotKit>` 是一个向后兼容的包装器，内部渲染
+`<CopilotKitProvider>`。两者都从
+`@copilotkit/react-core/v2` 导出，而且自 1.70.2 起两者对省略的
+`useSingleEndpoint` 一视同仁：传输方式为 `auto`，客户端会探测
+Runtime 并匹配它实际服务的模式。
 
-<Callout type="warn" title="Pinning the wrong mode 404s silently">
-  Passing `useSingleEndpoint={true}` to a multi-route Runtime sends an envelope
-  that matches no route, so the Runtime 404s while `GET /info` still returns 200
-  and the app looks connected. The Runtime's error body names the fix.
+<Callout type="warn" title="固定了错误的模式会静默 404">
+  向多路由 Runtime 传入 `useSingleEndpoint={true}` 会发送一个匹配不到任何路由的信封，于是 Runtime 返回 404，而 `GET /info` 仍返回 200，应用看起来像连上了。Runtime 的错误响应体会写明修复方法。
 
-Before 1.70.2, `<CopilotKit>` pinned the flag to `true` internally, so omitting
-it selected the single-route transport and 404'd against a multi-route handler.
-On those versions, pass `useSingleEndpoint={false}` explicitly.
+  1.70.2 之前，`<CopilotKit>` 内部把该标志固定为 `true`，因此省略它会选择单路由传输并对多路由 handler 返回 404。在这些版本上，请显式传入 `useSingleEndpoint={false}`。
 
 </Callout>
 
-Both ship from the same package entry point, so moving between them is an import
-change, not a migration. One prop does get renamed: `<CopilotKit>` names the
-agent with `agent`, and `<CopilotKitProvider>` names it with `agentId`.
+两者出自同一个包入口，因此在它们之间切换只是改一下 import，不是迁移。有一个属性确实改名了：`<CopilotKit>` 用 `agent` 指定智能体，`<CopilotKitProvider>` 用 `agentId` 指定。
 
 ```tsx
 // v1 wrapper
@@ -62,102 +48,76 @@ agent with `agent`, and `<CopilotKitProvider>` names it with `agentId`.
 <CopilotKitProvider runtimeUrl="/api/copilotkit" agentId="my_agent">
 ```
 
-You can also name the agent per chat with `<CopilotChat agentId="my_agent">`, or
-for a subtree with `<CopilotChatConfigurationProvider agentId="my_agent">`. A
-provider-level `agentId` is the default that those two override.
+你也可以用 `<CopilotChat agentId="my_agent">` 为单个聊天指定智能体，或用 `<CopilotChatConfigurationProvider agentId="my_agent">` 为一个子树指定。provider 级的 `agentId` 是默认值，这两者可以覆盖它。
 
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
 
-Angular has no provider pairing to configure: `provideCopilotKit` discovers the
-transport from `/info` and exposes no `useSingleEndpoint` option. Only the
-handler half below applies to you.
+Angular 没有需要配置的 provider 配对：`provideCopilotKit` 会从 `/info` 发现传输方式，也不暴露 `useSingleEndpoint` 选项。对你而言只有下面的 handler 一半适用。
 
 </FrontendOnly>
 
 <FrontendOnly frontend="vue">
 
-Vue uses `CopilotKitProvider`. With `use-single-endpoint` omitted, it discovers
-the transport from `/info`; set it to `true` for a single-route handler or
-`false` for a multi-route handler.
+Vue 使用 `CopilotKitProvider`。省略 `use-single-endpoint` 时，它会从 `/info` 发现传输方式；单路由 handler 设为 `true`，多路由 handler 设为 `false`。
 
 </FrontendOnly>
 
-### Which handlers serve which mode
+### 哪些 handler 服务哪种模式
 
-| Mode                         | Handlers                                                                                                                                                                                |
+| 模式                         | Handler                                                                                                                                                                                 |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Multi-route (default)        | `createCopilotRuntimeHandler`, `createCopilotHonoHandler`, `createCopilotExpressHandler`, `createCopilotNodeHandler`, `createCopilotNodeListener`                                       |
-| Single-route                 | Any of the above with `mode: "single-route"`                                                                                                                                            |
-| Single-route only, no option | `copilotRuntimeNextJSAppRouterEndpoint`, `copilotRuntimeNextJSPagesRouterEndpoint`, `copilotRuntimeNodeHttpEndpoint`, `copilotRuntimeNodeExpressEndpoint`, `copilotRuntimeNestEndpoint` |
+| 多路由（默认）               | `createCopilotRuntimeHandler`, `createCopilotHonoHandler`, `createCopilotExpressHandler`, `createCopilotNodeHandler`, `createCopilotNodeListener`                                       |
+| 单路由                       | 以上任意一个加 `mode: "single-route"`                                                                                                                                                   |
+| 仅单路由，无选项             | `copilotRuntimeNextJSAppRouterEndpoint`, `copilotRuntimeNextJSPagesRouterEndpoint`, `copilotRuntimeNodeHttpEndpoint`, `copilotRuntimeNodeExpressEndpoint`, `copilotRuntimeNestEndpoint` |
 
-<Callout type="info" title="The framework wrappers support Intelligence resources">
-  Every `copilotRuntime*Endpoint` wrapper builds its handler with
-  `mode: "single-route"`. A current client and Runtime carry AG-UI Streams,
-  Memory, and annotation requests through that endpoint. Setting
-  `useSingleEndpoint={false}` still points the browser at REST routes that these
-  wrappers do not serve.
+<Callout type="info" title="框架包装器支持 Intelligence 资源">
+  每个 `copilotRuntime*Endpoint` 包装器都以
+  `mode: "single-route"` 构建 handler。新式客户端与 Runtime 通过该端点承载 AG-UI Streams、Memory 与标注请求。设置
+  `useSingleEndpoint={false}` 仍会让浏览器指向这些包装器并不服务的 REST 路由。
 
 </Callout>
 
-Older code may use these deprecated aliases:
+旧代码可能在用这些已弃用的别名：
 
-| Deprecated                                | Use instead                                               |
+| 已弃用                                    | 请改用                                                    |
 | ----------------------------------------- | --------------------------------------------------------- |
 | `createCopilotEndpoint`                   | `createCopilotHonoHandler`                                |
-| `createCopilotEndpointSingleRoute`        | `createCopilotHonoHandler` with `mode: "single-route"`    |
+| `createCopilotEndpointSingleRoute`        | `createCopilotHonoHandler` 加 `mode: "single-route"`      |
 | `createCopilotEndpointExpress`            | `createCopilotExpressHandler`                             |
-| `createCopilotEndpointSingleRouteExpress` | `createCopilotExpressHandler` with `mode: "single-route"` |
+| `createCopilotEndpointSingleRouteExpress` | `createCopilotExpressHandler` 加 `mode: "single-route"`   |
 
-<Callout type="info" title="A mismatched pair fails at discovery">
-  A mismatch fails at discovery, not at your application code. A multi-route
-  provider against a single-route Runtime 404s on `GET {basePath}/info`; a
-  single-route provider against a multi-route Runtime posts an envelope the
-  Runtime does not accept. See [Connect route 404 on a fresh
-  thread](#connect-route-404-on-a-fresh-thread).
+<Callout type="info" title="错配的配对在发现阶段就失败">
+  错配在发现阶段就失败，而不是在你的应用代码里。多路由 provider 对单路由 Runtime 会在 `GET {basePath}/info` 上 404；单路由 provider 对多路由 Runtime 会发送 Runtime 不接受的信封。见[新线程上 connect 路由返回 404](#新线程上-connect-路由返回-404)。
 </Callout>
 
-## Multi-route mode (default)
+## 多路由模式（默认）
 
-By default the runtime runs in **multi-route** mode, exposing a separate route per
-operation. Given a `basePath` of `/api/copilotkit`, the routes are:
+默认情况下，运行时以**多路由**模式运行，每个操作暴露一条单独的路由。设 `basePath` 为 `/api/copilotkit`，路由如下：
 
-| Method & path                                        | Purpose                                                                                                                                                                                                      |
+| 方法与路径                                           | 用途                                                                                                                                                                                                         |
 | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `GET /api/copilotkit/info`                           | Runtime info. The frontend calls this on startup to discover registered agents and their metadata.                                                                                                           |
-| `GET /api/copilotkit/inspector-metadata`             | Optional trusted project, plan, license, action, usage, and expiry context for the Inspector. Intelligence-backed runtimes advertise this route with `inspectorMetadata: true` in the runtime-info response. |
-| `POST /api/copilotkit/agent/:agentId/run`            | Start an agent run. The request body is an AG-UI `RunAgentInput`; the response is an SSE stream of AG-UI events. With Intelligence, the response is JSON. See [Run and connect with Intelligence](#run-and-connect-with-intelligence).                                                                                             |
-| `POST /api/copilotkit/agent/:agentId/connect`        | Connect to an agent's thread. Used to resume streaming after a reconnect or page refresh. Also an SSE stream, or JSON with Intelligence.                                                                                                |
-| `POST /api/copilotkit/agent/:agentId/stop/:threadId` | Stop the in-progress run on a given thread. An optional JSON body `{ "runId": "..." }` stops only that run. A body that is not valid JSON, or carries any other key, is rejected with 400 and stops nothing.                                                                                                |
-| `POST /api/copilotkit/transcribe`                    | Transcribe audio (used by the voice / transcription input).                                                                                                                                                  |
+| `GET /api/copilotkit/info`                           | Runtime 信息。前端在启动时调用它来发现已注册的智能体及其元数据。                                                                                                                                             |
+| `GET /api/copilotkit/inspector-metadata`             | 给 Inspector 的可选受信项目、计划、许可、操作、用量与到期上下文。由 Intelligence 支撑的运行时会在 runtime-info 响应中以 `inspectorMetadata: true` 宣告这条路由。                                              |
+| `POST /api/copilotkit/agent/:agentId/run`            | 启动一次智能体运行。请求体是 AG-UI 的 `RunAgentInput`；响应是 AG-UI 事件的 SSE 流。有 Intelligence 时，响应是 JSON。见[使用 Intelligence 运行与连接](#使用-intelligence-运行与连接)。                          |
+| `POST /api/copilotkit/agent/:agentId/connect`        | 连接到智能体的线程。用于在重连或页面刷新后恢复流式传输。同样是 SSE 流，有 Intelligence 时为 JSON。                                                                                                            |
+| `POST /api/copilotkit/agent/:agentId/stop/:threadId` | 停止给定线程上正在进行中的运行。可选的 JSON 体 `{ "runId": "..." }` 只停止该次运行。不是合法 JSON 或携带其他键的请求体会被以 400 拒绝，什么也不停止。                                                         |
+| `POST /api/copilotkit/transcribe`                    | 转写音频（由语音 / 转写输入使用）。                                                                                                                                                                          |
 
-`:agentId` is the key under which you registered the agent in
-`new CopilotRuntime({ agents: { ... } })`, for example `default` or
-`research-agent`. `:threadId` is the thread the run belongs to.
+`:agentId` 是你在 `new CopilotRuntime({ agents: { ... } })` 中注册智能体时用的键，比如 `default` 或
+`research-agent`。`:threadId` 是该次运行所属的线程。
 
 <Callout type="info">
-  The `GET /info` route is the same endpoint the frontend uses for agent
-  discovery. If it isn't reachable from the runtime, the frontend reports a
-  `runtime_info_fetch_failed` error. See [Error
-  Debugging](/troubleshooting/error-debugging).
+  `GET /info` 路由与前端做智能体发现用的是同一个端点。如果它从运行时不可达，前端会报告一个
+  `runtime_info_fetch_failed` 错误。见[错误调试](/troubleshooting/error-debugging)。
 </Callout>
 
-An Intelligence runtime also returns `runtimeEntitlements`. `ready` includes
-the normalized feature and limit values. `degraded`, `misconfigured`, and
-`unavailable` include a structured error with a code, message, and retry flag.
-The `/info` request still succeeds when entitlement lookup fails so core Runtime
-behavior can continue; features that need a proven entitlement stay off. If
-Intelligence rejects the project key with a `401`, the Runtime still returns
-`200` from `/info`. The body reports `runtimeEntitlements.status` as
-`misconfigured` with the non-retryable `runtime_entitlements_misconfigured`
-error code.
+Intelligence 运行时还会返回 `runtimeEntitlements`。`ready` 包含归一化后的特性与限额值。`degraded`、`misconfigured` 与 `unavailable` 包含一个带 code、message 和重试标志的结构化错误。权益查询失败时 `/info` 请求仍然成功，核心 Runtime 行为得以继续；需要已验证权益的特性保持关闭。如果 Intelligence 以 `401` 拒绝项目密钥，Runtime 仍会从 `/info` 返回 `200`，响应体将 `runtimeEntitlements.status` 报告为 `misconfigured`，并附带不可重试的 `runtime_entitlements_misconfigured` 错误码。
 
-### Run and connect with Intelligence
+### 使用 Intelligence 运行与连接
 
-When the runtime has an `intelligence` client, the run and connect routes do
-not stream events. They return JSON that tells the client where to read the
-events:
+当运行时带有 `intelligence` 客户端时，run 与 connect 路由不再流式输出事件。它们返回一段 JSON，告诉客户端去哪里读取事件：
 
 ```json
 {
@@ -171,31 +131,15 @@ events:
 }
 ```
 
-The client opens a websocket to `realtime.clientUrl` and joins the
-`realtime.topic` channel with the `joinToken`. The AG-UI events of the run
-arrive on that channel. `CopilotKitProvider` does this for you when runtime
-info reports Intelligence. The connect route returns the same body without
-`runId`, or `204` with no body when the platform returns no connection.
+客户端打开到 `realtime.clientUrl` 的 websocket，用 `joinToken` 加入 `realtime.topic` 频道。运行的 AG-UI 事件就到达该频道。runtime info 报告有 Intelligence 时，`CopilotKitProvider` 会替你做这一切。connect 路由返回相同的响应体但不含 `runId`；平台没有返回连接时，返回无响应体的 `204`。
 
-A direct `POST` to the run route, for example from `curl` or a test script,
-gets this JSON body and no events. To read the events of a thread without a
-websocket client, call `GET {basePath}/threads/:threadId/events`. It returns
-`{ "events": [...] }`. See [Thread routes](#thread-routes).
+直接向 run 路由发 `POST`（比如来自 `curl` 或测试脚本）只会得到这个 JSON 体而没有事件。要在没有 websocket 客户端的情况下读取线程的事件，请调用 `GET {basePath}/threads/:threadId/events`。它返回 `{ "events": [...] }`。见[线程路由](#线程路由)。
 
-### Inspector metadata
+### Inspector 元数据
 
-An Intelligence-backed runtime adds `inspectorMetadata: true` to its runtime-info
-response. After the main connection completes, `@copilotkit/core` uses that flag
-to request `GET {basePath}/inspector-metadata` in the background. Older runtimes
-omit the flag, so newer clients skip the optional request.
+由 Intelligence 支撑的运行时会在 runtime-info 响应中加上 `inspectorMetadata: true`。主连接完成后，`@copilotkit/core` 会用这个标志在后台请求 `GET {basePath}/inspector-metadata`。旧运行时省略该标志，因此新客户端会跳过这个可选请求。
 
-A valid response is a versioned `InspectorMetadataV1` JSON object. The response
-always uses `Cache-Control: no-store, private`. The route returns `204` with the
-same cache policy when data is absent, the schema is unsupported, the runtime is
-not backed by Intelligence, or the provider request fails. A metadata failure
-does not change the runtime connection or agent state. The upstream Intelligence
-request has a five-second deadline; a timeout follows the same private `204`
-path.
+有效的响应是一个带版本的 `InspectorMetadataV1` JSON 对象。响应始终使用 `Cache-Control: no-store, private`。当数据缺失、schema 不受支持、运行时没有 Intelligence 支撑，或 provider 请求失败时，该路由以相同缓存策略返回 `204`。元数据失败不会改变运行时连接或智能体状态。上游 Intelligence 请求有五秒期限；超时走同样的私有 `204` 路径。
 
 ```json
 {
@@ -226,108 +170,78 @@ path.
 }
 ```
 
-Every module is optional and independent. `usage.expiringSoonCount` is an
-additive V1 leaf for deadlines in the next 24 hours: `0` is a known count, while
-absence means no trusted expiry count is available. Shared removes a malformed
-expiry leaf without removing valid `used`, `limit`, or sibling modules. Older
-V1 producers may omit the leaf, and older consumers may ignore it without a
-synchronized deployment.
+每个模块都是可选且独立的。`usage.expiringSoonCount` 是一个增量式 V1 叶子字段，表示未来 24 小时内的到期数量：`0` 是一个已知的计数，而缺失表示没有可信的到期计数可用。共享层会移除格式错误的到期叶子，而不会移除有效的 `used`、`limit` 或同级模块。旧 V1 生产者可以省略该叶子，旧消费者也可以忽略它，无需同步部署。
 
 ```bash
 curl -i http://localhost:4000/api/copilotkit/inspector-metadata
 ```
 
 <Callout type="info">
-  The runtime uses its server-side Intelligence API key for the upstream
-  request. It does not forward browser headers or cookies to Intelligence, and
-  it does not expose provider error bodies to the browser. Auth headers and
-  cookies can still protect the browser-to-runtime request like any other
-  runtime route.
+  运行时用它的服务器端 Intelligence API 密钥发起上游请求。它不会把浏览器的请求头或 cookie 转发给 Intelligence，也不会把 provider 的错误响应体暴露给浏览器。认证请求头和 cookie 仍可以像保护任何其他运行时路由那样保护浏览器到运行时的请求。
 </Callout>
 
-### Thread routes
+### 线程路由
 
-The runtime also serves the conversation history behind the threads UI. These
-routes exist in multi-route mode whichever runner you use:
+运行时还服务着线程 UI 背后的会话历史。无论你用哪个运行器，这些路由在多路由模式下都存在：
 
-| Method & path | Purpose |
+| 方法与路径 | 用途 |
 |---|---|
-| `GET /api/copilotkit/threads` | List threads. With Intelligence, the `agentId` query parameter is required. Without Intelligence, it is optional and filters the list. |
-| `GET /api/copilotkit/threads/:threadId/messages` | That thread's full message history. |
-| `GET /api/copilotkit/threads/:threadId/events` | That thread's compacted AG-UI event stream. |
-| `GET /api/copilotkit/threads/:threadId/state` | That thread's last state snapshot. |
-| `POST /api/copilotkit/threads/clear` | Wipe the in-memory thread history. Always answers `204`, and clears nothing on a runner that keeps no local store. |
-| `PATCH` or `DELETE /api/copilotkit/threads/:threadId` | Rename or delete a thread. Intelligence only. |
-| `POST /api/copilotkit/threads/:threadId/archive` | Archive a thread. Intelligence only. |
-| `POST /api/copilotkit/threads/subscribe` | Subscribe to thread changes. Intelligence only. |
+| `GET /api/copilotkit/threads` | 列出线程。有 Intelligence 时，`agentId` 查询参数必填。没有 Intelligence 时，它可选并用于过滤列表。 |
+| `GET /api/copilotkit/threads/:threadId/messages` | 该线程的完整消息历史。 |
+| `GET /api/copilotkit/threads/:threadId/events` | 该线程的压缩 AG-UI 事件流。 |
+| `GET /api/copilotkit/threads/:threadId/state` | 该线程的最后一次状态快照。 |
+| `POST /api/copilotkit/threads/clear` | 清空内存中的线程历史。始终返回 `204`；在不持有本地存储的运行器上什么也不清。 |
+| `PATCH` 或 `DELETE /api/copilotkit/threads/:threadId` | 重命名或删除线程。仅 Intelligence。 |
+| `POST /api/copilotkit/threads/:threadId/archive` | 归档线程。仅 Intelligence。 |
+| `POST /api/copilotkit/threads/subscribe` | 订阅线程变更。仅 Intelligence。 |
 
-An Intelligence runtime answers `GET /threads` with `400` when the request has
-no `agentId`. Send the agent key you registered in `CopilotRuntime`. The
-request also has to carry the auth that your `identifyUser` reads, because the
-list holds only that user's threads:
+请求没有 `agentId` 时，Intelligence 运行时会以 `400` 应答 `GET /threads`。请发送你在 `CopilotRuntime` 中注册的智能体键。请求还必须带上你的 `identifyUser` 要读取的认证信息，因为列表只包含该用户的线程：
 
 ```bash
 curl -s "http://localhost:4000/api/copilotkit/threads?agentId=default"
 ```
 
-The response is `{ "threads": [...], "nextCursor": ... }`. To page through it,
-pass `limit` and the `cursor` from the previous response. Add
-`includeArchived=true` to include archived threads. Those three parameters
-apply only with Intelligence.
+响应是 `{ "threads": [...], "nextCursor": ... }`。要翻页，传 `limit` 和上一次响应的 `cursor`。加 `includeArchived=true` 以包含已归档的线程。这三个参数仅在 Intelligence 下适用。
 
-<Callout type="warn" title="Thread routes are not authorized for you">
-On the default `InMemoryAgentRunner` — and on anything extending it, such as
-`AgentCoreRunner` — these routes read the runner's local store and resolve no
-user at all: any caller that reaches the route reads the thread it names, `GET
-/threads` lists every thread in the process, and `POST /threads/clear` wipes
-them all. A runner that keeps no local store, such as `SqliteAgentRunner`,
-answers the four read routes with a `422` instead.
+<Callout type="warn" title="线程路由不会替你做授权">
+在默认的 `InMemoryAgentRunner`——以及任何继承它的实现（如
+`AgentCoreRunner`）——上，这些路由读取运行器的本地存储，完全不解析用户：到达路由的任何调用者都能读取它点名的线程，`GET
+/threads` 列出进程内的每个线程，而 `POST /threads/clear` 会清空所有。不持有本地存储的运行器（如 `SqliteAgentRunner`）则以 `422` 应答那四条读取路由。
 
-An Intelligence runtime scopes **most** of them to the user your `identifyUser`
-returns, but not all: `threads/events`, `threads/state` and
-`POST /agent/:agentId/stop/:threadId` read the thread by id alone. Guard those
-three yourself even on the platform.
+Intelligence 运行时会把它**大多数**路由限定到 `identifyUser` 返回的用户，但不是全部：`threads/events`、`threads/state` 和
+`POST /agent/:agentId/stop/:threadId` 仍只凭 id 读取线程。即便在平台上，这三条也要自己设防。
 
-`:threadId` is chosen by the client on the run, so it is not a secret. If more
-than one person uses your deployment, authorize these routes yourself — see
-[Thread authorization](/auth#thread-authorization).
+`:threadId` 由客户端在运行时选定，因此它不是秘密。如果你的部署不止一个人用，请自行给这些路由做授权——见
+[线程授权](/auth#thread-authorization)。
 </Callout>
 
-### Probing the runtime with curl
+### 用 curl 探测运行时
 
-The fastest way to confirm a self-hosted runtime is wired up is to hit `/info`
-directly:
+确认自托管运行时是否接好的最快办法，就是直接请求 `/info`：
 
 ```bash
 curl -s http://localhost:4000/api/copilotkit/info
 ```
 
-You should get back a JSON body describing the registered agents. If you get a
-404, your `basePath` doesn't match the URL you're requesting (or the handler
-isn't mounted). If you get a connection error, the server isn't listening on that
-host/port.
+你应该得到一个描述已注册智能体的 JSON 响应体。如果得到 404，说明你的 `basePath` 与请求的 URL 不匹配（或者 handler 没有挂载）。如果得到连接错误，说明服务器没有在那个主机/端口上监听。
 
 <span id="enable-rich-threads-routes" />
 
-## Enable AG-UI Streams routes
+## 启用 AG-UI Streams 路由
 
-If the Inspector shows the Rich Threads setup view, the client did not find the
-features used to list and inspect saved Threads. This view is based on Runtime
-Threads capability, not license metadata. Complete these steps so Runtime info
-advertises those features and the Inspector can load saved history.
+如果 Inspector 显示 Rich Threads 配置视图，说明客户端没有找到用于列出和检查已保存线程的特性。这个视图基于 Runtime 的 Threads 能力，而不是许可元数据。完成以下步骤，让 Runtime info 宣告这些特性，Inspector 才能加载已保存的历史。
 
-### Start with your coding agent
+### 从你的编码智能体开始
 
-Use this prompt to configure Intelligence and verify that your Runtime exposes AG-UI Streams.
+用这个提示词配置 Intelligence，并验证你的 Runtime 暴露了 AG-UI Streams。
 
 <RichThreadsSetupPrompt />
 
 <Steps>
 <Step>
-### Choose a Runtime route mode
+### 选择 Runtime 路由模式
 
-Single-route and multi-route handlers both expose AG-UI Streams. Use single-route
-when your server should expose only one `POST` endpoint:
+单路由和多路由 handler 都能暴露 AG-UI Streams。当你的服务器应当只暴露一个 `POST` 端点时，用单路由：
 
 ```ts
 const handler = createCopilotRuntimeHandler({
@@ -337,13 +251,10 @@ const handler = createCopilotRuntimeHandler({
 });
 ```
 
-For multi-route, omit `mode`. Your server must mount the full Runtime subtree
-and allow `GET`, `POST`, `PATCH`, and `DELETE`.
+多路由则省略 `mode`。你的服务器必须挂载完整的 Runtime 子树，并允许 `GET`、`POST`、`PATCH` 和 `DELETE`。
 
 <FrontendOnly frontend="react">
-With the v2 React provider, omit `useSingleEndpoint` to detect the mode. You can
-also pin single-route with `useSingleEndpoint` or multi-route with
-`useSingleEndpoint={false}`.
+v2 React provider 省略 `useSingleEndpoint` 即可探测模式。你也可以用 `useSingleEndpoint` 固定单路由，或用 `useSingleEndpoint={false}` 固定多路由。
 
 ```tsx
 import { CopilotKitProvider } from "@copilotkit/react-core/v2";
@@ -353,28 +264,23 @@ import { CopilotKitProvider } from "@copilotkit/react-core/v2";
 </CopilotKitProvider>;
 ```
 
-The provider and handler modes must match.
+provider 与 handler 的模式必须匹配。
 
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
-Keep `provideCopilotKit` pointed at the Runtime base URL. The Angular SDK
-discovers the transport from Runtime info; it has no
-`useSingleEndpoint` option to remove.
+保持 `provideCopilotKit` 指向 Runtime 的基础 URL。Angular SDK 从 Runtime info 发现传输方式；它没有需要移除的 `useSingleEndpoint` 选项。
 </FrontendOnly>
 
 <FrontendOnly frontend="vue">
-Keep `CopilotKitProvider` pointed at the Runtime base URL. It discovers the
-transport when `use-single-endpoint` is omitted; set
-`:use-single-endpoint="true"` only when you need to pin a single-route handler.
+保持 `CopilotKitProvider` 指向 Runtime 的基础 URL。省略 `use-single-endpoint` 时它会自动发现传输方式；只在需要固定单路由 handler 时才设置 `:use-single-endpoint="true"`。
 </FrontendOnly>
 </Step>
 
 <Step>
-### Construct the Intelligence client
+### 构造 Intelligence 客户端
 
-`intelligence` is a `CopilotKitIntelligence` instance. Build it from your
-project's Intelligence API key:
+`intelligence` 是一个 `CopilotKitIntelligence` 实例。用你项目的 Intelligence API 密钥来构建它：
 
 ```ts
 import { CopilotKitIntelligence } from "@copilotkit/runtime/v2";
@@ -384,19 +290,11 @@ const intelligence = new CopilotKitIntelligence({
 });
 ```
 
-`apiKey` is the only required option. `copilotkit project select` writes this
-key into your project's `.env` as `CPK_INTELLIGENCE_API_KEY`, and this is what
-consumes it.
+`apiKey` 是唯一必填的选项。`copilotkit project select` 会把这个键写入你项目的 `.env`，名为 `CPK_INTELLIGENCE_API_KEY`，而这里正是消费它的地方。
 
-Keep the key server-side. It is a project API key, so it is a different
-credential from the browser-visible `NEXT_PUBLIC_COPILOTKIT_LICENSE_KEY` used by
-the [Inspector](/inspector) — do not substitute one for the other.
+密钥要保存在服务器端。它是项目 API 密钥，与 [Inspector](/inspector) 使用的、浏览器可见的 `NEXT_PUBLIC_COPILOTKIT_LICENSE_KEY` 是不同的凭证——不要相互替代。
 
-`apiUrl` and `wsUrl` default to the cloud-hosted platform. The API and
-realtime planes are deployed to **different hosts**, so one cannot be derived
-from the other by swapping the scheme. Override them only for a self-hosted or
-non-production deployment, and override **both together** — setting one alone
-points the two planes at different deployments, which logs a warning:
+`apiUrl` 和 `wsUrl` 默认指向云托管平台。API 与实时平面部署在**不同的主机**上，因此不能通过换协议（scheme）从其中一个推导出另一个。只在自托管或非生产部署时覆盖它们，并且要**同时覆盖两者**——只设一个会把两个平面指向不同的部署，并记录一条警告：
 
 ```ts
 const intelligence = new CopilotKitIntelligence({
@@ -409,11 +307,9 @@ const intelligence = new CopilotKitIntelligence({
 </Step>
 
 <Step>
-### Identify the signed-in application user
+### 识别已登录的应用用户
 
-An Intelligence-backed web Runtime exposes Threads only when it can scope them
-to an application user. Add `identifyUser` and resolve the user from a
-server-verified session or token:
+由 Intelligence 支撑的 Web Runtime 只有在能把线程限定到某个应用用户时才暴露 Threads。添加 `identifyUser`，从服务器验证过的会话或令牌解析用户：
 
 ```ts
 const runtime = new CopilotRuntime({
@@ -427,43 +323,39 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-See [Scope AG-UI Streams to the signed-in user](/threads-lifecycle#scope-rich-threads-to-the-signed-in-user)
-for the full identity and authorization pattern.
+完整的身份与授权模式见[将 AG-UI 流限定到登录用户](/threads-lifecycle#scope-rich-threads-to-the-signed-in-user)。
 
 </Step>
 
 <Step>
-### Mount the Runtime handler
+### 挂载 Runtime handler
 
-For single-route, mount one exact path and allow `POST`:
+单路由：挂载一个精确路径并允许 `POST`：
 
 ```ts title="app/api/copilotkit/route.ts"
 export { handler as POST };
 ```
 
-For multi-route, pass the full `basePath` subtree to the Runtime. In file-based
-routers, use a catch-all or splat route. Allow `GET`, `POST`, `PATCH`, and
-`DELETE`:
+多路由：把完整的 `basePath` 子树交给 Runtime。在基于文件的路由器中，使用 catch-all 或 splat 路由。允许 `GET`、`POST`、`PATCH` 和 `DELETE`：
 
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
 export { handler as GET, handler as POST, handler as PATCH, handler as DELETE };
 ```
 
-See [Deploy to any runtime](/runtime-server-adapter#multi-route-vs-single-route)
-for complete adapter examples.
+完整的适配器示例见[部署到任意运行时](/runtime-server-adapter#multi-route-vs-single-route)。
 
 </Step>
 
 <Step>
-### Verify the advertised capabilities
+### 验证宣告的能力
 
-Restart the Runtime. For multi-route, request its info endpoint:
+重启 Runtime。多路由请请求它的 info 端点：
 
 ```bash
 curl -s http://localhost:4000/api/copilotkit/info
 ```
 
-An Intelligence-backed web Runtime that is ready for AG-UI Streams includes:
+为 AG-UI Streams 就绪的 Intelligence 支撑 Web Runtime 会包含：
 
 ```json
 {
@@ -476,7 +368,7 @@ An Intelligence-backed web Runtime that is ready for AG-UI Streams includes:
 }
 ```
 
-For single-route, post an info envelope:
+单路由请发送一个 info 信封：
 
 ```bash
 curl -s http://localhost:4000/api/copilotkit \
@@ -484,7 +376,7 @@ curl -s http://localhost:4000/api/copilotkit \
   -d '{"method":"info"}'
 ```
 
-The response advertises the resource bridge and its thread features:
+响应会宣告资源桥及其线程特性：
 
 ```json
 {
@@ -500,19 +392,14 @@ The response advertises the resource bridge and its thread features:
 }
 ```
 
-Reload your app after this response is available. The Inspector will replace
-the setup state with the saved Threads list. Cloud-hosted and self-hosted
-Intelligence use the same Runtime route setup.
+这个响应可用之后，重新加载你的应用。Inspector 会用已保存的线程列表替换配置状态。云托管与自托管的 Intelligence 使用相同的 Runtime 路由配置。
 
 </Step>
 </Steps>
 
-## Single-route mode
+## 单路由模式
 
-If you prefer to expose a single `POST` endpoint, for example to simplify a
-reverse-proxy rule or an API gateway, pass `mode: "single-route"`. In that mode
-the runtime exposes one `POST {basePath}` endpoint that accepts a JSON envelope
-`{ method, params, body }` and dispatches internally to the same handlers:
+如果你更想只暴露一个 `POST` 端点——比如为了简化反向代理规则或 API 网关——传入 `mode: "single-route"`。在该模式下，运行时暴露一个 `POST {basePath}` 端点，接受 JSON 信封 `{ method, params, body }`，并在内部分发到同一批 handler：
 
 ```ts title="app/api/copilotkit/route.ts (Express)"
 import { CopilotRuntime, BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -531,45 +418,31 @@ app.use(
 );
 ```
 
-<Callout type="info" title="Install `express` yourself">
-  `express` is an optional peer dependency of `@copilotkit/runtime`, so it is
-  not installed for you. Run `npm install express` (`^4.18.0 || ^5.0.0`) in the
-  app that mounts the adapter. Calling `createCopilotExpressHandler` without it
-  throws and names the fix. Nothing else in the runtime needs express, so Hono
-  and Next.js apps install nothing.
+<Callout type="info" title="自行安装 `express`">
+  `express` 是 `@copilotkit/runtime` 的可选 peer 依赖，所以不会自动安装。在挂载适配器的应用中运行 `npm install express`（`^4.18.0 || ^5.0.0`）。没有它就调用 `createCopilotExpressHandler` 会抛错并写明修复方法。运行时里没有其他地方需要 express，因此 Hono 和 Next.js 应用什么也不必装。
 </Callout>
 
-<Callout type="warn" title="`basePath` is required, in both modes">
-  The Express and single-route handlers each throw at mount time when `basePath`
-  is missing — `basePath must be provided for Express endpoint` and `... for
-  single-route endpoint` respectively — so the server fails to start rather than
-  serving on the wrong paths. Give it the same path the route is mounted at.
+<Callout type="warn" title="两种模式下 `basePath` 都是必填的">
+  Express 与单路由 handler 在缺少 `basePath` 时都会在挂载时抛错——分别是 `basePath must be provided for Express endpoint` 和 `... for single-route endpoint`——因此服务器会启动失败，而不是在错误的路径上服务。把路由实际挂载的路径传给它。
 </Callout>
 
-<Callout type="warn" title="Keep every runtime import on `/v2`">
-  Import the runtime from `@copilotkit/runtime/v2` (and the Express adapter from
-  `@copilotkit/runtime/v2/express`). Reaching into the package root,
-  `@copilotkit/runtime`, gets you the v1 surface: a `CopilotRuntime` built there
-  does not serve these routes, and the mismatch shows up as routes that 404
-  rather than as an import error.
+<Callout type="warn" title="所有运行时 import 都走 `/v2`">
+  从 `@copilotkit/runtime/v2` 导入运行时（Express 适配器从
+  `@copilotkit/runtime/v2/express`）。从包根 `@copilotkit/runtime` 拿到的是 v1 接口面：在那里构建的 `CopilotRuntime` 不服务这些路由，而且这种错配表现为路由 404，而不是 import 报错。
 </Callout>
 
-The optional Inspector metadata operation uses the same endpoint with this
-envelope:
+可选的 Inspector 元数据操作用同一个端点，信封如下：
 
 ```json
 { "method": "inspector/metadata" }
 ```
 
-Its response and failure rules match `GET {basePath}/inspector-metadata`.
+它的响应与失败规则与 `GET {basePath}/inspector-metadata` 一致。
 
-The client sends thread, memory, and annotation operations through the same
-endpoint with a `resource/request` envelope. The Runtime accepts only known
-resource paths and routes them through the same handlers as multi-route mode.
+客户端通过同一端点以 `resource/request` 信封发送线程、记忆与标注操作。Runtime 只接受已知的资源路径，并把它们路由到与多路由模式相同的 handler。
 
 <FrontendOnly frontend="react">
-The frontend detects this mode on its own, so no prop is required. To pin it
-explicitly, pass `useSingleEndpoint`:
+前端会自行检测这种模式，所以不需要任何属性。要显式固定，传 `useSingleEndpoint`：
 
 ```tsx
 import { CopilotKit } from "@copilotkit/react-core/v2";
@@ -580,18 +453,12 @@ import { CopilotKit } from "@copilotkit/react-core/v2";
 ```
 
 <Callout type="warn">
-The frontend transport must match the runtime mode. If the runtime is in
-single-route mode but the frontend is making multi-route requests (or vice
-versa), every call 404s. Omitting the prop avoids that by construction, since
-the client then probes for the mode the runtime actually serves — so pin
-`useSingleEndpoint` only when you want to skip that probe.
+前端传输方式必须与运行时模式匹配。运行时是单路由模式而前端发的是多路由请求（或反过来）时，每次调用都会 404。省略该属性从结构上就避免了这一点，因为客户端会探测运行时实际服务的模式——所以只有想跳过这次探测时才固定 `useSingleEndpoint`。
 </Callout>
 </FrontendOnly>
 
 <FrontendOnly frontend="angular">
-The Angular SDK negotiates the transport from the Runtime info response.
-Point `provideCopilotKit` at the base endpoint; no second route configuration is
-needed:
+Angular SDK 从 Runtime info 响应协商传输方式。把 `provideCopilotKit` 指向基础端点即可；无需第二个路由配置：
 
 ```ts title="src/app/app.config.ts"
 provideCopilotKit({
@@ -600,15 +467,12 @@ provideCopilotKit({
 ```
 
 <Callout type="warn">
-Runtime info must remain reachable through the selected transport so the
-Angular client can discover the transport and registered agents.
+Runtime info 必须通过所选传输方式保持可达，Angular 客户端才能发现传输方式与已注册的智能体。
 </Callout>
 </FrontendOnly>
 
 <FrontendOnly frontend="vue">
-The Vue SDK also discovers the transport from Runtime info. Point
-`CopilotKitProvider` at the base endpoint; no second route configuration is
-needed:
+Vue SDK 同样从 Runtime info 发现传输方式。把 `CopilotKitProvider` 指向基础端点即可；无需第二个路由配置：
 
 ```vue
 <CopilotKitProvider runtime-url="/api/copilotkit">
@@ -617,17 +481,13 @@ needed:
 ```
 
 <Callout type="warn">
-Runtime info must remain reachable so the Vue client can discover the transport
-and registered agents.
+Runtime info 必须保持可达，Vue 客户端才能发现传输方式与已注册的智能体。
 </Callout>
 </FrontendOnly>
 
 ## CORS
 
-The Express and Hono adapters apply permissive CORS by default
-(`origin: "*"`, all standard methods, all headers) so local development works out
-of the box. Pass `cors: false` to disable the built-in middleware and handle CORS
-yourself, or pass a configuration object to scope it for production:
+Express 与 Hono 适配器默认应用宽松的 CORS（`origin: "*"`、所有标准方法、所有请求头），本地开发开箱即用。传 `cors: false` 可禁用内置中间件并自行处理 CORS，或传入配置对象在生产环境收紧范围：
 
 ```ts
 createCopilotExpressHandler({
@@ -640,11 +500,9 @@ createCopilotExpressHandler({
 });
 ```
 
-## Authenticating requests
+## 认证请求
 
-Because these routes run on your server, they're the right place to enforce
-auth. The adapters accept lifecycle `hooks`. An `onRequest` hook runs before
-every request and can reject the request by throwing a `Response`:
+这些路由跑在你的服务器上，因此正是实施认证的地方。适配器接受生命周期 `hooks`。`onRequest` hook 在每个请求之前运行，可以通过抛出一个 `Response` 来拒绝请求：
 
 ```ts
 createCopilotExpressHandler({
@@ -660,9 +518,7 @@ createCopilotExpressHandler({
 });
 ```
 
-`onRequest` runs before routing, so it knows the path but not the route. For
-per-thread decisions use `onBeforeHandler`, which runs after routing and
-receives the resolved `route`, including its `threadId`:
+`onRequest` 在路由之前运行，因此它知道路径但不知道路由。要按线程做决策，请用 `onBeforeHandler`，它在路由之后运行，收到解析出的 `route`，包括其中的 `threadId`：
 
 ```ts
 createCopilotExpressHandler({
@@ -693,38 +549,30 @@ createCopilotExpressHandler({
 });
 ```
 
-`route.threadId` is present on `agent/stop`, `threads/messages`,
-`threads/events`, `threads/state`, `threads/update` and `threads/archive`.
-`threads/list`, `threads/clear` and `threads/subscribe` carry no thread at all,
-so the only decision available for those three is whether to allow them.
+`route.threadId` 存在于 `agent/stop`、`threads/messages`、
+`threads/events`、`threads/state`、`threads/update` 和 `threads/archive` 上。
+`threads/list`、`threads/clear` 和 `threads/subscribe` 完全不携带线程，因此对这三条唯一可做的决定就是是否放行。
 
-See [Auth](/auth) for the full authentication guide and
-[Thread authorization](/auth#thread-authorization) for the ownership map this
-example assumes.
+完整的认证指南见[身份验证](/auth)，本例假设的归属映射见
+[线程授权](/auth#thread-authorization)。
 
-For Inspector metadata, Core sends these current browser-to-runtime headers and
-fetch credentials on the optional request. The Runtime then starts a separate
-server-to-Intelligence request with only its configured Intelligence API key.
+对于 Inspector 元数据，Core 会在可选请求上发送当前这些浏览器到运行时的请求头与 fetch 凭证。随后 Runtime 以它配置的 Intelligence API 密钥另起一个服务器到 Intelligence 的请求。
 
-## Connect route 404 on a fresh thread
+## 新线程上 connect 路由返回 404
 
-A frequent self-hosting symptom is a `404` from the
-`POST /agent/:agentId/connect` route right after the page loads, before the user
-has sent a single message. This usually means one of two things:
+一个常见的自托管症状是：页面刚加载完、用户还没发送任何消息，`POST /agent/:agentId/connect` 路由就返回 `404`。这通常意味着以下两种情况之一：
 
-1. **The `agentId` in the URL isn't registered.** The runtime returns
-   `{"error":"Agent not found","message":"Agent '<id>' does not exist"}` with a
-   `404` when no agent matches. The prebuilt components default to the agent named
-   `"default"`, so register one under that key (or pass an explicit `agentId`).
-2. **`connect()` is called before any `run()` for an auto-minted thread.** Some
-   persistence backends only know about a thread once a run has produced events.
-   See the [AgentRunner](/backend/agent-runner) guide and the
-   [`/connect` 404 troubleshooting entry](/troubleshooting/common-issues#connect-route-returns-404-on-a-fresh-thread).
+1. **URL 中的 `agentId` 没有注册。**没有智能体匹配时，运行时以
+   `404` 返回 `{"error":"Agent not found","message":"Agent '<id>' does not exist"}`。预构建组件默认使用名为
+   `"default"` 的智能体，因此请在这个键下注册一个（或显式传入 `agentId`）。
+2. **对自动铸造的线程，`connect()` 在任何 `run()` 之前被调用。**某些持久化后端只有在一次运行产出事件之后才认识这个线程。
+   见 [AgentRunner](/backend/agent-runner) 指南和
+   [`/connect` 返回 404 的故障排查条目](/troubleshooting/common-issues#connect-route-returns-404-on-a-fresh-thread)。
 
-## Related
+## 相关内容
 
-- [Copilot Runtime](/backend/copilot-runtime): setting up the runtime and adapters.
-- [AgentRunner](/backend/agent-runner): the persistence abstraction behind `run`/`connect`/`stop`.
-- [Connect AG-UI agents](/backend/ag-ui): how the frontend proxy maps onto these routes.
-- [Error Debugging](/troubleshooting/error-debugging): the `onError` codes that map to these routes.
-- [Inspector](/inspector): how trusted project context and license-aware actions appear in the Inspector.
+- [Copilot Runtime](/backend/copilot-runtime)：设置运行时与适配器。
+- [AgentRunner](/backend/agent-runner)：`run`/`connect`/`stop` 背后的持久化抽象。
+- [连接 AG-UI 智能体](/backend/ag-ui)：前端代理如何映射到这些路由。
+- [错误调试](/troubleshooting/error-debugging)：映射到这些路由的 `onError` 错误码。
+- [Inspector](/inspector)：受信项目上下文与许可感知操作如何在 Inspector 中呈现。

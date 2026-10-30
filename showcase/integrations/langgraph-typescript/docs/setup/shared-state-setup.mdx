@@ -1,6 +1,6 @@
 <Steps>
   <Step>
-    ### Install the CopilotKit LangGraph SDK
+    ### 安装 CopilotKit LangGraph SDK
 
     ```bash
     npm install @copilotkit/sdk-js
@@ -8,18 +8,13 @@
 
   </Step>
   <Step>
-    ### Wire CopilotKit state into your graph
+    ### 将 CopilotKit 状态接入你的图
 
-    Shared state requires that your graph's state annotation extends
-    `CopilotKitStateAnnotation`'s `spec`. That's what gives the runtime a
-    place to forward state updates from `agent.setState(...)`.
+    共享状态要求你图的状态注解扩展自 `CopilotKitStateAnnotation` 的 `spec`。正是这一点让运行时有了转发 `agent.setState(...)` 状态更新的落点。
 
     <DemoCode file="src/agent/shared-state-read-write.ts" region="shared-state-setup" />
 
-    See `src/agent/shared-state-read-write.ts` for the bidirectional
-    pattern: a `set_notes` tool emits a `Command({ update: ... })` to
-    push agent-authored state, and a preferences-injecting chat node
-    reads UI-authored state every turn.
+    双向模式见 `src/agent/shared-state-read-write.ts`：`set_notes` 工具发出 `Command({ update: ... })` 来推送由智能体写入的状态，而一个注入偏好设置的聊天节点会在每一轮读取由 UI 写入的状态。
 
   </Step>
 </Steps>

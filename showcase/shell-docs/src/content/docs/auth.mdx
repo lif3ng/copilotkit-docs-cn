@@ -1,32 +1,32 @@
 ---
-title: Authentication
-description: Pass user auth context from your frontend to the agent so it can scope tools, data, and decisions to the signed-in user.
+title: 身份验证
+description: 将用户认证上下文从前端传递给智能体，让工具、数据与决策都能限定在当前登录用户范围内。
 icon: "lucide/Shield"
 snippet_cell: auth
 ---
 
 <InlineDemo demo="auth" />
 
-You have a chat surface or a hook driving an agent and you want every agent run to know *who* the request came from. By the end of this guide, your frontend will forward a token, the runtime will pass it through, and your agent code will read the resulting user info on every turn.
+你有一个聊天界面或一个驱动智能体的 hook，并且希望每次智能体运行都知道请求*来自谁*。读完本指南，你的前端将转发一个令牌，运行时会将其透传，而你的智能体代码会在每一轮读取得到的用户信息。
 
-## When to use this
+## 适用场景
 
-- **Multi-tenant apps** where the agent reads or writes per-user data.
-- **Tool gating** where some tools should only run for authorised users.
-- **Audit and billing** where every run needs an identity to attribute it to.
-- **Session-aware UX** where the agent's behaviour depends on the user's role or permissions.
+- **多租户应用**：智能体需要读写按用户划分的数据。
+- **工具访问控制**：某些工具只应对已授权的用户运行。
+- **审计与计费**：每次运行都需要一个可归属的身份。
+- **会话感知的 UX**：智能体的行为取决于用户的角色或权限。
 
-If you run the TypeScript runtime without Intelligence and do not need any of those, your agent can run anonymously. Intelligence runtimes require a trusted application-user identity for protected web requests.
+如果你运行的是不带 Intelligence 的 TypeScript 运行时，且以上需求一概没有，你的智能体可以匿名运行。Intelligence 运行时则要求受保护的 Web 请求携带可信的应用用户身份。
 
-<Callout type="info" title="Runtime authentication APIs">
-The runtime hooks on this page use the TypeScript API. Python, Go, Ruby, and C#/.NET use their host's request and authentication APIs; follow their [Intelligence setup examples](/intelligence/quickstart#connect-your-runtime). In every language, resolve the user from a verified session or token and keep the Intelligence API key on the server.
+<Callout type="info" title="运行时身份验证 API">
+本页的运行时 hook 使用 TypeScript API。Python、Go、Ruby 和 C#/.NET 则使用各自宿主的请求与身份验证 API；请参考它们的 [Intelligence 配置示例](/intelligence/quickstart#connect-your-runtime)。无论哪种语言，都要从已验证的会话或令牌解析用户，并把 Intelligence API 密钥保存在服务器端。
 </Callout>
 
 <WhenFrameworkHas flag="auth_pattern" equals="runtime-onrequest">
 
-## Frontend
+## 前端
 
-Pass your token via the `headers` prop on `<CopilotKit>`. CopilotKit forwards every request with that header attached.
+通过 `<CopilotKit>` 上的 `headers` 属性传递你的令牌。CopilotKit 转发的每个请求都会附带该请求头。
 
 ```tsx title="frontend/src/app/page.tsx"
 import { CopilotKit } from "@copilotkit/react-core/v2";
@@ -42,18 +42,17 @@ import { CopilotKit } from "@copilotkit/react-core/v2";
 </CopilotKit>
 ```
 
-<Callout type="info" title="About the explicit useSingleEndpoint">
-  The `createCopilotRuntimeHandler` route below serves multi-route, the default.
-  `<CopilotKitProvider>` negotiates the transport when the prop is omitted, but
-  every released `<CopilotKit>` still pins it to `true` internally — which
-  selects the single-route transport and 404s against this route. Keep the
-  `{false}`. See
-  [Provider and handler pairs](/backend/runtime-endpoints#provider-and-handler-pairs).
+<Callout type="info" title="关于显式设置的 useSingleEndpoint">
+  下方 `createCopilotRuntimeHandler` 路由提供的是多路由传输（默认形态）。
+  省略该属性时 `<CopilotKitProvider>` 会协商传输方式，但当前发布的每个
+  `<CopilotKit>` 内部仍把它固定为 `true`——这会选择单路由传输，并对此路由返回 404。请保留
+  `{false}`。参见
+  [Provider 与 handler 的配对](/backend/runtime-endpoints#provider-and-handler-pairs)。
 </Callout>
 
-## Backend
+## 后端
 
-Wire authentication into the V2 runtime via the `onRequest` hook. The hook runs before any agent code and operates on the raw `Request`, so it's the right place to read the `Authorization` header, run your verifier, and either let the request through or short-circuit with a 401:
+通过 `onRequest` hook 将身份验证接入 V2 运行时。该 hook 在任何智能体代码之前运行，操作的是原始 `Request`，因此它正适合用来读取 `Authorization` 请求头、运行你的校验器，然后要么放行请求，要么以 401 短路返回：
 
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
 import type { NextRequest } from "next/server";
@@ -89,15 +88,15 @@ export const PATCH = (req: NextRequest) => handler(req);
 export const DELETE = (req: NextRequest) => handler(req);
 ```
 
-> The V1 Next.js adapter (`copilotRuntimeNextJSAppRouterEndpoint`) does not forward the `hooks` option. Use `createCopilotRuntimeHandler` from `@copilotkit/runtime/v2` directly when you need the `onRequest` gate.
+> V1 的 Next.js 适配器（`copilotRuntimeNextJSAppRouterEndpoint`）不会转发 `hooks` 选项。当你需要 `onRequest` 门禁时，请直接使用 `@copilotkit/runtime/v2` 中的 `createCopilotRuntimeHandler`。
 
 </WhenFrameworkHas>
 
 <WhenFrameworkHas flag="auth_pattern" equals="langgraph">
 
-## Frontend
+## 前端
 
-Pass your token via the `headers` prop. CopilotKit attaches it to every runtime request, and the runtime forwards the `Authorization` header on to your agent — whether that's a LangGraph deployment or a self-hosted AG-UI endpoint.
+通过 `headers` 属性传递你的令牌。CopilotKit 会把它附加到每个运行时请求上，运行时再将 `Authorization` 请求头转发给你的智能体——无论它是 LangGraph 部署还是自托管的 AG-UI 端点。
 
 ```tsx title="frontend/src/app/page.tsx"
 import { CopilotKit } from "@copilotkit/react-core/v2";
@@ -112,18 +111,18 @@ import { CopilotKit } from "@copilotkit/react-core/v2";
 </CopilotKit>
 ```
 
-<Callout type="warning" title="`properties` is not an auth channel">
-Older versions of this guide passed the token as `properties={{ authorization: userToken }}`. The runtime delivers `properties` to the agent as AG-UI `forwardedProps` — run payload data, not a request header — so nothing turns them into a Bearer credential. Use `headers` for auth. Headers the server configured on the agent itself still win on collision, so a service-to-service token can't be overridden from the browser.
+<Callout type="warning" title="`properties` 不是认证通道">
+本指南的旧版本曾通过 `properties={{ authorization: userToken }}` 传递令牌。运行时把 `properties` 作为 AG-UI `forwardedProps` 交付给智能体——它是运行载荷数据，不是请求头——因此没有任何环节会把它转换成 Bearer 凭证。认证请使用 `headers`。服务器在智能体自身配置的请求头在冲突时仍然优先，因此服务间令牌不会被浏览器端覆盖。
 </Callout>
 
-## Backend
+## 后端
 
-LangGraph supports two deployment modes. The frontend code above is the same in both, but the backend wiring differs in where the resolved user identity lands. Pick the tab that matches where your agent runs.
+LangGraph 支持两种部署模式。上面的前端代码在两种模式下都相同，但后端接线的差别在于解析出的用户身份落在哪里。请选择与你的智能体运行位置匹配的标签页。
 
 <Tabs items={['LangGraph Platform', 'Self-hosted (FastAPI)']}>
 <Tab value="LangGraph Platform">
 
-On LangGraph Platform (and on `langgraph dev`), authentication is a managed service. You declare an `@auth.authenticate` handler, and the server runs it on every request before the graph starts. The forwarded `Authorization` header arrives as the handler's `authorization` argument, and the handler's return value becomes available to every node in the run.
+在 LangGraph Platform（以及 `langgraph dev`）上，身份验证是一项托管服务。你声明一个 `@auth.authenticate` handler，服务器会在图启动之前对每个请求运行它。转发的 `Authorization` 请求头作为 handler 的 `authorization` 参数传入，handler 的返回值对运行中的每个节点都可用。
 
 ```python title="backend/auth.py"
 from langgraph_sdk import Auth
@@ -145,7 +144,7 @@ async def authenticate(authorization: str | None):
     }
 ```
 
-The return value of the handler shows up in every node's `config["configurable"]["langgraph_auth_user"]`. From there, scoping tool access or filtering data is straightforward:
+handler 的返回值会出现在每个节点的 `config["configurable"]["langgraph_auth_user"]` 中。有了它，限定工具访问范围或过滤数据都很直接：
 
 ```python title="backend/agent.py"
 from langchain_core.runnables import RunnableConfig
@@ -158,12 +157,12 @@ async def my_agent_node(state: AgentState, config: RunnableConfig):
     return state
 ```
 
-For full handler details, see the [LangGraph Platform Authentication documentation](https://docs.langchain.com/langsmith/auth#authentication).
+handler 的完整细节见 [LangGraph Platform 身份验证文档](https://docs.langchain.com/langsmith/auth#authentication)。
 
 </Tab>
 <Tab value="Self-hosted (FastAPI)">
 
-When you self-host the agent behind FastAPI, there's no managed auth handler to plug into — validation is your job, and the natural place for it is the endpoint that serves the AG-UI stream. `add_langgraph_fastapi_endpoint` mounts that endpoint for you, but it takes one pre-built agent and gives you no per-request hook, so replace it with the equivalent route of your own: a FastAPI dependency verifies the `Authorization` header the runtime forwarded, and the resolved user is baked into a per-request agent's `config`.
+当你把智能体自托管在 FastAPI 之后，就没有托管认证 handler 可挂靠了——校验是你的职责，而它天然的位置就是服务 AG-UI 流的端点。`add_langgraph_fastapi_endpoint` 会为你挂载该端点，但它只接受一个预构建的智能体，也不提供按请求的 hook，所以要用等价的自建路由替换它：由 FastAPI dependency 校验运行时转发来的 `Authorization` 请求头，并把解析出的用户烘焙进按请求创建的智能体 `config`。
 
 ```python title="backend/main.py"
 from typing import Optional
@@ -206,7 +205,7 @@ async def run_agent(
     return StreamingResponse(event_generator(), media_type=encoder.get_content_type())
 ```
 
-Unauthenticated requests never reach the graph — they get a 401 from the dependency. Authenticated ones arrive with an already-verified user on the config, so nodes read identity instead of re-validating a raw token:
+未认证的请求根本到不了图——它们会被 dependency 以 401 拒绝。已认证的请求则带着已验证的用户进入 config，节点直接读取身份即可，无需重新校验原始令牌：
 
 ```python title="backend/src/agent.py"
 from langchain_core.runnables import RunnableConfig
@@ -219,12 +218,12 @@ async def my_agent_node(state: AgentState, config: RunnableConfig):
     return state
 ```
 
-<Callout type="info" title="If you only need the 401 gate">
-When nodes don't need the identity — you just want unauthenticated traffic rejected — keep `add_langgraph_fastapi_endpoint` and hang the dependency off the app: `FastAPI(dependencies=[Depends(current_user)])`. The gate applies, but nothing lands on the run config, so `config["configurable"]` stays empty of user context.
+<Callout type="info" title="如果你只需要 401 门禁">
+当节点不需要身份——你只是想拒绝未认证流量时——保留 `add_langgraph_fastapi_endpoint` 并把 dependency 挂到应用上：`FastAPI(dependencies=[Depends(current_user)])`。门禁照样生效，但不会向运行 config 写入任何东西，因此 `config["configurable"]` 中不会包含用户上下文。
 </Callout>
 
-<Callout type="warning" title="`CopilotKitRemoteEndpoint` no longer works here">
-Guides written for CopilotKit v1 wrapped the graph in `CopilotKitRemoteEndpoint(agents=lambda context: [...])`. That path is retired: `copilotkit` no longer exports `LangGraphAgent` (`ImportError`), and the current `LangGraphAGUIAgent` exposes `run()` rather than the `execute()` that `CopilotKitRemoteEndpoint` calls — giving `AgentExecutionException: 'LangGraphAGUIAgent' object has no attribute 'execute'`. Use the endpoint above instead.
+<Callout type="warning" title="`CopilotKitRemoteEndpoint` 在此已不可用">
+为 CopilotKit v1 编写的指南会把图包装在 `CopilotKitRemoteEndpoint(agents=lambda context: [...])` 中。这条路已退役：`copilotkit` 不再导出 `LangGraphAgent`（会抛 `ImportError`），而现在的 `LangGraphAGUIAgent` 暴露的是 `run()`，不再是 `CopilotKitRemoteEndpoint` 调用的 `execute()`——于是报出 `AgentExecutionException: 'LangGraphAGUIAgent' object has no attribute 'execute'`。请改用上面的端点。
 </Callout>
 
 </Tab>
@@ -234,9 +233,9 @@ Guides written for CopilotKit v1 wrapped the graph in `CopilotKitRemoteEndpoint(
 
 <WhenFrameworkHas flag="auth_pattern" equals="ag2-dependencies">
 
-## Frontend
+## 前端
 
-Pass your token via the `properties` prop. CopilotKit forwards it to AG2's `/chat` endpoint as a request header.
+通过 `properties` 属性传递你的令牌。CopilotKit 会把它作为请求头转发给 AG2 的 `/chat` 端点。
 
 ```tsx title="frontend/src/app/page.tsx"
 import { CopilotKit } from "@copilotkit/react-core/v2";
@@ -251,11 +250,11 @@ import { CopilotKit } from "@copilotkit/react-core/v2";
 </CopilotKit>
 ```
 
-## Backend
+## 后端
 
-The backend has two responsibilities: validate the token before the agent dispatches, and thread the resolved user identity into the run as a **dependency** so tools can read it later. Dependencies stay server-side — unlike conversation variables, they are never streamed to the client as state.
+后端有两项职责：在智能体分发之前校验令牌，并把解析出的用户身份作为一个**依赖（dependency）**穿入运行，供工具稍后读取。依赖只留在服务器端——与会话变量不同，它们永远不会作为状态流式传输到客户端。
 
-Start by validating the token on AG2's `/chat` endpoint. The `Authorization` header arrives as a normal FastAPI `Header(...)` parameter:
+先在 AG2 的 `/chat` 端点上校验令牌。`Authorization` 请求头会作为普通的 FastAPI `Header(...)` 参数传入：
 
 ```python title="backend/server.py"
 from fastapi import FastAPI, Header, HTTPException
@@ -302,7 +301,7 @@ async def run_agent(
     )
 ```
 
-Once the token is validated, AG2's tools can request the user identity with the `Inject` annotation. This is how you make individual tool calls aware of who's asking, without having to thread the user object manually through every helper — and without exposing it to the LLM or the client:
+令牌校验通过后，AG2 的工具可以用 `Inject` 注解来请求用户身份。这样就能让每次工具调用都知道请求者是谁，而不必手动把用户对象穿透每一个辅助函数——也不会把它暴露给 LLM 或客户端：
 
 ```python title="backend/tools.py"
 from typing import Annotated
@@ -322,7 +321,7 @@ def get_account_data(
     return {"account_id": account_id, "owner": auth_user["user_id"]}
 ```
 
-Finally, register the tool on the agent so the LLM can call it:
+最后，把工具注册到智能体上，让 LLM 可以调用它：
 
 ```python title="backend/server.py"
 from backend.tools import get_account_data # [!code highlight]
@@ -339,9 +338,9 @@ agent = Agent(
 
 <WhenFrameworkHas flag="auth_pattern" equals="microsoft-agent-framework">
 
-## Frontend
+## 前端
 
-Microsoft Agent Framework's AG-UI host expects authentication on a request header rather than the runtime properties channel. Pass the token via `<CopilotKit headers={...}>`:
+Microsoft Agent Framework 的 AG-UI 宿主要求把认证放在请求头上，而不是运行时的 properties 通道。通过 `<CopilotKit headers={...}>` 传递令牌：
 
 ```tsx title="frontend/src/app/page.tsx"
 import { CopilotKit } from "@copilotkit/react-core/v2";
@@ -356,9 +355,9 @@ import { CopilotKit } from "@copilotkit/react-core/v2";
 </CopilotKit>
 ```
 
-## Backend
+## 后端
 
-Validation lives at the host process level: ASP.NET Core's JwtBearer middleware on the .NET host, FastAPI middleware on the Python host. Either way, the AG-UI endpoint refuses to dispatch the agent until the token is verified — so by the time your tools run, the user identity is already trustworthy.
+校验位于宿主进程层面：.NET 宿主上用 ASP.NET Core 的 JwtBearer 中间件，Python 宿主上用 FastAPI 中间件。无论哪种方式，AG-UI 端点在令牌验证通过之前都会拒绝分发智能体——因此等到你的工具运行时，用户身份已经可信。
 
 <Tabs groupId="language_microsoft-agent-framework_agent" items={['.NET', 'Python']} persist>
 <Tab value=".NET">
@@ -405,7 +404,7 @@ app.MapAGUIServer("/", agent).RequireAuthorization();
 await app.RunAsync();
 ```
 
-Settings live in `appsettings.json`:
+设置保存在 `appsettings.json` 中：
 
 ```json title="appsettings.json"
 {
@@ -414,7 +413,7 @@ Settings live in `appsettings.json`:
 }
 ```
 
-Save the model key outside `appsettings.json`:
+把模型密钥保存在 `appsettings.json` 之外：
 
 ```bash
 dotnet user-secrets init
@@ -458,7 +457,7 @@ my_agent = create_agent(chat_client)
 add_agent_framework_fastapi_endpoint(app=app, agent=my_agent, path="/")
 ```
 
-Settings live in `agent/.env`:
+设置保存在 `agent/.env` 中：
 
 ```bash title="agent/.env"
 AUTH_BEARER_TOKEN=super-secret-demo-token
@@ -467,15 +466,15 @@ AUTH_BEARER_TOKEN=super-secret-demo-token
 </Tab>
 </Tabs>
 
-<Callout type="warning" title="Avoid shared-secret bearer tokens in production">
-Examples that validate against a single shared secret are for local demos only. For production, use proper authentication: validate JWTs with `Microsoft.AspNetCore.Authentication.JwtBearer` (.NET), or OAuth 2.0 / OpenID Connect JWT validation (Python).
+<Callout type="warning" title="生产环境避免共享密钥式 Bearer 令牌">
+用单一共享密钥做校验的示例仅适用于本地演示。生产环境请使用正规认证：.NET 上用 `Microsoft.AspNetCore.Authentication.JwtBearer` 校验 JWT，Python 上用 OAuth 2.0 / OpenID Connect JWT 校验。
 </Callout>
 
 </WhenFrameworkHas>
 
-## Tool gating
+## 工具访问控制
 
-The most common reason to wire auth is so individual tools can decline to run. Read the resolved user inside the tool's handler and bail if the role doesn't match:
+接入认证最常见的原因，就是让单个工具有权拒绝运行。在工具的 handler 里读取解析出的用户，角色不匹配就中止：
 
 ```python
 def delete_record(record_id: str, *, user: User):
@@ -484,20 +483,20 @@ def delete_record(record_id: str, *, user: User):
     # do the delete
 ```
 
-This composes with [Human in the loop](/human-in-the-loop): gate on auth first, surface a confirmation card next, execute last.
+它可以与[人机协同](/human-in-the-loop)组合：先做认证门禁，再弹出确认卡片，最后执行。
 
-## Thread authorization
+## 线程授权
 
-Verifying *who* the caller is doesn't yet stop them reaching *someone else's conversation*. How much of that you have to build depends on which runtime you're running.
+验证了调用者*是谁*，还不能阻止他访问*别人的会话*。这方面你需要自己构建多少，取决于你运行的是哪个运行时。
 
-| Runtime | Who scopes threads to a user |
+| 运行时 | 由谁把线程限定到某个用户 |
 | --- | --- |
-| `CopilotRuntime` with `intelligence` | Mostly the runtime, via [`identifyUser`](#copilotkit-intelligence-scopes-most-thread-routes) — with three routes you still have to guard. |
-| Anything else — SSE runtime, custom store, local in-memory runner | You do. See [Scope threads yourself](#scope-threads-yourself). |
+| `CopilotRuntime` 加 `intelligence` | 主要由运行时通过 [`identifyUser`](#copilotkit-intelligence-管辖大多数线程路由) 完成——但有三条路由你仍需自己设防。 |
+| 其他一切——SSE 运行时、自定义存储、本地内存运行器 | 由你完成。见[自行划定线程范围](#自行划定线程范围)。 |
 
-### CopilotKit Intelligence scopes most thread routes
+### CopilotKit Intelligence 管辖大多数线程路由
 
-The Intelligence runtime requires an `identifyUser` callback — construction throws without one (or without at least one Channel). It runs on the server, once per request, and the id it returns is the scope the runtime hands to the platform. (`intelligence` below is a `CopilotKitIntelligence` instance; [Connect your runtime to Intelligence](/intelligence/quickstart) covers building it.)
+Intelligence 运行时要求提供一个 `identifyUser` 回调——没有它（或没有至少一个 Channel），构造时就会抛错。回调在服务器上运行，每个请求一次，它返回的 id 就是运行时交给平台的范围。（下文的 `intelligence` 是一个 `CopilotKitIntelligence` 实例；[将你的运行时接入 Intelligence](/intelligence/quickstart) 介绍了如何构建它。）
 
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
 const runtime = new CopilotRuntime({
@@ -512,35 +511,26 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-<Callout type="warn" title="`identifyUser` is not an authentication gate">
-  Most routes resolve the caller through `identifyUser`, but **not all of them do** — and the
-  ones that don't never invoke your callback at all. Rejecting unauthenticated requests is
-  `onRequest`'s job: it runs before routing, on every route, without exception. Treat
-  `identifyUser` as the thing that *names* an already-authenticated caller, never as the thing
-  that decides whether a caller gets in.
+<Callout type="warn" title="`identifyUser` 不是认证门禁">
+  大多数路由通过 `identifyUser` 解析调用者，但**并非所有路由都如此**——不这么做的路由根本不会调用你的回调。拒绝未认证请求是 `onRequest` 的职责：它在路由之前运行，覆盖每一条路由，无一例外。把 `identifyUser` 视作为已认证的调用者*命名*的环节，绝不要把它视作决定调用者能否进入的环节。
 </Callout>
 
-Where a route does resolve the caller, what matters next is whether that id is actually *carried to the platform* as a scope:
+在确实解析调用者的路由上，接下来关键是这个 id 是否真的*作为范围传到了平台*：
 
-| Route | Scoped to the resolved user? |
+| 路由 | 是否限定到解析出的用户？ |
 | --- | --- |
-| `agent/run`, `agent/connect` | Yes |
-| `threads/list` | Yes — and filtered by `agentId`, so `useThreads` returns the caller's threads rather than the project's |
-| `threads/messages` | Yes |
-| `threads/update` (rename via `PATCH`, delete via `DELETE`), `threads/archive` | Yes |
-| Thread subscription token | Yes |
-| `threads/events`, `threads/state` | **No** — resolves the caller, then ignores it |
-| `agent/stop` | Yes — the thread is fetched as the caller before the run is aborted |
+| `agent/run`、`agent/connect` | 是 |
+| `threads/list` | 是——并按 `agentId` 过滤，因此 `useThreads` 返回的是调用者自己的线程，而非整个项目的 |
+| `threads/messages` | 是 |
+| `threads/update`（通过 `PATCH` 重命名、通过 `DELETE` 删除）、`threads/archive` | 是 |
+| 线程订阅令牌 | 是 |
+| `threads/events`、`threads/state` | **否**——解析调用者后便将其忽略 |
+| `agent/stop` | 是——在中止运行之前会以调用者身份获取该线程 |
 
-<Callout type="warn" title="Two routes are not user-scoped">
-  **`threads/events` and `threads/state`** back the [inspector](/inspector). Both resolve the
-  caller and then discard the result, reading the thread by id alone — the runtime calls the
-  platform's project-authenticated `_inspect` endpoints, which take no user parameter. Any
-  caller can read the full event log and current agent state of any thread in the project,
-  given its `threadId`.
+<Callout type="warn" title="两条路由不按用户限定">
+  **`threads/events` 与 `threads/state`** 支撑着[检查器](/inspector)。两者都会解析调用者然后把结果丢弃，仅凭 id 读取线程——运行时调用的是平台以项目身份认证的 `_inspect` 端点，它们不接受用户参数。任何调用者只要拿到 `threadId`，就能读取项目内任意线程的完整事件日志与当前智能体状态。
 
-  Guard both yourself. The `onBeforeHandler` pattern below applies on the CopilotKit Intelligence
-  path too, narrowed to these routes:
+  这两条都要自己设防。下方的 `onBeforeHandler` 模式同样适用于 CopilotKit Intelligence 路径，只需收窄到这几条路由：
 
   ```ts
   onBeforeHandler: async ({ request, route }) => {
@@ -562,40 +552,30 @@ Where a route does resolve the caller, what matters next is whether that id is a
   },
   ```
 
-  Without an ownership record of your own, reject these routes outright rather than leaving
-  them open.
+  如果你没有自己的归属记录，请直接拒绝这些路由，而不是放任其开放。
 </Callout>
 
-For everything in the Yes rows there is no ownership table to build. What you own is `identifyUser` itself:
+对表中所有“是”的行，你无需构建任何归属表。你要做好的是 `identifyUser` 本身：
 
-- **Derive the id from a server-verified credential.** The callback receives the raw `Request`; whatever it returns is trusted from there on. Reading a user id straight out of a header or request body hands every caller the ability to name themselves.
-- **Return a stable id.** It is the key threads hang off. Change it — swapping an email for a subject claim, say — and that user's existing threads stop resolving.
-- **Send the `401` from `onRequest`.** Beyond the status codes being wrong — an `identifyUser` that throws surfaces as a `500`, a malformed id as a `400` — routes like `transcribe` and `agent/suggest` never call it, so a check placed only here isn't reached on every request. Authenticate in `onRequest`, which runs on every route and can throw a `Response` directly, and keep the throw inside `identifyUser` as a backstop.
+- **从服务器验证过的凭证派生 id。**回调收到的是原始 `Request`；它的返回值从此即被视为可信。直接从头或请求体里读用户 id，等于把自我命名的权力交给每一个调用者。
+- **返回稳定的 id。**它是线程挂靠的键。一旦变更——比如把邮箱换成 subject 声明——该用户的既有线程就无法解析了。
+- **在 `onRequest` 中发出 `401`。**除了状态码不对——`identifyUser` 抛错会表现为 `500`，id 格式非法表现为 `400`——`transcribe` 和 `agent/suggest` 之类的路由从不调用它，因此只放在这里的检查并非每个请求都会经过。请在 `onRequest` 中认证——它在每条路由上运行且能直接抛出 `Response`——并把 `identifyUser` 内的抛错留作兜底。
 
 <Callout type="warn">
-  A static `identifyUser` value is suitable only for a single-user demo. In a multi-user
-  application every request must resolve the authenticated user, or those users share one
-  thread scope.
+  静态的 `identifyUser` 值只适用于单用户演示。在多用户应用中，每个请求都必须解析出已认证的用户，否则这些用户会共享同一个线程范围。
 </Callout>
 
-See [Scope AG-UI Streams to the signed-in user](/threads-lifecycle#scope-rich-threads-to-the-signed-in-user) for the full runtime contract.
+完整的运行时契约见[将 AG-UI 流限定到登录用户](/threads-lifecycle#scope-rich-threads-to-the-signed-in-user)。
 
-### Scope threads yourself
+### 自行划定线程范围
 
-Without CopilotKit Intelligence there is no server-side binding between a `threadId` and a user. A `threadId` is just an opaque id travelling in a request: if user A learns user B's, every thread route accepts it. The rest of this section is the pattern for a custom store, a plain SSE runtime, or the local in-memory runner — and it's also what you narrow to `threads/events` and `threads/state` if you *are* on the platform.
+没有 CopilotKit Intelligence 时，`threadId` 与用户之间不存在服务器端的绑定。`threadId` 只是随请求旅行的不透明 id：如果用户 A 得到了用户 B 的 id，每条线程路由都会接受它。本节余下内容是自定义存储、纯 SSE 运行时或本地内存运行器的模式——如果你*确实*在平台上，它也正是你收窄到 `threads/events` 和 `threads/state` 时要用的东西。
 
-The default `InMemoryAgentRunner` is the plainest case. It holds threads in a
-process-global map keyed by `threadId` with no owner field, so every
-[thread route](/backend/runtime-endpoints#thread-routes) answers for any id it
-is handed: `GET /threads` lists every thread in the process, and
-`GET /threads/:threadId/messages` returns that thread's history to whoever asks.
-Anything extending it, such as `AgentCoreRunner`, inherits the same store.
-`SqliteAgentRunner` does not serve them at all: its read routes answer `422`.
-A runner swap is therefore a fix for durability, not for thread authorization.
+默认的 `InMemoryAgentRunner` 是最直白的情况。它把线程保存在一个以 `threadId` 为键的进程级全局 map 中，没有所有者字段，因此每条[线程路由](/backend/runtime-endpoints#thread-routes)都会响应交给它的任何 id：`GET /threads` 列出进程内的每个线程，`GET /threads/:threadId/messages` 把该线程的历史返回给任何询问者。任何继承它的实现（如 `AgentCoreRunner`）都会继承同一存储。`SqliteAgentRunner` 则完全不提供这些路由：其读取路由一律返回 `422`。因此更换 runner 解决的是持久化问题，而不是线程授权问题。
 
-#### Own the mapping
+#### 自己维护映射
 
-Whatever stores your threads, keep a record of who each one belongs to. The minimum is a table your runtime can query:
+无论用什么存储线程，都要记录每个线程属于谁。最低限度是一张运行时可以查询的表：
 
 ```sql
 create table thread_owners (
@@ -605,11 +585,11 @@ create table thread_owners (
 create index on thread_owners (user_id);
 ```
 
-Write a row when a conversation is first created — see [minting a thread with your own API](/threads-lifecycle#creating-a-thread-with-your-own-api-on-the-first-message) for where that hooks into the chat lifecycle.
+在会话首次创建时写入一行——它挂接在聊天生命周期的哪个位置，见[用自己的 API 铸造线程](/threads-lifecycle#creating-a-thread-with-your-own-api-on-the-first-message)。
 
-#### Enforce it in `onBeforeHandler`
+#### 在 `onBeforeHandler` 中实施
 
-`onRequest` runs before routing, so it can't see which thread is being addressed. `onBeforeHandler` runs after, and receives a `route` that names the operation and — for thread-scoped routes — the `threadId`:
+`onRequest` 在路由之前运行，因此看不到正在访问的是哪个线程。`onBeforeHandler` 在其后运行，收到的 `route` 会指明操作，且对线程级路由还会带上 `threadId`：
 
 ```ts
 const handler = createCopilotRuntimeHandler({
@@ -646,39 +626,32 @@ const handler = createCopilotRuntimeHandler({
 });
 ```
 
-The routes that carry a `threadId` on `route` are `agent/stop`, `threads/update`, `threads/archive`, `threads/messages`, `threads/events`, and `threads/state`.
+在 `route` 上携带 `threadId` 的路由是 `agent/stop`、`threads/update`、`threads/archive`、`threads/messages`、`threads/events` 和 `threads/state`。
 
-<Callout type="warn" title="A thread id is not a secret">
-  Treat `threadId` as a public identifier, like a database primary key in a URL. It travels
-  through the browser, appears in logs, and is trivially enumerable if you mint sequential
-  ids. Authorization has to be an explicit ownership check — never "they knew the id, so they
-  must own it". Minting UUIDs makes guessing impractical but is not itself a control.
+<Callout type="warn" title="线程 id 不是秘密">
+  把 `threadId` 当作公开标识符，就像 URL 里的数据库主键。它会经过浏览器、出现在日志里，如果你铸造的是顺序 id，它还极易被枚举。授权必须是显式的归属检查——绝不能是“他们知道这个 id，所以必定拥有它”。铸造 UUID 能让猜中变得不现实，但它本身并不是一项控制措施。
 </Callout>
 
-#### Filter the thread list
+#### 过滤线程列表
 
-`threads/list` has no `threadId` to check, so `onBeforeHandler` has nothing to authorize against. Off the platform the route returns whatever the configured store holds — the local in-memory runner filters by `agentId` only, and a custom store returns exactly what you wrote. Build the list from your own ownership table instead, and drive the chat with the selected id.
+`threads/list` 没有可供检查的 `threadId`，因此 `onBeforeHandler` 无从授权。离开平台后，这条路由返回配置的存储中所有内容——本地内存运行器只按 `agentId` 过滤，自定义存储则原样返回你写入的东西。请改为从你自己的归属表构建列表，并用选定的 id 驱动聊天。
 
-Filter server-side. Hiding rows in the UI leaves the underlying route open.
+过滤要在服务器端做。在 UI 里隐藏行，底下的路由依然敞开。
 
-`threads/clear` is the other route with no `threadId` on `route`. On the
-in-memory runner it wipes every thread in the process and returns `204`, so the
-only decision `onBeforeHandler` can make is whether to allow the call. With
-more than one user on the deployment, reject it unless the caller is an
-operator.
+`threads/clear` 是另一条 `route` 上没有 `threadId` 的路由。在内存运行器上它会清空进程内的所有线程并返回 `204`，因此 `onBeforeHandler` 能做的唯一决定就是是否放行这次调用。部署上若不止一个用户，除非调用者是运维人员，否则应拒绝。
 
 <Callout type="info">
-  With no platform thread store, the ownership table above *is* your thread list.
+  没有平台线程存储时，上面那张归属表*就是*你的线程列表。
 </Callout>
 
-## Security checklist
+## 安全清单
 
-- **Always validate** the token on the backend. Never trust the frontend's claim.
-- **Scope every read and write** to the resolved user. Auth context only matters if you actually use it to filter data.
-- **Authenticate in `onRequest`.** It is the only hook that runs on every route. `identifyUser` names a caller; it does not gate one, and some routes never invoke it.
-- **Bind threads to a user.** On CopilotKit Intelligence that means a correct `identifyUser`, plus your own guard on `threads/events` and `threads/state`; off it, an ownership check on every thread route rather than only at login. See [Thread authorization](#thread-authorization).
-- **Don't log raw tokens.** Log the resolved user id (or `anonymous`) instead.
-- **Use HTTPS in production.** The Bearer token is sensitive.
-- **Refresh strategy.** Your frontend is responsible for rotating expired tokens before they reach the agent. CopilotKit doesn't refresh on your behalf.
+- **始终在后端校验**令牌。永远不要相信前端的声明。
+- **每一次读写都限定**到解析出的用户。认证上下文只有在你真正用它过滤数据时才有意义。
+- **在 `onRequest` 中认证。**它是唯一在每条路由上都运行的 hook。`identifyUser` 为调用者命名；它不设门禁，而且有些路由从不调用它。
+- **把线程绑定到用户。**在 CopilotKit Intelligence 上，这意味着一个正确的 `identifyUser`，加上你对 `threads/events` 和 `threads/state` 的自设防线；在其之外，则是对每条线程路由做归属检查，而不是只在登录时检查。见[线程授权](#线程授权)。
+- **不要记录原始令牌。**改为记录解析出的用户 id（或 `anonymous`）。
+- **生产环境使用 HTTPS。**Bearer 令牌是敏感信息。
+- **刷新策略。**前端负责在过期令牌到达智能体之前轮换它。CopilotKit 不会替你刷新。
 
 <IntegrationGrid path="auth" />

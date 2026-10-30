@@ -1,78 +1,77 @@
 ---
 title: A2A
 icon: "custom/a2a"
-description: Bring your A2A agents to your users through AG-UI and CopilotKit.
+description: 通过 AG-UI 与 CopilotKit，把你的 A2A 智能体带给你的用户。
 ---
 
-## What is the A2A Protocol?
+## 什么是 A2A 协议？
 
-A2A, or the Agent2Agent protocol, is a protocol introduced by Google for AI agents to interact and collaborate securely in a framework agnostic manner.
+A2A，即 Agent2Agent 协议，是由 Google 推出的一个协议，让 AI 智能体能够以框架无关的方式安全地交互与协作。
 
-CopilotKit fully supports the A2A protocol, connecting directly to A2A supporting agents or meshes with no modification of the agent needed.
+CopilotKit 完全支持 A2A 协议，可以直接连接支持 A2A 的智能体或智能体网络（mesh），无需对智能体做任何修改。
 
 <Image
   src="/images/any-agentic-backend-light.png"
-  alt="CopilotKit with Agentic Protocols"
+  alt="CopilotKit 与智能体协议"
   width={4096}
   height={2304}
   className="block dark:hidden w-full mx-auto"
 />
 <Image
   src="/images/any-agentic-backend-dark.png"
-  alt="CopilotKit with Agentic Protocols"
+  alt="CopilotKit 与智能体协议"
   width={4096}
   height={2304}
   className="hidden dark:block w-full mx-auto"
 />
 <div className="text-center text-sm text-muted-foreground mt-2 mb-8 w-3/5 mx-auto">
-  A2A is one of three prominent [agentic protocols](/agentic-protocols)
-  CopilotKit supports to connect agents to user-facing frontends
+  A2A 是 CopilotKit 支持的三种主要[智能体协议](/agentic-protocols)之一，用于把智能体连接到面向用户的前端
 </div>
 
-## How CopilotKit uses A2A agents
+## CopilotKit 如何使用 A2A 智能体
 
-CopilotKit uses a middleware to expose A2A agents to an AG-UI compatible coordinator. This allows you to expose your A2A agents to your users through the AG-UI protocol.
+CopilotKit 使用一个中间件把 A2A 智能体暴露给兼容 AG-UI 的协调器。这让你可以通过 AG-UI 协议把你的 A2A 智能体呈现给你的用户。
 
-- **Flexibility and Interoperability**: By making a2a agents available over the AG-UI standard, any A2A agents can work seamless with CopilotKit components.
-- **Unified Communication**: While A2A agents are enabled to communicate with each other over the A2A protocol, AG-UI adds the missing tooling to expose them cleanly to the front end.
+- **灵活性与互操作性**：通过让 a2a 智能体以 AG-UI 标准提供，任何 A2A 智能体都可以与 CopilotKit 组件无缝协作。
+- **统一的通信**：A2A 智能体之间可以通过 A2A 协议相互通信，而 AG-UI 则补上了缺失的工具链，把它们干净地暴露给前端。
 
-To learn more, check out the [A2A](https://a2a-protocol.org/latest/) website.
+想了解更多，请访问 [A2A](https://a2a-protocol.org/latest/) 网站。
 
-## How to use A2A agents with CopilotKit
+## 如何在 CopilotKit 中使用 A2A 智能体
 
-To use A2A agents with CopilotKit, you need to first install the CopilotKit middleware.
+要在 CopilotKit 中使用 A2A 智能体，你需要先安装 CopilotKit 中间件。
 
 <Steps>
   <Step>
-    ### Run and Connect Your Agent to CopilotKit
+    ### 运行你的智能体并将其连接到 CopilotKit
 
-    You'll need to run your agent and connect it to CopilotKit before proceeding.
+    在继续之前，你需要先运行你的智能体并将其连接到 CopilotKit。
 
-    #### I already have an AG-UI agent to use as a coordinator.
+    #### 我已有一个可用作协调器的 AG-UI 智能体
 
-    Excellent! You can move on to the next step.
+    很好！你可以直接进入下一步。
 
-    #### I want to start from scratch
+    #### 我想从零开始
 
-    Run the following command to create a brand new project with a pre-configured AG-UI agent and some A2A agents:
+    运行以下命令，创建一个全新项目，其中包含一个预配置的 AG-UI 智能体和若干 A2A 智能体：
 
     ```bash
     npx copilotkit@latest create -f a2a
     ```
 
-    This will create a new project with a pre-configured ADK AG-UI agent, but you can use any AG-UI agent you want.
+    这会创建一个带有预配置 ADK AG-UI 智能体的新项目，但你也可以使用任何你想要的 AG-UI 智能体。
 
   </Step>
 
 <Step>
-  ### Install the A2A middleware This is already installed for you in the
-  project, but if you're adding the middleware to an existing agent, you can
-  install it with the following command: ```bash npm install
+  ### 安装 A2A 中间件 项目中已经为你安装好了它，
+  但如果你要把该中间件添加到一个已有的智能体，
+  可以用以下命令安装它：```bash npm install
   @ag-ui/a2a-middleware ```
 </Step>
 
   <Step>
-    ### Configure the A2A middleware
+    ### 配置 A2A 中间件
     ```tsx title="app/api/copilotkit/[[...slug]]/route.ts" doctest="component"
     import {
       CopilotRuntime,
@@ -161,9 +160,9 @@ To use A2A agents with CopilotKit, you need to first install the CopilotKit midd
 
   <FrontendOnly frontend="react">
   <Step>
-    ### Add a `useFrontendTool` to your Frontend
-    Inside the chat component, we'll display the messages between the orchestrator and the a2a agents using the `useFrontendTool` hook.
-    The tool the middleware provides for communication is called `send_message_to_a2a_agent`.
+    ### 在你的前端中添加一个 `useFrontendTool`
+    在聊天组件内部，我们将使用 `useFrontendTool` hook 展示协调器与 a2a 智能体之间的消息。
+    中间件提供的用于通信的工具名为 `send_message_to_a2a_agent`。
 
     ```tsx title="components/chat.tsx"
 
@@ -201,10 +200,10 @@ To use A2A agents with CopilotKit, you need to first install the CopilotKit midd
     }
     ```
 
-    Now we define the rendering for a message sent from the orchestrator to the a2a agents.
-    Notice that the status can be `executing` or `complete`. When it's executing, the orchestrator has sent a message to the a2a agent,
-    but not received a response yet. When it's complete, the orchestrator has received a response from the a2a agent. In both cases, we render the message.
-    If status is "inProgress", we've been informed that a message will be sent, but it hasn't finished sending yet, so we don't render anything.
+    现在我们来定义从协调器发送给 a2a 智能体的消息的渲染。
+    注意 status 可以是 `executing` 或 `complete`。当处于 executing 状态时，协调器已向 a2a 智能体发出消息，
+    但尚未收到响应；当处于 complete 状态时，协调器已收到 a2a 智能体的响应。这两种情况下我们都会渲染该消息。
+    如果 status 是“inProgress”，说明我们已得知将有一条消息发出，但尚未发送完成，因此不渲染任何内容。
 
     ```tsx title="components/a2a/MessageToA2A.tsx"
 
@@ -266,10 +265,10 @@ To use A2A agents with CopilotKit, you need to first install the CopilotKit midd
     };
     ```
 
-    Last we define the rendering for a a response from the A2A agent to the orchestrator.
-    This time, we only render when status is complete, since that means we have a response. In any other state, we don't have a response yet.
-    If you wanted to, you could render a loading state when status is `executing`, but you likely wouldn't when status is `inProgress`, since
-    we haven't even sent the message yet.
+    最后，我们定义从 A2A 智能体返回给协调器的响应的渲染。
+    这一次，我们只在 status 为 complete 时渲染，因为那意味着我们已收到响应。在任何其他状态下，我们都还没有响应。
+    如果你愿意，可以在 status 为 `executing` 时渲染一个加载状态，但在 status 为 `inProgress` 时大概不会这么做，因为
+    此时消息甚至还没有发出。
 
     ```tsx title="components/a2a/MessageToA2A.tsx"
 
@@ -334,11 +333,10 @@ To use A2A agents with CopilotKit, you need to first install the CopilotKit midd
 
   <FrontendOnly frontend="angular">
   <Step>
-    ### Render A2A handoffs in Angular
+    ### 在 Angular 中渲染 A2A 交接
 
-    The middleware emits the `send_message_to_a2a_agent` tool call. Register an
-    Angular renderer for that name so the chat can show the destination,
-    request, and completion state:
+    中间件会发出 `send_message_to_a2a_agent` 工具调用。为该名称注册一个
+    Angular 渲染器，聊天就能展示目标智能体、请求与完成状态：
 
     ```ts title="src/app/a2a-message.component.ts"
     import { Component, input } from "@angular/core";
@@ -384,16 +382,14 @@ To use A2A agents with CopilotKit, you need to first install the CopilotKit midd
     }
     ```
 
-    Registration follows the current injector and cleans itself up when that
-    injector is destroyed. See the
-    [renderer API](/reference/angular/functions/registerRenderToolCall) for
-    agent scoping and streaming argument details.
+    注册会跟随当前的 injector，并在该 injector 被销毁时自行清理。智能体作用域与流式参数的
+    细节请参阅[渲染器 API](/reference/angular/functions/registerRenderToolCall)。
   </Step>
   </FrontendOnly>
 
   <Step>
-    ### Give it a try!
-    Try asking your agent to research a topic, like "Please research quantum computing". You'll see that it will send messages to the research agent and the analysis agent.
-    Then, it will present the complete research and analysis to the user.
+    ### 试一试！
+    试着让你的智能体研究一个主题，例如“请研究一下量子计算”。你会看到它会向 research 智能体和 analysis 智能体发送消息，
+    然后把完整的研究与分析结果呈现给用户。
   </Step>
 </Steps>

@@ -1,10 +1,8 @@
 <Steps>
   <Step>
-    ### Send application context with each run
+    ### 随每次运行发送应用上下文
 
-    `useAgentContext` adds configuration to the current AG-UI request. The
-    Strands adapter exposes it during model calls without saving it as user
-    text. Add UI-owned state to a copy of that request's context:
+    `useAgentContext` 会向当前 AG-UI 请求附加配置。Strands 适配器在模型调用期间会暴露这些配置，但不会将其保存为用户文本。请将 UI 侧拥有的状态添加到该请求上下文的副本中：
 
     <DemoCode
       file="src/agent/state.ts"
@@ -14,12 +12,9 @@
 
   </Step>
   <Step>
-    ### Apply current state before running the adapter
+    ### 在运行适配器之前应用当前状态
 
-    This wrapper runs for every request, including tool continuations. Changed
-    frontend context and state apply to the next run; messages retain their
-    original content. Do not prepend context with `stateContextBuilder`, whose
-    output becomes native message history.
+    此包装器会随每个请求运行，包括工具调用的后续请求。前端上下文与状态的变更会在下一次运行时生效；消息则保留其原始内容。不要用 `stateContextBuilder` 前置上下文，它的输出会变成原生消息历史。
 
     <DemoCode
       file="src/agent/agent.ts"
@@ -27,9 +22,7 @@
       title="src/agent/agent.ts"
     />
 
-    Existing histories created with a prompt-rewriting builder retain that
-    content. Start a new conversation for clean history; importing an old
-    conversation preserves its original text without guessing which parts to remove.
+    使用改写 prompt 的构建器创建的既有历史会保留原内容。如需干净的历史记录，请开始一个新对话；导入旧对话时会原样保留其文本，无需猜测该移除哪些部分。
 
   </Step>
 </Steps>

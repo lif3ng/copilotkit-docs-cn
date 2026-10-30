@@ -1,6 +1,6 @@
 <Steps>
   <Step>
-    ### Install the CopilotKit LangGraph SDK
+    ### 安装 CopilotKit LangGraph SDK
 
     ```bash
     npm install @copilotkit/sdk-js
@@ -8,12 +8,9 @@
 
   </Step>
   <Step>
-    ### Wire CopilotKit state + tools into your graph
+    ### 将 CopilotKit 状态与工具接入你的图
 
-    Tool-based HITL (`useHumanInTheLoop`) registers the tool on the frontend
-    and forwards it via `state.copilotkit.actions` — the same wiring as
-    frontend tools. The graph-paused pattern (`useInterrupt`) uses
-    LangGraph's native `interrupt(...)` primitive inside a node.
+    基于工具的人机协同（human-in-the-loop，`useHumanInTheLoop`）在前端注册该工具，并经由 `state.copilotkit.actions` 转发——接线方式与前端工具相同。图内暂停模式（`useInterrupt`）则在节点内部使用 LangGraph 原生的 `interrupt(...)` 原语。
 
     <DemoCode file="src/agent/frontend-tools.ts" region="setup" />
 

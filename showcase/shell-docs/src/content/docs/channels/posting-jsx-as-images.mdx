@@ -1,27 +1,27 @@
 ---
-title: Posting JSX as images
-description: Post static JSX snapshots to managed Slack and Teams while keeping native channel messages interactive.
+title: 将 JSX 作为图片发送
+description: 向托管的 Slack 和 Microsoft Teams 发送静态 JSX 快照，同时保持原生渠道消息的交互能力。
 icon: "lucide/Component"
 ---
 
-Managed Slack and Teams can post static JSX cards as PNGs with `thread.post(<MrrCard />)`. The SDK uses Takumi to render fonts and compiled CSS without a browser, then uploads through the existing managed file path. Existing native channel components continue to render as Block Kit or Adaptive Cards.
+托管的 Slack 和 Microsoft Teams 可以用 `thread.post(<MrrCard />)` 把静态 JSX 卡片作为 PNG 发送。SDK 使用 Takumi 在没有浏览器的情况下渲染字体与编译后的 CSS，再经由既有的托管文件路径上传。既有的原生渠道组件仍会照常渲染为 Block Kit 或 Adaptive Cards。
 
-Existing apps do not need to migrate. Native messages, actions, and `<Chart>` keep their existing APIs. Rendering runs only when you post host JSX or use the new `<Render>` component. Start with the [managed Slack or Teams setup](/channels), then use the examples below in a thread handler.
+既有应用无需迁移。原生消息、操作和 `<Chart>` 保持其现有 API。只有当你发送宿主 JSX 或使用新的 `<Render>` 组件时才会运行渲染。从[托管的 Slack 或 Teams 配置](/channels)开始，然后在线程处理器中使用下面的示例。
 
-Image rendering is opt-in. React and Takumi, the rasterizer, are optional peer dependencies, and only the `@copilotkit/channels/takumi` entry point imports them. Apps that only post native messages do not install them, and their bundles never include Takumi.
+图片渲染是可选项。React 和光栅化器 Takumi 都是可选的 peer 依赖，且只有 `@copilotkit/channels/takumi` 入口会导入它们。只发送原生消息的应用无需安装它们，其 bundle 也永远不会包含 Takumi。
 
-<Callout type="warn" title="Install react and takumi-js, then pass the renderer">
-  The image path renders through React and [Takumi](https://github.com/takumi-rs/takumi). Both are **optional peer dependencies** of `@copilotkit/channels`, so they are not pulled in automatically. Add them before posting images:
+<Callout type="warn" title="安装 react 与 takumi-js，然后传入渲染器">
+  图片路径通过 React 和 [Takumi](https://github.com/takumi-rs/takumi) 渲染。二者都是 `@copilotkit/channels` 的**可选 peer 依赖**，因此不会被自动引入。发送图片前先添加：
 
   ```bash
   pnpm add react takumi-js
   ```
 
-  Then pass `takumiRenderer` from `@copilotkit/channels/takumi` as `render.renderer` (see the setup step below). Without a renderer, posting JSX as an image throws an error that names this setting.
+  然后把来自 `@copilotkit/channels/takumi` 的 `takumiRenderer` 作为 `render.renderer` 传入（见下方配置步骤）。没有渲染器时，把 JSX 作为图片发送会抛出一个指明该设置的错误。
 </Callout>
 
-<Callout type="info" title="Next.js: keep Takumi's native binary out of the bundle">
-  Takumi's native backend, `@takumi-rs/core`, contains a `.node` addon that Next.js cannot bundle. Add it to `serverExternalPackages`:
+<Callout type="info" title="Next.js：把 Takumi 的原生二进制排除在 bundle 之外">
+  Takumi 的原生后端 `@takumi-rs/core` 包含一个 Next.js 无法打包的 `.node` 插件。把它加入 `serverExternalPackages`：
 
   ```ts title="next.config.ts"
   const nextConfig = {
@@ -29,18 +29,18 @@ Image rendering is opt-in. React and Takumi, the rasterizer, are optional peer d
   };
   ```
 
-  If you use pnpm, or the build or the deployment reports a missing native binding, see the Takumi [Next.js guide](https://takumi.kane.tw/docs/integration/nextjs) and [troubleshooting page](https://takumi.kane.tw/docs/troubleshooting).
+  如果你使用 pnpm，或构建/部署报告缺少原生绑定，请参阅 Takumi 的 [Next.js 指南](https://takumi.kane.tw/docs/integration/nextjs)与[故障排查页面](https://takumi.kane.tw/docs/troubleshooting)。
 </Callout>
 
 <Steps>
   <Step>
-    ### How it's routed
+    ### 路由规则
 
-    `thread.post` expands component functions once per operation and classifies their output:
+    `thread.post` 每次操作展开一次组件函数，并对其输出分类：
 
-    - Channel components such as `<Message>`, `<Header>`, and `<Button>` stay native, including when wrapped in your own component or a React fragment.
-    - Host markup such as `<div>`, `<span>`, and `<svg>` becomes a PNG through [Takumi](https://github.com/takumi-rs/takumi).
-    - To combine a snapshot with native text or buttons, put the snapshot inside `<Render>`.
+    - 像 `<Message>`、`<Header>` 和 `<Button>` 这样的渠道组件保持原生，即便它们被包裹在你自己的组件或 React fragment 中也一样。
+    - 像 `<div>`、`<span>` 和 `<svg>` 这样的宿主标记会经 [Takumi](https://github.com/takumi-rs/takumi) 变成 PNG。
+    - 要把快照与原生文本或按钮组合，请把快照放进 `<Render>`。
 
     ```tsx
     /** @jsxImportSource @copilotkit/channels-ui */
@@ -61,16 +61,16 @@ Image rendering is opt-in. React and Takumi, the rasterizer, are optional peer d
     );
     ```
 
-    Use pure presentational components. Top-level component functions are expanded outside React's hook dispatcher, so hooks, browser APIs, and effects are unsupported. A reused native element renders again on each post or update; its output is not cached.
+    请使用纯展示型组件。顶层组件函数在 React 的 hook 调度器之外展开，因此 hooks、浏览器 API 和 effect 均不受支持。被复用的原生元素会在每次发送或更新时重新渲染；其输出不会被缓存。
 
-    <Callout type="info" title="Image is URL-only">
-      `<Image url>` is a public URL image. It does not take children. To put a React snapshot inside native text, buttons, or a carousel, wrap it in `<Render>`. See [Render and carousel](/channels/render-and-carousel).
+    <Callout type="info" title="Image 仅接受 URL">
+      `<Image url>` 是一个公共 URL 图片。它不接受 children。要把 React 快照放进原生文本、按钮或轮播，请用 `<Render>` 包裹它。参见[渲染与轮播](/channels/render-and-carousel)。
     </Callout>
   </Step>
   <Step>
-    ### Configure the renderer, fonts, and styling once
+    ### 一次性配置渲染器、字体与样式
 
-    Takumi is a static, browser-free rasterizer with no system fonts, only a built-in Latin (Geist) fallback. Register the renderer, your fonts, and your compiled CSS once on `createChannel({ render })`, and every image post picks them up:
+    Takumi 是一个静态的、无浏览器的光栅化器，没有系统字体，只有一个内置的拉丁（Geist）回退字体。在 `createChannel({ render })` 上一次性注册渲染器、你的字体和编译后的 CSS，之后每次图片发送都会使用它们：
 
     ```ts title="bot.ts"
     import { createChannel } from "@copilotkit/channels";
@@ -92,24 +92,24 @@ Image rendering is opt-in. React and Takumi, the rasterizer, are optional peer d
     });
     ```
 
-    `stylesheets` takes your compiled CSS as plain strings; class selectors, `var()`, and `@media` resolve. This example loads it with `node:fs` so it runs as-is under Node or tsx. If your build already emits the CSS as an importable string (Vite's `?inline` suffix, say), that is a bundler-only variant and will not run under plain `tsx`/`node`:
+    `stylesheets` 接收纯字符串形式的编译后 CSS；class 选择器、`var()` 和 `@media` 都能解析。本示例用 `node:fs` 加载它，以便在 Node 或 tsx 下原样运行。如果你的构建已经把 CSS 生成为可导入的字符串（比如 Vite 的 `?inline` 后缀），那是一种仅限打包器的变体，无法在纯 `tsx`/`node` 下运行：
 
-    ```ts title="bot.ts (bundler-only variant, e.g. Vite)"
+    ```ts title="bot.ts（仅打包器变体，如 Vite）"
     import appCss from "./styles/global.css?inline"; // compiled Tailwind, resolved by the bundler
 
     // ...same createChannel call as above, with stylesheets: [appCss]
     ```
 
-    <Callout type="warn" title="No fonts configured means Latin-only">
-      Takumi cannot detect missing glyphs before render, so the SDK warns once when no `fonts` are configured, and non-Latin text drops from the image. Any other Takumi render error is surfaced, not swallowed, so a broken font or stylesheet fails loudly.
+    <Callout type="warn" title="未配置字体意味着仅拉丁字形">
+      Takumi 无法在渲染前检测缺失字形，因此当未配置 `fonts` 时 SDK 会警告一次，且非拉丁文本会从图片中消失。其他 Takumi 渲染错误都会被抛出而不是吞掉，所以损坏的字体或样式表会大声失败。
     </Callout>
   </Step>
   <Step>
-    ### Control what the renderer may fetch
+    ### 控制渲染器可以抓取什么
 
-    **Remote resource fetching is disabled by default.** This includes remote images, CSS resources, and emoji sheets referenced by a snapshot. A blocked resource fails the entire snapshot with a URL-policy error. Plain text, inline markup, and configured font bytes can render without network access, but Takumi normally renders emoji through remote images: text such as `Success 🎉` also needs the emoji source to be explicitly allowed. Use text without emoji for an offline snapshot.
+    **默认情况下远程资源抓取是禁用的。**这包括快照引用的远程图片、CSS 资源和 emoji 表。被阻止的资源会以 URL 策略错误让整个快照失败。纯文本、内联标记和已配置的字体字节可以在没有网络访问的情况下渲染，但 Takumi 通常通过远程图片渲染 emoji：像 `Success 🎉` 这样的文本还需要显式允许 emoji 来源。离线快照请使用不含 emoji 的文本。
 
-    To include remote resources, opt in to an origin you control with `allowImageUrl`. This setting applies to server-side snapshot rendering; it does not restrict native `<Image url>` messages rendered by Slack or Teams.
+    要包含远程资源，请用 `allowImageUrl` 选择加入一个你控制的来源。该设置只作用于服务端快照渲染；它不会限制由 Slack 或 Teams 渲染的原生 `<Image url>` 消息。
 
     ```ts title="bot.ts"
     const bot = createChannel({
@@ -121,14 +121,14 @@ Image rendering is opt-in. React and Takumi, the rasterizer, are optional peer d
     });
     ```
 
-    <Callout type="warn" title="Trust the origins you allow">
-      The callback checks URLs and redirect targets, but cannot validate resolved IP addresses. If you enable fetching for untrusted content, also restrict network egress to prevent access to private services through DNS rebinding. `allowImageUrl` is channel-wide and cannot be overridden by a single post.
+    <Callout type="warn" title="只信任你允许的来源">
+      回调会检查 URL 和重定向目标，但无法校验解析出的 IP 地址。如果你为不可信内容启用抓取，还应限制网络出站，以防止通过 DNS 重绑定访问内部服务。`allowImageUrl` 是 Channel 级设置，不能被单次发送覆盖。
     </Callout>
   </Step>
   <Step>
-    ### Override per post
+    ### 按单次发送覆盖
 
-    Canvas dimensions, fonts, and stylesheets can be overridden for a single post, handy for a wider dashboard, a taller card, or an extra font just for that message:
+    画布尺寸、字体和样式表可以针对单次发送进行覆盖，适合更宽的仪表盘、更高的卡片，或只为那条消息添加一个额外字体：
 
     ```tsx
     await thread.post(<WideDashboard data={rows} />, { width: 1200 });
@@ -140,14 +140,14 @@ Image rendering is opt-in. React and Takumi, the rasterizer, are optional peer d
     });
     ```
 
-    `filename`, `title`, and `altText` are upload metadata passed straight through to `postFile`. They do not affect rendering.
+    `filename`、`title` 和 `altText` 是直接透传给 `postFile` 的上传元数据。它们不影响渲染。
   </Step>
   <Step>
-    ### Author cards with plain JSX
+    ### 用纯 JSX 编写卡片
 
-    Write host tags (`<div>`, `<span>`, `<svg>`) and app or chart components (`<Sparkline/>`, `<BarChart/>`, your own components) as plain JSX. No `createElement` needed. The channels JSX runtime compiles the whole tree to nodes, and the image renderer materializes it back to React for Takumi.
+    把宿主标签（`<div>`、`<span>`、`<svg>`）和应用或图表组件（`<Sparkline/>`、`<BarChart/>`、你自己的组件）写成纯 JSX。不需要 `createElement`。channels JSX 运行时把整棵树编译成节点，图片渲染器再把它物化回 React 交给 Takumi。
 
-    A component nested inside a host card is resolved for you, so you can compose freely:
+    嵌套在宿主卡片内的组件会被自动解析，因此你可以自由组合：
 
     ```tsx
     function Kpi({ label, value }: { label: string; value: string }) {
@@ -169,26 +169,26 @@ Image rendering is opt-in. React and Takumi, the rasterizer, are optional peer d
 
   </Step>
   <Step>
-    ### Know the limits
+    ### 了解限制
 
-    Takumi is a static SSR rasterizer. It calls your components with server-render semantics, not a real browser. Keep this in mind:
+    Takumi 是一个静态的 SSR 光栅化器。它以服务端渲染语义调用你的组件，而不是真实浏览器。请记住：
 
-    - **No runtime-JS chart or diagram libraries.** Recharts, Chart.js, and Mermaid measure or paint the live DOM (`useEffect`, canvas, layout measurement), and none of that runs under Takumi. Use your own pure presentational markup instead.
-    - **`update()` and `postEphemeral()` do not accept arbitrary JSX.** An uploaded image cannot be edited in place, so both reject host image markup; React wrappers that return native channel components remain supported. Post a new image instead.
-    - **Snapshots inside native messages support `post()` and `update()`.** Use `<Render>` for this form. `postEphemeral()` rejects `<Render>` snapshots rather than silently dropping them.
-    - **Managed image uploads do not return an addressable message reference.** A successful image post currently returns `{ id: "" }` and warns once. Do not pass this reference to `update()`, `delete()`, or `react()`. Native messages, including messages containing `<Render>`, keep their normal references.
-    - **The canvas has a fixed size.** It defaults to 720 by 480. Pass `width`/`height` globally via `render`, or per post, for anything else.
+    - **不支持运行时 JS 的图表或图示库。**Recharts、Chart.js 和 Mermaid 会测量或绘制实时 DOM（`useEffect`、canvas、布局测量），这些在 Takumi 下都不会运行。请改用你自己的纯展示型标记。
+    - **`update()` 和 `postEphemeral()` 不接受任意 JSX。**已上传的图片无法就地编辑，因此两者都会拒绝宿主图片标记；返回原生渠道组件的 React 包装器仍受支持。请改为发送一张新图片。
+    - **原生消息内的快照支持 `post()` 和 `update()`。**这种形式请使用 `<Render>`。`postEphemeral()` 会拒绝 `<Render>` 快照，而不是悄悄丢弃。
+    - **托管图片上传不会返回可寻址的消息引用。**成功的图片发送目前返回 `{ id: "" }` 并警告一次。不要把这个引用传给 `update()`、`delete()` 或 `react()`。原生消息（包括包含 `<Render>` 的消息）保留其正常引用。
+    - **画布有固定尺寸。**默认为 720×480。其他尺寸请通过 `render` 全局传入 `width`/`height`，或按单次发送传入。
   </Step>
 </Steps>
 
-The new image feature targets managed Slack and Teams. Direct adapters and the other integrations are unchanged.
+新的图片特性面向托管的 Slack 和 Microsoft Teams。直连适配器与其他集成保持不变。
 
-## See it end to end
+## 端到端实例
 
-The [`examples/slack`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/slack) app (`app/showcase/`) uses this for three "run it in your own Slack" features. Each one is a CopilotKit-branded card, and each is triggerable both by a slash command and by prompt (the agent calls the matching `render_*` tool; both share one `render*` fn):
+[`examples/slack`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/slack) 应用（`app/showcase/`）用这个能力实现了三个“在你自己的 Slack 里跑起来”的特性。每一个都是一张 CopilotKit 品牌的卡片，且都可以由斜杠命令和提示两种方式触发（智能体会调用对应的 `render_*` 工具；两者共享同一个 `render*` 函数）：
 
-- **PR review radar** (`/prs`): a card of the oldest open PRs with age-colored badges, from GitHub's public API (no token).
-- **Weekly OSS pulse** (`/pulse`): a KPI card (stars, npm downloads, open issues) from GitHub and npm.
-- **Linear cycle standup** (`/standup`): a per-team progress card (one labelled bar per team) from Linear.
+- **PR 评审雷达**（`/prs`）：一张展示最旧开放 PR 的卡片，带有按存活时间着色的徽标，数据来自 GitHub 公共 API（无需 token）。
+- **每周 OSS 脉搏**（`/pulse`）：一张 KPI 卡片（star 数、npm 下载量、开放 issue 数），数据来自 GitHub 和 npm。
+- **Linear 周期站会**（`/standup`）：一张按团队展示进度的卡片（每个团队一条带标签的横条），数据来自 Linear。
 
-The brand look is a compiled Tailwind stylesheet (`pnpm build:css`) plus Plus Jakarta Sans, fed once via `render.stylesheets` and `render.fonts`. Cards are authored with Tailwind classes and Takumi resolves them. Each feature reads live data and falls back to labelled sample data so it always runs. It is a concrete template for wiring your own dashboards.
+品牌外观由编译后的 Tailwind 样式表（`pnpm build:css`）加上 Plus Jakarta Sans 组成，通过 `render.stylesheets` 和 `render.fonts` 一次性注入。卡片用 Tailwind class 编写，由 Takumi 解析。每个特性都读取实时数据，并在失败时回退到带标签的示例数据，因此总能运行。它是接线你自己的仪表盘的一个具体模板。

@@ -1,11 +1,8 @@
 <Steps>
   <Step>
-    ### Nothing to wire on the agent
+    ### 智能体侧无需任何接线
 
-    On every run the AG-UI Strands adapter registers a proxy tool in the
-    agent's tool registry for each tool the request carries, so the agent
-    declares none of its own. A component registered with `useComponent`
-    reaches the model by name, and the browser executes the call.
+    每次运行时，AG-UI Strands 适配器都会针对请求携带的每个工具，在智能体的工具注册表中注册一个代理工具，因此智能体自身无需声明任何工具。通过 `useComponent` 注册的组件按名称送达模型，由浏览器执行调用。
 
     ```python title="src/agents/chart_agent.py"
     from strands import Agent
@@ -26,17 +23,13 @@
     )
     ```
 
-    A backend tool that already owns the name wins: the adapter never replaces
-    a native tool with a proxy. Keep the `useComponent` name distinct from
-    every tool in `tools=`.
+    已占用该名称的后端工具优先：适配器绝不会用代理工具替换原生工具。请保持 `useComponent` 的名称与 `tools=` 中的所有工具名称互不相同。
 
   </Step>
   <Step>
-    ### Tell the model when to call it
+    ### 告诉模型何时调用它
 
-    This is the part that is easy to miss. The tool arrives on every run, but a
-    model with no instruction about it will answer in prose and never call it.
-    Name the tool in `system_prompt` and say what it is for.
+    这是最容易被忽略的一步。工具虽然每次运行都会送达，但如果模型没有收到相关指示，它只会用文字作答，永远不会调用工具。请在 `system_prompt` 中写明工具名称，并说明它的用途。
 
     ```python title="src/agents/chart_agent.py"
     SYSTEM_PROMPT = (
