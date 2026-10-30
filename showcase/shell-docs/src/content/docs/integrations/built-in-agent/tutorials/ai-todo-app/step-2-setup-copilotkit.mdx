@@ -1,5 +1,5 @@
 ---
-title: "Step 2: Setup CopilotKit"
+title: "第 2 步：配置 CopilotKit"
 ---
 
 import SelfHostingCopilotRuntimeCreateEndpoint from "@/snippets/self-hosting-copilot-runtime-create-endpoint.mdx";
@@ -11,47 +11,47 @@ import {
 } from "@/components/react/tailored-content";
 import { FaCloud, FaServer } from "react-icons/fa";
 
-Now that we have our todo list app running, we're ready to integrate CopilotKit. For this tutorial, we will install the following dependencies:
+现在待办清单应用已经跑起来了，接下来就可以集成 CopilotKit。在本教程中，我们将安装以下依赖：
 
-- `@copilotkit/react-core`: The core library for CopilotKit, which contains the CopilotKit provider and useful hooks.
-- `@copilotkit/react-ui`: The UI library for CopilotKit, which contains the CopilotKit UI components such as the sidebar, chat popup, textarea and more.
+- `@copilotkit/react-core`：CopilotKit 的核心库，包含 CopilotKit provider 和实用的钩子。
+- `@copilotkit/react-ui`：CopilotKit 的 UI 库，包含侧边栏、聊天弹窗、textarea 等 CopilotKit UI 组件。
 
-## Install Dependencies
+## 安装依赖
 
-To install the CopilotKit dependencies, run the following:
+要安装 CopilotKit 依赖，请运行以下命令：
 
 ```npm
 npm install @copilotkit/react-core @copilotkit/react-ui
 ```
 
-## Setup CopilotKit
+## 配置 CopilotKit
 
 <TailoredContent id="hosting">
 <TailoredContentOption
   id="copilot-cloud"
-  title="Copilot Cloud (Recommended)"
-  description="Use the cloud-hosted service to get started quickly."
+  title="Copilot Cloud（推荐）"
+  description="使用云托管服务快速上手。"
   icon={<FaCloud />}
 >
-In order to use CopilotKit, we'll need to configure the `CopilotKit` provider.
+要使用 CopilotKit，我们需要配置 `CopilotKit` provider。
 
 <CopilotCloudConfigureCopilotKitProvider components={props.components} />
 </TailoredContentOption>
 <TailoredContentOption
   id="self-hosted"
-  title="Self-hosting"
-  description="Learn to host CopilotKit's runtime yourself with your own backend."
+  title="自托管"
+  description="了解如何用自己的后端自行托管 CopilotKit 的运行时。"
   icon={<FaServer />}
 >
 
 <Steps>
 <Step>
-### Set up Copilot Runtime Endpoint
+### 设置 Copilot Runtime 端点
 <SelfHostingCopilotRuntimeCreateEndpoint components={props.components} />
 </Step>
 <Step>
 
-### Configure the CopilotKit Provider
+### 配置 CopilotKit provider
 
 <SelfHostingCopilotRuntimeConfigureCopilotKitProvider
   components={props.components}
@@ -62,11 +62,11 @@ In order to use CopilotKit, we'll need to configure the `CopilotKit` provider.
 </TailoredContentOption>
 </TailoredContent>
 
-### CopilotKit Chat Popup
+### CopilotKit 聊天弹窗
 
-We provide several plug-and-play components for you to interact with your copilot. Some of these are `<CopilotPopup/>`, `<CopilotSidebar/>`, and `<CopilotChat/>`. You can of course use CopilotKit in headless mode and provide your own fully custom UI via [`useCopilotChat`](/reference/v1/hooks/useCopilotChat).
+我们提供了多个即插即用的组件，供你与 copilot 交互，例如 `<CopilotPopup/>`、`<CopilotSidebar/>` 和 `<CopilotChat/>`。当然，你也可以以无头模式（headless）使用 CopilotKit，并通过 [`useCopilotChat`](/reference/v1/hooks/useCopilotChat) 提供完全自定义的 UI。
 
-In this tutorial, we'll use the `<CopilotPopup/>` component to display the chat popup.
+在本教程中，我们将使用 `<CopilotPopup/>` 组件来展示聊天弹窗。
 
 ```tsx title="app/page.tsx" showLineNumbers {6-7,15}
 "use client";
@@ -90,12 +90,12 @@ export default function Home() {
 }
 ```
 
-Here's what we did:
+以下是刚才所做的事情：
 
-- We imported the `<CopilotPopup />` component from `@copilotkit/react-ui`.
-- We wrapped the page with the `<CopilotKit>` provider.
-- We imported the built-in styles from `@copilotkit/react-ui`.
+- 我们从 `@copilotkit/react-ui` 导入了 `<CopilotPopup />` 组件。
+- 我们用 `<CopilotKit>` provider 包裹了页面。
+- 我们从 `@copilotkit/react-ui` 导入了内置样式。
 
-Now, head back to your app and you'll find a chat popup in the bottom right corner of the page. At this point, you can start interacting with your copilot! 🎉
+现在，回到你的应用，你会在页面右下角看到一个聊天弹窗。至此，你就可以开始与 copilot 交互了！🎉
 
-In the next step, we'll make our assistant smarter by providing it with readable state about our todo list.
+在下一步中，我们将为助手提供待办清单的可读状态，让它变得更加聪明。

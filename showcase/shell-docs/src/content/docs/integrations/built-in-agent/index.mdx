@@ -1,46 +1,46 @@
 ---
-title: "Introduction"
-description: "Use CopilotKit's built-in agent with any model."
+title: "简介"
+description: "将 CopilotKit 的内置智能体与任意模型搭配使用。"
 ---
 
 import { Sparkles, Wrench, Server, Plug, ArrowLeftRight, Cpu, BookA, Cog, Blocks } from "lucide-react";
 
-The **Built-in Agent** is CopilotKit's simplest agent option, i.e what you get "built-in". It connects directly to an LLM with full support for tools, generative UI, shared state, and all CopilotKit features — without requiring an external agent framework.
+**内置智能体**是 CopilotKit 中最简单的智能体选项，也就是“开箱即用”的那一个。它直接连接 LLM，完整支持工具、生成式 UI、共享状态以及所有 CopilotKit 特性——无需依赖外部智能体框架。
 
-It supports most popular models from OpenAI, Anthropic, Google, and AI-SDK defined models out of the box
+它开箱即用地支持来自 OpenAI、Anthropic、Google 的主流模型，以及由 AI SDK 定义的各种模型
 
 <OpsPlatformCTA
   variant="card"
-  title="Ship the Built-in Agent to production"
-  body="Add persistent threads and the inspector with CopilotKit Intelligence."
-  ctaLabel="Create a free account"
+  title="将内置智能体交付到生产环境"
+  body="通过 CopilotKit 智能中枢添加持久化线程与检查器。"
+  ctaLabel="创建免费账户"
   surface="docs_built_in_agent_overview"
 />
 
-## When to use Built-in Agent
+## 何时使用内置智能体
 
-- **Quick setup** — no external agent framework to configure or deploy
-- **Chat + tools** — your use case is primarily conversational with frontend and server tools
-- **Direct model access** — you want to use OpenAI, Anthropic, Google, or AI-SDK models directly
+- **快速配置** —— 无需配置或部署外部智能体框架
+- **聊天 + 工具** —— 你的用例以对话为主，同时涉及前端工具与服务器工具
+- **直接访问模型** —— 你想直接使用 OpenAI、Anthropic、Google 或 AI SDK 的模型
 
 <Callout type="info">
-If you need more control over your agent loop, consider using an [agent framework](/#explore-by-ai-backend) instead.
+如果你需要对智能体循环（agent loop）更强的控制，可以考虑改用[智能体框架](/#explore-by-ai-backend)。
 </Callout>
 
-## Features
+## 特性
 
 <Cards>
-  <Card title="Generative UI" href="/generative-ui/tool-rendering" description="Render rich React components in the chat." icon={<Sparkles className="text-primary" />} />
-  <Card title="Frontend Tools" href="/frontend-tools" description="Let the agent interact with your UI using frontend tools." icon={<Wrench className="text-primary" />} />
-  <Card title="Server Tools" href="/server-tools" description="Define backend tools with Zod schemas that the agent can invoke." icon={<Server className="text-primary" />} />
-  <Card title="MCP Servers" href="/mcp-servers" description="Connect MCP servers for extended tool capabilities." icon={<Plug className="text-primary" />} />
-  <Card title="Shared State" href="/shared-state" description="Bidirectional state sharing between your app and the agent." icon={<ArrowLeftRight className="text-primary" />} />
-  <Card title="Model Selection" href="/model-selection" description="Choose from OpenAI, Anthropic, and Google models — or bring your own." icon={<Cpu className="text-primary" />} />
-  <Card title="Agent Context" href="/agent-app-context" description="Share app-specific context with the agent automatically." icon={<BookA className="text-primary" />} />
-  <Card title="Advanced Configuration" href="/advanced-configuration" description="Fine-tune temperature, tool choice, multi-step calling, and more." icon={<Cog className="text-primary" />} />
-  <Card title="Custom Agent" href="/backend/custom-agent" description="Bring your own AI SDK, TanStack AI, or custom LLM backend." icon={<Blocks className="text-primary" />} />
+  <Card title="生成式 UI" href="/generative-ui/tool-rendering" description="在聊天中渲染丰富的 React 组件。" icon={<Sparkles className="text-primary" />} />
+  <Card title="前端工具" href="/frontend-tools" description="让智能体通过前端工具与你的 UI 交互。" icon={<Wrench className="text-primary" />} />
+  <Card title="服务器工具" href="/server-tools" description="使用 Zod schema 定义可供智能体调用的后端工具。" icon={<Server className="text-primary" />} />
+  <Card title="MCP 服务器" href="/mcp-servers" description="连接 MCP 服务器，扩展工具能力。" icon={<Plug className="text-primary" />} />
+  <Card title="共享状态" href="/shared-state" description="在应用与智能体之间双向共享状态。" icon={<ArrowLeftRight className="text-primary" />} />
+  <Card title="模型选择" href="/model-selection" description="从 OpenAI、Anthropic 和 Google 模型中选择——或接入你自己的模型。" icon={<Cpu className="text-primary" />} />
+  <Card title="智能体上下文" href="/agent-app-context" description="自动向智能体共享应用专属上下文。" icon={<BookA className="text-primary" />} />
+  <Card title="高级配置" href="/advanced-configuration" description="精细调整温度、工具选择、多步调用等参数。" icon={<Cog className="text-primary" />} />
+  <Card title="自定义智能体" href="/backend/custom-agent" description="接入你自己的 AI SDK、TanStack AI 或自定义 LLM 后端。" icon={<Blocks className="text-primary" />} />
 </Cards>
 
-## Getting Started
+## 开始使用
 
-Head to the [Quickstart](./quickstart) to set up a working Built-in Agent in minutes.
+前往[快速开始](./quickstart)，几分钟内即可搭建一个可运行的内置智能体。

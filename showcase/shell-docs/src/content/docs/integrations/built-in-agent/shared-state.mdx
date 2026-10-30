@@ -1,28 +1,28 @@
 ---
-title: "Shared State"
+title: "共享状态"
 icon: "lucide/Repeat"
-description: "Bidirectional state sharing between your app and the Built-in Agent."
+description: "在你的应用与内置智能体之间双向共享状态。"
 ---
 
-Share state bidirectionally between your React app and the Built-in Agent. Your app can read and write agent state, and the agent can update state that your UI reacts to in real time.
+在你的 React 应用与内置智能体之间双向共享状态。你的应用可以读写智能体状态，智能体也可以更新状态，让你的 UI 实时响应。
 
-## What is this?
+## 这是什么？
 
-Shared state lets your frontend and agent stay in sync. The agent can update state (like adding items to a list or changing a setting), and your React components re-render automatically. Your app can also write state that the agent can read.
+共享状态让你的前端与智能体保持同步。智能体可以更新状态（例如向列表添加条目或更改设置），你的 React 组件会自动重新渲染。你的应用也可以写入供智能体读取的状态。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-- The agent should be able to modify your app's UI (add items, update fields, toggle settings)
-- You want real-time UI updates as the agent works
-- Your app needs to read what the agent is doing (progress indicators, intermediate results)
+- 智能体需要能够修改你应用的 UI（添加条目、更新字段、切换设置）
+- 你希望在智能体工作时获得实时的 UI 更新
+- 你的应用需要读取智能体的工作进展（进度指示器、中间结果）
 
 <Callout type="info">
-For a complete example of selecting a prepared control with structured AI judgments and returning user actions to the agent, follow the [CopilotKit + Jev cookbook](/cookbook/jev-generative-ui).
+如需完整示例——展示如何依据结构化的 AI 判断选择预先准备好的控件，并把用户操作返回给智能体——请参阅 [CopilotKit + Jev 示例集](/cookbook/jev-generative-ui)。
 </Callout>
 
-## Reading agent state
+## 读取智能体状态
 
-Use the `useAgent` hook to access the agent's current state:
+使用 `useAgent` hook 访问智能体的当前状态：
 
 ```tsx title="app/page.tsx"
 import { useAgent } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -50,12 +50,12 @@ function TaskBoard() {
 ```
 
 <Callout type="info">
-  `agent.state` is reactive — your component re-renders automatically when the agent updates state.
+  `agent.state` 是响应式的——当智能体更新状态时，你的组件会自动重新渲染。
 </Callout>
 
-## Writing state from the frontend
+## 从前端写入状态
 
-You can also push state from the frontend to the agent:
+你也可以从前端把状态推送给智能体：
 
 ```tsx title="app/page.tsx"
 import { useAgent } from "@copilotkit/react-core/v2";
@@ -79,19 +79,19 @@ function SettingsPanel() {
 }
 ```
 
-## How it works
+## 工作原理
 
-The Built-in Agent automatically has access to state tools (`AGUISendStateSnapshot` and `AGUISendStateDelta`) through the AG-UI protocol. When the agent calls these tools:
+内置智能体通过 AG-UI 协议自动获得对状态工具（`AGUISendStateSnapshot` 和 `AGUISendStateDelta`）的访问能力。当智能体调用这些工具时：
 
-1. The agent sends a state update (full snapshot or delta)
-2. The CopilotKit runtime delivers the update to the frontend via SSE
-3. Your `useAgent` hook receives the update and triggers a re-render
+1. 智能体发送状态更新（完整快照或增量）
+2. CopilotKit runtime 通过 SSE 将更新传递到前端
+3. 你的 `useAgent` hook 接收更新并触发重新渲染
 
-No additional backend configuration is required — state tools are available to the Built-in Agent by default.
+无需任何额外的后端配置——状态工具对内置智能体默认可用。
 
-## Example: collaborative todo list
+## 示例：协作式待办清单
 
-Here's a complete example where the agent can add and manage tasks:
+下面是一个完整示例，智能体可以在其中添加并管理任务：
 
 ```tsx title="app/page.tsx"
 import { CopilotChat } from "@copilotkit/react-core/v2";
@@ -124,4 +124,4 @@ function TodoApp() {
 }
 ```
 
-When you tell the agent "Add a task to buy groceries", it updates the shared state and your todo list renders the new item immediately.
+当你告诉智能体 “Add a task to buy groceries”（添加一条购买杂货的任务）时，它会更新共享状态，你的待办清单会立即渲染出这个新条目。

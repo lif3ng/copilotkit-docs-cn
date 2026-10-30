@@ -1,5 +1,5 @@
 ---
-title: "Step 2: Setup CopilotKit"
+title: "第 2 步：配置 CopilotKit"
 ---
 
 import SelfHostingCopilotRuntimeCreateEndpoint from "@/snippets/self-hosting-copilot-runtime-create-endpoint.mdx";
@@ -10,45 +10,45 @@ import {
 } from "@/components/react/tailored-content";
 import { FaCloud, FaServer } from "react-icons/fa";
 
-Now that we have our todo list app running, we're ready to integrate CopilotKit. For this tutorial, we will install the following dependencies:
+现在我们的待办清单应用已经跑起来了，可以开始集成 CopilotKit。在本教程中，我们将安装以下依赖：
 
-- `@copilotkit/react-core`: The core library for CopilotKit, which contains the CopilotKit provider and useful hooks.
-- `@copilotkit/react-textarea`: The textarea component for CopilotKit, which enables you to get instant context-aware autocompletions in your app.
+- `@copilotkit/react-core`：CopilotKit 的核心库，包含 CopilotKit provider 和实用的 hook。
+- `@copilotkit/react-textarea`：CopilotKit 的 textarea 组件，让你能在应用中获得即时的、感知上下文的自动补全。
 
-## Install Dependencies
+## 安装依赖
 
-To install the CopilotKit dependencies, run the following:
+运行以下命令来安装 CopilotKit 依赖：
 
 ```npm
 npm install @copilotkit/react-core @copilotkit/react-textarea
 ```
 
-## Setup CopilotKit
+## 配置 CopilotKit
 
 <TailoredContent id="hosting">
 <TailoredContentOption
   id="copilot-cloud"
-  title="Copilot Cloud (Recommended)"
-  description="Use the cloud-hosted service to get started quickly."
+  title="Copilot Cloud（推荐）"
+  description="使用云托管服务快速上手。"
   icon={<FaCloud />}
 >
-In order to use CopilotKit, we'll need to configure the CopilotKit provider.
+要使用 CopilotKit，我们需要配置 CopilotKit provider。
 
 <CopilotCloudConfigureCopilotKitProvider components={props.components} />
 </TailoredContentOption>
 <TailoredContentOption
   id="self-hosted"
-  title="Self-hosting"
-  description="Learn to host CopilotKit's runtime yourself with your own backend."
+  title="自托管"
+  description="学习如何用自己的后端自行托管 CopilotKit 的 runtime。"
   icon={<FaServer />}
 >
 <Steps>
 <Step>
-### Set up Copilot Runtime Endpoint
+### 设置 Copilot Runtime 端点
 <SelfHostingCopilotRuntimeCreateEndpoint components={props.components} />
 </Step>
 <Step>
-### Configure the CopilotKit Provider
+### 配置 CopilotKit Provider
 
 ```tsx title="app/page.tsx" showLineNumbers {5,10,14}
 "use client";
@@ -77,10 +77,10 @@ export default function Home() {
 </TailoredContentOption>
 </TailoredContent>
 
-Let's break this down:
+我们来拆解一下：
 
-- First, we imported the `CopilotKit` provider from `@copilotkit/react-core/v2`.
-- Then, we wrapped the page with the `<CopilotKit>` provider.
-- We imported the built-in styles from `@copilotkit/react-textarea`.
+- 首先，我们从 `@copilotkit/react-core/v2` 导入了 `CopilotKit` provider。
+- 然后，我们用 `<CopilotKit>` provider 包裹了页面。
+- 我们导入了 `@copilotkit/react-textarea` 的内置样式。
 
-In the next step, we'll implement the AI-powered textarea as a replacement for our existing input component.
+在下一步中，我们将实现 AI 驱动的 textarea，用以替换现有的输入组件。

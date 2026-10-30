@@ -1,6 +1,6 @@
 ---
-title: Quickstart
-description: Build a working AI chat with CopilotKit in minutes.
+title: 快速开始
+description: 几分钟内用 CopilotKit 构建一个可用的 AI 聊天应用。
 icon: "lucide/Play"
 ---
 
@@ -16,89 +16,88 @@ import {
 } from "lucide-react";
 import { Tabs, Tab } from "fumadocs-ui/components/tabs";
 
-## Start with your coding agent
+## 从你的编码智能体开始
 
-Use this prompt to build a working chat with CopilotKit's built-in agent. Your coding agent will follow this guide in your project, or you can work through the manual steps below.
+使用这个提示词，与 CopilotKit 的内置智能体一起搭建一个可用的聊天应用。你的编码智能体会跟随本指南在你的项目中操作，你也可以按下面的手动步骤逐步完成。
 
 <PageAgentPrompt />
 
-## Prerequisites
+## 前置条件
 
-Before you begin, you'll need the following:
+开始之前，你需要准备以下内容：
 
-- An OpenAI API key (or Anthropic/Google — see [Model Selection](/model-selection))
+- 一个 OpenAI API 密钥（或 Anthropic/Google——参见[模型选择](/model-selection)）
 - Node.js 20+
-- Your favorite package manager
+- 你顺手的包管理器
 
-## Getting started
+## 开始使用
 
 <Steps>
     <Step>
-        ### Create your frontend
+        ### 创建你的前端
 
-        CopilotKit's React components work with Next.js, React Router, Remix, TanStack Start, Vite, and other React apps. This walkthrough uses Next.js because it can host the frontend and runtime in one project.
+        CopilotKit 的 React 组件可与 Next.js、React Router、Remix、TanStack Start、Vite 及其他 React 应用配合使用。本演练使用 Next.js，因为它可以在同一个项目中同时承载前端与运行时。
 
         ```bash
         npx create-next-app@latest my-copilot-app
         cd my-copilot-app
         ```
 
-        <Callout type="info" title="Already have an app?">
-          Keep your current setup and install CopilotKit there. The CopilotKit CLI (`npx copilotkit@latest create`, aliased as `init`) creates a separate project; it does not modify an existing app.
+        <Callout type="info" title="已有应用？">
+          保留你现有的配置，直接在其中安装 CopilotKit 即可。CopilotKit CLI（`npx copilotkit@latest create`，别名为 `init`）会创建一个独立项目，不会修改现有应用。
 
           <FrontendOnly frontend="react">
-          Use the [React SPA guide](/react-spa) for a client-only Vite app, or [deploy the runtime to your server framework](/runtime-server-adapter) with the React Router or TanStack Start examples.
+          如果是纯客户端的 Vite 应用，请参阅 [React SPA 指南](/react-spa)；或参照 React Router 或 TanStack Start 示例，[将运行时部署到你的服务器框架](/runtime-server-adapter)。
           </FrontendOnly>
           <FrontendOnly frontend="angular">
-          Use the [Angular guide](/angular) for your existing app, or [deploy the runtime to your server framework](/runtime-server-adapter).
+          对于现有应用，请参阅 [Angular 指南](/angular)，或[将运行时部署到你的服务器框架](/runtime-server-adapter)。
           </FrontendOnly>
         </Callout>
     </Step>
     <Step>
-        ### Install CopilotKit packages
+        ### 安装 CopilotKit 软件包
 
         ```npm
         npm install @copilotkit/react-core @copilotkit/runtime
         ```
 
-        The components used below (`CopilotKitProvider`, `CopilotSidebar`) and the
-        stylesheet all come from `@copilotkit/react-core/v2`, so
-        `@copilotkit/react-ui` is not needed for this setup.
+        下文用到的组件（`CopilotKitProvider`、`CopilotSidebar`）与样式表都来自
+        `@copilotkit/react-core/v2`，因此这种配置不需要 `@copilotkit/react-ui`。
 
-        <Callout type="info" title="TypeScript: use bundler module resolution">
-          CopilotKit's `/v2` subpaths are published through the package `exports` map, which TypeScript's legacy `"moduleResolution": "node"` (`node10`) ignores. Under that setting, type checking fails with `Cannot find module '@copilotkit/react-core/v2'` even though the app runs. Set `"moduleResolution": "bundler"` in `tsconfig.json`; if `module` is `commonjs` or unset, also set `"module": "esnext"`. `create-next-app` already uses `bundler`.
+        <Callout type="info" title="TypeScript：使用 bundler 模块解析">
+          CopilotKit 的 `/v2` 子路径通过软件包的 `exports` 映射发布，而 TypeScript 旧版的
+          `"moduleResolution": "node"`（`node10`）会忽略它。在该设置下，即使应用能正常运行，
+          类型检查也会报 `Cannot find module '@copilotkit/react-core/v2'`。请在
+          `tsconfig.json` 中设置 `"moduleResolution": "bundler"`；如果 `module` 是
+          `commonjs` 或未设置，还需设置 `"module": "esnext"`。`create-next-app` 已经使用
+          `bundler`。
         </Callout>
     </Step>
     <Step>
-        ### Configure your environment
+        ### 配置你的环境
 
-        Create a `.env` file and add your OpenAI API key:
+        创建 `.env` 文件并加入你的 OpenAI API 密钥：
 
         ```plaintext title=".env"
         OPENAI_API_KEY=your_openai_api_key
         ```
 
-        <Callout type="info" title="What about other models?">
-          This example uses an OpenAI model. See [Model Selection](/model-selection) for Anthropic, Google, or custom model setup.
+        <Callout type="info" title="其他模型呢？">
+          本示例使用 OpenAI 模型。Anthropic、Google 或自定义模型的配置请参见[模型选择](/model-selection)。
         </Callout>
     </Step>
     <Step>
-        ### Setup Copilot Runtime
+        ### 设置 Copilot Runtime
 
-        Create an API route with the `BuiltInAgent` and `CopilotRuntime`:
+        使用 `BuiltInAgent` 与 `CopilotRuntime` 创建一个 API 路由：
 
-        <Callout type="warn" title="Already have an agent? Do not use BuiltInAgent">
-          `BuiltInAgent` is CopilotKit's *own* agent — it calls the model
-          directly. Registering it as `default` means chat talks to it, not to
-          any agent you already wrote. It replaces your agent rather than
-          connecting to it.
+        <Callout type="warn" title="已有智能体？请不要使用 BuiltInAgent">
+          `BuiltInAgent` 是 CopilotKit *自带*的智能体——它直接调用模型。把它注册为
+          `default` 意味着聊天会与它对话，而不是与你已编写的任何智能体对话。它是取代你的智能体，而不是连接它。
 
-          If you already have a LangGraph, CrewAI, Mastra, ADK, Pydantic AI or
-          other agent, take the frontend steps from this page but get the runtime
-          wiring from **your framework's** quickstart, which registers *your*
-          agent instead — for example
-          [LangGraph (Python)](/langgraph-python/quickstart). Pick yours from
-          [the docs landing](/).
+          如果你已经有 LangGraph、CrewAI、Mastra、ADK、Pydantic AI 或其他智能体，请采用本页的前端步骤，
+          但运行时接线请参考**你的框架的**快速开始——它注册的是*你自己的*智能体，例如
+          [LangGraph（Python）](/langgraph-python/quickstart)。你可以从[文档首页](/)选择你的框架。
         </Callout>
 
         ```ts title="app/api/copilotkit/[[...slug]]/route.ts" doctest="component"
@@ -128,9 +127,9 @@ Before you begin, you'll need the following:
         ```
     </Step>
     <Step>
-        ### Configure CopilotKit Provider
+        ### 配置 CopilotKit Provider
 
-        Wrap your application with the CopilotKit provider:
+        用 CopilotKit provider 包裹你的应用：
 
         ```tsx title="app/providers.tsx"
         "use client";
@@ -146,8 +145,7 @@ Before you begin, you'll need the following:
         }
         ```
 
-        `app/layout.tsx` is a server component and cannot import the provider
-        directly, so it renders your client file instead:
+        `app/layout.tsx` 是服务端组件，无法直接导入 provider，因此改为渲染你的客户端文件：
 
         ```tsx title="app/layout.tsx"
         import { Providers } from "./providers"; // [!code highlight]
@@ -170,18 +168,17 @@ Before you begin, you'll need the following:
         }
         ```
 
-        <Callout type="info" title="This relative runtimeUrl assumes Next.js serves the runtime">
-          `/api/copilotkit` resolves only because Next.js serves your app and the runtime from the
-          same origin. A client-only frontend has no shared origin, so it needs a standalone runtime
-          server of its own and an absolute `runtimeUrl` such as
-          `http://localhost:8200/api/copilotkit`. The per-frontend guides at `/react-spa`, `/vue`,
-          `/angular` and `/react-native` each show that setup.
+        <Callout type="info" title="此相对 runtimeUrl 假设由 Next.js 托管运行时">
+          `/api/copilotkit` 之所以能解析，是因为 Next.js 从同一源提供你的应用与运行时。纯客户端前端没有共享源，
+          因此需要自己单独的运行时服务器，以及形如
+          `http://localhost:8200/api/copilotkit` 的绝对 `runtimeUrl`。`/react-spa`、`/vue`、
+          `/angular` 和 `/react-native` 各前端指南都演示了这种配置。
         </Callout>
     </Step>
     <Step>
-        ### Add the chat interface
+        ### 添加聊天界面
 
-        Add the CopilotSidebar component to your page:
+        将 CopilotSidebar 组件添加到你的页面：
 
         ```tsx title="app/page.tsx"
         "use client"; // [!code highlight]
@@ -200,7 +197,7 @@ Before you begin, you'll need the following:
         ```
     </Step>
     <Step>
-        ### Start the development server
+        ### 启动开发服务器
 
         <Tabs groupId="package-manager" items={['npm', 'pnpm', 'yarn', 'bun']}>
             <Tab value="npm">
@@ -226,9 +223,9 @@ Before you begin, you'll need the following:
         </Tabs>
     </Step>
     <Step>
-        ### Start chatting
+        ### 开始对话
 
-        Your AI agent is now ready to use! Try asking it some questions:
+        你的 AI 智能体现在已经可以使用了！试着问它几个问题：
 
         ```
         Can you tell me a joke?
@@ -253,10 +250,10 @@ Before you begin, you'll need the following:
         />
 
         <Accordions className="mb-4">
-            <Accordion title="Troubleshooting">
-                - If you're having connection issues, try using `0.0.0.0` or `127.0.0.1` instead of `localhost`
-                - Check that your API key is correctly set in the `.env` file
-                - Make sure the runtime endpoint path matches the `runtimeUrl` in your CopilotKit provider
+            <Accordion title="故障排查">
+                - 如果遇到连接问题，尝试用 `0.0.0.0` 或 `127.0.0.1` 代替 `localhost`
+                - 检查 `.env` 文件中的 API 密钥是否设置正确
+                - 确保运行时端点路径与 CopilotKit provider 中的 `runtimeUrl` 一致
             </Accordion>
         </Accordions>
 
@@ -268,40 +265,38 @@ Before you begin, you'll need the following:
 
 </Steps>
 
-## Keep conversations between visits
+## 跨访问保留会话
 
-Your sample chat is running. When you need production conversation history,
-CopilotKit Intelligence can keep each user's messages, generated interfaces,
-and tool activity available across sessions and devices.
+你的示例聊天已经跑起来了。当你需要生产级的会话历史时，CopilotKit 智能中枢可以让每位用户的消息、生成的界面与工具活动跨会话、跨设备保持可用。
 
 <QuickstartIntelligenceCta />
 
-## What's next?
+## 下一步
 
-Now that your basic chat is running, explore these advanced features:
+基础聊天已经跑通，接下来可以探索这些高级特性：
 
 <Cards>
   <Card
-    title="Server Tools"
-    description="Give your agent backend capabilities with custom tools."
+    title="服务器工具"
+    description="用自定义工具为你的智能体赋予后端能力。"
     href="/server-tools"
     icon={<WrenchIcon />}
   />
   <Card
-    title="MCP Servers"
-    description="Connect MCP servers for extended tool support."
+    title="MCP 服务器"
+    description="连接 MCP 服务器，获得扩展的工具支持。"
     href="/mcp-servers"
     icon={<PlugIcon />}
   />
   <Card
-    title="Model Selection"
-    description="Switch to Anthropic, Google, or a custom model."
+    title="模型选择"
+    description="切换到 Anthropic、Google 或自定义模型。"
     href="/model-selection"
     icon={<CpuIcon />}
   />
   <Card
-    title="Frontend Tools"
-    description="Let the agent interact with your UI."
+    title="前端工具"
+    description="让智能体与你的 UI 交互。"
     href="/frontend-tools"
     icon={<MonitorIcon />}
   />

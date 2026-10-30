@@ -1,22 +1,22 @@
 ---
-title: "Disabling state streaming"
+title: "禁用状态流式传输"
 icon: "lucide/Cog"
-description: "Granularly control what is streamed to the frontend."
+description: "精细控制向前端流式传输的内容。"
 ---
 
-## What is this?
+## 这是什么？
 
-By default, CopilotKit will stream both your messages and tool calls to the frontend when you use `copilotkit_stream`. You can disable this by choosing when to use `copilotkit_stream` vs calling `completion` directly.
+默认情况下，使用 `copilotkit_stream` 时，CopilotKit 会将你的消息和工具调用都流式传输到前端。你可以选择何时使用 `copilotkit_stream`、何时直接调用 `completion`，从而禁用这一行为。
 
-## When should I use this?
+## 什么时候应该使用？
 
-Occasionally, you'll want to disable streaming temporarily — for example, the LLM may be doing something the current user should not see, like emitting tool calls or questions pertaining to other employees in an HR system.
+有时你可能需要临时禁用流式传输——例如，LLM 可能正在处理当前用户不应看到的内容，比如在 HR 系统中发出与其他员工相关的工具调用或提问。
 
-## Implementation
+## 实现方式
 
-### Disable all streaming
+### 禁用全部流式传输
 
-You can control whether to stream messages or tool calls by selectively wrapping calls to `completion` with `copilotkit_stream`.
+你可以选择性地用 `copilotkit_stream` 包裹 `completion` 调用，从而控制是否流式传输消息或工具调用。
 
 <Tabs groupId="language_crewai-flows_agent" items={['Python']} default="Python" persist>
     <Tab value="Python">

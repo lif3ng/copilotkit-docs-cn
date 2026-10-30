@@ -1,43 +1,42 @@
 ---
-title: Reading agent state
+title: 读取智能体状态
 icon: "lucide/ArrowLeft"
-description: Read the realtime agent state in your native application.
+description: 在你的原生应用中读取实时智能体状态。
 ---
 
 <IframeSwitcher
   id="shared-state-read-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/aws-strands/feature/shared_state?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/aws-strands/feature/shared_state?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
 <Callout type="info">
-  This example demonstrates reading from shared state in the [CopilotKit Feature
-  Viewer](https://feature-viewer.copilotkit.ai/aws-strands/feature/shared_state).
+  本示例演示了如何在 [CopilotKit Feature
+  Viewer](https://feature-viewer.copilotkit.ai/aws-strands/feature/shared_state) 中读取共享状态。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-You can easily use the realtime agent state not only in the chat UI, but also in the native application UX.
+你不仅可以在聊天 UI 中使用实时智能体状态，还可以在应用的原生 UX 中使用它。
 
-## When should I use this?
+## 什么时候该用它？
 
-You can use this when you want to provide the user with feedback about your agent's state. As your agent's
-state updates, you can reflect these updates natively in your application.
+当你想向用户反馈智能体的状态时，就可以使用它。随着智能体状态的更新，你可以在应用中以原生方式呈现这些更新。
 
-## Implementation
+## 实现步骤
 
 <Steps>
   <Step>
-    ### Run and connect your agent
+    ### 运行并连接你的智能体
     <RunAndConnect />
   </Step>
   <Step>
-    ### Setup your agent with state
+    ### 为智能体配置状态
 
-    Define your agent's state schema. AWS Strands maintains state throughout execution.
+    定义智能体的状态 schema。AWS Strands 会在整个执行过程中维护状态。
 
     <Tabs groupId="language_strands_agent" items={['Python', 'TypeScript']} persist>
         <Tab value="Python">
@@ -126,10 +125,9 @@ state updates, you can reflect these updates natively in your application.
   </Step>
 
   <Step>
-    ### Use the `useAgent` Hook
+    ### 使用 `useAgent` Hook
 
-    With your agent connected and running, call the `useAgent` hook, wait for the real agent, and
-    initialize any missing UI-owned state with `agent.setState`.
+    智能体连接并运行后，调用 `useAgent` hook，等待真实智能体就绪，并用 `agent.setState` 初始化任何缺失的 UI 侧状态。
 
     ```tsx title="ui/app/page.tsx"
     import { useEffect } from "react";
@@ -164,23 +162,22 @@ state updates, you can reflect these updates natively in your application.
     }
     ```
     <Callout type="info">
-      The `agent.state` in `useAgent` is reactive and will automatically update when the agent state changes.
+      `useAgent` 中的 `agent.state` 是响应式的，会在智能体状态变化时自动更新。
     </Callout>
 
   </Step>
 
   <Step>
-    ### Give it a try!
+    ### 试试看！
 
-    As the agent state updates, your `state` variable will automatically update with it! In this case, you'll see the
-    language set to "spanish" after the connected agent is ready.
+    随着智能体状态更新，你的 `state` 变量也会自动更新！在本例中，连接的智能体就绪后，你会看到语言被设置为 “spanish”。
 
   </Step>
 </Steps>
 
-## Rendering agent state in your app
+## 在应用中渲染智能体状态
 
-You can render the agent state in any React component under `<CopilotKit>`. Read `agent.state` and return ordinary JSX.
+你可以在 `<CopilotKit>` 下的任意 React 组件中渲染智能体状态。读取 `agent.state` 并返回普通 JSX 即可。
 
 ```tsx title="ui/app/page.tsx"
 import { useAgent } from "@copilotkit/react-core/v2";
@@ -202,6 +199,5 @@ function YourMainContent() {
 ```
 
 <Callout type="info">
-  The `agent.state` in `useAgent` is reactive and will automatically update when
-  the agent state changes.
+  `useAgent` 中的 `agent.state` 是响应式的，会在智能体状态变化时自动更新。
 </Callout>

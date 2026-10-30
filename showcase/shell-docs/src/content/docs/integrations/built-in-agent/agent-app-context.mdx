@@ -1,40 +1,40 @@
 ---
-title: "Agent Context"
+title: "智能体上下文"
 icon: "lucide/BookA"
-description: "Share app-specific context with your Built-in Agent."
+description: "与内置智能体共享应用特定的上下文。"
 ---
 
 import AgentContextJsonString from "@/snippets/shared/basics/agent-context-json-string.mdx";
 
-Share your application's state and context with the Built-in Agent using the `useAgentContext` hook. The Built-in Agent receives this context automatically, with no backend configuration.
+使用 `useAgentContext` hook 与内置智能体共享应用的状态与上下文。内置智能体会自动接收这些上下文，无需任何后端配置。
 
 <Callout>
-    That last part is specific to the Built-in Agent. An agent you host yourself receives the same
-    entries on the AG-UI run input, and each framework decides what reaches the model from there —
-    see your framework's own Agent App Context page, such as [ADK](/adk/agent-app-context),
-    [LangGraph](/langgraph/agent-app-context) or [Mastra](/mastra/agent-app-context).
+    最后这一点是内置智能体特有的。你自己托管的智能体会在 AG-UI 运行输入中收到相同的
+    条目，而各框架会自行决定其中哪些内容到达模型——请参阅你的框架自己的智能体应用上下文
+    （Agent App Context）页面，例如 [ADK](/adk/agent-app-context)、
+    [LangGraph](/langgraph/agent-app-context) 或 [Mastra](/mastra/agent-app-context)。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-The `useAgentContext` hook lets you register app-specific data that gets included in the agent's context. This could be the current user, page content, shopping cart items, or any data that helps the agent provide relevant responses.
+`useAgentContext` hook 允许你注册会纳入智能体上下文的应用特定数据。可以是当前用户、页面内容、购物车商品，或任何能帮助智能体给出相关响应的数据。
 
-## When should I use this?
+## 什么时候该用它？
 
-- You want the agent to know about the current state of your app
-- You need the agent to reference user-specific data (name, preferences, role)
-- The agent should be aware of what page or view the user is on
-- You want to provide domain-specific data without hardcoding it into the system prompt
+- 你想让智能体了解应用的当前状态
+- 你需要智能体引用用户特定数据（姓名、偏好、角色）
+- 智能体应当知道用户当前所在的页面或视图
+- 你想提供领域特定数据，而又不把它硬编码进系统提示
 
-## Implementation
+## 实现步骤
 
 <AgentContextJsonString />
 
 <Steps>
 <Step>
-### Register context in your component
+### 在组件中注册上下文
 
-Use `useAgentContext` to share any data with the agent:
+使用 `useAgentContext` 与智能体共享任意数据：
 
 ```tsx title="components/Dashboard.tsx"
 "use client"; // only necessary for Next.js App Router // [!code highlight]
@@ -73,9 +73,9 @@ export function Dashboard() {
 </Step>
 
 <Step>
-### That's it — no backend setup needed
+### 就这么简单——无需后端配置
 
-Unlike LangGraph where you need to configure agent state to receive context, the Built-in Agent handles this automatically. The context you register is included in the agent's system prompt, so it can reference your app data immediately.
+LangGraph 需要你配置智能体状态才能接收上下文，而内置智能体会自动处理。你注册的上下文会包含在智能体的系统提示中，因此它可以立即引用你的应用数据。
 
 ```
 User: "What projects am I working on?"
@@ -86,9 +86,9 @@ Agent: "You're working on two projects:
 </Step>
 </Steps>
 
-## Multiple contexts
+## 多个上下文
 
-You can call `useAgentContext` multiple times across different components. All registered contexts are combined and sent to the agent:
+你可以在不同组件中多次调用 `useAgentContext`。所有注册的上下文会合并后发送给智能体：
 
 ```tsx title="components/UserInfo.tsx"
 useAgentContext({
@@ -104,11 +104,11 @@ useAgentContext({
 });
 ```
 
-The agent sees both contexts and can reference either when responding.
+智能体能看到两个上下文，并在响应时引用其中任意一个。
 
-## Dynamic context
+## 动态上下文
 
-Context updates automatically when the underlying data changes:
+底层数据变化时，上下文会自动更新：
 
 ```tsx
 export function TaskList() {

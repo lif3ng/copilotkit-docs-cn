@@ -1,7 +1,7 @@
 ---
-title: "State Rendering"
+title: "状态渲染"
 icon: "lucide/Bot"
-description: Render the state of your agent with custom UI components.
+description: 使用自定义 UI 组件渲染智能体的状态。
 ---
 
 <video
@@ -14,37 +14,33 @@ description: Render the state of your agent with custom UI components.
   muted
 />
 <Callout>
-  This video demonstrates the [implementation](#implementation) section applied
-  to our [coagents starter
-  project](https://github.com/CopilotKit/CopilotKit/tree/main/examples/coagents-starter-crewai-flows).
+  这段视频演示的是应用于我们的
+  [CoAgents 起步模板项目](https://github.com/CopilotKit/CopilotKit/tree/main/examples/coagents-starter-crewai-flows)上的[实现](#实现)一节。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-All CrewAI Flow agents are stateful. This means that as your agent progresses through nodes, a state object is passed between them perserving
-the overall state of a session. CopilotKit allows you to render this state in your application with custom UI components, which we call **Agentic Generative UI**.
+所有 CrewAI Flow 智能体都是有状态的。这意味着当智能体在各个节点间推进时，会有一个状态对象在节点之间传递，从而保存整个会话的整体状态。CopilotKit 允许你在应用中使用自定义 UI 组件渲染这个状态，我们称之为 **Agentic Generative UI**（智能体化生成式 UI）。
 
-## When should I use this?
+## 什么时候该用它？
 
-Rendering the state of your agent in the UI is useful when you want to provide the user with feedback about the overall state of a session. A great example of this
-is a situation where a user and an agent are working together to solve a problem. The agent can store a draft in its state which is then rendered in the UI.
+当你想向用户反馈会话的整体状态时，在 UI 中渲染智能体的状态会非常有用。一个典型的例子是用户与智能体协同解决问题的场景：智能体可以把一份草稿保存在自己的状态里，再将其渲染到 UI 中。
 
-## Implementation
+## 实现
 
 <Steps>
   <Step>
-    ### Run and Connect your CrewAI Flow to CopilotKit
-    First, you'll need to make sure you have a running CrewAI Flow. If you haven't already done this, you can follow the [getting started guide](/crewai-flows/quickstart)
+    ### 运行 CrewAI Flow 并将其连接到 CopilotKit
+    首先，你需要确保有一个正在运行的 CrewAI Flow。如果还没有，可以参考[快速开始指南](/crewai-flows/quickstart)。
 
-    This guide uses the [CoAgents starter repo](https://github.com/CopilotKit/CopilotKit/tree/main/examples/coagents-starter-crewai-flows) as its starting point.
+    本指南以 [CoAgents 起步模板仓库](https://github.com/CopilotKit/CopilotKit/tree/main/examples/coagents-starter-crewai-flows)作为起点。
 
   </Step>
   <Step>
-    ### Define your agent state
-    If you're not familiar with CrewAI, your flows are stateful. As you progress through function, a state object is updated between them. CopilotKit
-    allows you to easily render this state in your application.
+    ### 定义智能体状态
+    如果你不熟悉 CrewAI：Flow 是有状态的。随着在各函数之间推进，状态对象会在它们之间不断更新。CopilotKit 让你能够在应用中轻松渲染这个状态。
 
-    For the sake of this guide, let's say our state looks like this in our agent.
+    在本指南中，假设智能体里的状态如下所示。
 
     <Tabs groupId="language_crewai-flows_agent" items={['Python']} default="Python" persist>
         <Tab value="Python">
@@ -63,8 +59,8 @@ is a situation where a user and an agent are working together to solve a problem
 
   </Step>
   <Step>
-    ### Simulate state updates
-    Next, let's write some logic into our agent that will simulate state updates occurring.
+    ### 模拟状态更新
+    接下来，我们在智能体中编写一些逻辑，用于模拟状态更新的发生。
 
     <Tabs groupId="language_crewai-flows_agent" items={['Python']} default="Python" persist>
       <Tab value="Python">
@@ -113,8 +109,8 @@ is a situation where a user and an agent are working together to solve a problem
 
   </Step>
   <Step>
-    ### Render state of the agent in the chat
-    Now we can utilize `useAgent` with a `render` function to render the state of our agent **in the chat**.
+    ### 在聊天中渲染智能体状态
+    现在我们可以使用带有 `render` 函数的 `useAgent`，**在聊天中**渲染智能体的状态。
 
     ```tsx title="app/page.tsx"
     // ...
@@ -154,9 +150,8 @@ is a situation where a user and an agent are working together to solve a problem
 
   </Step>
   <Step>
-    ### Render state outside of the chat
-    You can also render the state of your agent **outside of the chat**. This is useful when you want to render the state of your agent anywhere
-    other than the chat.
+    ### 在聊天之外渲染智能体状态
+    你也可以**在聊天之外**渲染智能体的状态。当你想在聊天以外的任何位置渲染智能体状态时，这会非常有用。
 
     ```tsx title="app/page.tsx"
     // ...
@@ -197,9 +192,9 @@ is a situation where a user and an agent are working together to solve a problem
 
   </Step>
   <Step>
-    ### Give it a try!
+    ### 试一试！
 
-    You've now created a component that will render the agent's state in the chat.
+    现在你已经创建了一个能在聊天中渲染智能体状态的组件。
 
   </Step>
 </Steps>

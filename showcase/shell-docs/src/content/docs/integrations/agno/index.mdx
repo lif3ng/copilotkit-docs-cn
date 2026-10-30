@@ -1,7 +1,7 @@
 ---
-title: Introduction
+title: 简介
 icon: "custom/agno"
-description: Bring your Agno agents to your users with CopilotKit via AG-UI.
+description: 通过 AG-UI，借助 CopilotKit 把你的 Agno 智能体带给你的用户。
 hideHeader: true
 # The landing page carries its own prompt button in the hero; the page-tools
 # row above the title would put a second one on the page, which the data-record
@@ -12,42 +12,42 @@ hidePageActions: true
 <FrameworkOverview
   frameworkName="Agno"
   frameworkIcon={<AgnoIcon className="h-12 w-12" />}
-  header="Bring your Agno agents to your users"
-  subheader="Agno runs your agents. CopilotKit gives them a surface your users can see, interrupt and steer."
+  header="把你的 Agno 智能体带到用户面前"
+  subheader="Agno 负责运行你的智能体，CopilotKit 则为它们提供一个用户看得见、能中断、可引导的界面。"
   guideLink="/agno/quickstart"
   initCommand="npx copilotkit@latest init"
-  lede="Agno gives you the agent: a model, tools, memory and a server that runs them. What it does not give you is the surface. Somewhere for the conversation to happen, a way to show the run while it is running, and a moment for a person to step in. Each capability below builds on something your agent already does."
+  lede="Agno 为你提供智能体本身：模型、工具、记忆，以及运行它们的服务端。它没有提供的，是交互界面——一个让对话发生的地方、一种在运行过程中实时展示运行状态的方式、一个让人介入的时机。下面的每一项能力，都建立在你的智能体已有的功能之上。"
   supportedFeatures={[
     {
-      title: "Generative UI",
+      title: "生成式 UI",
       iconKey: "paintbrush",
       description:
-        "Your agent calls tools and reports progress as it works. CopilotKit streams that to the browser and renders each step as a React component your users watch update while the agent works.",
+        "你的智能体在工作过程中调用工具并汇报进度。CopilotKit 将这些内容流式传输到浏览器，把每一步渲染成 React 组件，让用户在智能体工作的同时看着它实时更新。",
       documentationLink: "/agno/generative-ui"
     },
     {
-      title: "Human-in-the-loop",
+      title: "人机协同（human-in-the-loop）",
       iconKey: "user",
       description:
-        "A frontend tool registered with useHumanInTheLoop renders your own UI, waits for the user's answer, and hands it back to the agent as the tool result.",
+        "通过 useHumanInTheLoop 注册的前端工具会渲染你自己的 UI，等待用户作答，再把答案作为工具结果交回给智能体。",
       documentationLink: "/agno/human-in-the-loop"
     },
     {
-      title: "Shared state",
+      title: "共享状态",
       iconKey: "repeat",
       description:
-        "Your agent keeps state between turns on the server. CopilotKit mirrors it into your app and back, so a user edit and an agent write land in the same place.",
+        "你的智能体在服务端跨轮次保存状态。CopilotKit 将其在你的应用中双向镜像，用户编辑与智能体写入落在同一处。",
       documentationLink: "/agno/shared-state"
     }
   ]}
   capabilitiesFootnote={{
-    text: "Chat surfaces, headless UI, frontend tools and multi-agent flows work with Agno too.",
-    linkLabel: "And more",
+    text: "聊天界面、无头 UI（headless UI）、前端工具与多智能体流程同样适用于 Agno。",
+    linkLabel: "还有更多",
     href: "/agno/build-with-agents"
   }}
   connect={{
     intro:
-      "Your agent keeps running as its own Agno service. The AgnoAgent bridge points CopilotKit at its AG-UI endpoint, so nothing inside the agent changes.",
+      "你的智能体继续作为独立的 Agno 服务运行。AgnoAgent 桥接器将 CopilotKit 指向其 AG-UI 端点，因此智能体内部无需任何改动。",
     filename: "app/api/copilotkit/route.ts",
     language: "ts",
     guideLink: "/agno/quickstart"
@@ -55,12 +55,12 @@ hidePageActions: true
   showcase={{
     integration: "agno",
     intro:
-      "Agno and CopilotKit running together, in the React frontend. Every demo below is the same integration with one capability turned on.",
+      "Agno 与 CopilotKit 在 React 前端中协同运行。下面的每个演示都是同一个集成，只是开启了不同的能力。",
     demos: [
-      { slug: "agentic-chat", title: "Pre-Built: CopilotChat" },
-      { slug: "hitl-in-chat", title: "Human In the Loop: In-chat" },
-      { slug: "shared-state-read-write", title: "Shared State: Read + Write" },
-      { slug: "gen-ui-agent", title: "Generative UI: Agent State" }
+      { slug: "agentic-chat", title: "预构建：CopilotChat" },
+      { slug: "hitl-in-chat", title: "人机协同：聊天内" },
+      { slug: "shared-state-read-write", title: "共享状态：读 + 写" },
+      { slug: "gen-ui-agent", title: "生成式 UI：智能体状态" }
     ]
   }}
 >

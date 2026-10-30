@@ -1,14 +1,14 @@
 ---
-title: "Advanced Configuration"
+title: "高级配置"
 icon: "lucide/Cog"
-description: "Fine-tune your Built-in Agent's behavior with advanced options."
+description: "使用高级选项微调内置智能体的行为。"
 ---
 
-The `BuiltInAgent` accepts a full set of configuration options to control model behavior, tool calling, and more.
+`BuiltInAgent` 接受一整套配置选项，用于控制模型行为、工具调用等。
 
-## Multi-step tool calling
+## 多步工具调用
 
-By default, the agent performs a single generation step. Set `maxSteps` to allow the agent to call tools and then continue reasoning:
+默认情况下，智能体只执行单个生成步骤。设置 `maxSteps` 可让智能体在调用工具后继续推理：
 
 ```typescript title="src/copilotkit.ts"
 const agent = new BuiltInAgent({
@@ -18,11 +18,11 @@ const agent = new BuiltInAgent({
 });
 ```
 
-With `maxSteps: 5`, the agent can call a tool, process the result, call another tool, and so on — up to 5 iterations. This is essential for workflows where the agent needs to chain multiple tool calls.
+设为 `maxSteps: 5` 后，智能体可以调用工具、处理结果、再调用下一个工具，依此类推——最多 5 次迭代。对于需要串联多次工具调用的工作流，这一点至关重要。
 
-## Tool choice
+## 工具选择
 
-Control how the agent selects tools:
+控制智能体如何选择工具：
 
 ```typescript
 const agent = new BuiltInAgent({
@@ -34,9 +34,9 @@ const agent = new BuiltInAgent({
 });
 ```
 
-## System prompt
+## 系统提示
 
-Customize the agent's system prompt:
+自定义智能体的系统提示：
 
 ```typescript
 const agent = new BuiltInAgent({
@@ -45,9 +45,9 @@ const agent = new BuiltInAgent({
 });
 ```
 
-## Generation parameters
+## 生成参数
 
-Fine-tune the model's output:
+微调模型的输出：
 
 ```typescript
 const agent = new BuiltInAgent({
@@ -65,12 +65,12 @@ const agent = new BuiltInAgent({
 ```
 
 <Callout type="info">
-Not all parameters are supported by every provider. For example, `topK` is supported by Google but not OpenAI. Unsupported parameters are ignored.
+并非所有提供方都支持全部参数。例如 `topK` 受 Google 支持但 OpenAI 不支持。不受支持的参数会被忽略。
 </Callout>
 
-## Provider-specific options
+## 提供方专属选项
 
-Pass options specific to a model provider using `providerOptions`:
+使用 `providerOptions` 传入特定于模型提供方的选项：
 
 ```typescript
 // OpenAI reasoning models (o3, o4-mini) with reasoning effort
@@ -92,9 +92,9 @@ const agent = new BuiltInAgent({
 });
 ```
 
-## Overridable properties
+## 可覆盖属性
 
-Allow the frontend to override specific configuration at runtime. This is useful when you want users to switch models or adjust behavior without redeploying:
+允许前端在运行时覆盖特定配置。当你希望用户无需重新部署即可切换模型或调整行为时，这非常有用：
 
 ```typescript
 const agent = new BuiltInAgent({
@@ -104,12 +104,12 @@ const agent = new BuiltInAgent({
 });
 ```
 
-The full list of overridable properties:
+可覆盖属性的完整列表：
 `model`, `toolChoice`, `maxOutputTokens`, `temperature`, `topP`, `topK`, `presencePenalty`, `frequencyPenalty`, `stopSequences`, `seed`, `maxRetries`, `prompt`, `providerOptions`
 
-## Message forwarding
+## 消息转发
 
-Control whether system and developer messages from the conversation are forwarded to the LLM:
+控制是否将对话中的 system 与 developer 消息转发给 LLM：
 
 ```typescript
 const agent = new BuiltInAgent({
@@ -119,9 +119,9 @@ const agent = new BuiltInAgent({
 });
 ```
 
-## URL attachments
+## URL 附件
 
-When a message has an image or file given by URL, and the model cannot take that URL directly, the server downloads the file and sends its content to the model. Use `urlDownload` to control these downloads:
+当消息带有以 URL 形式给出的图片或文件，而模型无法直接接收该 URL 时，服务器会下载该文件并将其内容发送给模型。使用 `urlDownload` 控制这些下载：
 
 ```typescript
 const agent = new BuiltInAgent({
@@ -133,18 +133,18 @@ const agent = new BuiltInAgent({
 });
 ```
 
-- **Default**: download only from public internet addresses. The server resolves the hostname and refuses loopback, private, link-local (including cloud metadata), and other non-public addresses. It connects only to the addresses it checked, checks each redirect again, and refuses a redirect from https to http. It limits each download to 20 MiB (`maxBytes`) and 30 seconds (`timeoutMs`), and each model call to 20 distinct URLs (`maxDownloads`) and 50 MiB in total (`maxTotalBytes`). The AI SDK downloads the attachments again for each step of a multi-step run, so each step counts on its own.
-- **`allowedHosts`**: download only from the hostnames you list. The addresses must still be public, and each redirect target must also be in the list. `cdn.example.com` matches only that host. `*.example-uploads.com` matches its subdomains but not `example-uploads.com` itself; list both if you need both. Matching ignores case and a trailing dot. Give hostnames only: an entry with a scheme, port, or path, and a wildcard over an IP address (`*.1.2.3.4`), are rejected when the agent is created. An empty list refuses every server-side download.
-- **`"disabled"`**: never download from the network. Any attachment URL other than `data:` that the model cannot take directly fails the run.
-- **A function**: your own AI SDK download function (`Experimental_DownloadFunction` from `ai`). Use this only if you must fetch from a private network, and check each URL yourself.
+- **默认**：仅从公共互联网地址下载。服务器会解析主机名，并拒绝环回、私有、链路本地（包括云元数据）及其他非公共地址。它只连接已核验过的地址，对每次重定向重新校验，并拒绝从 https 到 http 的重定向。每次下载限制为 20 MiB（`maxBytes`）与 30 秒（`timeoutMs`），每次模型调用限制为 20 个不同 URL（`maxDownloads`）与总计 50 MiB（`maxTotalBytes`）。AI SDK 在多步运行的每个步骤中都会重新下载附件，因此每个步骤单独计数。
+- **`allowedHosts`**：仅从你列出的主机名下载。地址仍必须是公共地址，且每个重定向目标也必须在列表中。`cdn.example.com` 只匹配该主机。`*.example-uploads.com` 匹配其子域名，但不匹配 `example-uploads.com` 本身；如果两者都需要，请同时列出。匹配忽略大小写与末尾的点。只填写主机名：带协议、端口或路径的条目，以及针对 IP 地址的通配符（`*.1.2.3.4`），都会在智能体创建时被拒绝。空列表会拒绝所有服务端下载。
+- **`"disabled"`**：绝不从网络下载。除 `data:` 之外、模型无法直接接收的任何附件 URL 都会导致运行失败。
+- **函数**：你自己的 AI SDK 下载函数（来自 `ai` 的 `Experimental_DownloadFunction`）。仅当你必须从私有网络获取内容时使用，并自行校验每个 URL。
 
-Invalid options, including an unknown option name, throw when the agent is created, not when a request arrives.
+无效的选项（包括未知的选项名）会在智能体创建时抛出错误，而不是在请求到达时。
 
-URLs that the model takes directly go to the model provider unchanged. `data:` URLs are decoded by the AI SDK without a network request, in every mode. When a download fails or is refused, the client gets a short message without the URL's query or the network error; the server logs the reason with a `[BuiltInAgent]` prefix. The message is the same whether the hostname could not be resolved or resolved to a non-public address.
+模型可直接接收的 URL 会原样传给模型提供方。`data:` URL 由 AI SDK 解码，不发起网络请求，适用于所有模式。当下载失败或被拒绝时，客户端会收到一条不含 URL 查询参数或网络错误详情的简短消息；服务器会以 `[BuiltInAgent]` 为前缀记录原因。无论主机名无法解析还是解析到非公共地址，客户端收到的消息都相同。
 
-The default downloader needs Node.js networking modules. On a runtime without them, such as an edge runtime, every download fails; set `urlDownload` to `"disabled"` or to your own download function there.
+默认下载器需要 Node.js 网络模块。在缺少这些模块的运行时（如 edge runtime）上，所有下载都会失败；此时请将 `urlDownload` 设置为 `"disabled"` 或你自己的下载函数。
 
-In AI SDK factory mode you call `streamText()` yourself, so `urlDownload` does not apply; setting it there throws when the agent is created. Pass the same downloader to get the same protection, with the run's abort signal so that an aborted run stops its downloads:
+在 AI SDK 工厂模式下，你自己调用 `streamText()`，因此 `urlDownload` 不生效；在该模式下设置它会在智能体创建时抛出错误。传入相同的下载器即可获得相同的保护，并附带运行的 abort 信号，这样中止的运行也会停止其下载：
 
 ```typescript
 import { createSafeUrlDownload } from "@copilotkit/runtime/v2";
@@ -157,33 +157,33 @@ factory: (ctx) =>
   }),
 ```
 
-## Full configuration reference
+## 完整配置参考
 
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `model` | `string \| LanguageModel` | — | Model specifier or AI SDK instance |
-| `apiKey` | `string` | env var | API key for the provider |
-| `maxSteps` | `number` | `1` | Max tool-calling iterations |
-| `toolChoice` | `"auto" \| "required" \| "none" \| { type: "tool", toolName: string }` | `"auto"` | How tools are selected |
-| `maxOutputTokens` | `number` | — | Max tokens in response |
-| `temperature` | `number` | — | Sampling temperature |
-| `topP` | `number` | — | Nucleus sampling |
-| `topK` | `number` | — | Top-K sampling |
-| `presencePenalty` | `number` | — | Presence penalty |
-| `frequencyPenalty` | `number` | — | Frequency penalty |
-| `stopSequences` | `string[]` | — | Stop sequences |
-| `seed` | `number` | — | Random seed |
-| `maxRetries` | `number` | — | Retry count |
-| `prompt` | `string` | — | System prompt |
-| `tools` | `ToolDefinition[]` | `[]` | Server-side tools |
-| `mcpServers` | `MCPClientConfig[]` | `[]` | MCP server connections (agent-managed, per-request) |
-| `mcpClients` | `MCPClientProvider[]` | `[]` | User-managed MCP clients (persistent, user controls lifecycle) |
-| `overridableProperties` | `string[]` | `[]` | Properties the frontend can override |
-| `providerOptions` | `Record<string, any>` | — | Provider-specific options |
-| `forwardSystemMessages` | `boolean` | `false` | Forward system messages |
-| `forwardDeveloperMessages` | `boolean` | `false` | Forward developer messages |
-| `urlDownload` | `"disabled" \| SafeUrlDownloadOptions \| Experimental_DownloadFunction` | public addresses only | Server-side download of URL attachments |
+| 属性 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `model` | `string \| LanguageModel` | — | 模型标识符或 AI SDK 实例 |
+| `apiKey` | `string` | 环境变量 | 该提供方的 API 密钥 |
+| `maxSteps` | `number` | `1` | 最大工具调用迭代次数 |
+| `toolChoice` | `"auto" \| "required" \| "none" \| { type: "tool", toolName: string }` | `"auto"` | 工具的选择方式 |
+| `maxOutputTokens` | `number` | — | 响应中的最大 token 数 |
+| `temperature` | `number` | — | 采样温度 |
+| `topP` | `number` | — | 核采样（nucleus sampling） |
+| `topK` | `number` | — | Top-K 采样 |
+| `presencePenalty` | `number` | — | 存在惩罚 |
+| `frequencyPenalty` | `number` | — | 频率惩罚 |
+| `stopSequences` | `string[]` | — | 停止序列 |
+| `seed` | `number` | — | 随机种子 |
+| `maxRetries` | `number` | — | 重试次数 |
+| `prompt` | `string` | — | 系统提示 |
+| `tools` | `ToolDefinition[]` | `[]` | 服务端工具 |
+| `mcpServers` | `MCPClientConfig[]` | `[]` | MCP 服务器连接（由智能体管理，按请求） |
+| `mcpClients` | `MCPClientProvider[]` | `[]` | 用户管理的 MCP 客户端（持久化，生命周期由用户控制） |
+| `overridableProperties` | `string[]` | `[]` | 前端可覆盖的属性 |
+| `providerOptions` | `Record<string, any>` | — | 提供方专属选项 |
+| `forwardSystemMessages` | `boolean` | `false` | 转发 system 消息 |
+| `forwardDeveloperMessages` | `boolean` | `false` | 转发 developer 消息 |
+| `urlDownload` | `"disabled" \| SafeUrlDownloadOptions \| Experimental_DownloadFunction` | 仅公共地址 | 服务端下载 URL 附件 |
 
-<Callout type="info" title="Need even more control?">
-  If `BuiltInAgent`'s configuration options don't cover your needs — for example, if you want to use TanStack AI, a custom LLM backend, or async initialization — see [Custom Agent](/backend/custom-agent).
+<Callout type="info" title="需要更强的控制力？">
+  如果 `BuiltInAgent` 的配置选项无法满足你的需求——例如你想使用 TanStack AI、自定义 LLM 后端或异步初始化——请参阅[自定义智能体](/backend/custom-agent)。
 </Callout>

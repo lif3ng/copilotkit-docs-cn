@@ -1,9 +1,9 @@
 ---
-title: "Manually emitting messages"
+title: "手动发送消息"
 icon: "lucide/Radio"
 ---
 
-While most agent interactions happen automatically through shared state updates as the agent runs, you can also **manually send messages from within your agent code** to provide immediate feedback to users.
+虽然智能体运行时的大多数交互都通过共享状态更新自动完成，但你也可以**从智能体代码中手动发送消息**，以便向用户提供即时反馈。
 
 <video
   src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/emit-messages.mp4"
@@ -15,37 +15,35 @@ While most agent interactions happen automatically through shared state updates 
   muted
 />
 <Callout>
-  This video shows the result of `npx copilotkit@latest init` with the
-  [implementation](#implementation) section applied to it!
+  此视频展示了 `npx copilotkit@latest init` 的结果，并应用了[实现方式](#实现方式)一节的内容！
 </Callout>
 
-## What is this?
+## 这是什么？
 
-In CrewAI, messages are only emitted when a function is completed. CopilotKit allows you to manually emit messages
-in the middle of a function's execution to provide immediate feedback to the user.
+在 CrewAI 中，消息只会在函数执行完成后才发出。CopilotKit 允许你在函数执行过程中手动发送消息，以便向用户提供即时反馈。
 
-## When should I use this?
+## 什么时候应该使用？
 
-Manually emitted messages are great for **when you don't want to wait for the function** to complete **and you**:
+手动发送消息非常适合**不想等待函数完成**、同时又想：
 
-- Have a long running task that you want to provide feedback on
-- Want to provide a status update to the user
-- Want to provide a warning or error message
+- 提供长时间运行任务的进展反馈
+- 向用户提供状态更新
+- 发出警告或错误消息
 
-## Implementation
+## 实现方式
 
 <Steps>
     <Step>
-        ### Run and Connect Your Agent to CopilotKit
+        ### 运行智能体并将其连接到 CopilotKit
         <RunAndConnectSnippet />
     </Step>
     <Step>
-        ### Install the CopilotKit SDK
+        ### 安装 CopilotKit SDK
         <InstallSDKSnippet/>
     </Step>
     <Step>
-        ### Manually emit a message
-        The `copilotkit_emit_message` method allows you to emit messages early in a functions's execution to communicate status updates to the user. This is particularly useful for long running tasks.
+        ### 手动发送消息
+        `copilotkit_emit_message` 方法允许你在函数执行早期发送消息，向用户传达状态更新。这对于长时间运行的任务尤其有用。
 
         <Tabs groupId="language_crewai-flows_agent" items={['Python']} default="Python" persist>
             <Tab value="Python">
@@ -82,9 +80,8 @@ Manually emitted messages are great for **when you don't want to wait for the fu
         </Tabs>
     </Step>
     <Step>
-        ### Give it a try!
-        Now when you talk to your agent you'll notice that it immediately responds with the message "Thinking really hard..."
-        before giving you a response 2 seconds later.
+        ### 试试看！
+        现在与智能体对话时，你会注意到它会立即回复消息 “Thinking really hard...”，然后在 2 秒后才给出正式响应。
     </Step>
 
 </Steps>

@@ -1,81 +1,81 @@
 ---
-title: Quickstart
-description: Run a Claude Agent SDK TypeScript agent behind CopilotKit.
+title: 快速开始
+description: 在 CopilotKit 后端运行 Claude Agent SDK TypeScript 智能体。
 icon: "lucide/Play"
 hideTOC: true
 ---
 
 import OpenInspectorStep from "@/snippets/shared/inspector/open-inspector-step.mdx";
 
-## Start with your coding agent
+## 从你的编码智能体开始
 
-Use this prompt to connect your Claude Agent SDK for TypeScript agent to CopilotKit and verify a working conversation. Your coding agent will follow this guide in your project, or you can work through the manual steps below.
+使用以下提示将你的 Claude Agent SDK TypeScript 智能体连接到 CopilotKit，并验证对话正常工作。你的编码智能体会在项目中遵循本指南操作，你也可以按下方手动步骤自行完成。
 
 <PageAgentPrompt />
 
-This quickstart gives you two working paths:
+本快速开始提供两条可用路径：
 
-- **Start from scratch** to scaffold the full Claude Agent SDK TypeScript showcase.
-- **Use an existing agent** to expose your own Claude Agent SDK process over AG-UI and connect it to a React app.
+- **从零开始**，搭建完整的 Claude Agent SDK TypeScript 演示项目。
+- **使用现有智能体**，通过 AG-UI 暴露你自己的 Claude Agent SDK 进程，并连接到 React 应用。
 
-## Prerequisites
+## 前置条件
 
-Before you begin, you'll need the following:
+开始之前，你需要准备：
 
-- An Anthropic API key
+- 一个 Anthropic API 密钥
 - Node.js 20.9+
-- Your favorite package manager
+- 你喜欢的包管理器
 
-## Getting started
+## 开始使用
 
 <Steps>
   <Step>
-    ### Choose your starting point
+    ### 选择你的起点
 
     <TailoredContent className="step" id="agent">
       <TailoredContentOption
         id="starter"
-        title="Start from scratch"
-        description="Scaffold the canonical Claude Agent SDK TypeScript starter."
+        title="从零开始"
+        description="搭建标准的 Claude Agent SDK TypeScript 起步模板。"
       >
         <Step>
-          ### Run the CLI
+          ### 运行 CLI
 
           ```bash
           npx copilotkit@latest init --framework claude-sdk-typescript
           ```
 
-          The starter contains these pieces:
+          起步模板包含以下部分：
 
-          - `agent/src/server.ts` - the AG-UI server for the agent. It listens on port 8000.
-          - `agent/src/agent.ts` - the agent. It passes the system prompt and the backend tools to `ClaudeAgentAdapter`.
-          - `src/app/api/copilotkit/[[...slug]]/route.ts` - the CopilotKit runtime route. It registers the agent as `default` and reaches it with `HttpAgent`.
-          - `src/app/page.tsx` - the starter UI to inspect first
+          - `agent/src/server.ts` —— 智能体的 AG-UI 服务器，监听 8000 端口。
+          - `agent/src/agent.ts` —— 智能体本体，将系统提示和后端工具传给 `ClaudeAgentAdapter`。
+          - `src/app/api/copilotkit/[[...slug]]/route.ts` —— CopilotKit 运行时路由，将智能体注册为 `default`，并通过 `HttpAgent` 访问它。
+          - `src/app/page.tsx` —— 起步模板 UI，可先从这里查看
         </Step>
 
         <Step>
-          ### Configure your environment
+          ### 配置环境
 
-          Copy the example file in the generated project root:
+          在生成的项目根目录中复制示例文件：
 
           ```bash
           cp .env.example .env
           ```
 
-          Then add your Anthropic API key to `.env`:
+          然后将你的 Anthropic API 密钥添加到 `.env`：
 
           ```plaintext title=".env"
           ANTHROPIC_API_KEY=your_anthropic_api_key
           ```
 
-          The other values in `.env.example` are optional:
+          `.env.example` 中的其他值为可选项：
 
-          - `COPILOTKIT_AGENT_MODEL` sets the Claude model as `anthropic:<model>`. The agent runs Anthropic models only.
-          - `AGENT_URL` is the address the runtime route uses to reach the agent. The default is `http://localhost:8000`, where the starter's agent server listens.
+          - `COPILOTKIT_AGENT_MODEL` 以 `anthropic:<model>` 形式设置 Claude 模型。该智能体只能运行 Anthropic 模型。
+          - `AGENT_URL` 是运行时路由访问智能体所用的地址。默认值为 `http://localhost:8000`，即起步模板的智能体服务器监听地址。
         </Step>
 
         <Step>
-          ### Install dependencies
+          ### 安装依赖
 
           <Tabs groupId="package-manager" items={['npm', 'pnpm', 'yarn', 'bun']}>
             <Tab value="npm">
@@ -100,11 +100,11 @@ Before you begin, you'll need the following:
             </Tab>
           </Tabs>
 
-          The `postinstall` script also installs the agent's own dependencies in `agent/`.
+          `postinstall` 脚本还会安装 `agent/` 中智能体自身的依赖。
         </Step>
 
         <Step>
-          ### Start the development server
+          ### 启动开发服务器
 
           <Tabs groupId="package-manager" items={['npm', 'pnpm', 'yarn', 'bun']}>
             <Tab value="npm">
@@ -129,19 +129,19 @@ Before you begin, you'll need the following:
             </Tab>
           </Tabs>
 
-          This starts the Next.js app on `http://localhost:3000` and the agent server on `http://localhost:8000`.
+          这会在 `http://localhost:3000` 启动 Next.js 应用，并在 `http://localhost:8000` 启动智能体服务器。
         </Step>
       </TailoredContentOption>
 
       <TailoredContentOption
         id="bring-your-own"
-        title="Use an existing agent"
-        description="I already have a Claude Agent SDK TypeScript agent and want to add CopilotKit."
+        title="使用现有智能体"
+        description="我已有 Claude Agent SDK TypeScript 智能体，想接入 CopilotKit。"
       >
         <Step>
-          ### Install the required packages
+          ### 安装所需依赖包
 
-          Install the Claude Agent SDK adapter, AG-UI event packages, and Express server dependencies for the agent process:
+          为智能体进程安装 Claude Agent SDK 适配器、AG-UI 事件包以及 Express 服务器依赖：
 
           ```bash
           npm install @anthropic-ai/claude-agent-sdk@^0.2.58 @anthropic-ai/sdk @ag-ui/claude-agent-sdk @ag-ui/core @ag-ui/encoder express dotenv zod
@@ -150,9 +150,9 @@ Before you begin, you'll need the following:
         </Step>
 
         <Step>
-          ### Configure your agent environment
+          ### 配置智能体环境
 
-          Create a `.env` file for the process that runs your Claude agent:
+          为运行 Claude 智能体的进程创建一个 `.env` 文件：
 
           ```plaintext title=".env"
           ANTHROPIC_API_KEY=your_anthropic_api_key
@@ -162,9 +162,9 @@ Before you begin, you'll need the following:
         </Step>
 
         <Step>
-          ### Expose Claude Agent SDK over AG-UI
+          ### 通过 AG-UI 暴露 Claude Agent SDK
 
-          CopilotKit talks to agents over AG-UI. The small server below receives AG-UI run input, passes it to `ClaudeAgentAdapter`, and streams AG-UI events back to the runtime.
+          CopilotKit 通过 AG-UI 与智能体通信。下面这个小服务器接收 AG-UI 运行输入，将其传递给 `ClaudeAgentAdapter`，并把 AG-UI 事件流式传回运行时。
 
           ```ts title="src/agent-server.ts"
           import express from "express";
@@ -226,7 +226,7 @@ Before you begin, you'll need the following:
           });
           ```
 
-          Start it and confirm the health check:
+          启动它并确认健康检查：
 
           ```bash
           npx tsx src/agent-server.ts
@@ -235,9 +235,9 @@ Before you begin, you'll need the following:
         </Step>
 
         <Step>
-          ### Create your frontend
+          ### 创建前端
 
-          CopilotKit works with any React app. This example uses Next.js App Router:
+          CopilotKit 可与任何 React 应用配合使用。本例使用 Next.js App Router：
 
           ```bash
           npx create-next-app@latest frontend
@@ -247,9 +247,9 @@ Before you begin, you'll need the following:
         </Step>
 
         <Step>
-          ### Add the CopilotKit runtime route
+          ### 添加 CopilotKit 运行时路由
 
-          Create `app/api/copilotkit/route.ts` in your Next.js app. It registers the Claude agent server as an AG-UI `HttpAgent` under the name `default`, the same name the starter uses.
+          在 Next.js 应用中创建 `app/api/copilotkit/route.ts`。它将 Claude 智能体服务器注册为名为 `default` 的 AG-UI `HttpAgent`，与起步模板使用的名称一致。
 
           ```ts title="app/api/copilotkit/route.ts"
           import { HttpAgent } from "@ag-ui/client";
@@ -278,9 +278,9 @@ Before you begin, you'll need the following:
         </Step>
 
         <Step>
-          ### Mount CopilotKit in React
+          ### 在 React 中挂载 CopilotKit
 
-          Wrap your app with `CopilotKit` and target the agent name you registered in the runtime route.
+          用 `CopilotKit` 包裹你的应用，并指向你在运行时路由中注册的智能体名称。
 
           ```tsx title="app/providers.tsx"
           "use client";
@@ -296,8 +296,7 @@ Before you begin, you'll need the following:
           }
           ```
 
-          `app/layout.tsx` is a server component and cannot import the provider
-          directly, so it renders your client file instead:
+          `app/layout.tsx` 是服务器组件，无法直接导入 provider，因此改为渲染你的客户端文件：
 
           ```tsx title="app/layout.tsx"
           import { Providers } from "./providers";
@@ -317,15 +316,11 @@ Before you begin, you'll need the following:
           }
           ```
 
-          <Callout type="info" title="This relative runtimeUrl assumes Next.js serves the runtime">
-            `/api/copilotkit` resolves only because Next.js serves your app and the runtime from the
-            same origin. A client-only frontend has no shared origin, so it needs a standalone runtime
-            server of its own and an absolute `runtimeUrl` such as
-            `http://localhost:8200/api/copilotkit`. The per-frontend guides at `/react-spa`, `/vue`,
-            `/angular` and `/react-native` each show that setup.
+          <Callout type="info" title="这里的相对 runtimeUrl 假设由 Next.js 同源提供运行时">
+            `/api/copilotkit` 之所以能解析，是因为 Next.js 从同一源提供你的应用和运行时。纯客户端前端没有共享源，因此需要自己的独立运行时服务器，以及形如 `http://localhost:8200/api/copilotkit` 的绝对 `runtimeUrl`。`/react-spa`、`/vue`、`/angular` 和 `/react-native` 的各前端指南分别展示了这种配置。
           </Callout>
 
-          Add a chat surface:
+          添加聊天界面：
 
           ```tsx title="app/page.tsx"
           "use client";
@@ -343,9 +338,9 @@ Before you begin, you'll need the following:
         </Step>
 
         <Step>
-          ### Start the UI
+          ### 启动 UI
 
-          Keep the agent server running, then start the frontend in a second terminal:
+          保持智能体服务器运行，然后在第二个终端中启动前端：
 
           ```bash
           npm run dev
@@ -356,21 +351,21 @@ Before you begin, you'll need the following:
   </Step>
 
   <Step>
-    ### Verify the integration
+    ### 验证集成
 
-    Open `http://localhost:3000` and ask:
+    打开 `http://localhost:3000` 并提问：
 
     ```plaintext
     Tell me in one sentence what this app can do.
     ```
 
-    If the chat streams a Claude response, CopilotKit is connected to your Claude Agent SDK TypeScript agent.
+    如果聊天流式返回了 Claude 响应，说明 CopilotKit 已连接到你的 Claude Agent SDK TypeScript 智能体。
 
     <Accordions className="mb-4">
-      <Accordion title="Troubleshooting">
-        - If the runtime cannot reach the agent, check that the agent server is running on `http://localhost:8000` or set `AGENT_URL` in the frontend.
-        - If Claude returns an authentication error, make sure `ANTHROPIC_API_KEY` is available to the agent server process.
-        - If a custom tool call stalls, add the backend tool bridge shown below instead of leaving `tools: []`.
+      <Accordion title="故障排查">
+        - 如果运行时无法访问智能体，请检查智能体服务器是否在 `http://localhost:8000` 运行，或在前端设置 `AGENT_URL`。
+        - 如果 Claude 返回身份验证错误，请确保智能体服务器进程能读到 `ANTHROPIC_API_KEY`。
+        - 如果自定义工具调用卡住，请添加下文展示的后端工具桥接，而不要保留 `tools: []`。
       </Accordion>
     </Accordions>
   </Step>
@@ -381,8 +376,8 @@ Before you begin, you'll need the following:
 
 </Steps>
 
-## Backend tools and state
+## 后端工具与状态
 
-The minimal server above is enough for text chat. To support backend tools, shared state snapshots, and richer demos, expose your tool schemas through the Claude SDK MCP bridge and emit AG-UI state events:
+上面的最小服务器足以支持文本聊天。要支持后端工具、共享状态快照和更丰富的演示，请通过 Claude SDK MCP 桥接暴露你的工具 schema，并发出 AG-UI 状态事件：
 
 <FrameworkSetup concept="agent-setup" />

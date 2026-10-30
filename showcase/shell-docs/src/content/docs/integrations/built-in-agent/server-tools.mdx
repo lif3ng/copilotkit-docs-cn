@@ -1,41 +1,33 @@
 ---
-title: "Server Tools"
+title: "服务器工具"
 icon: "lucide/Wrench"
-description: "Define backend tools for your Built-in Agent."
+description: "为内置智能体定义后端工具。"
 ---
 
-## What are Server Tools?
+## 什么是服务器工具？
 
-Server tools are functions that run on your backend that the Built-in Agent can invoke. They're defined using `defineTool()` with Zod schemas for type-safe parameters.
+服务器工具是运行在你的后端、可被内置智能体调用的函数。它们通过 `defineTool()` 定义，并使用 Zod schema 保证参数的类型安全。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-- Your agent needs to access databases, APIs, or other backend services
-- You want type-safe tool parameters with validation
-- The tool logic requires server-side secrets or resources
+- 你的智能体需要访问数据库、API 或其他后端服务
+- 你希望工具参数具备带校验的类型安全
+- 工具逻辑需要用到服务器端的密钥或资源
 
-<Callout type="warn" title="The tool runs on the server; the UI still runs in the browser">
-`execute` runs on your server, so it can reach secrets, a database, or an internal service —
-and it cannot touch the DOM, component state, or anything else in the page. When the *action*
-itself belongs in the browser, register it as a [frontend tool](/frontend-tools) instead.
+<Callout type="warn" title="工具运行在服务器上，而 UI 依然运行在浏览器中">
+`execute` 运行在你的服务器上，因此它能访问密钥、数据库或内部服务——但它无法触及 DOM、组件状态或页面中的任何其他内容。当*操作*本身属于浏览器时，请改将它注册为[前端工具](/frontend-tools)。
 
-Rendering is separate from executing. A server tool's call still streams to the browser, so
-you can give it UI with a render-only registration under the same tool name while `execute`
-keeps running on the server.
+渲染与执行是相互独立的。服务器工具的调用依然会流式传输到浏览器，因此你可以在 `execute` 继续运行于服务器的同时，用同名工具的仅渲染注册为它提供 UI。
 
 <FrontendOnly frontend="react">
-Use [`useFrontendTool`](/frontend-tools) for the browser-side action and `useRenderTool` for
-the render-only registration.
+使用 [`useFrontendTool`](/frontend-tools) 处理浏览器端的操作，并用 `useRenderTool` 进行仅渲染注册。
 </FrontendOnly>
 <FrontendOnly frontend="angular">
-Use [`registerFrontendTool`](/reference/angular/functions/registerFrontendTool) for the
-browser-side action and
-[`registerRenderToolCall`](/reference/angular/functions/registerRenderToolCall) for the
-render-only registration.
+使用 [`registerFrontendTool`](/reference/angular/functions/registerFrontendTool) 处理浏览器端的操作，并用 [`registerRenderToolCall`](/reference/angular/functions/registerRenderToolCall) 进行仅渲染注册。
 </FrontendOnly>
 </Callout>
 
-## Defining a tool
+## 定义工具
 
 ```typescript title="src/copilotkit.ts"
 import { BuiltInAgent, defineTool } from "@copilotkit/runtime/v2";
@@ -60,29 +52,22 @@ const builtInAgent = new BuiltInAgent({
 });
 ```
 
-<Callout type="warn" title="`parameters` takes a schema validator, not JSON Schema">
-`parameters` must be a Standard Schema v1 validator — Zod, Valibot, ArkType and others
-qualify. Handing it a plain JSON Schema object throws while the tool's schema is being
-converted. The validator is also what gives `execute` its inferred argument type, so a
-hand-written JSON Schema loses that too.
+<Callout type="warn" title="`parameters` 接受的是 schema 校验器，而非 JSON Schema">
+`parameters` 必须是 Standard Schema v1 校验器——Zod、Valibot、ArkType 等均可。传入普通的 JSON Schema 对象会在工具 schema 转换过程中抛出错误。校验器同时还是 `execute` 推断参数类型的依据，因此手写的 JSON Schema 也会失去这一能力。
 </Callout>
 
-## Tool response
+## 工具响应
 
-Tools can return any JSON-serializable value. The agent uses the response to continue the conversation.
+工具可以返回任何可 JSON 序列化的值。智能体会利用该响应继续对话。
 
-## Multiple tools
+## 多个工具
 
-Pass an array of tools — the agent chooses which to call based on the user's request:
+传入一个工具数组——智能体会根据用户的请求选择调用哪一个：
 
-<Callout type="warn" title="Two names to avoid">
-`AGUISendStateSnapshot` and `AGUISendStateDelta` are injected for you whenever the Built-in
-Agent makes the model call itself. Defining your own tool under either name replaces the
-built-in one and breaks shared state.
+<Callout type="warn" title="需要避开的两个名称">
+`AGUISendStateSnapshot` 和 `AGUISendStateDelta` 会在内置智能体自行发起模型调用时自动注入。如果你用这两个名称之一去定义自己的工具，就会替换掉内置工具并破坏共享状态。
 
-A server tool also wins any name collision with a frontend tool: define `getWeather` on both
-sides and the model only ever sees the server one, so the frontend handler never fires. Give
-each side a distinct name when both need their own.
+服务器工具在与前端工具重名时也总是胜出：如果在两侧都定义 `getWeather`，模型只会看到服务器端的那个，前端处理器永远不会触发。当两侧都需要各自的工具时，请给它们取不同的名称。
 </Callout>
 
 ```typescript title="src/copilotkit.ts"
@@ -119,9 +104,9 @@ const builtInAgent = new BuiltInAgent({
 });
 ```
 
-## Complex Zod schemas
+## 复杂的 Zod schema
 
-Use nested objects, arrays, enums, and optional fields for sophisticated tool parameters:
+使用嵌套对象、数组、枚举和可选字段来构建复杂的工具参数：
 
 ```typescript
 const bookFlight = defineTool({
@@ -148,9 +133,9 @@ const bookFlight = defineTool({
 });
 ```
 
-## Error handling
+## 错误处理
 
-Throw errors or return error objects from your tool — the agent will see the error and can inform the user or try a different approach:
+在工具中抛出错误或返回错误对象——智能体会看到该错误，并能告知用户或尝试其他方案：
 
 ```typescript
 const getUser = defineTool({
@@ -169,15 +154,13 @@ const getUser = defineTool({
 });
 ```
 
-<Callout type="warn" title="Return plain data">
-Whatever a tool returns is serialized before the model sees it. A class instance, a circular
-reference, or anything else `JSON.stringify` refuses is replaced by a placeholder string
-naming the tool, and the model reasons over that instead of your data. Return plain objects, arrays and primitives — including for error shapes.
+<Callout type="warn" title="返回纯数据">
+工具返回的任何内容在模型看到之前都会被序列化。类实例、循环引用，或任何 `JSON.stringify` 无法处理的内容，都会被替换为一个指明工具名称的占位字符串，模型会基于该字符串而非你的数据进行推理。请返回纯对象、数组和原始值——错误结构也不例外。
 </Callout>
 
-## Multi-step tool calling
+## 多步骤工具调用
 
-By default, the agent performs a single step. If your agent needs to chain tool calls (e.g., search first, then create a ticket), set `maxSteps`:
+默认情况下，智能体只执行单个步骤。如果你的智能体需要串联多个工具调用（例如先搜索、再创建工单），请设置 `maxSteps`：
 
 ```typescript
 const builtInAgent = new BuiltInAgent({
@@ -187,24 +170,20 @@ const builtInAgent = new BuiltInAgent({
 });
 ```
 
-With `maxSteps: 5`, the agent can:
-1. Call `searchDocs` to find relevant info
-2. Process the result
-3. Call `createTicket` with details from the search
-4. Continue until done (up to 5 iterations)
+设置 `maxSteps: 5` 后，智能体可以：
+1. 调用 `searchDocs` 查找相关信息
+2. 处理结果
+3. 使用搜索得到的详情调用 `createTicket`
+4. 持续执行直至完成（最多 5 次迭代）
 
 <Callout type="info">
-See [Advanced Configuration](/advanced-configuration) for more options like `toolChoice`, `temperature`, and `providerOptions`.
+更多选项（如 `toolChoice`、`temperature` 和 `providerOptions`）请参阅[高级配置](/advanced-configuration)。
 </Callout>
 
-<Callout type="warn" title="A factory ignores the `tools` array">
-Everything on this page describes a Built-in Agent constructed with `model` and `tools`. If
-you build one from a `factory` instead, the `tools` array is not read — the factory owns the
-model call, so it has to pass the tools itself. Convert them with
-`convertToolDefinitionsToVercelAITools` for an AI SDK factory, or the equivalent converter for
-your runner, and pass the result into the call the factory makes.
+<Callout type="warn" title="工厂会忽略 `tools` 数组">
+本页所有内容描述的都是通过 `model` 和 `tools` 构建的内置智能体。如果你改用 `factory` 来构建，`tools` 数组将不会被读取——模型调用由工厂负责，因此工具必须由工厂自行传入。请先用 `convertToolDefinitionsToVercelAITools`（针对 AI SDK 工厂）或你所选运行时的等价转换器完成转换，再把结果传给工厂发起的调用。
 </Callout>
 
-<Callout type="info" title="Using a custom backend?">
-  If you're using the [Custom Agent](/backend/custom-agent) instead of `BuiltInAgent`, see the "With Tools" examples for how to wire tools with AI SDK, TanStack AI, or custom backends.
+<Callout type="info" title="使用自定义后端？">
+  如果你使用的是[自定义智能体](/backend/custom-agent)而非 `BuiltInAgent`，请参阅 “With Tools” 示例，了解如何在 AI SDK、TanStack AI 或自定义后端中接入工具。
 </Callout>

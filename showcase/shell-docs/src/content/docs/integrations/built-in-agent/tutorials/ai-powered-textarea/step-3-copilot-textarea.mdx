@@ -1,18 +1,18 @@
 ---
-title: "Step 4: Copilot Textarea"
+title: "第 4 步：Copilot Textarea"
 ---
 
-Currently, our app has a simple textarea for replying to emails. Let's replace this with an AI-powered textarea so that we can benefit from our helpful AI assistant.
+目前，我们的应用中有一个用于回复邮件的简单 textarea。让我们用一个 AI 驱动的 textarea 替换它，以便从我们乐于助人的 AI 助手中受益。
 
-## The `<Reply />` Component
+## `<Reply />` 组件
 
-Head over to the [`/components/Reply.tsx`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/starters/textarea/start/components/Reply.tsx) file.
+打开 [`/components/Reply.tsx`](https://github.com/CopilotKit/CopilotKit/tree/main/examples/starters/textarea/start/components/Reply.tsx) 文件。
 
-At a glance, you can see that this component uses `useState` to hold the current input value and provide it to the textarea. We also use the `onChange` prop of the textarea to update the state.
+一眼望去就能看出，该组件使用 `useState` 保存当前输入值并提供给 textarea。我们还利用 textarea 的 `onChange` prop 来更新状态。
 
-## Implementing `<CopilotTextarea />`
+## 实现 `<CopilotTextarea />`
 
-The `<CopilotTextarea />` component was designed to be a drop-in replacement for the `<textarea />` component. Let's implement it!
+`<CopilotTextarea />` 组件被设计为 `<textarea />` 组件的直接替代品。让我们来实现它！
 
 ```tsx title="components/Reply.tsx"
 // ... the rest of the file
@@ -42,23 +42,23 @@ export function Reply() {
 }
 ```
 
-We import the `<CopilotTextarea />` component and use it in place of the `<textarea />` component. There are also some optional style changes made here.
+我们导入 `<CopilotTextarea />` 组件，并用它替换 `<textarea />` 组件。这里还做了一些可选的样式调整。
 
-We can provide more specific instructions for this particular textarea via the `autoSuggestionsConfig.textareaPurpose` property.
+我们可以通过 `autoSuggestionsConfig.textareaPurpose` 属性为这个特定的 textarea 提供更具体的指令。
 
-## Try it out!
+## 动手试试！
 
-Now, go back to the app and type anything in the textarea. You will see that the AI assistant provides suggestions as you type. How cool is that?
+现在，回到应用并在 textarea 中随意输入一些内容。你会看到 AI 助手随着你的输入提供建议。是不是很酷？
 
-## The `CMD + K`/`CTRL + K` Shortcut
+## `CMD + K`/`CTRL + K` 快捷键
 
-While focused on the textarea, you can use the `CMD + K` (macOS) or `CTRL + K` (Windows) shortcut to open the action popup. Here, you can give the copilot specific instructions, such as:
+在 textarea 获得焦点时，你可以使用 `CMD + K`（macOS）或 `CTRL + K`（Windows）快捷键打开操作弹窗。在这里，你可以给 copilot 下达具体指令，例如：
 
-- `Rephrase the text to be more formal`
-- `Make the reply shorter`
-- `Tell John that I'm happy to help`
+- `把文本改写得更正式一些`
+- `把回复写短一些`
+- `告诉 John 我很乐意帮忙`
 
 <br />
 <hr />
 
-We have implemented the `<CopilotTextarea />` component, but there is an issue - the copilot assistant is not aware of the email thread. In the next step, we'll make CopilotKit aware of our email history.
+我们已经实现了 `<CopilotTextarea />` 组件，但还有一个问题——copilot 助手并不了解这封邮件的会话内容。在下一步中，我们将让 CopilotKit 感知我们的邮件历史。

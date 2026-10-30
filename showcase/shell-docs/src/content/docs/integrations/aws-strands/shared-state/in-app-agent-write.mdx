@@ -1,42 +1,42 @@
 ---
-title: Writing agent state
+title: 写入智能体状态
 icon: "lucide/ArrowRight"
-description: Write to agent's state from your application.
+description: 从你的应用写入智能体状态。
 ---
 
 <IframeSwitcher
   id="shared-state-write-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/aws-strands/feature/shared_state?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/aws-strands/feature/shared_state?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
 <Callout type="info">
-  This example demonstrates writing to shared state in the [CopilotKit Feature
-  Viewer](https://feature-viewer.copilotkit.ai/aws-strands/feature/shared_state).
+  本示例演示了如何在 [CopilotKit Feature
+  Viewer](https://feature-viewer.copilotkit.ai/aws-strands/feature/shared_state) 中写入共享状态。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-You can easily write to your agent's state from your native application, allowing you to update the agent's state from your UI.
+你可以轻松地从原生应用写入智能体状态，从而在 UI 中更新智能体的状态。
 
-## When should I use this?
+## 什么时候该用它？
 
-You can use this when you want to provide user input or control to your agent's state. As your application state changes, you can update the agent state to reflect these changes.
+当你想向智能体状态提供用户输入或控制时，就可以使用它。随着应用状态变化，你可以更新智能体状态来反映这些变化。
 
-## Implementation
+## 实现步骤
 
 <Steps>
   <Step>
-    ### Run and connect your agent
+    ### 运行并连接你的智能体
     <RunAndConnect />
   </Step>
   <Step>
-    ### Setup your agent with state
+    ### 为智能体配置状态
 
-    Define your agent's state schema. AWS Strands maintains state throughout execution.
+    定义智能体的状态 schema。AWS Strands 会在整个执行过程中维护状态。
 
     <Tabs groupId="language_strands_agent" items={['Python', 'TypeScript']} persist>
         <Tab value="Python">
@@ -125,10 +125,9 @@ You can use this when you want to provide user input or control to your agent's 
   </Step>
 
   <Step>
-    ### Use the `useAgent` Hook
+    ### 使用 `useAgent` Hook
 
-    With your agent connected and running, call the `useAgent` hook, pass the agent's name, and
-    use `agent.setState` to update the agent state.
+    智能体连接并运行后，调用 `useAgent` hook 并传入智能体名称，然后用 `agent.setState` 更新智能体状态。
 
     ```tsx title="ui/app/page.tsx"
     import { useEffect } from "react";
@@ -167,20 +166,18 @@ You can use this when you want to provide user input or control to your agent's 
     }
     ```
     <Callout type="info">
-      The `agent.setState` function in `useAgent` will update the agent state and trigger a rerender when the state changes.
+      `useAgent` 中的 `agent.setState` 函数会更新智能体状态，并在状态变化时触发重新渲染。
     </Callout>
 
   </Step>
 
   <Step>
-    ### Give it a try!
+    ### 试试看！
 
-    You can now use the `setState` function to update the agent state and `state` to read it. Try toggling the language button
-    and talking to your agent. You'll see the language change to match the agent's state.
+    现在你可以用 `setState` 函数更新智能体状态，用 `state` 读取它。试着点击切换语言的按钮，并与你的智能体对话。你会看到语言随智能体状态的变化而改变。
 
-    <Callout type="info" title="Important">
-      Shared-state in AWS Strands is prompt-driven. This means that your Agent's awareness of the shared state will be augmented
-      by the instructions you provide to your agent.
+    <Callout type="info" title="重要">
+      AWS Strands 中的共享状态是由提示驱动的。这意味着智能体对共享状态的感知，会由你提供给智能体的指令来增强。
     </Callout>
 
   </Step>

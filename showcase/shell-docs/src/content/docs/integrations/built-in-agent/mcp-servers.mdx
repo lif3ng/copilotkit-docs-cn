@@ -1,22 +1,22 @@
 ---
-title: "MCP Servers"
+title: "MCP 服务器"
 icon: "lucide/Plug"
-description: "Connect MCP servers to your Built-in Agent, with support for persistent clients, tool caching, and dynamic auth."
+description: "将 MCP 服务器连接到你的内置智能体，支持持久客户端、工具缓存与动态身份验证。"
 ---
 
-## What are MCP Servers?
+## 什么是 MCP 服务器？
 
-MCP (Model Context Protocol) servers provide additional tools and capabilities to your agent. The Built-in Agent supports connecting to MCP servers via **HTTP** or **SSE** transports.
+MCP（Model Context Protocol）服务器为你的智能体提供额外的工具与能力。内置智能体支持通过 **HTTP** 或 **SSE** 传输方式连接 MCP 服务器。
 
-## When should I use this?
+## 何时应该使用它？
 
-- You want to connect your agent to existing MCP-compatible tool servers
-- You need to add capabilities from third-party MCP providers
-- You want to share tools across multiple agents or applications
+- 你想把智能体连接到现有的兼容 MCP 的工具服务器
+- 你需要添加来自第三方 MCP 提供方的能力
+- 你想在多个智能体或应用之间共享工具
 
-## SSE transport
+## SSE 传输
 
-The SSE (Server-Sent Events) transport is the most common option:
+SSE（Server-Sent Events）传输方式是最常见的选择：
 
 ```typescript title="src/copilotkit.ts"
 import { BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -32,9 +32,9 @@ const builtInAgent = new BuiltInAgent({
 });
 ```
 
-### Authentication headers
+### 身份验证头
 
-Pass custom headers for authentication:
+传入自定义请求头进行身份验证：
 
 ```typescript
 const builtInAgent = new BuiltInAgent({
@@ -51,9 +51,9 @@ const builtInAgent = new BuiltInAgent({
 });
 ```
 
-## HTTP transport
+## HTTP 传输
 
-The HTTP (Streamable HTTP) transport uses standard HTTP requests:
+HTTP（Streamable HTTP）传输方式使用标准 HTTP 请求：
 
 ```typescript
 const builtInAgent = new BuiltInAgent({
@@ -67,11 +67,11 @@ const builtInAgent = new BuiltInAgent({
 });
 ```
 
-The HTTP transport also accepts optional `options` for advanced configuration of the underlying `StreamableHTTPClientTransport`.
+HTTP 传输方式还接受可选的 `options`，用于对底层的 `StreamableHTTPClientTransport` 进行高级配置。
 
-## Multiple servers
+## 多个服务器
 
-Connect multiple MCP servers — tools from all servers are available to the agent:
+连接多个 MCP 服务器——来自所有服务器的工具都可供智能体使用：
 
 ```typescript
 const builtInAgent = new BuiltInAgent({
@@ -94,9 +94,9 @@ const builtInAgent = new BuiltInAgent({
 });
 ```
 
-### Tool name collisions
+### 工具名称冲突
 
-Two servers can expose tools with the same name. For example, a staging server and a production server expose the same tools. The agent keeps every copy. When a name collides, each MCP copy gets a prefix, and the agent logs a warning:
+两个服务器可能暴露同名的工具。例如，预发服务器与生产服务器暴露相同的工具。智能体会保留每一个副本。当名称发生冲突时，每个 MCP 副本都会加上前缀，并且智能体会记录一条警告：
 
 ```typescript
 const builtInAgent = new BuiltInAgent({
@@ -109,16 +109,16 @@ const builtInAgent = new BuiltInAgent({
 // Both servers expose `search`, so the model sees `staging_search` and `production_search`.
 ```
 
-- Only names that collide get a prefix. Other tools keep their names.
-- If an MCP tool has the same name as one of your own tools, your tool keeps the name, and the MCP tool gets the prefix.
-- If a server has no `name`, the prefix is `mcp<N>`, where N is the server's position in `mcpClients` and then `mcpServers`, from 1. Entries in `mcpClients` have no `name`, so they always use `mcp<N>`.
-- Characters other than letters, digits, `_` and `-` in `name` become `_`.
-- If a prefixed name is already in use, a number is added, for example `production_search_2`. This happens when two servers have the same `name`, so give each server a different `name`.
-- A tool renderer that you register in the frontend matches only the exposed name. If `search` becomes `production_search`, register the renderer for `production_search`.
+- 只有发生冲突的名称才会加前缀，其他工具保持原名。
+- 如果某个 MCP 工具与你自己的工具同名，你的工具保留原名，MCP 工具加前缀。
+- 如果服务器没有设置 `name`，前缀为 `mcp<N>`，其中 N 是该服务器在 `mcpClients`（其次 `mcpServers`）中的位置，从 1 开始。`mcpClients` 中的条目没有 `name`，因此始终使用 `mcp<N>`。
+- `name` 中除字母、数字、`_` 和 `-` 以外的字符都会变成 `_`。
+- 如果加前缀后的名称已被占用，会追加一个数字，例如 `production_search_2`。这种情况发生在两台服务器的 `name` 相同时，因此请为每台服务器设置不同的 `name`。
+- 你在前端注册的工具渲染器只匹配暴露后的名称。如果 `search` 变成了 `production_search`，就要为 `production_search` 注册渲染器。
 
-## Combining with server tools
+## 与服务器工具配合使用
 
-MCP servers work alongside `defineTool` server tools — the agent sees all tools from both sources:
+MCP 服务器可与 `defineTool` 服务器工具并用——智能体能看到来自两个来源的全部工具：
 
 ```typescript
 import { BuiltInAgent, defineTool } from "@copilotkit/runtime/v2";
@@ -142,9 +142,9 @@ const builtInAgent = new BuiltInAgent({
 });
 ```
 
-## User-managed MCP clients
+## 用户自管的 MCP 客户端
 
-The `mcpServers` approach creates a fresh MCP connection on every agent run. For latency-sensitive setups — or when you need persistent connections, dynamic auth, or tool caching — use `mcpClients` instead. You create and manage the MCP client yourself; the agent just calls `.tools()` to get tool definitions.
+`mcpServers` 方式会在每次智能体运行时新建一条 MCP 连接。对于延迟敏感的场景——或者当你需要持久连接、动态身份验证或工具缓存时——请改用 `mcpClients`。MCP 客户端由你自己创建和管理，智能体只需调用 `.tools()` 即可获取工具定义。
 
 ```typescript
 import { BuiltInAgent } from "@copilotkit/runtime/v2";
@@ -163,11 +163,11 @@ const builtInAgent = new BuiltInAgent({
 });
 ```
 
-Unlike `mcpServers`, the agent **never** creates or closes these clients — you control the full lifecycle.
+与 `mcpServers` 不同，智能体**绝不会**创建或关闭这些客户端——完整的生命周期由你掌控。
 
-### Tool caching
+### 工具缓存
 
-By default, `.tools()` fetches from the MCP server on every agent run. To cache tools at startup:
+默认情况下，`.tools()` 会在每次智能体运行时从 MCP 服务器拉取工具。若要在启动时缓存工具：
 
 ```typescript
 const client = await createMCPClient({ transport });
@@ -189,11 +189,11 @@ const builtInAgent = new BuiltInAgent({
 });
 ```
 
-Tool discovery runs once in the background. The first request waits only if warmup hasn't finished yet; subsequent requests return instantly from cache.
+工具发现在后台只运行一次。只有当预热尚未完成时，首个请求才会等待；后续请求会立即从缓存返回。
 
-### Dynamic authentication
+### 动态身份验证
 
-When using a persistent client, auth tokens may expire between requests. Handle this inside your provider:
+使用持久客户端时，身份验证令牌可能在请求之间过期。请在你的 provider 内部处理这种情况：
 
 ```typescript
 const provider = {
@@ -214,11 +214,11 @@ const builtInAgent = new BuiltInAgent({
 });
 ```
 
-You only pay the reconnection cost when the token actually expires, not on every request.
+只有当令牌真正过期时才需要付出重连成本，而不是每个请求都要付出。
 
-### Combining with mcpServers
+### 与 mcpServers 配合使用
 
-`mcpClients` and `mcpServers` can be used together. Tools from both are merged — on name collision, `mcpServers` tools take precedence:
+`mcpClients` 与 `mcpServers` 可以搭配使用。两者的工具会合并——名称冲突时，`mcpServers` 的工具优先：
 
 ```typescript
 const builtInAgent = new BuiltInAgent({
@@ -230,11 +230,11 @@ const builtInAgent = new BuiltInAgent({
 });
 ```
 
-## Transport reference
+## 传输方式参考
 
-| Property | SSE | HTTP | Description |
-|----------|-----|------|-------------|
-| `type` | `"sse"` | `"http"` | Transport type |
-| `url` | string | string | MCP server URL |
-| `headers` | `Record<string, string>` | — | Custom HTTP headers (SSE only) |
-| `options` | — | `StreamableHTTPClientTransportOptions` | Transport options (HTTP only) |
+| 属性 | SSE | HTTP | 说明 |
+|------|-----|------|------|
+| `type` | `"sse"` | `"http"` | 传输类型 |
+| `url` | string | string | MCP 服务器 URL |
+| `headers` | `Record<string, string>` | — | 自定义 HTTP 请求头（仅 SSE） |
+| `options` | — | `StreamableHTTPClientTransportOptions` | 传输选项（仅 HTTP） |
