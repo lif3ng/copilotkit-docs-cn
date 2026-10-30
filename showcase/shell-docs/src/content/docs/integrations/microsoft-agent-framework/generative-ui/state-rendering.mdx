@@ -1,35 +1,34 @@
 ---
-title: "State Rendering"
+title: "状态渲染"
 icon: "lucide/Bot"
-description: Render the state of your agent with custom UI components.
+description: 使用自定义 UI 组件渲染智能体的状态。
 ---
 {/* TODO: Swap these links for Microsoft Agent Framework links once Microsoft Agent Framework is officially added to the feature viewer */}
 <IframeSwitcher
   id="agent-state-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/microsoft-agent-framework-dotnet/feature/agentic_generative_ui?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/microsoft-agent-framework-dotnet/feature/agentic_generative_ui?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
-## What is this?
+## 这是什么？
 
-Microsoft Agent Framework agents can maintain state throughout their execution. CopilotKit allows you to render this state in your application with custom UI components, which we call **Agentic Generative UI**. State updates can be streamed to the frontend as your agent processes requests.
+Microsoft Agent Framework 智能体可以在整个执行过程中维护状态。CopilotKit 允许你在应用中使用自定义 UI 组件渲染这一状态，我们将其称为**智能体化生成式 UI（Agentic Generative UI）**。在智能体处理请求时，状态更新可以流式传输到前端。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Rendering the state of your agent in the UI is useful when you want to provide the user with feedback about the overall state of a session. A great example of this
-is a situation where a user and an agent are working together to solve a problem. The agent can store a draft in its state which is then rendered in the UI.
+当你想向用户提供关于会话整体状态的反馈时，在 UI 中渲染智能体的状态会非常有用。一个典型的例子是：用户与智能体协作解决某个问题，智能体可以把一份草稿存入自己的状态中，这份草稿随后会在 UI 中渲染出来。
 
-## Implementation
+## 实现
 
 <Steps>
 
   <Step>
-    ### Define your agent state
+    ### 定义智能体状态
 
-    Define a state snapshot class that represents the data you want to stream to the frontend. This class should be JSON-serializable and contain only UI-relevant properties.
+    定义一个状态快照类，用来表示要流式传输到前端的数据。该类应当可 JSON 序列化，并且只包含与 UI 相关的属性。
 
     <Tabs groupId="language_microsoft-agent-framework_agent" items={['.NET', 'Python']} persist>
       <Tab value=".NET">
@@ -81,7 +80,7 @@ is a situation where a user and an agent are working together to solve a problem
       </Tab>
     </Tabs>
 
-    On the frontend, define the matching TypeScript type:
+    在前端，定义对应的 TypeScript 类型：
 
     ```tsx title="app/page.tsx"
     type SearchInfo = {
@@ -95,11 +94,11 @@ is a situation where a user and an agent are working together to solve a problem
     ```
   </Step>
   <Step>
-    ### Stream state from your agent
+    ### 从智能体流式传输状态
 
-    To stream state updates to the frontend, wrap your agent with a `DelegatingAIAgent` that intercepts the streaming response and emits state snapshots as `DataContent`.
+    要把状态更新流式传输到前端，请用一个 `DelegatingAIAgent` 包装你的智能体，由它拦截流式响应，并以 `DataContent` 的形式发出状态快照。
 
-    Here's an example of a state-streaming agent wrapper:
+    下面是一个状态流式传输智能体包装器的示例：
 
     <Tabs groupId="language_microsoft-agent-framework_agent" items={['.NET', 'Python']} persist>
       <Tab value=".NET">
@@ -352,16 +351,16 @@ is a situation where a user and an agent are working together to solve a problem
     </Tabs>
 
     <Callout type="info">
-      The `DelegatingAIAgent` wrapper intercepts streaming responses, uses JSON schema response format to generate structured state, and emits it as `DataContent` which the AG-UI protocol forwards to the frontend.
+      `DelegatingAIAgent` 包装器会拦截流式响应，使用 JSON schema 响应格式生成结构化状态，并将其作为 `DataContent` 发出，再由 AG-UI 协议转发到前端。
     </Callout>
 
     <Callout type="tip">
-      For a complete, production-ready implementation of state streaming, see the [SharedStateAgent sample](https://github.com/microsoft/agent-framework/blob/main/dotnet/samples/AGUIClientServer/AGUIDojoServer/SharedStateAgent.cs) in the Agent Framework repository.
+      有关状态流式传输的完整、可用于生产环境的实现，请参阅 Agent Framework 仓库中的 [SharedStateAgent 示例](https://github.com/microsoft/agent-framework/blob/main/dotnet/samples/AGUIClientServer/AGUIDojoServer/SharedStateAgent.cs)。
     </Callout>
   </Step>
   <Step>
-    ### Render state of the agent in the chat
-    Now we can utilize `useAgent` to read the state of our agent and render it **in the chat**.
+    ### 在聊天中渲染智能体状态
+    现在我们可以使用 `useAgent` 读取智能体的状态，并将其渲染**在聊天中**。
 
     ```tsx title="app/page.tsx"
     import { useAgent } from "@copilotkit/react-core/v2";
@@ -402,9 +401,8 @@ is a situation where a user and an agent are working together to solve a problem
     ```
   </Step>
   <Step>
-    ### Render state outside of the chat
-    You can also render the state of your agent **outside of the chat**. This is useful when you want to render the state of your agent anywhere
-    other than the chat.
+    ### 在聊天之外渲染状态
+    你也可以**在聊天之外**渲染智能体的状态。当你想在聊天以外的任意位置渲染智能体状态时，这会非常有用。
 
     ```tsx title="app/page.tsx"
     import { useAgent } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -445,8 +443,8 @@ is a situation where a user and an agent are working together to solve a problem
     ```
   </Step>
   <Step>
-    ### Give it a try!
+    ### 试一试吧！
 
-    You've now created a component that will render the agent's state in the chat.
+    现在你已经创建了一个能在聊天中渲染智能体状态的组件。
   </Step>
 </Steps>

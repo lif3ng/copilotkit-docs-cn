@@ -1,44 +1,43 @@
 ---
-title: Readables
+title: 可读项
 icon: "lucide/BookA"
-description: Share app specific context with your Pydantic AI agent.
+description: 与你的 Pydantic AI 智能体共享应用专属上下文。
 ---
 
 import AgentContextJsonString from "@/snippets/shared/basics/agent-context-json-string.mdx";
 
-One of the most common use cases for CopilotKit is to register app state and context using `useAgentContext`.
-This way, you can notify CopilotKit of what is going on in your app in real time.
-Some examples might be: the current user, the current page, etc.
+CopilotKit 最常见的用例之一是使用 `useAgentContext` 注册应用状态与上下文。
+这样，你就可以实时告知 CopilotKit 你的应用中正在发生什么。
+例如：当前用户、当前页面等。
 
-This context can then be shared with your Pydantic AI agent.
+然后，此上下文可以与你的 Pydantic AI 智能体共享。
 
-## Implementation
+## 实现
 
 
 <AgentContextJsonString />
 <Callout>
-    Check out the [Frontend Data documentation](/langgraph-python/agent-app-context) to understand what this is and how to use it.
+    查看[前端数据文档](/langgraph-python/agent-app-context)以了解它是什么以及如何使用。
 </Callout>
 
 <Callout type="warn">
-  Unlike `messages`, `tools` and `state`, Pydantic AI's AG-UI adapter does **not** pass
-  `context` to your agent on its own — and it does not warn when it drops it, so an agent
-  that never received your entries will still answer confidently about them. This is
-  deliberate: entries are client-submitted, so Pydantic AI leaves it to you to decide what
-  to trust. Read them off `run_input` and hand them to the agent yourself, as shown below.
-  See Pydantic AI's [AG-UI Context guide](https://pydantic.dev/docs/ai/integrations/ui/ag-ui/#context).
+  与 `messages`、`tools` 和 `state` 不同，Pydantic AI 的 AG-UI 适配器**不会**自行将
+  `context` 传递给你的智能体——并且在丢弃它时也不会发出警告，因此从未收到你条目的智能体仍会自信地
+  谈论它们。这是有意为之：条目由客户端提交，所以 Pydantic AI 把信任判断留给你。
+  如下所示，从 `run_input` 中读取条目并亲自交给智能体。
+  参见 Pydantic AI 的 [AG-UI Context 指南](https://pydantic.dev/docs/ai/integrations/ui/ag-ui/#context)。
 </Callout>
 
 <Steps>
   <Step>
-    ### Run and connect your agent
+    ### 运行并连接你的智能体
     <RunAndConnect components={props.components} />
   </Step>
 
   <Step>
-    ### Add the data to the Copilot
+    ### 将数据添加到 Copilot
 
-    The [`useAgentContext` hook](/reference/v2/hooks/useAgentContext) is used to add data as context to the Copilot.
+    [`useAgentContext` hook](/reference/v2/hooks/useAgentContext) 用于将数据作为上下文添加到 Copilot。
 
     ```tsx title="YourComponent.tsx"
     "use client" // only necessary if you are using Next.js with the App Router. // [!code highlight]
@@ -68,11 +67,11 @@ This context can then be shared with your Pydantic AI agent.
   </Step>
 
   <Step>
-    ### Consume the data in your Pydantic AI agent
+    ### 在你的 Pydantic AI 智能体中使用数据
 
-    The entries arrive on `RunAgentInput.context`. Build the adapter in two steps so you can
-    reach `run_input`, pass the entries into `deps`, and expose them to the model through a
-    tool.
+    条目通过 `RunAgentInput.context` 到达。分两步构建适配器，这样你就能
+    访问 `run_input`、把条目传入 `deps`，并通过工具将它们
+    暴露给模型。
 
     ```python title="agent.py"
     import json
@@ -129,32 +128,31 @@ This context can then be shared with your Pydantic AI agent.
         uvicorn.run(app, host="0.0.0.0", port=8000)
     ```
 
-    Two details are easy to miss:
+    有两个细节很容易错过：
 
-    - **`value` is a string, not your object.** `useAgentContext` calls `JSON.stringify` on
-      the value before the run leaves the browser, and AG-UI types `Context.value` as a
-      string on both ends. So `json.loads` is required, and a shape check like
-      `isinstance(entry.value, list)` can never pass.
-    - **Reach for `from_request`, not `dispatch_request`.** The one-line
-      `AGUIAdapter.dispatch_request(request, agent=agent)` used elsewhere in these docs
-      parses the request for you, which leaves you no `run_input` to build `deps` from.
+    - **`value` 是字符串，而不是你的对象**。`useAgentContext` 会在运行离开浏览器之前对该值调用
+      `JSON.stringify`，而 AG-UI 在两端都将 `Context.value` 类型定为字符串。因此必须使用
+      `json.loads`，而像
+      `isinstance(entry.value, list)` 这样的类型检查永远不会通过。
+    - **用 `from_request`，而不是 `dispatch_request`**。这些文档其他地方用到的单行
+      `AGUIAdapter.dispatch_request(request, agent=agent)` 会替你解析请求，
+      这让你没有 `run_input` 可以用来构建 `deps`。
   </Step>
 
   <Step>
-    ### Give it a try!
-    Ask your agent a question about the context, like "Who are my colleagues?". It should be able to answer!
+    ### 试一试！
+    向你的智能体问一个关于上下文的问题，比如 “Who are my colleagues?”。它应该能够回答！
   </Step>
 </Steps>
 
-## Keep entries as data, not instructions
+## 让条目保持为数据，而非指令
 
-Every entry is a claim your frontend made, so it describes a request — it never establishes
-who is making it. Deliver entries to the model as **data**, the way the tool above does.
-Do not build [`instructions`](https://pydantic.dev/docs/ai/agents/#instructions) out of
-them: instructions carry operator authority, so composing them from client-submitted text
-lets a prompt injection inherit that authority.
+每一条目都是你的前端做出的一项声明，因此它描述的是一个请求——它永远不能确立
+请求者的身份。请像上面的工具那样，以**数据**的形式把条目交给模型。
+不要用它们来构造 [`instructions`](https://pydantic.dev/docs/ai/agents/#instructions)：指令承载着操作者权限，
+如果用客户端提交的文本来拼装指令，提示词注入就会继承该权限。
 
-Facts your *server* established — the authenticated user, the workspace, the tenant — are
-what belong in instructions. To let a client-supplied fact change how the agent behaves,
-authenticate it first, look up the policy your server holds for it, and write the
-instruction from that. The entry itself stays data.
+由你的*服务端*确立的事实——经过身份验证的用户、工作区、租户——
+才是应该放进指令的内容。要让某个客户端提供的事实改变智能体的行为，
+应先对其进行身份验证，再查询你的服务端为它保存的策略，并据此撰写
+指令。条目本身始终保持为数据。

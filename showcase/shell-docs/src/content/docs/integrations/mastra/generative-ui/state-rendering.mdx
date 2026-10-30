@@ -1,7 +1,7 @@
 ---
-title: "State Rendering"
+title: "状态渲染"
 icon: "lucide/Bot"
-description: Render the state of your agent with custom UI components.
+description: 使用自定义 UI 组件渲染智能体的状态。
 ---
 import { Accordions, Accordion } from "fumadocs-ui/components/accordion";
 import { IframeSwitcher } from "@/components/content"
@@ -12,32 +12,30 @@ import RunAndConnect from "@/snippets/integrations/mastra/run-and-connect.mdx"
   id="agent-state-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/mastra/feature/shared_state?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/mastra/feature/shared_state?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
-## What is this?
+## 这是什么？
 
-All Mastra Agents are stateful through working memory. This means that as your agent progresses, working memory is preserved
-across the session. CopilotKit allows you to render this state in your application with custom UI components, which we call **Agentic Generative UI**.
+所有 Mastra 智能体都通过工作记忆（working memory）具备状态。也就是说，随着智能体的推进，工作记忆会在整个会话期间得以保留。CopilotKit 允许你在应用中用自定义 UI 组件渲染这种状态，我们称之为 **Agentic Generative UI**（智能体化生成式 UI）。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Rendering the state of your agent in the UI is useful when you want to provide the user with feedback about the overall state of a session. A great example of this
-is a situation where a user and an agent are working together to solve a problem. The agent can store a draft in its working memory which is then rendered in the UI.
+当你想向用户提供关于会话整体状态的反馈时，在 UI 中渲染智能体的状态会非常有用。一个典型的例子是用户与智能体协作解决问题的场景：智能体可以把一份草稿存入工作记忆，然后由 UI 渲染出来。
 
-## Implementation
+## 实现步骤
 
 <Steps>
   <Step>
-    ### Run and connect your agent
+    ### 运行并连接你的智能体
     <RunAndConnect components={props.components} />
   </Step>
   <Step>
-    ### Set up your agent with working memory
+    ### 为智能体配置工作记忆
 
-    Create your Mastra agent with working memory. Here's a complete example that tracks searches:
+    创建带工作记忆的 Mastra 智能体。下面是一个追踪搜索的完整示例：
 
     ```ts title="src/mastra/agents/index.ts"
     import { openai } from "@ai-sdk/openai";
@@ -100,8 +98,8 @@ is a situation where a user and an agent are working together to solve a problem
 
   </Step>
   <Step>
-    ### Render state of the agent in the chat
-    Now we can utilize `useAgent` with a `render` function to render the state of our agent **in the chat**.
+    ### 在聊天中渲染智能体状态
+    现在我们可以使用带 `render` 函数的 `useAgent`，**在聊天中**渲染智能体的状态。
 
     ```tsx title="app/page.tsx"
     // ...
@@ -140,15 +138,14 @@ is a situation where a user and an agent are working together to solve a problem
     }
     ```
 
-    <Callout type="warn" title="Important">
-      The `name` parameter must exactly match the agent name you defined in your Mastra instance (e.g., `searchAgent` from above).
+    <Callout type="warn" title="重要">
+      `name` 参数必须与你在 Mastra 实例中定义的智能体名称完全一致（例如上文的 `searchAgent`）。
     </Callout>
 
   </Step>
   <Step>
-    ### Render state outside of the chat
-    You can also render the state of your agent **outside of the chat**. This is useful when you want to render the state of your agent anywhere
-    other than the chat.
+    ### 在聊天外渲染智能体状态
+    你也可以**在聊天之外**渲染智能体的状态。当你想在聊天以外的任何位置渲染智能体状态时，这会很有用。
 
     ```tsx title="app/page.tsx"
     import { useAgent } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -188,15 +185,15 @@ is a situation where a user and an agent are working together to solve a problem
     }
     ```
 
-    <Callout type="warn" title="Important">
-      The `name` parameter must exactly match the agent name you defined in your Mastra instance (e.g., `searchAgent` from above).
+    <Callout type="warn" title="重要">
+      `name` 参数必须与你在 Mastra 实例中定义的智能体名称完全一致（例如上文的 `searchAgent`）。
     </Callout>
 
   </Step>
   <Step>
-    ### Give it a try!
+    ### 试一试！
 
-    You've now created a component that will render the agent's working memory in the chat.
+    现在，你已经创建了一个能在聊天中渲染智能体工作记忆的组件。
 
     <video
       src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/agentic-generative-ui.mp4"

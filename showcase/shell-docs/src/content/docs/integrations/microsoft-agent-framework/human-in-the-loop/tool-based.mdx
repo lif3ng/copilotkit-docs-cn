@@ -1,50 +1,48 @@
 ---
-title: Tool-based
+title: 基于工具
 icon: "lucide/Share2"
-description: Gate an action behind a frontend tool that renders UI and waits for the user.
+description: 通过前端工具把关操作：渲染 UI 并等待用户确认。
 ---
 {/* TODO: Swap these links for Microsoft Agent Framework links once Microsoft Agent Framework is officially added to the feature viewer */}
 <IframeSwitcher
   id="frontend-tools-based-hitl-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/microsoft-agent-framework-dotnet/feature/human_in_the_loop?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/microsoft-agent-framework-dotnet/feature/human_in_the_loop?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
-## What is this?
-Frontend tools enable you to define client-side functions that your Microsoft Agent Framework agent can invoke, with execution happening entirely in the user's browser. When your agent calls a frontend tool,
-the logic runs on the client side, giving you direct access to the frontend environment.
+## 这是什么？
+前端工具让你能够定义客户端函数，供你的 Microsoft Agent Framework 智能体调用，其执行完全发生在用户的浏览器中。当你的智能体调用前端工具时，
+逻辑会在客户端运行，让你可以直接访问前端环境。
 
-This can be utilized to let [your agent control the UI](/microsoft-agent-framework/frontend-tools), [power generative UI](/microsoft-agent-framework/frontend-tools), or support Human-in-the-loop interactions.
+这可以用来让[你的智能体控制 UI](/microsoft-agent-framework/frontend-tools)、[驱动生成式 UI](/microsoft-agent-framework/frontend-tools)，或支持人机协同（human-in-the-loop）交互。
 
-In this guide, we cover the use of frontend tools for Human-in-the-loop.
+本指南介绍如何将前端工具用于人机协同。
 
-## When should I use this?
-Use frontend tools when you need your agent to interact with client-side primitives such as:
-- Reading or modifying React component state
-- Accessing browser APIs like localStorage, sessionStorage, or cookies
-- Triggering UI updates or animations
-- Interacting with third-party frontend libraries
-- Performing actions that require the user's immediate browser context
+## 何时应该使用它？
+当你需要智能体与客户端基础能力交互时，可以使用前端工具，例如：
+- 读取或修改 React 组件状态
+- 访问 localStorage、sessionStorage 或 cookie 等浏览器 API
+- 触发 UI 更新或动画
+- 与第三方前端库交互
+- 执行需要用户当前浏览器上下文的操作
 
-## Implementation
+## 实现
 
 <Steps>
     <Step>
-        ### Run and connect your agent
+        ### 运行并连接你的智能体
         <RunAndConnect />
     </Step>
 
     <Step>
-        ### Create a frontend human-in-the-loop tool
+        ### 创建人机协同前端工具
 
-        Frontend tools can be leveraged in a variety of ways. One of those ways is to have a human-in-the-loop flow where the response
-        of the tool is gated by a user's decision.
+        前端工具有多种使用方式。其中一种是人机协同流程：工具的响应由用户的决定来把关。
 
-        In this example we will simulate a "approval" flow for executing a command. First, use the `useHumanInTheLoop` hook to create a tool that
-        prompts the user for approval.
+        在本例中，我们将模拟一个执行命令的“审批”流程。首先，使用 `useHumanInTheLoop` hook 创建一个提示用户进行审批的工具。
 
         ```tsx title="page.tsx"
         import { useHumanInTheLoop } from "@copilotkit/react-core/v2" // [!code highlight]
@@ -77,9 +75,9 @@ Use frontend tools when you need your agent to interact with client-side primiti
         ```
     </Step>
     <Step>
-        ### Receiving frontend tools in your AG-UI server
+        ### 在 AG-UI 服务端接收前端工具
 
-        Frontend tools registered with `useHumanInTheLoop` are forwarded to your AG-UI server and passed to the underlying agent via the AgentRunOptions on the server.  They are automatically available by default to the underlying chat client.
+        通过 `useHumanInTheLoop` 注册的前端工具会被转发到你的 AG-UI 服务端，并在服务端通过 AgentRunOptions 传递给底层智能体。默认情况下，它们会自动对底层聊天客户端可用。
 
         <Tabs groupId="language_microsoft-agent-framework_agent" items={['.NET', 'Python']} persist>
           <Tab value=".NET">
@@ -151,11 +149,11 @@ Use frontend tools when you need your agent to interact with client-side primiti
         </Tabs>
 
         <Callout type="info">
-          Frontend tools defined with `useHumanInTheLoop` are automatically forwarded to your agent through the AG-UI protocol. The tool execution and rendering happen on the frontend, providing seamless human-in-the-loop interactions.
+          使用 `useHumanInTheLoop` 定义的前端工具会通过 AG-UI 协议自动转发给你的智能体。工具的执行与渲染都发生在前端，从而提供流畅的人机协同交互。
         </Callout>
     </Step>
     <Step>
-        ### Give it a try!
-        You've now given your agent the ability to directly call any frontend tools you've defined. These tools will be available to the agent where they can be used as needed.
+        ### 试一试！
+        现在，你的智能体已经可以直接调用你定义的任何前端工具了。这些工具将供智能体使用，可按需调用。
     </Step>
 </Steps>

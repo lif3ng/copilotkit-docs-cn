@@ -1,15 +1,15 @@
 ---
-title: "Overview"
+title: "概览"
 icon: "lucide/FileJson"
-description: "Render rich, declarative UI surfaces from your Microsoft Agent Framework agent using the A2UI protocol."
+description: "使用 A2UI 协议从 Microsoft Agent Framework 智能体渲染丰富的声明式 UI surface。"
 ---
-[A2UI](https://a2ui.org) (Agent-to-UI) is a Declarative Generative UI specification led by Google, with CopilotKit as a launch and design partner. It lets your agent render structured UI components using a JSON-based schema. Instead of sending plain text, the agent produces surfaces — cards, lists, buttons, images — that render natively in the chat.
+[A2UI](https://a2ui.org)（Agent-to-UI）是一项由 Google 主导、CopilotKit 作为发布与设计合作伙伴的声明式生成式 UI 规范。它让你的智能体能够使用基于 JSON 的 schema 渲染结构化的 UI 组件。智能体不再发送纯文本，而是产出 surface——卡片、列表、按钮、图片——并在聊天中原生渲染。
 
-You can design and preview A2UI schemas visually using the [A2UI Composer](https://a2ui-composer.ag-ui.com/).
+你可以使用 [A2UI Composer](https://a2ui-composer.ag-ui.com/) 以可视化的方式设计和预览 A2UI schema。
 
-## Setup
+## 配置
 
-Enable A2UI in your CopilotRuntime by adding `a2ui: true`, or pass an object to customise:
+在 CopilotRuntime 中添加 `a2ui: true` 即可启用 A2UI，也可以传入一个对象进行自定义：
 
 ```typescript title="app/api/copilotkit/route.ts"
 import { CopilotRuntime } from "@copilotkit/runtime";
@@ -29,39 +29,39 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-This tells the runtime to apply the A2UI middleware to your agents. The middleware intercepts tool results containing A2UI operations and renders them as rich UI surfaces in the chat.
+这会告诉运行时对你的智能体应用 A2UI 中间件。该中间件会拦截包含 A2UI 操作的工具结果，并将它们作为丰富的 UI surface 渲染在聊天中。
 
 <Callout type="warn">
-Without `a2ui` configured in your CopilotRuntime, A2UI surfaces will not render — tool results will appear as plain text.
+如果 CopilotRuntime 中没有配置 `a2ui`，A2UI surface 将不会渲染——工具结果会以纯文本形式出现。
 </Callout>
 
-## Approaches
+## 实现方案
 
-CopilotKit supports two approaches to A2UI, each with different tradeoffs:
+CopilotKit 支持两种 A2UI 实现方案，各有不同的取舍：
 
-- **[Fixed Schema](./fixed-schema)** — Pre-defined schema loaded from JSON. Agent provides data only. Fastest — no LLM schema generation.
-- **[Dynamic Schema](./dynamic-schema)** — A secondary LLM generates both the schema and data. Fully flexible — any UI from any prompt.
+- **[固定模式](./fixed-schema)**——预定义的 schema 从 JSON 加载。智能体只提供数据。最快——无需 LLM 生成 schema。
+- **[动态模式](./dynamic-schema)**——由辅助 LLM 同时生成 schema 与数据。完全灵活——任意提示都能生成任意 UI。
 
-## When to use which?
+## 如何选择？
 
-| Approach | Schema source | Rendering | Best for |
+| 方案 | Schema 来源 | 渲染方式 | 最适合 |
 |---|---|---|---|
-| **Fixed Schema** | JSON file | Instant (all at once) | Known UI patterns (flight cards, product lists) |
-| **Dynamic Schema** | LLM-generated | Progressive (card by card) | Unknown/varied UI — the agent decides what to show |
+| **固定模式** | JSON 文件 | 即时（一次性全部呈现） | 已知的 UI 模式（航班卡片、商品列表） |
+| **动态模式** | LLM 生成 | 渐进式（逐卡呈现） | 未知/多变的 UI——由智能体决定展示什么 |
 
 <Callout type="info">
-Both approaches use the same A2UI protocol and renderer. The difference is where the schema comes from and how data reaches the client.
+两种方案使用相同的 A2UI 协议和渲染器。区别在于 schema 的来源，以及数据如何到达客户端。
 </Callout>
 
-## How it works
+## 工作原理
 
-Every A2UI v0.9 surface is built from three operations:
+每个 A2UI v0.9 surface 都由三个操作构成：
 
-1. **`createSurface`** — initializes the surface with its catalog (must come first)
-2. **`updateComponents`** — defines the component tree (the schema)
-3. **`updateDataModel`** — provides the data that populates the components
+1. **`createSurface`**——用目录初始化 surface（必须排在第一位）
+2. **`updateComponents`**——定义组件树（即 schema）
+3. **`updateDataModel`**——提供填充组件所需的数据
 
-Wrapped in an `a2ui_operations` container, the operations look like this:
+包装在 `a2ui_operations` 容器中时，这些操作如下所示：
 
 ```python
 {
@@ -73,6 +73,6 @@ Wrapped in an `a2ui_operations` container, the operations look like this:
 }
 ```
 
-For fixed schema, your tool returns this container directly; for dynamic schema, the `agent-framework-ag-ui` adapter builds it for you.
+固定模式下，你的工具直接返回这个容器；动态模式下，`agent-framework-ag-ui` 适配器会为你构建它。
 
-Continue to one of the approach guides above to see the full implementation.
+请继续阅读上方的某个方案指南，查看完整实现。

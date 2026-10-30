@@ -1,32 +1,32 @@
 ---
-title: Interrupts (Not Supported)
+title: 中断（不受支持）
 icon: "lucide/CirclePause"
-description: Mastra does not support native interrupt flow. Use the tool-based HITL approach instead.
+description: Mastra 不支持原生中断流，请改用基于工具的人机协同方案。
 ---
 
 <Callout type="warning">
-  **Mastra does not support native interrupt flow.** The framework lacks LangGraph-style `interrupt()` primitives that pause execution mid-tool and emit AG-UI interrupt events. This page documents the interrupt pattern for reference, but it **will not work** with Mastra.
+  **Mastra 不支持原生中断流**。该框架缺少 LangGraph 风格的 `interrupt()` 原语——即让工具在执行中途暂停并发出 AG-UI 中断事件的机制。本页出于参考目的记录了中断模式，但它 **在 Mastra 中无法工作**。
 
-  For working Human-in-the-Loop functionality with Mastra, use the [tool-based approach](/mastra/human-in-the-loop/tool-based) with `useHumanInTheLoop` instead.
+  要在 Mastra 中实现可用的人机协同（human-in-the-loop）功能，请改用带 `useHumanInTheLoop` 的[基于工具方案](/mastra/human-in-the-loop/tool-based)。
 </Callout>
 
-## What are interrupts?
+## 什么是中断？
 
-Some frameworks (like LangGraph) provide native interrupt capabilities where tools can pause their own execution mid-stream via an `interrupt()` or `suspend()` call, emit an AG-UI interrupt event to the frontend, and wait for the user's response before resuming. CopilotKit's `useInterrupt` hook captures these events and renders custom UI.
+一些框架（如 LangGraph）提供原生的中断能力：工具可以通过 `interrupt()` 或 `suspend()` 调用在执行中途暂停自身，向前端发出 AG-UI 中断事件，并等待用户响应后再继续。CopilotKit 的 `useInterrupt` hook 会捕获这些事件并渲染自定义 UI。
 
-## Why doesn't Mastra support this?
+## 为什么 Mastra 不支持这种方式？
 
-Mastra does not emit AG-UI interrupt events. While Mastra has a `suspend()` API for tool approval workflows, it operates within Mastra's own execution model and does not integrate with CopilotKit's interrupt handling via the AG-UI protocol. Any `useInterrupt` hook in a Mastra application will listen for events that never arrive, leaving the UI stuck on tool-call placeholders.
+Mastra 不会发出 AG-UI 中断事件。虽然 Mastra 为工具审批工作流提供了 `suspend()` API，但它运行在 Mastra 自身的执行模型之内，无法通过 AG-UI 协议与 CopilotKit 的中断处理集成。在 Mastra 应用中，任何 `useInterrupt` hook 监听的都将是永远不会到达的事件，导致 UI 卡在工具调用的占位状态上。
 
-## What should I use instead?
+## 应该改用什么？
 
-**Use the tool-based approach with `useHumanInTheLoop`.** This is the supported and working pattern for Mastra:
+**请使用带 `useHumanInTheLoop` 的基于工具方案**。这是 Mastra 受支持且切实可用的模式：
 
 <Steps>
 <Step>
-  ### Register a frontend tool
+  ### 注册一个前端工具
 
-  Define a frontend tool that renders UI and waits for the user's response:
+  定义一个渲染 UI 并等待用户响应的前端工具：
 
   ```tsx title="ui/app/page.tsx"
   import { useHumanInTheLoop } from "@copilotkit/react-core/v2";
@@ -62,45 +62,45 @@ Mastra does not emit AG-UI interrupt events. While Mastra has a `suspend()` API 
 </Step>
 
 <Step>
-  ### Agent automatically uses the tool
+  ### 智能体自动使用该工具
 
-  Mastra natively supports the AG-UI protocol. When your agent calls the `confirm_action` tool (defined on the frontend), CopilotKit automatically routes the call to your `useHumanInTheLoop` handler, renders the UI, and waits for the user's response.
+  Mastra 原生支持 AG-UI 协议。当你的智能体调用 `confirm_action` 工具（在前端定义）时，CopilotKit 会自动把该调用路由到你的 `useHumanInTheLoop` 处理器，渲染 UI，并等待用户响应。
 
-  No backend tool definition is needed—the frontend tool registration is sufficient.
+  无需后端工具定义——前端注册工具就足够了。
 </Step>
 
 <Step>
-  ### Give it a try
+  ### 试一试
 
-  Ask your agent something that requires confirmation:
+  向智能体提出一个需要确认的请求：
 
   ```
   Can you delete all inactive user accounts?
   ```
 
-  The agent will call the `confirm_action` tool, render your approval UI, and wait for the user's response before continuing.
+  智能体会调用 `confirm_action` 工具，渲染你的审批 UI，并等待用户响应后再继续。
 </Step>
 </Steps>
 
-## Full working example
+## 完整的可运行示例
 
-For a complete implementation, see the [tool-based Human-in-the-Loop guide](/mastra/human-in-the-loop/tool-based), which includes:
+完整实现请参阅[基于工具的人机协同指南](/mastra/human-in-the-loop/tool-based)，其中包含：
 
-- Multiple frontend tools with different UI patterns
-- Parameter validation with Zod schemas
-- Error handling and loading states
-- Production-ready examples
+- 多个采用不同 UI 模式的前端工具
+- 使用 Zod schema 进行参数校验
+- 错误处理与加载状态
+- 可用于生产环境的示例
 
-## Comparison: Interrupts vs. Tool-based
+## 对比：中断 vs. 基于工具
 
-| Feature | Interrupts (LangGraph) | Tool-based (Mastra) |
-|---------|------------------------|---------------------|
-| **Backend support** | ✅ Native `interrupt()` | ❌ No interrupt events |
-| **Frontend hook** | `useInterrupt` | `useHumanInTheLoop` |
-| **Execution model** | Tool pauses mid-execution | Agent calls frontend tool |
-| **When to use** | LangGraph, frameworks with native interrupt support | Mastra, frameworks without interrupt primitives |
-| **Works with Mastra?** | ❌ No | ✅ Yes |
+| 特性 | 中断（LangGraph） | 基于工具（Mastra） |
+|------|------------------|-------------------|
+| **后端支持** | ✅ 原生 `interrupt()` | ❌ 无中断事件 |
+| **前端 hook** | `useInterrupt` | `useHumanInTheLoop` |
+| **执行模型** | 工具在执行中途暂停 | 智能体调用前端工具 |
+| **适用场景** | LangGraph 及其他原生支持中断的框架 | Mastra 及其他没有中断原语的框架 |
+| **能否与 Mastra 配合？** | ❌ 否 | ✅ 是 |
 
 ---
 
-**Ready to implement HITL with Mastra?** Head to the [tool-based approach guide](/mastra/human-in-the-loop/tool-based) for working examples and best practices.
+**准备好在 Mastra 中实现人机协同了吗？** 前往[基于工具方案指南](/mastra/human-in-the-loop/tool-based)查看可用的示例与最佳实践。

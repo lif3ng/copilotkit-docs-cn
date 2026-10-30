@@ -1,40 +1,40 @@
 ---
-title: Writing agent state
+title: 写入智能体状态
 icon: "lucide/ArrowRight"
-description: Write to agent's state from your application.
+description: 从你的应用写入智能体状态。
 ---
 {/* TODO: Swap these links for Microsoft Agent Framework links once Microsoft Agent Framework is officially added to the feature viewer */}
 <IframeSwitcher
   id="shared-state-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/microsoft-agent-framework-dotnet/feature/shared_state?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/microsoft-agent-framework-dotnet/feature/shared_state?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
 <Callout type="info">
-  This example demonstrates reading from shared state in the [CopilotKit Feature Viewer](https://feature-viewer.copilotkit.ai/microsoft-agent-framework-dotnet/feature/shared_state).
+  此示例演示了在 [CopilotKit Feature Viewer](https://feature-viewer.copilotkit.ai/microsoft-agent-framework-dotnet/feature/shared_state) 中读取共享状态。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-This guide shows you how to write to your agent's state from your application.
+本指南向你展示如何从你的应用写入智能体状态。
 
-## When should I use this?
+## 何时应该使用它？
 
-You can use this when you need to update agent state from your application — for example, changing user preferences, toggling settings, or providing user input that affects agent behavior.
+当你需要从应用更新智能体状态时可以使用它——例如，更改用户偏好、切换设置，或提供会影响智能体行为的用户输入。
 
-## Implementation
+## 实现
 
 <Steps>
   <Step>
-    ### Run and connect your agent
+    ### 运行并连接你的智能体
     <RunAndConnect />
   </Step>
   <Step>
-    ### Define the Agent State
-    Decide which parts of agent state you want to reflect in the UI and allow updating from the UI.
+    ### 定义智能体状态
+    决定你希望在 UI 中反映智能体状态的哪些部分，并允许从 UI 进行更新。
 
     <Tabs groupId="language_microsoft-agent-framework_agent" items={['.NET', 'Python']} persist>
       <Tab value=".NET">
@@ -144,9 +144,8 @@ You can use this when you need to update agent state from your application — f
     ```
   </Step>
   <Step>
-    ### Call `agent.setState` from the `useAgent` hook
-    `useAgent` returns an `agent` object with a `setState` method that you can use to update the agent state. Calling this
-    will update the agent state and trigger a rerender of anything that depends on the agent state.
+    ### 从 `useAgent` hook 调用 `agent.setState`
+    `useAgent` 返回一个 `agent` 对象，其 `setState` 方法可用于更新智能体状态。调用它会更新智能体状态，并触发所有依赖该状态的内容重新渲染。
 
     ```tsx title="ui/app/page.tsx"
     import { useEffect } from "react";
@@ -190,25 +189,24 @@ You can use this when you need to update agent state from your application — f
     ```
   </Step>
   <Step>
-    ### Give it a try!
-    You can now use `agent.setState` to update the agent state and `agent.state` to read it. Try toggling the language button
-    and talking to your agent. You'll see the language change to match the agent's state.
+    ### 试一试！
+    现在你可以用 `agent.setState` 更新智能体状态，用 `agent.state` 读取它。试着切换语言按钮并与你的智能体对话，你会看到语言随之变化，与智能体状态保持一致。
 
 <video src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/write-agent-state.mp4" className="rounded-lg shadow-xl" loop playsInline controls autoPlay muted />
 <Callout>
-  This video shows the result of `npx copilotkit@latest init` with the implementation section applied to it!
+  此视频展示的是 `npx copilotkit@latest init` 的结果再加上实现部分后的效果！
 </Callout>
   </Step>
 </Steps>
 
-## Advanced Usage
+## 进阶用法
 
-### Re-run the agent with a hint about what's changed
+### 附带变更提示重新运行智能体
 
-The new agent state will be used next time the agent runs.
-If you want to re-run it manually, use `copilotkit.runAgent()`.
+智能体下次运行时会使用新的智能体状态。
+如果你想手动重新运行，可以使用 `copilotkit.runAgent()`。
 
-The agent will be re-run with the latest updated state. You can also add a hint message before re-running.
+智能体会以最新更新的状态重新运行。你也可以在重新运行之前添加一条提示消息。
 
 ```tsx title="ui/app/page.tsx"
 import { useAgent, useCopilotKit } from "@copilotkit/react-core/v2";
@@ -242,5 +240,5 @@ function YourMainContent() {
 }
 ```
 
-### Notes on state updates
-Depending on your agent implementation, you may choose to surface progress via tool responses or messages rather than frequent state snapshots. See [Generative UI](/microsoft-agent-framework/generative-ui/tool-rendering) for recommended patterns.
+### 关于状态更新的说明
+根据你的智能体实现，你可以选择通过工具响应或消息来展示进度，而不是频繁的状态快照。推荐模式请参阅[生成式 UI](/microsoft-agent-framework/generative-ui/tool-rendering)。

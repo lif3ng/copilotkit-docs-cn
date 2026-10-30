@@ -1,6 +1,6 @@
 ---
-title: Human-in-the-Loop
-description: Learn how to implement Human-in-the-Loop (HITL) using Mastra Agents.
+title: 人机协同
+description: 了解如何使用 Mastra 智能体实现人机协同（HITL）。
 icon: lucide/User
 ---
 
@@ -14,38 +14,38 @@ icon: lucide/User
   muted
 />
 
-## What is Human-in-the-Loop (HITL)?
+## 什么是人机协同（HITL）？
 
-Human-in-the-loop (HITL) allows agents to request human input or approval during execution, making AI systems more reliable and trustworthy. This pattern is essential when building AI applications that need to handle complex decisions or actions that require human judgment.
+人机协同（human-in-the-loop，简称 HITL）允许智能体在执行过程中请求人工输入或批准，使 AI 系统更加可靠、可信。在构建需要处理复杂决策、或需要人类判断的操作的 AI 应用时，这种模式至关重要。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-HITL combines the efficiency of AI with human judgment, creating a system that's both powerful and reliable. The key advantages include:
+人机协同将 AI 的效率与人类判断相结合，打造出既强大又可靠的系统。主要优势包括：
 
-- **Quality Control**: Human oversight at critical decision points
-- **Edge Cases**: Graceful handling of low-confidence situations
-- **Expert Input**: Leverage human expertise when needed
-- **Reliability**: More robust system for real-world use
+- **质量控制**：在关键决策点上进行人工监督
+- **边界情况**：从容处理置信度低的情形
+- **专家输入**：在需要时借助人类专家的经验
+- **可靠性**：让系统在真实场景中更加健壮
 
-## How can I use this?
+## 怎么使用它？
 
-Mastra supports HITL through frontend tools that render UI and collect user input.
+Mastra 通过渲染 UI 并收集用户输入的前端工具来支持人机协同。
 
 <CTACards
   columns={2}
   cards={[
     {
       iconKey: "share2",
-      title: "Tool-based (Supported)",
+      title: "基于工具（受支持）",
       description:
-        "Register frontend tools with useHumanInTheLoop that render UI and wait for user responses. This is the working approach for Mastra.",
+        "使用 useHumanInTheLoop 注册前端工具，渲染 UI 并等待用户响应。这是 Mastra 目前可行的方案。",
       href: "/human-in-the-loop/tool-based",
     },
     {
       iconKey: "circlePause",
-      title: "Interrupt-based (Not Supported)",
+      title: "基于中断（不受支持）",
       description:
-        "Mastra does not support native interrupt flow. See this page to understand why and learn about the tool-based alternative.",
+        "Mastra 不支持原生中断流。请阅读本页了解原因，并了解基于工具的替代方案。",
       href: "/human-in-the-loop/interrupt-flow",
     },
   ]}

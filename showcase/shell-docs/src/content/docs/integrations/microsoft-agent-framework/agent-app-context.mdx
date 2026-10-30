@@ -1,23 +1,23 @@
 ---
-title: Readables
+title: 可读上下文
 icon: "lucide/BookA"
-description: Share app specific context with your agent.
+description: 与你的智能体共享应用专属的上下文。
 ---
 
 import AgentContextJsonString from "@/snippets/shared/basics/agent-context-json-string.mdx";
 
-One of the most common use cases for CopilotKit is to register app state and context using `useAgentContext`.
-This way, you can notify CopilotKit of what is going in your app in real time.
-Some examples might be: the current user, the current page, etc.
+CopilotKit 最常见的用例之一是使用 `useAgentContext` 注册应用状态与上下文。
+这样，你就能让 CopilotKit 实时了解应用中正在发生的事情。
+例如：当前用户、当前页面等。
 
-This context can then be shared with your AG-UI server and agent logic.
+随后，这些上下文便可与你的 AG-UI 服务器和智能体逻辑共享。
 
-## Implementation
+## 实现
 
 <Callout>
-  Check out the [Frontend Data
-  documentation](/integrations/langgraph/agent-app-context)
-  to understand what this is and how to use it.
+  请查阅[前端数据
+  文档](/integrations/langgraph/agent-app-context)
+  以了解它是什么以及如何使用。
 </Callout>
 
 <AgentContextJsonString />
@@ -27,9 +27,9 @@ This context can then be shared with your AG-UI server and agent logic.
       <RunAndConnect />
     </Step>
     <Step>
-        ### Add the data to the Copilot
+        ### 将数据添加到 Copilot
 
-        The [`useAgentContext` hook](/reference/v2/hooks/useAgentContext) is used to add data as context to the Copilot.
+        [`useAgentContext` hook](/reference/v2/hooks/useAgentContext) 用于将数据作为上下文添加到 Copilot。
 
         ```tsx title="YourComponent.tsx" showLineNumbers {1, 7-10}
         "use client" // only necessary if you are using Next.js with the App Router. // [!code highlight]
@@ -57,8 +57,8 @@ This context can then be shared with your AG-UI server and agent logic.
     </Step>
 
     <Step>
-        ### Consume the data in your AG-UI server
-        The `context` you register on the frontend is forwarded in the AG-UI `RunAgentInput`. Use middleware to read it and inject it into the agent's conversation.
+        ### 在 AG-UI 服务器中消费数据
+        你在前端注册的 `context` 会通过 AG-UI 的 `RunAgentInput` 转发。使用中间件读取它，并将其注入智能体的对话中。
 
         <Tabs groupId="language_microsoft-agent-framework_agent" items={['.NET', 'Python']} persist>
           <Tab value=".NET">
@@ -226,16 +226,16 @@ This context can then be shared with your AG-UI server and agent logic.
         </Tabs>
 
         <Callout type="info">
-          Context registered with `useAgentContext` is forwarded in `RunAgentInput.Context` as `AGUIContext` entries. `TryGetRunAgentInput` recovers the request without depending on hosting-layer keys.
+          通过 `useAgentContext` 注册的上下文会作为 `AGUIContext` 条目在 `RunAgentInput.Context` 中转发。`TryGetRunAgentInput` 无需依赖宿主层的键即可还原请求。
         </Callout>
 
         <Callout type="tip">
-          **Configuration & Error Handling**: This example uses `OPENAI_API_KEY` for configuration. Set it with user secrets or an environment variable. For production deployments, add appropriate error handling and consider using the [Quickstart](/microsoft-agent-framework/quickstart) or [Authentication](/microsoft-agent-framework/auth) guides for complete setup patterns.
+          **配置与错误处理**：此示例使用 `OPENAI_API_KEY` 进行配置。请通过 user secrets 或环境变量进行设置。对于生产部署，请添加适当的错误处理，并考虑参阅[快速开始](/microsoft-agent-framework/quickstart)或[身份验证](/microsoft-agent-framework/auth)指南以获取完整的配置模式。
         </Callout>
     </Step>
     <Step>
-        ### Give it a try!
-        Ask your agent a question about the context (e.g., "Who are my colleagues?"). The agent will use the forwarded context to answer!
+        ### 试一试！
+        向你的智能体提一个与上下文相关的问题（例如：“我的同事是谁？”）。智能体会使用转发的上下文来作答！
     </Step>
 
 </Steps>

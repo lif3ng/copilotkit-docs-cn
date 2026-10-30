@@ -1,7 +1,7 @@
 ---
-title: Introduction
+title: 简介
 icon: "custom/mastra"
-description: Bring your Mastra agents to your users with CopilotKit via AG-UI.
+description: 通过 CopilotKit 与 AG-UI，把你的 Mastra 智能体带给你的用户。
 hideHeader: true
 # The landing page carries its own prompt button in the hero; the page-tools
 # row above the title would put a second one on the page. The data-record
@@ -13,43 +13,43 @@ hidePageActions: true
 <FrameworkOverview
   frameworkName="Mastra"
   frameworkIcon={<MastraIcon className="h-12 w-12" />}
-  header="Bring your Mastra agents to your users"
-  subheader="Mastra runs your agents. CopilotKit gives them a surface your users can see, interrupt and steer."
+  header="把你的 Mastra 智能体带到用户面前"
+  subheader="Mastra 负责运行你的智能体，CopilotKit 为它们提供一个用户可见、可中断、可引导的界面。"
   guideLink="/mastra/quickstart"
   initCommand="npx copilotkit@latest init"
   featuresLink="https://feature-viewer.copilotkit.ai/mastra/feature/agentic_chat"
-  lede="Mastra gives you agents, tools, workflows and working memory in TypeScript, and a server that runs them. What it does not give you is the surface. Somewhere for the conversation to happen, a way to show what the agent is doing while it works, and a moment for a person to step in. Each capability below builds on something Mastra already does."
+  lede="Mastra 以 TypeScript 提供智能体、工具、工作流和工作记忆，以及运行它们的服务器。它没有提供的是界面：一个让对话发生的地方，一种在智能体工作时展示其进展的方式，以及一个让人介入的时机。下面的每一项能力都建立在 Mastra 已有能力的基础上。"
   supportedFeatures={[
     {
-      title: "Generative UI",
+      title: "生成式 UI",
       iconKey: "paintbrush",
       description:
-        "Your agent keeps working memory across the session. CopilotKit renders that state as your own React components, so users watch the draft take shape instead of waiting for a final answer.",
+        "你的智能体会在整个会话期间保留工作记忆。CopilotKit 将该状态渲染成你自己的 React 组件，让用户看着草稿逐步成形，而不是干等最终答案。",
       documentationLink: "/mastra/generative-ui/state-rendering"
     },
     {
-      title: "Human-in-the-loop",
+      title: "人机协同",
       iconKey: "user",
       description:
-        "Mastra's own suspend() stays inside Mastra's execution model. A frontend tool registered with useHumanInTheLoop renders UI, waits for the user's answer, and hands it back to the agent as the tool result.",
+        "Mastra 自带的 suspend() 始终留在 Mastra 的执行模型之内。使用 useHumanInTheLoop 注册的前端工具会渲染 UI、等待用户的回答，并将其作为工具结果交还给智能体。",
       documentationLink: "/mastra/human-in-the-loop/tool-based"
     },
     {
-      title: "Shared state",
+      title: "共享状态",
       iconKey: "repeat",
       description:
-        "Working memory lives on the server, scoped by resourceId. The useAgent hook mirrors it into your app and back, so a user edit and an agent write land in the same place.",
+        "工作记忆保存在服务器上，以 resourceId 划分作用域。useAgent hook 将它同步到你的应用并回写，让用户编辑与智能体写入落在同一处。",
       documentationLink: "/mastra/shared-state"
     }
   ]}
   capabilitiesFootnote={{
-    text: "Chat surfaces, headless UI, frontend tools and background tasks work with Mastra too.",
-    linkLabel: "And more",
+    text: "聊天界面、无头 UI（headless UI）、前端工具和后台任务同样可以与 Mastra 配合使用。",
+    linkLabel: "还有更多",
     href: "/mastra/build-with-agents"
   }}
   connect={{
     intro:
-      "Your Mastra service stays where it runs today. CopilotKit reaches it over HTTP through AG-UI and leaves it exactly where it is, so nothing inside Mastra changes.",
+      "你的 Mastra 服务保持在今天运行的位置。CopilotKit 通过 AG-UI 经 HTTP 访问它，并让它保持在原地，因此 Mastra 内部无需任何改动。",
     filename: "app/api/copilotkit/[[...slug]]/route.ts",
     language: "ts",
     guideLink: "/mastra/quickstart"
@@ -57,12 +57,12 @@ hidePageActions: true
   showcase={{
     integration: "mastra",
     intro:
-      "Mastra and CopilotKit running together, in the React frontend. Every demo below is the same integration with one capability turned on.",
+      "Mastra 与 CopilotKit 在 React 前端中协同运行。下面的每个演示都是同一个集成、只开启了一项能力。",
     demos: [
-      { slug: "agentic-chat", title: "Pre-Built: CopilotChat" },
-      { slug: "hitl-in-chat", title: "Human In the Loop: In-chat" },
-      { slug: "shared-state-read-write", title: "Shared State: Read + Write" },
-      { slug: "gen-ui-agent", title: "Generative UI: Agent State" }
+      { slug: "agentic-chat", title: "预构建：CopilotChat" },
+      { slug: "hitl-in-chat", title: "人机协同：聊天内" },
+      { slug: "shared-state-read-write", title: "共享状态：读 + 写" },
+      { slug: "gen-ui-agent", title: "生成式 UI：智能体状态" }
     ]
   }}
 >

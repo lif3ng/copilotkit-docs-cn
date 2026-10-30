@@ -1,7 +1,7 @@
 ---
-title: "Tool Rendering"
+title: "工具渲染"
 icon: "lucide/Server"
-description: Render your agent's tool calls with custom UI components.
+description: 使用自定义 UI 组件渲染智能体的工具调用。
 ---
 
 import { Accordions, Accordion } from "fumadocs-ui/components/accordion";
@@ -12,32 +12,30 @@ import RunAndConnect from "@/snippets/integrations/mastra/run-and-connect.mdx"
   id="tool-based-generative-ui-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/mastra/feature/backend_tool_rendering?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/mastra/feature/backend_tool_rendering?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
-## What is this?
+## 这是什么？
 
-Tools are a way for the LLM to call predefined, typically, deterministic functions. CopilotKit allows you to render these tools in the UI
-as a custom component, which we call **Generative UI**.
+工具是 LLM 调用预定义（通常为确定性）函数的一种方式。CopilotKit 允许你在 UI 中把这些工具渲染成自定义组件，我们称之为 **Generative UI**（生成式 UI）。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Rendering tools in the UI is useful when you want to provide the user with feedback about what your agent is doing, specifically
-when your agent is calling tools. CopilotKit allows you to fully customize how these tools are rendered in the chat.
+当你想让用户了解智能体正在做什么——尤其是智能体正在调用工具时——在 UI 中渲染工具会非常有用。CopilotKit 允许你完全自定义这些工具在聊天中的渲染方式。
 
-## Implementation
+## 实现步骤
 
 <Steps>
 <Step>
-### Run and connect your agent
+### 运行并连接你的智能体
 <RunAndConnect components={props.components} />
 </Step>
 <Step>
-### Give your agent a tool to call
+### 给智能体一个可调用的工具
 
-Add a new tool definition:
+添加一个新的工具定义：
 
 ```ts title="src/mastra/tools/weatherInfo.ts"
 import { createTool } from "@mastra/core/tools";
@@ -57,7 +55,7 @@ export const weatherInfo = createTool({
 });
 ```
 
-Then, pass the tool to the agent:
+然后，将该工具传给智能体：
 
 ```ts title="src/mastra/agents/weatherAgent.ts"
 import { Agent } from "@mastra/core/agent";
@@ -78,14 +76,11 @@ export const weatherAgent = new Agent({
 
 </Step>
 <Step>
-### Render the tool call in your frontend
-At this point, your agent will be able to call the `weatherInfo` tool. Now
-we just need to add a `useRenderTool` hook to render the tool call in
-the UI.
+### 在前端渲染工具调用
+此时，你的智能体已经能够调用 `weatherInfo` 工具。接下来只需添加一个 `useRenderTool` hook，即可在 UI 中渲染这次工具调用。
 
-<Callout type="info" title="Important">
-  In order to render a tool call in the UI, the name of the action must match
-  the name of the tool.
+<Callout type="info" title="重要">
+  要在 UI 中渲染一次工具调用，action 的名称必须与工具的名称一致。
 </Callout>
 
 ```tsx title="app/page.tsx"
@@ -113,10 +108,9 @@ const YourMainContent = () => {
 
 </Step>
 <Step>
-### Give it a try!
+### 试一试！
 
-Try asking the agent to get the weather for a location. You should see the custom UI component that we added
-render the tool call and display the arguments that were passed to the tool.
+试着让智能体查询某个地点的天气。你应该能看到我们添加的自定义 UI 组件渲染出这次工具调用，并显示传给该工具的参数。
 
 </Step>
 </Steps>

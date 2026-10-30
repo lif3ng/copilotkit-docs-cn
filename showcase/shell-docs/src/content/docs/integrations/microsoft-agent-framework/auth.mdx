@@ -1,18 +1,18 @@
 ---
-title: "Authentication"
+title: "身份验证"
 icon: "lucide/Shield"
-description: "Secure your Microsoft Agent Framework agents with user authentication"
+description: "使用用户身份验证保护你的 Microsoft Agent Framework 智能体"
 ---
-## Overview
+## 概览
 
-Forward user authentication from your frontend to your AG-UI server:
+将用户身份验证从前端转发到你的 AG-UI 服务器：
 
-- **Frontend**: Pass tokens via `<CopilotKit headers={{ Authorization: token }}>`
-- **Backend**: Validate tokens using ASP.NET Core authentication middleware
+- **前端**：通过 `<CopilotKit headers={{ Authorization: token }}>` 传递令牌
+- **后端**：使用 ASP.NET Core 身份验证中间件校验令牌
 
-## Frontend Setup
+## 前端配置
 
-Pass your authentication token via the `headers` prop:
+通过 `headers` prop 传递你的身份验证令牌：
 
 ```tsx
 <CopilotKit
@@ -25,9 +25,9 @@ Pass your authentication token via the `headers` prop:
 </CopilotKit>
 ```
 
-## Backend Setup
+## 后端配置
 
-Configure authentication in your AG-UI server:
+在你的 AG-UI 服务器中配置身份验证：
 
 <Tabs groupId="language_microsoft-agent-framework_agent" items={['.NET', 'Python']} persist>
   <Tab value=".NET">
@@ -135,9 +135,9 @@ Configure authentication in your AG-UI server:
   </Tab>
 </Tabs>
 
-### Configuration
+### 配置
 
-Add settings to your server configuration:
+将相关设置添加到你的服务器配置中：
 
 <Tabs groupId="language_microsoft-agent-framework_agent" items={['.NET', 'Python']} persist>
   <Tab value=".NET">
@@ -148,7 +148,7 @@ Add settings to your server configuration:
     }
     ```
 
-    Save the model key outside `appsettings.json`:
+    将模型密钥保存在 `appsettings.json` 之外：
 
     ```bash
     dotnet user-secrets init
@@ -163,9 +163,9 @@ Add settings to your server configuration:
   </Tab>
 </Tabs>
 
-### CORS (if needed)
+### CORS 配置
 
-If your frontend and backend are on different origins:
+如果你的前端和后端不在同一个源上：
 
 ```csharp title="Program.cs"
 builder.Services.AddCors(options =>
@@ -186,26 +186,26 @@ app.UseAuthentication();
 app.UseAuthorization();
 ```
 
-## Security Best Practices
+## 安全最佳实践
 
-- Validate tokens on every request
-- Scope data access to authenticated users
-- Implement role-based access control in your agents
-- Use HTTPS in production
+- 在每次请求时校验令牌
+- 将数据访问限定为已通过身份验证的用户
+- 在智能体中实现基于角色的访问控制
+- 在生产环境中使用 HTTPS
 
-<Callout type="warning" title="Avoid shared-secret bearer tokens in production">
-  Examples that validate a bearer token against a single shared secret (e.g., an environment variable) are for local demos only.
-  For production, use proper authentication:
-  - .NET: Validate JWTs with `Microsoft.AspNetCore.Authentication.JwtBearer` (as shown above), backed by your IdP (e.g., Entra ID).
-  - Python: Use OAuth 2.0 / OpenID Connect JWT validation or an API gateway that validates tokens before requests reach your AG‑UI server.
+<Callout type="warning" title="避免在生产环境中使用共享密钥 bearer 令牌">
+  以单一共享密钥（例如环境变量）校验 bearer 令牌的示例仅适用于本地演示。
+  在生产环境中，请使用正规的身份验证：
+  - .NET：使用 `Microsoft.AspNetCore.Authentication.JwtBearer` 校验 JWT（如上所示），并由你的 IdP（例如 Entra ID）提供支持。
+  - Python：使用 OAuth 2.0 / OpenID Connect JWT 校验，或在请求到达你的 AG-UI 服务器之前校验令牌的 API 网关。
 </Callout>
 
-## Troubleshooting
+## 故障排查
 
-**Token not reaching server**: Verify the `Authorization` header is set in `<CopilotKit>` and forwarded through any proxies.
+**令牌未到达服务器**：检查 `<CopilotKit>` 中是否设置了 `Authorization` 头，并确认它经由所有代理转发。
 
-**Invalid token**: Ensure the token includes the `Bearer ` prefix.
+**令牌无效**：确保令牌带有 `Bearer ` 前缀。
 
-**CORS errors**: Configure CORS if frontend and backend are on different origins (see [CORS section](#cors-if-needed)).
+**CORS 错误**：如果前端和后端不在同一个源上，请配置 CORS（参见 [CORS 配置](#cors-配置)）。
 
-For more details, see [Microsoft's JWT authentication guide](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/configure-jwt-bearer-authentication).
+更多详情请参阅 [Microsoft 的 JWT 身份验证指南](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/configure-jwt-bearer-authentication)。

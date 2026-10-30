@@ -1,7 +1,7 @@
 ---
-title: Reading agent state
+title: 读取智能体状态
 icon: "lucide/ArrowLeft"
-description: Read the realtime agent state in your native application.
+description: 在你的原生应用中读取实时智能体状态。
 ---
 
 {/* TODO: Swap these links for Microsoft Agent Framework links once Microsoft Agent Framework is officially added to the feature viewer */}
@@ -10,35 +10,34 @@ description: Read the realtime agent state in your native application.
   id="shared-state-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/microsoft-agent-framework-dotnet/feature/shared_state?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/microsoft-agent-framework-dotnet/feature/shared_state?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
 <Callout type="info">
-  This example demonstrates reading from shared state in the [CopilotKit Feature
-  Viewer](https://feature-viewer.copilotkit.ai/microsoft-agent-framework-dotnet/feature/shared_state).
+  此示例演示了在 [CopilotKit Feature
+  Viewer](https://feature-viewer.copilotkit.ai/microsoft-agent-framework-dotnet/feature/shared_state) 中读取共享状态。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-You can easily use the realtime agent state not only in the chat UI, but also in the native application UX.
+你不仅可以轻松地在聊天 UI 中使用实时智能体状态，还可以在原生应用 UX 中使用它。
 
-## When should I use this?
+## 何时应该使用它？
 
-You can use this when you want to provide the user with feedback about your agent's state. As your agent's
-state updates, you can reflect these updates natively in your application.
+当你想向用户提供关于智能体状态的反馈时，可以使用它。随着智能体状态的更新，你可以在应用中以原生方式反映这些更新。
 
-## Implementation
+## 实现
 
 <Steps>
   <Step>
-    ### Run and connect your agent
+    ### 运行并连接你的智能体
     <RunAndConnect />
   </Step>
   <Step>
-   ### Define the Agent State
-    Decide which parts of agent state you want to reflect in the UI and allow updating from the UI.
+   ### 定义智能体状态
+    决定你希望在 UI 中反映智能体状态的哪些部分，并允许从 UI 进行更新。
 
     <Tabs groupId="language_microsoft-agent-framework_agent" items={['.NET', 'Python']} persist>
       <Tab value=".NET">
@@ -149,9 +148,8 @@ state updates, you can reflect these updates natively in your application.
 
   </Step>
   <Step>
-    ### Use the `useAgent` Hook
-    With your agent connected and running all that is left is to call the `useAgent` hook, pass the agent's name, and
-    initialize missing UI-owned state after the connected agent is ready.
+    ### 使用 `useAgent` hook
+    智能体连接并运行起来之后，剩下要做的就是调用 `useAgent` hook，传入智能体的名称，并在所连接的智能体就绪后初始化缺失的 UI 侧状态。
 
     ```tsx title="ui/app/page.tsx"
     import { useEffect } from "react";
@@ -187,30 +185,28 @@ state updates, you can reflect these updates natively in your application.
     }
     ```
     <Callout type="info">
-      The `agent.state` in `useAgent` is reactive and will automatically update when the agent's state changes.
+      `useAgent` 中的 `agent.state` 是响应式的，会在智能体状态变化时自动更新。
     </Callout>
 
   </Step>
   <Step>
-    ### Give it a try!
-    As the agent state updates, your `state` variable will automatically update with it! In this case, you'll see the
-    language set to "english" after the connected agent is ready.
+    ### 试一试！
+    随着智能体状态更新，你的 `state` 变量也会自动跟着更新！在本例中，所连接的智能体就绪后，你会看到语言被设置为 “english”。
 
     <Frame>
-      <ImageZoom src="https://cdn.copilotkit.ai/docs/copilotkit/images/microsoft-agent-framework/read-agent-state.png" alt="read agent state" width={1000} height={1000} className="my-0"/>
+      <ImageZoom src="https://cdn.copilotkit.ai/docs/copilotkit/images/microsoft-agent-framework/read-agent-state.png" alt="读取智能体状态" width={1000} height={1000} className="my-0"/>
     </Frame>
 
     <Callout type="info">
-      Pictured above is the [agent starter](https://github.com/copilotkit/copilotkit/tree/main/examples/agents-starter) with
-      the implementation section applied!
+      上图是应用了实现部分的[智能体起步模板](https://github.com/copilotkit/copilotkit/tree/main/examples/agents-starter)！
     </Callout>
 
   </Step>
 </Steps>
 
-## Rendering agent state in your app
+## 在你的应用中渲染智能体状态
 
-You can render the agent state in any React component under `<CopilotKit>`. Read `agent.state` and return ordinary JSX.
+你可以在 `<CopilotKit>` 下的任何 React 组件中渲染智能体状态。读取 `agent.state` 并返回普通的 JSX 即可。
 
 ```tsx title="ui/app/page.tsx"
 import { useAgent } from "@copilotkit/react-core/v2";
@@ -231,10 +227,9 @@ function YourMainContent() {
 ```
 
 <Callout type="info">
-  The `agent.state` in `useAgent` is reactive and will automatically update when
-  the agent's state changes.
+  `useAgent` 中的 `agent.state` 是响应式的，会在智能体状态变化时自动更新。
 </Callout>
 
-## Advanced: Emitting Intermediate State
+## 进阶：发出中间状态
 
-By default, agent state updates arrive at natural checkpoints during agent execution. For more granular, real-time updates during long-running operations, you can emit state snapshots from within your agent logic. Consult the [Microsoft Agent Framework documentation](https://learn.microsoft.com/en-us/agent-framework/user-guide/overview) for patterns on streaming custom state events during execution.
+默认情况下，智能体状态更新会在智能体执行过程中的自然检查点到达。如果要在长时间运行的操作中获得更细粒度的实时更新，你可以在智能体逻辑内部发出状态快照。关于在执行过程中流式传输自定义状态事件的模式，请查阅 [Microsoft Agent Framework 文档](https://learn.microsoft.com/en-us/agent-framework/user-guide/overview)。

@@ -1,7 +1,7 @@
 ---
-title: "State streaming"
+title: 状态流式传输
 icon: "lucide/Podcast"
-description: Stream in-progress agent state updates to the frontend as the agent writes them.
+description: 在智能体写入的同时，把进行中的状态更新流式传输到前端。
 ---
 import RunAndConnect from "@/snippets/integrations/mastra/run-and-connect.mdx"
 import { IframeSwitcher } from "@/components/content"
@@ -10,35 +10,35 @@ import { IframeSwitcher } from "@/components/content"
   id="mastra-state-streaming-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/mastra/feature/shared_state?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/mastra/feature/shared_state?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
 <Callout type="info">
-  This example demonstrates streaming shared state in the [CopilotKit Feature Viewer](https://feature-viewer.copilotkit.ai/mastra/feature/shared_state).
+  本示例演示了在 [CopilotKit Feature Viewer](https://feature-viewer.copilotkit.ai/mastra/feature/shared_state) 中流式传输共享状态。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-An agent's working memory usually surfaces to the UI once, when a run finishes. But a single run can take many seconds and write a lot of content — a drafted document, a plan, a summary — that the user would rather watch appear **as it is generated**.
+智能体的工作记忆通常要等到一次运行结束后才会一次性呈现到 UI。但单次运行可能耗时数秒，并写入大量内容——一份草稿、一个计划、一段总结——而用户更愿意看着这些内容**在生成过程中**逐步出现。
 
-**Agent-native applications** reflect what the agent is doing to the end-user **as continuously as possible.** CopilotKit enables this for Mastra by streaming working-memory updates to the frontend token-by-token, so `agent.state` grows live during the run instead of jumping to the final value at the end.
+**智能体原生应用**会**尽可能持续地**向最终用户呈现智能体正在做的事情。CopilotKit 通过把工作记忆更新逐 token 流式传输到前端，为 Mastra 实现了这一点，因此 `agent.state` 会在运行期间实时增长，而不是在最后一步直接跳到最终值。
 
-## When should I use this?
+## 什么时候该用它？
 
-Use this when you want to give the user real-time feedback about what your agent is producing, specifically to:
+当你想就智能体正在产出的内容向用户提供实时反馈时使用它，具体来说：
 
-- **Keep users engaged** by avoiding long loading indicators
-- **Build trust** by showing the work as it is written
-- Enable **agent steering** — letting users react before the run completes
+- **让用户保持投入**，避免漫长的加载指示
+- **建立信任**，让用户看到内容被逐步写出的过程
+- 支持**智能体转向**——让用户在运行完成之前就做出反应
 
-## How it works
+## 工作原理
 
-Mastra injects a built-in `updateWorkingMemory` tool whenever working memory is enabled. When the agent calls it during a run, CopilotKit's Mastra integration intercepts the tool call's **streaming arguments**, parses the growing payload, and emits an initial `STATE_SNAPSHOT` followed by incremental `STATE_DELTA` updates against the working-memory schema. The frontend's `useAgent` subscription re-renders on every delta.
+只要启用了工作记忆，Mastra 就会注入一个内置的 `updateWorkingMemory` 工具。当智能体在运行中调用它时，CopilotKit 的 Mastra 集成会拦截该工具调用的**流式参数**，解析不断增长的载荷，并按照工作记忆 schema 先发出一个初始 `STATE_SNAPSHOT`，随后发出增量的 `STATE_DELTA` 更新。前端的 `useAgent` 订阅会在每个增量到达时重新渲染。
 
-<Callout type="info" title="Important">
-  This guide assumes you are embedding your Mastra agent inside Copilot Runtime, like so.
+<Callout type="info" title="重要">
+  本指南假设你像下面这样把 Mastra 智能体内嵌在 Copilot Runtime 中。
 
   ```ts
   const runtime = new CopilotRuntime({
@@ -47,16 +47,16 @@ Mastra injects a built-in `updateWorkingMemory` tool whenever working memory is 
   ```
 </Callout>
 
-## Implementation
+## 实现
 
 <Steps>
   <Step>
-    ### Run and connect your agent
+    ### 运行并连接你的智能体
     <RunAndConnect components={props.components} />
   </Step>
   <Step>
-    ### Define the streamed state
-    Provide a working-memory schema whose field holds the content you want to stream. Here `document` is a single string that the agent will fill in progressively.
+    ### 定义要流式传输的状态
+    提供一个工作记忆 schema，其字段存放你想流式传输的内容。这里的 `document` 是一个字符串，智能体会逐步把内容填入其中。
 
     ```ts title="mastra/agents/streaming-agent.ts"
     import { openai } from "@ai-sdk/openai";
@@ -92,8 +92,8 @@ Mastra injects a built-in `updateWorkingMemory` tool whenever working memory is 
     ```
   </Step>
   <Step>
-    ### Observe the stream
-    Subscribe to the agent state with `useAgent`. `agent.state.document` updates on every delta as the agent writes, so the panel fills in live.
+    ### 观察流式更新
+    用 `useAgent` 订阅智能体状态。智能体写入时，`agent.state.document` 会随每个增量更新，因此面板会实时填充。
 
     ```tsx title="ui/app/page.tsx"
     import { useAgent, UseAgentUpdate } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -117,7 +117,7 @@ Mastra injects a built-in `updateWorkingMemory` tool whenever working memory is 
     ```
   </Step>
   <Step>
-    ### Give it a try!
-    Ask the agent to write a poem, draft an email, or explain a topic. The document panel fills in token-by-token as the agent streams, and the run-end working-memory snapshot reconciles any drift.
+    ### 动手试试吧！
+    让智能体写一首诗、起草一封邮件或解释某个主题。文档面板会随智能体的流式输出逐 token 填充，运行结束时的最终工作记忆快照会校正任何偏差。
   </Step>
 </Steps>

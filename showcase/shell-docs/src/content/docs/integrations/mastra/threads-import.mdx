@@ -1,7 +1,7 @@
 ---
-title: Add AG-UI Streams to Mastra Conversations
+title: 为 Mastra 对话添加 AG-UI 流
 nav_title: Add to Existing Threads
-description: "Add Intelligence’s AG-UI streams to your existing agent conversations, with optional historical import for supported stores."
+description: "为现有智能体对话添加 Intelligence 的 AG-UI 流，受支持的存储还可选择性导入历史记录。"
 icon: "lucide/Repeat"
 doc_type: how-to
 ---
@@ -10,41 +10,41 @@ import { Tabs, Tab } from "fumadocs-ui/components/tabs";
 
 <span id="what-is-this" />
 
-## Add Intelligence to your existing app
+## 在现有应用中添加 Intelligence
 
-Give users reconnection, catch-up, and delivery across devices around your Mastra agent. Follow the [Intelligence quickstart](/intelligence/quickstart) to connect your existing CopilotKit app and Runtime, then verify that a new conversation is saved. This enables AG-UI streams for runs through CopilotKit; no historical import is required.
+围绕你的 Mastra 智能体，为用户提供跨设备的重连、进度补看与消息送达。按照 [Intelligence 快速开始](/intelligence/quickstart)连接你现有的 CopilotKit 应用与 Runtime，然后验证新对话会被保存。这会为经由 CopilotKit 的运行启用 AG-UI 流，无需任何历史导入。
 
-Keep your Mastra agent and its durable storage connected so you can continue the same conversations after importing them. See [how streams work with framework storage](/intelligence/threads-explained#how-threads-work-with-framework-storage).
+保持你的 Mastra 智能体及其持久化存储处于连接状态，这样在导入对话之后你可以继续这些对话。参见[流如何与框架存储协同工作](/intelligence/threads-explained#how-threads-work-with-framework-storage)。
 
-## Include earlier conversations (optional)
+## 纳入更早的对话（可选）
 
-To let users reopen conversations recorded before Intelligence was connected, use the importer below to copy supported historical content. Importing does not enable live delivery or establish ongoing database replication, and it cannot recover history the source no longer exposes.
+要让用户能重新打开接入 Intelligence 之前记录的对话，请使用下面的导入器复制受支持的历史内容。导入既不会启用实时送达，也不会建立持续的数据库复制，而且它无法恢复来源已不再暴露的历史。
 
-The Mastra importer reads saved conversations from a local LibSQL database or a Mastra server. It brings over saved messages, rich tool results, attachments, and agent state where available. Some interactive content, such as MCP app views, may not have been saved in the original history.
+Mastra 导入器从本地 LibSQL 数据库或 Mastra 服务器读取已保存的对话。它会带出已保存的消息、富工具结果、附件，以及（在可用的情况下）智能体状态。某些交互式内容（如 MCP 应用视图）可能没有保存在原始历史中。
 
-The following prerequisites and commands apply only to that historical import. Use Threads Drawer or [Headless Threads](/headless-threads) to open imported and new conversations through the same UI.
+下面的前置条件与命令仅适用于历史导入。可以使用 Threads Drawer 或[无头线程（Headless Threads）](/headless-threads)，通过同一个 UI 打开导入的对话与新对话。
 
-## Prerequisites
+## 前置条件
 
-- A CopilotKit app with CopilotKit Intelligence enabled.
-- Saved Mastra conversations in a persistent store. In-memory conversations cannot be imported.
-- Access to the Mastra database file or server and the agent and resource IDs for the conversations you want to import.
+- 一个启用了 CopilotKit Intelligence 的 CopilotKit 应用。
+- 保存在持久化存储中的 Mastra 对话。内存中的对话无法导入。
+- 能访问 Mastra 数据库文件或服务器，以及要导入的对话所属的智能体 ID 和资源 ID。
 
-## Confirm the target project
+## 确认目标项目
 
-Choose the Intelligence project that will receive the history. Its app-api URL and project-scoped runtime key select the destination. You will export those values before importing.
+选择将接收这些历史的 Intelligence 项目。目的地由它的 app-api URL 和项目级运行时密钥决定。导入之前你需要先导出这两个值。
 
-For a CLI-created app, you can select a cloud-hosted project:
+对于用 CLI 创建的应用，你可以选择一个云端托管的项目：
 
 ```bash title="Terminal"
 npx copilotkit@latest project select
 ```
 
-The command updates the project selected for the current directory and writes its project-scoped runtime key to the app's generated `.env`.
+该命令会更新当前目录所选的项目，并把它的项目级运行时密钥写入应用生成的 `.env`。
 
-## Configure the source
+## 配置来源
 
-Set the agent and resource whose conversations you want to import:
+设置你要导入其对话的智能体与资源：
 
 ```bash title="Terminal"
 export MASTRA_IMPORT_SOURCE_ID="my-mastra-app"
@@ -53,49 +53,49 @@ export MASTRA_IMPORT_RESOURCE_ID="customer-123"
 export MASTRA_IMPORT_END_USER_ID="user-123"
 ```
 
-Use your native Mastra agent ID and the resource ID that owns those conversations. Set `MASTRA_IMPORT_END_USER_ID` to the same application user ID your Runtime returns from `identifyUser`, so that user can find the imported conversations. Repeat the import with the appropriate values for each resource and user.
+使用你原生的 Mastra 智能体 ID，以及拥有这些对话的资源 ID。把 `MASTRA_IMPORT_END_USER_ID` 设置为你的 Runtime 从 `identifyUser` 返回的同一个应用用户 ID，这样该用户才能找到导入的对话。对每个资源和用户，用相应的值重复执行导入。
 
-`MASTRA_IMPORT_SOURCE_ID` is a name you choose for this Mastra store. Keep it the same when you import again, including when switching between database and server access.
+`MASTRA_IMPORT_SOURCE_ID` 是你为这个 Mastra 存储起的名字。再次导入时请保持不变，包括在数据库与服务器两种访问方式之间切换时。
 
-Choose how to read the saved conversations:
+选择读取已保存对话的方式：
 
-<Tabs groupId="mastra_import_backend" items={['Database', 'Server']}>
-  <Tab value="Database">
+<Tabs groupId="mastra_import_backend" items={['数据库', '服务器']}>
+  <Tab value="数据库">
     ```bash title="Terminal"
     export MASTRA_IMPORT_BACKEND="database"
     export MASTRA_IMPORT_MEMORY_URL="file:/absolute/path/mastra.db"
     ```
 
-    Local database import supports file-backed LibSQL and requires Node.js 22.13 or later. If your workflow snapshots use a separate database file, also set `MASTRA_IMPORT_WORKFLOW_URL` to that file's URL.
+    本地数据库导入支持基于文件的 LibSQL，并要求 Node.js 22.13 或更高版本。如果你的工作流快照使用单独的数据库文件，还需把 `MASTRA_IMPORT_WORKFLOW_URL` 设置为该文件的 URL。
 
-    Working memory defaults to resource scope. If your agent uses thread-scoped working memory, set `MASTRA_IMPORT_WORKING_MEMORY_SCOPE="thread"`.
+    工作记忆默认按资源（resource）范围读取。如果你的智能体使用线程范围的工作记忆，请设置 `MASTRA_IMPORT_WORKING_MEMORY_SCOPE="thread"`。
   </Tab>
-  <Tab value="Server">
+  <Tab value="服务器">
     ```bash title="Terminal"
     export MASTRA_IMPORT_BACKEND="server"
     export MASTRA_IMPORT_API_URL="https://your-mastra-server/api"
     export MASTRA_IMPORT_API_TOKEN="..."
     ```
 
-    Include your server's API prefix in the URL. Omit `MASTRA_IMPORT_API_TOKEN` if your server does not require a bearer token.
+    URL 中要包含你服务器的 API 前缀。如果你的服务器不需要 bearer token，则省略 `MASTRA_IMPORT_API_TOKEN`。
   </Tab>
 </Tabs>
 
-Run the import while these conversations are idle.
+请在这些对话空闲时运行导入。
 
-## Run a dry run
+## 试运行（dry run）
 
-Preview the import before writing anything.
+在写入任何内容之前先预览导入。
 
 ```bash title="Terminal"
 npx copilotkit@latest import --source mastra --dry-run
 ```
 
-The dry run counts conversations, reports conversations that cannot be imported, and estimates upload size. It does not need a CopilotKit Intelligence URL or API key.
+试运行会统计对话数量、报告无法导入的对话，并估算上传大小。它不需要 CopilotKit Intelligence 的 URL 或 API 密钥。
 
-## Map Mastra agents to CopilotKit agent IDs
+## 把 Mastra 智能体映射到 CopilotKit agent ID
 
-Map the Mastra agent ID you set in `MASTRA_IMPORT_AGENT_ID` to the `agentId` your live CopilotKit runtime uses.
+把你在 `MASTRA_IMPORT_AGENT_ID` 中设置的 Mastra 智能体 ID，映射到你线上 CopilotKit 运行时所使用的 `agentId`。
 
 ```json title="agent-map.json"
 {
@@ -103,24 +103,24 @@ Map the Mastra agent ID you set in `MASTRA_IMPORT_AGENT_ID` to the `agentId` you
 }
 ```
 
-Using the same `agentId` as live traffic keeps imported history and future conversations grouped together.
+与线上流量使用相同的 `agentId`，可以让导入的历史与之后的对话归到一起。
 
-## Prepare the CopilotKit Intelligence destination
+## 准备 CopilotKit Intelligence 目的地
 
-A real import needs the destination app-api URL and project-scoped runtime key. A CLI-created starter writes them to `.env`, but the importer reads the current process environment and does not load `.env` or `.copilotkit/project.json` automatically.
+真正的导入需要目的地的 app-api URL 和项目级运行时密钥。CLI 创建的起步模板会把它们写入 `.env`，但导入器读取的是当前进程环境，不会自动加载 `.env` 或 `.copilotkit/project.json`。
 
-Copy the generated values into your shell before importing:
+导入之前，把生成的值复制到你的 shell 中：
 
 ```bash title="Terminal"
 export INTELLIGENCE_API_URL="https://..."
 export CPK_INTELLIGENCE_API_KEY="cpk-..."
 ```
 
-You can also pass the destination directly with `--api-url` and `--api-key` instead.
+你也可以改用 `--api-url` 和 `--api-key` 直接传入目的地。
 
-## Import the conversations
+## 导入对话
 
-Run the import after the dry run and agent map look right.
+在试运行结果和智能体映射都确认无误后，运行导入。
 
 ```bash title="Terminal"
 npx copilotkit@latest import \
@@ -128,7 +128,7 @@ npx copilotkit@latest import \
   --agent-map ./agent-map.json
 ```
 
-For self-hosted CopilotKit Intelligence, pass the target connection explicitly:
+对于自托管的 CopilotKit Intelligence，请显式传入目标连接信息：
 
 ```bash title="Terminal"
 npx copilotkit@latest import \
@@ -139,17 +139,17 @@ npx copilotkit@latest import \
   --yes
 ```
 
-Conversations without an end-user ID are omitted by default. Set `MASTRA_IMPORT_END_USER_ID` before importing.
+默认会跳过没有最终用户 ID 的对话。导入之前请设置 `MASTRA_IMPORT_END_USER_ID`。
 
-## Verify the imported conversations
+## 验证导入的对话
 
-Open the Threads Drawer, select an imported Mastra conversation, and confirm that its history appears in the chat.
+打开 Threads Drawer，选择一个导入的 Mastra 对话，确认其历史记录显示在聊天中。
 
-## Re-run or replace
+## 重新运行或替换
 
-Already-imported conversations are skipped by default.
+默认会跳过已导入过的对话。
 
-Use `--replace` to refresh them; running or continued conversations are left unchanged:
+使用 `--replace` 刷新它们；正在运行或已续写的对话保持不变：
 
 ```bash title="Terminal"
 npx copilotkit@latest import \
@@ -158,13 +158,13 @@ npx copilotkit@latest import \
   --replace
 ```
 
-## Continue using Mastra persistence
+## 继续使用 Mastra 持久化
 
-Importing copies supported history; it does not establish ongoing database replication. Intelligence rename, archive, and delete operations affect only Intelligence records, leaving the native Mastra records unchanged.
+导入只是复制受支持的历史，并不会建立持续的数据库复制。Intelligence 的重命名、归档和删除操作只影响 Intelligence 记录，原生的 Mastra 记录保持不变。
 
-Your app sends future conversations through CopilotKit to CopilotKit Intelligence. Keep the original Mastra agent and its durable storage connected, and reopen the imported conversation from the Threads Drawer to pick up where you left off, including supported pending approvals and requests for input.
+你的应用会通过 CopilotKit 把之后的对话发送到 CopilotKit Intelligence。保持原始 Mastra 智能体及其持久化存储处于连接状态，并从 Threads Drawer 重新打开导入的对话，即可从上次中断的地方继续，包括受支持的待审批项与输入请求。
 
-- **Threads Drawer:** already included in CLI-created starters. Use the [Threads Drawer guide](/prebuilt-components/copilot-threads-drawer) to customize its ready-made thread UI.
-- **Headless Threads:** use the [Headless Threads guide](/headless-threads) only when you need a custom UI. Select a thread with `useThreads`, store its `thread.id`, and pass that value to your chat component as `threadId`.
+- **Threads Drawer**：CLI 创建的起步模板已内置。使用 [Threads Drawer 指南](/prebuilt-components/copilot-threads-drawer)自定义其现成的线程 UI。
+- **无头线程（Headless Threads）**：只有需要自定义 UI 时才使用[无头线程指南](/headless-threads)。用 `useThreads` 选择一个线程，保存它的 `thread.id`，并把该值作为 `threadId` 传给你的聊天组件。
 
-Open an imported conversation and send a follow-up to continue it.
+打开一个导入的对话并发送后续消息，即可继续它。

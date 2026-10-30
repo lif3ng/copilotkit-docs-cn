@@ -1,36 +1,36 @@
 ---
-title: Human-in-the-Loop
+title: 人机协同
 icon: lucide/User
-description: Learn how to implement Human-in-the-Loop (HITL) using Microsoft Agent Framework agents.
+description: 了解如何使用 Microsoft Agent Framework 智能体实现人机协同（HITL）。
 ---
 
-## What is Human-in-the-Loop (HITL)?
+## 什么是人机协同（HITL）？
 
-Human-in-the-loop (HITL) lets an agent ask for human input or approval while it runs. Use it when an action is expensive, destructive, or needs judgment the agent does not have.
+人机协同（human-in-the-loop，HITL）让智能体在运行过程中请求人类输入或批准。当某个操作代价高昂、具有破坏性，或需要智能体不具备的判断力时，就可以使用它。
 
-## How can I use this?
+## 如何使用它？
 
-Microsoft Agent Framework supports two patterns, and they solve different problems.
+Microsoft Agent Framework 支持两种模式，它们解决的问题各不相同。
 
-Use **interrupt-based** HITL when the backend owns the decision. You mark a backend tool as approval-gated, and the agent pauses before it runs. The frontend does not need to know the tool's name.
+当决策由后端掌控时，使用**基于中断**的人机协同。你把一个后端工具标记为需要审批（approval-gated），智能体在执行它之前会先暂停。前端无需知道该工具的名称。
 
-Use **tool-based** HITL when the frontend owns the work. You define a tool that runs in the browser, and the agent calls it like any other tool.
+当工作由前端掌控时，使用**基于工具**的人机协同。你定义一个在浏览器中运行的工具，智能体像调用其他工具一样调用它。
 
 <CTACards
   columns={2}
   cards={[
     {
       iconKey: "circlePause",
-      title: "Interrupt-based",
+      title: "基于中断",
       description:
-        "Mark a backend tool as approval-gated. The agent pauses, useInterrupt renders your approval UI, and your answer resumes the run.",
+        "把一个后端工具标记为需要审批。智能体会暂停，useInterrupt 渲染你的审批 UI，而你的答复会让运行继续。",
       href: "/human-in-the-loop/interrupt-flow",
     },
     {
       iconKey: "share2",
-      title: "Tool-based",
+      title: "基于工具",
       description:
-        "Register a frontend tool with useHumanInTheLoop that renders UI and waits for the user's response before returning a result.",
+        "使用 useHumanInTheLoop 注册一个前端工具，它会渲染 UI 并等待用户响应后再返回结果。",
       href: "/human-in-the-loop/tool-based",
     },
   ]}

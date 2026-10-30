@@ -1,19 +1,19 @@
 ---
-title: "Dynamic Schema A2UI"
-description: "LLM-generated A2UI — a secondary LLM creates both the schema and data from any prompt."
+title: "动态模式 A2UI"
+description: "由 LLM 生成的 A2UI——由一个辅助 LLM 根据任意提示同时生成 schema 与数据。"
 ---
-In the dynamic-schema approach, a secondary LLM generates the entire UI — schema, data, and layout — based on the conversation context. It's the most flexible A2UI flavor: the agent can render any UI for any request without pre-defined schemas.
+在动态模式（dynamic schema）方案中，一个辅助 LLM 会基于对话上下文生成完整的 UI——包括 schema、数据与布局。这是最灵活的 A2UI 形态：智能体可以针对任意请求渲染任意 UI，而无需预定义的 schema。
 
-## How it works
+## 工作原理
 
-1. The primary LLM decides to call `generate_a2ui`
-2. Inside the tool, a secondary LLM generates a `render_a2ui` tool call with components, data, and layout
-3. The tool call arguments stream through the agent as `TOOL_CALL_ARGS` events
-4. The A2UI middleware intercepts these events and renders cards progressively as they stream in
+1. 主 LLM 决定调用 `generate_a2ui`
+2. 在该工具内部，辅助 LLM 生成一个包含组件、数据与布局的 `render_a2ui` 工具调用
+3. 工具调用参数以 `TOOL_CALL_ARGS` 事件的形式流经智能体
+4. A2UI 中间件拦截这些事件，随着内容流式传入逐步渲染卡片
 
-## Frontend / runtime
+## 前端 / 运行时
 
-Enable A2UI on your `CopilotRuntime` with `injectA2UITool: true`:
+在 `CopilotRuntime` 上设置 `injectA2UITool: true` 即可启用 A2UI：
 
 ```typescript title="app/api/copilotkit/route.ts"
 const runtime = new CopilotRuntime({
@@ -24,9 +24,9 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-`injectA2UITool: true` is the single switch: it forwards the decision to the agent so the A2UI tool is injected. Set it to `false` to turn A2UI off entirely — nothing is injected and no surfaces render.
+`injectA2UITool: true` 是唯一的开关：它会把这一决定转发给智能体，从而注入 A2UI 工具。将其设为 `false` 即可完全关闭 A2UI——不会注入任何内容，也不会渲染任何 surface。
 
-Register your component catalog on the provider so the LLM knows what it can draw (see [Bring Your Own Catalog](../../../../generative-ui/a2ui/dynamic-schema) for the catalog `definitions` / `renderers` / `createCatalog` split):
+在 provider 上注册你的组件目录，让 LLM 知道自己能绘制什么（关于目录的 `definitions` / `renderers` / `createCatalog` 三分结构，参见[自带目录（BYOC）](../../../../generative-ui/a2ui/dynamic-schema)）：
 
 ```tsx title="frontend/src/app/page.tsx"
 <CopilotKit a2ui={{ catalog: myCatalog }}>
@@ -34,9 +34,9 @@ Register your component catalog on the provider so the LLM knows what it can dra
 </CopilotKit>
 ```
 
-## Backend — auto-injected tool
+## 后端——自动注入的工具
 
-The agent binds no A2UI tool of its own. When `injectA2UITool` is on, the `agent-framework-ag-ui` adapter auto-injects `generate_a2ui` (built from your agent's own model) and executes it:
+智能体自身不绑定任何 A2UI 工具。当 `injectA2UITool` 开启时，`agent-framework-ag-ui` 适配器会自动注入 `generate_a2ui`（基于智能体自己的模型构建）并执行它：
 
 ```python title="src/agents/a2ui_dynamic.py"
 from agent_framework import Agent
@@ -57,15 +57,11 @@ base_agent = Agent(
 agent = AgentFrameworkAgent(agent=base_agent)
 ```
 
-The system prompt can be used to tell the model *when* to draw; the adapter supplies and runs the tool.
+系统提示（system prompt）可以用来告诉模型*何时*绘制；工具本身由适配器提供并运行。
 
-## Backend — recovery and other policy
+## 后端——恢复与其他策略
 
-The auto-inject path takes an optional `a2ui_config` on the endpoint — a backend
-policy dict the adapter reads when it injects the tool. This is where the
-error-recovery demo pins the validate→retry loop's attempt cap (and where MAF's
-upstream recovery example puts its config). The agent stays a plain agent; only
-the endpoint config changes:
+自动注入路径支持在端点上传入可选的 `a2ui_config`——这是一个后端策略字典，适配器在注入工具时会读取它。错误恢复示例就是在这里固定校验→重试循环的尝试次数上限（MAF 上游的恢复示例同样把配置放在这里）。智能体仍然只是一个普通智能体，只有端点配置会变化：
 
 ```python title="src/agents/agent_server.py"
 add_agent_framework_fastapi_endpoint(
@@ -79,24 +75,24 @@ add_agent_framework_fastapi_endpoint(
 )
 ```
 
-`a2ui_config` accepts the same params the adapter uses under the hood:
+`a2ui_config` 接受的参数与适配器底层使用的相同：
 
-- **`recovery`** — the validate→retry loop config, e.g. `{"maxAttempts": 3}`. When every attempt is invalid the tool returns a graceful `a2ui_recovery_exhausted` fallback.
-- **`default_catalog_id`** — binds generated surfaces to your catalog (BYOC). Catalog ownership stays with the host; the model never picks it.
-- **`guidelines`** — optional prompt knobs for the render sub-agent (which components exist and how to compose them).
+- **`recovery`**——校验→重试循环的配置，例如 `{"maxAttempts": 3}`。当所有尝试均无效时，工具会返回 `a2ui_recovery_exhausted` 这一优雅的兜底结果。
+- **`default_catalog_id`**——把生成的 surface 绑定到你的目录（BYOC）。目录的所有权归宿主应用，模型永远不会自行选择。
+- **`guidelines`**——面向渲染子智能体的可选提示旋钮（用于说明存在哪些组件，以及如何组合它们）。
 
-## Progressive streaming
+## 渐进式流式传输
 
-The secondary LLM's `render_a2ui` tool call streams through the agent as `TOOL_CALL_ARGS` events. The A2UI middleware:
+辅助 LLM 的 `render_a2ui` 工具调用以 `TOOL_CALL_ARGS` 事件的形式流经智能体。A2UI 中间件会：
 
-1. Extracts the `components` array as it streams — waits for the full schema before rendering
-2. Extracts `surfaceId` and `root` from the partial JSON
-3. Once the schema is complete, emits `createSurface` + `updateComponents`
-4. Extracts complete `items` objects progressively and emits `updateDataModel` for each
-5. Cards appear one by one as data streams in
+1. 在 `components` 数组流式传入的过程中提取它——等到完整 schema 就绪后再渲染
+2. 从部分 JSON 中提取 `surfaceId` 与 `root`
+3. schema 完整后，发出 `createSurface` + `updateComponents`
+4. 逐步提取完整的 `items` 对象，并为每个对象发出 `updateDataModel`
+5. 随着数据流式传入，卡片逐个出现
 
-## Built-in progress indicator
+## 内置进度指示器
 
-CopilotKit includes a built-in progress indicator that shows while the schema is being generated. It appears automatically and hides once data items start streaming.
+CopilotKit 内置了一个进度指示器，会在 schema 生成期间显示。它会自动出现，并在数据项开始流式传入后隐藏。
 
-To replace it with a custom component, see the [Advanced — Custom A2UI Progress Renderer](./advanced#custom-a2ui-progress-renderer) guide.
+要用自定义组件替换它，请参阅[高级——自定义 A2UI 进度渲染器](./advanced#custom-a2ui-progress-renderer)指南。

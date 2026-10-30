@@ -1,23 +1,23 @@
 ---
-title: "Fixed Schema A2UI"
-description: "Pre-defined A2UI schema with dynamic data. The fastest approach — no LLM schema generation needed."
+title: "固定模式 A2UI"
+description: "预定义的 A2UI schema 搭配动态数据——最快的方式，无需 LLM 生成 schema。"
 ---
-In the fixed-schema approach, you design the UI schema once (in a JSON file or using the [A2UI Composer](https://a2ui-composer.ag-ui.com/)) and your agent tool only provides the data. The surface appears instantly when the tool returns.
+在固定模式（fixed schema）方案中，你只需设计一次 UI schema（放在 JSON 文件里，或使用 [A2UI Composer](https://a2ui-composer.ag-ui.com/) 设计），而智能体工具只需提供数据。工具返回时，surface 会立即呈现。
 
-## How it works
+## 工作原理
 
-1. Schema is loaded from a JSON file at startup
-2. Agent tool receives data from the LLM (e.g., flight search results)
-3. Tool returns an `a2ui_operations` container with createSurface + updateComponents + updateDataModel
-4. The A2UI middleware intercepts the tool result and renders the surface
+1. schema 在启动时从 JSON 文件加载
+2. 智能体工具从 LLM 接收数据（例如航班搜索结果）
+3. 工具返回一个包含 createSurface + updateComponents + updateDataModel 的 `a2ui_operations` 容器
+4. A2UI 中间件拦截工具结果并渲染 surface
 
-## Implementation
+## 实现
 
 <Steps>
 <Step>
-### Create the A2UI schema
+### 创建 A2UI schema
 
-Design your schema using the [A2UI Composer](https://a2ui-composer.ag-ui.com/) or write it by hand. Save it as a JSON file:
+使用 [A2UI Composer](https://a2ui-composer.ag-ui.com/) 设计你的 schema，或者手写。将它保存为 JSON 文件：
 
 ```
 apps/agent/src/a2ui/schemas/flight_schema.json
@@ -25,7 +25,7 @@ apps/agent/src/a2ui/schemas/flight_schema.json
 </Step>
 
 <Step>
-### Define the agent tool (Python)
+### 定义智能体工具（Python）
 
 ```python title="src/agents/a2ui_fixed.py"
 import json
@@ -59,14 +59,14 @@ def display_flight(
     return json.dumps({"a2ui_operations": ops})
 ```
 
-Key points:
-- The `Annotated` + `Field` parameters are essential — Microsoft Agent Framework serializes them into the tool's JSON schema, which is what the LLM sees when deciding what data to generate.
-- The tool builds the `a2ui_operations` container by hand and does not declare server-side action handlers. Button clicks are forwarded to the agent, but this example has no server-side handler for them.
-- `"book_flight"` is the action name used by the schema button and can be handled with the frontend APIs in the [Advanced — Action Handlers](./advanced#action-handlers) guide.
+要点：
+- `Annotated` + `Field` 参数必不可少——Microsoft Agent Framework 会把它们序列化进工具的 JSON schema，而 LLM 在决定生成什么数据时看到的就是这份 schema。
+- 该工具手动构建 `a2ui_operations` 容器，且没有声明服务端操作处理器。按钮点击会被转发给智能体，但本示例中没有针对它们的服务端处理器。
+- `"book_flight"` 是 schema 按钮使用的操作名称，可以通过[高级——操作处理器](./advanced#action-handlers)指南中的前端 API 来处理。
 </Step>
 
 <Step>
-### Register the tool
+### 注册工具
 
 ```python title="src/agents/a2ui_fixed.py"
 from agent_framework import Agent
@@ -84,9 +84,9 @@ agent = AgentFrameworkAgent(agent=base_agent)
 </Step>
 
 <Step>
-### Configure the runtime (TypeScript)
+### 配置运行时（TypeScript）
 
-Enable A2UI in your CopilotRuntime. The middleware auto-detects A2UI operations in any tool result, so no tool injection is needed here — the agent's `display_flight` tool returns them directly.
+在 CopilotRuntime 中启用 A2UI。中间件会自动检测任何工具结果中的 A2UI 操作，因此这里无需注入工具——智能体的 `display_flight` 工具会直接返回它们。
 
 ```typescript title="app/api/copilotkit-a2ui-fixed-schema/route.ts"
 const runtime = new CopilotRuntime({
@@ -99,13 +99,13 @@ const runtime = new CopilotRuntime({
 </Step>
 </Steps>
 
-## Action handler details
+## 操作处理器详情
 
-The current Python SDK does not support the `action_handlers=` option. The button schema can still define the action context used by frontend handlers. Here's how the schema side looks:
+当前的 Python SDK 尚不支持 `action_handlers=` 选项。不过按钮 schema 仍然可以定义前端处理器所使用的操作上下文。schema 一侧的写法如下：
 
-### Button with action context
+### 带操作上下文的按钮
 
-In your `flight_schema.json`, buttons declare an `action` with data-bound context fields. When clicked, the values are resolved from that specific card's data:
+在 `flight_schema.json` 中，按钮会声明一个带有数据绑定上下文字段的 `action`。点击时，这些值会从该卡片的具体数据中解析出来：
 
 ```json
 {
@@ -125,8 +125,8 @@ In your `flight_schema.json`, buttons declare an `action` with data-bound contex
 }
 ```
 
-When this button is clicked on a card showing flight AA100 at $350, frontend action handling receives `context: { flightNumber: "AA100", price: "$350" }`. The Python `action_handlers=` path is not yet supported.
+当在显示 AA100 航班（价格 $350）的卡片上点击该按钮时，前端操作处理会收到 `context: { flightNumber: "AA100", price: "$350" }`。Python 的 `action_handlers=` 路径目前尚不受支持。
 
 <Callout type="info">
-For custom frontend handling with `createA2UIMessageRenderer` and its `onAction` option, see the [Advanced — Action Handlers](./advanced#action-handlers) guide.
+要了解如何通过 `createA2UIMessageRenderer` 及其 `onAction` 选项进行自定义前端处理，请参阅[高级——操作处理器](./advanced#action-handlers)指南。
 </Callout>

@@ -1,52 +1,49 @@
 ---
-title: Human-in-the-Loop
+title: 人机协同
 icon: "lucide/Wrench"
-description: Create frontend tools and use them within your Pydantic AI agent for human-in-the-loop interactions.
+description: 创建前端工具并在你的 Pydantic AI 智能体中使用它们，实现人机协同交互。
 ---
 
 <IframeSwitcher
   id="frontend-tools-based-hitl-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/pydantic-ai/feature/human_in_the_loop?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/pydantic-ai/feature/human_in_the_loop?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
-## What is this?
+## 这是什么？
 
-Frontend tools enable you to define client-side functions that your Pydantic AI agent can invoke, with execution happening entirely in the user's browser. When your agent calls a frontend tool,
-the logic runs on the client side, giving you direct access to the frontend environment.
+前端工具让你能够定义可供 Pydantic AI 智能体调用的客户端函数，其执行完全发生在用户的浏览器中。当智能体调用某个前端工具时，逻辑会在客户端运行，让你可以直接访问前端环境。
 
-This can be utilized to let [your agent control the UI](/pydantic-ai/frontend-tools), [generative UI](/pydantic-ai/frontend-tools), or for Human-in-the-loop interactions.
+它可以用来让[你的智能体控制 UI](/pydantic-ai/frontend-tools)、实现[生成式 UI](/pydantic-ai/frontend-tools)，或用于人机协同（human-in-the-loop）交互。
 
-In this guide, we cover the use of frontend tools for Human-in-the-loop.
+本指南介绍如何将前端工具用于人机协同。
 
-## When should I use this?
+## 什么时候该用它？
 
-Use frontend tools when you need your agent to interact with client-side primitives such as:
-- Reading or modifying React component state
-- Accessing browser APIs like localStorage, sessionStorage, or cookies
-- Triggering UI updates or animations
-- Interacting with third-party frontend libraries
-- Performing actions that require the user's immediate browser context
+当你需要智能体与客户端原语交互时，使用前端工具，例如：
+- 读取或修改 React 组件状态
+- 访问 localStorage、sessionStorage 或 cookie 等浏览器 API
+- 触发 UI 更新或动画
+- 与第三方前端库交互
+- 执行需要用户当前浏览器上下文的操作
 
-## Implementation
+## 实现步骤
 
 <Steps>
     <Step>
-      ### Run and connect your agent
+      ### 运行并连接你的智能体
       <RunAndConnect components={props.components} />
     </Step>
 
     <Step>
-        ### Create a frontend human-in-the-loop tool
+        ### 创建一个人机协同前端工具
 
-        Frontend tools can be leveraged in a variety of ways. One of those ways is to have a human-in-the-loop flow where the response
-        of the tool is gated by a user's decision.
+        前端工具可以有多种用法。其中一种是实现人机协同流程，让工具的响应由用户的决策来把关。
 
-        In this example we will simulate an "approval" flow for executing a command. First, use the `useHumanInTheLoop` hook to create a tool that
-        prompts the user for approval.
+        在本例中，我们将模拟一个执行命令前的“审批”流程。首先，使用 `useHumanInTheLoop` hook 创建一个提示用户进行审批的工具。
 
         ```tsx title="page.tsx"
         import { useHumanInTheLoop } from "@copilotkit/react-core/v2" // [!code highlight]
@@ -79,9 +76,9 @@ Use frontend tools when you need your agent to interact with client-side primiti
         ```
     </Step>
     <Step>
-        ###  Set up your agent
+        ### 设置你的智能体
 
-        Pydantic AI automatically picks up human-in-the-loop tools when you create your agent. No special configuration is needed:
+        创建智能体时，Pydantic AI 会自动拾取人机协同工具，无需任何特殊配置：
 
         ```python title="agent.py"
         from pydantic_ai import Agent
@@ -101,12 +98,12 @@ Use frontend tools when you need your agent to interact with client-side primiti
         app = Starlette(routes=[Route("/", run_agent, methods=["POST"])])
         ```
 
-        The frontend tools are automatically populated by CopilotKit through the AG-UI protocol and are available to your agent.
+        这些前端工具会由 CopilotKit 通过 AG-UI 协议自动填充，并可供你的智能体使用。
     </Step>
     <Step>
-        ### Try it out!
+        ### 试一试吧！
 
-        You've now given your agent the ability to show the user two options and have them select one. The agent will then be aware of the user's choice and can use it in subsequent steps.
+        现在你的智能体已经可以向用户展示两个选项并让其选择其一。智能体随后会感知到用户的选择，并在后续步骤中使用它。
 
         ```
         Can you show me two good options for a restaurant name?

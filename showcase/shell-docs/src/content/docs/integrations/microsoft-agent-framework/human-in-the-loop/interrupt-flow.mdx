@@ -1,46 +1,46 @@
 ---
-title: Interrupt-based
+title: 基于中断
 icon: "lucide/CirclePause"
-description: Gate a backend tool behind an approval that the agent raises itself, and render it with useInterrupt.
+description: 用一个由智能体自行发起的审批来限制后端工具，并使用 useInterrupt 渲染它。
 ---
 
-## What is this?
+## 这是什么？
 
-Microsoft Agent Framework can mark a backend tool as approval-gated. When the agent decides to call that tool, it does not run it. It ends the run with an AG-UI interrupt, which carries the pending tool call to your frontend. Your UI asks the user, and your answer resumes the agent.
+Microsoft Agent Framework 可以把一个后端工具标记为需要审批（approval-gated）。当智能体决定调用该工具时，它不会直接运行，而是以一个 AG-UI 中断（interrupt）结束本轮运行，把这个待处理的工具调用带到你的前端。你的 UI 向用户询问，你的答复则让智能体继续运行。
 
-The backend owns the decision, so the frontend does not register a tool with the same name as the backend tool. Any agent that raises AG-UI interrupts uses this same path.
+决策由后端掌控，因此前端不会注册一个与后端工具同名的工具。任何会发起 AG-UI 中断的智能体都走这条相同的路径。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Use this when the action lives on the server and the approval is a property of that action:
+当操作发生在服务端、且审批本身就是该操作的一种属性时，使用本方案：
 
-- Destructive or irreversible operations, such as deleting a record
-- Spending money, sending mail, or calling a third-party API
-- Anything where the approval rule must hold no matter which frontend is attached
+- 破坏性或不可逆的操作，例如删除一条记录
+- 花费金钱、发送邮件，或调用第三方 API
+- 任何无论接入哪个前端、审批规则都必须生效的场景
 
-Use [tool-based HITL](/microsoft-agent-framework/human-in-the-loop/tool-based) instead when the work itself runs in the browser.
+如果工作本身在浏览器中运行，请改用[基于工具的人机协同](/microsoft-agent-framework/human-in-the-loop/tool-based)。
 
-## Requirements
+## 环境要求
 
-| Package | Version |
+| 包 | 版本 |
 | --- | --- |
-| `@copilotkit/react-core` | 1.61.2 or later |
-| `agent-framework-ag-ui` (Python) | 1.2.0 or later |
-| `AGUI.Server` (.NET) | 0.0.6 or later |
+| `@copilotkit/react-core` | 1.61.2 或更高 |
+| `agent-framework-ag-ui`（Python） | 1.2.0 或更高 |
+| `AGUI.Server`（.NET） | 0.0.6 或更高 |
 
-## Implementation
+## 实现
 
 <Steps>
   <Step>
-    ### Run and connect your agent
+    ### 运行并连接你的智能体
 
     <RunAndConnect />
   </Step>
 
   <Step>
-    ### Mark the backend tool as approval-gated
+    ### 把后端工具标记为需要审批
 
-    Nothing else about the tool changes. The framework holds the call and raises the approval for you.
+    该工具的其他方面都不变。框架会替你暂存这次调用并发起审批。
 
     <Tabs groupId="language_microsoft-agent-framework_agent" items={['.NET', 'Python']} persist>
       <Tab value="Python">
@@ -75,9 +75,9 @@ Use [tool-based HITL](/microsoft-agent-framework/human-in-the-loop/tool-based) i
   </Step>
 
   <Step>
-    ### Render the approval with `useInterrupt`
+    ### 使用 `useInterrupt` 渲染审批
 
-    `useInterrupt` receives every AG-UI interrupt the agent raises. Call `resolve` to approve and resume, or `cancel` to decline.
+    `useInterrupt` 会接收智能体发起的每一个 AG-UI 中断。调用 `resolve` 表示批准并继续运行，调用 `cancel` 表示拒绝。
 
     ```tsx title="page.tsx"
     import { useInterrupt } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -104,39 +104,39 @@ Use [tool-based HITL](/microsoft-agent-framework/human-in-the-loop/tool-based) i
     ```
 
     <Callout type="info">
-      `renderInChat` defaults to `true`, which draws your UI inside the chat. If no `<CopilotChat />` is mounted, nothing appears and there is no warning. Pass `renderInChat: false`, as above, and place the returned element yourself.
+      `renderInChat` 默认为 `true`，会把你的 UI 绘制在聊天内部。如果没有挂载 `<CopilotChat />`，则什么都不会出现，也不会有任何警告。像上面那样传入 `renderInChat: false`，并自行放置返回的元素。
     </Callout>
   </Step>
 
   <Step>
-    ### Give it a try!
+    ### 试一试吧！
 
-    Ask the agent to delete a file. The run stops, your approval UI appears, and the tool only runs after you approve.
+    让智能体删除一个文件。运行会停下，你的审批 UI 会出现，且只有在你批准之后工具才会执行。
   </Step>
 </Steps>
 
-## What the interrupt contains
+## 中断包含哪些内容
 
-An approval-gated call arrives with `reason` set to `"tool_call"`. These fields are the same for both backends:
+需要审批的调用到达时，`reason` 会被设为 `"tool_call"`。以下字段在两种后端中都是一致的：
 
-| Field | Description |
+| 字段 | 描述 |
 | --- | --- |
-| `id` | The interrupt's identity. Pass it to `resolve` or `cancel` when several are open. |
-| `reason` | `"tool_call"` for an approval-gated call. |
-| `message` | A human-readable summary, such as `Approve running delete_file?` |
-| `toolCallId` | The pending call's id. It matches the `TOOL_CALL_START` event both backends emit, so you can correlate the two. |
-| `responseSchema` | JSON Schema for the payload the agent expects. Both backends ask for a boolean `approved`. |
+| `id` | 该中断的标识。当同时有多个中断打开时，把它传给 `resolve` 或 `cancel`。 |
+| `reason` | 需要审批的调用为 `"tool_call"`。 |
+| `message` | 人类可读的摘要，例如 `Approve running delete_file?` |
+| `toolCallId` | 待处理调用的 id。它与两种后端都会发出的 `TOOL_CALL_START` 事件相匹配，因此可以把两者关联起来。 |
+| `responseSchema` | 智能体所期望载荷的 JSON Schema。两种后端都要求一个布尔值 `approved`。 |
 
-The Python adapter also puts the whole request under `interrupt.metadata.agent_framework.function_call`, which gives you the tool `name` and its `arguments`. The .NET server does not send that field, so read the tool name from `message` if you support both.
+Python 适配器还会把整个请求放在 `interrupt.metadata.agent_framework.function_call` 下，从中可以拿到工具的 `name` 及其 `arguments`。.NET 服务端不会发送该字段，因此如果你要同时支持两者，请从 `message` 中读取工具名称。
 
-## Approving, denying, and cancelling
+## 批准、拒绝与取消
 
-`cancel()` and `resolve({ approved: false })` both leave the tool unrun, but they end the turn differently:
+`cancel()` 和 `resolve({ approved: false })` 都不会运行该工具，但它们结束本轮的方式不同：
 
-- `resolve({ approved: true })` resumes the agent and the tool runs.
-- `resolve({ approved: false })` hands the refusal to the agent, which continues and can reply to the user.
-- `cancel()` ends the run immediately.
+- `resolve({ approved: true })` 让智能体继续运行，工具随之执行。
+- `resolve({ approved: false })` 把拒绝结果交给智能体，它会继续运行并可以回复用户。
+- `cancel()` 立即结束运行。
 
 <Callout type="warn">
-  Do not register a frontend tool with the same name as a backend tool. Tool names must be unique across both, and a collision fails the run with `Duplicate tool name`.
+  不要注册一个与后端工具同名的前端工具。工具名称在两者之间必须唯一，一旦冲突，运行会以 `Duplicate tool name` 错误失败。
 </Callout>

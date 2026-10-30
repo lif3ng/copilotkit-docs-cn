@@ -1,6 +1,6 @@
 ---
-title: Pydantic AI Agents
-description: Learn how to implement Human-in-the-Loop (HITL) using Pydantic AI Agents.
+title: Pydantic AI 智能体
+description: 了解如何使用 Pydantic AI 智能体实现人机协同（human-in-the-loop，HITL）。
 icon: lucide/Share2
 ---
 
@@ -15,37 +15,32 @@ icon: lucide/Share2
   muted
 />
 
-## What is this?
+## 这是什么？
 
-[Flow based agents](https://docs.pydantic-ai.com/concepts/flows) are stateful agents that can be interrupted and resumed
-to allow for user input.
+[基于流程的智能体](https://docs.pydantic-ai.com/concepts/flows)是有状态的智能体，可以被中断并恢复，以便等待用户输入。
 
-CopilotKit lets you to add custom UI to take user input and then pass it back to the agent upon completion.
+CopilotKit 让你能够添加自定义 UI 来收集用户输入，并在完成后将其传回智能体。
 
-## Why should I use this?
+## 为什么要用它？
 
-Human-in-the-loop is a powerful way to implement complex workflows that are production ready. By having a human in the loop,
-you can ensure that the agent is always making the right decisions and ultimately is being steered in the right direction.
+人机协同（human-in-the-loop）是实现生产级复杂工作流的强大方式。通过让人类参与流程，你可以确保智能体始终做出正确的决策，并最终朝着正确的方向前进。
 
-Flow based agents are a great way to implement HITL for more complex workflows where you want to ensure the agent is aware
-of everything that has happened during a HITL interaction.
+对于更复杂的工作流，基于流程的智能体是实现 HITL 的绝佳方式——在这些场景中，你希望确保智能体知晓 HITL 交互期间发生的一切。
 
-## Implementation
+## 实现步骤
 
 <Steps>
     <Step>
-        ### Run and connect your agent
+        ### 运行并连接你的智能体
 
-        You'll need to run your agent and connect it to CopilotKit before proceeding. If you haven't done so already,
-        you can follow the instructions in the [Getting Started](/pydantic-ai/quickstart) guide.
+        在继续之前，你需要运行智能体并将其连接到 CopilotKit。如果还没有完成，可以按照[快速开始](/pydantic-ai/quickstart)指南中的说明操作。
 
-        If you don't already have an agent, you can use the [Pydantic AI starter](https://github.com/CopilotKit/CopilotKit/tree/main/examples/integrations/pydantic-ai) as a starting point
-        as this guide uses it as a starting point.
+        如果你还没有智能体，可以使用 [Pydantic AI starter](https://github.com/CopilotKit/CopilotKit/tree/main/examples/integrations/pydantic-ai) 作为起点，本指南也是以它为基础展开的。
     </Step>
 
     <Step>
-        ### Add a `useFrontendTool` to your Frontend
-        First, we'll create a component that renders the agent's essay draft and waits for user approval.
+        ### 在前端添加 `useFrontendTool`
+        首先，我们创建一个组件，用于渲染智能体的文章草稿并等待用户审批。
 
         ```tsx title="ui/app/page.tsx"
 
@@ -92,15 +87,13 @@ of everything that has happened during a HITL interaction.
     </Step>
 
     <Step>
-    ### Setup the Pydantic AI Agent
-Now we'll setup the Pydantic AI agent. The flow is hard to understand without a complete example, so below
-    is the complete implementation of the agent with explanations.
+    ### 设置 Pydantic AI 智能体
+接下来我们来设置 Pydantic AI 智能体。没有完整示例的话，这个流程很难理解，所以下面给出智能体的完整实现并附上说明。
 
-    Some main things to note:
-    - The agent's state inherits from `CopilotKitState` to bring in the CopilotKit actions.
-    - CopilotKit's actions are bound to the model as tools.
-    - If the `writeEssay` action is found in the model's response, the agent will pass control back to the frontend
-      to get user feedback.
+    有几个要点需要注意：
+    - 智能体的状态继承自 `CopilotKitState`，以引入 CopilotKit 的操作。
+    - CopilotKit 的操作会作为工具绑定到模型上。
+    - 如果在模型的响应中发现 `writeEssay` 操作，智能体会把控制权交回前端，以获取用户反馈。
 
     <Tabs groupId="language" items={["Python"]}>
       <Tab value="Python">
@@ -132,9 +125,8 @@ Now we'll setup the Pydantic AI agent. The flow is hard to understand without a 
     </Tabs>
     </Step>
     <Step>
-        ### Give it a try!
-        Try asking your agent to write an essay about the benefits of AI. You'll see that it will generate an essay,
-        stream the progress and eventually ask you to review it.
+        ### 试一试吧！
+        试着让智能体写一篇关于 AI 好处的文章。你会看到它先生成文章、流式展示进度，最后请你审阅。
     </Step>
 
 </Steps>

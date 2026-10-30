@@ -1,14 +1,14 @@
 ---
-title: "Headless UI"
-description: "Fully customize your Copilot's UI from the ground up using headless UI"
+title: "无头 UI"
+description: "使用无头 UI 从零开始完全自定义你的 Copilot UI"
 icon: "lucide/Settings"
 ---
 
 <HeadlessUI />
 
-### Human-in-the-Loop with Headless UI
+### 使用无头 UI 实现人机协同
 
-For human-in-the-loop interactions with custom UI, use `useHumanInTheLoop` to create approval workflows:
+对于使用自定义 UI 的人机协同（human-in-the-loop）交互，可以使用 `useHumanInTheLoop` 创建审批工作流：
 
 ```tsx title="src/app/components/chat.tsx"
 export const Chat = () => {
@@ -43,4 +43,4 @@ export const Chat = () => {
 };
 ```
 
-See [Human-in-the-Loop](/microsoft-agent-framework/human-in-the-loop) for more details on approval workflows. When the approval belongs to a backend tool, mark that tool as approval-gated and render it with [`useInterrupt`](/microsoft-agent-framework/human-in-the-loop/interrupt-flow) instead of matching its name here.
+更多关于审批工作流的详情，请参阅[人机协同](/microsoft-agent-framework/human-in-the-loop)。当审批属于后端工具时，请将该工具标记为需审批（approval-gated），并改用 [`useInterrupt`](/microsoft-agent-framework/human-in-the-loop/interrupt-flow) 来渲染它，而不是在这里匹配其名称。

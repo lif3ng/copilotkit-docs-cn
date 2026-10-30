@@ -1,7 +1,7 @@
 ---
-title: "Tool Rendering"
+title: "工具渲染"
 icon: "lucide/Server"
-description: Render your agent's tool calls with custom UI components.
+description: 使用自定义 UI 组件渲染智能体的工具调用。
 ---
 
 {/* TODO: Swap these links for Microsoft Agent Framework links once Microsoft Agent Framework is officially added to the feature viewer */}
@@ -10,40 +10,37 @@ description: Render your agent's tool calls with custom UI components.
   id="backend-tools-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/microsoft-agent-framework-dotnet/feature/backend_tool_rendering?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/microsoft-agent-framework-dotnet/feature/backend_tool_rendering?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
 <Callout>
-  This example demonstrates the [implementation](#implementation) section
-  applied in the{" "}
+  本示例演示了[实现](#实现)一节在{" "}
   <a
     href="https://feature-viewer.copilotkit.ai/microsoft-agent-framework-dotnet/feature/agentic_chat"
     target="_blank"
   >
     CopilotKit feature viewer
   </a>
-  .
+  {" "}中的应用。
 </Callout>
 
-## What is this?
+## 这是什么？
 
-Tools are a way for the LLM to call predefined, typically, deterministic functions. CopilotKit allows you to render these tools in the UI
-as a custom component, which we call **Generative UI**.
+工具是 LLM 调用预定义（通常是确定性）函数的一种方式。CopilotKit 允许你在 UI 中把这些工具渲染为自定义组件，我们将其称为**生成式 UI（Generative UI）**。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Rendering tools in the UI is useful when you want to provide the user with feedback about what your agent is doing, specifically
-when your agent is calling tools. CopilotKit allows you to fully customize how these tools are rendered in the chat.
+当你想向用户反馈智能体正在做什么——尤其是在智能体调用工具时——在 UI 中渲染工具会非常有用。CopilotKit 允许你完全自定义这些工具在聊天中的渲染方式。
 
-## Implementation
+## 实现
 
 <Steps>
 <Step>
-### Give your agent a tool to call
+### 给你的智能体一个可调用的工具
 
-Define a tool function that your agent can call. Microsoft Agent Framework will automatically convert this into a tool the LLM can call.
+定义一个你的智能体可以调用的工具函数。Microsoft Agent Framework 会自动把它转换成 LLM 可调用的工具。
 
 <Tabs groupId="language_microsoft-agent-framework_agent" items={['.NET', 'Python']} persist>
   <Tab value=".NET">
@@ -146,14 +143,11 @@ Define a tool function that your agent can call. Microsoft Agent Framework will 
 </Tabs>
 </Step>
 <Step>
-### Render the tool call in your frontend
-At this point, your agent will be able to call the `get_weather` tool. Now
-we just need to add a `useRenderTool` hook to render the tool call in
-the UI.
+### 在前端渲染工具调用
+至此，你的智能体已经能够调用 `get_weather` 工具。现在只需添加一个 `useRenderTool` hook，即可在 UI 中渲染这次工具调用。
 
-<Callout type="info" title="Important">
-  In order to render a tool call in the UI, the name of the action must match
-  the name of the tool.
+<Callout type="info" title="重要">
+  要在 UI 中渲染一次工具调用，action 的名称必须与工具的名称一致。
 </Callout>
 
 ```tsx title="app/page.tsx"
@@ -183,14 +177,13 @@ const YourMainContent = () => {
 
 </Step>
 <Step>
-### Give it a try!
+### 试一试吧！
 
-Try asking the agent to get the weather for a location. You should see the custom UI component that we added
-render the tool call and display the arguments that were passed to the tool.
+试着让智能体查询某个位置的天气。你应该能看到我们添加的自定义 UI 组件渲染这次工具调用，并显示传给工具的参数。
 
 </Step>
 </Steps>
 
-## Default Tool Rendering
+## 默认工具渲染
 
 <DefaultToolRendering />

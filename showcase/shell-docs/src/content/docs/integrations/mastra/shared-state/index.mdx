@@ -1,19 +1,16 @@
 ---
-title: Shared State
-description: Create a two-way connection between your UI and Mastra agent state.
+title: 共享状态
+description: 在你的 UI 与 Mastra 智能体状态之间建立双向连接。
 icon: "lucide/Repeat"
 ---
 
 <Frame>
-    <img src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/coagents-state-diagram.png" alt="Agentic Copilot State Diagram" />
+    <img src="https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/coagents-state-diagram.png" alt="智能体化 Copilot 状态图" />
 </Frame>
 
-The foundation of this system is built on Mastra's stateful architecture via AG-UI. Mastra agents can maintain their
-internal state throughout execution, which you can access via the `useAgent` hook.
+这套系统的基础建立在 Mastra 通过 AG-UI 实现的有状态架构之上。Mastra 智能体可以在整个执行过程中维护其内部状态，你可以通过 `useAgent` hook 访问这些状态。
 
-## When should I use this?
-State streaming is perfect when you want to facilitate collaboration between your agent and the user. Any state that your Mastra agent
-persists will be automatically shared by the UI. Similarly, any state that the user updates in the UI will be automatically reflected.
+## 什么时候该用它？
+当你想促进智能体与用户之间的协作时，状态流式传输再合适不过。Mastra 智能体持久化的任何状态都会自动共享给 UI；同样，用户在 UI 中更新的任何状态也会自动反映回来。
 
-This allows for a consistent experience where both the agent and the user are on the same page.
-
+这让智能体与用户始终保持信息一致，带来协调一致的体验。

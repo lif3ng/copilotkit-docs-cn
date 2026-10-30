@@ -1,6 +1,6 @@
 ---
-title: Tool-based
-description: Implement HITL with Mastra using frontend tools that render UI and collect user input.
+title: 基于工具
+description: 使用渲染 UI 并收集用户输入的前端工具，在 Mastra 中实现人机协同（HITL）。
 icon: lucide/Share2
 ---
 
@@ -11,36 +11,34 @@ import RunAndConnect from "@/snippets/integrations/mastra/run-and-connect.mdx"
   id="human-in-the-loop-tool-based-example"
   exampleUrl="https://feature-viewer.copilotkit.ai/mastra/feature/human_in_the_loop?sidebar=false&chatDefaultOpen=false"
   codeUrl="https://feature-viewer.copilotkit.ai/mastra/feature/human_in_the_loop?view=code&sidebar=false&codeLayout=tabs"
-  exampleLabel="Demo"
-  codeLabel="Code"
+  exampleLabel="演示"
+  codeLabel="代码"
   height="700px"
 />
 
-## What is this?
+## 这是什么？
 
-CopilotKit lets you add custom UI to take user input and then pass it back to the agent upon completion.
-This approach uses `useHumanInTheLoop` to register a frontend tool that renders a UI component and waits for the user's response.
+CopilotKit 允许你添加自定义 UI 来获取用户输入，并在完成后把结果传回智能体。这种方式使用 `useHumanInTheLoop` 注册一个前端工具，该工具渲染一个 UI 组件并等待用户响应。
 
 <Callout type="info">
-  Looking for an approach where tools can pause mid-execution and wait for user input? See the [interrupt-based approach](/mastra/human-in-the-loop/interrupt-flow).
+  想找一种工具可以在执行中途暂停并等待用户输入的方式？请参阅[基于中断的方式](/mastra/human-in-the-loop/interrupt-flow)。
 </Callout>
 
-## Why should I use this?
+## 为什么要使用它？
 
-Human-in-the-loop is a powerful way to implement complex workflows that are production ready. By having a human in the loop,
-you can ensure that the agent is always making the right decisions and ultimately is being steered in the right direction.
+人机协同是实现可用于生产的复杂工作流的强大方式。让人参与到流程中，你就能确保智能体始终做出正确的决策，并最终被引导到正确的方向上。
 
-## Implementation
+## 实现步骤
 
 <Steps>
   <Step>
-    ### Run and connect your agent
+    ### 运行并连接你的智能体
     <RunAndConnect components={props.components} />
   </Step>
 
   <Step>
-    ### Add a human-in-the-loop tool to your Frontend
-    First, we'll create a component that offers the user options and waits for their selection.
+    ### 在前端添加一个人机协同工具
+    首先，我们创建一个向用户提供选项并等待其选择的组件。
 
     ```tsx title="ui/app/page.tsx"
     import { useHumanInTheLoop } from "@copilotkit/react-core/v2" // [!code highlight]
@@ -74,18 +72,17 @@ you can ensure that the agent is always making the right decisions and ultimatel
   </Step>
 
   <Step>
-    ### Setup the Mastra Agent
-    On the agent side, we are already done! Mastra natively supports the AG-UI protocol and will automatically
-    pass control back to the frontend when the `offerOptions` tool is called by the agent.
+    ### 配置 Mastra 智能体
+    在智能体一侧，我们已经大功告成！Mastra 原生支持 AG-UI 协议，当智能体调用 `offerOptions` 工具时，会自动把控制权交回前端。
   </Step>
   <Step>
-    ### Give it a try!
-    Try asking your agent something that requires a choice.
+    ### 试一试！
+    试着向智能体提出一个需要做出选择的问题。
 
     ```
     Can you show me two good options for a restaurant name?"
     ```
 
-    You'll see that the agent will present two options and wait for you to select one before continuing.
+    你会看到智能体给出两个选项，并等待你选择其中之一后才继续。
   </Step>
 </Steps>

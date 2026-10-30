@@ -1,75 +1,75 @@
 ---
-title: Code Contributions
+title: 代码贡献
 ---
 
-We are grateful for your interest in contributing to CopilotKit. We welcome new contributors and appreciate your help in making CopilotKit better.
+感谢你有兴趣为 CopilotKit 做出贡献。我们欢迎新贡献者，也感谢你帮助 CopilotKit 变得更好。
 
-This guide will help you get started as smoothly as possible.
+本指南将帮助你尽可能顺利地上手。
 
-## Step 1: Install Prerequisites
+## 步骤 1：安装前置条件
 
-- [Node.js](https://nodejs.org/en/) 20.x or later
-- [pnpm](https://pnpm.io/) v10.x installed globally (`npm i -g pnpm@^10`)
+- [Node.js](https://nodejs.org/en/) 20.x 或更高版本
+- 全局安装的 [pnpm](https://pnpm.io/) v10.x（`npm i -g pnpm@^10`）
 
-## Step 2: Repository Setup
+## 步骤 2：仓库设置
 
 <Steps>
   <Step>
-  ### Fork The Repository
-  First, head over to the [CopilotKit repository](https://github.com/CopilotKit/CopilotKit) and create a fork.
+  ### Fork 仓库
+  首先，前往 [CopilotKit 仓库](https://github.com/CopilotKit/CopilotKit)并创建一个 Fork。
 
-  Then, clone your fork to your local machine:
+  然后，将你的 Fork 克隆到本地：
   ```bash
   git clone https://github.com/<your-username>/CopilotKit
   cd CopilotKit
   ```
   </Step>
   <Step>
-  ### Install Dependencies
+  ### 安装依赖
   <Callout type="info">
-    The CopilotKit repository is a monorepo using a [pnpm](https://pnpm.io/) workspace. Tasks across packages are orchestrated with [Nx](https://nx.dev/).
+    CopilotKit 仓库是一个使用 [pnpm](https://pnpm.io/) workspace 的 monorepo。跨软件包的任务由 [Nx](https://nx.dev/) 编排。
   </Callout>
 
-  Install the dependencies using pnpm:
+  使用 pnpm 安装依赖：
   ```bash
   pnpm install
   ```
   </Step>
   <Step>
-  ### Build Packages
-  To make sure everything works, let's build all packages once:
+  ### 构建软件包
+  为了确保一切正常，先把所有软件包构建一遍：
   ```bash
   pnpm run build
   ```
   </Step>
 </Steps>
 
-## Step 3: Development Mode
-Now that everything is set up and works as expected, you can get started developing:
+## 步骤 3：开发模式
+一切就绪并正常工作后，就可以开始开发了：
 
 ```bash
-# Start all packages in development mode
+# 以开发模式启动所有软件包
 pnpm run dev
 
-# Start a specific package in development mode
+# 以开发模式启动指定软件包
 pnpm exec nx watch --projects=packages/package-name -- pnpm run build
 ```
 
-Now you can start making changes to the code.
+现在就可以开始修改代码了。
 
 <Callout type="info">
-You can find all `@copilotkit/*` packages under the `packages` folder of the monorepo.
+所有 `@copilotkit/*` 软件包都位于 monorepo 的 `packages` 文件夹下。
 </Callout>
 
-## Step 4: Test Changes in Real-Time
+## 步骤 4：实时测试更改
 
-In most cases, you want to seamlessly be able to test your changes in real-time as you develop.
+大多数情况下，你都希望在开发过程中能够无缝地实时测试自己的更改。
 
-We have an `examples` folder in the monorepo with a few different examples using CopilotKit. You can run these examples to test your changes, as they are linked to the `@copilotkit/*` packages in the monorepo.
+monorepo 中有一个 `examples` 文件夹，包含若干使用 CopilotKit 的示例。这些示例与 monorepo 中的 `@copilotkit/*` 软件包相互链接，你可以运行它们来测试自己的更改。
 
-For this tutorial, we'll use the `next-openai` example, specifically the Presentation Demo (`/presentation`).
+在本教程中，我们将使用 `next-openai` 示例，具体来说是 Presentation Demo（`/presentation`）。
 
-In a separate terminal, run the following command to start the example:
+在另一个终端中运行以下命令来启动该示例：
 
 ```bash
 cd examples/v1/next-openai
@@ -78,26 +78,26 @@ pnpm run example-dev
 ```
 
 <Callout type="info">
-We use the `pnpm run example-dev` command to run examples, which is different from the `pnpm run dev` command we use to work on the individual packages.
+我们使用 `pnpm run example-dev` 命令来运行示例，它与开发各个软件包时使用的 `pnpm run dev` 命令不同。
 </Callout>
 
-Now navigate to http://localhost:3000/presentation and you should see the example running. Any changes you make to the CopilotKit packages will immediately be reflected here.
+现在访问 http://localhost:3000/presentation，应该就能看到示例在运行。你对 CopilotKit 软件包所做的任何更改都会立即反映在这里。
 
-## Step 5: Formatting and Linting
+## 步骤 5：格式化与 Lint 检查
 
-Before committing your changes, ensure your files are formatted properly by running the following at the root of the monorepo:
+在提交更改之前，请在 monorepo 根目录运行以下命令，确保文件已正确格式化：
 ```bash
 pnpm run format
 ```
 
-Additionally, ensure you have no linting errors:
+此外，还要确保没有任何 Lint 错误：
 ```bash
 pnpm run lint
 ```
 
-## Step 6: Submit a Pull Request
+## 步骤 6：提交 Pull Request
 
-Now that you've made your changes, commit and push them. Then, simply head over to the [Pull Requests page](https://github.com/CopilotKit/CopilotKit/pulls) and create a pull request. Well done!
+完成更改后，将其 commit 并 push。然后只需前往 [Pull Requests 页面](https://github.com/CopilotKit/CopilotKit/pulls)创建一个 pull request 即可。干得漂亮！
 
 {/* TODO: Add the MAF equivalent of this section. */}
 {/* ## Starting a dev environment with hot reload
@@ -120,9 +120,9 @@ You can optionally run the same example on agent framework platform by running:
 ./scripts/develop/example.sh agents-starter agent framework-platform
 ``` */}
 
-## Debugging
+## 调试
 
-Every time you run CopilotKit on localhost, you will be able to see the **CopilotKit Dev Console** in the chat window. The Dev Console provides you with useful functionality to debug your copilot (e.g. see what state the copilot is aware of, actions it can perform, etc).
+每次在 localhost 上运行 CopilotKit 时，你都可以在聊天窗口中看到 **CopilotKit Dev Console**。Dev Console 提供了实用的调试功能，帮助你调试 copilot（例如查看 copilot 感知到的状态、它可以执行的操作等）。
 
 <Frame description="CopilotKit Dev Console">
   <img
@@ -131,16 +131,16 @@ Every time you run CopilotKit on localhost, you will be able to see the **Copilo
   />
 </Frame>
 
-If you'd like to disable the Dev Console locally, simply set `showDevConsole` to `false` in your `<CopilotKit />` provider.
+如果想在本地禁用 Dev Console，只需在你的 `<CopilotKit />` provider 中将 `showDevConsole` 设置为 `false`。
 
-## (Advanced) Package Linking
+## 进阶：软件包链接
 
- In some cases, you want to test your CopilotKit changes in your own project. For example, you tried to integrate CopilotKit into your own codebase and encountered a bug you want to fix.
+某些情况下，你可能想在自己的项目中测试对 CopilotKit 的更改。例如，你尝试将 CopilotKit 集成到自己的代码库中时遇到了一个 bug，想要修复它。
 
- Conveniently, you can link your local CopilotKit packages to your own project to test your changes.
+方便的是，你可以将本地的 CopilotKit 软件包链接到自己的项目来测试更改。
 
- Check out the [Advanced: Package Linking](/contributing/code-contributions/package-linking) guide to learn how to do that.
+请查阅[进阶：软件包链接](/contributing/code-contributions/package-linking)指南了解具体做法。
 
-## Need help?
+## 需要帮助？
 
-If you need help with anything, please don't hesitate to reach out to us on [Discord](https://discord.gg/6dffbvGU3D). We have a dedicated [#contributing](https://discord.com/channels/1122926057641742418/1183863183149117561) channel.
+如果在任何方面需要帮助，请随时通过 [Discord](https://discord.gg/6dffbvGU3D) 联系我们。我们有专门的 [#contributing](https://discord.com/channels/1122926057641742418/1183863183149117561) 频道。
