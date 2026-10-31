@@ -1,0 +1,59 @@
+name: build-export
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install deps
+        run: |
+          cd showcase/scripts
+          npm ci --no-audit --no-fund
+          cd ../harness
+          # 上游靠 pnpm workspace 提升 js-yaml；独立 npm 下需补装
+          npm install js-yaml@^4.1.0 --no-save --ignore-scripts --no-audit --no-fund
+          cd ../shell-docs
+          npm ci --no-audit --no-fund
+
+      # Windows 检出把悬空 symlink（public/angular、public/vue → 未构建的 dist）
+      # 落成文本文件并提交为普通文件；Linux 检出恢复为悬空 symlink，删除以对齐
+      # 本地构建时「路径不存在」的行为。
+      - name: Neutralize dangling dist symlinks
+        run: |
+          find showcase/integrations -type l \( -name angular -o -name vue \) -print -delete
+
+      - name: Export build (NEXT_STATIC_EXPORT=1)
+        run: |
+          cd showcase/shell-docs
+          SD="$PWD"
+          mv src/middleware.ts src/middleware.ts.disabled
+          mv src/app/llms.txt/route.ts src/app/llms.txt/route.ts.disabled
+          mv src/app/llms-full.txt/route.ts src/app/llms-full.txt/route.ts.disabled
+          mv "src/app/llms-mdx/[[...slug]]/route.ts" "src/app/llms-mdx/[[...slug]]/route.ts.disabled"
+          mv "src/app/og/[...slug]/route.tsx" "src/app/og/[...slug]/route.tsx.disabled"
+          mv "src/app/frontends/[frontend]/[...slug]/page.tsx" "src/app/frontends/[frontend]/[...slug]/page.tsx.disabled"
+          node ../scripts/patch-dynamic.cjs --apply
+          NEXT_STATIC_EXPORT=1 \
+          NEXT_PUBLIC_BASE_URL="https://example.com" \
+          npm run build
+          echo "--- out/ ---"
+          du -sh out
+          find out -name "*.html" | wc -l
+
+      - name: Upload out/
+        uses: actions/upload-artifact@v4
+        with:
+          name: static-export
+          path: showcase/shell-docs/out/
+          retention-days: 7
