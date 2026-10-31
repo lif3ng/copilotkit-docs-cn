@@ -226,7 +226,7 @@ copilotkit-threads-drawer::part(launcher-new-thread) {
 
 抽屉渲染在 shadow root 中，样式自包含并继承主题，因此无需任何配置就能在任意应用（包括深色模式）中正确显示。有三个受限的定制出口可以穿越这层边界：
 
-- **插槽（slots）**：用 `slot` 属性投影子元素（`header`、`empty`、`footer`、`memories`、`launcher-icon`）：
+- **插槽**（slots）：用 `slot` 属性投影子元素（`header`、`empty`、`footer`、`memories`、`launcher-icon`）：
 
   ```tsx
   <CopilotThreadsDrawer>

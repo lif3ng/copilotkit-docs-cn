@@ -64,7 +64,7 @@ test("BrandNav keeps the public auth CTA while Clerk is loading", () => {
 
   const markup = renderToStaticMarkup(<BrandNav />);
 
-  expect(markup).toContain("Get CopilotKit Intelligence free");
+  expect(markup).toContain("免费获取 CopilotKit Intelligence");
   expect(markup).not.toContain("Account menu");
 });
 
@@ -106,7 +106,7 @@ test("BrandNav keeps the public auth CTA when Clerk state cannot resolve", () =>
     children: <button type="button">Account menu</button>,
     fallback: (
       <a href="https://dashboard.operations.copilotkit.ai/sign-in">
-        Get CopilotKit Intelligence free
+        免费获取 CopilotKit Intelligence
       </a>
     ),
   });
@@ -114,7 +114,7 @@ test("BrandNav keeps the public auth CTA when Clerk state cannot resolve", () =>
 
   const markup = renderToStaticMarkup(boundary.render());
 
-  expect(markup).toContain("Get CopilotKit Intelligence free");
+  expect(markup).toContain("免费获取 CopilotKit Intelligence");
   expect(markup).not.toContain("Account menu");
 });
 

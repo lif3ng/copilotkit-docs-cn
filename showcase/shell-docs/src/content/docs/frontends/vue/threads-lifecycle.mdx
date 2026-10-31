@@ -37,7 +37,7 @@ import RestoreHistory from "@/snippets/vue/threads/restore-history.mdx";
 ```
 
 <Callout type="warn">
-  **自动生成的 id 能在响应式重渲染中存活，但组件重新挂载时会重新生成。**如果变化的 `:key`、路由切换或父组件卸载/重挂载重建了聊天配置，后备 id 就会改变，一段新会话随之开始。当连续性必须跨越重挂载时，请自行生成并持久化该 id。
+  **自动生成的 id 能在响应式重渲染中存活，但组件重新挂载时会重新生成**。如果变化的 `:key`、路由切换或父组件卸载/重挂载重建了聊天配置，后备 id 就会改变，一段新会话随之开始。当连续性必须跨越重挂载时，请自行生成并持久化该 id。
 </Callout>
 
 ## 历史如何恢复（水合）
@@ -123,9 +123,9 @@ const config = useCopilotChatConfiguration();
 
 一个常见需求是拦截首条消息，通过自己的后端创建一条记录，并在会话开始之前使用其 id。
 
-**在内置的 `<CopilotChat>` 上，`submit-message` 事件只是观察性的。**组件发出该事件后仍会继续自己的添加消息/运行流程；它不是可以延迟该次运行的异步拦截缝。
+**在内置的 `<CopilotChat>` 上，`submit-message` 事件只是观察性的**。组件发出该事件后仍会继续自己的添加消息/运行流程；它不是可以延迟该次运行的异步拦截缝。
 
-**推荐做法：提前生成并驱动 id。**在渲染聊天之前，或在“新建聊天”动作中创建线程，然后通过配置传入：
+**推荐做法：提前生成并驱动 id**。在渲染聊天之前，或在“新建聊天”动作中创建线程，然后通过配置传入：
 
 ```ts
 async function startConversation() {
@@ -134,7 +134,7 @@ async function startConversation() {
 }
 ```
 
-**提交时方案：使用无头输入。**自行组合输入框与处理器，在添加消息之前把 id 设置到 agent 上，然后运行 agent：
+**提交时方案：使用无头输入**。自行组合输入框与处理器，在添加消息之前把 id 设置到 agent 上，然后运行 agent：
 
 ```ts
 async function submit(text: string) {

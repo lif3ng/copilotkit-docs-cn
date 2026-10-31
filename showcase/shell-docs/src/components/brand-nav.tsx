@@ -37,12 +37,12 @@ type LeftLink = {
 const LEFT_LINKS: LeftLink[] = [
   {
     icon: <ConsoleIcon className="text-current" />,
-    label: "Reference",
+    label: "参考",
     href: "/reference",
   },
   {
     icon: <ChefHat className="w-5 h-5 text-current" />,
-    label: "Cookbook",
+    label: "示例集",
     href: "/cookbook",
   },
 ];
@@ -84,7 +84,7 @@ export function BrandNav(_props: BrandNavProps = {}) {
         <Link
           href="/"
           className="shell-docs-brand-link flex min-w-0 shrink-0 items-center gap-2 justify-self-start"
-          aria-label="CopilotKit Docs"
+          aria-label="CopilotKit 文档"
         >
           <CopilotKitMark />
           <span className="text-base font-bold tracking-tight text-[var(--text)]">
@@ -94,7 +94,7 @@ export function BrandNav(_props: BrandNavProps = {}) {
             className="shell-docs-radius-control ml-1 border border-[var(--border)] bg-[var(--accent-dim)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--accent)]"
             aria-hidden="true"
           >
-            Docs
+            文档
           </span>
         </Link>
         <ul className="hidden min-w-0 items-center gap-2 justify-self-center xl:flex">
@@ -139,16 +139,16 @@ export function BrandNav(_props: BrandNavProps = {}) {
             type="button"
             onClick={handleTalkToEngineersClick}
             className="shell-docs-nav-cta shell-docs-radius-control hidden h-10 cursor-pointer items-center whitespace-nowrap border px-4 text-sm font-medium shadow-[var(--shadow-control)] transition-colors duration-200 [@media(width>=1500px)]:flex"
-            aria-label="Talk to an engineer"
+            aria-label="与工程师交流"
           >
-            Talk to an engineer
+            与工程师交流
           </button>
           <button
             type="button"
             onClick={handleTalkToEngineersClick}
             className="shell-docs-nav-cta shell-docs-radius-control hidden h-10 w-10 cursor-pointer items-center justify-center border shadow-[var(--shadow-control)] transition-colors duration-200 xl:flex [@media(width>=1500px)]:hidden"
-            aria-label="Talk to an engineer"
-            data-tooltip="Talk to an engineer"
+            aria-label="与工程师交流"
+            data-tooltip="与工程师交流"
           >
             <CalendarDays className="h-4 w-4" />
           </button>
@@ -160,10 +160,10 @@ export function BrandNav(_props: BrandNavProps = {}) {
                 rel="noopener noreferrer"
                 onClick={handleFreeDeveloperAccessClick}
                 className="shell-docs-nav-cta shell-docs-radius-control hidden h-10 cursor-pointer items-center gap-2 whitespace-nowrap border px-4 text-sm font-medium no-underline shadow-[var(--shadow-control)] transition-colors duration-200 [@media(width>=1280px)]:flex"
-                aria-label="Get CopilotKit Intelligence free"
+                aria-label="免费获取 CopilotKit Intelligence"
                 suppressHydrationWarning
               >
-                Get CopilotKit Intelligence free
+                免费获取 CopilotKit Intelligence
                 <ExternalLinkIcon className="text-current opacity-70" />
               </Link>
             }

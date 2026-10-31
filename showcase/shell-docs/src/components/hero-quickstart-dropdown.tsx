@@ -63,7 +63,7 @@ export function HeroQuickstartDropdown({
         className="shell-docs-radius-control inline-flex h-11 w-full items-center justify-center gap-2 border border-[var(--border)] bg-[var(--bg-surface)] px-4 text-sm font-semibold text-[var(--text)] shadow-[var(--shadow-control)] transition-colors duration-150 hover:border-[var(--accent)] hover:bg-[var(--bg-elevated)] hover:text-[var(--accent)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:outline-none sm:w-fit"
         onClick={() => setOpen((value) => !value)}
       >
-        Quickstart
+        快速开始
         <ChevronDown
           className={`h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`}
         />
@@ -105,7 +105,7 @@ export function HeroQuickstartDropdown({
                     {option.name}
                   </span>
                   <span className="block text-xs text-[var(--text-muted)]">
-                    Open quickstart
+                    打开快速开始
                   </span>
                 </span>
               </Link>

@@ -47,7 +47,7 @@ export function QuickstartLinkButton({
   backend,
   fromPath,
   variant = "primary",
-  label = "Quickstart",
+  label = "快速开始",
 }: {
   href: string;
   frontend?: string;

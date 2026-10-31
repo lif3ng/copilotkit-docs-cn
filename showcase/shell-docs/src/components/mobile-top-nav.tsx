@@ -46,7 +46,7 @@ export function MobileTopNav() {
         <Link
           href="/"
           className="shell-docs-mobile-brand"
-          aria-label="CopilotKit Docs"
+          aria-label="CopilotKit 文档"
         >
           <CopilotKitMark />
           <span className="font-bold text-[var(--text)] tracking-tight">
@@ -56,7 +56,7 @@ export function MobileTopNav() {
             className="shell-docs-radius-control border border-[var(--border)] bg-[var(--accent-dim)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--accent)]"
             aria-hidden="true"
           >
-            Docs
+            文档
           </span>
         </Link>
         <PrimaryDocsTabs exploreMenu className="shell-docs-mobile-tabs" />
@@ -66,8 +66,8 @@ export function MobileTopNav() {
           </div>
           <a
             href={TALK_TO_ENGINEER_HREF}
-            aria-label="Book a meeting"
-            data-tooltip="Book a meeting"
+            aria-label="预约会议"
+            data-tooltip="预约会议"
             onClick={() =>
               posthog?.capture("talk_to_us_clicked", {
                 location: "docs_mobile_nav",
@@ -79,8 +79,8 @@ export function MobileTopNav() {
           </a>
           <SidebarTrigger
             className="shell-docs-mobile-menu shell-docs-radius-control flex h-10 w-10 items-center justify-center text-[var(--text-muted)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text)]"
-            aria-label="Toggle navigation"
-            data-tooltip="Toggle navigation"
+            aria-label="切换导航"
+            data-tooltip="切换导航"
           >
             <Menu className="w-5 h-5" />
           </SidebarTrigger>
@@ -92,8 +92,8 @@ export function MobileTopNav() {
                 rel="noopener noreferrer"
                 onClick={handleFreeDeveloperAccessClick}
                 className="shell-docs-radius-control hidden h-10 w-10 shrink-0 cursor-pointer items-center justify-center border border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-muted)] shadow-[var(--shadow-control)] transition-colors hover:border-[var(--accent)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text)] md:flex"
-                aria-label="Get CopilotKit Intelligence free"
-                data-tooltip="Get CopilotKit Intelligence free"
+                aria-label="免费获取 CopilotKit Intelligence"
+                data-tooltip="免费获取 CopilotKit Intelligence"
               >
                 <CopilotKitMark className="h-5 w-5" />
               </Link>

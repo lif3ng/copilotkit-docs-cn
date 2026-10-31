@@ -74,7 +74,7 @@ export function ChannelsStartPrompt({ frontend }: ChannelsStartPromptProps) {
   return (
     <div ref={panelRef} data-testid="channels-start-prompt">
       <CodingAgentSetupPrompt
-        summary={`Set up ${channelLabel} with your coding agent`}
+        summary={`使用你的编码智能体设置 ${channelLabel}`}
         feature="channels"
         includePageSource
         copySurface={CHANNELS_ACTIVATION_SURFACES.docsChannelsOverview}

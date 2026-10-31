@@ -4,9 +4,7 @@ category: enterprise-platform
 language: dotnet
 logo: /logos/ms-agent-dotnet.svg
 description: >-
-  CopilotKit integration with Microsoft Agent Framework for .NET via AG-UI
-  protocol. Full feature parity including generative UI, shared state,
-  human-in-the-loop, sub-agents, and streaming.
+  CopilotKit 通过 AG-UI 协议与面向 .NET 的 Microsoft Agent Framework 的集成。完整支持工具、生成式 UI 与人机协同。
 partner_docs: https://docs.copilotkit.ai/microsoft-agent-framework
 repo: https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/ms-agent-dotnet
 copilotkit_version: 2.0.0

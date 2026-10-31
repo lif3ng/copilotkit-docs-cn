@@ -10,7 +10,7 @@ snippet_cell: reasoning-custom
 
 ## 这是什么？
 
-一些模型（OpenAI 的 `o1`、`o3` 和 `o4-mini`，以及 Anthropic 的 thinking 变体）会发出**推理标记（reasoning tokens）**，即解释模型如何一步步得出答案的内部思维链轨迹。CopilotKit 将其呈现为一等公民消息：当 `REASONING_MESSAGE_*` 事件从智能体到达时，聊天会将其内联渲染，让用户能够跟随智能体的思考。
+一些模型（OpenAI 的 `o1`、`o3` 和 `o4-mini`，以及 Anthropic 的 thinking 变体）会发出**推理标记**（reasoning tokens），即解释模型如何一步步得出答案的内部思维链轨迹。CopilotKit 将其呈现为一等公民消息：当 `REASONING_MESSAGE_*` 事件从智能体到达时，聊天会将其内联渲染，让用户能够跟随智能体的思考。
 
 推理并不是接一根自定义渲染器的管线，而是聊天视图上一种专门的消息类型。你既可以接受内置的渲染，也可以用自己的组件覆盖 `reasoningMessage` 插槽。
 

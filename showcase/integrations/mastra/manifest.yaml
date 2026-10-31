@@ -4,9 +4,7 @@ category: popular
 language: typescript
 logo: /logos/mastra.svg
 description: >-
-  TypeScript-native agent framework with built-in tool management, agent memory,
-  and workflow orchestration. Integrates with CopilotKit via the AG-UI protocol
-  adapter.
+  TypeScript 原生的智能体框架，内置工具管理、智能体记忆与工作流编排。支持 CopilotKit 的全部特性。
 partner_docs: https://docs.copilotkit.ai/integrations/mastra
 repo: https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/mastra
 copilotkit_version: 2.0.0

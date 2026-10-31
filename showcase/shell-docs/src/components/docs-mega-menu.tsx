@@ -121,7 +121,7 @@ export function DocsMegaMenu({
             className="h-4 w-4 shrink-0 text-current"
             aria-hidden="true"
           />
-          <span>Docs</span>
+          <span>文档</span>
           <ChevronDown
             className={`h-3.5 w-3.5 text-current transition-transform duration-150 ${
               open ? "rotate-180" : ""
@@ -145,7 +145,7 @@ export function DocsMegaMenu({
           if (openedByPointer.current) event.preventDefault();
         }}
       >
-        <nav aria-label="Docs">
+        <nav aria-label="文档">
           <div className="shell-docs-mega-menu-grid">
             {DOCS_MEGA_MENU_COLUMNS.map((column) => (
               <section key={column.title} className="min-w-0">

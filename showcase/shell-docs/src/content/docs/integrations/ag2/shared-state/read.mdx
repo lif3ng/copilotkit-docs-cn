@@ -38,7 +38,7 @@ description: 在原生应用中读取实时智能体状态。
   <Step>
     ### 定义智能体状态
 
-    在 AG2 中，共享状态保存在智能体的**会话变量（conversation variables）**中。`AGUIStream` 会替你处理同步：来自 UI 的传入状态会被合并到本次运行的变量中，而这些变量又会在运行开始时（仅当智能体或 `dispatch()` 定义了初始变量时）以及运行结束时（若工具修改了 `context.variables`）以 `STATE_SNAPSHOT` 事件的形式流式传回。无需手动构造事件。
+    在 AG2 中，共享状态保存在智能体的**会话变量**（conversation variables）中。`AGUIStream` 会替你处理同步：来自 UI 的传入状态会被合并到本次运行的变量中，而这些变量又会在运行开始时（仅当智能体或 `dispatch()` 定义了初始变量时）以及运行结束时（若工具修改了 `context.variables`）以 `STATE_SNAPSHOT` 事件的形式流式传回。无需手动构造事件。
 
     ```python title="agent.py"
     from typing import Annotated

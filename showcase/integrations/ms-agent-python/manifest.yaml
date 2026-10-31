@@ -3,7 +3,7 @@ slug: ms-agent-python
 category: enterprise-platform
 language: python
 logo: /logos/ms-agent-python.svg
-description: CopilotKit integration with MS Agent Framework (Python)
+description: CopilotKit 与 MS Agent Framework（Python）的集成。
 partner_docs: null
 repo: https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/ms-agent-python
 copilotkit_version: 2.0.0

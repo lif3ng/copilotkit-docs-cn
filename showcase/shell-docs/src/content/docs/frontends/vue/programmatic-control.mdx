@@ -144,7 +144,7 @@ async function approve() {
 
 ## 从按钮解决暂停
 
-> **此框架不支持中断式的暂停/恢复。**中断路径要么需要原生的运行时中断，要么需要以 Promise resolve 的前端工具路径。基于工具调用的暂停/恢复请使用 [`useHumanInTheLoop`](./human-in-the-loop)。上面的 `agent.addMessage`、`copilotkit.runAgent` 和 `agent.subscribe` 原语仍然适用；只有中断的解决方式因框架而异。
+> **此框架不支持中断式的暂停/恢复**。中断路径要么需要原生的运行时中断，要么需要以 Promise resolve 的前端工具路径。基于工具调用的暂停/恢复请使用 [`useHumanInTheLoop`](./human-in-the-loop)。上面的 `agent.addMessage`、`copilotkit.runAgent` 和 `agent.subscribe` 原语仍然适用；只有中断的解决方式因框架而异。
 
 </WhenFrameworkHas>
 

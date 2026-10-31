@@ -4,8 +4,7 @@ category: popular
 language: typescript
 logo: /logos/built-in-agent.svg
 description: >-
-  CopilotKit's Built-in Agent in factory mode. The agent runs in-process
-  inside the Next.js route handler — no separate agent server.
+  工厂模式下的 CopilotKit 内置智能体。该智能体在 Next.js 应用内以进程内方式运行，并与 CopilotKit 运行时及前端包协同工作。
 partner_docs: null
 repo: https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/built-in-agent
 copilotkit_version: 2.0.0

@@ -17,9 +17,9 @@ const data: FrameworkOverviewData = {
   // `integrations/langgraph/`, and every page inside it says LangGraph.
   frameworkName: "LangGraph",
   iconKey: "langgraph",
-  header: "Bring your LangGraph agents to your users",
+  header: "把你的 LangGraph 智能体带到用户面前",
   subheader:
-    "LangGraph runs your graph. CopilotKit gives it a surface your users can see, interrupt and steer.",
+    "LangGraph 负责运行你的图，CopilotKit 则为它提供一个用户看得见、可中断、也能操控的界面。",
   bannerVideo:
     "https://cdn.copilotkit.ai/docs/copilotkit/videos/coagents/overview.mp4",
   guideLink: "/langgraph/quickstart",
@@ -27,39 +27,39 @@ const data: FrameworkOverviewData = {
   featuresLink:
     "https://feature-viewer.copilotkit.ai/langgraph/feature/agentic_chat",
 
-  lede: "LangGraph gives you the graph: nodes, edges, one state object, and interrupts that stop a run mid-node. What it does not give you is the surface. Somewhere for the conversation to happen, a way to show the run while it is running, and a moment for a person to step in. Each capability below builds on something your graph already does.",
+  lede: "LangGraph 为你提供图本身：节点、边、一个状态对象，以及能在节点执行中途让运行停下来的中断。它没有提供的，是界面——一个让对话发生的地方，一种在运行过程中展示运行状态的方式，一个让人适时介入的时机。下方的每项能力，都建立在你的图已经在做的事情之上。",
   supportedFeatures: [
     {
-      title: "Generative UI",
+      title: "生成式 UI",
       iconKey: "paintbrush",
       description:
-        "Your nodes return state updates and tool calls as they run. CopilotKit streams both to the browser by default and renders them as React components your users watch update while the graph works.",
+        "你的节点在运行时返回状态更新和工具调用。CopilotKit 默认将两者流式传输到浏览器，并渲染为 React 组件，让用户在图工作的同时亲眼看着它们更新。",
       documentationLink: "/langgraph/generative-ui",
     },
     {
-      title: "Human-in-the-loop",
+      title: "人机协同（human-in-the-loop）",
       iconKey: "user",
       description:
-        "A node calls interrupt() and stops mid-execution. CopilotKit catches that event, renders your own UI for the decision, and resumes the graph with the answer.",
+        "节点调用 interrupt() 并在执行中途停止。CopilotKit 捕获该事件，渲染出你自己的 UI 供用户做决定，然后带着答案恢复图的执行。",
       documentationLink: "/langgraph/human-in-the-loop/interrupt-flow",
     },
     {
-      title: "Shared state",
+      title: "共享状态",
       iconKey: "repeat",
       description:
-        "Your graph carries one state object from node to node. CopilotKit mirrors it into your app and back, so a user edit and a node write land in the same place.",
+        "你的图让同一个状态对象在节点之间传递。CopilotKit 把它同步到你的应用、再同步回去，让用户的编辑和节点的写入落在同一处。",
       documentationLink: "/langgraph/shared-state",
     },
   ],
   capabilitiesFootnote: {
-    text: "Chat surfaces, headless UI, frontend tools and subagent flows work with LangGraph too.",
-    linkLabel: "And more",
+    text: "对话界面、无头（headless）UI、前端工具与子智能体流程同样适用于 LangGraph。",
+    linkLabel: "以及更多",
     href: "/langgraph/build-with-agents",
   },
 
   connect: {
     intro:
-      "Your graph stays where it runs today: LangGraph Platform, LangSmith, or your own FastAPI service. CopilotKit reaches it over AG-UI, so nothing inside the graph changes.",
+      "你的图留在如今运行的地方：LangGraph Platform、LangSmith，或你自己的 FastAPI 服务。CopilotKit 通过 AG-UI 访问它，图内部无需任何改动。",
     filename: "app/api/copilotkit/[[...slug]]/route.ts",
     language: "ts",
     code: `import { CopilotRuntime, createCopilotRuntimeHandler } from "@copilotkit/runtime/v2";
@@ -98,14 +98,14 @@ export const DELETE = handler;
       "langgraph-fastapi": "langgraph-fastapi",
     },
     intro:
-      "LangGraph and CopilotKit running together, in the React frontend. Every demo below is the same integration with one capability turned on.",
+      "LangGraph 与 CopilotKit 在 React 前端中协同运行。下面的每个演示都是同一个集成，只是开启了不同的能力。",
     // Titles are the showcase's own labels for these cells, so a reader who
     // clicks through finds the same name on the page they land on.
     demos: [
-      { slug: "agentic-chat", title: "Pre-Built: CopilotChat" },
-      { slug: "hitl-in-chat", title: "Human In the Loop: In-chat" },
-      { slug: "shared-state-read-write", title: "Shared State: Read + Write" },
-      { slug: "gen-ui-agent", title: "Generative UI: Agent State" },
+      { slug: "agentic-chat", title: "预构建：CopilotChat" },
+      { slug: "hitl-in-chat", title: "人机协同：对话中" },
+      { slug: "shared-state-read-write", title: "共享状态：读 + 写" },
+      { slug: "gen-ui-agent", title: "生成式 UI：智能体状态" },
     ],
   },
 
@@ -119,9 +119,9 @@ export const DELETE = handler;
   tutorialLink: "/langgraph/tutorials/ai-travel-app",
   cta: {
     variant: "card",
-    title: "Bring your LangGraph agents to production",
-    body: "Add persistent threads, observability, and the inspector with CopilotKit Intelligence.",
-    ctaLabel: "Create a free account",
+    title: "把你的 LangGraph 智能体推向生产环境",
+    body: "借助 CopilotKit Intelligence 添加持久化线程、可观测性与检查器。",
+    ctaLabel: "创建免费账户",
     surface: "docs_langgraph_overview",
   },
   hasAfterFeaturesMdx: true,

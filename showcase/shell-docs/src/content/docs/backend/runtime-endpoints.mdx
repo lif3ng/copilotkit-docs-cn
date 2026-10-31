@@ -562,10 +562,10 @@ createCopilotExpressHandler({
 
 一个常见的自托管症状是：页面刚加载完、用户还没发送任何消息，`POST /agent/:agentId/connect` 路由就返回 `404`。这通常意味着以下两种情况之一：
 
-1. **URL 中的 `agentId` 没有注册。**没有智能体匹配时，运行时以
+1. **URL 中的 `agentId` 没有注册**。没有智能体匹配时，运行时以
    `404` 返回 `{"error":"Agent not found","message":"Agent '<id>' does not exist"}`。预构建组件默认使用名为
    `"default"` 的智能体，因此请在这个键下注册一个（或显式传入 `agentId`）。
-2. **对自动铸造的线程，`connect()` 在任何 `run()` 之前被调用。**某些持久化后端只有在一次运行产出事件之后才认识这个线程。
+2. **对自动铸造的线程，`connect()` 在任何 `run()` 之前被调用**。某些持久化后端只有在一次运行产出事件之后才认识这个线程。
    见 [AgentRunner](/backend/agent-runner) 指南和
    [`/connect` 返回 404 的故障排查条目](/troubleshooting/common-issues#connect-route-returns-404-on-a-fresh-thread)。
 

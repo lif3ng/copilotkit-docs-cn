@@ -12,7 +12,7 @@ snippet_cell: interrupt-headless
 
 `useInterrupt` 的 `render` 回调是那条 80% 的常规路径：它让 UI
 贴着 `<CopilotChat>` 的会话记录走，并替你处理“何时显示选择器”的
-逻辑。本页讲的是另一条出路：一个**无渲染（render-less）**的中断
+逻辑。本页讲的是另一条出路：一个**无渲染**（render-less）的中断
 解析器，由 `useInterrupt` 内部使用的同一批原语组装而成——这种模式
 可以放在 React 树的任何位置，可以呈现你喜欢的任何形态（按钮组、
 表单、弹窗、快捷键），并且完全不挂载聊天也能解析中断。
@@ -58,7 +58,7 @@ snippet_cell: interrupt-headless
 
 ## 何时使用无头中断？
 
-- **测试 / Playwright 夹具（fixture）** ——
+- **测试 / Playwright 夹具**（fixture） ——
   确定性的、不带聊天的按钮组比聊天界面更容易驱动——后者里选择器
   要等一次 LLM 调用之后才出现。
 - **非聊天 UI** —— 仪表盘、侧边面板、Inspector

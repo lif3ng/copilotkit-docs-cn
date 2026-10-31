@@ -4,10 +4,7 @@ category: popular
 language: python
 logo: /logos/langgraph-python.svg
 description: >-
-  The most feature-complete CopilotKit integration. LangGraph provides a flexible
-  graph-based framework for building agents with Python. Supports the full range of
-  CopilotKit features including generative UI, shared state, human-in-the-loop,
-  sub-agents, and streaming.
+  特性最完整的 CopilotKit 集成。LangGraph 提供灵活的基于图的 Python 智能体构建框架，支持 CopilotKit 的全部特性，包括生成式 UI、共享状态、人机协同、子智能体与流式传输。
 partner_docs: https://docs.copilotkit.ai/integrations/langgraph
 repo: https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/langgraph-python
 copilotkit_version: 2.0.0

@@ -30,7 +30,7 @@ export function LandingIntegrationPicker({
   frontends,
   integrations,
   defaultFrontend = "react",
-  frontendLegend = "Your frontend",
+  frontendLegend = "你的前端",
 }: {
   frontends: readonly MapPick[];
   integrations: readonly LandingIntegration[];
@@ -81,7 +81,7 @@ export function LandingIntegrationPicker({
         </div>
       </fieldset>
       <h3 className="mt-7 text-xs font-medium text-[var(--text-secondary)]">
-        Your agent backend
+        你的智能体后端
       </h3>
       <div className="mt-2 grid grid-cols-1 gap-x-7 sm:grid-cols-2 lg:grid-cols-3">
         {integrations.map((integration) => {
@@ -115,10 +115,10 @@ export function LandingIntegrationPicker({
               </PopoverTrigger>
               <PopoverContent
                 align="start"
-                aria-label={`${integration.name} language`}
+                aria-label={`${integration.name} 语言选择`}
               >
                 <p className="px-3 py-2 text-xs text-[var(--text-muted)]">
-                  Choose your language
+                  选择你的语言
                 </p>
                 {integration.choices.map((choice) => (
                   <Link

@@ -252,7 +252,7 @@ import { CopilotKit } from "@copilotkit/react-core/v2";
 
 ## 后端
 
-后端有两项职责：在智能体分发之前校验令牌，并把解析出的用户身份作为一个**依赖（dependency）**穿入运行，供工具稍后读取。依赖只留在服务器端——与会话变量不同，它们永远不会作为状态流式传输到客户端。
+后端有两项职责：在智能体分发之前校验令牌，并把解析出的用户身份作为一个**依赖**（dependency）穿入运行，供工具稍后读取。依赖只留在服务器端——与会话变量不同，它们永远不会作为状态流式传输到客户端。
 
 先在 AG2 的 `/chat` 端点上校验令牌。`Authorization` 请求头会作为普通的 FastAPI `Header(...)` 参数传入：
 
@@ -557,9 +557,9 @@ const runtime = new CopilotRuntime({
 
 对表中所有“是”的行，你无需构建任何归属表。你要做好的是 `identifyUser` 本身：
 
-- **从服务器验证过的凭证派生 id。**回调收到的是原始 `Request`；它的返回值从此即被视为可信。直接从头或请求体里读用户 id，等于把自我命名的权力交给每一个调用者。
-- **返回稳定的 id。**它是线程挂靠的键。一旦变更——比如把邮箱换成 subject 声明——该用户的既有线程就无法解析了。
-- **在 `onRequest` 中发出 `401`。**除了状态码不对——`identifyUser` 抛错会表现为 `500`，id 格式非法表现为 `400`——`transcribe` 和 `agent/suggest` 之类的路由从不调用它，因此只放在这里的检查并非每个请求都会经过。请在 `onRequest` 中认证——它在每条路由上运行且能直接抛出 `Response`——并把 `identifyUser` 内的抛错留作兜底。
+- **从服务器验证过的凭证派生 id**。回调收到的是原始 `Request`；它的返回值从此即被视为可信。直接从头或请求体里读用户 id，等于把自我命名的权力交给每一个调用者。
+- **返回稳定的 id**。它是线程挂靠的键。一旦变更——比如把邮箱换成 subject 声明——该用户的既有线程就无法解析了。
+- **在 `onRequest` 中发出 `401`**。除了状态码不对——`identifyUser` 抛错会表现为 `500`，id 格式非法表现为 `400`——`transcribe` 和 `agent/suggest` 之类的路由从不调用它，因此只放在这里的检查并非每个请求都会经过。请在 `onRequest` 中认证——它在每条路由上运行且能直接抛出 `Response`——并把 `identifyUser` 内的抛错留作兜底。
 
 <Callout type="warn">
   静态的 `identifyUser` 值只适用于单用户演示。在多用户应用中，每个请求都必须解析出已认证的用户，否则这些用户会共享同一个线程范围。
@@ -648,10 +648,10 @@ const handler = createCopilotRuntimeHandler({
 
 - **始终在后端校验**令牌。永远不要相信前端的声明。
 - **每一次读写都限定**到解析出的用户。认证上下文只有在你真正用它过滤数据时才有意义。
-- **在 `onRequest` 中认证。**它是唯一在每条路由上都运行的 hook。`identifyUser` 为调用者命名；它不设门禁，而且有些路由从不调用它。
-- **把线程绑定到用户。**在 CopilotKit Intelligence 上，这意味着一个正确的 `identifyUser`，加上你对 `threads/events` 和 `threads/state` 的自设防线；在其之外，则是对每条线程路由做归属检查，而不是只在登录时检查。见[线程授权](#线程授权)。
-- **不要记录原始令牌。**改为记录解析出的用户 id（或 `anonymous`）。
+- **在 `onRequest` 中认证**。它是唯一在每条路由上都运行的 hook。`identifyUser` 为调用者命名；它不设门禁，而且有些路由从不调用它。
+- **把线程绑定到用户**。在 CopilotKit Intelligence 上，这意味着一个正确的 `identifyUser`，加上你对 `threads/events` 和 `threads/state` 的自设防线；在其之外，则是对每条线程路由做归属检查，而不是只在登录时检查。见[线程授权](#线程授权)。
+- **不要记录原始令牌**。改为记录解析出的用户 id（或 `anonymous`）。
 - **生产环境使用 HTTPS。**Bearer 令牌是敏感信息。
-- **刷新策略。**前端负责在过期令牌到达智能体之前轮换它。CopilotKit 不会替你刷新。
+- **刷新策略**。前端负责在过期令牌到达智能体之前轮换它。CopilotKit 不会替你刷新。
 
 <IntegrationGrid path="auth" />

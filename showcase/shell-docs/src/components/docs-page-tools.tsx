@@ -84,15 +84,15 @@ export function DocsPageTools({
     <div
       className={`docs-page-tools flex min-w-0 flex-row items-center${hideOnboardingPrompt ? "" : " docs-page-tools-prompt"}`}
       role="group"
-      aria-label="Page actions"
+      aria-label="页面操作"
     >
       {hideOnboardingPrompt ? (
         <MarkdownCopyButton
           markdownUrl={markdownUrl}
-          title="Copy page as Markdown"
+          title="以 Markdown 复制页面"
           className="docs-page-actions-primary"
         >
-          Copy page
+          复制页面
         </MarkdownCopyButton>
       ) : pagePrompt ? (
         <PagePromptCopyButton
@@ -100,7 +100,7 @@ export function DocsPageTools({
           markdownUrl={markdownUrl}
           className="docs-page-actions-primary"
         >
-          Copy prompt
+          复制提示
         </PagePromptCopyButton>
       ) : (
         <OnboardingPromptCopyButton
@@ -109,7 +109,7 @@ export function DocsPageTools({
           markdownUrl={markdownUrl}
           className="docs-page-actions-primary"
         >
-          Copy prompt
+          复制提示
         </OnboardingPromptCopyButton>
       )}
       <ViewOptionsPopover

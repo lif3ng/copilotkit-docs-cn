@@ -3,7 +3,7 @@ slug: crewai-conversational-flows
 category: popular
 language: python
 logo: /logos/crewai-crews.svg
-description: CopilotKit integration with CrewAI Conversational Flows
+description: CopilotKit 与 CrewAI Conversational Flows 的集成。
 partner_docs: null
 repo: https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/crewai-conversational-flows
 copilotkit_version: 2.0.0

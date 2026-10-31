@@ -12,49 +12,49 @@ const data: FrameworkOverviewData = {
   slug: "google-adk",
   frameworkName: "ADK",
   iconKey: "adk",
-  header: "Bring your ADK agents to your users",
+  header: "把你的 ADK 智能体带到用户面前",
   subheader:
-    "ADK runs your agents. CopilotKit gives them a surface your users can see, interrupt and steer.",
+    "ADK 负责运行你的智能体，CopilotKit 则为它们提供一个用户看得见、可中断、也能操控的界面。",
   // Was "/adk/quickstart/adk", which the link rewriter turns into
   // /google-adk/quickstart/adk — a 404. The quickstart lives one level up.
   guideLink: "/adk/quickstart",
   initCommand: "npx copilotkit@latest init",
   featuresLink: "https://feature-viewer.copilotkit.ai/adk/feature/agentic_chat",
 
-  lede: "ADK gives you the agent: tools, sessions and a runner that serves them. What it does not give you is the surface. Somewhere for the conversation to happen, a way to show the run while it is running, and a moment for a person to step in. Each capability below builds on something your agent already does.",
+  lede: "ADK 为你提供智能体本身：工具、会话，以及为它们服务的运行器。它没有提供的，是界面——一个让对话发生的地方，一种在运行过程中展示运行状态的方式，一个让人适时介入的时机。下方的每项能力，都建立在你的智能体已经在做的事情之上。",
   supportedFeatures: [
     {
-      title: "Generative UI",
+      title: "生成式 UI",
       iconKey: "paintbrush",
       description:
-        "Your agent calls tools and updates session state as it runs. CopilotKit streams both to the browser and renders them as React components your users watch update while the agent works.",
+        "你的智能体在运行过程中调用工具并更新会话状态。CopilotKit 将两者流式传输到浏览器，并渲染为 React 组件，让用户在智能体工作的同时亲眼看着它们更新。",
       documentationLink: "/adk/generative-ui",
     },
     {
-      title: "Human-in-the-loop",
+      title: "人机协同（human-in-the-loop）",
       iconKey: "user",
       description:
-        "AGUIToolset() puts frontend tools in reach of your agent. CopilotKit renders the one that asks for a decision, waits for the user's answer, and hands it back as the tool result.",
+        "AGUIToolset() 让你的智能体能够调用前端工具。CopilotKit 会渲染出那个需要用户做决定的工具，等待用户作答，再把答案作为工具结果交还回去。",
       documentationLink: "/adk/human-in-the-loop",
     },
     {
-      title: "Shared state",
+      title: "共享状态",
       iconKey: "repeat",
       description:
-        "ADK sessions keep state between turns on the server. CopilotKit mirrors it into your app and back, so a user edit and an agent write land in the same place.",
+        "ADK 会话在服务器端跨轮次保存状态。CopilotKit 把它同步到你的应用、再同步回去，让用户的编辑和智能体的写入落在同一处。",
       documentationLink: "/adk/shared-state",
     },
   ],
   hasAfterFeaturesMdx: true,
   capabilitiesFootnote: {
-    text: "Chat surfaces, headless UI, frontend tools and multi-agent flows work with ADK too.",
-    linkLabel: "And more",
+    text: "对话界面、无头（headless）UI、前端工具与多智能体流程同样适用于 ADK。",
+    linkLabel: "以及更多",
     href: "/adk/build-with-agents",
   },
 
   connect: {
     intro:
-      "Your agent keeps running as its own Python service, with the AG-UI bridge from ag_ui_adk in front of it. CopilotKit reaches that service over HTTP, so nothing inside the agent changes.",
+      "你的智能体继续作为独立的 Python 服务运行，前面加上来自 ag_ui_adk 的 AG-UI 桥接器。CopilotKit 通过 HTTP 访问该服务，智能体内部无需任何改动。",
     filename: "app/api/copilotkit/route.ts",
     language: "ts",
     code: `import {
@@ -82,12 +82,12 @@ export const POST = handler;`,
   showcase: {
     integration: "google-adk",
     intro:
-      "ADK and CopilotKit running together, in the React frontend. Every demo below is the same integration with one capability turned on.",
+      "ADK 与 CopilotKit 在 React 前端中协同运行。下面的每个演示都是同一个集成，只是开启了不同的能力。",
     demos: [
-      { slug: "agentic-chat", title: "Pre-Built: CopilotChat" },
-      { slug: "hitl-in-chat", title: "Human In the Loop: In-chat" },
-      { slug: "shared-state-read-write", title: "Shared State: Read + Write" },
-      { slug: "gen-ui-agent", title: "Generative UI: Agent State" },
+      { slug: "agentic-chat", title: "预构建：CopilotChat" },
+      { slug: "hitl-in-chat", title: "人机协同：对话中" },
+      { slug: "shared-state-read-write", title: "共享状态：读 + 写" },
+      { slug: "gen-ui-agent", title: "生成式 UI：智能体状态" },
     ],
   },
 

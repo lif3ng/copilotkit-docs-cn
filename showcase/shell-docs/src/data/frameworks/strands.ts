@@ -13,47 +13,47 @@ const data: FrameworkOverviewData = {
   slug: "strands",
   frameworkName: "AWS Strands",
   iconKey: "awsStrands",
-  header: "Bring your AWS Strands agents to your users",
+  header: "把你的 AWS Strands 智能体带到用户面前",
   subheader:
-    "Strands runs your agents. CopilotKit gives them a surface your users can see, interrupt and steer.",
+    "Strands 负责运行你的智能体，CopilotKit 则为它们提供一个用户看得见、可中断、也能操控的界面。",
   guideLink: "/aws-strands/quickstart",
   initCommand: "npx copilotkit@latest init",
   featuresLink:
     "https://feature-viewer.copilotkit.ai/aws-strands/feature/agentic_chat",
 
-  lede: "Strands gives you the agent: a model, a tool loop and the state it carries between turns. What it does not give you is the surface. Somewhere for the conversation to happen, a way to show the run while it is running, and a moment for a person to step in. Each capability below builds on something your agent already does.",
+  lede: "Strands 为你提供智能体本身：一个模型、一个工具循环，以及它在多轮对话之间携带的状态。它没有提供的，是界面——一个让对话发生的地方，一种在运行过程中展示运行状态的方式，一个让人适时介入的时机。下方的每项能力，都建立在你的智能体已经在做的事情之上。",
   supportedFeatures: [
     {
-      title: "Generative UI",
+      title: "生成式 UI",
       iconKey: "paintbrush",
       description:
-        "Your agent calls tools and reports progress as it works. CopilotKit streams that to the browser and renders each step as a React component, instead of leaving the user with a spinner.",
+        "你的智能体在工作中调用工具并汇报进度。CopilotKit 将这些信息流式传输到浏览器，并把每一步渲染为 React 组件，而不是让用户对着加载转圈干等。",
       documentationLink: "/aws-strands/generative-ui",
     },
     {
-      title: "Human-in-the-loop",
+      title: "人机协同（human-in-the-loop）",
       iconKey: "user",
       description:
-        "A frontend tool registered with useHumanInTheLoop renders your own UI, waits for the user's answer, and hands it back to the agent as the tool result.",
+        "通过 useHumanInTheLoop 注册的前端工具会渲染你自己的 UI，等待用户作答，再把答案作为工具结果交还给智能体。",
       documentationLink: "/aws-strands/human-in-the-loop",
     },
     {
-      title: "Shared state",
+      title: "共享状态",
       iconKey: "repeat",
       description:
-        "Your agent keeps state on the server between turns. CopilotKit mirrors it into your app and back, so a user edit and an agent write land in the same place.",
+        "你的智能体在服务器端跨轮次保存状态。CopilotKit 把它同步到你的应用、再同步回去，让用户的编辑和智能体的写入落在同一处。",
       documentationLink: "/aws-strands/shared-state",
     },
   ],
   capabilitiesFootnote: {
-    text: "Chat surfaces, headless UI, frontend tools and multi-agent flows work with Strands too.",
-    linkLabel: "And more",
+    text: "对话界面、无头（headless）UI、前端工具与多智能体流程同样适用于 Strands。",
+    linkLabel: "以及更多",
     href: "/aws-strands/build-with-agents",
   },
 
   connect: {
     intro:
-      "Your agent keeps running as its own Python service, with the AG-UI bridge from ag_ui_strands in front of it. CopilotKit reaches that service over HTTP, so nothing inside the agent changes.",
+      "你的智能体继续作为独立的 Python 服务运行，前面加上来自 ag_ui_strands 的 AG-UI 桥接器。CopilotKit 通过 HTTP 访问该服务，智能体内部无需任何改动。",
     filename: "app/api/copilotkit/route.ts",
     language: "ts",
     code: `import {
@@ -85,12 +85,12 @@ export const POST = handler;`,
       "strands-typescript": "strands-typescript",
     },
     intro:
-      "Strands and CopilotKit running together, in the React frontend. Every demo below is the same integration with one capability turned on.",
+      "Strands 与 CopilotKit 在 React 前端中协同运行。下面的每个演示都是同一个集成，只是开启了不同的能力。",
     demos: [
-      { slug: "agentic-chat", title: "Pre-Built: CopilotChat" },
-      { slug: "hitl-in-chat", title: "Human In the Loop: In-chat" },
-      { slug: "shared-state-read-write", title: "Shared State: Read + Write" },
-      { slug: "gen-ui-agent", title: "Generative UI: Agent State" },
+      { slug: "agentic-chat", title: "预构建：CopilotChat" },
+      { slug: "hitl-in-chat", title: "人机协同：对话中" },
+      { slug: "shared-state-read-write", title: "共享状态：读 + 写" },
+      { slug: "gen-ui-agent", title: "生成式 UI：智能体状态" },
     ],
   },
 

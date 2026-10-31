@@ -38,7 +38,7 @@ description: 从你的应用写入智能体的状态。
   <Step>
     ### 定义智能体状态
 
-    在 AG2 中，共享状态保存在智能体的**会话变量（conversation variables）**中。`AGUIStream` 会对它们进行双向同步：从 UI 写入的状态（`agent.setState`）通过 `RunAgentInput.state` 到达并被合并进本次运行的变量，而工具对变量所做的修改则会自动以 `STATE_SNAPSHOT` 事件的形式流式传回。
+    在 AG2 中，共享状态保存在智能体的**会话变量**（conversation variables）中。`AGUIStream` 会对它们进行双向同步：从 UI 写入的状态（`agent.setState`）通过 `RunAgentInput.state` 到达并被合并进本次运行的变量，而工具对变量所做的修改则会自动以 `STATE_SNAPSHOT` 事件的形式流式传回。
 
     ```python title="agent.py"
     from typing import Annotated

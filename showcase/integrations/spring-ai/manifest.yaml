@@ -4,13 +4,7 @@ category: enterprise-platform
 language: java
 logo: /logos/spring-ai.svg
 description: >-
-  CopilotKit integration with Spring AI. Java-based agent backend with full
-  feature coverage including frontend tools, in-chat and in-app human-in-the-
-  loop, generative UI, per-tool renderers, agent context, interrupt-adapted
-  scheduling (Strategy B), per-token state streaming, and prebuilt chat surfaces
-  (sidebar / popup / slots / headless). Demos that depend on LangGraph-specific
-  primitives (interrupt, multi-agent orchestration, MCP-driven UI) are
-  documented as skipped in PARITY_NOTES.md.
+  CopilotKit 与 Spring AI 的集成。基于 Java 的智能体后端，具备完整特性覆盖。
 partner_docs: null
 repo: https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/spring-ai
 copilotkit_version: 2.0.0

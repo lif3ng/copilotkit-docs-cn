@@ -3,7 +3,7 @@ slug: strands
 category: emerging
 language: python
 logo: /logos/strands.svg
-description: CopilotKit integration with AWS Strands
+description: CopilotKit 与 AWS Strands 的集成。
 managed_platform:
   name: AWS Bedrock AgentCore
   url: https://aws.amazon.com/bedrock/agents/

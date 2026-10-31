@@ -130,7 +130,7 @@ export function ChannelsActivationStrip({
           id="channels-activation-heading"
           className="self-center text-2xl font-semibold tracking-[-0.02em] text-[var(--text)] sm:text-[1.75rem]"
         >
-          The Channels SDK brings your agents where work happens.
+          Channels SDK 将你的智能体带到工作发生之处。
         </h2>
         {/* Action to the right of the copy, both under the heading. The channel
             and backend pickers are gone: the guide asks which platform and
@@ -138,9 +138,8 @@ export function ChannelsActivationStrip({
             question twice and changed nothing about what got copied. */}
         <div className="flex flex-col gap-4 sm:col-start-2 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
           <p className="m-0 max-w-[68ch] text-sm leading-relaxed text-[var(--text-secondary)] sm:text-[15px]">
-            Bring your agent into Slack or Microsoft Teams, with more platforms
-            on the way. Copy this prompt and your coding agent builds your first
-            channel with you, on any supported agent framework.
+            将你的智能体接入 Slack 或 Microsoft Teams，后续还会支持更多平台。
+            复制这段提示，你的编码智能体便会与你一起搭建第一个渠道，适用于任何受支持的智能体框架。
           </p>
 
           <DocsPromptActions
@@ -165,7 +164,7 @@ export function ChannelsActivationStrip({
       </div>
 
       <div className="mt-5 border-t border-[var(--border)] pt-4 text-sm text-[var(--text-secondary)]">
-        Prefer to do it yourself?{" "}
+        想自己动手？{" "}
         <Link
           href={CHANNELS_SDK_DOCS_PATH}
           onClick={() =>
@@ -178,9 +177,9 @@ export function ChannelsActivationStrip({
           }
           className="font-semibold text-[var(--accent)] underline decoration-[var(--accent)]/30 underline-offset-4 hover:decoration-[var(--accent)]"
         >
-          Read the Channels docs
+          阅读渠道文档
         </Link>{" "}
-        or{" "}
+        或{" "}
         <a
           href={CHANNELS_OPENTAG_HREF}
           target="_blank"
@@ -195,9 +194,9 @@ export function ChannelsActivationStrip({
           }
           className="font-semibold text-[var(--accent)] underline decoration-[var(--accent)]/30 underline-offset-4 hover:decoration-[var(--accent)]"
         >
-          clone OpenTag on GitHub
+          在 GitHub 上克隆 OpenTag
         </a>{" "}
-        for a complete working example.
+        以获取完整可运行的示例。
       </div>
     </section>
   );

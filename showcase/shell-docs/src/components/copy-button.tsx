@@ -25,9 +25,9 @@ export function CopyButton({ text }: { text: string }) {
   const error = state === "error";
 
   let label: string;
-  if (copied) label = "Copied";
-  else if (error) label = "Copy blocked";
-  else label = "Copy";
+  if (copied) label = "已复制";
+  else if (error) label = "复制失败";
+  else label = "复制";
 
   return (
     <button

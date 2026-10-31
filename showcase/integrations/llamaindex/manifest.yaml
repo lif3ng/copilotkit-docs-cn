@@ -3,7 +3,7 @@ slug: llamaindex
 category: emerging
 language: python
 logo: /logos/llamaindex.svg
-description: CopilotKit integration with LlamaIndex
+description: CopilotKit 与 LlamaIndex 的集成。
 partner_docs: null
 repo: https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/llamaindex
 copilotkit_version: 2.0.0

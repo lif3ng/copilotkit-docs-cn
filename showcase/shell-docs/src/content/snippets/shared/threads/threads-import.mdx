@@ -142,7 +142,7 @@ import { Tabs, Tab } from "fumadocs-ui/components/tabs";
     导入只复制受支持的历史，不会建立持续的数据库复制。智能中枢的重命名、归档和删除操作只影响智能中枢自己的记录。
 
     - **Threads Drawer**：CLI 创建的起步模板已经内置。使用 [Threads Drawer 指南](/prebuilt-components/copilot-threads-drawer)自定义这套现成的线程 UI。
-    - **无头线程（Headless Threads）**：仅当需要自定义 UI 时使用[无头线程指南](/headless-threads)。用 `useThreads` 选择线程，保存其 `thread.id`，并把该值作为 `threadId` 传给你的聊天组件。
+    - **无头线程**（Headless Threads）：仅当需要自定义 UI 时使用[无头线程指南](/headless-threads)。用 `useThreads` 选择线程，保存其 `thread.id`，并把该值作为 `threadId` 传给你的聊天组件。
 
     重新打开会话时，使用 Drawer 或 `useThreads` 返回的导入 `thread.id`。与原生 ID 的任何映射保持不变。
 

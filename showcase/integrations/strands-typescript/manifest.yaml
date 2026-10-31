@@ -4,10 +4,7 @@ category: emerging
 language: typescript
 logo: /logos/strands-typescript.svg
 description: >-
-  TypeScript variant of the AWS Strands integration. Uses
-  @strands-agents/sdk to define an agent with tool calling, shared state,
-  and human-in-the-loop, connected to CopilotKit via the @ag-ui/aws-strands
-  adapter.
+  AWS Strands 集成的 TypeScript 变体。使用 @strands-agents/sdk 定义智能体，并支持 CopilotKit 的核心特性。
 managed_platform:
   name: AWS Bedrock AgentCore
   url: https://aws.amazon.com/bedrock/agents/

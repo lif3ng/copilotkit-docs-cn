@@ -20,7 +20,7 @@ doc_type: how-to
 该应用有三个进程：
 
 1. **Angular 客户端**渲染聊天与生成式 UI，并运行 agent。
-2. **运行时 / 后端即前端（BFF）**接好 Copilot Runtime、解析每请求用户、执行工具策略、代理记忆，并把每次运行转发给你的 agent。这一层负责身份、策略与记忆访问。
+2. **运行时 / 后端即前端**（BFF）接好 Copilot Runtime、解析每请求用户、执行工具策略、代理记忆，并把每次运行转发给你的 agent。这一层负责身份、策略与记忆访问。
 3. **Google ADK 智能体**负责推理并发出生成式 UI。一个可选的确定性专项 agent 处理固定负载。
 
 <Callout type="info" title="在 BFF 中校验身份与策略">

@@ -4,10 +4,7 @@ category: agent-framework
 language: python
 logo: /logos/google-adk.svg
 description: >-
-  CopilotKit integration with Google ADK (Agent Development Kit). Each demo is
-  a distinct ADK LlmAgent powered by Gemini, exposed via the ag-ui-adk
-  middleware so the React-side CopilotKit components can drive real ADK agents
-  end-to-end.
+  CopilotKit 与 Google ADK（Agent Development Kit）的集成。每个演示都是一个独立的智能体后端，演示一个特定的 CopilotKit 特性。
 partner_docs: null
 repo: https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/google-adk
 copilotkit_version: 2.0.0

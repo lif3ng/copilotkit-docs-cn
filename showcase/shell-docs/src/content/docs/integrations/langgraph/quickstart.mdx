@@ -776,8 +776,8 @@ npm install --save-exact @copilotkit/sdk-js zod@3 langchain@1.5.9
                 - 检查 `.env` 文件中的 OpenAI API 密钥是否设置正确
                 - 如果使用现有智能体，请确保也已配置 LangSmith API 密钥
                 - 运行 `langgraph dev` 命令时，确保你位于 `langgraph.json` 文件所在的文件夹中
-                - **runtime 连接被拒绝？**检查端口。不带参数的 `langgraph dev` 监听 `2024`；而本指南的启动命令用 `--port 8123` 固定了 `8123`。runtime 的 `LANGGRAPH_DEPLOYMENT_URL`（或其回退值）必须指向智能体实际绑定的端口。
-                - **“graph is nullish” 报错（JavaScript 起步模板）**：这意味着 LangGraph CLI 无法加载你的图。确保 `langgraph.json` 中的导出名与你的代码一致（例如 `"starterAgent": "./src/agent.ts:graph"` 要求 `agent.ts` 中有 `export const graph = ...`）。同时请在智能体目录中运行 `npm install`，确认所有依赖都已安装。
+                - **runtime 连接被拒绝**？检查端口。不带参数的 `langgraph dev` 监听 `2024`；而本指南的启动命令用 `--port 8123` 固定了 `8123`。runtime 的 `LANGGRAPH_DEPLOYMENT_URL`（或其回退值）必须指向智能体实际绑定的端口。
+                - **“graph is nullish” 报错**（JavaScript 起步模板）：这意味着 LangGraph CLI 无法加载你的图。确保 `langgraph.json` 中的导出名与你的代码一致（例如 `"starterAgent": "./src/agent.ts:graph"` 要求 `agent.ts` 中有 `export const graph = ...`）。同时请在智能体目录中运行 `npm install`，确认所有依赖都已安装。
                 - 确保 runtime 端点路径与你的 CopilotKit provider 中的 `runtimeUrl` 一致
             </Accordion>
         </Accordions>

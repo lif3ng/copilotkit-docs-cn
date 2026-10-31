@@ -3,7 +3,7 @@ slug: crewai-crews
 category: popular
 language: python
 logo: /logos/crewai-crews.svg
-description: CopilotKit integration with regular CrewAI Flows
+description: CopilotKit 与常规 CrewAI Flows 的集成。
 partner_docs: null
 repo: https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/crewai-crews
 copilotkit_version: 2.0.0

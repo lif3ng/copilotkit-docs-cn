@@ -4,9 +4,7 @@ category: agent-framework
 language: python
 logo: /logos/claude-sdk-python.svg
 description: >-
-  CopilotKit integration with Claude Agent SDK (Python). Supports the full range of
-  CopilotKit features including generative UI, shared state, human-in-the-loop,
-  sub-agents, and streaming.
+  CopilotKit 与 Claude Agent SDK（Python）的集成。支持 CopilotKit 的全部特性，包括生成式 UI、共享状态、人机协同、子智能体与流式传输。
 partner_docs: null
 repo: https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/claude-sdk-python
 copilotkit_version: 2.0.0

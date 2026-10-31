@@ -1,6 +1,6 @@
 ---
 title: 为 Strands 对话添加 AG-UI 流
-nav_title: Add to Existing Threads
+nav_title: 接入既有线程
 description: "为现有智能体对话添加 Intelligence 的 AG-UI 流，并可选地对受支持的存储进行历史导入。"
 icon: "lucide/Repeat"
 doc_type: how-to
@@ -269,6 +269,6 @@ export CPK_INTELLIGENCE_API_KEY="cpk-..."
 保持应用的前端工具、审批处理器与 UI 渲染器处于配置状态。对于不带生成包装器的原生 A2UI 输出，请在 A2UI 中间件配置中设置 `a2uiGenerationToolNames: []`；如果你的应用使用生成包装器，则改为列出它们的工具名。参见 [A2UI 配置](/generative-ui/a2ui)。
 
 - **Threads Drawer**：CLI 创建的起步模板已内置。使用 [Threads Drawer 指南](/prebuilt-components/copilot-threads-drawer)自定义其现成的线程 UI。
-- **无头线程（Headless Threads）**：仅在你需要自定义 UI 时使用[无头线程指南](/headless-threads)。用 `useThreads` 选择线程，保存其 `thread.id`，并将该值作为 `threadId` 传给你的聊天组件。
+- **无头线程**（Headless Threads）：仅在你需要自定义 UI 时使用[无头线程指南](/headless-threads)。用 `useThreads` 选择线程，保存其 `thread.id`，并将该值作为 `threadId` 传给你的聊天组件。
 
 打开一个已导入的对话并发送后续消息，即可继续它。

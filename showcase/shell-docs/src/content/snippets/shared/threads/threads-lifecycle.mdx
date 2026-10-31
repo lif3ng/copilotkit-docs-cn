@@ -31,7 +31,7 @@ import { CopilotChat } from "@copilotkit/react-core/v2";
 ```
 
 <Callout type="warn">
-  **自动生成的 id 在重新渲染间保持稳定，但重新挂载时会重新生成。**回退 id 由 `useMemo` 计算，因此组件*重新挂载*（React `key` 变化、父组件卸载再挂载，或开发模式下 React StrictMode 的双重挂载）会产生一个**新的** id，并静默地开启新会话。如果需要一个在重新挂载后仍然有效的 id，请自己生成并通过 `threadId` prop 传入（或持久化后用 `setActiveThreadId` 恢复）。不要依赖自动生成来保证连续性。
+  **自动生成的 id 在重新渲染间保持稳定，但重新挂载时会重新生成**。回退 id 由 `useMemo` 计算，因此组件*重新挂载*（React `key` 变化、父组件卸载再挂载，或开发模式下 React StrictMode 的双重挂载）会产生一个**新的** id，并静默地开启新会话。如果需要一个在重新挂载后仍然有效的 id，请自己生成并通过 `threadId` prop 传入（或持久化后用 `setActiveThreadId` 恢复）。不要依赖自动生成来保证连续性。
 </Callout>
 
 ## 历史如何恢复（hydration）
@@ -159,7 +159,7 @@ async function startConversation() {
 }
 ```
 
-**提交时拦截（仅限无头）**：如果你必须恰好在用户点击发送时拦截，请用 `CopilotChatInput` / `CopilotChatView` 自行组装 UI，并传入你自己的 `onSubmitMessage`（内置 `<CopilotChat>` 会忽略它）。由于处理器是你自己的，你可以把线程设置到 agent 上并驱动发送：
+**提交时拦截**（仅限无头）：如果你必须恰好在用户点击发送时拦截，请用 `CopilotChatInput` / `CopilotChatView` 自行组装 UI，并传入你自己的 `onSubmitMessage`（内置 `<CopilotChat>` 会忽略它）。由于处理器是你自己的，你可以把线程设置到 agent 上并驱动发送：
 
 ```tsx title="无头：发送前把线程设置到 agent 上"
 import { CopilotChatInput, useAgent } from "@copilotkit/react-core/v2";

@@ -4,9 +4,7 @@ category: popular
 language: typescript
 logo: /logos/langgraph-typescript.svg
 description: >-
-  TypeScript variant of the LangGraph integration. Uses @langchain/langgraph
-  to define a graph-based agent with tool calling, shared state, and memory,
-  connected to CopilotKit via the LangGraph AG-UI adapter.
+  LangGraph 集成的 TypeScript 变体。使用 @langchain/langgraph 定义状态图，通过 LangGraph JS 运行时执行，并支持 CopilotKit 的全部特性。
 partner_docs: https://docs.copilotkit.ai/integrations/langgraph
 repo: https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/langgraph-typescript
 copilotkit_version: 2.0.0

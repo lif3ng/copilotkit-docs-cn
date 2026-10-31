@@ -668,7 +668,7 @@ export function useComposeStage() {
 
   在 1.68 之前的 React Native 上，`useRenderTool` 是一个*不同的*、RN 本地的 hook，会同时注册工具和渲染器。现在携带 `description` 或 `handler` 的调用将无法通过类型检查——请把它改名为 `useFrontendTool`。[迁移说明](/reference/react-native/hooks/useRenderTool#migrating-from-the-old-react-native-userendertool)。
 
-  两个 hook 中 `status` 都是 `"inProgress"` / `"executing"` / `"complete"`——在 `useRenderTool` 的 render props 中类型是字符串字面量，在 `useFrontendTool` 中则是 `ToolCallStatus` 枚举成员。**你不必关心用的是哪种。**字符串枚举成员可以赋给其自身的字面量类型，因此字符串与成员对两种形态都可以互换比较，且两种形式都能收窄类型。如果你更想用枚举成员，`ToolCallStatus` 已作为值从 `/headless` 导出。
+  两个 hook 中 `status` 都是 `"inProgress"` / `"executing"` / `"complete"`——在 `useRenderTool` 的 render props 中类型是字符串字面量，在 `useFrontendTool` 中则是 `ToolCallStatus` 枚举成员。**你不必关心用的是哪种**。字符串枚举成员可以赋给其自身的字面量类型，因此字符串与成员对两种形态都可以互换比较，且两种形式都能收窄类型。如果你更想用枚举成员，`ToolCallStatus` 已作为值从 `/headless` 导出。
 
   对于长度无法预知的智能体生成内容，把它放进 `ScrollView` 并把 `maxHeight` 设为可用高度来渲染——内容短时随内容收缩，内容长时可滚动，因此永远不会被硬性截断。
 </Callout>

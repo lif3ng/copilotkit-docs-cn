@@ -1,6 +1,6 @@
 ---
 title: 为 LangGraph 线程添加 AG-UI 流
-nav_title: Add to Existing Threads
+nav_title: 接入既有线程
 description: "为现有智能体对话添加 Intelligence 的 AG-UI 流，并可选地对受支持的存储执行历史导入。"
 icon: "lucide/Repeat"
 doc_type: how-to
@@ -187,7 +187,7 @@ export CPK_INTELLIGENCE_API_KEY="cpk-..."
 你的应用会把之后的对话经由 CopilotKit 发送到 CopilotKit Intelligence。保持原有的 LangGraph 智能体及其持久化存储处于连接状态，并从 Threads Drawer 重新打开已导入的对话，即可从中断处继续，包括受支持的待审批项与输入请求。
 
 - **Threads Drawer**：CLI 创建的起步模板已内置。使用 [Threads Drawer 指南](/prebuilt-components/copilot-threads-drawer)自定义其现成的线程 UI。
-- **无头线程（Headless Threads）**：仅当你需要自定义 UI 时才使用[无头线程指南](/headless-threads)。用 `useThreads` 选中一个线程，保存其 `thread.id`，并把该值作为 `threadId` 传给你的聊天组件。
+- **无头线程**（Headless Threads）：仅当你需要自定义 UI 时才使用[无头线程指南](/headless-threads)。用 `useThreads` 选中一个线程，保存其 `thread.id`，并把该值作为 `threadId` 传给你的聊天组件。
 
 如果你的后端会把 CopilotKit 线程 ID 映射到 LangGraph 线程 ID，请保持该映射稳定，这样恢复的 CopilotKit 线程才能到达预期的 LangGraph 线程。LangGraph Platform 的线程 ID 必须是 UUID，因此必要时请持久化保存映射，而不要直接复用 CopilotKit 的 `threadId`。
 

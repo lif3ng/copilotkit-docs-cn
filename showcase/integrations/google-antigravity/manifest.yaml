@@ -4,9 +4,7 @@ category: agent-framework
 language: python
 logo: /logos/google-antigravity.svg
 description: >-
-  CopilotKit integration with Google Antigravity through the ag-ui-antigravity
-  adapter. The SDK drives a Go harness subprocess with real file and shell
-  access; hooks and client tools park across AG-UI runs without a proxy tool.
+  CopilotKit 通过 ag-ui-antigravity 适配器与 Google Antigravity 的集成。该适配器负责将 Antigravity 的事件桥接为 AG-UI 协议消息。
 partner_docs: https://antigravity.google/product/antigravity-sdk/
 repo: https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/google-antigravity
 copilotkit_version: 2.0.0

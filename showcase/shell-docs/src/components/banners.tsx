@@ -14,9 +14,9 @@ type BannerEntry = {
 
 const bannerContent: BannerEntry[] = [
   {
-    mobileText: "The Channels SDK is here",
-    title: "The Channels SDK brings your agents where work happens.",
-    buttonText: "Explore Channels",
+    mobileText: "Channels SDK 现已推出",
+    title: "Channels SDK 将你的智能体带到工作发生之处。",
+    buttonText: "探索渠道",
     href: "/channels",
   },
 ];
@@ -101,7 +101,7 @@ export function Banners() {
       <div className="relative z-1 flex w-full min-w-0 items-center justify-center gap-2 pr-8 md:gap-2.5">
         <span
           className="shell-docs-radius-icon hidden h-5 w-5 shrink-0 items-center justify-center border border-white/30 bg-white/16 text-white lg:inline-flex"
-          aria-label="Channels"
+          aria-label="渠道"
         >
           <MessageSquare className="h-3 w-3" aria-hidden="true" />
         </span>
@@ -129,7 +129,7 @@ export function Banners() {
       </div>
       <button
         type="button"
-        aria-label="Close Banner"
+        aria-label="关闭横幅"
         onClick={dismissBanner}
         className="absolute inset-e-2 top-1/2 z-10 inline-flex h-6 w-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/25 bg-white/10 text-white/85 transition-colors duration-100 hover:bg-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/55"
       >
