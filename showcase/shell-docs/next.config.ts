@@ -542,6 +542,18 @@ const nextConfig: NextConfig = {
     // ../../../../shared/generative-ui-catalog, which only resolves when the
     // compilation root contains showcase/shared.
     root: path.resolve(__dirname, ".."),
+    // Clerk ships Server Actions (app-router/server-actions.js), which
+    // `output: "export"` hard-rejects at build time. The mirror deployment
+    // renders the provider's no-key passthrough anyway (empty publishableKey),
+    // so alias the provider to a Clerk-free stub in export mode.
+    ...(STATIC_EXPORT
+      ? {
+          resolveAlias: {
+            "@/components/public-clerk-provider":
+              "./src/components/public-clerk-provider.export.tsx",
+          },
+        }
+      : {}),
     ignoreIssue: [
       {
         path: /showcase\/shell-docs\/next\.config\.ts$/,
