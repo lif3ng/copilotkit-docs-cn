@@ -324,6 +324,16 @@ const CTA_GRID_COLUMNS: Record<number, string> = {
 };
 
 export const docsComponents = {
+  // Snippets authored against the removed `multi-provider-content` module
+  // (self-hosting-copilot-runtime-* family) use <If conditions={[...]}> to
+  // switch provider-specific branches at runtime. No component supplies it
+  // and the dynamic site never rendered these pages on demand, so the gap
+  // only surfaced when static export prerendered every sitemap URL. Flatten
+  // all branches instead of crashing: mirror readers get redundant but
+  // complete content.
+  If: ({ children }: { children?: React.ReactNode; conditions?: unknown }) => (
+    <>{children}</>
+  ),
   Rocket,
   CircleDollarSign,
   Callout,
