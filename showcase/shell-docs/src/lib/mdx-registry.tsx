@@ -15,6 +15,11 @@ import {
   Server,
   Share2,
 } from "lucide-react";
+// Provider-picker icons referenced by the self-hosting snippet family's JSX
+// (see the MultiProviderContent note in docsComponents).
+import { IoLogoNodejs, IoLogoVercel } from "react-icons/io5";
+import { SiNestjs } from "react-icons/si";
+import { RiNextjsLine } from "react-icons/ri";
 import {
   Cards,
   Card,
@@ -334,7 +339,22 @@ export const docsComponents = {
   If: ({ children }: { children?: React.ReactNode; conditions?: unknown }) => (
     <>{children}</>
   ),
+  // The same removed multi-provider module family also leaks provider-picker
+  // icons into snippet JSX (self-hosting-copilot-runtime-create-endpoint's
+  // <Tabs items={[{ icon: <RiNextjsLine /> }]}>) and wraps whole sections in
+  // <MultiProviderContent providersConfig={...}>. Flatten the wrapper and
+  // import the real react-icons glyphs the snippets reference.
+  MultiProviderContent: ({
+    children,
+  }: {
+    children?: React.ReactNode;
+    providersConfig?: unknown;
+  }) => <>{children}</>,
   Rocket,
+  IoLogoNodejs,
+  IoLogoVercel,
+  SiNestjs,
+  RiNextjsLine,
   CircleDollarSign,
   Callout,
   ChannelsIntegrationPicker,
