@@ -2,17 +2,16 @@ import { Callout } from "fumadocs-ui/components/callout";
 import { LinkToCopilotCloud } from "@/components/react/link-to-copilot-cloud";
 import { Accordions, Accordion } from "fumadocs-ui/components/accordion";
 
-To connect to LangGraph agents through Copilot Cloud, we leverage a concept called "Remote Endpoints"
-which allow CopilotKit runtime to connect to various backends.
+要通过 Copilot Cloud 连接 LangGraph 智能体，我们借助了一个名为“远程端点（Remote Endpoints）”的概念，它允许 CopilotKit 运行时连接到各种后端。
 
-Navigate to <LinkToCopilotCloud asButton={false}>dashboard.operations.copilotkit.ai</LinkToCopilotCloud> and follow the video!
+前往 <LinkToCopilotCloud asButton={false}>dashboard.operations.copilotkit.ai</LinkToCopilotCloud> 并按照视频操作！
 
-You'll need a LangSmith API key which you can get with [this guide](https://docs.smith.langchain.com/administration/how_to_guides/organization_management/create_account_api_key#create-an-api-key) on LangSmith's website.
+你需要一个 LangSmith API 密钥，可以按照 LangSmith 网站上的[这份指南](https://docs.smith.langchain.com/administration/how_to_guides/organization_management/create_account_api_key#create-an-api-key)获取。
 
 <Accordions>
-<Accordion title="Using LangGraph Studio">
+<Accordion title="使用 LangGraph Studio">
 
-    If you're using a local deployment from LangGraph Studio, you'll need to open a tunnel to your LangGraph Studio deployment URL.
+    如果你使用的是 LangGraph Studio 的本地部署，就需要建立一条隧道，指向你的 LangGraph Studio 部署 URL。
 
     ```bash
     npx copilotkit@latest dev --port <port_number>
@@ -28,4 +27,4 @@ You'll need a LangSmith API key which you can get with [this guide](https://docs
   />
 </Frame>
 
-🎉 You should now see your LangGraph agent in the list of available agents in CopilotKit!
+🎉 现在，你应该能在 CopilotKit 的可用智能体列表中看到你的 LangGraph 智能体了！

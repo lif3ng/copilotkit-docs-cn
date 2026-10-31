@@ -1,17 +1,17 @@
 ---
 title: "CopilotKitProvider"
-description: "The Vue 3 provider component that wraps your application and supplies the CopilotKit context."
+description: "包裹你的应用并提供 CopilotKit 上下文的 Vue 3 提供方组件。"
 ---
 
 <Callout type="info">
-  This is the Vue 3 provider component. Import it from `@copilotkit/vue/v2`.
+  这是 Vue 3 提供方组件，请从 `@copilotkit/vue/v2` 导入。
 </Callout>
 
-`CopilotKitProvider` typically wraps your entire application (or a sub-tree where you want a copilot). It creates the CopilotKit core instance and provides the copilot context to all descendant components and composables (such as [`useCopilotKit`](/reference/vue/hooks/useCopilotKit) and [`useAgent`](/reference/vue/hooks/useAgent)).
+`CopilotKitProvider` 通常包裹你的整个应用（或你希望放置 copilot 的子树）。它会创建 CopilotKit 核心实例，并向所有后代组件与组合式函数（例如 [`useCopilotKit`](/reference/vue/hooks/useCopilotKit) 和 [`useAgent`](/reference/vue/hooks/useAgent)）提供 copilot 上下文。
 
-The wrapped application is rendered through the component's [default slot](#slots), since Vue uses slots rather than a `children` prop.
+被包裹的应用通过组件的[默认插槽](#插槽slots)渲染，因为 Vue 使用插槽而非 `children` prop。
 
-## Example
+## 示例
 
 ```vue
 <script setup lang="ts">
@@ -25,7 +25,7 @@ import { CopilotKitProvider } from "@copilotkit/vue/v2";
 </template>
 ```
 
-Connect to Copilot Cloud with a public API key instead of a self-hosted runtime:
+使用公开 API 密钥连接 Copilot Cloud，而非自托管运行时：
 
 ```vue
 <script setup lang="ts">
@@ -39,38 +39,38 @@ import { CopilotKitProvider } from "@copilotkit/vue/v2";
 </template>
 ```
 
-## Properties
+## 属性（Properties）
 
-You must provide at least one of `runtimeUrl`, `publicApiKey`, or `publicLicenseKey` (or a set of local agents), otherwise the provider warns in development and throws in production.
+你必须至少提供 `runtimeUrl`、`publicApiKey` 或 `publicLicenseKey` 之一（或一组本地智能体），否则该提供方会在开发环境下告警、在生产环境下抛错。
 
 <PropertyReference name="runtimeUrl" type="string">
-  The endpoint for the Copilot Runtime instance. When omitted but a public key is set, requests fall back to the Copilot Cloud chat endpoint.
+  Copilot Runtime 实例的端点。省略但设置了公开密钥时，
+  请求会回退到 Copilot Cloud 聊天端点。
 </PropertyReference>
 
 <PropertyReference name="headers" type="Record<string, string> | (() => Record<string, string>) | (() => Promise<Record<string, string>>)">
-  Additional headers to send with each request. Pass a plain object for
-  static headers, or a function (sync or async) that returns them. A builder
-  runs when each request is sent, so a refreshed token is always used.
+  随每个请求一起发送的额外请求头。静态请求头传普通对象，
+  或传返回请求头的函数（同步或异步）。构建器会在每个请求发送时执行，
+  因此始终使用刷新后的令牌。
 
-Cache inside the builder. Clerk's and Auth0's `getToken()` already cache. A
-builder that calls the network every time adds one call per request.
+请在构建器内部做缓存。Clerk 和 Auth0 的 `getToken()` 已自带缓存。
+每次都访问网络的构建器会为每个请求增加一次额外调用。
 
-If the builder throws or rejects, that request is not sent and `onError`
-gets `header_resolution_failed`.
+若构建器抛出异常或 Promise 被拒绝，该请求不会发送，
+`onError` 会收到 `header_resolution_failed`。
 
-Re-passing the same builder function is a no-op, and so is passing a new
-function through the `headers` prop: the provider keeps one stable wrapper for
-any builder. On a user switch, remount the provider (for example with a `key`),
-or call `copilotkit.value.setHeaders(...)` with a new function or a record, so
-Inspector metadata and thread lists reload for the new user. This does not
-refetch the runtime's `/info`.
+重复传入同一个构建器函数是空操作；通过 `headers` prop 传入新函数同样如此：
+提供方会为任何构建器保留一个稳定的包装器。切换用户时，
+请重新挂载提供方（例如借助 `key`），或用新函数或普通对象调用
+`copilotkit.value.setHeaders(...)`，以便为新用户重新加载 Inspector 元数据和线程列表。
+此操作不会重新获取运行时的 `/info`。
 
-`copilotkit.value.headers` is the last resolved value. Use
-`await copilotkit.value.resolveHeaders()` for your own requests.
+`copilotkit.value.headers` 是最近一次解析的值。
+发起自己的请求时可用 `await copilotkit.value.resolveHeaders()`。
 
-Core headers are also sent to any `selfManagedAgents` /
-`agents__unsafe_dev_only` agent, including ones on other origins. Don't put a
-bearer token in core headers if those agents point at a third party.
+核心请求头也会发送给任何 `selfManagedAgents` / `agents__unsafe_dev_only` 智能体，
+包括位于其他源（origin）的智能体。如果这些智能体指向第三方，
+请不要在核心请求头中放入 bearer 令牌。
 
 ```json
 {
@@ -81,18 +81,19 @@ bearer token in core headers if those agents point at a third party.
 </PropertyReference>
 
 <PropertyReference name="credentials" type="RequestCredentials">
-  Indicates whether the user agent should send or receive cookies for cross-origin requests. Set to `"include"` to enable HTTP-only cookie authentication (configure CORS with credentials on your runtime endpoint to match).
+  指示用户代理是否应为跨源请求发送或接收 cookie。设为 `"include"`
+  可启用 HTTP-only cookie 身份验证（需在运行时端点上配置带凭据的 CORS 以保持一致）。
 </PropertyReference>
 
 <PropertyReference name="messageFilter" type="(messages: Message[], context: { agentId: string }) => Message[]">
-  Rewrites the message list sent to the agent on every run.
+  重写每次运行时发送给智能体的消息列表。
 
-CopilotKit sends the whole thread with each request. When your agent already
-stores the conversation — a LangGraph checkpointer, a Mastra memory store, a
-Strands `SessionManager` — most of that payload is waste, and an agent that
-merges the inbound list with its own store can show the model every turn twice.
+CopilotKit 会随每个请求发送整个线程。当你的智能体已自行存储会话
+（如 LangGraph checkpointer、Mastra memory store、Strands `SessionManager`）时，
+这些负载大多是浪费，而将传入列表与其自身存储合并的智能体
+可能让模型把每一轮对话看两遍。
 
-Return the messages to send:
+返回要发送的消息：
 
 ```vue
 <CopilotKitProvider
@@ -103,41 +104,43 @@ Return the messages to send:
 </CopilotKitProvider>
 ```
 
-The filter changes the request body only. The transcript the UI renders is
-untouched, so the chat still shows the full conversation. Broken tool-call pairs
-are repaired before the request goes out, so a filter this blunt cannot strand a
-tool result mid-approval.
+该过滤器只改变请求体。UI 渲染的会话记录不受影响，因此聊天中仍显示完整对话。
+损坏的工具调用配对会在请求发出前修复，所以如此粗糙的过滤器
+也不会把工具结果卡在审批中间。
 
-Agents reached through your CopilotRuntime honor this. An agent your app
-constructs itself and passes in directly does not. CopilotKit Intelligence runs
-and suggestion runs are never filtered.
+经由你的 CopilotRuntime 访问的智能体会遵守此过滤器。
+你的应用自行构造并直接传入的智能体则不会。
+CopilotKit Intelligence 运行和建议运行永不过滤。
 
 </PropertyReference>
 
 <PropertyReference name="defaultThrottleMs" type="number">
-  Default throttle interval (in milliseconds) applied to `useAgent` composables that do not specify their own `throttleMs`. Must be a non-negative finite number; invalid values log an error and fall back to unthrottled.
+  应用于未指定自身 `throttleMs` 的 `useAgent` 组合式函数的默认节流间隔（毫秒）。
+  必须是非负有限数字；无效值会记录错误并回退为不限流。
 </PropertyReference>
 
 <PropertyReference name="publicApiKey" type="string">
-  Your Copilot Cloud API key.
+  你的 Copilot Cloud API 密钥。
 
-Don't have it yet? Go to https://dashboard.operations.copilotkit.ai and get one for free.
+还没有？前往 https://dashboard.operations.copilotkit.ai 免费获取一个。
 
 </PropertyReference>
 
 <PropertyReference name="publicLicenseKey" type="string">
-  Your public license key for accessing CopilotKit Intelligence features.
+  访问 CopilotKit Intelligence 特性的公开许可密钥。
 
-Don't have it yet? Go to https://dashboard.operations.copilotkit.ai and get one for free.
+还没有？前往 https://dashboard.operations.copilotkit.ai 免费获取一个。
 
 </PropertyReference>
 
 <PropertyReference name="licenseToken" type="string">
-  Signed license token for offline verification of CopilotKit Intelligence features. Obtain it from https://dashboard.operations.copilotkit.ai.
+  用于离线验证 CopilotKit Intelligence 特性的签名许可令牌。
+  可从 https://dashboard.operations.copilotkit.ai 获取。
 </PropertyReference>
 
 <PropertyReference name="properties" type="Record<string, unknown>" default="{}">
-  Custom properties sent with each request. Can include `threadMetadata` for thread creation and `authorization` for LangGraph Platform authentication.
+  随每个请求发送的自定义属性。可包含用于线程创建的 `threadMetadata`，
+  以及用于 LangGraph Platform 身份验证的 `authorization`。
 
 ```js
 {
@@ -153,54 +156,63 @@ Don't have it yet? Go to https://dashboard.operations.copilotkit.ai and get one 
 </PropertyReference>
 
 <PropertyReference name="useSingleEndpoint" type="boolean">
-  Controls the runtime transport. `true` uses a single endpoint, `false` uses the REST transport, and when omitted the transport is auto-detected.
+  控制运行时传输方式。`true` 使用单一端点，`false` 使用 REST 传输，
+  省略时自动检测传输方式。
 </PropertyReference>
 
 <PropertyReference name="agents__unsafe_dev_only" type="Record<string, AbstractAgent>" default="{}">
-  Local in-browser agents keyed by agent ID, for development only. These run client-side rather than through the runtime, so do not rely on them in production.
+  以智能体 ID 为键的浏览器内本地智能体，仅供开发使用。
+  它们在客户端运行而非经由运行时，因此不要在生产环境中依赖它们。
 </PropertyReference>
 
 <PropertyReference name="selfManagedAgents" type="Record<string, AbstractAgent>" default="{}">
-  Self-managed agents keyed by agent ID. Merged with `agents__unsafe_dev_only` (these take precedence on key collisions).
+  以智能体 ID 为键的自管理智能体。与 `agents__unsafe_dev_only` 合并
+  （键冲突时以这些为准）。
 </PropertyReference>
 
 <PropertyReference name="renderToolCalls" type="VueToolCallRenderer<any>[]">
-  Renderers for tool calls, mapping a tool name and argument schema to a Vue component used to render the tool call in the UI.
+  工具调用的渲染器，将工具名与参数模式映射为用于在 UI 中渲染该工具调用的 Vue 组件。
 </PropertyReference>
 
 <PropertyReference name="renderActivityMessages" type="VueActivityMessageRenderer<unknown>[]" default="[]">
-  Renderers for activity messages, mapping an activity type and content schema to a Vue component. The built-in MCP Apps renderer is always merged in automatically; the A2UI and Open Generative UI renderers are merged in when those features are active.
+  活动消息的渲染器，将活动类型与内容模式映射为 Vue 组件。
+  内置 MCP Apps 渲染器始终自动合并进来；A2UI 与 Open Generative UI 渲染器
+  则在这些特性激活时合并进来。
 </PropertyReference>
 
 <PropertyReference name="renderCustomMessages" type="VueCustomMessageRenderer[]" default="[]">
-  Renderers for custom message types.
+  自定义消息类型的渲染器。
 </PropertyReference>
 
 <PropertyReference name="frontendTools" type="VueFrontendTool[]" default="[]">
-  Frontend tools available to the agent. Must be a stable array; to add or remove tools dynamically, use the [`useFrontendTool`](/reference/vue/hooks/useFrontendTool) composable instead.
+  可供智能体使用的前端工具。必须为稳定数组；要动态增删工具，
+  请改用 [`useFrontendTool`](/reference/vue/hooks/useFrontendTool) 组合式函数。
 </PropertyReference>
 
 <PropertyReference name="humanInTheLoop" type="VueHumanInTheLoop[]" default="[]">
-  Human-in-the-loop tools that pause for user input before resolving. Must be a stable array; to add or remove them dynamically, use the [`useHumanInTheLoop`](/reference/vue/hooks/useHumanInTheLoop) composable instead.
+  在解析前暂停等待用户输入的人机协同（human-in-the-loop）工具。必须为稳定数组；
+  要动态增删，请改用 [`useHumanInTheLoop`](/reference/vue/hooks/useHumanInTheLoop) 组合式函数。
 </PropertyReference>
 
 <PropertyReference name="openGenerativeUI" type="{ sandboxFunctions?: SandboxFunction[]; designSkill?: string }">
-  Configuration for Open Generative UI. `sandboxFunctions` exposes host functions to generated sandboxed UI (callable via `Websandbox.connection.remote`), and `designSkill` overrides the default design guidelines provided to the generation tool. `sandboxFunctions` must be a stable array.
+  Open Generative UI 的配置。`sandboxFunctions` 将宿主函数暴露给生成的沙箱 UI
+  （可通过 `Websandbox.connection.remote` 调用），`designSkill` 覆盖提供给生成工具的
+  默认设计指南。`sandboxFunctions` 必须为稳定数组。
 </PropertyReference>
 
 <PropertyReference name="enableInspector" type="boolean">
-  Controls the CopilotKit Inspector during development. It is enabled by
-  default in browser development builds and is never loaded in production or
-  during SSR. In a Vue template, pass `:enable-inspector="false"` to disable it.
+  控制开发期间的 CopilotKit Inspector。它在浏览器开发构建中默认启用，
+  且在生产环境或 SSR 期间从不加载。在 Vue 模板中，
+  传入 `:enable-inspector="false"` 可将其禁用。
 </PropertyReference>
 
 <PropertyReference name="showDevConsole" type="boolean | &quot;auto&quot;">
-  **Deprecated:** use `enableInspector`. This prop no longer controls the
-  Inspector.
+  **已弃用**：请使用 `enableInspector`。此 prop 不再控制 Inspector。
 </PropertyReference>
 
 <PropertyReference name="onError" type="(event: { error: Error; code: CopilotKitCoreErrorCode; context: Record<string, any> }) => void | Promise<void>">
-  Optional error handler for debugging and observability. Receives a structured error event with the error, an error code, and contextual debugging information.
+  可选的错误处理器，用于调试与可观测性。接收一个结构化错误事件，
+  包含错误对象、错误代码和上下文调试信息。
 
 ```vue
 <script setup lang="ts">
@@ -225,9 +237,18 @@ function handleError(event: {
 </PropertyReference>
 
 <PropertyReference name="a2ui" type="{ theme?: A2UITheme; catalog?: any; loadingComponent?: Component; includeSchema?: boolean }">
-  Configuration for the A2UI (Agent-to-UI) renderer. The built-in A2UI renderer activates automatically when the runtime reports that `a2ui` is configured in `CopilotRuntime`, so this prop is optional and only needed to override the theme, supply a custom component `catalog`, set a `loadingComponent`, or toggle whether the schema is included (`includeSchema`).
+  A2UI（Agent-to-UI）渲染器的配置。当运行时报告 `CopilotRuntime` 中配置了
+  `a2ui` 时，内置 A2UI 渲染器会自动激活，因此此 prop 是可选的，
+  仅在需要覆盖主题、提供自定义组件 `catalog`、设置 `loadingComponent`
+  或切换是否包含模式（`includeSchema`）时才需要。
 
-  `includeSchema` defaults to `true`, which sends the catalog's component schemas and the A2UI generation and design guidelines to the agent as context. With `includeSchema: false`, the agent still receives the catalog ID and the names of the catalog's custom components, without their JSON schemas or the guidelines. A LangGraph agent that uses the CopilotKit middleware's injected A2UI tool then gives its A2UI subagent the component names only. To give the subagent more detail, pass a composition guide through the middleware's A2UI guidelines: `a2uiParams.guidelines.compositionGuide` in TypeScript, or `a2ui_params["guidelines"]["composition_guide"]` in Python.
+  `includeSchema` 默认为 `true`，会把目录的组件模式以及 A2UI 生成与设计指南
+  作为上下文发送给智能体。设为 `includeSchema: false` 时，智能体仍会收到目录 ID
+  和目录自定义组件的名称，但不含它们的 JSON 模式或指南。此时，
+  使用 CopilotKit 中间件注入的 A2UI 工具的 LangGraph 智能体只会把组件名交给
+  它的 A2UI 子智能体。若要给子智能体更多细节，请通过中间件的 A2UI 指南传入组合指南：
+  TypeScript 中为 `a2uiParams.guidelines.compositionGuide`，
+  Python 中为 `a2ui_params["guidelines"]["composition_guide"]`。
 
 ```vue
 <template>
@@ -243,17 +264,24 @@ function handleError(event: {
 </PropertyReference>
 
 <PropertyReference name="mcpApps" type="{ allowSameOriginFallback?: boolean }">
-  Configuration for the built-in MCP Apps renderer. `allowSameOriginFallback` restores `allow-same-origin` on the MCP App sandbox; by default widgets get an opaque origin. **Unsafe:** with it set, a widget runs with your page's origin and can read your cookies, storage and DOM. Only use it for widgets you trust that need `localStorage`, `IndexedDB` or cookies. See [Sandbox and widget storage](/vue/generative-ui/mcp-apps#sandbox-and-widget-storage).
+  内置 MCP Apps 渲染器的配置。`allowSameOriginFallback` 会在 MCP App 沙箱上恢复
+  `allow-same-origin`；默认情况下组件获得不透明源。**不安全**：设置后，
+  组件将以你页面的源运行，可以读取你的 cookie、存储和 DOM。
+  仅对你信任且需要 `localStorage`、`IndexedDB` 或 cookie 的组件使用。
+  参见 [Sandbox and widget storage](/vue/generative-ui/mcp-apps#sandbox-and-widget-storage)。
 </PropertyReference>
 
 <PropertyReference name="debug" type="DebugConfig">
-  Enable debug logging for the client-side event pipeline. Accepts `true` / `false` to toggle events and lifecycle logging (verbose off), or `{ events?: boolean; lifecycle?: boolean; verbose?: boolean }` for granular control.
+  为客户端事件管线启用调试日志。接受 `true` / `false` 来切换事件与生命周期日志
+  （关闭详细输出），或传入 `{ events?: boolean; lifecycle?: boolean; verbose?: boolean }`
+  进行细粒度控制。
 </PropertyReference>
 
-## Slots
+## 插槽（Slots）
 
 <PropertyReference name="default" type="slot" required>
-  The default slot renders the wrapped application. Vue uses slots rather than a `children` prop, so everything placed between the opening and closing `<CopilotKitProvider>` tags receives the copilot context.
+  默认插槽渲染被包裹的应用。Vue 使用插槽而非 `children` prop，
+  因此放在 `<CopilotKitProvider>` 开闭标签之间的所有内容都会接收 copilot 上下文。
 
 ```vue
 <template>
@@ -266,9 +294,9 @@ function handleError(event: {
 
 </PropertyReference>
 
-## Related
+## 相关内容
 
-- [`useCopilotKit`](/reference/vue/hooks/useCopilotKit) -- Low-level composable for accessing the provider context
-- [`useAgent`](/reference/vue/hooks/useAgent) -- High-level composable for accessing agent instances
-- [`useFrontendTool`](/reference/vue/hooks/useFrontendTool) -- Register frontend tools dynamically
-- [`useHumanInTheLoop`](/reference/vue/hooks/useHumanInTheLoop) -- Register human-in-the-loop tools dynamically
+- [`useCopilotKit`](/reference/vue/hooks/useCopilotKit) - 访问提供方上下文的低层组合式函数
+- [`useAgent`](/reference/vue/hooks/useAgent) - 访问智能体实例的高层组合式函数
+- [`useFrontendTool`](/reference/vue/hooks/useFrontendTool) - 动态注册前端工具
+- [`useHumanInTheLoop`](/reference/vue/hooks/useHumanInTheLoop) - 动态注册人机协同（human-in-the-loop）工具

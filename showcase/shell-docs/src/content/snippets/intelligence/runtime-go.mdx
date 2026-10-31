@@ -1,11 +1,11 @@
-Use Go 1.22 or later. In a new application directory, install the [Go runtime module](https://pkg.go.dev/github.com/CopilotKit/CopilotKit/packages/runtime-go):
+使用 Go 1.22 或更高版本。在一个新的应用目录中，安装 [Go 运行时模块](https://pkg.go.dev/github.com/CopilotKit/CopilotKit/packages/runtime-go)：
 
 ```bash
 go mod init example.com/copilotkit-app
 go get github.com/CopilotKit/CopilotKit/packages/runtime-go@v0.0.0-20260930161409-37b078290a51
 ```
 
-Set these variables in the server environment. Start your AG-UI agent at `AG_UI_AGENT_URL` before sending a message:
+在服务器环境中设置以下变量。在发送消息之前，先在 `AG_UI_AGENT_URL` 处启动你的 AG-UI 智能体：
 
 ```bash
 export CPK_INTELLIGENCE_API_KEY="your-project-api-key"
@@ -14,9 +14,9 @@ export APP_AUTH_TOKEN="replace-with-a-random-local-development-token"
 export APP_USER_ID="local-user"
 ```
 
-This local example verifies one application token and maps it to a server-owned user ID. Use a different value for the application token and the Intelligence API key. In production, replace the callback with your application's verified session or token lookup. Never use an unverified browser-supplied user ID.
+这个本地示例只验证一个应用令牌，并将其映射为一个由服务端持有的用户 ID。应用令牌与 Intelligence API 密钥应使用不同的值。在生产环境中，请将该回调替换为你应用中经过验证的会话或令牌查询逻辑。绝不要使用未经验证的浏览器提供的用户 ID。
 
-Save this as `main.go`:
+将以下内容保存为 `main.go`：
 
 ```go
 package main
@@ -92,6 +92,6 @@ func main() {
 }
 ```
 
-Run `go run .`. The multi-route runtime URL is `http://localhost:8200/api/copilotkit`. Send `Authorization: Bearer <APP_AUTH_TOKEN>` with frontend requests; keep `CPK_INTELLIGENCE_API_KEY` on the server. Replace the allowed `http://localhost:3000` origin for your deployment.
+运行 `go run .`。多路由运行时 URL 为 `http://localhost:8200/api/copilotkit`。前端请求需携带 `Authorization: Bearer <APP_AUTH_TOKEN>`，并把 `CPK_INTELLIGENCE_API_KEY` 保留在服务端。针对你的部署，请替换允许的 `http://localhost:3000` 来源。
 
-The server drains HTTP requests on shutdown, then `rt.Close()` cancels agent work and drains runtime resources. `HTTPAgent.Headers` lets you supply server-owned credentials for a protected agent endpoint; browser credentials are not forwarded.
+服务器在关闭时会先排空 HTTP 请求，随后 `rt.Close()` 会取消智能体工作并释放运行时资源。`HTTPAgent.Headers` 允许你为受保护的智能体端点提供服务端持有的凭据；浏览器凭据不会被转发。

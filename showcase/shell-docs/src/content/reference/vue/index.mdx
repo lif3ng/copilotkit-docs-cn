@@ -1,33 +1,31 @@
 ---
 title: "Vue"
-description: "API reference for @copilotkit/vue: the CopilotKit provider, prebuilt chat components, and composables for building CopilotKit into a Vue 3 app."
+description: "@copilotkit/vue 的 API 参考：CopilotKit provider、预构建聊天组件，以及用于在 Vue 3 应用中集成 CopilotKit 的组合式函数。"
 ---
 
-`@copilotkit/vue` brings CopilotKit to Vue 3. It ships a [provider](/reference/vue/components/CopilotKitProvider), a set of prebuilt chat components, and composables that mirror the React SDK. Everything is built on the [AG-UI](https://docs.ag-ui.com) agent protocol.
+`@copilotkit/vue` 把 CopilotKit 带到 Vue 3。它提供一个 [provider](/reference/vue/components/CopilotKitProvider)、一组预构建聊天组件，以及与 React SDK 对应的组合式函数。一切构建在 [AG-UI](https://docs.ag-ui.com) 智能体协议之上。
 
 <Callout type="info">
-  The v2 API lives under the `/v2` subpath, the same convention used by the web
-  SDK. Import the provider, components, and composables from
-  `@copilotkit/vue/v2`.
+  v2 API 位于 `/v2` 子路径下，与 web SDK 使用的约定一致。请从 `@copilotkit/vue/v2` 导入 provider、组件与组合式函数。
 </Callout>
 
-## Installation
+## 安装
 
 ```sh
 npm install @copilotkit/vue
 ```
 
-## Styling
+## 样式
 
-When using the prebuilt UI components, import the stylesheet once at your app entry point:
+使用预构建 UI 组件时，请在应用入口处一次性导入样式表：
 
 ```ts
 import "@copilotkit/vue/styles.css";
 ```
 
-## Provider setup
+## Provider 配置
 
-Wrap your app (or a sub-tree) with [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider) to configure the runtime connection. Composables and components read this context through Vue's [provide/inject](https://vuejs.org/guide/components/provide-inject), so they must be used within the provider.
+用 [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider) 包裹你的应用（或某个子树）以配置运行时连接。组合式函数与组件通过 Vue 的 [provide/inject](https://vuejs.org/guide/components/provide-inject) 读取该上下文，因此必须在 provider 内使用。
 
 ```vue
 <script setup lang="ts">
@@ -42,34 +40,34 @@ import "@copilotkit/vue/styles.css";
 </template>
 ```
 
-## Vue conventions
+## Vue 约定
 
-A few patterns recur across this reference and differ from the React SDK:
+本参考中有几种模式反复出现，且与 React SDK 不同：
 
-- **State-returning composables use refs.** A composable such as [`useAgent`](/reference/vue/hooks/useAgent) returns reactive refs (for example `{ agent }`). Read them with `.value` in `<script setup>`, or unwrapped directly in templates. Registration composables such as `useFrontendTool` return no value.
-- **Reactive arguments.** Many composables accept `MaybeRefOrGetter` arguments, so you can pass a plain value, a `ref`, or a getter and the composable stays reactive to changes.
-- **Props are kebab-case in templates.** Component props are documented with their camelCase names but are written as kebab-case attributes in templates (for example `runtimeUrl` becomes `runtime-url`).
-- **Slots replace render props.** Where the React SDK uses render props or `children`, the Vue components expose named [slots](https://vuejs.org/guide/components/slots) for the same customization.
+- **返回状态的组合式函数使用 ref**：诸如 [`useAgent`](/reference/vue/hooks/useAgent) 的组合式函数返回响应式 ref（例如 `{ agent }`）。在 `<script setup>` 中用 `.value` 读取，或在模板中直接解包。`useFrontendTool` 等注册型组合式函数不返回值。
+- **响应式参数**：许多组合式函数接受 `MaybeRefOrGetter` 参数，因此你可以传入普通值、`ref` 或 getter，组合式函数会对变化保持响应。
+- **模板中 props 使用 kebab-case**：组件 props 以 camelCase 名称记录，但在模板中写作 kebab-case 属性（例如 `runtimeUrl` 写作 `runtime-url`）。
+- **插槽取代 render props**：React SDK 使用 render props 或 `children` 的地方，Vue 组件提供具名[插槽](https://vuejs.org/guide/components/slots)实现同样的自定义。
 
-## API Reference
+## API 参考
 
 <Callout type="info">
-  Looking for tool rendering composables? Start with
-  [`useFrontendTool`](/reference/vue/hooks/useFrontendTool),
-  [`useRenderTool`](/reference/vue/hooks/useRenderTool), and
-  [`useHumanInTheLoop`](/reference/vue/hooks/useHumanInTheLoop).
+  在找工具渲染相关的组合式函数？从
+  [`useFrontendTool`](/reference/vue/hooks/useFrontendTool)、
+  [`useRenderTool`](/reference/vue/hooks/useRenderTool) 和
+  [`useHumanInTheLoop`](/reference/vue/hooks/useHumanInTheLoop) 开始。
 </Callout>
 
 <Cards>
   <Card
-    title="Composables"
-    description="Vue composables for agents, tools, context, suggestions, and chat configuration."
+    title="组合式函数"
+    description="用于智能体、工具、上下文、建议与聊天配置的 Vue 组合式函数。"
     href="/reference/vue/hooks/useAgent"
     icon={<LinkIcon />}
   />
   <Card
-    title="UI Components"
-    description="Prebuilt chat components: CopilotChat, CopilotPopup, CopilotSidebar, and more."
+    title="UI 组件"
+    description="预构建聊天组件：CopilotChat、CopilotPopup、CopilotSidebar 等。"
     href="/reference/vue/components/CopilotChat"
     icon={<LinkIcon />}
   />

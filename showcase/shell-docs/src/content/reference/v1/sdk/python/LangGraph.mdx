@@ -1,6 +1,6 @@
 ---
 title: "LangGraph SDK"
-description: "The CopilotKit LangGraph SDK for Python allows you to build and run LangGraph workflows with CopilotKit."
+description: "CopilotKit 的 Python 版 LangGraph SDK 让你能够构建并运行与 CopilotKit 协同的 LangGraph 工作流。"
 ---
 
 {
@@ -12,17 +12,17 @@ description: "The CopilotKit LangGraph SDK for Python allows you to build and ru
 }
 ## copilotkit_customize_config
 
-Customize the LangGraph configuration for use in CopilotKit.
+自定义供 CopilotKit 使用的 LangGraph 配置。
 
-    To install the CopilotKit SDK, run:
+    要安装 CopilotKit SDK，请运行：
 
     ```bash
     pip install copilotkit
     ```
 
-    ### Examples
+    ### 示例
 
-    Disable emitting messages and tool calls:
+    禁用消息与工具调用的发出：
 
     ```python
     from copilotkit.langgraph import copilotkit_customize_config
@@ -34,9 +34,8 @@ Customize the LangGraph configuration for use in CopilotKit.
     )
     ```
 
-    To emit a tool call as streaming LangGraph state, pass the destination key in state,
-    the tool name and optionally the tool argument. (If you don't pass the argument name,
-    all arguments are emitted under the state key.)
+    要将工具调用作为 LangGraph 流式状态发出，请传入状态中的目标键、工具名称，以及可选的工具参数。
+    （如果不传参数名，则所有参数都会在该状态键下发出。）
 
     ```python
     from copilotkit.langgraph import copilotkit_customize_config
@@ -53,37 +52,37 @@ Customize the LangGraph configuration for use in CopilotKit.
     )
     ```
 
-### Parameters
+### 参数
 
 <PropertyReference name="base_config" type="Optional[RunnableConfig]" > 
-The LangChain/LangGraph configuration to customize. Pass None to make a new configuration.
+要自定义的 LangChain/LangGraph 配置。传入 None 可创建新配置。
 </PropertyReference>
 
 <PropertyReference name="emit_messages" type="Optional[bool]" > 
-Configure how messages are emitted. By default, all messages are emitted. Pass False to disable emitting messages.
+配置消息的发出方式。默认发出所有消息。传入 False 可禁用消息发出。
 </PropertyReference>
 
 <PropertyReference name="emit_tool_calls" type="Optional[Union[bool, str, List[str]]]" > 
-Configure how tool calls are emitted. By default, all tool calls are emitted. Pass False to disable emitting tool calls. Pass a string or list of strings to emit only specific tool calls.
+配置工具调用的发出方式。默认发出所有工具调用。传入 False 可禁用工具调用发出。传入字符串或字符串列表可只发出特定的工具调用。
 </PropertyReference>
 
 <PropertyReference name="emit_intermediate_state" type="Optional[List[IntermediateStateConfig]]" > 
-Lets you emit tool calls as streaming LangGraph state.
+让你能够将工具调用作为 LangGraph 流式状态发出。
 </PropertyReference>
 
-### Returns
+### 返回值
 
 <PropertyReference name="returns" type="RunnableConfig">
-The customized LangGraph configuration.
+自定义后的 LangGraph 配置。
 </PropertyReference>
 
 ## copilotkit_exit
 
-Exits the current agent after the run completes. Calling copilotkit_exit() will
-    not immediately stop the agent. Instead, it signals to CopilotKit to stop the agent after
-    the run completes.
+在本次运行完成后退出当前智能体。调用 copilotkit_exit() 不会
+    立即停止智能体，而是向 CopilotKit 发出信号，让其在本次运行完成后
+    停止智能体。
 
-    ### Examples
+    ### 示例
 
     ```python
     from copilotkit.langgraph import copilotkit_exit
@@ -93,24 +92,24 @@ Exits the current agent after the run completes. Calling copilotkit_exit() will
         return state
     ```
 
-### Parameters
+### 参数
 
 <PropertyReference name="config" type="RunnableConfig" required> 
-The LangGraph configuration.
+LangGraph 配置。
 </PropertyReference>
 
-### Returns
+### 返回值
 
 <PropertyReference name="returns" type="Awaitable[bool]">
-Always return True.
+始终返回 True。
 </PropertyReference>
 
 ## copilotkit_emit_state
 
-Emits intermediate state to CopilotKit. Useful if you have a longer running node and you want to
-    update the user with the current state of the node.
+向 CopilotKit 发出中间状态。当节点运行时间较长、需要向用户
+    更新节点当前状态时非常有用。
 
-    ### Examples
+    ### 示例
 
     ```python
     from copilotkit.langgraph import copilotkit_emit_state
@@ -120,28 +119,28 @@ Emits intermediate state to CopilotKit. Useful if you have a longer running node
         await copilotkit_emit_state(config, {"progress": i})
     ```
 
-### Parameters
+### 参数
 
 <PropertyReference name="config" type="RunnableConfig" required> 
-The LangGraph configuration.
+LangGraph 配置。
 </PropertyReference>
 
 <PropertyReference name="state" type="Any" required> 
-The state to emit (Must be JSON serializable).
+要发出的状态（必须可 JSON 序列化）。
 </PropertyReference>
 
-### Returns
+### 返回值
 
 <PropertyReference name="returns" type="Awaitable[bool]">
-Always return True.
+始终返回 True。
 </PropertyReference>
 
 ## copilotkit_emit_message
 
-Manually emits a message to CopilotKit. Useful in longer running nodes to update the user.
-    Important: You still need to return the messages from the node.
+手动向 CopilotKit 发出一条消息。在运行时间较长的节点中，可用于向用户更新进度。
+    重要提示：你仍需要从节点返回这些消息。
 
-    ### Examples
+    ### 示例
 
     ```python
     from copilotkit.langgraph import copilotkit_emit_message
@@ -155,25 +154,25 @@ Manually emits a message to CopilotKit. Useful in longer running nodes to update
     }
     ```
 
-### Parameters
+### 参数
 
 <PropertyReference name="config" type="RunnableConfig" required> 
-The LangGraph configuration.
+LangGraph 配置。
 </PropertyReference>
 
 <PropertyReference name="message" type="str" required> 
-The message to emit.
+要发出的消息。
 </PropertyReference>
 
-### Returns
+### 返回值
 
 <PropertyReference name="returns" type="Awaitable[bool]">
-Always return True.
+始终返回 True。
 </PropertyReference>
 
 ## copilotkit_emit_tool_call
 
-Manually emits a tool call to CopilotKit.
+手动向 CopilotKit 发出一个工具调用。
 
     ```python
     from copilotkit.langgraph import copilotkit_emit_tool_call
@@ -184,27 +183,26 @@ Manually emits a tool call to CopilotKit.
     custom_id = await copilotkit_emit_tool_call(config, name="SearchTool", args={"steps": 10}, tool_call_id="my-custom-id")
     ```
 
-### Parameters
+### 参数
 
 <PropertyReference name="config" type="RunnableConfig" required> 
-The LangGraph configuration.
+LangGraph 配置。
 </PropertyReference>
 
 <PropertyReference name="name" type="str" required> 
-The name of the tool to emit.
+要发出的工具的名称。
 </PropertyReference>
 
 <PropertyReference name="args" type="Dict[str, Any]" required> 
-The arguments to emit.
+要发出的参数。
 </PropertyReference>
 
 <PropertyReference name="tool_call_id" type="Optional[str]" > 
-Optional tool call ID. If not provided, a random UUID is generated. When provided, this ID is used as the toolCallId and parentMessageId in AG-UI protocol events. The caller is responsible for ensuring uniqueness.
+可选的工具调用 ID。若未提供，将生成一个随机 UUID。若提供，该 ID 会用作 AG-UI 协议事件中的 toolCallId 和 parentMessageId。调用方需自行确保其唯一性。
 </PropertyReference>
 
-### Returns
+### 返回值
 
 <PropertyReference name="returns" type="str">
-The tool call ID used for the emitted tool call.
+所发出工具调用使用的工具调用 ID。
 </PropertyReference>
-

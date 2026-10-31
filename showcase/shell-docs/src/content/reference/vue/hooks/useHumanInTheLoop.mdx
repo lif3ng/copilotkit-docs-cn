@@ -1,23 +1,19 @@
 ---
 title: "useHumanInTheLoop"
-description: "Vue 3 composable for interactive tools that pause agent execution and wait for user input"
+description: "Vue 3 组合式函数，用于注册会暂停智能体执行、等待用户输入的交互式工具"
 ---
 
-## Overview
+## 概览
 
-`useHumanInTheLoop` registers an interactive frontend tool that pauses agent execution until the user responds through your custom UI. Unlike `useFrontendTool`, you do not supply a `handler`. Instead, the composable manages an internal status machine (`InProgress` -> `Executing` -> `Complete`) and passes a `respond` callback to your render component while the tool is in the `executing` phase. The agent stays paused until `respond` is called with the user's input.
+`useHumanInTheLoop` 注册一个交互式前端工具，它会暂停智能体的执行，直到用户通过你的自定义 UI 作出响应。与 `useFrontendTool` 不同，你无需提供 `handler`。该组合式函数会在内部维护一个状态机（`InProgress` -> `Executing` -> `Complete`），并在工具处于 `executing` 阶段时把 `respond` 回调传给你的渲染组件。在以用户输入调用 `respond` 之前，智能体会一直保持暂停。
 
-Internally the composable wraps `useFrontendTool`. It generates a handler that returns a promise, holds onto that promise's `resolve` in a ref, and resolves it when `respond` is invoked, which sends the result back to the agent and resumes execution. Use it for confirmation dialogs, approval workflows, form collection, or any scenario where a human must provide input before the agent can continue.
+该组合式函数在内部封装了 `useFrontendTool`：它生成一个返回 Promise 的 handler，把该 Promise 的 `resolve` 保存在一个 ref 中，并在 `respond` 被调用时将其兑现，从而把结果回传给智能体并恢复执行。适用于确认对话框、审批工作流、表单收集，或任何需要人先提供输入、智能体才能继续的场景。
 
 <Callout type="info">
-  `useHumanInTheLoop` must be called within a component that has access to the
-  CopilotKit instance provided by `CopilotKitProvider`. Like all Vue
-  composables, call it synchronously inside `<script setup>` or a `setup()`
-  function so its reactive scope is bound to the component lifecycle. The tool
-  is unregistered automatically on scope cleanup.
+  `useHumanInTheLoop` 必须在能够访问 `CopilotKitProvider` 所提供 CopilotKit 实例的组件中调用。与所有 Vue 组合式函数一样，请在 `<script setup>` 或 `setup()` 函数中同步调用，使其响应式作用域绑定到组件生命周期。作用域清理时，该工具会自动注销。
 </Callout>
 
-## Signature
+## 签名
 
 ```ts
 import { useHumanInTheLoop } from "@copilotkit/vue/v2";
@@ -28,82 +24,75 @@ function useHumanInTheLoop<T extends Record<string, unknown>>(
 ): void;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="tool" type="VueHumanInTheLoop<T>" required>
-  The interactive tool definition. It accepts the same fields as a frontend
-  tool except `handler` (which is managed internally), plus a required `render`
-  component.
+  交互式工具的定义。它接受与前端工具相同的字段，但不包括 `handler`（由内部管理），另外还必须提供 `render` 组件。
 
 <PropertyReference name="name" type="string" required>
-  A unique name for the tool. The agent references this name when it needs human
-  input.
+  工具的唯一名称。智能体在需要人类输入时会引用该名称。
 </PropertyReference>
 
 <PropertyReference name="description" type="string">
-  A natural-language description that tells the agent what the tool does and
-  when to invoke it (e.g., "Ask the user to confirm before deleting records").
+  一段自然语言描述，告诉智能体该工具做什么、何时调用（例如 “在删除记录前请用户确认”）。
 </PropertyReference>
 
 <PropertyReference name="parameters" type="StandardSchemaV1 (e.g. z.ZodSchema)">
-  A schema (typically a Zod schema) defining the arguments the agent passes to
-  the tool. These arguments are forwarded to the render component as the `args`
-  prop so you can build context-aware UI.
+  一个 schema（通常是 Zod schema），定义智能体传给该工具的参数。这些参数会作为 `args` prop 转发给渲染组件，便于你构建具备上下文感知能力的 UI。
 </PropertyReference>
 
   <PropertyReference name="render" type="VueHumanInTheLoopRenderFn<T>" required>
-    A Vue component (or render function) that drives the human interaction. It receives the following props, whose shape depends on the current `status`:
+    一个驱动人机协同（human-in-the-loop）交互的 Vue 组件（或渲染函数）。它接收以下 props，其形态取决于当前的 `status`：
 
-    **Always present:**
-    - `name: string` -- the tool name
-    - `description: string` -- the tool description (an empty string when the tool defines none)
-    - `toolCallId: string` -- the unique id of this tool call
-    - `status: ToolCallStatus` -- the current phase (`"inProgress"`, `"executing"`, or `"complete"`)
+    **始终存在**：
+    - `name: string` —— 工具名称
+    - `description: string` —— 工具描述（若工具未定义则为空字符串）
+    - `toolCallId: string` —— 本次工具调用的唯一 id
+    - `status: ToolCallStatus` —— 当前阶段（`"inProgress"`、`"executing"` 或 `"complete"`）
 
-    **When `status` is `ToolCallStatus.InProgress` (`"inProgress"`):**
-    - `args: Partial<T>` -- partially streamed arguments
+    **当 `status` 为 `ToolCallStatus.InProgress`（`"inProgress"`）时**：
+    - `args: Partial<T>` —— 仍在流式传入的部分参数
     - `result: undefined`
-    - `respond: undefined` -- not yet available
+    - `respond: undefined` —— 尚不可用
 
-    **When `status` is `ToolCallStatus.Executing` (`"executing"`):**
-    - `args: T` -- fully resolved arguments
+    **当 `status` 为 `ToolCallStatus.Executing`（`"executing"`）时**：
+    - `args: T` —— 已完整解析的参数
     - `result: undefined`
-    - `respond: (result: unknown) => Promise<void>` -- call this to send the user's response back to the agent and resume execution
+    - `respond: (result: unknown) => Promise<void>` —— 调用它把用户的响应回传给智能体并恢复执行
 
-    **When `status` is `ToolCallStatus.Complete` (`"complete"`):**
-    - `args: T` -- the original arguments
-    - `result: string` -- the serialized result
-    - `respond: undefined` -- no longer available
+    **当 `status` 为 `ToolCallStatus.Complete`（`"complete"`）时**：
+    - `args: T` —— 原始参数
+    - `result: string` —— 序列化后的结果
+    - `respond: undefined` —— 已不可用
 
   </PropertyReference>
 
   <PropertyReference name="available" type="boolean" default="true">
-    Whether the tool is available to the agent. Set to `false` to hide the tool from the agent without unregistering it.
+    该工具对智能体是否可用。设为 `false` 可对智能体隐藏该工具，而无需注销它。
   </PropertyReference>
 
   <PropertyReference name="agentId" type="string">
-    Optional agent ID to constrain this tool to a specific agent. If specified, the tool is only available to that agent.
+    可选的智能体 ID，用于把该工具限定给特定智能体。指定后，该工具仅对该智能体可用。
   </PropertyReference>
 
   <PropertyReference name="followUp" type="boolean">
-    Whether the agent should automatically follow up after the tool responds.
+    工具响应后，智能体是否应自动跟进。
   </PropertyReference>
 </PropertyReference>
 
 <PropertyReference name="deps" type="WatchSource<unknown>[]">
-  An optional array of reactive watch sources (refs, getters, etc.). When
-  provided, the tool registration is refreshed whenever any source changes.
+  可选的响应式侦听来源数组（ref、getter 等）。提供后，任一来源变化时都会刷新工具注册。
 </PropertyReference>
 
-## Usage
+## 用法
 
-Define the render component as a separate Vue SFC, then register it with `useHumanInTheLoop`. The component receives `status`, `args`, `respond`, `name`, and `description` as props.
+将渲染组件定义为独立的 Vue SFC，然后用 `useHumanInTheLoop` 注册它。组件会以 props 形式接收 `status`、`args`、`respond`、`name` 和 `description`。
 
-### Confirmation Dialog
+### 确认对话框
 
-A common pattern where the agent asks the user to confirm a destructive action.
+智能体请求用户确认破坏性操作的常见模式。
 
-`ConfirmDeletion.vue` (the render component):
+`ConfirmDeletion.vue`（渲染组件）：
 
 ```vue
 <script setup lang="ts">
@@ -154,7 +143,7 @@ defineProps<{
 </template>
 ```
 
-Register it from a component in scope of `CopilotKitProvider`:
+在 `CopilotKitProvider` 作用域内的组件中注册：
 
 ```vue
 <script setup lang="ts">
@@ -178,11 +167,11 @@ useHumanInTheLoop({
 </template>
 ```
 
-### Form Input Collection
+### 表单输入收集
 
-Collect structured input from the user before the agent proceeds. Local form state lives in the render component using `ref`.
+在智能体继续之前从用户处收集结构化输入。本地表单状态通过 `ref` 保存在渲染组件中。
 
-`ShippingAddressForm.vue`:
+`ShippingAddressForm.vue`：
 
 ```vue
 <script setup lang="ts">
@@ -237,7 +226,7 @@ const address = ref({ street: "", city: "", zip: "" });
 </template>
 ```
 
-Registration:
+注册：
 
 ```vue
 <script setup lang="ts">
@@ -260,9 +249,9 @@ useHumanInTheLoop({
 </template>
 ```
 
-### Approval Workflow with Context
+### 带上下文的审批工作流
 
-`ExpenseApproval.vue`:
+`ExpenseApproval.vue`：
 
 ```vue
 <script setup lang="ts">
@@ -325,7 +314,7 @@ defineProps<{
 </template>
 ```
 
-Registration:
+注册：
 
 ```vue
 <script setup lang="ts">
@@ -351,42 +340,42 @@ useHumanInTheLoop({
 </template>
 ```
 
-## Behavior
+## 行为
 
-- **Blocks agent execution**: The internally generated handler returns a promise that does not resolve until `respond` is called, so the agent pauses on this tool call and waits for the user.
-- **Internal status machine**: The composable drives three phases - `inProgress` (arguments streaming in), `executing` (waiting for the user, `respond` available), and `complete` (user has responded, `result` available). Your render component receives the appropriate props for each phase.
-- **`respond` is only passed during `executing`**: In the `inProgress` and `complete` phases, `respond` is `undefined`. Guard on `status === ToolCallStatus.Executing && respond` before calling it.
-- **Single response**: Calling `respond` resolves the pending promise once and clears the stored resolver, so subsequent calls are no-ops for that tool invocation.
-- **Built on `useFrontendTool`**: The composable forwards a `VueFrontendTool` (your tool plus the generated `handler` and a wrapping render component) to `useFrontendTool`, so the same registration lifecycle applies.
-- **Scope lifecycle**: The tool and its render component are registered while the composable's reactive scope is active and removed automatically on scope cleanup — the render component via `onScopeDispose`, and the tool via the underlying `useFrontendTool` watch's cleanup.
-- **No return value**: The composable returns `void`.
+- **会阻塞智能体执行**：内部生成的 handler 返回一个 Promise，在 `respond` 被调用前不会兑现，因此智能体会在这个工具调用上暂停并等待用户。
+- **内部状态机**：该组合式函数驱动三个阶段——`inProgress`（参数正在流式传入）、`executing`（等待用户，`respond` 可用）和 `complete`（用户已响应，`result` 可用）。你的渲染组件会在每个阶段收到相应的 props。
+- **`respond` 仅在 `executing` 阶段传入**：在 `inProgress` 和 `complete` 阶段，`respond` 为 `undefined`。调用前请先以 `status === ToolCallStatus.Executing && respond` 作防护判断。
+- **单次响应**：调用 `respond` 会兑现挂起的 Promise 一次并清除存储的 resolver，因此对同一次工具调用而言，后续调用都是空操作。
+- **基于 `useFrontendTool` 构建**：该组合式函数会把一个 `VueFrontendTool`（你的工具加上生成的 `handler` 和一个包装用的渲染组件）转发给 `useFrontendTool`，因此注册生命周期与之相同。
+- **作用域生命周期**：在组合式函数的响应式作用域存续期间，工具及其渲染组件保持注册，并在作用域清理时自动移除——渲染组件通过 `onScopeDispose` 移除，工具则通过底层 `useFrontendTool` 侦听器的清理逻辑移除。
+- **无返回值**：该组合式函数返回 `void`。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="useFrontendTool"
     href="/reference/vue/hooks/useFrontendTool"
-    description="Register tools with automated handlers that do not require user interaction."
+    description="注册带有自动化 handler 的工具，无需用户交互。"
   />
   <Card
     title="useCopilotKit"
     href="/reference/vue/hooks/useCopilotKit"
-    description="Access the underlying CopilotKit instance."
+    description="访问底层的 CopilotKit 实例。"
   />
   <Card
     title="CopilotKitProvider"
     href="/reference/vue/components/CopilotKitProvider"
-    description="Provides the CopilotKit instance to descendant composables."
+    description="向后代组合式函数提供 CopilotKit 实例。"
   />
 </Cards>
 
 ## ToolCallStatus
 
-The `ToolCallStatus` enum is exported from `@copilotkit/core` and defines the three phases of tool execution. Its string values are what appear in the render component's `status` prop.
+`ToolCallStatus` 枚举从 `@copilotkit/core` 导出，定义了工具执行的三个阶段。渲染组件的 `status` prop 中出现的正是其字符串值。
 
-| Value                       | String value   | Description                                                                              |
+| 值                          | 字符串值        | 说明                                                                                     |
 | --------------------------- | -------------- | ---------------------------------------------------------------------------------------- |
-| `ToolCallStatus.InProgress` | `"inProgress"` | Arguments are being streamed from the agent. The tool has not started executing yet.     |
-| `ToolCallStatus.Executing`  | `"executing"`  | Arguments are fully resolved. For `useHumanInTheLoop`, the `respond` callback is passed.  |
-| `ToolCallStatus.Complete`   | `"complete"`   | Execution is finished. The `result` string is available.                                 |
+| `ToolCallStatus.InProgress` | `"inProgress"` | 参数正从智能体流式传入。工具尚未开始执行。                                                |
+| `ToolCallStatus.Executing`  | `"executing"`  | 参数已完整解析。对 `useHumanInTheLoop` 而言，此时会传入 `respond` 回调。                   |
+| `ToolCallStatus.Complete`   | `"complete"`   | 执行已结束。`result` 字符串可用。                                                          |

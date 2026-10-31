@@ -1,6 +1,6 @@
 import { Tabs, Tab } from "fumadocs-ui/components/tabs";
 
-Pass `CopilotKitMiddleware()` to `create_deep_agent` — this is what makes frontend tools available to your agent:
+将 `CopilotKitMiddleware()` 传给 `create_deep_agent`——正是这一步让前端工具对你的智能体可用：
 
 <Tabs groupId="language_langgraph_agent" items={['Python']} default="Python" persist>
     <Tab value="Python">
@@ -18,4 +18,4 @@ Pass `CopilotKitMiddleware()` to `create_deep_agent` — this is what makes fron
     </Tab>
 </Tabs>
 
-The `CopilotKitMiddleware` injects frontend tools into the agent's tool list automatically at runtime.
+`CopilotKitMiddleware` 会在运行时自动把前端工具注入智能体的工具列表。

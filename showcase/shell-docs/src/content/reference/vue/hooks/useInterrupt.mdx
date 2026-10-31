@@ -1,22 +1,21 @@
 ---
 title: "useInterrupt"
-description: "Vue 3 composable for handling agent interrupt events and resuming execution with user input"
+description: "Vue 3 组合式函数，用于处理智能体中断事件并以用户输入恢复执行"
 ---
 
-## Overview
+## 概览
 
-`useInterrupt` is a Vue 3 composable for handling agent interrupts. It supports both the AG-UI standard interrupt flow and the legacy `on_interrupt` custom-event flow, then exposes the active interrupt as reactive state plus `resolve` and `cancel` methods for resuming execution.
+`useInterrupt` 是一个用于处理智能体中断的 Vue 3 组合式函数。它同时支持 AG-UI 标准中断流与旧版 `on_interrupt` 自定义事件流，并把活动中断暴露为响应式状态，同时提供用于恢复执行的 `resolve` 与 `cancel` 方法。
 
-By default, the composable publishes its state into [`CopilotChat`](/reference/vue/components/CopilotChat) so you can render the interrupt through the chat's `#interrupt` slot. Set `renderInChat: false` if you want to place the UI yourself.
+默认情况下，该组合式函数会把状态发布到 [`CopilotChat`](/reference/vue/components/CopilotChat) 中，你可以通过聊天组件的 `#interrupt` 插槽渲染中断 UI。如果你想自行放置 UI，请设置 `renderInChat: false`。
 
-`event.value` is typed by the `TValue` type parameter, which defaults to `unknown`. Narrow it in your `handler` and `enabled` callbacks, or pass an explicit `TValue` when you call the composable.
+`event.value` 的类型由 `TValue` 类型参数决定，默认为 `unknown`。可以在 `handler` 与 `enabled` 回调中自行收窄类型，或在调用组合式函数时显式传入 `TValue`。
 
 <Callout type="info">
-  `resolve` and `cancel` are the primary methods. `resolveInterrupt` and
-  `cancelInterrupt` remain as aliases for back-compat.
+  `resolve` 与 `cancel` 是主要方法。`resolveInterrupt` 与 `cancelInterrupt` 作为向后兼容的别名保留。
 </Callout>
 
-## Signature
+## 签名
 
 ```ts
 import { useInterrupt } from "@copilotkit/vue/v2";
@@ -26,111 +25,87 @@ function useInterrupt<TValue = unknown, TResult = never>(
 ): UseInterruptResult<TValue, TResult>;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="config" type="UseInterruptConfig<TValue, TResult>">
-  Optional interrupt configuration.
+  可选的中断配置。
 
   <PropertyReference name="handler" type="(props: InterruptHandlerProps<TValue>) => TResult | PromiseLike<TResult>">
-    Optional preprocessing callback. It runs when an interrupt becomes pending
-    and can return sync or async data that is exposed as `result`. `TResult` is
-    inferred from the handler's return type, with promises unwrapped. If the
-    handler returns a rejected promise, `result` becomes `null`. A synchronous
-    `throw` is not caught and leaves `result` unchanged.
+    可选的预处理回调。当中断进入待处理状态时执行，可返回同步或异步数据并暴露为 `result`。`TResult` 根据该回调的返回类型推断，Promise 会被自动解包。若回调返回已拒绝的 Promise，`result` 将变为 `null`。同步 `throw` 不会被捕获，`result` 保持不变。
 
-    The callback receives:
+    该回调接收以下参数：
 
-    - `event` — the interrupt event (`{ name, value }`). `value` is typed as
-      `TValue`.
-    - `interrupt` — the primary interrupt object when the standard AG-UI flow
-      is active, otherwise `null`.
-    - `interrupts` — the full standard interrupt set, or `[]` for the legacy
-      flow.
-    - `resolve(response)` — resumes the agent.
-    - `cancel()` — cancels the current interrupt when the standard flow is
-      active.
+    - `event` —— 中断事件（`{ name, value }`）。`value` 的类型为 `TValue`。
+    - `interrupt` —— 标准 AG-UI 流生效时的主中断对象，否则为 `null`。
+    - `interrupts` —— 完整的标准中断集合，旧版流为 `[]`。
+    - `resolve(response)` —— 恢复智能体执行。
+    - `cancel()` —— 标准流生效时取消当前中断。
   </PropertyReference>
 
   <PropertyReference name="enabled" type="(event: InterruptEvent<TValue>) => boolean">
-    Optional filter. Return `false` to ignore matching interrupts for this
-    composable instance. When it returns `false`, `result` and `slotProps` stay
-    `null` and nothing is published to chat.
+    可选的过滤器。返回 `false` 可让该组合式函数实例忽略匹配的中断。当其返回 `false` 时，`result` 与 `slotProps` 保持 `null`，也不会向聊天发布任何内容。
   </PropertyReference>
 
   <PropertyReference name="agentId" type="string">
-    Optional agent id. Defaults to the currently configured chat agent.
+    可选的智能体 id。默认为当前配置的聊天智能体。
   </PropertyReference>
 
   <PropertyReference name="renderInChat" type="boolean" default="true">
-    Controls whether interrupt state is published into `<CopilotChat>`:
-    - `true` (default): publishes `slotProps` into `<CopilotChat>` for
-      rendering via the `#interrupt` slot.
-    - `false`: skips publishing; render the interrupt yourself from the
-      returned refs.
+    控制中断状态是否发布到 `<CopilotChat>`：
+    - `true`（默认）：把 `slotProps` 发布到 `<CopilotChat>`，以便通过 `#interrupt` 插槽渲染。
+    - `false`：跳过发布；由你使用返回的 ref 自行渲染中断。
   </PropertyReference>
 </PropertyReference>
 
-## Return Value
+## 返回值
 
 <PropertyReference name="object" type="UseInterruptResult<TValue, TResult>">
-  Reactive interrupt state and resume/cancel helpers.
+  响应式的中断状态以及恢复/取消辅助方法。
 
   <PropertyReference name="interrupt" type="Ref<InterruptEvent<TValue> | null>">
-    The latest pending interrupt event (`{ name, value }`), or `null` when
-    there is none. Cleared when a new run starts or when resolved.
+    最新一个待处理的中断事件（`{ name, value }`），没有则为 `null`。新运行开始或中断被处理后会清空。
   </PropertyReference>
 
   <PropertyReference name="result" type="Ref<TResult | null>">
-    The value returned by `handler`, or `null` when there is no handler, the
-    handler returned a rejected promise, or `enabled` filtered the interrupt
-    out.
+    `handler` 返回的值；在未提供 handler、handler 返回已拒绝的 Promise，或 `enabled` 过滤掉了该中断时为 `null`。
   </PropertyReference>
 
   <PropertyReference name="hasInterrupt" type="ComputedRef<boolean>">
-    `true` when an interrupt is pending and passes the optional `enabled`
-    filter, otherwise `false`.
+    当有待处理中断且通过了可选的 `enabled` 过滤时为 `true`，否则为 `false`。
   </PropertyReference>
 
   <PropertyReference name="resolve" type="InterruptResolveFn">
-    Primary resume method.
+    主要的恢复方法。
 
-    - Legacy flow: resumes with `command.resume = payload` and forwards the
-      originating interrupt event.
-    - Standard flow: records the response for the addressed interrupt. When
-      multiple interrupts are open, responses accumulate and the agent resumes
-      only after all are addressed. If you omit `interruptId` while more than
-      one interrupt is open, the hook warns and defaults to the first one.
-    - Expired standard interrupts are not resumed.
+    - 旧版流：以 `command.resume = payload` 恢复执行，并转发原始中断事件。
+    - 标准流：记录对目标中断的响应。当有多个中断待处理时，响应会累积，只有在全部处理完毕后智能体才会恢复执行。若在多个中断同时打开时省略 `interruptId`，该 hook 会发出警告并默认指向第一个。
+    - 已过期的标准中断不会被恢复。
   </PropertyReference>
 
   <PropertyReference name="resolveInterrupt" type="InterruptResolveFn">
-    Back-compat alias of `resolve`.
+    `resolve` 的向后兼容别名。
   </PropertyReference>
 
   <PropertyReference name="cancel" type="InterruptCancelFn">
-    Cancels the pending interrupt.
+    取消待处理的中断。
 
-    - Standard flow: records a cancellation for the addressed interrupt.
-      Multiple open interrupts accumulate responses until all are addressed.
-      If you omit `interruptId` while more than one interrupt is open, the hook
-      warns and defaults to the first one.
-    - Legacy flow: dismisses the interrupt without resuming.
+    - 标准流：记录对目标中断的取消。多个打开的中断会累积响应，直到全部处理完毕。若在多个中断同时打开时省略 `interruptId`，该 hook 会发出警告并默认指向第一个。
+    - 旧版流：仅关闭中断，不恢复执行。
   </PropertyReference>
 
   <PropertyReference name="cancelInterrupt" type="InterruptCancelFn">
-    Back-compat alias of `cancel`.
+    `cancel` 的向后兼容别名。
   </PropertyReference>
 
   <PropertyReference name="slotProps" type="ComputedRef<InterruptRenderProps<TValue, TResult | null> | null>">
-    The props published to the `<CopilotChat>` `#interrupt` slot, or `null`
-    when there is no active interrupt. Shape: `{ event, interrupt, interrupts,
-    result, resolve, cancel }`.
+    发布到 `<CopilotChat>` `#interrupt` 插槽的 props，没有活动中断时为 `null`。形态为 `{ event, interrupt, interrupts,
+    result, resolve, cancel }`。
   </PropertyReference>
 </PropertyReference>
 
-## Usage
+## 用法
 
-### In-chat interrupt UI
+### 聊天内中断 UI
 
 ```vue
 <script setup lang="ts">
@@ -158,7 +133,7 @@ useInterrupt<Approval>();
 </template>
 ```
 
-### Manual placement with async preprocessing
+### 手动放置与异步预处理
 
 ```vue
 <script setup lang="ts">
@@ -183,7 +158,7 @@ const { interrupt, result, hasInterrupt, resolve } = useInterrupt<
 </template>
 ```
 
-### Reading reactive state in script
+### 在脚本中读取响应式状态
 
 ```ts
 import { useInterrupt } from "@copilotkit/vue/v2";
@@ -196,36 +171,36 @@ const { interrupt, hasInterrupt, result, cancel, resolve } = useInterrupt({
 // Call `resolve(response)` or `cancel()` to address the interrupt.
 ```
 
-## Behavior
+## 行为
 
-- Interrupts are collected from AG-UI standard interrupt events and from legacy `on_interrupt` custom events.
-- Standard interrupts win if both flows appear for the same run.
-- The pending interrupt is surfaced when the run finalizes.
-- Starting a new run clears pending interrupt state, and a failed run discards the in-flight interrupt.
-- When multiple standard interrupts are open, `resolve(payload, interruptId)` and `cancel(interruptId)` accumulate responses until every interrupt is addressed, then resume once.
-- Omitting `interruptId` while multiple standard interrupts are open defaults to the first interrupt and logs a warning.
-- Expired standard interrupts are not resumed.
-- `result` is inferred from the `handler` return type and is always `TResult | null`.
-- When `enabled` returns `false`, the interrupt is ignored: `result` and `slotProps` stay `null` and nothing is published to chat.
-- With `renderInChat` omitted or `true`, `slotProps` is published into `<CopilotChat>` for the `#interrupt` slot. With `renderInChat: false`, no chat publishing occurs and you render from the returned refs.
-- `cancel()` on legacy interrupts just dismisses without resuming.
+- 中断同时从 AG-UI 标准中断事件与旧版 `on_interrupt` 自定义事件中收集。
+- 若同一次运行中两种流同时出现，标准中断优先。
+- 待处理的中断会在运行收尾时浮出。
+- 开始新运行会清空待处理的中断状态，运行失败则丢弃进行中的中断。
+- 当多个标准中断同时打开时，`resolve(payload, interruptId)` 与 `cancel(interruptId)` 会累积响应，直到每个中断都被处理，然后一次性恢复执行。
+- 在多个标准中断同时打开时省略 `interruptId`，会默认指向第一个中断并记录一条警告。
+- 已过期的标准中断不会被恢复。
+- `result` 从 `handler` 的返回类型推断，类型始终为 `TResult | null`。
+- 当 `enabled` 返回 `false` 时，该中断被忽略：`result` 与 `slotProps` 保持 `null`，也不会向聊天发布任何内容。
+- 省略 `renderInChat` 或设为 `true` 时，`slotProps` 会发布到 `<CopilotChat>` 的 `#interrupt` 插槽。设为 `renderInChat: false` 时，不会向聊天发布，需使用返回的 ref 自行渲染。
+- 对旧版中断调用 `cancel()` 仅关闭中断，不恢复执行。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="useAgent"
-    description="Access and subscribe to AG-UI agent instances and events."
+    description="访问并订阅 AG-UI 智能体实例与事件。"
     href="/reference/vue/hooks/useAgent"
   />
   <Card
     title="useFrontendTool"
-    description="Register a client-side tool with an optional renderer."
+    description="注册客户端工具，可附带渲染器。"
     href="/reference/vue/hooks/useFrontendTool"
   />
   <Card
     title="CopilotChat"
-    description="Chat component that renders interrupt UI via the #interrupt slot."
+    description="通过 #interrupt 插槽渲染中断 UI 的聊天组件。"
     href="/reference/vue/components/CopilotChat"
   />
 </Cards>

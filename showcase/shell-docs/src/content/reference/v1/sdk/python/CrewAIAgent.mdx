@@ -1,6 +1,6 @@
 ---
 title: "CrewAIAgent"
-description: "CrewAIAgent lets you define your agent for use with CopilotKit."
+description: "CrewAIAgent 让你能够定义供 CopilotKit 使用的智能体。"
 ---
 
 {
@@ -12,25 +12,24 @@ description: "CrewAIAgent lets you define your agent for use with CopilotKit."
 }
 ## CrewAIAgent
 
-CrewAIAgent lets you define your agent for use with CopilotKit.
+CrewAIAgent 让你能够定义供 CopilotKit 使用的智能体。
 
-    To install, run:
+    要安装，请运行：
 
     ```bash
     pip install copilotkit[crewai]
     ```
 
-    Every agent must have the `name` and either `crew` or `flow` properties defined. An optional
-    `description` can also be provided. This is used when CopilotKit is dynamically routing requests
-    to the agent.
+    每个智能体都必须定义 `name` 属性，以及 `crew` 或 `flow` 两者之一。还可以提供可选的
+    `description`。当 CopilotKit 动态地将请求路由到某个智能体时，会用到该描述。
 
-    ## Serving a Crew based agent
+    ## 托管基于 Crew 的智能体
 
-    To serve a Crew based agent, pass in a `Crew` object to the `crew` parameter.
+    要托管基于 Crew 的智能体，请将一个 `Crew` 对象传入 `crew` 参数。
 
-    Note:
-    You need to make sure to have a `chat_llm` set on the `Crew` object.
-    See [the CrewAI docs](https://docs.crewai.com/concepts/cli#9-chat) for more information.
+    注意：
+    你需要确保在 `Crew` 对象上设置了 `chat_llm`。
+    详情参见 [CrewAI 文档](https://docs.crewai.com/concepts/cli#9-chat)。
 
     ```python
     from copilotkit import CrewAIAgent
@@ -43,9 +42,9 @@ CrewAIAgent lets you define your agent for use with CopilotKit.
     )
     ```
 
-    ## Serving a Flow based agent
+    ## 托管基于 Flow 的智能体
 
-    To serve a Flow based agent, pass in a `Flow` object to the `flow` parameter.
+    要托管基于 Flow 的智能体，请将一个 `Flow` 对象传入 `flow` 参数。
 
     ```python
     CrewAIAgent(
@@ -55,37 +54,36 @@ CrewAIAgent lets you define your agent for use with CopilotKit.
     )
     ```
 
-    Note:
-    Either a `crew` or `flow` must be provided to CrewAIAgent.
+    注意：
+    必须向 CrewAIAgent 提供 `crew` 或 `flow` 之一。
 
-### Parameters
+### 参数
 
 <PropertyReference name="name" type="str" required> 
-The name of the agent.
+智能体的名称。
 </PropertyReference>
 
 <PropertyReference name="crew" type="Crew" required> 
-When using a Crew based agent, pass in a `Crew` object to the `crew` parameter.
+使用基于 Crew 的智能体时，将一个 `Crew` 对象传入 `crew` 参数。
 </PropertyReference>
 
 <PropertyReference name="flow" type="Flow" required> 
-When using a Flow based agent, pass in a `Flow` object to the `flow` parameter.
+使用基于 Flow 的智能体时，将一个 `Flow` 对象传入 `flow` 参数。
 </PropertyReference>
 
 <PropertyReference name="description" type="Optional[str]" > 
-The description of the agent.
+智能体的描述。
 </PropertyReference>
 
 <PropertyReference name="copilotkit_config" type="Optional[CopilotKitConfig]" > 
-The CopilotKit config to use with the agent.
+该智能体使用的 CopilotKit 配置。
 </PropertyReference>
 
 ## CopilotKitConfig
 
-CopilotKit config for CrewAIAgent
+CrewAIAgent 的 CopilotKit 配置
 
-    This is used for advanced cases where you want to customize how CopilotKit interacts with
-    CrewAI.
+    适用于需要自定义 CopilotKit 与 CrewAI 交互方式的高级场景。
 
     ```python
     # Function signatures:
@@ -100,9 +98,8 @@ CopilotKit config for CrewAIAgent
 
     ```
 
-### Parameters
+### 参数
 
 <PropertyReference name="merge_state" type="Callable" required> 
-This function lets you customize how CopilotKit merges the agent state.
+此函数让你能够自定义 CopilotKit 合并智能体状态的方式。
 </PropertyReference>
-

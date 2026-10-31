@@ -1,21 +1,20 @@
 ---
 title: "CopilotChatAssistantMessage"
-description: "Vue 3 component for displaying assistant messages with Markdown, tool calls, and an action toolbar"
+description: "以 Markdown、工具调用与操作工具栏展示助手消息的 Vue 3 组件"
 ---
 
-## Overview
+## 概览
 
-`CopilotChatAssistantMessage` is a Vue 3 component that displays assistant messages with Markdown support, tool call rendering, and an action toolbar. Markdown is rendered with `streamdown-vue` (`StreamMarkdown`), which supports GitHub Flavored Markdown tables, math expressions (KaTeX styles are loaded automatically), and syntax-highlighted code blocks via Shiki (`github-light` / `github-dark` themes). Tables and code blocks include built-in copy and download actions, and images get a hover download button.
+`CopilotChatAssistantMessage` 是一个 Vue 3 组件，用于展示支持 Markdown、工具调用渲染与操作工具栏的助手消息。Markdown 由 `streamdown-vue`（`StreamMarkdown`）渲染，支持 GitHub Flavored Markdown 表格、数学表达式（自动加载 KaTeX 样式），以及通过 Shiki 实现语法高亮的代码块（`github-light` / `github-dark` 主题）。表格与代码块内置复制和下载操作，图片则带有悬停下载按钮。
 
-The toolbar provides copy, thumbs up, thumbs down, read aloud, and regenerate buttons. Tooltip and aria labels are sourced from the nearest `CopilotChatConfigurationProvider` (see [`useCopilotChatConfiguration`](/reference/vue/hooks/useCopilotChatConfiguration)). The thumbs up, thumbs down, read aloud, and regenerate buttons are only rendered when a listener for the corresponding event is attached; the copy button is always shown when the toolbar is visible.
+工具栏提供复制、点赞、点踩、朗读与重新生成按钮。工具提示与 aria 标签取自最近的 `CopilotChatConfigurationProvider`（参见 [`useCopilotChatConfiguration`](/reference/vue/hooks/useCopilotChatConfiguration)）。点赞、点踩、朗读与重新生成按钮只有在挂接了对应事件的监听器时才会渲染；只要工具栏可见，复制按钮始终显示。
 
 <Callout type="info">
-  The toolbar is hidden while the latest assistant message is still streaming
-  (when `isRunning` is `true` for the last message) and when the message has no
-  text content. It also respects the `toolbarVisible` prop.
+  当最新一条助手消息仍在流式输出时（最后一条消息的 `isRunning` 为 `true`），
+  以及消息没有文本内容时，工具栏会被隐藏。工具栏还会遵循 `toolbarVisible` prop。
 </Callout>
 
-## Import
+## 导入
 
 ```vue
 <script setup lang="ts">
@@ -23,7 +22,7 @@ import { CopilotChatAssistantMessage } from "@copilotkit/vue/v2";
 </script>
 ```
 
-## Example
+## 示例
 
 ```vue
 <script setup lang="ts">
@@ -46,126 +45,116 @@ const message: AssistantMessage = {
 </template>
 ```
 
-## Props
+## 属性（Props）
 
 <PropertyReference name="message" type="AssistantMessage" required>
-  The assistant message object to render. Contains the message `content`, `id`,
-  `role`, and any associated tool calls. Array content parts of type `text` are
-  joined with newlines; other content types are ignored.
+  要渲染的助手消息对象。包含消息的 `content`、`id`、`role` 以及所有关联的
+  工具调用。类型为 `text` 的数组内容部分会以换行符拼接；其他内容类型会被忽略。
 </PropertyReference>
 
 <PropertyReference name="messages" type="Message[]" default="[]">
-  The full array of conversation messages. Passed through to the tool calls view
-  for context-aware rendering, and used to determine whether this message is the
-  latest assistant message (which controls toolbar visibility during streaming).
+  完整的会话消息数组。会透传给工具调用视图以实现上下文感知渲染，并用于判断
+  本消息是否为最新的助手消息（这决定流式输出期间工具栏的可见性）。
 </PropertyReference>
 
 <PropertyReference name="isRunning" type="boolean" default="false">
-  Whether the agent is currently executing. While `true`, the toolbar is hidden
-  for the latest assistant message so it does not appear mid-stream.
+  智能体当前是否正在执行。为 `true` 时，最新助手消息的工具栏会被隐藏，
+  以免在流式输出中途出现。
 </PropertyReference>
 
 <PropertyReference name="toolbarVisible" type="boolean" default="true">
-  Controls whether the action toolbar is visible. When set to `false`, the
-  toolbar is hidden entirely regardless of which event listeners are attached.
+  控制操作工具栏是否可见。设为 `false` 时，无论挂接了哪些事件监听器，
+  工具栏都会完全隐藏。
 </PropertyReference>
 
-## Events
+## 事件（Events）
 
-Each event emits the current `message` as its payload. Attaching a listener for
-`thumbs-up`, `thumbs-down`, `read-aloud`, or `regenerate` also causes the matching
-toolbar button to render; without a listener the button is omitted.
+每个事件都会以当前 `message` 作为载荷发出。为 `thumbs-up`、`thumbs-down`、
+`read-aloud` 或 `regenerate` 挂接监听器还会让对应的工具栏按钮渲染出来；
+没有监听器时则不渲染该按钮。
 
 <PropertyReference name="thumbs-up" type="(message: AssistantMessage) => void">
-  Emitted when the user clicks the thumbs-up button. The button only appears
-  when a listener is attached.
+  用户点击点赞按钮时发出。只有挂接了监听器时按钮才会出现。
 </PropertyReference>
 
 <PropertyReference name="thumbs-down" type="(message: AssistantMessage) => void">
-  Emitted when the user clicks the thumbs-down button. The button only appears
-  when a listener is attached.
+  用户点击点踩按钮时发出。只有挂接了监听器时按钮才会出现。
 </PropertyReference>
 
 <PropertyReference name="read-aloud" type="(message: AssistantMessage) => void">
-  Emitted when the user clicks the read-aloud button. The button only appears
-  when a listener is attached.
+  用户点击朗读按钮时发出。只有挂接了监听器时按钮才会出现。
 </PropertyReference>
 
 <PropertyReference name="regenerate" type="(message: AssistantMessage) => void">
-  Emitted when the user clicks the regenerate button. The button only appears
-  when a listener is attached.
+  用户点击重新生成按钮时发出。只有挂接了监听器时按钮才会出现。
 </PropertyReference>
 
 <Callout type="info">
-  Copying the message to the clipboard is handled internally by the copy button.
-  There is no `copy` event; the copy button is always present when the toolbar is
-  visible.
+  把消息复制到剪贴板由复制按钮在内部处理。没有 `copy` 事件；只要工具栏可见，
+  复制按钮始终存在。
 </Callout>
 
-## Slots
+## 插槽（Slots）
 
-The component exposes named slots so you can override individual pieces of the
-default layout. Each slot receives scoped props (shown below) that wire its
-behavior to the message and toolbar handlers.
+该组件暴露了多个具名插槽，让你可以覆盖默认布局的各个部分。每个插槽都会接收
+作用域 props（如下所示），把自身行为接到消息与工具栏处理器上。
 
 <PropertyReference name="layout" type="slot">
-  Replaces the entire component layout. Receives `message`, `content`,
-  `is-running`, `toolbar-visible`, `should-show-toolbar`, the nested slot render
-  functions (`message-renderer`, `toolbar`, `copy-button`, `thumbs-up-button`,
-  `thumbs-down-button`, `read-aloud-button`, `regenerate-button`,
-  `tool-calls-view`), and the handlers `on-copy`, `on-thumbs-up`,
-  `on-thumbs-down`, `on-read-aloud`, and `on-regenerate`.
+  替换整个组件布局。接收 `message`、`content`、`is-running`、`toolbar-visible`、
+  `should-show-toolbar`，嵌套的插槽渲染函数（`message-renderer`、`toolbar`、
+  `copy-button`、`thumbs-up-button`、`thumbs-down-button`、`read-aloud-button`、
+  `regenerate-button`、`tool-calls-view`），以及 `on-copy`、`on-thumbs-up`、
+  `on-thumbs-down`、`on-read-aloud` 与 `on-regenerate` 处理器。
 </PropertyReference>
 
 <PropertyReference name="message-renderer" type="slot">
-  Replaces the Markdown renderer. Receives `message` and `content` (the
-  normalized text). Use this to swap out `StreamMarkdown` for a custom renderer.
+  替换 Markdown 渲染器。接收 `message` 与 `content`（归一化后的文本）。
+  可用它把 `StreamMarkdown` 换成自定义渲染器。
 </PropertyReference>
 
 <PropertyReference name="tool-calls-view" type="slot">
-  Replaces the tool calls view. Receives `message` and `messages`. Defaults to
-  `CopilotChatToolCallsView`, which renders the message's tool calls using the
-  closest registered tool renderer.
+  替换工具调用视图。接收 `message` 与 `messages`。默认为
+  `CopilotChatToolCallsView`，它会使用最近的已注册工具渲染器来渲染该消息的
+  工具调用。
 </PropertyReference>
 
 <PropertyReference name="toolbar" type="slot">
-  Replaces the action toolbar container. Receives `message` and
-  `should-show-toolbar`. Only rendered when the toolbar should be shown.
+  替换操作工具栏容器。接收 `message` 与 `should-show-toolbar`。
+  只在应当显示工具栏时渲染。
 </PropertyReference>
 
 <PropertyReference name="copy-button" type="slot">
-  Replaces the copy-to-clipboard button. Receives `on-copy`, `copied` (whether
-  the copied state is currently active), and `label`.
+  替换复制到剪贴板按钮。接收 `on-copy`、`copied`（复制状态当前是否激活）
+  与 `label`。
 </PropertyReference>
 
 <PropertyReference name="thumbs-up-button" type="slot">
-  Replaces the thumbs-up button. Receives `on-thumbs-up` and `label`. Only
-  rendered when a `thumbs-up` listener is attached.
+  替换点赞按钮。接收 `on-thumbs-up` 与 `label`。只有挂接了 `thumbs-up`
+  监听器时才渲染。
 </PropertyReference>
 
 <PropertyReference name="thumbs-down-button" type="slot">
-  Replaces the thumbs-down button. Receives `on-thumbs-down` and `label`. Only
-  rendered when a `thumbs-down` listener is attached.
+  替换点踩按钮。接收 `on-thumbs-down` 与 `label`。只有挂接了 `thumbs-down`
+  监听器时才渲染。
 </PropertyReference>
 
 <PropertyReference name="read-aloud-button" type="slot">
-  Replaces the read-aloud button. Receives `on-read-aloud` and `label`. Only
-  rendered when a `read-aloud` listener is attached.
+  替换朗读按钮。接收 `on-read-aloud` 与 `label`。只有挂接了 `read-aloud`
+  监听器时才渲染。
 </PropertyReference>
 
 <PropertyReference name="regenerate-button" type="slot">
-  Replaces the regenerate button. Receives `on-regenerate` and `label`. Only
-  rendered when a `regenerate` listener is attached.
+  替换重新生成按钮。接收 `on-regenerate` 与 `label`。只有挂接了 `regenerate`
+  监听器时才渲染。
 </PropertyReference>
 
 <PropertyReference name="toolbar-items" type="slot">
-  Appended to the toolbar after the default buttons. Use this to add custom
-  toolbar actions. Receives no scoped props.
+  追加在工具栏默认按钮之后。可用它添加自定义工具栏操作。不接收任何作用域 props。
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Basic assistant message
+### 基本助手消息
 
 ```vue
 <script setup lang="ts">
@@ -184,9 +173,9 @@ defineProps<{ message: AssistantMessage }>();
 </template>
 ```
 
-### Adding regenerate and read aloud
+### 添加重新生成与朗读
 
-Attaching the listeners makes the corresponding buttons appear automatically.
+挂接这些监听器后，对应按钮会自动出现。
 
 ```vue
 <script setup lang="ts">
@@ -213,7 +202,7 @@ function handleReadAloud(msg: AssistantMessage) {
 </template>
 ```
 
-### Adding custom toolbar items
+### 添加自定义工具栏项
 
 ```vue
 <script setup lang="ts">
@@ -232,7 +221,7 @@ defineProps<{ message: AssistantMessage }>();
 </template>
 ```
 
-### Hiding the toolbar
+### 隐藏工具栏
 
 ```vue
 <script setup lang="ts">
@@ -247,7 +236,7 @@ defineProps<{ message: AssistantMessage }>();
 </template>
 ```
 
-### Custom Markdown renderer
+### 自定义 Markdown 渲染器
 
 ```vue
 <script setup lang="ts">
@@ -266,7 +255,7 @@ defineProps<{ message: AssistantMessage }>();
 </template>
 ```
 
-### Customizing a toolbar button
+### 自定义工具栏按钮
 
 ```vue
 <script setup lang="ts">
@@ -290,9 +279,9 @@ defineProps<{ message: AssistantMessage }>();
 </template>
 ```
 
-## Related
+## 相关内容
 
-- `CopilotChatToolCallsView` - Renders the tool calls contained in an assistant message
-- [`CopilotChatUserMessage`](/reference/vue/components/CopilotChatUserMessage) - Companion component for user messages
-- [`CopilotChatMessageView`](/reference/vue/components/CopilotChatMessageView) - Parent component that renders this as the default assistant message
-- [`useCopilotChatConfiguration`](/reference/vue/hooks/useCopilotChatConfiguration) - Provides the localized toolbar labels
+- `CopilotChatToolCallsView`——渲染助手消息中包含的工具调用
+- [`CopilotChatUserMessage`](/reference/vue/components/CopilotChatUserMessage)——用户消息的配套组件
+- [`CopilotChatMessageView`](/reference/vue/components/CopilotChatMessageView)——把本组件作为默认助手消息渲染的父组件
+- [`useCopilotChatConfiguration`](/reference/vue/hooks/useCopilotChatConfiguration)——提供本地化的工具栏标签

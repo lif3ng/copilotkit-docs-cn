@@ -1,22 +1,19 @@
 ---
 title: "useAgentContext"
-description: "Vue 3 composable for providing reactive context to agents"
+description: "用于向智能体提供响应式上下文的 Vue 3 组合式函数"
 ---
 
-## Overview
+## 概览
 
-`useAgentContext` registers reactive contextual data that is sent with agent runs. The context entry is added while the composable is active and removed automatically on scope cleanup, so the agent always sees an up-to-date snapshot of your application state without manual teardown.
+`useAgentContext` 用于注册随智能体运行一起发送的响应式上下文数据。该上下文条目会在组合式函数活跃期间持续存在，并在作用域清理时自动移除，因此智能体始终能看到应用状态的最新快照，无需手动清理。
 
-Because the parameters accept `MaybeRefOrGetter`, you can pass plain values, refs, computeds, or getter functions. When any reactive source changes, the registered context is updated automatically. This lets you surface any serializable application state (user preferences, selected items, computed values, etc.) as context that agents can reference when generating responses or making decisions.
+由于参数接受 `MaybeRefOrGetter`，你可以传入普通值、ref、计算属性或 getter 函数。任何响应式源发生变化时，已注册的上下文都会自动更新。这让你能把任何可序列化的应用状态（用户偏好、选中项、计算值等）作为上下文暴露出来，供智能体在生成响应或做决策时引用。
 
 <Callout type="info">
-  `useAgentContext` must be called within a component that has access to the
-  CopilotKit instance provided by `CopilotKitProvider`. Like all Vue
-  composables, call it synchronously inside `<script setup>` or a `setup()`
-  function so its reactive scope is bound to the component lifecycle.
+  `useAgentContext` 必须在能访问 `CopilotKitProvider` 所提供 CopilotKit 实例的组件中调用。与所有 Vue 组合式函数一样，应在 `<script setup>` 或 `setup()` 函数内同步调用，使其响应式作用域绑定到组件生命周期。
 </Callout>
 
-## Signature
+## 签名
 
 ```ts
 import { useAgentContext } from "@copilotkit/vue/v2";
@@ -24,33 +21,27 @@ import { useAgentContext } from "@copilotkit/vue/v2";
 function useAgentContext(context: AgentContextInput): void;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="context" type="AgentContextInput" required>
-  An object describing the context to expose to the agent.
+  一个对象，描述要暴露给智能体的上下文。
 
   <PropertyReference name="description" type="MaybeRefOrGetter<string>" required>
-    A human-readable description of the context. The agent uses this to
-    understand what the value represents and when to reference it. Accepts a
-    plain string, a ref, a computed, or a getter function.
+    上下文的人类可读描述。智能体借助它理解该值代表什么、何时引用它。接受普通字符串、ref、计算属性或 getter 函数。
   </PropertyReference>
 
   <PropertyReference name="value" type="MaybeRefOrGetter<JsonSerializable>" required>
-    The context value to provide. Must resolve to a JSON-serializable value:
-    `string`, `number`, `boolean`, `null`, arrays, or plain objects with string
-    keys and serializable values. Non-string values are serialized with
-    `JSON.stringify` before they are sent, so the agent receives a JSON string
-    rather than the value you passed.
-    See [What the agent receives](#what-the-agent-receives).
-    Accepts a plain value, a ref, a computed, or a getter function.
+    要提供的上下文值。必须能解析为 JSON 可序列化的值：`string`、`number`、`boolean`、`null`、数组，或键为字符串且值可序列化的普通对象。非字符串值在发送前会经 `JSON.stringify` 序列化，因此智能体收到的是 JSON 字符串，而不是你传入的值。
+    参见[智能体接收到的内容](#智能体接收到的内容)。
+    接受普通值、ref、计算属性或 getter 函数。
   </PropertyReference>
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Basic Usage
+### 基本用法
 
-Provide simple, static application state as context for the agent.
+将简单的静态应用状态作为上下文提供给智能体。
 
 ```vue
 <script setup lang="ts">
@@ -67,9 +58,9 @@ useAgentContext({
 </template>
 ```
 
-### Reactive Context from Component State
+### 来自组件状态的响应式上下文
 
-Pass refs or getters so the context updates automatically whenever the underlying state changes. There is no need to re-register.
+传入 ref 或 getter，底层状态变化时上下文便会自动更新，无需重新注册。
 
 ```vue
 <script setup lang="ts">
@@ -98,9 +89,9 @@ useAgentContext({
 </template>
 ```
 
-### Using a Computed Value
+### 使用计算属性
 
-A `computed` ref works anywhere a `MaybeRefOrGetter` is accepted, including the `description`.
+凡是接受 `MaybeRefOrGetter` 的地方都可以使用 `computed` ref，包括 `description`。
 
 ```vue
 <script setup lang="ts">
@@ -127,9 +118,9 @@ useAgentContext({
 </template>
 ```
 
-### Multiple Contexts
+### 多个上下文
 
-Each component can register its own context. All registered contexts are visible to the agent simultaneously.
+每个组件都可以注册自己的上下文。所有已注册的上下文会同时对智能体可见。
 
 ```vue
 <script setup lang="ts">
@@ -156,11 +147,11 @@ useAgentContext({
 </template>
 ```
 
-## What the agent receives
+## 智能体接收到的内容
 
-Every registered entry reaches the agent as `{ description, value }`, and `value` is a **JSON string** - not the object or array you passed. The AG-UI protocol types it as a string, so this is not an implementation detail you can ignore when writing the agent.
+每个已注册的条目都会以 `{ description, value }` 的形式送达智能体，且 `value` 是一个 **JSON 字符串**——而不是你传入的对象或数组。AG-UI 协议将其类型定义为字符串，因此在编写智能体时，这不是一个可以忽略的实现细节。
 
-Registering this:
+注册以下内容：
 
 ```vue
 <script setup lang="ts">
@@ -173,7 +164,7 @@ useAgentContext({
 </script>
 ```
 
-delivers this to the agent:
+智能体实际收到的是：
 
 ```json
 {
@@ -182,7 +173,7 @@ delivers this to the agent:
 }
 ```
 
-Parse it before reading any field. In a Python agent:
+读取任何字段之前先解析它。在 Python 智能体中：
 
 ```python
 import json
@@ -195,7 +186,7 @@ def dashboard_records(context):
     return None if entry is None else json.loads(entry["value"])
 ```
 
-In a TypeScript agent:
+在 TypeScript 智能体中：
 
 ```ts
 const entry = context.find(
@@ -204,26 +195,22 @@ const entry = context.find(
 const records = entry ? JSON.parse(entry.value) : undefined;
 ```
 
-Where that context list surfaces in your agent depends on your framework's AG-UI adapter - see your integration's guide for the field it populates.
+这份上下文列表在智能体中的出现位置取决于所用框架的 AG-UI 适配器——具体填充到哪个字段，请查阅对应集成的指南。
 
 <Callout type="warn">
-  Do not type-check `value` against the shape you registered.
-  `isinstance(entry["value"], list)` in Python, or `Array.isArray(entry.value)`
-  in TypeScript, can never be true, because `value` is always a string on the
-  wire. An agent that reads such a failed check as "no context was sent" will
-  refuse every request while the app is registering context correctly, and the
-  two cases are indistinguishable from the UI.
+  不要按你注册时的结构对 `value` 做类型检查。
+  Python 中的 `isinstance(entry["value"], list)` 或 TypeScript 中的 `Array.isArray(entry.value)` 永远不会为真，因为 `value` 在传输层始终是字符串。如果智能体把这种失败的检查解读为“未发送任何上下文”，就会在应用其实已正确注册上下文的情况下拒绝所有请求，而且这两种情况从 UI 上无法区分。
 </Callout>
 
-## Behavior
+## 行为
 
-- **Scope lifecycle**: The context is registered while the composable's reactive scope is active and is removed automatically on scope cleanup (component unmount). No manual cleanup is required.
-- **Reactive updates**: `description` and `value` are resolved with `toValue`, so refs, computeds, and getters are tracked. When a resolved value changes, the previous context entry is removed and the new value is re-registered, keeping the agent in sync.
-- **Serialization**: String values are passed through as-is. Any other value is serialized with `JSON.stringify`, so it must conform to `JsonSerializable` (`string | number | boolean | null | JsonSerializable[] | { [key: string]: JsonSerializable }`). Non-serializable values such as functions, class instances, or symbols will not serialize correctly. The agent therefore always reads a string - see [What the agent receives](#what-the-agent-receives).
-- **Multiple contexts**: Multiple `useAgentContext` calls across your component tree are all visible to the agent concurrently. Each is identified internally by an ID returned from `addContext` and removed on cleanup.
-- **No return value**: The composable returns `void`.
+- **作用域生命周期**：上下文在组合式函数的响应式作用域活跃期间持续注册，并在作用域清理（组件卸载）时自动移除，无需手动清理。
+- **响应式更新**：`description` 和 `value` 通过 `toValue` 解析，因此 ref、计算属性和 getter 都会被追踪。解析后的值变化时，先前的上下文条目会被移除并重新注册新值，使智能体保持同步。
+- **序列化**：字符串值原样传递。其他任何值都会经 `JSON.stringify` 序列化，因此必须符合 `JsonSerializable`（`string | number | boolean | null | JsonSerializable[] | { [key: string]: JsonSerializable }`）。函数、类实例或符号等不可序列化的值无法正确序列化。因此智能体读到的始终是字符串——参见[智能体接收到的内容](#智能体接收到的内容)。
+- **多个上下文**：组件树中多处调用 `useAgentContext` 注册的上下文会同时全部对智能体可见。每个条目内部由 `addContext` 返回的 ID 标识，并在清理时移除。
+- **无返回值**：该组合式函数返回 `void`。
 
-## Related
+## 相关内容
 
-- [`useCopilotKit`](/reference/vue/hooks/useCopilotKit) - access the underlying CopilotKit instance
-- [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider) - provides the CopilotKit instance to descendant composables
+- [`useCopilotKit`](/reference/vue/hooks/useCopilotKit)——访问底层 CopilotKit 实例
+- [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider)——向后代组合式函数提供 CopilotKit 实例

@@ -1,25 +1,22 @@
 ---
 title: "useDefaultRenderTool"
-description: "Vue 3 composable that registers a wildcard default renderer for unhandled tool calls"
+description: "为未处理的工具调用注册通配符默认渲染器的 Vue 3 组合式函数"
 ---
 
-## Overview
+## 概览
 
-`useDefaultRenderTool` is a Vue 3 convenience composable, a thin wrapper around [`useRenderTool`](/reference/vue/hooks/useRenderTool) with `name: "*"`. It registers a catch-all renderer for tool calls that do not have a specific named renderer.
+`useDefaultRenderTool` 是一个 Vue 3 便捷组合式函数，是对 [`useRenderTool`](/reference/vue/hooks/useRenderTool) 的轻量包装，内部使用 `name: "*"`。它为没有特定命名渲染器的工具调用注册一个兜底渲染器。
 
-- With no config, it registers CopilotKit's built-in default tool-call UI: an expandable card showing the tool name, status, arguments, and result.
-- With a `render` config, it replaces that default UI with your own wildcard renderer.
+- 不传配置时，它注册 CopilotKit 内置的默认工具调用 UI：一张可展开的卡片，显示工具名称、状态、参数和结果。
+- 传入 `render` 配置时，它会用你自己的通配符渲染器替换该默认 UI。
 
-In Vue, the renderer is a Vue render function or a Vue component (not JSX). It returns a `VNodeChild` (anything Vue can render: a VNode, a string, an array of VNodes, `null`, etc.). Whatever shape the underlying call site passes, your renderer always receives the documented `DefaultRenderProps`.
+在 Vue 中，渲染器是一个 Vue 渲染函数或 Vue 组件（不是 JSX）。它返回 `VNodeChild`（Vue 能渲染的任何东西：VNode、字符串、VNode 数组、`null` 等）。无论底层调用点传入什么形态，你的渲染器始终会收到文档所述的 `DefaultRenderProps`。
 
 <Callout type="info">
-  `useDefaultRenderTool` must be called within a component that has access to the
-  CopilotKit instance provided by `CopilotKitProvider`. Like all Vue composables,
-  call it synchronously inside `<script setup>` or a `setup()` function so its
-  reactive scope is bound to the component lifecycle.
+  `useDefaultRenderTool` 必须在能访问 `CopilotKitProvider` 所提供 CopilotKit 实例的组件中调用。与所有 Vue 组合式函数一样，应在 `<script setup>` 或 `setup()` 函数内同步调用，使其响应式作用域绑定到组件生命周期。
 </Callout>
 
-## Signature
+## 签名
 
 ```ts
 import { useDefaultRenderTool } from "@copilotkit/vue/v2";
@@ -43,63 +40,49 @@ function useDefaultRenderTool(
 ): void;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="config" type="{ render?: RenderFn | Component }">
-  Optional configuration. Omit it entirely to register the built-in default
-  tool-call card.
+  可选配置。完全省略它即可注册内置的默认工具调用卡片。
 
   <PropertyReference name="render" type="((props: DefaultRenderProps) => VNodeChild) | Component<DefaultRenderProps>">
-    A Vue render function or a Vue component used to render any unhandled tool
-    call. A render function receives `DefaultRenderProps` and returns a
-    `VNodeChild`. A component receives `DefaultRenderProps` as its props. If
-    omitted, CopilotKit's built-in expandable card is used.
+    一个 Vue 渲染函数或 Vue 组件，用于渲染任何未被处理的工具调用。渲染函数接收 `DefaultRenderProps` 并返回 `VNodeChild`；组件则以 `DefaultRenderProps` 作为 props。省略时使用 CopilotKit 内置的可展开卡片。
   </PropertyReference>
 </PropertyReference>
 
 <PropertyReference name="deps" type="WatchSource<unknown>[]">
-  Optional reactive dependencies. These are forwarded to `useRenderTool` and
-  added to the internal `watch` sources, so the renderer is re-registered when
-  any of them change. Pass refs, computeds, or getter functions, just like any
-  Vue `WatchSource`.
+  可选的响应式依赖。它们会被转发给 `useRenderTool` 并加入内部 `watch` 源，因此其中任何一项变化时渲染器都会重新注册。传入 ref、计算属性或 getter 函数，与任何 Vue `WatchSource` 一样。
 </PropertyReference>
 
 ## DefaultRenderProps
 
-The props your renderer receives. These are normalized from the framework's
-internal renderer props, so `parameters` is always populated (from `args` when
-needed) and `status` is always the string union below (mapped from the
-`ToolCallStatus` enum).
+渲染器收到的 props。它们由框架内部的渲染器 props 规范化而来，因此 `parameters` 始终有值（必要时从 `args` 取得），`status` 始终是下面的字符串联合类型（由 `ToolCallStatus` 枚举映射而来）。
 
 <PropertyReference name="name" type="string">
-  The name of the tool that was called.
+  被调用工具的名称。
 </PropertyReference>
 
 <PropertyReference name="toolCallId" type="string">
-  The unique identifier for this tool call.
+  本次工具调用的唯一标识符。
 </PropertyReference>
 
 <PropertyReference name="parameters" type="unknown">
-  The arguments passed to the tool. While the call is streaming
-  (`inProgress`), this may be partial.
+  传给工具的参数。调用还在流式传输（`inProgress`）时，可能只是部分内容。
 </PropertyReference>
 
 <PropertyReference name="status" type='"inProgress" | "executing" | "complete"'>
-  The lifecycle status of the tool call. `inProgress` while arguments stream in,
-  `executing` once arguments are complete and the tool runs, `complete` when a
-  result is available.
+  工具调用的生命周期状态。参数还在流入时为 `inProgress`；参数完整且工具开始运行时为 `executing`；有结果可用时为 `complete`。
 </PropertyReference>
 
 <PropertyReference name="result" type="string | undefined">
-  The tool's result. `undefined` until `status` is `complete`.
+  工具的结果。`status` 为 `complete` 之前为 `undefined`。
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Built-in default renderer
+### 内置默认渲染器
 
-Call the composable with no arguments to register CopilotKit's built-in
-expandable tool-call card.
+不带参数调用组合式函数，即可注册 CopilotKit 内置的可展开工具调用卡片。
 
 ```vue
 <script setup lang="ts">
@@ -113,10 +96,9 @@ useDefaultRenderTool();
 </template>
 ```
 
-### Custom wildcard renderer (render function)
+### 自定义通配符渲染器（渲染函数）
 
-Provide a `render` function. It receives `DefaultRenderProps` and returns a
-`VNodeChild`. Use the `h` helper from Vue to build VNodes.
+提供一个 `render` 函数。它接收 `DefaultRenderProps` 并返回 `VNodeChild`。用 Vue 的 `h` 辅助函数构建 VNode。
 
 ```vue
 <script setup lang="ts">
@@ -138,10 +120,9 @@ useDefaultRenderTool({
 </template>
 ```
 
-### Custom wildcard renderer (Vue component)
+### 自定义通配符渲染器（Vue 组件）
 
-Pass a Vue component instead of a function. It receives `DefaultRenderProps` as
-its props. Define `props` with `defineProps` so the values are typed.
+传入一个 Vue 组件而不是函数。它以 `DefaultRenderProps` 作为 props。用 `defineProps` 定义 `props`，让值具有类型。
 
 ```vue
 <!-- ToolCallCard.vue -->
@@ -178,11 +159,9 @@ useDefaultRenderTool({ render: ToolCallCard });
 </template>
 ```
 
-### Re-registering on dependency changes
+### 依赖变化时重新注册
 
-Pass reactive `deps` to re-register the renderer when they change. The renderer
-itself should generally be stable, but any reactive source the renderer closes
-over can be listed here.
+传入响应式 `deps`，在其变化时重新注册渲染器。渲染器本身通常应当稳定，但渲染器闭包引用的任何响应式源都可以列在这里。
 
 ```vue
 <script setup lang="ts">
@@ -207,17 +186,17 @@ useDefaultRenderTool(
 </template>
 ```
 
-## Behavior
+## 行为
 
-- **Wildcard registration**: Internally calls `useRenderTool({ name: "*", render })`. The `"*"` name matches any tool call that has no specific named renderer.
-- **Default UI**: When `config.render` is omitted, an expandable card is rendered. It shows the tool name, a status label (`Running` while active, `Done` when complete), and, when expanded, the JSON-stringified arguments and the result.
-- **Prop normalization**: Your `render` is always wrapped so it receives the documented `DefaultRenderProps`, regardless of whether the call site passes raw internal props (`args` plus a `ToolCallStatus` enum) or already-adapted props (`parameters` plus a string-union status). Both render functions and components are wrapped this way.
-- **Status mapping**: The `ToolCallStatus` enum is mapped to the `"inProgress" | "executing" | "complete"` union. An unknown or future enum value falls back to `"inProgress"` and logs a one-time `console.warn` per distinct value.
-- **No cleanup removal**: Registered renderers are intentionally not removed on cleanup, so past tool calls keep rendering correctly in chat history.
-- **Return value**: The composable returns `void`.
+- **通配符注册**：内部调用 `useRenderTool({ name: "*", render })`。`"*"` 名称匹配任何没有特定命名渲染器的工具调用。
+- **默认 UI**：省略 `config.render` 时，会渲染一张可展开卡片。它显示工具名称、状态标签（进行中为 `Running`，完成时为 `Done`），展开后显示 JSON 字符串化的参数和结果。
+- **prop 规范化**：你的 `render` 总会被包装，确保它收到文档所述的 `DefaultRenderProps`——无论调用点传入的是原始内部 props（`args` 加 `ToolCallStatus` 枚举）还是已适配的 props（`parameters` 加字符串联合状态）。渲染函数和组件都会以这种方式包装。
+- **状态映射**：`ToolCallStatus` 枚举会映射为 `"inProgress" | "executing" | "complete"` 联合类型。未知或未来的枚举值会回退到 `"inProgress"`，并对每个不同取值记录一次 `console.warn`。
+- **清理时不移除**：已注册的渲染器有意在清理时不被移除，这样聊天历史中过去的工具调用才能继续正确渲染。
+- **返回值**：该组合式函数返回 `void`。
 
-## Related
+## 相关内容
 
-- [`useRenderTool`](/reference/vue/hooks/useRenderTool) - register a renderer for a specific named tool, or the wildcard this composable wraps
-- [`useFrontendTool`](/reference/vue/hooks/useFrontendTool) - define a browser-side tool the agent can call
-- [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider) - provides the CopilotKit instance to descendant composables
+- [`useRenderTool`](/reference/vue/hooks/useRenderTool)——为特定命名工具注册渲染器，或注册本组合式函数所包装的通配符
+- [`useFrontendTool`](/reference/vue/hooks/useFrontendTool)——定义智能体可调用的浏览器端工具
+- [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider)——向后代组合式函数提供 CopilotKit 实例

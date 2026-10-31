@@ -1,19 +1,21 @@
 ---
 title: "useAgent"
-description: "Vue 3 composable for accessing AG-UI agent instances"
+description: "用于访问 AG-UI 智能体实例的 Vue 3 组合式函数"
 ---
 
-## Overview
+## 概览
 
-`useAgent` is a Vue 3 composable that returns a reactive reference to an [AG-UI AbstractAgent](https://docs.ag-ui.com/sdk/js/client/abstract-agent) instance. The composable subscribes to agent changes and triggers reactive updates when the agent's state, messages, or execution status changes.
+`useAgent` 是一个 Vue 3 组合式函数，返回指向 [AG-UI AbstractAgent](https://docs.ag-ui.com/sdk/js/client/abstract-agent) 实例的响应式引用。该组合式函数会订阅智能体的变化，并在智能体的状态、消息或执行状态变化时触发响应式更新。
 
-The composable returns `{ agent }`, where `agent` is typed as a Vue `shallowRef<AbstractAgent | null>` for API compatibility. During setup, it synchronously assigns an existing or provisional agent; if neither can be resolved, it throws instead of returning with `agent.value` set to `null`. Access the underlying instance with `agent.value` in `<script setup>`, or rely on auto-unwrapping in `<template>`. Optional chaining remains useful when consuming the nullable public type.
+组合式函数返回 `{ agent }`，出于 API 兼容性考虑，`agent` 的类型是 Vue 的 `shallowRef<AbstractAgent | null>`。在 setup 期间，它会同步赋值一个已有或临时的智能体；如果两者都无法解析，它会抛出错误，而不是返回 `agent.value` 为 `null`。在 `<script setup>` 中用 `agent.value` 访问底层实例，或在 `<template>` 中依赖自动解包。消费可空的公开类型时，可选链仍然有用。
 
 <Callout type="warn">
-  Throws an error if no agent can be resolved for the given `agentId` after the runtime has synced (for example, when the id does not match any agent reported by your runtime `/info` or registered via `agents__unsafe_dev_only`).
+  如果运行时同步后仍无法为给定 `agentId` 解析出智能体（例如该 id 与运行时
+  `/info` 报告的任何智能体或通过 `agents__unsafe_dev_only` 注册的智能体都不匹配），
+  则抛出错误。
 </Callout>
 
-## Signature
+## 签名
 
 ```ts
 import { useAgent } from "@copilotkit/vue/v2";
@@ -25,95 +27,125 @@ function useAgent(props?: UseAgentProps): {
 };
 ```
 
-## Parameters
+## 参数
 
-Reactive props accept `MaybeRefOrGetter`, so you can pass a plain value, a `ref`, or a getter function. The composable responds to each input according to the behavior described below.
+响应式 props 接受 `MaybeRefOrGetter`，因此你可以传普通值、`ref` 或 getter 函数。组合式函数会按下文描述的行为响应每个输入。
 
 <PropertyReference name="props" type="UseAgentProps">
-  Configuration object for the composable.
+  组合式函数的配置对象。
 
   <PropertyReference name="agentId" type="MaybeRefOrGetter<string | undefined>" default='"default"'>
-    ID of the agent to resolve. Resolution uses the explicit `agentId`, then the surrounding chat configuration's `agentId`, then `DEFAULT_AGENT_ID`. The id may resolve to an agent discovered by the runtime or registered by the provider. For thread-scoped use, it is the local id under which the private proxy is registered.
+    要解析的智能体 ID。解析顺序为：显式 `agentId`，其次周围聊天配置的
+    `agentId`，最后 `DEFAULT_AGENT_ID`。该 id 可能解析为运行时发现的智能体
+    或提供方注册的智能体。在线程作用域用法中，它是注册私有代理所用的本地 id。
   </PropertyReference>
 
   <PropertyReference name="runtimeAgentId" type="MaybeRefOrGetter<string>">
-    Runtime agent id for thread-scoped use. Pass it together with `agentId` and `threadId` (all three are required) to register a private local proxy routed to this runtime agent. Partial combinations are invalid.
+    线程作用域用法使用的运行时智能体 id。将它与 `agentId` 和 `threadId`
+    一起传入（三者都必须提供），可注册一个路由到此运行时智能体的私有本地代理。
+    部分组合是无效的。
   </PropertyReference>
 
   <PropertyReference name="threadId" type="MaybeRefOrGetter<string>">
-    ID of the conversation thread for thread-scoped use. Pass it with `agentId` and `runtimeAgentId` to register the private proxy, route it to the runtime agent, and pin this thread onto the current proxy. Changing `threadId` repins that proxy. In the shared-agent form, omit it; an explicit thread from the current chat configuration is used when present.
+    线程作用域用法使用的会话线程 ID。将它与 `agentId` 和 `runtimeAgentId`
+    一起传入，可注册私有代理、将其路由到运行时智能体，并把该线程固定到当前代理上。
+    更改 `threadId` 会重新固定该代理。共享智能体形式下请省略它；
+    当前聊天配置中存在显式线程时会使用它。
   </PropertyReference>
 
   <PropertyReference name="updates" type="UseAgentUpdate[]" default="[OnMessagesChanged, OnStateChanged, OnRunStatusChanged]">
-    Controls which agent changes trigger reactive updates. Options:
-    - `UseAgentUpdate.OnMessagesChanged` - update when messages change
-    - `UseAgentUpdate.OnStateChanged` - update when state changes
-    - `UseAgentUpdate.OnRunStatusChanged` - update when execution status changes
+    控制哪些智能体变化触发响应式更新。可选项：
+    - `UseAgentUpdate.OnMessagesChanged` - 消息变化时更新
+    - `UseAgentUpdate.OnStateChanged` - 状态变化时更新
+    - `UseAgentUpdate.OnRunStatusChanged` - 执行状态变化时更新
 
-    Pass an empty array `[]` to prevent automatic reactive updates.
+    传入空数组 `[]` 可阻止自动响应式更新。
   </PropertyReference>
 
   <PropertyReference name="throttleMs" type="MaybeRefOrGetter<number | undefined>">
-    Throttle interval (in milliseconds) for updates triggered by `onMessagesChanged` and `onStateChanged`. Useful to reduce update frequency during high-frequency streaming.
+    `onMessagesChanged` 与 `onStateChanged` 触发的更新的节流间隔（毫秒）。
+    有助于在高频流式传输期间降低更新频率。
 
-    Resolved as `throttleMs ?? provider defaultThrottleMs ?? 0`. Passing `throttleMs: 0` explicitly disables throttling even when the provider specifies a non-zero `defaultThrottleMs`.
+    解析规则为 `throttleMs ?? provider defaultThrottleMs ?? 0`。
+    即使提供方指定了非零 `defaultThrottleMs`，显式传入 `throttleMs: 0`
+    也会禁用节流。
 
-    Run lifecycle callbacks (`onRunInitialized`, `onRunFinalized`, `onRunFailed`, `onRunErrorEvent`) always fire immediately, regardless of throttling.
+    运行生命周期回调（`onRunInitialized`、`onRunFinalized`、`onRunFailed`、
+    `onRunErrorEvent`）始终立即触发，不受节流影响。
   </PropertyReference>
 </PropertyReference>
 
-## Return Value
+## 返回值
 
 <PropertyReference name="object" type="{ agent: ShallowRef<AbstractAgent | null> }">
-  Object containing the reactive agent reference.
+  包含响应式智能体引用的对象。
 
   <PropertyReference name="agent" type="ShallowRef<AbstractAgent | null>">
-    A Vue `shallowRef` holding the AG-UI agent instance. Its public type includes `null`, but the current implementation resolves synchronously during setup: it assigns an existing agent or a provisional proxy, or throws when it cannot resolve one. Read it with `agent.value` in `<script setup>`, or directly (auto-unwrapped) in `<template>`. The examples below retain `agent?.` / `v-if` guards because callers consume the nullable public type. See the [AbstractAgent documentation](https://docs.ag-ui.com/sdk/js/client/abstract-agent) for full interface details.
+    持有 AG-UI 智能体实例的 Vue `shallowRef`。其公开类型包含 `null`，
+    但当前实现会在 setup 期间同步解析：赋值一个已有智能体或临时代理，
+    无法解析时抛出错误。在 `<script setup>` 中用 `agent.value` 读取，
+    或在 `<template>` 中直接读取（自动解包）。下文示例保留了 `agent?.` /
+    `v-if` 保护，因为调用方消费的是可空的公开类型。完整接口细节参见
+    [AbstractAgent 文档](https://docs.ag-ui.com/sdk/js/client/abstract-agent)。
 
-    The properties and methods below belong to the unwrapped agent (`agent.value`).
+    以下属性和方法属于解包后的智能体（`agent.value`）。
 
-    ### Core Properties
+    ### 核心属性
 
     <PropertyReference name="agentId" type="string | undefined">
-      Unique identifier for the agent instance.
+      智能体实例的唯一标识符。
     </PropertyReference>
 
     <PropertyReference name="description" type="string">
-      Human-readable description of the agent's purpose.
+      智能体用途的人类可读描述。
     </PropertyReference>
 
     <PropertyReference name="threadId" type="string">
-      Unique identifier for the current conversation thread.
+      当前会话线程的唯一标识符。
     </PropertyReference>
 
     <PropertyReference name="messages" type="Message[]">
-      Array of conversation messages. Each message is an AG-UI `Message`. Common fields:
-      - `id: string` - unique message identifier
-      - `role: "user" | "assistant" | "system" | "tool" | "developer"` - message role (the per-message shape varies by role; for example, `tool` messages carry `toolCallId` instead of plain `content`)
-      - `content: string` - message content (text messages)
+      会话消息数组。每条消息都是一个 AG-UI `Message`。常见字段：
+      - `id: string` - 消息的唯一标识符
+      - `role: "user" | "assistant" | "system" | "tool" | "developer"` - 消息角色（每条消息的形态随角色而异；例如 `tool` 消息携带 `toolCallId` 而非普通 `content`）
+      - `content: string` - 消息内容（文本消息）
     </PropertyReference>
 
     <PropertyReference name="state" type="any">
-      Shared state object synchronized between application and agent. Both can read and modify this state.
+      在应用与智能体之间同步的共享状态对象。双方都可读取和修改此状态。
     </PropertyReference>
 
     <PropertyReference name="isRunning" type="boolean">
-      Indicates whether the agent is currently executing.
+      指示智能体当前是否正在执行。
     </PropertyReference>
 
-    ### Methods
+    ### 方法
 
     <PropertyReference name="runAgent" type="(parameters?: RunAgentParameters, subscriber?: AgentSubscriber) => Promise<RunAgentResult>">
-      Low-level: sends a run to the agent and resolves with a `RunAgentResult` (`{ result, newMessages }`) once the run finalizes. `result` is the final value of the run and `newMessages` are the messages produced during it.
+      低层方法：向智能体发送一次运行，并在运行结束后以 `RunAgentResult`
+      （`{ result, newMessages }`）兑现。`result` 是运行的最终值，
+      `newMessages` 是运行期间产生的消息。
 
-      It does not send your registered frontend tools or context, does not execute frontend tool calls, and does not chain follow-up runs. For a normal run, call `copilotkit.value.runAgent({ agent: agent.value })` from [`useCopilotKit`](/reference/vue/hooks/useCopilotKit) instead. It takes the same `forwardedProps` and resolves with the same `RunAgentResult`. Unlike `agent.runAgent()`, it does not reject when the run itself fails. The core reports the error (code `AGENT_RUN_FAILED`) to its error subscribers and resolves with `{ result: undefined, newMessages: [] }`.
+      它不会发送你注册的前端工具或上下文，不会执行前端工具调用，
+      也不会串联后续运行。正常运行请改用
+      [`useCopilotKit`](/reference/vue/hooks/useCopilotKit) 中的
+      `copilotkit.value.runAgent({ agent: agent.value })`。
+      它接受相同的 `forwardedProps`，并以相同的 `RunAgentResult` 兑现。
+      与 `agent.runAgent()` 不同，运行本身失败时它不会拒绝（reject）。
+      核心会将错误（代码 `AGENT_RUN_FAILED`）报告给它的错误订阅者，
+      并以 `{ result: undefined, newMessages: [] }` 兑现。
 
-      **Parameters:**
-      - `parameters.forwardedProps?: any` - data to pass to the agent execution context
+      **参数**：
+      - `parameters.forwardedProps?: any` - 传给智能体执行上下文的数据
 
-      To answer an interrupt, use [`useInterrupt`](/reference/vue/hooks/useInterrupt). It resumes the run for you. To resume by hand, pass the standard `resume` array with the id of the interrupt that the paused run reported: `copilotkit.value.runAgent({ agent: agent.value, resume: [{ interruptId: interrupt.id, status: "resolved", payload }] })`. The older `forwardedProps: { command: { resume } }` form is the legacy path for `on_interrupt` custom events.
+      要应答中断，请使用 [`useInterrupt`](/reference/vue/hooks/useInterrupt)，
+      它会替你恢复运行。要手动恢复，请传入标准 `resume` 数组并带上暂停运行
+      所报告的中断 id：
+      `copilotkit.value.runAgent({ agent: agent.value, resume: [{ interruptId: interrupt.id, status: "resolved", payload }] })`。
+      较旧的 `forwardedProps: { command: { resume } }` 形式是
+      `on_interrupt` 自定义事件的旧版路径。
 
-      **Example:**
+      **示例**：
       ```ts
       const { copilotkit } = useCopilotKit();
 
@@ -128,9 +160,9 @@ Reactive props accept `MaybeRefOrGetter`, so you can pass a plain value, a `ref`
     </PropertyReference>
 
     <PropertyReference name="setState" type="(newState: any) => void">
-      Updates the shared state. Changes are immediately available to both application and agent.
+      更新共享状态。更改对应用和智能体都立即可见。
 
-      **Example:**
+      **示例**：
       ```ts
       agent.value.setState({
         ...agent.value.state,
@@ -140,42 +172,42 @@ Reactive props accept `MaybeRefOrGetter`, so you can pass a plain value, a `ref`
     </PropertyReference>
 
     <PropertyReference name="subscribe" type="(subscriber: AgentSubscriber) => { unsubscribe: () => void }">
-      Subscribes to agent events. Returns a cleanup handle.
+      订阅智能体事件。返回清理句柄。
 
-      **Subscriber Events:**
-      - `onCustomEvent?: ({ event: { name: string, value: any } }) => void` - custom events
-      - `onRunStartedEvent?: () => void` - agent execution starts
-      - `onRunFinalized?: () => void` - agent execution completes
-      - `onStateChanged?: (params: { state: any, messages: Message[], agent: AbstractAgent }) => void` - state changes (read the new state from `params.state`)
-      - `onMessagesChanged?: (params: { messages: Message[], state: any, agent: AbstractAgent }) => void` - messages added or modified (read them from `params.messages`)
+      **订阅者事件**：
+      - `onCustomEvent?: ({ event: { name: string, value: any } }) => void` - 自定义事件
+      - `onRunStartedEvent?: () => void` - 智能体执行开始
+      - `onRunFinalized?: () => void` - 智能体执行完成
+      - `onStateChanged?: (params: { state: any, messages: Message[], agent: AbstractAgent }) => void` - 状态变化（从 `params.state` 读取新状态）
+      - `onMessagesChanged?: (params: { messages: Message[], state: any, agent: AbstractAgent }) => void` - 消息新增或修改（从 `params.messages` 读取）
     </PropertyReference>
 
     <PropertyReference name="addMessage" type="(message: Message) => void">
-      Adds a single message to the conversation and notifies subscribers.
+      向会话添加一条消息并通知订阅者。
     </PropertyReference>
 
     <PropertyReference name="addMessages" type="(messages: Message[]) => void">
-      Adds multiple messages to the conversation and notifies subscribers once.
+      向会话添加多条消息并只通知订阅者一次。
     </PropertyReference>
 
     <PropertyReference name="setMessages" type="(messages: Message[]) => void">
-      Replaces the entire message history with a new array of messages.
+      用新的消息数组替换整个消息历史。
     </PropertyReference>
 
     <PropertyReference name="abortRun" type="() => void">
-      Aborts the currently running agent execution.
+      中止当前正在运行的智能体执行。
     </PropertyReference>
 
     <PropertyReference name="clone" type="() => AbstractAgent">
-      Creates a deep copy of the agent with cloned messages, state, and configuration.
+      创建智能体的深拷贝，消息、状态和配置均被克隆。
     </PropertyReference>
 
   </PropertyReference>
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Basic Usage
+### 基本用法
 
 ```vue
 <script setup lang="ts">
@@ -193,7 +225,7 @@ const { agent } = useAgent();
 </template>
 ```
 
-### Accessing and Updating State
+### 访问与更新状态
 
 ```vue
 <script setup lang="ts">
@@ -215,7 +247,7 @@ function updateState() {
 </template>
 ```
 
-### Event Subscription
+### 事件订阅
 
 ```vue
 <script setup lang="ts">
@@ -240,7 +272,7 @@ watchEffect((onCleanup) => {
 </template>
 ```
 
-### Multiple Agents
+### 多智能体
 
 ```vue
 <script setup lang="ts">
@@ -258,7 +290,7 @@ const { agent: support } = useAgent({ agentId: "support" });
 </template>
 ```
 
-### Thread-scoped Agent
+### 线程作用域智能体
 
 ```vue
 <script setup lang="ts">
@@ -280,7 +312,7 @@ const { agent } = useAgent({
 </template>
 ```
 
-### Optimizing Reactive Updates
+### 优化响应式更新
 
 ```vue
 <script setup lang="ts">
@@ -297,7 +329,7 @@ const { agent } = useAgent({
 </template>
 ```
 
-### Throttling High-Frequency Updates
+### 节流高频更新
 
 ```ts
 import { useAgent } from "@copilotkit/vue/v2";
@@ -307,15 +339,15 @@ import { useAgent } from "@copilotkit/vue/v2";
 const { agent } = useAgent({ throttleMs: 100 });
 ```
 
-## Behavior
+## 行为
 
-- **Reactive updates**: The `agent` ref triggers reactivity when state, messages, or execution status changes (configurable via the `updates` parameter).
-- **Reactive inputs**: `agentId` and `runtimeAgentId` drive private-proxy registration; `agentId` plus core registry and connection changes drive resolution. `threadId` pins or repins the current agent. `updates`, `throttleMs`, and the provider's `defaultThrottleMs` drive subscription behavior.
-- **Agent binding**: The shared-agent form resolves the explicit `agentId`, then the chat configuration's `agentId`, then `DEFAULT_AGENT_ID`, and may return an agent discovered by the runtime or registered by the provider. The thread-scoped form registers a private proxy under the local `agentId`, routes it to `runtimeAgentId`, and pins `threadId` to that proxy. All three thread-scoped properties are required together; changing `threadId` repins the existing proxy.
-- **Throttling**: Message and state updates can be throttled via `throttleMs`, resolved as `throttleMs ?? provider defaultThrottleMs ?? 0`. Run lifecycle callbacks always fire immediately.
-- **Error handling**: Throws an error if no agent can be resolved for the specified `agentId` after the runtime has synced.
-- **State synchronization**: State updates via `setState()` are immediately available to both app and agent.
+- **响应式更新**：`agent` 引用会在状态、消息或执行状态变化时触发响应（可通过 `updates` 参数配置）。
+- **响应式输入**：`agentId` 和 `runtimeAgentId` 驱动私有代理注册；`agentId` 加上核心注册表与连接变化驱动解析。`threadId` 固定或重新固定当前智能体。`updates`、`throttleMs` 和提供方的 `defaultThrottleMs` 驱动订阅行为。
+- **智能体绑定**：共享智能体形式按显式 `agentId`、聊天配置的 `agentId`、`DEFAULT_AGENT_ID` 的顺序解析，并可能返回运行时发现的智能体或提供方注册的智能体。线程作用域形式在本地 `agentId` 下注册私有代理，将其路由到 `runtimeAgentId`，并把 `threadId` 固定到该代理。三个线程作用域属性必须一起提供；更改 `threadId` 会重新固定现有代理。
+- **节流**：消息与状态更新可通过 `throttleMs` 节流，解析规则为 `throttleMs ?? provider defaultThrottleMs ?? 0`。运行生命周期回调始终立即触发。
+- **错误处理**：如果运行时同步后仍无法为指定 `agentId` 解析出智能体，则抛出错误。
+- **状态同步**：通过 `setState()` 进行的状态更新对应用和智能体都立即可用。
 
-## Related
+## 相关内容
 
-- [AG-UI AbstractAgent](https://docs.ag-ui.com/sdk/js/client/abstract-agent) - full agent interface documentation
+- [AG-UI AbstractAgent](https://docs.ag-ui.com/sdk/js/client/abstract-agent) - 完整的智能体接口文档

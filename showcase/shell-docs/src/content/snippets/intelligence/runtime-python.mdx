@@ -1,10 +1,10 @@
-Use Python 3.11 or later. Install the [Python runtime](https://pypi.org/project/copilotkit-intelligence-runtime/) and Uvicorn in your application's virtual environment:
+使用 Python 3.11 或更高版本。在应用的虚拟环境中安装 [Python 运行时](https://pypi.org/project/copilotkit-intelligence-runtime/)与 Uvicorn：
 
 ```bash
 python -m pip install copilotkit-intelligence-runtime==0.1.0 uvicorn
 ```
 
-Set these variables in the server environment. `AG_UI_AGENT_URL` must point to a running AG-UI endpoint that accepts run requests and streams events:
+在服务器环境中设置以下变量。`AG_UI_AGENT_URL` 必须指向一个正在运行的 AG-UI 端点，该端点需接受运行请求并以流式方式返回事件：
 
 ```bash
 export CPK_INTELLIGENCE_API_KEY="your-project-api-key"
@@ -13,9 +13,9 @@ export APP_AUTH_TOKEN="replace-with-a-random-local-development-token"
 export APP_USER_ID="local-user"
 ```
 
-This local example verifies one application token and maps it to a server-owned user ID. Use a different value for the application token and the Intelligence API key. For production, replace this lookup with your application's verified session or token lookup; never trust a user ID supplied by the browser.
+这个本地示例只验证一个应用令牌，并将其映射为一个由服务端持有的用户 ID。应用令牌与 Intelligence API 密钥应使用不同的值。在生产环境中，请将这一查询逻辑替换为你应用中经过验证的会话或令牌查询；绝不要信任浏览器提供的用户 ID。
 
-Save this as `app.py`:
+将以下内容保存为 `app.py`：
 
 ```python
 import hmac
@@ -49,12 +49,12 @@ app = IntelligenceRuntime(
 )
 ```
 
-Start the server:
+启动服务器：
 
 ```bash
 python -m uvicorn app:app --host 127.0.0.1 --port 8200
 ```
 
-The multi-route runtime URL is `http://localhost:8200/api/copilotkit`. Send `Authorization: Bearer <APP_AUTH_TOKEN>` with frontend requests. Keep `CPK_INTELLIGENCE_API_KEY` on the server. The CORS configuration allows a frontend at `http://localhost:3000`; replace that origin for your deployment.
+多路由运行时 URL 为 `http://localhost:8200/api/copilotkit`。前端请求需携带 `Authorization: Bearer <APP_AUTH_TOKEN>`。把 `CPK_INTELLIGENCE_API_KEY` 保留在服务端。CORS 配置允许位于 `http://localhost:3000` 的前端；针对你的部署，请替换该来源。
 
-Uvicorn runs the ASGI lifespan, which closes the runtime on shutdown. If you mount it inside a host that manages lifespan separately, call `await app.aclose()` from that host's shutdown handler. `HttpAgent` does not forward browser credentials; configure its `headers` explicitly if your agent requires authentication.
+Uvicorn 会运行 ASGI lifespan，从而在关闭时关闭运行时。如果你把它挂载到一个单独管理 lifespan 的宿主中，请在该宿主的关闭处理器中调用 `await app.aclose()`。`HttpAgent` 不会转发浏览器凭据；如果你的智能体需要身份验证，请显式配置其 `headers`。

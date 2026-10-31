@@ -1,4 +1,4 @@
-This Rack example uses Ruby 3.1 or later and the [Ruby runtime gem](https://rubygems.org/gems/copilotkit-runtime). Add this `Gemfile`, then run `bundle install`:
+这个 Rack 示例使用 Ruby 3.1 或更高版本以及 [Ruby 运行时 gem](https://rubygems.org/gems/copilotkit-runtime)。添加以下 `Gemfile`，然后运行 `bundle install`：
 
 ```ruby
 source 'https://rubygems.org'
@@ -8,7 +8,7 @@ gem 'rackup', '~> 2.2'
 gem 'puma', '~> 6.0'
 ```
 
-Set these variables in the server environment. Start your AG-UI agent at `AG_UI_AGENT_URL` before sending a message:
+在服务器环境中设置以下变量。在发送消息之前，先在 `AG_UI_AGENT_URL` 处启动你的 AG-UI 智能体：
 
 ```bash
 export CPK_INTELLIGENCE_API_KEY="your-project-api-key"
@@ -17,9 +17,9 @@ export APP_AUTH_TOKEN="replace-with-a-random-local-development-token"
 export APP_USER_ID="local-user"
 ```
 
-This local example verifies one application token and maps it to a server-owned user ID. Use a different value for the application token and the Intelligence API key. In production, replace the lookup with your application's verified session or token lookup. Never trust a browser-supplied user ID.
+这个本地示例只验证一个应用令牌，并将其映射为一个由服务端持有的用户 ID。应用令牌与 Intelligence API 密钥应使用不同的值。在生产环境中，请将该查询逻辑替换为你应用中经过验证的会话或令牌查询。绝不要信任浏览器提供的用户 ID。
 
-Save this as `config.ru`:
+将以下内容保存为 `config.ru`：
 
 ```ruby
 require 'rack'
@@ -50,12 +50,12 @@ map '/api/copilotkit' do
 end
 ```
 
-Start a single-process server:
+启动一个单进程服务器：
 
 ```bash
 bundle exec puma config.ru --bind tcp://127.0.0.1:8200 --workers 0
 ```
 
-The multi-route runtime URL is `http://localhost:8200/api/copilotkit`. Rack strips the mount prefix, so leave the runtime's `base_path` at its empty default. Send `Authorization: Bearer <APP_AUTH_TOKEN>` with frontend requests, and keep `CPK_INTELLIGENCE_API_KEY` on the server. Replace the allowed `http://localhost:3000` origin for your deployment.
+多路由运行时 URL 为 `http://localhost:8200/api/copilotkit`。Rack 会剥掉挂载前缀，因此请把运行时的 `base_path` 保持在默认的空值。前端请求需携带 `Authorization: Bearer <APP_AUTH_TOKEN>`，并把 `CPK_INTELLIGENCE_API_KEY` 保留在服务端。针对你的部署，请替换允许的 `http://localhost:3000` 来源。
 
-The exit handler closes this single-process runtime. For a worker-based deployment, create one runtime after each worker forks and call `runtime.close(timeout: 10)` from its worker shutdown hook. `HttpAgent` accepts a `headers:` hash for server-owned agent credentials; it does not forward browser credentials.
+退出处理器会关闭这个单进程运行时。对于基于 worker 的部署，请在每个 worker fork 之后各创建一个运行时，并在其 worker 关闭钩子中调用 `runtime.close(timeout: 10)`。`HttpAgent` 接受一个 `headers:` 哈希，用于存放服务端持有的智能体凭据；它不会转发浏览器凭据。

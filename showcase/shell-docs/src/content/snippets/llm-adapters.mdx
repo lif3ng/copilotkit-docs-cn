@@ -7,65 +7,62 @@ import SelfHostingCopilotRuntimeCreateEndpoint from "@/snippets/self-hosting-cop
 import { FaCloud, FaServer } from "react-icons/fa";
 import FindYourCopilotRuntime from "@/snippets/find-your-copilot-runtime.mdx";
 
-LLM Adapters are responsible for executing the request with the LLM and standardizing the request/response format in a way that the Copilot Runtime can understand.
+LLM 适配器（LLM Adapters）负责与 LLM 执行请求，并将请求/响应的格式标准化为 Copilot Runtime 能够理解的形式。
 
-Currently, we support the following LLM adapters natively:
+目前，我们原生支持以下 LLM 适配器：
 
-- [OpenAI Adapter (Azure also supported)](/reference/v1/classes/llm-adapters/OpenAIAdapter)
-- [OpenAI Assistant Adapter](/reference/v1/classes/llm-adapters/OpenAIAssistantAdapter)
-- [LangChain Adapter](/reference/v1/classes/llm-adapters/LangChainAdapter)
-- [Groq Adapter](/reference/v1/classes/llm-adapters/GroqAdapter)
-- [Google Generative AI Adapter](/reference/v1/classes/llm-adapters/GoogleGenerativeAIAdapter)
-- [Anthropic Adapter](/reference/v1/classes/llm-adapters/AnthropicAdapter)
+- [OpenAI 适配器（也支持 Azure）](/reference/v1/classes/llm-adapters/OpenAIAdapter)
+- [OpenAI Assistant 适配器](/reference/v1/classes/llm-adapters/OpenAIAssistantAdapter)
+- [LangChain 适配器](/reference/v1/classes/llm-adapters/LangChainAdapter)
+- [Groq 适配器](/reference/v1/classes/llm-adapters/GroqAdapter)
+- [Google Generative AI 适配器](/reference/v1/classes/llm-adapters/GoogleGenerativeAIAdapter)
+- [Anthropic 适配器](/reference/v1/classes/llm-adapters/AnthropicAdapter)
 
 <Callout type="info">
-  You can use the [LangChain
-  Adapter](/reference/v1/classes/llm-adapters/LangChainAdapter) to use any LLM
-  provider we don't yet natively support!
+  你可以使用 [LangChain
+  适配器](/reference/v1/classes/llm-adapters/LangChainAdapter)来接入我们尚未原生支持的任意 LLM 提供方！
 </Callout>
 
 <Callout type="info">
-  It's not too hard to write your own LLM adapter from scratch -- see the
-  existing adapters for inspiration. And of course, we would love a
-  contribution! ⭐️
+  从零开始编写自己的 LLM 适配器并不难——不妨参考现有适配器寻找灵感。当然，我们也非常欢迎你贡献代码！⭐️
 </Callout>
 
 <TailoredContent id="hosting">
   <TailoredContentOption
     id="copilot-cloud"
-    title="Copilot Cloud (Recommended)"
-    description="Use the cloud-hosted service to get started quickly."
+    title="Copilot Cloud（推荐）"
+    description="使用云端托管服务快速上手。"
     icon={<FaCloud />}
   >
-  Configure the used LLM adapter [on your Copilot Cloud dashboard](https://dashboard.operations.copilotkit.ai/)!
+  在 [Copilot Cloud 控制台](https://dashboard.operations.copilotkit.ai/)上配置所用的 LLM 适配器！
 
   </TailoredContentOption>
 
   <TailoredContentOption
     id="self-hosted"
-    title="Self-hosting"
-    description="Learn to host CopilotKit's runtime yourself with your own backend."
+    title="自托管"
+    description="学习如何使用自己的后端自行托管 CopilotKit 的运行时。"
     icon={<FaServer />}
   >
 
   <Steps>
     <Step>
-    ## Find your CopilotRuntime instance
+    ## 找到你的 CopilotRuntime 实例
     <FindYourCopilotRuntime components={props.components} />
 
     </Step>
 
     <Step>
-    ## Modify the used LLM Adapter
+    ## 修改所用的 LLM 适配器
 
-    Use the example code below to tailor your CopilotRuntime instantiation to your desired llm adapter.
+    使用下方示例代码，将你的 CopilotRuntime 实例化调整为所需的 LLM 适配器。
 
     <SelfHostingCopilotRuntimeCreateEndpoint components={props.components} />
     </Step>
 
     <Step>
-    ## Make further customizations
-    See the reference documentation linked above for further customization parameters.
+    ## 进行更多自定义
+    更多自定义参数请参阅上方链接的参考文档。
     </Step>
 
   </Steps>

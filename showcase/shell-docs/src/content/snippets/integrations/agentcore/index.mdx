@@ -11,37 +11,31 @@ import { AgentCoreCommandTabs } from "@/components/content/agentcore-command-tab
 ## CopilotKit + AWS AgentCore
 
 [AWS Bedrock AgentCore](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html)
-gives you a secure, serverless runtime for deploying AG-UI agents at scale — handling auth, session
-isolation, and infrastructure. CopilotKit gives those agents a production-ready frontend:
+为你提供一个安全、无服务器的运行时，用于大规模部署 AG-UI 智能体——身份验证、会话隔离与基础设施都由它处理。CopilotKit 则为这些智能体提供一个可用于生产环境的前端：
 
-**Chat UI** · **Shared State** · **Generative UI** · **Human-in-the-loop**
+**聊天 UI** · **共享状态** · **生成式 UI** · **人机协同**
 
-## How it works
+## 工作原理
 
-The two connect through **CopilotKit Runtime**, a lightweight server-side layer that sits between
-your browser and AgentCore. It's the same runtime you'd use with any CopilotKit-powered agent —
-AgentCore just requires it to run server-side (browsers can't call AgentCore directly due to
-SigV4/OAuth2 authentication).
+两者通过 **CopilotKit Runtime** 连接——这是一个轻量的服务端层，位于你的浏览器与 AgentCore 之间。它与你搭配任何 CopilotKit 驱动的智能体所用的运行时是同一个——只是 AgentCore 要求它必须运行在服务端（由于 SigV4/OAuth2 身份验证，浏览器无法直接调用 AgentCore）。
 
 ```
 Browser → CopilotKit Runtime → AgentCore Runtime → your agent
 ```
 
-## What you get
+## 你将获得
 
-- **Chat UI** — prebuilt chat interface, or headless APIs to build your own
-- **Shared state** — bidirectional sync between agent state and your frontend UI
-- **Generative UI** — render custom components from tool calls in real time
-- **Human-in-the-loop** — let users review, approve, or redirect agent actions
-- **AgentCore memory** — conversation history persists across sessions via AgentCore's memory layer
+- **聊天 UI**——预构建的聊天界面，或用于自行构建的无头 API
+- **共享状态**——智能体状态与你的前端 UI 之间的双向同步
+- **生成式 UI**——通过工具调用实时渲染自定义组件
+- **人机协同**——让用户审阅、批准或重定向智能体的操作
+- **AgentCore 记忆**——借助 AgentCore 的记忆层，会话历史可跨会话持久保存
 
-## Quickstart
+## 快速开始
 
-<Callout type="info" title="AWS CLI required">
-  Both paths below require AWS credentials configured locally. If you haven't
-  done this yet, follow the [AWS CLI getting started
-  guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html)
-  before continuing.
+<Callout type="info" title="需要 AWS CLI">
+  下面两条路径都需要在本地配置好 AWS 凭证。如果你还没有配置，请先参阅 [AWS CLI
+  入门指南](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html)，再继续操作。
 </Callout>
 
 <Steps>
@@ -50,20 +44,20 @@ Browser → CopilotKit Runtime → AgentCore Runtime → your agent
     id="starting-point"
     header={
       <div>
-        <p className="text-xl font-semibold">Choose your starting point</p>
+        <p className="text-xl font-semibold">选择你的起点</p>
         <p className="text-base">
-          Start fresh with our CLI, or connect CopilotKit to an agent you've already deployed on AgentCore.
+          用我们的 CLI 从零开始，或将 CopilotKit 连接到你已部署在 AgentCore 上的智能体。
         </p>
       </div>
     }
   >
     <TailoredContentOption
       id="scratch"
-      title="Start from scratch"
-      description="Scaffold a complete AgentCore + CopilotKit application with one command."
+      title="从零开始"
+      description="用一条命令生成完整的 AgentCore + CopilotKit 应用骨架。"
     >
       <Step>
-        ### Run the CLI
+        ### 运行 CLI
 
         <AgentCoreCommandTabs
           framework={framework}
@@ -71,13 +65,13 @@ Browser → CopilotKit Runtime → AgentCore Runtime → your agent
           stCommand="npx copilotkit@latest create -f agentcore-strands"
         />
 
-        The CLI downloads the full AgentCore template and sets up `config.yaml` for you.
+        CLI 会下载完整的 AgentCore 模板，并为你设置好 `config.yaml`。
       </Step>
 
       <Step>
-        ### Configure
+        ### 配置
 
-        Open `config.yaml` and set your details:
+        打开 `config.yaml` 并填写你的信息：
 
         ```yaml title="config.yaml"
         stack_name_base: my-agentcore-app   # prefix for all AWS resources (max 35 chars)
@@ -86,9 +80,9 @@ Browser → CopilotKit Runtime → AgentCore Runtime → your agent
       </Step>
 
       <Step>
-        ### Deploy
+        ### 部署
 
-        One command deploys everything — CDK infrastructure, AgentCore Runtime, and the frontend:
+        一条命令即可部署全部内容——CDK 基础设施、AgentCore Runtime 与前端：
 
         <AgentCoreCommandTabs
           framework={framework}
@@ -98,34 +92,34 @@ Browser → CopilotKit Runtime → AgentCore Runtime → your agent
       </Step>
 
       <Step>
-        ### 🎉 Open your app
+        ### 🎉 打开你的应用
 
-        The deploy script prints an Amplify URL when it finishes. Open it and sign in with your `admin_user_email`.
+        部署脚本完成后会输出一个 Amplify URL。打开它，并使用你的 `admin_user_email` 登录。
       </Step>
 
       <Step>
-        ### Run locally
+        ### 本地运行
 
-        To run the full stack locally — agent, CopilotKit runtime, and frontend — without deploying:
+        要在不部署的情况下在本地运行完整技术栈——智能体、CopilotKit 运行时与前端：
 
         ```bash
         cd docker
         cp .env.example .env
-        # Fill in AWS credentials and STACK_NAME
+        # 填写 AWS 凭证与 STACK_NAME
         ./up.sh --build
         ```
 
-        | Service | Port | Description |
+        | 服务 | 端口 | 说明 |
         |---|---|---|
-        | `agent` | 8080 | Your agent, hot-reloads on `.py` changes |
+        | `agent` | 8080 | 你的智能体，`.py` 文件变更时热重载 |
         | `runtime` | 3001 | CopilotKit Runtime |
-        | `frontend` | 3000 | Vite dev server |
+        | `frontend` | 3000 | Vite 开发服务器 |
       </Step>
 
       <Step>
-        ### Tear down
+        ### 拆除资源
 
-        When done, delete all AWS resources to stop charges:
+        完成后，删除所有 AWS 资源以停止计费：
 
         ```bash
         cd infra-cdk && npx cdk destroy --all
@@ -135,16 +129,16 @@ Browser → CopilotKit Runtime → AgentCore Runtime → your agent
 
     <TailoredContentOption
       id="existing"
-      title="I already have an agent"
-      description="I've followed the AWS guide and have an AG-UI agent deployed on AgentCore Runtime."
+      title="我已有智能体"
+      description="已按照 AWS 指南操作，并在 AgentCore Runtime 上部署了 AG-UI 智能体。"
     >
       <Step>
-        ### Install CopilotKit
+        ### 安装 CopilotKit
 
-        <Callout type="info" title="Deploying your AG-UI agent on AgentCore">
-          This path assumes you already have an AG-UI-compatible agent deployed on AgentCore Runtime.
-          If not, follow AWS's [Deploy an AG-UI agent to AgentCore Runtime](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-agui.html)
-          guide first, then return here.
+        <Callout type="info" title="在 AgentCore 上部署你的 AG-UI 智能体">
+          本路径假设你已经在 AgentCore Runtime 上部署了兼容 AG-UI 的智能体。如果没有，请先按照 AWS
+          的[将 AG-UI 智能体部署到 AgentCore Runtime](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-agui.html)
+          指南操作，然后再回到这里。
         </Callout>
 
         ```npm
@@ -153,13 +147,12 @@ Browser → CopilotKit Runtime → AgentCore Runtime → your agent
       </Step>
 
       <Step>
-        ### Set up CopilotKit Runtime
+        ### 设置 CopilotKit Runtime
 
-        CopilotKit Runtime is the server-side layer that connects your frontend to AgentCore. It handles
-        the communication protocol, middleware, and — with AgentCore specifically — the server-side
-        authentication that browsers can't perform directly.
+        CopilotKit Runtime 是连接你的前端与 AgentCore 的服务端层。它负责处理通信协议、中间件，以及——针对
+        AgentCore 而言——浏览器无法直接完成的服务端身份验证。
 
-        Create an API route:
+        创建一个 API 路由：
 
         ```typescript title="app/api/copilotkit/[[...slug]]/route.ts"
         import {
@@ -191,32 +184,29 @@ Browser → CopilotKit Runtime → AgentCore Runtime → your agent
         export const POST = handler;
         ```
 
-        <Callout type="info" title="What is AGENTCORE_ENDPOINT_URL?">
-          This is the invocation URL for your deployed AgentCore Runtime — the URL you call to reach
-          your agent. It takes the form:
+        <Callout type="info" title="什么是 AGENTCORE_ENDPOINT_URL？">
+          这是你部署的 AgentCore Runtime 的调用 URL——即你调用以访问智能体的 URL。其形式为：
           `https://bedrock-agentcore.{region}.amazonaws.com/runtimes/{encoded-arn}/invocations`
         </Callout>
 
-        <Callout type="info" title="Auth in production">
-          The example above uses a static token for simplicity. In production you'll want to pass the
-          user's Cognito JWT from the frontend through to AgentCore. See the
-          [full-stack example](/agentcore/full-stack-example) for a complete Cognito OIDC implementation.
+        <Callout type="info" title="生产环境中的身份验证">
+          为简单起见，上面的示例使用了静态令牌。在生产环境中，你会希望将用户的 Cognito JWT
+          从前端一路传递给 AgentCore。完整的 Cognito OIDC 实现请参阅[全栈示例](/agentcore/full-stack-example)。
         </Callout>
       </Step>
 
       <Step>
-        ### Add the AgentCoreRunner
+        ### 添加 AgentCoreRunner
 
-        AgentCore's memory layer stores conversation history server-side. When CopilotKit reconnects
-        to an existing thread (e.g. on page refresh), two issues arise that require a custom runner:
+        AgentCore 的记忆层在服务端存储会话历史。当 CopilotKit 重新连接到已有线程（例如页面刷新时），会出现两个问题，需要一个自定义
+        runner 来解决：
 
-        1. **Unknown threads** — CopilotKit may call `connect()` before any `run()` has happened.
-           Without handling this, you'll get an error on first load.
-        2. **Missing tool-call results** — AgentCore's replayed history includes assistant messages
-           with tool calls, but omits the corresponding results. CopilotKit needs those to reconcile
-           its message state, so the runner synthesises empty results for each past tool call.
+        1. **未知线程**——CopilotKit 可能在任何 `run()` 发生之前就调用 `connect()`。
+           如果不处理这种情况，首次加载时就会报错。
+        2. **缺失的工具调用结果**——AgentCore 回放的历史中包含带工具调用的助手消息，但省略了对应的结果。
+           CopilotKit 需要这些结果来对齐其消息状态，因此该 runner 会为每个过往工具调用合成空结果。
 
-        Create the runner file alongside your API route:
+        在你的 API 路由旁创建 runner 文件：
 
         ```typescript title="app/api/copilotkit/agent-core-runner.ts"
         import {
@@ -275,7 +265,7 @@ Browser → CopilotKit Runtime → AgentCore Runtime → your agent
       </Step>
 
       <Step>
-        ### Add the CopilotKit provider
+        ### 添加 CopilotKit Provider
 
         ```tsx title="app/providers.tsx"
         "use client";
@@ -291,8 +281,7 @@ Browser → CopilotKit Runtime → AgentCore Runtime → your agent
         }
         ```
 
-        `app/layout.tsx` is a server component and cannot import the provider
-        directly, so it renders your client file instead:
+        `app/layout.tsx` 是服务端组件，无法直接导入该 provider，因此它改为渲染你的客户端文件：
 
         ```tsx title="app/layout.tsx"
         import { Providers } from "./providers";
@@ -313,7 +302,7 @@ Browser → CopilotKit Runtime → AgentCore Runtime → your agent
       </Step>
 
       <Step>
-        ### Add the chat interface
+        ### 添加聊天界面
 
         ```tsx title="app/page.tsx"
         "use client"; // [!code highlight]
@@ -332,76 +321,65 @@ Browser → CopilotKit Runtime → AgentCore Runtime → your agent
       </Step>
 
       <Step>
-        ### 🎉 Run it
+        ### 🎉 运行应用
 
-        Point the Next.js app at the AgentCore runtime you deployed via AWS's
-        [Deploy an AG-UI agent to AgentCore Runtime](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-agui.html)
-        guide. Create `.env.local`:
+        将 Next.js 应用指向你按照 AWS
+        的[将 AG-UI 智能体部署到 AgentCore Runtime](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-agui.html)
+        指南部署的 AgentCore 运行时。创建 `.env.local`：
 
         ```bash title=".env.local"
         AGENTCORE_ENDPOINT_URL=https://bedrock-agentcore.{region}.amazonaws.com/runtimes/{encoded-arn}/invocations
         AGENTCORE_ACCESS_TOKEN=<your-bearer-token>
         ```
 
-        Then:
+        然后：
 
         ```bash
         npm run dev
         ```
 
-        Navigate to `localhost:3000`. The frontend runs locally while the agent stays on AgentCore —
-        the `/api/copilotkit` route forwards each call to the invocation URL using your token.
+        访问 `localhost:3000`。前端在本地运行，而智能体留在 AgentCore 上——`/api/copilotkit`
+        路由会使用你的令牌将每次调用转发到该调用 URL。
       </Step>
     </TailoredContentOption>
 
   </TailoredContent>
 </Steps>
 
-## Troubleshooting
+## 故障排查
 
-### HTTP 401: `Missing Authentication Token`
+### HTTP 401：`Missing Authentication Token`
 
 ```
 Agent execution failed: Error: HTTP 401:
 {"jsonrpc":"2.0","error":{"code":-32001,"message":"Missing Authentication Token"},"id":"null"}
 ```
 
-`Missing Authentication Token` is AWS's own error, not a CopilotKit or agent error. AWS returns it
-when a request reaches an AgentCore or API Gateway endpoint with no credentials, or when the request
-path matches no deployed route. Check the following, in order:
+`Missing Authentication Token` 是 AWS 自身的报错，而非 CopilotKit 或智能体的错误。当请求在没有任何凭证的情况下到达
+AgentCore 或 API Gateway 端点，或者请求路径没有匹配到任何已部署的路由时，AWS 就会返回它。请按顺序排查以下几点：
 
-- **The runtime is actually sending a token.** Set `AGENTCORE_ACCESS_TOKEN` in the environment of the
-  Copilot Runtime **server**, not the frontend. If the variable is unset, the `Authorization` header
-  interpolates to `Bearer undefined`, which AWS rejects exactly like a missing header.
-- **The token has not expired.** Cognito access tokens are short-lived. Mint a fresh one and retry
-  before you debug anything else.
-- **`AGENTCORE_ENDPOINT_URL` is the full invocation URL**, ending in `/invocations`, with the agent
-  ARN URL-encoded:
-  `https://bedrock-agentcore.{region}.amazonaws.com/runtimes/{encoded-arn}/invocations`. A URL that
-  stops short of `/invocations` matches no route, and AWS reports that as
-  `Missing Authentication Token` rather than as a 404.
-- **The browser is not calling AgentCore directly.** AgentCore requires SigV4 or OAuth2 signing,
-  which a browser cannot perform. Point the frontend at your Copilot Runtime endpoint and let the
-  runtime make the AgentCore call server-side.
+- **运行时确实在发送令牌**。在 Copilot Runtime **服务端**的环境中设置 `AGENTCORE_ACCESS_TOKEN`，而不是前端。如果该变量未设置，`Authorization` 头会插值成 `Bearer undefined`，AWS 会像缺少该请求头一样将其拒绝。
+- **令牌尚未过期**。Cognito 访问令牌的有效期很短。在排查其他任何问题之前，先签发一个新令牌并重试。
+- **`AGENTCORE_ENDPOINT_URL` 是完整的调用 URL**，以 `/invocations` 结尾，且智能体 ARN 已进行 URL 编码：
+  `https://bedrock-agentcore.{region}.amazonaws.com/runtimes/{encoded-arn}/invocations`。若 URL 停在 `/invocations` 之前，就匹配不到任何路由，AWS 会将其报告为 `Missing Authentication Token` 而不是 404。
+- **浏览器没有直接调用 AgentCore**。AgentCore 要求 SigV4 或 OAuth2 签名，这是浏览器无法完成的。将前端指向你的 Copilot Runtime 端点，让运行时在服务端完成对 AgentCore 的调用。
 
-<Callout type="warn" title="This error does not apply to the local quickstart">
-  The framework quickstarts run the agent locally on `http://localhost:8000`, and a local agent
-  server never returns `Missing Authentication Token`. If you see this error, the runtime is pointed
-  at a deployed AWS endpoint.
+<Callout type="warn" title="此错误不适用于本地快速开始">
+  框架快速开始在 `http://localhost:8000` 本地运行智能体，而本地智能体服务器永远不会返回 `Missing Authentication Token`。如果你看到此错误，说明运行时指向的是已部署的 AWS 端点。
 </Callout>
 
-## What's next?
+## 下一步
 
 <Cards>
   <Card
-    title="Generative UI"
-    description="Render custom frontend components directly from your agent's tool calls."
+    title="生成式 UI"
+    description="直接从智能体的工具调用渲染自定义前端组件。"
     href="/generative-ui/tool-rendering"
     icon={<PaintbrushIcon />}
   />
   <Card
-    title="Shared State"
-    description="Sync structured state between your agent and your frontend UI bidirectionally."
+    title="共享状态"
+    description="在智能体与前端 UI 之间双向同步结构化状态。"
     href="/shared-state/in-app-agent-read"
     icon={<RepeatIcon />}
   />

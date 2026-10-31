@@ -1,15 +1,15 @@
 import { Callout } from "fumadocs-ui/components/callout";
 import { LinkToCopilotCloud } from "@/components/react/link-to-copilot-cloud";
 
-The [`<CopilotKit>`](/reference/v1/components/CopilotKit) provider must wrap the Copilot-aware parts of your application.
-For most use-cases, it's appropriate to wrap the `CopilotKit` provider around the entire app, e.g. in your `layout.tsx`
+[`<CopilotKit>`](/reference/v1/components/CopilotKit) 提供方必须包裹应用中使用 Copilot 功能的部分。
+对于大多数场景，直接用 `CopilotKit` 提供方包裹整个应用即可，例如放在你的 `layout.tsx` 中。
 
 <Callout type="info">
-  Note that you can add the `<CopilotKit>` provider anywhere in your application. In fact, you can have multiple `<CopilotKit>` providers per app if you want independent copilots.
+  注意：`<CopilotKit>` 提供方可以添加到应用中的任意位置。实际上，如果你想要多个相互独立的 copilot，甚至可以在一个应用中使用多个 `<CopilotKit>` 提供方。
 </Callout>
 
 <Callout type="info">
-    <LinkToCopilotCloud asButton={false}>Click here to get your Copilot Cloud API key for free</LinkToCopilotCloud>. Then, replace `<your-public-api-key>` with your actual API key.
+    <LinkToCopilotCloud asButton={false}>点击此处免费获取你的 Copilot Cloud API 密钥</LinkToCopilotCloud>。然后，将 `<your-public-api-key>` 替换为你实际的 API 密钥。
 </Callout>
 
 ```tsx title="layout.tsx" showLineNumbers

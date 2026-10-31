@@ -1,21 +1,19 @@
 ---
 title: "useFrontendTool"
-description: "Vue composable for registering a client-side tool with an optional Vue renderer"
+description: "用于注册客户端工具并可附带 Vue 渲染器的 Vue 组合式函数"
 ---
 
-## Overview
+## 概览
 
-`useFrontendTool` registers a client-side tool with CopilotKit at the current component scope. When the agent decides to call the tool, the provided `handler` function executes in the browser. Optionally, you can supply a `render` (a Vue component or render function) to display custom UI in the chat showing the tool's execution progress and result.
+`useFrontendTool` 在当前组件作用域向 CopilotKit 注册一个客户端工具。当智能体决定调用该工具时，提供的 `handler` 函数会在浏览器中执行。你还可以选择提供一个 `render`（Vue 组件或渲染函数），在聊天中显示自定义 UI，展示工具的执行进度和结果。
 
-The composable manages the full registration lifecycle: it registers the tool (and its optional renderer) immediately, re-runs the registration when reactive dependencies change, and removes the tool automatically when the owning scope is disposed. Parameter schemas are defined with a [Standard Schema](https://standardschema.dev) such as a [Zod](https://zod.dev) object, for the advertised tool schema and TypeScript inference. Runtime arguments are JSON-parsed but are not validated against that schema.
+该组合式函数管理完整的注册生命周期：立即注册工具（及其可选渲染器），响应式依赖变化时重新执行注册，并在所属作用域销毁时自动移除工具。参数模式用 [Standard Schema](https://standardschema.dev)（例如 [Zod](https://zod.dev) 对象）定义，用于对外声明的工具模式和 TypeScript 类型推断。运行时参数会经 JSON 解析，但不会按该模式校验。
 
 <Callout type="info">
-  Import from the `/v2` subpath: `@copilotkit/vue/v2`. Like all CopilotKit
-  composables, `useFrontendTool` must be called from within a component that is a
-  descendant of [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider).
+  从 `/v2` 子路径导入：`@copilotkit/vue/v2`。与所有 CopilotKit 组合式函数一样，`useFrontendTool` 必须在 [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider) 后代组件内调用。
 </Callout>
 
-## Signature
+## 签名
 
 ```ts
 import type { WatchSource } from "vue";
@@ -27,111 +25,78 @@ function useFrontendTool<T extends Record<string, unknown>>(
 ): void;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="tool" type="VueFrontendTool<T>" required>
-  The tool definition object.
+  工具定义对象。
 
   <PropertyReference name="name" type="string" required>
-    A unique name for the tool. The agent references this name when deciding to
-    call the tool. If a tool with this name is already registered (for the same
-    `agentId`), the existing registration is overridden and a warning is logged.
+    工具的唯一名称。智能体在决定调用工具时会引用这个名称。如果同名工具已注册（同一 `agentId` 下），现有注册会被覆盖并记录一条警告。
   </PropertyReference>
 
   <PropertyReference name="description" type="string">
-    A natural-language description that tells the agent what the tool does and
-    when to use it.
+    自然语言描述，告诉智能体这个工具做什么、何时使用。
   </PropertyReference>
 
   <PropertyReference name="parameters" type="StandardSchemaV1<any, T>">
-    A [Standard Schema](https://standardschema.dev) (for example a Zod object)
-    defining the tool's input parameters. The schema drives the advertised tool
-    schema and type inference for the `handler` arguments. Runtime arguments are
-    JSON-parsed but are not validated against that schema. May be omitted for
-    tools that take no parameters.
+    定义工具输入参数的 [Standard Schema](https://standardschema.dev)（例如 Zod 对象）。该模式驱动对外声明的工具模式，并为 `handler` 参数提供类型推断。运行时参数会经 JSON 解析，但不会按该模式校验。不带参数的工具可以省略。
   </PropertyReference>
 
   <PropertyReference
     name="handler"
     type="(args: T, context: FrontendToolHandlerContext) => Promise<unknown>"
   >
-    An async function that executes when the agent calls the tool. Receives the
-    parsed arguments, typed from `parameters` but not validated against it, and
-    the context object: `toolCall` (the raw tool call metadata), `agent` (the
-    agent instance that invoked the tool; absent when the tool is invoked
-    through WebMCP), `signal` (an `AbortSignal` that is aborted when the
-    user stops the agent), and `isReplay` (`true` when the call is run while
-    the thread's history is restored; see `reconnectBehavior`).
-    Long-running handlers can check `signal.aborted` or pass `signal` to
-    `fetch` to cancel cooperatively. The resolved value is surfaced back to the
-    agent as the tool result. `FrontendToolHandlerContext` is exported from
-    `@copilotkit/core`.
+    智能体调用工具时执行的异步函数。它接收解析后的参数（类型来自 `parameters`，但不按其校验）以及上下文对象：`toolCall`（原始工具调用元数据）、`agent`（调用该工具的智能体实例；通过 WebMCP 调用工具时不存在）、`signal`（用户停止智能体时会被中止的 `AbortSignal`）和 `isReplay`（在线程历史恢复期间运行该调用时为 `true`；见 `reconnectBehavior`）。
+    长时间运行的处理器可以检查 `signal.aborted`，或把 `signal` 传给 `fetch` 以协作式取消。其解析值会作为工具结果回传给智能体。`FrontendToolHandlerContext` 从 `@copilotkit/core` 导出。
   </PropertyReference>
 
   <PropertyReference
     name="render"
     type="Component<RenderProps<T>> | ((props: RenderProps<T>) => VNodeChild)"
   >
-    An optional Vue component or render function used to visualize tool
-    execution in the chat. It receives a props object: `name` (the tool name),
-    `toolCallId` (the unique id of this tool call), `args` (the arguments,
-    partial while streaming during `InProgress`, complete during `Executing`
-    and `Complete`), `status` (one of `ToolCallStatus.InProgress`,
-    `ToolCallStatus.Executing`, or `ToolCallStatus.Complete`), and `result`
-    (the string result, available only when status is `Complete`).
+    可选的 Vue 组件或渲染函数，用于在聊天中可视化工具执行过程。它接收一个 props 对象：`name`（工具名称）、`toolCallId`（本次工具调用的唯一 id）、`args`（参数，`InProgress` 流式期间为部分内容，`Executing` 和 `Complete` 期间为完整内容）、`status`（`ToolCallStatus.InProgress`、`ToolCallStatus.Executing` 或 `ToolCallStatus.Complete` 之一）和 `result`（字符串结果，仅在状态为 `Complete` 时可用）。
   </PropertyReference>
 
   <PropertyReference name="available" type="boolean" default="true">
-    Whether the tool is exposed to the agent. Set to `false` to hide the tool
-    from the agent without unregistering it. Changing this reactive value
-    re-runs the registration.
+    工具是否对智能体可见。设为 `false` 可在不注销工具的情况下对智能体隐藏它。这个响应式值变化时会重新执行注册。
   </PropertyReference>
 
   <PropertyReference name="agentId" type="string">
-    Optional agent scope. When set, the tool is only available to the agent with
-    this id. Duplicate-name detection is scoped per `agentId`.
+    可选的智能体作用域。设置后，该工具只对具有此 id 的智能体可用。重名检测按 `agentId` 划分作用域。
   </PropertyReference>
 
   <PropertyReference name="followUp" type="boolean">
-    Whether the agent should automatically continue the run after the tool
-    result is returned.
+    工具结果返回后，智能体是否应自动继续运行。
   </PropertyReference>
 
   <PropertyReference name="reconnectBehavior" type='"passive" | "resume-pending"' default='"passive"'>
-    What happens to a call of this tool that is still unanswered when the thread's history is restored, for example after a page reload. With `"passive"`, the call is shown but the handler does not run. With `"resume-pending"`, the handler runs for that call with `isReplay: true` in its context, and the run then continues as usual. Opt in only for a handler that is safe to run more than once. A call does not start twice at the same time on one page, but it can run again after a stop or a thread switch if its result never reached the agent, and two tabs that restore the same thread can each run it. If the agent calls this tool together with a tool that stays passive, the follow-up run sends the passive call without a result, which some model providers reject.
+    线程历史恢复时（例如页面刷新后），该工具仍未应答的调用会如何处理。`"passive"` 时，调用会显示但处理器不运行。`"resume-pending"` 时，处理器会为该调用运行，上下文中 `isReplay: true`，然后运行照常继续。只应对可安全重复运行的处理器启用此选项。同一页面上一次调用不会同时启动两次，但在停止或切换线程后，如果其结果从未到达智能体，它可能再次运行；恢复同一线程的两个标签页也可能各自运行它。如果智能体在调用该工具的同时还调用了保持 passive 的工具，后续运行会发送不带结果的 passive 调用，某些模型提供方会拒绝这种情况。
   </PropertyReference>
 
   <PropertyReference name="webmcp" type="boolean | { annotations?: { readOnlyHint?: boolean; untrustedContentHint?: boolean } }">
-    Also expose the tool to browser agents through the WebMCP API
-    (`document.modelContext`). Pass `true` to register with default
-    annotations, or an object to register with WebMCP annotations. The same
-    `handler` runs when a browser agent calls the tool; the context then has
-    no `agent`. This is a no-op where WebMCP is not available (SSR, or
-    browsers without the API enabled).
+    同时通过 WebMCP API（`document.modelContext`）把该工具暴露给浏览器智能体。传 `true` 以默认注解注册，或传一个对象以自定义 WebMCP 注解注册。浏览器智能体调用该工具时运行的是同一个 `handler`；此时上下文中没有 `agent`。在 WebMCP 不可用的环境（SSR，或未启用该 API 的浏览器）中这是空操作。
   </PropertyReference>
 </PropertyReference>
 
 <PropertyReference name="deps" type="WatchSource<unknown>[]">
-  An optional list of reactive watch sources (for example a `ref` or a getter).
-  The registration re-runs whenever any of these change. Use this when your
-  `handler` or `render` captures reactive values that should refresh the
-  registration. The composable already watches `tool.name` and `tool.available`
-  internally.
+  可选的响应式侦听源列表（例如 `ref` 或 getter）。
+  其中任何一项变化时注册都会重新执行。当你的
+  `handler` 或 `render` 捕获了需要刷新注册的响应式值时使用。组合式函数内部已经侦听 `tool.name` 和 `tool.available`。
 </PropertyReference>
 
-## Behavior
+## 行为
 
-- **Immediate registration.** The tool is registered as soon as the composable runs (the underlying `watch` uses `{ immediate: true }`).
-- **Duplicate handling.** If a tool with the same `name` already exists for the same `agentId`, the previous registration is removed, the new one is added, and an override warning is logged. Only one tool per name (per agent) is active at a time.
-- **Renderer registration.** When `render` is provided, it is registered as a tool call renderer. The renderer is registered even when `parameters` is omitted, so parameter-free tools (for example confirm dialogs) can still render UI in the chat.
-- **Reactivity.** The registration re-runs when `tool.name`, `tool.available`, or any `deps` watch source changes. Pass changing reactive values through `deps`.
-- **WebMCP registration.** With `webmcp` set, the tool is also registered on `document.modelContext` and removed with the tool. The tool needs a `description` for this (WebMCP rejects tools without one).
-- **Automatic cleanup.** The tool is removed when the watch cleans up, including when the owning component scope is disposed. A `render` registered alongside the tool is intentionally left in place so earlier chat history can still render it.
-- **No return value.** The composable returns `void`.
+- **立即注册**。组合式函数一运行工具就会注册（底层 `watch` 使用 `{ immediate: true }`）。
+- **重名处理**。同一 `agentId` 下已存在同名工具时，先前的注册会被移除、新注册被加入，并记录一条覆盖警告。每个名称（每个智能体）同时只有一个工具处于活跃状态。
+- **渲染器注册**。提供 `render` 时，它会注册为工具调用渲染器。即使省略 `parameters`，渲染器也会注册，因此无参数工具（例如确认对话框）也能在聊天中渲染 UI。
+- **响应性**。`tool.name`、`tool.available` 或任何 `deps` 侦听源变化时，注册会重新执行。会变化的响应式值请通过 `deps` 传入。
+- **WebMCP 注册**。设置 `webmcp` 后，工具还会注册到 `document.modelContext`，并随工具一起移除。这要求工具有 `description`（WebMCP 拒绝没有描述的工具）。
+- **自动清理**。侦听器清理时（包括所属组件作用域销毁时）工具会被移除。随工具一起注册的 `render` 会有意保留在原处，让更早的聊天历史仍能渲染它。
+- **无返回值**。该组合式函数返回 `void`。
 
-## Usage
+## 用法
 
-### Basic tool with a Zod schema and async handler
+### 带 Zod schema 与异步处理器的基本工具
 
 ```vue
 <script setup lang="ts">
@@ -162,9 +127,9 @@ useFrontendTool({
 </template>
 ```
 
-### Tool with a custom Vue renderer
+### 带自定义 Vue 渲染器的工具
 
-Provide a `render` component to visualize the tool call in chat. The component receives `args`, `status`, and `result` as props.
+提供 `render` 组件以在聊天中可视化工具调用。该组件以 `args`、`status` 和 `result` 作为 props。
 
 ```vue
 <!-- WeatherToolView.vue -->
@@ -217,9 +182,9 @@ useFrontendTool({
 </script>
 ```
 
-### Conditionally available tool
+### 条件可用的工具
 
-Expose `available` as a getter that reads a reactive value. The registration watch re-reads `available` when that value changes, so the tool is shown or hidden automatically. (Passing the value through `deps` as well is harmless but not required.)
+把 `available` 暴露为读取响应式值的 getter。注册侦听器会在该值变化时重新读取 `available`，因此工具会自动显示或隐藏。（同时也通过 `deps` 传入该值无害，但并非必需。）
 
 ```vue
 <script setup lang="ts">
@@ -252,22 +217,22 @@ useFrontendTool(
 </script>
 ```
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="useComponent"
-    description="Convenience composable that renders a Vue component from tool args. Built on useFrontendTool."
+    description="从工具参数渲染 Vue 组件的便捷组合式函数。构建于 useFrontendTool 之上。"
     href="/reference/vue/hooks/useComponent"
   />
   <Card
     title="useRenderTool"
-    description="Register a renderer for a tool call with full access to status (in progress, executing, complete) and results."
+    description="为工具调用注册渲染器，可完整访问状态（进行中、执行中、已完成）与结果。"
     href="/reference/vue/hooks/useRenderTool"
   />
   <Card
     title="CopilotKitProvider"
-    description="The provider that must wrap any component calling useFrontendTool."
+    description="必须包裹任何调用 useFrontendTool 的组件的提供方。"
     href="/reference/vue/components/CopilotKitProvider"
   />
 </Cards>

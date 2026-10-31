@@ -1,15 +1,15 @@
 ---
 title: "CopilotChatMessageView"
-description: "Vue 3 component for rendering a list of chat messages"
+description: "用于渲染聊天消息列表的 Vue 3 组件"
 ---
 
-## Overview
+## 概览
 
-`CopilotChatMessageView` renders a list of chat messages and, optionally, a typing cursor while the agent is running. It dispatches each message to a default child component based on its `role` (assistant, user, or reasoning) and exposes named slots so you can replace or wrap that rendering. A pulsing cursor is shown after the last message while `isRunning` is `true`.
+`CopilotChatMessageView` 用于渲染聊天消息列表，并可在智能体运行期间显示输入光标。它会根据每条消息的 `role`（assistant、user 或 reasoning）将其分发给对应的默认子组件，同时暴露具名插槽，让你可以替换或包装默认渲染。当 `isRunning` 为 `true` 时，最后一条消息之后会显示一个脉冲光标。
 
-Unlike the React reference component, customization in Vue is driven entirely through named slots rather than render props or a slot-prop system. The component also surfaces slots for interrupts, activity messages, tool calls, and custom message renderers registered on the CopilotKit instance.
+与 React 参考组件不同，Vue 中的定制完全通过具名插槽实现，而非 render props 或插槽属性系统。该组件还为中断、活动消息、工具调用，以及注册在 CopilotKit 实例上的自定义消息渲染器提供了插槽。
 
-## Import
+## 导入
 
 ```vue
 <script setup lang="ts">
@@ -18,7 +18,7 @@ import "@copilotkit/vue/styles.css";
 </script>
 ```
 
-## Example
+## 示例
 
 ```vue
 <script setup lang="ts">
@@ -36,34 +36,32 @@ const { agent } = useAgent();
 </template>
 ```
 
-## Props
+## 属性（Props）
 
 <PropertyReference name="messages" type="Message[]" default="[]">
-  The array of chat messages to render. Each message object contains at minimum
-  an `id` and a `role` (for example `"user"`, `"assistant"`, `"reasoning"`, or
-  `"activity"`). Messages with duplicate `id`s are deduplicated before
-  rendering; assistant fragments sharing an id are merged.
+  要渲染的聊天消息数组。每个消息对象至少包含一个 `id` 和一个 `role`
+  （例如 `"user"`、`"assistant"`、`"reasoning"` 或 `"activity"`）。
+  `id` 重复的消息会在渲染前去重；共享同一 id 的助手消息分片会被合并。
 </PropertyReference>
 
 <PropertyReference name="isRunning" type="boolean" default="false">
-  Whether the agent is currently executing. When `true`, the `cursor` slot is
-  rendered after the last message to indicate ongoing activity. The cursor is
-  suppressed when the last message is a reasoning message.
+  智能体当前是否正在执行。为 `true` 时，会在最后一条消息之后渲染 `cursor`
+  插槽，以指示正在进行的活动。当最后一条消息是推理消息时，光标会被隐藏。
 </PropertyReference>
 
 <Callout type="info">
-  Attributes that are not declared props (such as `class`, `style`, or
-  `data-*`) are forwarded to the component's root `<div>` via `v-bind="$attrs"`.
+  未声明为 prop 的属性（例如 `class`、`style` 或 `data-*`）会通过
+  `v-bind="$attrs"` 透传到组件的根 `<div>` 上。
 </Callout>
 
-## Slots
+## 插槽（Slots）
 
-Each slot below is named. Use a `<template #slot-name="slotProps">` block to override or wrap the default rendering. Where a slot has a default, omitting it falls back to the built-in child component.
+以下每个插槽均为具名插槽。使用 `<template #slot-name="slotProps">` 块即可覆盖或包装默认渲染。对于有默认实现的插槽，省略时会回退到内置子组件。
 
 <PropertyReference name="assistant-message" type="{ message: AssistantMessage; messages: Message[]; isRunning: boolean }">
-  Rendered for messages with `role === "assistant"`. Defaults to
-  [`CopilotChatAssistantMessage`](/reference/vue/components/CopilotChatAssistantMessage),
-  which provides Markdown rendering, tool call display, and an action toolbar.
+  在 `role === "assistant"` 的消息上渲染。默认使用
+  [`CopilotChatAssistantMessage`](/reference/vue/components/CopilotChatAssistantMessage)，
+  它提供 Markdown 渲染、工具调用展示和操作工具栏。
 
 ```vue
 <template>
@@ -78,9 +76,9 @@ Each slot below is named. Use a `<template #slot-name="slotProps">` block to ove
 </PropertyReference>
 
 <PropertyReference name="user-message" type="{ message: UserMessage }">
-  Rendered for messages with `role === "user"`. Defaults to
-  [`CopilotChatUserMessage`](/reference/vue/components/CopilotChatUserMessage),
-  which provides right-aligned message display.
+  在 `role === "user"` 的消息上渲染。默认使用
+  [`CopilotChatUserMessage`](/reference/vue/components/CopilotChatUserMessage)，
+  它提供右对齐的消息展示。
 
 ```vue
 <template>
@@ -95,13 +93,12 @@ Each slot below is named. Use a `<template #slot-name="slotProps">` block to ove
 </PropertyReference>
 
 <PropertyReference name="reasoning-message" type="{ message: ReasoningMessage; messages: Message[]; isRunning: boolean }">
-  Rendered for messages with `role === "reasoning"`. Defaults to
-  `CopilotChatReasoningMessage`, which renders the agent's reasoning trace.
+  在 `role === "reasoning"` 的消息上渲染。默认使用
+  `CopilotChatReasoningMessage`，它负责渲染智能体的推理轨迹。
 </PropertyReference>
 
 <PropertyReference name="cursor" type="() => unknown">
-  The typing indicator displayed while `isRunning` is `true` (and the last
-  message is not a reasoning message). Defaults to a pulsing dot animation.
+  当 `isRunning` 为 `true`（且最后一条消息不是推理消息）时显示的输入指示器。默认为脉冲圆点动画。
 
 ```vue
 <template>
@@ -116,39 +113,34 @@ Each slot below is named. Use a `<template #slot-name="slotProps">` block to ove
 </PropertyReference>
 
 <PropertyReference name="interrupt" type="{ event: unknown; result: unknown; resolve: (value: unknown) => void }">
-  Rendered when the CopilotKit instance reports an active interrupt
-  (human-in-the-loop). Receives the interrupt `event`, the current `result`,
-  and a `resolve` callback to complete the interrupt.
+  当 CopilotKit 实例报告存在活动中断（人机协同，human-in-the-loop）时渲染。它会接收中断
+  `event`、当前的 `result`，以及用于完成该中断的 `resolve` 回调。
 </PropertyReference>
 
 <PropertyReference name="message-before" type="{ message: Message; position: 'before'; runId: string; messageIndex: number; messageIndexInRun: number; numberOfMessagesInRun: number; agentId: string; stateSnapshot: unknown }">
-  Rendered before each message. Receives run and position metadata for the
-  message. When this slot is omitted, any custom message renderers registered on
-  the CopilotKit instance for the `"before"` position are used instead.
+  在每条消息之前渲染。它会接收该消息的运行与位置元数据。省略此插槽时，
+  将改用注册在 CopilotKit 实例上、位于 `"before"` 位置的自定义消息渲染器。
 </PropertyReference>
 
 <PropertyReference name="message-after" type="{ message: Message; position: 'after'; runId: string; messageIndex: number; messageIndexInRun: number; numberOfMessagesInRun: number; agentId: string; stateSnapshot: unknown }">
-  Rendered after each message, with the same metadata as `message-before`. When
-  omitted, custom message renderers registered for the `"after"` position are
-  used instead.
+  在每条消息之后渲染，元数据与 `message-before` 相同。省略时，
+  将改用为 `"after"` 位置注册的自定义消息渲染器。
 </PropertyReference>
 
 <PropertyReference name="activity-message" type="{ activityType: string; content: unknown; message: ActivityMessage; agent: unknown }">
-  Fallback slot for messages with `role === "activity"`. A more specific
-  `activity-<activityType>` slot takes precedence when provided. When neither
-  slot is given, an activity renderer registered on the CopilotKit instance for
-  the matching `activityType` is used.
+  `role === "activity"` 消息的兜底插槽。若提供了更具体的
+  `activity-<activityType>` 插槽，则优先使用后者。两个插槽都未提供时，
+  会使用注册在 CopilotKit 实例上、匹配相应 `activityType` 的活动渲染器。
 </PropertyReference>
 
 <PropertyReference name="tool-call" type="{ name: string; args: unknown; status: string; result: string | undefined; toolCall: unknown; toolMessage: ToolMessage | undefined }">
-  Forwarded to the assistant message child to render tool calls. A specific
-  `tool-call-<name>` slot can target a single tool by name; the generic
-  `tool-call` slot handles the rest.
+  透传给助手消息子组件以渲染工具调用。特定的 `tool-call-<name>`
+  插槽可按名称针对单个工具；其余情况由通用的 `tool-call` 插槽处理。
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Basic message list
+### 基本消息列表
 
 ```vue
 <script setup lang="ts">
@@ -166,7 +158,7 @@ const { agent } = useAgent();
 </template>
 ```
 
-### Customizing assistant and user messages
+### 自定义助手消息与用户消息
 
 ```vue
 <script setup lang="ts">
@@ -192,7 +184,7 @@ const { agent } = useAgent();
 </template>
 ```
 
-### Custom typing indicator
+### 自定义输入指示器
 
 ```vue
 <script setup lang="ts">
@@ -214,7 +206,7 @@ const { agent } = useAgent();
 </template>
 ```
 
-### Rendering a specific tool call
+### 渲染特定工具调用
 
 ```vue
 <script setup lang="ts">
@@ -239,17 +231,17 @@ const { agent } = useAgent();
 </template>
 ```
 
-## Behavior
+## 行为
 
-- **Message rendering**: Each message is dispatched to the matching default child component based on its `role` (assistant, user, reasoning, or activity), unless the corresponding named slot is provided.
-- **Deduplication**: Messages sharing an `id` are deduplicated; assistant fragments with the same id are merged (content and tool calls combined). In development, a console warning is logged when duplicates are dropped.
-- **Cursor display**: The `cursor` slot is rendered only when `isRunning` is `true` and the last message is not a reasoning message. It appears after the last message.
-- **Slot forwarding**: Slots passed to `CopilotChatMessageView` (including `tool-call` and `tool-call-<name>`) are forwarded to the default assistant and user message children, so tool rendering works without re-implementing those components.
-- **Custom and activity renderers**: When `message-before`, `message-after`, or `activity-message` slots are omitted, the component falls back to renderers registered on the CopilotKit instance, scoped to the active `agentId` when applicable.
+- **消息渲染**：每条消息会根据其 `role`（assistant、user、reasoning 或 activity）分发给对应的默认子组件，除非提供了相应的具名插槽。
+- **去重**：共享同一 `id` 的消息会被去重；id 相同的助手消息分片会被合并（内容与工具调用合并）。在开发环境下，丢弃重复消息时会在控制台输出警告。
+- **光标显示**：只有当 `isRunning` 为 `true` 且最后一条消息不是推理消息时，才会渲染 `cursor` 插槽。它出现在最后一条消息之后。
+- **插槽透传**：传递给 `CopilotChatMessageView` 的插槽（包括 `tool-call` 和 `tool-call-<name>`）会透传给默认的助手与用户消息子组件，因此无需重新实现这些组件即可正常渲染工具调用。
+- **自定义渲染器与活动渲染器**：当 `message-before`、`message-after` 或 `activity-message` 插槽被省略时，组件会回退到注册在 CopilotKit 实例上的渲染器，并在适用时按当前 `agentId` 限定作用范围。
 
-## Related
+## 相关内容
 
-- [`CopilotChatAssistantMessage`](/reference/vue/components/CopilotChatAssistantMessage) - Default assistant message child component
-- [`CopilotChatUserMessage`](/reference/vue/components/CopilotChatUserMessage) - Default user message child component
-- [`CopilotChatView`](/reference/vue/components/CopilotChatView) - Higher-level chat view that composes this component
-- [`useAgent`](/reference/vue/hooks/useAgent) - Composable for accessing the agent's `messages` and `isRunning` state
+- [`CopilotChatAssistantMessage`](/reference/vue/components/CopilotChatAssistantMessage) - 默认的助手消息子组件
+- [`CopilotChatUserMessage`](/reference/vue/components/CopilotChatUserMessage) - 默认的用户消息子组件
+- [`CopilotChatView`](/reference/vue/components/CopilotChatView) - 组合了此组件的更高层聊天视图
+- [`useAgent`](/reference/vue/hooks/useAgent) - 用于访问智能体 `messages` 与 `isRunning` 状态的组合式函数

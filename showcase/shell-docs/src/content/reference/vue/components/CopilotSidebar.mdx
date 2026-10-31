@@ -1,21 +1,20 @@
 ---
 title: "CopilotSidebar"
-description: "Sidebar variant of CopilotChat that renders in a fixed side panel"
+description: "在固定侧边面板中渲染的 CopilotChat 侧边栏变体"
 ---
 
-## Overview
+## 概览
 
-`CopilotSidebar` renders a fixed sidebar panel for chat interaction. It wraps [`CopilotChat`](/reference/vue/components/CopilotChat) and provides sidebar-specific layout and open/close behavior. The sidebar includes a header with a title and a close button, and can be toggled via a floating toggle button.
+`CopilotSidebar` 渲染一个用于聊天交互的固定侧边栏面板。它包装了 [`CopilotChat`](/reference/vue/components/CopilotChat)，并提供侧边栏专属的布局与打开/关闭行为。侧边栏包含一个带标题和关闭按钮的页眉，并可通过浮动切换按钮开关。
 
-Because it builds on `CopilotChat`, it resolves the agent, subscribes to messages and running state, manages suggestions, and wires input and transcription for you. You typically only need to pick the agent and, optionally, set the initial open state, width, or override one of the named slots.
+由于它构建在 `CopilotChat` 之上，它会替你解析智能体、订阅消息与运行状态、管理建议，并接线输入与转写。通常你只需选择智能体，并可选地设置初始打开状态、宽度，或覆盖某个具名插槽。
 
 <Callout type="info">
-  The `sidebar` feature requires a license. When it is not licensed, the
-  component renders an inline warning and logs a console warning. Visit
-  [copilotkit.ai/pricing](https://copilotkit.ai/pricing) for details.
+  `sidebar` 特性需要许可。未获得许可时，组件会渲染内联警告并输出控制台警告。
+  详情请访问 [copilotkit.ai/pricing](https://copilotkit.ai/pricing)。
 </Callout>
 
-## Import
+## 导入
 
 ```vue
 <script setup lang="ts">
@@ -24,133 +23,152 @@ import "@copilotkit/vue/styles.css";
 </script>
 ```
 
-## Props
+## 属性（Props）
 
-All reactive props are declared with `defineProps`. `CopilotSidebar` extends the `CopilotChat` props (and through them the inherited `CopilotChatView` props) and adds two of its own.
+所有响应式 props 都通过 `defineProps` 声明。`CopilotSidebar` 继承 `CopilotChat` 的 props（并透过它们继承 `CopilotChatView` 的 props），并新增两个自身 props。
 
-### Own props
+### 自身 props
 
 <PropertyReference name="defaultOpen" type="boolean" default="true">
-  Whether the sidebar is open when the component first mounts. After mount, the open/close state is driven by user interaction (the toggle button and the header's close button).
+  组件首次挂载时侧边栏是否打开。挂载后，打开/关闭状态由用户交互驱动
+  （切换按钮和页眉的关闭按钮）。
 </PropertyReference>
 
 <PropertyReference name="width" type="number | string">
-  Width of the sidebar panel. Accepts a number (pixels) or a CSS string (for example `"400px"` or `"30vw"`). When omitted, the default panel width is used.
+  侧边栏面板的宽度。接受数字（像素）或 CSS 字符串（例如 `"400px"` 或 `"30vw"`）。
+  省略时使用默认面板宽度。
 </PropertyReference>
 
-### Inherited CopilotChat props
+### 继承自 CopilotChat 的 props
 
 <PropertyReference name="agentId" type="string">
-  ID of the agent to connect. Must match an agent configured in `CopilotKitProvider`. Falls back to the `agentId` from a wrapping `CopilotChatConfigurationProvider`, then to the default agent when omitted.
+  要连接的智能体 ID。必须与 `CopilotKitProvider` 中配置的某个智能体匹配。
+  省略时回退到外层 `CopilotChatConfigurationProvider` 的 `agentId`，
+  再回退到默认智能体。
 </PropertyReference>
 
 <PropertyReference name="threadId" type="string">
-  ID of the conversation thread. Pass a specific thread id to resume an existing conversation. When omitted, a thread id is minted locally and a new thread is created once the agent first runs.
+  会话线程的 ID。传入特定线程 id 可恢复已有会话。省略时会在本地生成线程 id，
+  并在智能体首次运行时创建新线程。
 </PropertyReference>
 
 <PropertyReference name="throttleMs" type="number">
-  Throttle interval (in milliseconds) forwarded to `useAgent` for batching reactive updates as the agent streams.
+  转发给 `useAgent` 的节流间隔（毫秒），用于在智能体流式输出时合并响应式更新。
 </PropertyReference>
 
 <PropertyReference name="labels" type="Partial<CopilotChatLabels>">
-  Partial label overrides for the text strings rendered inside the chat (input placeholder, welcome message, header title, toolbar buttons, disclaimer, etc.). Any label you omit falls back to the built-in default.
+  对聊天内所渲染文本字符串的部分标签覆盖（输入占位符、欢迎消息、页眉标题、
+  工具栏按钮、免责声明等）。省略的标签回退到内置默认值。
 </PropertyReference>
 
 <PropertyReference name="attachments" type="AttachmentsConfig">
-  Configuration for file attachments (accepted MIME types, upload handling, etc.). When set, the add-file action and drag-and-drop are enabled and the chat manages the attachment queue automatically.
+  文件附件的配置（接受的 MIME 类型、上传处理等）。设置后会启用添加文件操作
+  和拖放，聊天会自动管理附件队列。
 </PropertyReference>
 
 <PropertyReference name="onError" type="(event: { error: Error; code: CopilotKitCoreErrorCode; context: Record<string, any> }) => void | Promise<void>">
-  Error handler scoped to this chat's agent. Fires in addition to the provider-level error handling.
+  限定于此聊天智能体的错误处理器。除提供方级别的错误处理外还会触发。
 </PropertyReference>
 
-### Inherited CopilotChatView props
+### 继承自 CopilotChatView 的 props
 
 <PropertyReference name="autoScroll" type="AutoScrollMode | boolean" default="true">
-  Controls how the panel scrolls as new messages stream in. Accepts `"pin-to-bottom"` / `true` (stick to the bottom while at the bottom), `"pin-to-send"` (anchor the latest user message near the top while the assistant streams), or `"none"` / `false` (never auto-scroll).
+  控制新消息流入时面板的滚动方式。接受 `"pin-to-bottom"` / `true`
+  （位于底部时贴住底部）、`"pin-to-send"`（助手流式输出期间将最新用户消息
+  锚定在顶部附近）或 `"none"` / `false`（从不自动滚动）。
 </PropertyReference>
 
 <PropertyReference name="welcomeScreen" type="boolean" default="true">
-  Whether to show the welcome screen when there are no messages and no explicit thread is selected. Pass `false` to disable it. Override the `welcome-screen` slot to fully customize it.
+  在没有消息且未选择显式线程时是否显示欢迎屏。传 `false` 可禁用。
+  覆盖 `welcome-screen` 插槽可完全自定义。
 </PropertyReference>
 
 <PropertyReference name="inputValue" type="string">
-  Controlled value for the chat input. When provided, the chat treats the input as controlled and mirrors changes back through the `input-change` event.
+  聊天输入区的受控值。提供时，聊天将输入视为受控，
+  并通过 `input-change` 事件回传变更。
 </PropertyReference>
 
 <PropertyReference name="inputMode" type='"input" | "transcribe" | "processing"' default='"input"'>
-  Initial input mode. The component manages transitions between these modes during audio transcription.
+  初始输入模式。组件会在音频转写期间管理这些模式之间的切换。
 </PropertyReference>
 
 <PropertyReference name="inputToolsMenu" type='(ToolsMenuItem | "-")[]' default="[]">
-  Items for the input's tools menu. Each item has a `label` and either an `action` callback or nested `items`; use `"-"` for a separator.
+  输入区工具菜单的菜单项。每一项包含 `label`，以及 `action` 回调或嵌套
+  `items` 二者之一；使用 `"-"` 作分隔线。
 </PropertyReference>
 
 <PropertyReference name="onFinishTranscribeWithAudio" type="(audioBlob: Blob) => void | Promise<void>">
-  Custom handler invoked with the recorded audio blob when transcription finishes. When omitted, the audio is transcribed using the configured runtime and appended to the input.
+  转写完成时以录制的音频 blob 调用的自定义处理器。省略时，
+  音频会使用所配置的运行时进行转写并追加到输入区。
 </PropertyReference>
 
-## Events
+## 事件（Events）
 
-`CopilotSidebar` re-emits the chat events from `CopilotChat` (listen with `@event-name` in templates). These fire in addition to the component's internal handling.
+`CopilotSidebar` 会转发 `CopilotChat` 的聊天事件（在模板中用 `@event-name` 监听）。除组件内部处理外，这些事件也会触发。
 
-| Event               | Payload                                  | Fired when                       |
-| ------------------- | ---------------------------------------- | -------------------------------- |
-| `submit-message`    | `value: string`                          | A message is submitted           |
-| `stop`              | none                                     | The stop button is pressed       |
-| `input-change`      | `value: string`                          | The input value changes          |
-| `select-suggestion` | `suggestion: Suggestion, index: number`  | A suggestion pill is selected    |
-| `add-file`          | none                                     | The add-file action is triggered |
-| `start-transcribe`  | none                                     | Audio transcription starts       |
-| `cancel-transcribe` | none                                     | Audio transcription is cancelled |
-| `finish-transcribe` | none                                     | Audio transcription finishes     |
+| 事件                | 负载                                     | 触发时机             |
+| ------------------- | ---------------------------------------- | -------------------- |
+| `submit-message`    | `value: string`                          | 提交了消息           |
+| `stop`              | 无                                       | 按下了停止按钮       |
+| `input-change`      | `value: string`                          | 输入值变化           |
+| `select-suggestion` | `suggestion: Suggestion, index: number`  | 选中了建议胶囊       |
+| `add-file`          | 无                                       | 触发了添加文件操作   |
+| `start-transcribe`  | 无                                       | 音频转写开始         |
+| `cancel-transcribe` | 无                                       | 音频转写被取消       |
+| `finish-transcribe` | 无                                       | 音频转写结束         |
 
-## Slots
+## 插槽（Slots）
 
-Vue uses named slots in place of React's render props and sub-component props. Provide a slot to replace the corresponding piece of the sidebar. Each slot receives scoped props you can destructure with `v-slot`.
+Vue 使用具名插槽替代 React 的 render props 与子组件 props。提供插槽即可替换侧边栏的相应部分。每个插槽都接收可用 `v-slot` 解构的作用域属性。
 
 <PropertyReference name="header" type="{ title: string; onClose: () => void; isOpen: boolean }">
-  Replaces the default sidebar header. Receives the resolved `title`, an `onClose` callback, and the current `isOpen` state. The default header displays the title and a close button.
+  替换默认侧边栏页眉。接收解析后的 `title`、`onClose` 回调以及当前 `isOpen` 状态。
+  默认页眉显示标题和关闭按钮。
 </PropertyReference>
 
 <PropertyReference name="toggle-button" type="{ isOpen: boolean; toggle: () => void; open: () => void; close: () => void }">
-  Replaces the default floating toggle button. Receives the current `isOpen` state along with `toggle`, `open`, and `close` callbacks for controlling the panel.
+  替换默认浮动切换按钮。接收当前 `isOpen` 状态，以及用于控制面板的
+  `toggle`、`open` 和 `close` 回调。
 </PropertyReference>
 
 <PropertyReference name="chat-view" type="CopilotChatViewOverrideSlotProps">
-  Replaces the entire inner sidebar view. Receives all of the composed view state and handlers (`messages`, `isRunning`, `suggestions`, `inputValue`, `onSubmitMessage`, `onSelectSuggestion`, `onStop`, transcription and attachment handlers, etc.) so you can render a fully custom layout.
+  替换整个内侧边栏视图。接收全部组合的视图状态与处理器
+  （`messages`、`isRunning`、`suggestions`、`inputValue`、`onSubmitMessage`、
+  `onSelectSuggestion`、`onStop`、转写与附件处理器等），
+  因此你可以渲染完全自定义的布局。
 </PropertyReference>
 
 <PropertyReference name="message-view" type="{ messages: Message[]; isRunning: boolean }">
-  Replaces the default message list rendering.
+  替换默认的消息列表渲染。
 </PropertyReference>
 
 <PropertyReference name="input" type="CopilotSidebarWelcomeScreenInputSlotProps">
-  Replaces the default chat input. Receives `modelValue`, `isRunning`, `inputMode`, `inputToolsMenu`, and handlers such as `onUpdateModelValue`, `onSubmitMessage`, `onStop`, and the transcription callbacks.
+  替换默认聊天输入区。接收 `modelValue`、`isRunning`、`inputMode`、
+  `inputToolsMenu`，以及 `onUpdateModelValue`、`onSubmitMessage`、`onStop`
+  和转写回调等处理器。
 </PropertyReference>
 
 <PropertyReference name="suggestion-view" type="CopilotSidebarWelcomeScreenSuggestionViewSlotProps">
-  Replaces the default suggestion pills. Receives `suggestions`, `loadingIndexes`, and `onSelectSuggestion`.
+  替换默认建议胶囊。接收 `suggestions`、`loadingIndexes` 和 `onSelectSuggestion`。
 </PropertyReference>
 
 <PropertyReference name="welcome-screen" type="CopilotChatWelcomeScreenSlotProps">
-  Replaces the default sidebar welcome screen shown when no messages exist. Receives the suggestion props plus the input model value and submission handlers.
+  替换没有消息时显示的默认侧边栏欢迎屏。接收建议属性以及输入模型值与提交处理器。
 </PropertyReference>
 
 <PropertyReference name="welcome-message" type="() => unknown">
-  Replaces only the heading text inside the default welcome screen, leaving the surrounding layout intact.
+  仅替换默认欢迎屏内的标题文本，保持周围布局不变。
 </PropertyReference>
 
 <Callout type="info">
-  The sidebar welcome screen lays out suggestions at the top, the welcome
-  message in the middle, and the input fixed at the bottom. Override the
-  `welcome-screen` slot to replace this layout entirely, or `welcome-message`
-  to change just the greeting.
+  侧边栏欢迎屏的布局是：建议在顶部、欢迎消息居中、输入区固定在底部。
+  覆盖 `welcome-screen` 插槽可整体替换此布局，覆盖 `welcome-message`
+  则只更改问候语。
 </Callout>
 
-## Usage
+## 用法
 
-### Basic usage
+### 基本用法
 
 ```vue
 <script setup lang="ts">
@@ -166,7 +184,7 @@ import "@copilotkit/vue/styles.css";
 </template>
 ```
 
-### Closed on mount with a custom width
+### 挂载时关闭并自定义宽度
 
 ```vue
 <script setup lang="ts">
@@ -178,7 +196,7 @@ import { CopilotSidebar } from "@copilotkit/vue/v2";
 </template>
 ```
 
-### Custom header
+### 自定义页眉
 
 ```vue
 <script setup lang="ts">
@@ -197,7 +215,7 @@ import { CopilotSidebar } from "@copilotkit/vue/v2";
 </template>
 ```
 
-### Custom toggle button
+### 自定义切换按钮
 
 ```vue
 <script setup lang="ts">
@@ -215,7 +233,7 @@ import { CopilotSidebar } from "@copilotkit/vue/v2";
 </template>
 ```
 
-### Observing events
+### 监听事件
 
 ```vue
 <script setup lang="ts">
@@ -231,8 +249,8 @@ function onSubmit(value: string) {
 </template>
 ```
 
-## Related
+## 相关内容
 
-- [`CopilotChat`](/reference/vue/components/CopilotChat) - the base chat component used internally
-- [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider) - provides the agent configuration `CopilotSidebar` connects to
-- [`useAgent`](/reference/vue/hooks/useAgent) - composable used internally to resolve the agent
+- [`CopilotChat`](/reference/vue/components/CopilotChat) - 内部使用的基础聊天组件
+- [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider) - 提供 `CopilotSidebar` 要连接的智能体配置
+- [`useAgent`](/reference/vue/hooks/useAgent) - 内部用于解析智能体的组合式函数

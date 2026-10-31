@@ -1,15 +1,15 @@
 ---
 title: "CopilotChatView"
-description: "Vue 3 layout component that combines a scrollable transcript with the input area"
+description: "将可滚动会话记录与输入区组合在一起的 Vue 3 布局组件"
 ---
 
-## Overview
+## 概览
 
-`CopilotChatView` is a Vue 3 component that combines a scrollable message transcript with the chat input area, suggestion pills, a scroll-to-bottom button, an attachment queue, and an optional welcome screen. It is the visual core of the chat interface and is used internally by the higher-level chat components in `@copilotkit/vue`.
+`CopilotChatView` 是一个 Vue 3 组件，它将可滚动的消息会话记录与聊天输入区、建议胶囊按钮、滚动到底部按钮、附件队列以及可选的欢迎屏组合在一起。它是聊天界面的视觉核心，`@copilotkit/vue` 中更高层的聊天组件内部也在使用它。
 
-Every visual piece of `CopilotChatView` is exposed as a named **slot**, so you can replace, style, or extend any part of the layout (this is the Vue equivalent of React's render-prop sub-component customization). The component drives its own behavior (auto-scroll, mobile keyboard handling, resize observation) and emits events for the actions a parent needs to handle.
+`CopilotChatView` 的每个视觉部分都通过具名**插槽**暴露，因此你可以替换、美化或扩展布局的任何部分（相当于 Vue 版的 React render-prop 子组件定制）。组件自行驱动内部行为（自动滚动、移动端键盘处理、尺寸监听），并就父组件需要处理的操作发出事件。
 
-## Import
+## 导入
 
 ```vue
 <script setup lang="ts">
@@ -18,12 +18,12 @@ import { CopilotChatView } from "@copilotkit/vue/v2";
 ```
 
 <Callout type="info">
-  `CopilotChatView` is a presentational component. You supply messages and agent
-  state and handle its emitted events. Input can be controlled with `inputValue`;
-  when that prop is omitted, the component manages the input value locally.
+  `CopilotChatView` 是一个展示型组件。你需要提供消息与智能体状态，并处理它
+  发出的事件。输入可通过 `inputValue` 进行受控；省略该 prop 时，
+  组件会在本地自行管理输入值。
 </Callout>
 
-## Example
+## 示例
 
 ```vue
 <script setup lang="ts">
@@ -49,225 +49,196 @@ function handleSubmit(value: string) {
 </template>
 ```
 
-## Props
+## 属性（Props）
 
 <PropertyReference name="messages" type="Message[]" default="[]">
-  Array of conversation messages to display. When wired into an agent these are
-  managed for you. When using `CopilotChatView` standalone, supply the messages
-  yourself.
+  要显示的会话消息数组。接入智能体时，这些消息会替你托管。
+  单独使用 `CopilotChatView` 时，需自行提供消息。
 </PropertyReference>
 
 <PropertyReference name="autoScroll" type='AutoScrollMode | boolean' default="true">
-  Controls how the view scrolls as new messages stream in. Accepts the modern
-  `AutoScrollMode` strings or the legacy boolean shorthand:
+  控制新消息流入时视图的滚动方式。接受较新的 `AutoScrollMode` 字符串或旧版布尔简写：
 
-  - `"pin-to-bottom"` / `true` -- stick to the bottom while the user is at the bottom.
-  - `"pin-to-send"` -- anchor the latest user message near the top of the viewport while the assistant streams a response.
-  - `"none"` / `false` -- never auto-scroll.
+  - `"pin-to-bottom"` / `true` —— 当用户位于底部时贴住底部。
+  - `"pin-to-send"` —— 在助手流式输出回复期间，将最新的用户消息锚定在视口顶部附近。
+  - `"none"` / `false` —— 从不自动滚动。
 
-  A scroll-to-bottom button appears whenever the user has scrolled up.
+  用户向上滚动时会出现滚动到底部按钮。
 </PropertyReference>
 
 <PropertyReference name="isRunning" type="boolean" default="false">
-  Whether the agent is currently processing. When `true`, the input shows a stop
-  button and the message view displays a typing cursor on the latest assistant
-  message.
+  智能体当前是否正在处理。为 `true` 时，输入区显示停止按钮，
+  消息视图在最新的助手消息上显示输入光标。
 </PropertyReference>
 
 <PropertyReference name="suggestions" type="Suggestion[]" default="[]">
-  Array of suggestion objects to display as clickable pills near the input area.
-  Suggestions are only shown when the view is not connecting and not running.
+  以可点击胶囊形式显示在输入区附近的建议对象数组。
+  仅在视图未处于连接中且未运行时显示建议。
 </PropertyReference>
 
 <PropertyReference name="suggestionLoadingIndexes" type="ReadonlyArray<number>" default="[]">
-  Indexes of suggestions that are currently in a loading state (for example, the
-  user just clicked one and the agent is processing).
+  当前处于加载状态的建议的索引（例如用户刚点击了某条建议而智能体正在处理）。
 </PropertyReference>
 
 <PropertyReference name="welcomeScreen" type="boolean" default="true">
-  Whether to show the welcome screen when the `messages` array is empty. Set to
-  `false` to disable it. Customize the welcome layout with the `welcome-screen`
-  and `welcome-message` slots.
+  当 `messages` 数组为空时是否显示欢迎屏。设为 `false` 可禁用。
+  可使用 `welcome-screen` 与 `welcome-message` 插槽自定义欢迎布局。
 </PropertyReference>
 
 <PropertyReference name="attachments" type="Attachment[]">
-  File attachments to render in the attachment queue above the input. When
-  present, the queue is shown in both the welcome screen and the main input
-  overlay.
+  渲染在输入区上方附件队列中的文件附件。存在时，
+  该队列会同时显示在欢迎屏和主输入浮层中。
 </PropertyReference>
 
 <PropertyReference name="dragOver" type="boolean">
-  When `true`, renders a "Drop files here" overlay across the chat area. Drive
-  this from your own drag handlers (see `onDragOver` / `onDragLeave` / `onDrop`).
+  为 `true` 时，在整个聊天区域上渲染“将文件拖放到此处”浮层。
+  请由你自己的拖拽处理器来驱动此属性（参见 `onDragOver` / `onDragLeave` / `onDrop`）。
 </PropertyReference>
 
 <PropertyReference name="inputValue" type="string">
-  Optional controlled value for the input. When provided, the component treats
-  the input as controlled and reflects this value; emit handling stays in sync
-  via the `input-change` event. When omitted, the input is uncontrolled and the
-  component manages its own value internally.
+  输入框的可选受控值。提供时，组件将输入视为受控并反映该值；
+  通过 `input-change` 事件保持发出处理同步。省略时，输入为非受控，
+  组件在内部管理自己的值。
 </PropertyReference>
 
 <PropertyReference name="inputMode" type='CopilotChatInputMode' default='"input"'>
-  The input mode, one of `"input"`, `"transcribe"`, or `"processing"`. Controls
-  whether the input shows the text area, the transcription UI, or a processing
-  state.
+  输入模式，取值为 `"input"`、`"transcribe"` 或 `"processing"` 之一。
+  控制输入区显示文本框、转写 UI 还是处理中状态。
 </PropertyReference>
 
 <PropertyReference name="inputToolsMenu" type='(ToolsMenuItem | "-")[]' default="[]">
-  Items for the input's tools menu. Each item has a `label` plus either an
-  `action` callback or nested `items`. Use the `"-"` string to insert a divider.
+  输入区工具菜单的菜单项。每一项包含 `label`，以及 `action` 回调或嵌套
+  `items` 二者之一。使用字符串 `"-"` 可插入分隔线。
 </PropertyReference>
 
 <PropertyReference name="isConnecting" type="boolean" default="false">
-  When `true`, suppresses the welcome screen while a thread's initial connect is
-  in flight. Prevents the welcome greeting from flashing between mounting an
-  empty agent and the bootstrap messages arriving.
+  为 `true` 时，在线程的初始连接进行期间抑制欢迎屏。
+  避免在挂载空智能体与引导消息到达之间出现欢迎问候语闪烁。
 </PropertyReference>
 
 <PropertyReference name="hasExplicitThreadId" type="boolean" default="false">
-  When `true`, the caller has explicitly picked a thread, so the welcome screen
-  is suppressed unconditionally and the thread's messages (or an empty panel
-  during connect) are rendered instead of a generic greeting.
+  为 `true` 时，表示调用方已显式选择了线程，因此无条件抑制欢迎屏，
+  改为渲染该线程的消息（或连接期间的空面板），而非通用问候语。
 </PropertyReference>
 
 <PropertyReference name="onRemoveAttachment" type="(id: string) => void">
-  Callback invoked when the user removes an attachment from the queue. Receives
-  the attachment id.
+  用户从队列中移除附件时调用的回调。接收附件 id。
 </PropertyReference>
 
 <PropertyReference name="onAddFile" type="() => void">
-  Handler that enables the "add file" affordance on the input. The input only
-  exposes the add-file control when this prop (or an `add-file` listener) is
-  present.
+  启用输入区“添加文件”入口的处理器。只有存在此 prop（或 `add-file` 监听器）时，
+  输入区才会暴露添加文件控件。
 </PropertyReference>
 
 <PropertyReference name="onDragOver" type="(event: DragEvent) => void">
-  Called on the chat container's `dragover` event. Use it together with the
-  `dragOver` prop to drive a custom drag-and-drop experience.
+  在聊天容器的 `dragover` 事件上调用。与 `dragOver` prop 搭配使用可驱动自定义拖放体验。
 </PropertyReference>
 
 <PropertyReference name="onDragLeave" type="(event: DragEvent) => void">
-  Called on the chat container's `dragleave` event.
+  在聊天容器的 `dragleave` 事件上调用。
 </PropertyReference>
 
 <PropertyReference name="onDrop" type="(event: DragEvent) => void">
-  Called on the chat container's `drop` event.
+  在聊天容器的 `drop` 事件上调用。
 </PropertyReference>
 
 <PropertyReference name="onFinishTranscribeWithAudio" type="(audioBlob: Blob) => void | Promise<void>">
-  Handler invoked when audio transcription finishes and an audio blob is
-  available. Presence of this prop enables the corresponding control on the
-  input.
+  音频转写完成且音频 blob 可用时调用的处理器。此 prop 的存在会启用输入区上的相应控件。
 </PropertyReference>
 
-## Events
+## 事件（Events）
 
-`CopilotChatView` emits the following events. Listen with `@event-name` in the template.
+`CopilotChatView` 发出以下事件。在模板中使用 `@event-name` 监听。
 
 <PropertyReference name="submit-message" type="(value: string) => void">
-  Emitted when the user submits a message from the input. The payload is the
-  message text.
+  用户从输入区提交消息时发出。负载为消息文本。
 </PropertyReference>
 
 <PropertyReference name="stop" type="() => void">
-  Emitted when the user clicks the stop button while the agent is running.
+  智能体运行期间用户点击停止按钮时发出。
 </PropertyReference>
 
 <PropertyReference name="input-change" type="(value: string) => void">
-  Emitted whenever the input value changes. Use this to keep a controlled
-  `inputValue` in sync.
+  输入值每次变化时发出。用它来保持受控的 `inputValue` 同步。
 </PropertyReference>
 
 <PropertyReference name="select-suggestion" type="(suggestion: Suggestion, index: number) => void">
-  Emitted when the user clicks a suggestion pill. Receives the selected
-  suggestion and its index.
+  用户点击建议胶囊时发出。接收所选建议及其索引。
 </PropertyReference>
 
 <PropertyReference name="add-file" type="() => void">
-  Emitted when the user activates the add-file control.
+  用户触发添加文件控件时发出。
 </PropertyReference>
 
 <PropertyReference name="start-transcribe" type="() => void">
-  Emitted when the user starts audio transcription.
+  用户开始音频转写时发出。
 </PropertyReference>
 
 <PropertyReference name="cancel-transcribe" type="() => void">
-  Emitted when the user cancels audio transcription.
+  用户取消音频转写时发出。
 </PropertyReference>
 
 <PropertyReference name="finish-transcribe" type="() => void">
-  Emitted when the user finishes audio transcription.
+  用户结束音频转写时发出。
 </PropertyReference>
 
-## Slots
+## 插槽（Slots）
 
-Each named slot has a sensible default. Override a slot to replace, restyle, or
-extend that part of the layout. Slots receive scoped props (data and handlers)
-that the default implementation also consumes, so a replacement can reuse them.
+每个具名插槽都有合理的默认实现。覆盖某个插槽即可替换、重新美化或扩展布局的相应部分。插槽会接收作用域属性（数据与处理器），默认实现同样消费这些属性，因此替换实现可以复用它们。
 
 <PropertyReference name="message-view" type="{ messages: Message[]; isRunning: boolean }">
-  The message list that renders the conversation transcript. Defaults to
-  `CopilotChatMessageView`. Any additional (unrecognized) slots you pass to
-  `CopilotChatView` are forwarded into the default message view, so you can
-  customize individual message parts without replacing the whole list.
+  渲染会话记录的消息列表。默认为 `CopilotChatMessageView`。
+  传给 `CopilotChatView` 的任何额外（未被识别的）插槽都会转发到默认消息视图，
+  因此无需替换整个列表即可定制各个消息部分。
 </PropertyReference>
 
 <PropertyReference name="scroll-view" type="{ messages: Message[]; isRunning: boolean; suggestions: Suggestion[]; loadingIndexes: ReadonlyArray<number>; messagePaddingBottom: string; showScrollToBottomButton: boolean; onSelectSuggestion: (suggestion, index) => void; onScroll: () => void; scrollToBottom: () => void }">
-  The scrollable container wrapping the message list. The default handles
-  auto-scroll behavior and scroll-position tracking. Replace it to implement
-  custom scroll mechanics.
+  包裹消息列表的可滚动容器。默认实现处理自动滚动行为与滚动位置跟踪。
+  替换它可实现自定义滚动机制。
 </PropertyReference>
 
 <PropertyReference name="feather" type="() => unknown">
-  A slot rendered between the scroll view and the input overlay. The default
-  renders an empty element so consumer styling or a replacement can apply a
-  decorative gradient transition above the input.
+  渲染在滚动视图与输入浮层之间的插槽。默认渲染一个空元素，
+  以便使用方样式或替换实现能在输入区上方施加装饰性的渐变过渡。
 </PropertyReference>
 
 <PropertyReference name="scroll-to-bottom-button" type="{ onClick: () => void }">
-  The button that appears when the user has scrolled up from the bottom.
-  Clicking it scrolls the view back to the latest message. The default is a
-  rounded chevron button.
+  当用户从底部向上滚动时出现的按钮。点击它可将视图滚回最新消息。
+  默认为圆角箭头按钮。
 </PropertyReference>
 
 <PropertyReference name="interrupt" type="{ event: InterruptEvent; result: unknown; resolve: (response: unknown) => void }">
-  Renders an active interrupt (human-in-the-loop) request. Receives the
-  `event` describing the interrupt, the current `result`, and a `resolve`
-  callback to send a response back and resume the run.
+  渲染活动中的中断（人机协同，human-in-the-loop）请求。接收描述中断的
+  `event`、当前的 `result`，以及用于回传响应并恢复运行的 `resolve` 回调。
 </PropertyReference>
 
 <PropertyReference name="input" type="{ modelValue: string; isRunning: boolean; inputMode: CopilotChatInputMode; inputToolsMenu: (ToolsMenuItem | '-')[]; attachments: Attachment[]; canStop: boolean; canAddFile: boolean; canTranscribe: boolean; onUpdateModelValue; onSubmitMessage; onStop; onAddFile; onStartTranscribe; onCancelTranscribe; onFinishTranscribe; onFinishTranscribeWithAudio }">
-  The message input. Defaults to `CopilotChatInput`, which provides a text area
-  with a send button, transcription controls, file upload, and a tools menu.
-  This slot is rendered in both the welcome screen and the main input overlay.
-  Command handlers are always present; use `canStop` / `canAddFile` /
-  `canTranscribe` to gate custom controls. Replace it to build a fully custom
-  input experience.
+  消息输入区。默认为 `CopilotChatInput`，它提供带发送按钮的文本框、
+  转写控件、文件上传和工具菜单。此插槽同时渲染在欢迎屏和主输入浮层中。
+  命令处理器始终存在；使用 `canStop` / `canAddFile` / `canTranscribe`
+  来控制自定义控件的启用。替换它可构建完全自定义的输入体验。
 </PropertyReference>
 
 <PropertyReference name="suggestion-view" type="{ suggestions: Suggestion[]; loadingIndexes: ReadonlyArray<number>; onSelectSuggestion: (suggestion, index) => void }">
-  The component that renders suggestion pills. Defaults to
-  `CopilotChatSuggestionView`. Rendered in the welcome screen and within the
-  transcript when suggestions are present.
+  渲染建议胶囊的组件。默认为 `CopilotChatSuggestionView`。
+  存在建议时渲染在欢迎屏以及会话记录内。
 </PropertyReference>
 
 <PropertyReference name="welcome-screen" type="{ suggestions: Suggestion[]; loadingIndexes: ReadonlyArray<number>; attachments: Attachment[]; modelValue: string; isRunning: boolean; inputMode: CopilotChatInputMode; inputToolsMenu: (ToolsMenuItem | '-')[]; canStop: boolean; canAddFile: boolean; canTranscribe: boolean; onUpdateModelValue; onSubmitMessage; onStop; onAddFile; onStartTranscribe; onCancelTranscribe; onFinishTranscribe; onFinishTranscribeWithAudio; onSelectSuggestion }">
-  The full welcome screen shown when `messages` is empty and the welcome screen
-  is not suppressed. The default centers the welcome message, the input, and any
-  suggestions. Receives the input and suggestion handlers so a replacement can
-  compose them in a custom layout. Command handlers are always present; use
-  `canStop` / `canAddFile` / `canTranscribe` to gate custom controls.
+  `messages` 为空且欢迎屏未被抑制时显示的完整欢迎屏。默认实现将欢迎消息、
+  输入区和所有建议居中排列。它会接收输入与建议处理器，因此替换实现可以
+  在自定义布局中组合它们。命令处理器始终存在；使用
+  `canStop` / `canAddFile` / `canTranscribe` 来控制自定义控件的启用。
 </PropertyReference>
 
 <PropertyReference name="welcome-message" type="() => unknown">
-  The heading shown inside the default welcome screen. The default renders the
-  configured welcome message text. Override it to provide custom welcome content.
+  默认欢迎屏内显示的标题。默认渲染所配置的欢迎消息文本。
+  覆盖它可提供自定义欢迎内容。
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Standalone Usage
+### 独立使用
 
 ```vue
 <script setup lang="ts">
@@ -284,7 +255,7 @@ const isRunning = ref(false);
 </template>
 ```
 
-### Controlling the Input Value
+### 受控输入值
 
 ```vue
 <script setup lang="ts">
@@ -312,7 +283,7 @@ function handleSubmit(value: string) {
 </template>
 ```
 
-### Replacing a Slot
+### 替换插槽
 
 ```vue
 <script setup lang="ts">
@@ -332,7 +303,7 @@ import { CopilotChatView } from "@copilotkit/vue/v2";
 </template>
 ```
 
-### Custom Input via the `input` Slot
+### 通过 `input` 插槽自定义输入区
 
 ```vue
 <script setup lang="ts">
@@ -354,15 +325,15 @@ import { CopilotChatView } from "@copilotkit/vue/v2";
 </template>
 ```
 
-## Behavior
+## 行为
 
-- **Auto-scroll**: `pin-to-bottom` keeps the latest message visible while the user is at the bottom; `pin-to-send` anchors the latest user message near the top while the assistant streams. A scroll-to-bottom button appears when the user scrolls up.
-- **Welcome screen**: Rendered when `messages` is empty and the welcome screen is not suppressed by `welcomeScreen="false"`, `isConnecting`, or `hasExplicitThreadId`. The welcome screen embeds the input and suggestion slots.
-- **Input overlay positioning**: The input is rendered in an absolutely positioned overlay at the bottom of the chat, and the scroll content is padded to avoid overlap. The component measures the overlay height with a `ResizeObserver` and keeps the padding in sync.
-- **Mobile keyboard**: The view tracks the on-screen keyboard height so the input can translate above the keyboard on mobile devices.
+- **自动滚动**：`pin-to-bottom` 在用户位于底部时保持最新消息可见；`pin-to-send` 在助手流式输出期间将最新用户消息锚定在顶部附近。用户向上滚动时会出现滚动到底部按钮。
+- **欢迎屏**：当 `messages` 为空且欢迎屏未被 `welcomeScreen="false"`、`isConnecting` 或 `hasExplicitThreadId` 抑制时渲染。欢迎屏内嵌输入与建议插槽。
+- **输入浮层定位**：输入区渲染在聊天底部的绝对定位浮层中，滚动内容会留出内边距以避免重叠。组件用 `ResizeObserver` 测量浮层高度并保持内边距同步。
+- **移动端键盘**：视图会跟踪屏幕键盘高度，使输入区在移动设备上能平移到键盘上方。
 
-## Related
+## 相关内容
 
-- [`useAgent`](/reference/vue/hooks/useAgent) -- access and subscribe to an AG-UI agent to drive the chat view
-- [`useSuggestions`](/reference/vue/hooks/useSuggestions) -- generate the suggestion pills shown by this view
-- [`useCopilotChatConfiguration`](/reference/vue/hooks/useCopilotChatConfiguration) -- read the labels (including the welcome message text) consumed by the default slots
+- [`useAgent`](/reference/vue/hooks/useAgent) - 访问并订阅 AG-UI 智能体以驱动聊天视图
+- [`useSuggestions`](/reference/vue/hooks/useSuggestions) - 生成此视图显示的建议胶囊
+- [`useCopilotChatConfiguration`](/reference/vue/hooks/useCopilotChatConfiguration) - 读取默认插槽消费的标签（包括欢迎消息文本）

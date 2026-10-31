@@ -1,4 +1,4 @@
-Use the .NET 8 SDK. Create an ASP.NET Core application and install the [runtime package](https://www.nuget.org/packages/CopilotKit.Intelligence.Runtime):
+使用 .NET 8 SDK。创建一个 ASP.NET Core 应用并安装[运行时包](https://www.nuget.org/packages/CopilotKit.Intelligence.Runtime)：
 
 ```bash
 dotnet new web --framework net8.0 --name CopilotKitApp
@@ -6,7 +6,7 @@ cd CopilotKitApp
 dotnet add package CopilotKit.Intelligence.Runtime --version 0.1.0-rc.1
 ```
 
-Set these variables in the server environment. Start your AG-UI agent at `AG_UI_AGENT_URL` before sending a message:
+在服务器环境中设置以下变量。在发送消息之前，先在 `AG_UI_AGENT_URL` 处启动你的 AG-UI 智能体：
 
 ```bash
 export CPK_INTELLIGENCE_API_KEY="your-project-api-key"
@@ -15,9 +15,9 @@ export APP_AUTH_TOKEN="replace-with-a-random-local-development-token"
 export APP_USER_ID="local-user"
 ```
 
-This local example verifies one application token and maps it to a server-owned user ID. Use a different value for the application token and the Intelligence API key. In production, replace `IdentifyUser` with your application's verified session or token lookup. Never trust a browser-supplied user ID.
+这个本地示例只验证一个应用令牌，并将其映射为一个由服务端持有的用户 ID。应用令牌与 Intelligence API 密钥应使用不同的值。在生产环境中，请将 `IdentifyUser` 替换为你应用中经过验证的会话或令牌查询逻辑。绝不要信任浏览器提供的用户 ID。
 
-Replace `Program.cs` with:
+将 `Program.cs` 替换为：
 
 ```csharp
 using System.Security.Cryptography;
@@ -61,6 +61,6 @@ app.Services.GetRequiredService<IntelligenceRuntime>().Map(app, "/api/copilotkit
 await app.RunAsync("http://127.0.0.1:8200");
 ```
 
-Run `dotnet run --no-launch-profile`. The multi-route runtime URL is `http://localhost:8200/api/copilotkit`. Send `Authorization: Bearer <APP_AUTH_TOKEN>` with frontend requests, and keep `CPK_INTELLIGENCE_API_KEY` on the server. Replace the allowed `http://localhost:3000` origin for your deployment.
+运行 `dotnet run --no-launch-profile`。多路由运行时 URL 为 `http://localhost:8200/api/copilotkit`。前端请求需携带 `Authorization: Bearer <APP_AUTH_TOKEN>`，并把 `CPK_INTELLIGENCE_API_KEY` 保留在服务端。针对你的部署，请替换允许的 `http://localhost:3000` 来源。
 
-ASP.NET Core disposes the singleton runtime asynchronously when the host shuts down. The application then disposes its agent HTTP client. `HttpAgent` accepts an optional `headers` dictionary for server-owned agent credentials; it does not forward browser credentials.
+当主机关闭时，ASP.NET Core 会异步释放这个单例运行时，随后应用会释放其智能体 HTTP 客户端。`HttpAgent` 接受一个可选的 `headers` 字典，用于存放服务端持有的智能体凭据；它不会转发浏览器凭据。

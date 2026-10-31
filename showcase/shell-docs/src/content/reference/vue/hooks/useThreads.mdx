@@ -1,31 +1,29 @@
 ---
 title: "useThreads"
-description: "Vue 3 composable for listing and mutating CopilotKit threads"
+description: "Vue 3 组合式函数，用于列出与变更 CopilotKit 线程"
 ---
 
 <OpsPlatformCTA
   variant="card"
-  title="useThreads needs a CopilotKit Intelligence project"
-  body="Connect your runtime to a cloud-hosted project to start syncing threads."
-  ctaLabel="Start cloud-hosted setup"
+  title="useThreads 需要 CopilotKit Intelligence 项目"
+  body="将你的运行时连接到云端托管项目，开始同步线程。"
+  ctaLabel="开始云端托管配置"
   surface="docs_reference_vue_use_threads"
 />
 
-## Overview
+## 概览
 
-`useThreads` is a Vue 3 composable for reading the active thread list for an agent and mutating that list from the client. It accepts reactive inputs for a required agent id, archived filter, page size, and an `enabled` flag. When `enabled` is `false`, the hook clears its thread-store context and skips `/threads` entirely; that is how the threads drawer stays idle while unlicensed.
+`useThreads` 是一个 Vue 3 组合式函数，用于读取智能体当前的活动线程列表，并从客户端变更该列表。它接受响应式输入：必填的智能体 id、归档过滤、页面大小，以及 `enabled` 标志。当 `enabled` 为 `false` 时，该 hook 会清空其线程存储上下文并完全跳过 `/threads`；未获授权时线程抽屉保持空闲，靠的正是这一机制。
 
-`useThreads` activates when the connected runtime provides the thread endpoints it needs. It stays idle when the runtime explicitly reports that thread listing is unavailable.
+当所连接的运行时提供它所需的线程端点时，`useThreads` 会激活；当运行时明确报告线程列表功能不可用时，它保持空闲。
 
-The hook returns normalized thread records with only the fields the Vue UI consumes: `id`, `agentId`, `name`, `archived`, `createdAt`, `updatedAt`, and optional `lastRunAt`. Threads are ordered by `lastRunAt`, then `updatedAt`, then `createdAt`.
+该 hook 返回规范化后的线程记录，只包含 Vue UI 会用到的字段：`id`、`agentId`、`name`、`archived`、`createdAt`、`updatedAt`，以及可选的 `lastRunAt`。线程按 `lastRunAt`、`updatedAt`、`createdAt` 的顺序排序。
 
 <Callout type="info">
-  `error` includes runtime and configuration problems such as a missing runtime
-  URL or unsupported thread endpoints. `listError` only reports genuine list
-  and mutation failures from the thread store.
+  `error` 包含运行时与配置问题，例如缺少运行时 URL 或线程端点不受支持。`listError` 只报告线程存储中真正的列表与变更失败。
 </Callout>
 
-## Signature
+## 签名
 
 ```ts
 import { useThreads } from "@copilotkit/vue/v2";
@@ -33,105 +31,97 @@ import { useThreads } from "@copilotkit/vue/v2";
 function useThreads(input: UseThreadsInput): UseThreadsResult;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="input" type="UseThreadsInput">
-  Configuration object for the composable.
+  组合式函数的配置对象。
 
   <PropertyReference name="agentId" type="MaybeRefOrGetter<string>">
-    ID of the agent whose threads to list. Required.
+    要列出其线程的智能体 ID。必填。
   </PropertyReference>
 
   <PropertyReference name="includeArchived" type="MaybeRefOrGetter<boolean | undefined>">
-    Whether archived threads should be included in the list. Omit it, or pass
-    `false`, to show only active threads.
+    列表中是否包含已归档线程。省略或传入 `false` 可只显示活动线程。
   </PropertyReference>
 
   <PropertyReference name="limit" type="MaybeRefOrGetter<number | undefined>">
-    Optional page size. When provided, the hook paginates the thread list and
-    exposes `hasMoreThreads` and `fetchMoreThreads`.
+    可选的页面大小。提供后，该 hook 会对线程列表分页，并暴露 `hasMoreThreads` 与 `fetchMoreThreads`。
   </PropertyReference>
 
   <PropertyReference name="enabled" type="MaybeRefOrGetter<boolean | undefined>" default="true">
-    Controls whether the hook participates in thread fetching at all. When
-    `false`, it clears the store context and issues no `/threads` request.
+    控制该 hook 是否参与线程获取。为 `false` 时，它会清空存储上下文，不发出任何 `/threads` 请求。
   </PropertyReference>
 </PropertyReference>
 
-## Return Value
+## 返回值
 
 <PropertyReference name="object" type="UseThreadsResult">
-  Reactive thread state plus the thread mutations.
+  响应式线程状态与线程变更方法。
 
   <PropertyReference name="threads" type="Ref<Thread[]>">
-    The current thread list, normalized to the fields the Vue components use.
+    当前线程列表，已规范化为 Vue 组件所用的字段。
   </PropertyReference>
 
   <PropertyReference name="isLoading" type="Ref<boolean>">
-    `true` while the hook is waiting for its first usable thread context or
-    loading the current page.
+    当 hook 正在等待首个可用的线程上下文或加载当前页时为 `true`。
   </PropertyReference>
 
   <PropertyReference name="error" type="Ref<Error | null>">
-    The current error, including runtime and configuration errors.
+    当前错误，包括运行时与配置错误。
   </PropertyReference>
 
   <PropertyReference name="listError" type="Ref<Error | null>">
-    The latest list or mutation error from the thread store, excluding runtime
-    and configuration errors.
+    线程存储中最近一次列表或变更错误，不包括运行时与配置错误。
   </PropertyReference>
 
   <PropertyReference name="fetchMoreError" type="Ref<Error | null>">
-    Error from the most recent failed pagination fetch, or `null`.
+    最近一次失败的分页请求的错误，没有则为 `null`。
   </PropertyReference>
 
   <PropertyReference name="hasMoreThreads" type="Ref<boolean>">
-    Whether more pages remain.
+    是否还有更多页。
   </PropertyReference>
 
   <PropertyReference name="isFetchingMoreThreads" type="Ref<boolean>">
-    Whether a pagination request is currently in flight.
+    当前是否有分页请求正在进行。
   </PropertyReference>
 
   <PropertyReference name="isMutating" type="Ref<boolean>">
-    Whether a rename, archive, unarchive, or delete mutation is in flight.
+    当前是否有重命名、归档、取消归档或删除变更正在进行。
   </PropertyReference>
 
   <PropertyReference name="fetchMoreThreads" type="() => void">
-    Requests the next page. No-ops when there is no next page or a fetch is
-    already in flight.
+    请求下一页。没有下一页或已有请求正在进行时为空操作。
   </PropertyReference>
 
   <PropertyReference name="refetchThreads" type="() => void">
-    Re-reads the current page from the server.
+    从服务器重新读取当前页。
   </PropertyReference>
 
   <PropertyReference name="startNewThread" type="() => void">
-    Notifies the thread store that a new thread started and clears stale
-    thread-list error state. It does not mint or switch the active chat thread
-    by itself. Use `useCopilotChatConfiguration().startNewThread()` to do that.
+    通知线程存储新线程已开始，并清除过期的线程列表错误状态。它本身不会创建或切换当前聊天线程。如需这样做，请使用 `useCopilotChatConfiguration().startNewThread()`。
   </PropertyReference>
 
   <PropertyReference name="renameThread" type="(threadId: string, name: string) => Promise<void>">
-    Renames a thread optimistically.
+    以乐观更新方式重命名线程。
   </PropertyReference>
 
   <PropertyReference name="archiveThread" type="(threadId: string) => Promise<void>">
-    Archives a thread optimistically.
+    以乐观更新方式归档线程。
   </PropertyReference>
 
   <PropertyReference name="unarchiveThread" type="(threadId: string) => Promise<void>">
-    Restores an archived thread optimistically.
+    以乐观更新方式恢复已归档线程。
   </PropertyReference>
 
   <PropertyReference name="deleteThread" type="(threadId: string) => Promise<void>">
-    Deletes a thread optimistically and rolls back if the server rejects.
+    以乐观更新方式删除线程，若服务器拒绝则回滚。
   </PropertyReference>
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Listing threads
+### 列出线程
 
 ```vue
 <script setup lang="ts">
@@ -150,7 +140,7 @@ const activeThreads = computed(() =>
 </script>
 ```
 
-### Paginating manually
+### 手动分页
 
 ```vue
 <script setup lang="ts">
@@ -163,28 +153,28 @@ const { hasMoreThreads, fetchMoreThreads, fetchMoreError } = useThreads({
 </script>
 ```
 
-## Behavior
+## 行为
 
-- The hook stays reactive to `agentId`, `includeArchived`, `limit`, and `enabled`.
-- When the runtime URL is missing or the runtime reports thread endpoints as unsupported, `error` is set and `listError` stays focused on store failures.
-- `enabled: false` clears the thread-store context and skips `/threads`; that is what keeps unlicensed thread drawers from fetching.
-- Mutations are optimistic in the core store. Delete rolls back if the request fails.
-- `fetchMoreError` is tracked separately so a failed "load more" request can show inline without losing the loaded list.
-- Threads are sorted by `lastRunAt`, then `updatedAt`, then `createdAt`.
+- 该 hook 对 `agentId`、`includeArchived`、`limit` 与 `enabled` 保持响应式。
+- 当缺少运行时 URL 或运行时报告线程端点不受支持时，会设置 `error`，而 `listError` 仍专注于存储自身的失败。
+- `enabled: false` 会清空线程存储上下文并跳过 `/threads`；未授权的线程抽屉因此不会发起获取。
+- 变更在 core 存储中是乐观更新的。删除请求失败时会回滚。
+- `fetchMoreError` 单独跟踪，因此“加载更多”请求失败时可以就地展示错误，而不会丢失已加载的列表。
+- 线程按 `lastRunAt`、`updatedAt`、`createdAt` 排序。
 
-## Related
+## 相关内容
 
 <Cards>
   <Card title="CopilotKitProvider" href="/reference/vue/components/CopilotKitProvider">
-    Configure the runtime URL that powers thread syncing. For cloud-hosted Intelligence, keep `CPK_INTELLIGENCE_API_KEY` on the runtime server.
+    配置驱动线程同步的运行时 URL。若使用云端托管 Intelligence，请在运行时服务器上保留 `CPK_INTELLIGENCE_API_KEY`。
   </Card>
   <Card title="CopilotThreadsDrawer" href="/reference/vue/components/CopilotThreadsDrawer">
-    Use the prebuilt drawer that lists and manages threads with this composable.
+    使用预构建抽屉，配合该组合式函数列出并管理线程。
   </Card>
   <Card title="useAgent" href="/reference/vue/hooks/useAgent">
-    Access and run the agent whose threads you are listing.
+    访问并运行你要列出其线程的智能体。
   </Card>
   <Card title="useCopilotChatConfiguration" href="/reference/vue/hooks/useCopilotChatConfiguration">
-    Read the shared chat configuration context.
+    读取共享的聊天配置上下文。
   </Card>
 </Cards>

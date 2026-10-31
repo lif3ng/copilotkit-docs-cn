@@ -1,9 +1,6 @@
-## Which name identifies an agent
+## 哪个名称标识智能体
 
-The name you use to address an agent from the frontend must equal a **key of the
-runtime's `agents` map**. That key is the only name the frontend can ask for. An
-agent's own `name`, `id`, or class name is never used for routing, and the two are
-free to differ.
+你在前端寻址智能体时所用的名称，必须等于**运行时 `agents` 映射的某个键**。该键是前端唯一可以请求的名称。智能体自身的 `name`、`id` 或类名从不用于路由，两者可以各不相同。
 
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
 const runtime = new CopilotRuntime({
@@ -28,26 +25,13 @@ const runtime = new CopilotRuntime({
 ```
 </FrontendOnly>
 
-Most integrations write that key literally in the runtime route, as above, so the
-binding is visible in one file. Some derive it instead, and that is where the rule
-stops being obvious:
+大多数集成会像上文那样把这个键直接写在运行时路由里，绑定关系在一个文件中一目了然。有些集成则通过推导得到它，规则在那时就不再直观：
 
-- **Mastra** — `MastraAgent.getRemoteAgents` and `getLocalAgents` both build the map
-  from `listAgents()`, which is keyed by the **record key** in
-  `new Mastra({ agents: { ... } })`, not by the agent's `id`. Given
-  `new Agent({ name: "My Agent" })` exported as `myAgent` and registered as
-  `agents: { myAgent }`, the runtime key is `myAgent`.
-- **LangGraph** — `graphId` is a *separate* binding, from the runtime to a key in your
-  deployment's `langgraph.json`. It does not have to equal the runtime's agents-map
-  key, and it is not the name the frontend asks for. The starter template happens to
-  use `sample_agent` for both.
+- **Mastra** —— `MastraAgent.getRemoteAgents` 与 `getLocalAgents` 都基于 `listAgents()` 构建映射，其键取自 `new Mastra({ agents: { ... } })` 中的**记录键**，而非智能体的 `id`。若 `new Agent({ name: "My Agent" })` 以 `myAgent` 导出并注册为 `agents: { myAgent }`，运行时键就是 `myAgent`。
+- **LangGraph** —— `graphId` 是一条*独立*的绑定，从运行时指向你部署的 `langgraph.json` 中的某个键。它不必等于运行时 agents 映射的键，也不是前端请求所用的名称。起步模板恰好对两者都使用了 `sample_agent`。
 
-<Callout type="warn" title="An agent's declared name is not its routing key">
-  Asking for a name the runtime did not register resolves no agent, and the frontend
-  raises `CopilotKitAgentDiscoveryError` — see [Agent discovery
-  failed](/troubleshooting/error-reference). The error message lists the keys the
-  runtime actually returned, which is the quickest way to see the real names.
+<Callout type="warn" title="智能体声明的名称不是它的路由键">
+  请求一个运行时未注册的名称将解析不到任何智能体，前端会抛出 `CopilotKitAgentDiscoveryError` —— 参见[智能体发现失败](/troubleshooting/error-reference)。错误消息会列出运行时实际返回的键，这是查看真实名称最快的方式。
 </Callout>
 
-To read the registered keys directly, hit `GET {runtimeUrl}/info`. It returns the
-agents the runtime advertises, under exactly the names the frontend must use.
+要直接读取已注册的键，请访问 `GET {runtimeUrl}/info`。它会返回运行时对外公布的智能体，名称与前端必须使用的完全一致。

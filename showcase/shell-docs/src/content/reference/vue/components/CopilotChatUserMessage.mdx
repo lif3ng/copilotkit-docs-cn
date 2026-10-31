@@ -1,19 +1,19 @@
 ---
 title: "CopilotChatUserMessage"
-description: "Vue 3 component for displaying user-authored messages with copy, edit, and branch navigation."
+description: "用于展示用户消息的 Vue 3 组件，支持复制、编辑与分支导航。"
 ---
 
 <Callout type="info">
-  This is the Vue 3 component. Import it from `@copilotkit/vue/v2`.
+  这是 Vue 3 组件，请从 `@copilotkit/vue/v2` 导入。
 </Callout>
 
-## Overview
+## 概览
 
-`CopilotChatUserMessage` renders a user-authored message aligned to the right of the chat. The default message renderer flattens the message content to text and displays it with `white-space: pre-wrap` so line breaks and spacing are preserved.
+`CopilotChatUserMessage` 渲染对齐在聊天区域右侧的用户消息。默认消息渲染器会将消息内容摊平为纯文本，并以 `white-space: pre-wrap` 展示，从而保留换行与空格。
 
-Below the message it renders a toolbar containing a copy-to-clipboard button, an optional edit button, and optional branch navigation controls. The toolbar becomes visible on hover. The edit button is only shown when an `@edit-message` listener is attached, and the branch navigation is only shown when `numberOfBranches` is greater than 1 and a `@switch-to-branch` listener is attached.
+消息下方会渲染一个工具栏，包含复制到剪贴板按钮、可选的编辑按钮和可选的分支导航控件。工具栏在悬停时变为可见。只有挂接了 `@edit-message` 监听器时才会显示编辑按钮；只有当 `numberOfBranches` 大于 1 且挂接了 `@switch-to-branch` 监听器时才会显示分支导航。
 
-## Example
+## 示例
 
 ```vue
 <script setup lang="ts">
@@ -33,35 +33,30 @@ const message: UserMessage = {
 </template>
 ```
 
-## Props
+## 属性（Props）
 
 <PropertyReference name="message" type="UserMessage" required>
-  The user message object to render. The default renderer reads `content` (a
-  string, or an array of content parts whose `text` parts are joined with
-  newlines) and `id`. `UserMessage` is imported from `@ag-ui/core`.
+  要渲染的用户消息对象。默认渲染器会读取 `content`（字符串，或内容分片数组，
+  其中的 `text` 分片会以换行符拼接）和 `id`。`UserMessage` 从 `@ag-ui/core` 导入。
 </PropertyReference>
 
 <PropertyReference name="branchIndex" type="number" default="0">
-  The zero-based index of the currently active branch. Used by the branch
-  navigation controls to display the current position (rendered as
-  `branchIndex + 1`) and to compute whether the previous/next arrows are
-  enabled.
+  当前活动分支的从零开始的索引。分支导航控件用它来显示当前位置
+  （渲染为 `branchIndex + 1`），并据此计算上一个/下一个箭头是否可用。
 </PropertyReference>
 
 <PropertyReference name="numberOfBranches" type="number" default="1">
-  The total number of available branches for this message. Branch navigation is
-  only rendered when this value is greater than 1 and a `@switch-to-branch`
-  listener is attached.
+  此消息可用分支的总数。只有当该值大于 1 且挂接了 `@switch-to-branch`
+  监听器时，才会渲染分支导航。
 </PropertyReference>
 
-## Events
+## 事件（Events）
 
-The action callbacks are emitted as Vue events. Attaching a listener for an event also enables the corresponding control: the edit button only renders when an `@edit-message` listener is present, and the branch navigation only renders when a `@switch-to-branch` listener is present (and `numberOfBranches` is greater than 1).
+操作回调以 Vue 事件的形式发出。为事件挂接监听器的同时也会启用相应控件：只有存在 `@edit-message` 监听器时才渲染编辑按钮；只有存在 `@switch-to-branch` 监听器（且 `numberOfBranches` 大于 1）时才渲染分支导航。
 
 <PropertyReference name="edit-message" type="(payload: { message: UserMessage }) => void">
-  Emitted when the user clicks the edit button. The payload contains the
-  `message` being edited. When no listener is attached, the edit button is
-  hidden from the toolbar.
+  用户点击编辑按钮时发出。事件负载包含正在编辑的 `message`。
+  未挂接监听器时，工具栏中会隐藏编辑按钮。
 
 ```vue
 <CopilotChatUserMessage
@@ -73,11 +68,9 @@ The action callbacks are emitted as Vue events. Attaching a listener for an even
 </PropertyReference>
 
 <PropertyReference name="switch-to-branch" type="(payload: { message: UserMessage; branchIndex: number; numberOfBranches: number }) => void">
-  Emitted when the user navigates to a different branch using the
-  previous/next arrows. The payload contains the target `branchIndex`, the
-  total `numberOfBranches`, and the `message`. The branch navigation controls
-  are only rendered when this listener is attached and `numberOfBranches` is
-  greater than 1.
+  用户通过上一个/下一个箭头切换到其他分支时发出。事件负载包含目标
+  `branchIndex`、分支总数 `numberOfBranches` 以及 `message`。
+  只有挂接了该监听器且 `numberOfBranches` 大于 1 时，才会渲染分支导航控件。
 
 ```vue
 <CopilotChatUserMessage
@@ -90,13 +83,13 @@ The action callbacks are emitted as Vue events. Attaching a listener for an even
 
 </PropertyReference>
 
-## Slots
+## 插槽（Slots）
 
-Each slot exposes scoped slot props (handlers and state) and falls back to the default rendering when not provided. Use a named template (`<template #slot-name="...">`) to override a slot.
+每个插槽都会暴露作用域插槽属性（处理器与状态），未提供时回退到默认渲染。使用具名模板（`<template #slot-name="...">`）即可覆盖某个插槽。
 
 <PropertyReference name="message-renderer" type="{ message: UserMessage; content: string; isMultiline: boolean }">
-  Replaces the message content renderer. The default renders the flattened
-  `content` string in a rounded bubble with `white-space: pre-wrap`.
+  替换消息内容渲染器。默认实现会在圆角气泡中以 `white-space: pre-wrap`
+  渲染摊平后的 `content` 字符串。
 
 ```vue
 <CopilotChatUserMessage :message="message">
@@ -109,15 +102,13 @@ Each slot exposes scoped slot props (handlers and state) and falls back to the d
 </PropertyReference>
 
 <PropertyReference name="toolbar" type="{ message: UserMessage; showBranchNavigation: boolean; hasEditAction: boolean }">
-  Replaces the entire action toolbar container rendered below the message
-  content. `showBranchNavigation` and `hasEditAction` indicate which controls
-  the default toolbar would show.
+  替换在消息内容下方渲染的整个操作工具栏容器。`showBranchNavigation` 与
+  `hasEditAction` 用于指示默认工具栏会显示哪些控件。
 </PropertyReference>
 
 <PropertyReference name="toolbar-items" type="(no props)">
-  Inserts additional content at the start of the default toolbar, alongside the
-  copy, edit, and branch navigation controls. Use this to append custom actions
-  without replacing the whole toolbar.
+  在默认工具栏的起始位置插入额外内容，与复制、编辑和分支导航控件并列。
+  可在不替换整个工具栏的情况下追加自定义操作。
 
 ```vue
 <CopilotChatUserMessage :message="message">
@@ -130,23 +121,22 @@ Each slot exposes scoped slot props (handlers and state) and falls back to the d
 </PropertyReference>
 
 <PropertyReference name="copy-button" type="{ onCopy: () => Promise<void>; copied: boolean; label: string }">
-  Replaces the copy-to-clipboard button. `onCopy` copies the flattened message
-  content to the clipboard, `copied` reflects the transient copied state (reset
-  after 2 seconds), and `label` is sourced from
-  `userMessageToolbarCopyMessageLabel`.
+  替换复制到剪贴板按钮。`onCopy` 会将摊平后的消息内容复制到剪贴板，
+  `copied` 反映短暂的已复制状态（2 秒后重置），`label` 取自
+  `userMessageToolbarCopyMessageLabel`。
 </PropertyReference>
 
 <PropertyReference name="edit-button" type="{ onEdit: () => void; label: string }">
-  Replaces the edit button. Only rendered when an `@edit-message` listener is
-  attached. `onEdit` emits the `edit-message` event, and `label` is sourced
-  from `userMessageToolbarEditMessageLabel`.
+  替换编辑按钮。只有挂接了 `@edit-message` 监听器时才会渲染。
+  `onEdit` 会发出 `edit-message` 事件，`label` 取自
+  `userMessageToolbarEditMessageLabel`。
 </PropertyReference>
 
 <PropertyReference name="branch-navigation" type="{ branchIndex: number; numberOfBranches: number; canGoPrev: boolean; canGoNext: boolean; goPrev: () => void; goNext: () => void }">
-  Replaces the branch navigation controls. Only rendered when
-  `numberOfBranches` is greater than 1 and a `@switch-to-branch` listener is
-  attached. `goPrev` and `goNext` emit `switch-to-branch` for the adjacent
-  branch; `canGoPrev` and `canGoNext` indicate whether navigation is available.
+  替换分支导航控件。只有当 `numberOfBranches` 大于 1 且挂接了
+  `@switch-to-branch` 监听器时才会渲染。`goPrev` 与 `goNext`
+  会针对相邻分支发出 `switch-to-branch`；`canGoPrev` 与 `canGoNext`
+  指示导航是否可用。
 
 ```vue
 <CopilotChatUserMessage
@@ -170,14 +160,13 @@ Each slot exposes scoped slot props (handlers and state) and falls back to the d
 </PropertyReference>
 
 <PropertyReference name="layout" type="{ message; content; isMultiline; showBranchNavigation; hasEditAction; branchIndex; numberOfBranches; canGoPrev; canGoNext; onCopy; onEdit; goPrev; goNext; copied }">
-  Replaces the entire component layout (the message renderer and the toolbar),
-  giving you full control over the markup while still receiving all the derived
-  state and handlers. Use this when overriding individual slots is not enough.
+  替换整个组件布局（消息渲染器与工具栏），让你完全掌控标记结构，
+  同时仍能接收所有派生状态与处理器。当逐个覆盖插槽仍不够用时，可使用此插槽。
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Basic user message
+### 基本用户消息
 
 ```vue
 <script setup lang="ts">
@@ -192,7 +181,7 @@ defineProps<{ message: UserMessage }>();
 </template>
 ```
 
-### With edit support
+### 支持编辑
 
 ```vue
 <script setup lang="ts">
@@ -211,7 +200,7 @@ function handleEdit(payload: { message: UserMessage }) {
 </template>
 ```
 
-### With branch navigation
+### 支持分支导航
 
 ```vue
 <script setup lang="ts">
@@ -238,7 +227,7 @@ function handleSwitch(payload: { branchIndex: number }) {
 </template>
 ```
 
-### Customizing appearance with slots
+### 用插槽自定义外观
 
 ```vue
 <script setup lang="ts">
@@ -265,7 +254,7 @@ defineProps<{ message: UserMessage }>();
 </template>
 ```
 
-### Full edit and branch workflow
+### 完整的编辑与分支工作流
 
 ```vue
 <script setup lang="ts">
@@ -293,18 +282,18 @@ function openEditModal(message: UserMessage) {
 </template>
 ```
 
-## Behavior
+## 行为
 
-- **Right-aligned layout**: User messages are rendered with right-aligned positioning to visually distinguish them from assistant messages.
-- **Content flattening**: When `message.content` is an array of parts, the default renderer joins the `text` parts with newlines. String content is rendered as-is.
-- **Whitespace preservation**: The default message renderer uses `white-space: pre-wrap`, so line breaks and spacing are preserved. The bubble gets extra vertical padding when the content is multiline.
-- **Hover-revealed toolbar**: The toolbar is invisible by default and becomes visible when the message is hovered.
-- **Transient copied state**: After a successful copy, the copy button shows a check icon for 2 seconds before reverting.
-- **Conditional edit button**: The edit button only appears when an `@edit-message` listener is attached.
-- **Conditional branch navigation**: The branch navigation only appears when `numberOfBranches` is greater than 1 and a `@switch-to-branch` listener is attached.
-- **Localized labels**: Toolbar button tooltips are sourced from the nearest configuration provider. See [`useCopilotChatConfiguration`](/reference/vue/hooks/useCopilotChatConfiguration) for available label keys.
+- **右对齐布局**：用户消息以右对齐方式渲染，以便在视觉上与助手消息区分。
+- **内容摊平**：当 `message.content` 是分片数组时，默认渲染器会以换行符拼接各 `text` 分片。字符串内容按原样渲染。
+- **空白保留**：默认消息渲染器使用 `white-space: pre-wrap`，因此换行与空格都会保留。当内容为多行时，气泡会获得额外的纵向内边距。
+- **悬停显示工具栏**：工具栏默认不可见，当鼠标悬停在消息上时变为可见。
+- **短暂的已复制状态**：复制成功后，复制按钮会显示对勾图标 2 秒，然后恢复原状。
+- **条件显示的编辑按钮**：只有挂接了 `@edit-message` 监听器时，编辑按钮才会出现。
+- **条件显示的分支导航**：只有当 `numberOfBranches` 大于 1 且挂接了 `@switch-to-branch` 监听器时，分支导航才会出现。
+- **本地化标签**：工具栏按钮的工具提示取自最近的配置提供方。可用标签键参见 [`useCopilotChatConfiguration`](/reference/vue/hooks/useCopilotChatConfiguration)。
 
-## Related
+## 相关内容
 
-- [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider) - Supplies the CopilotKit context to descendant components.
-- [`useCopilotChatConfiguration`](/reference/vue/hooks/useCopilotChatConfiguration) - Provider for localized toolbar labels.
+- [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider) - 向后代组件提供 CopilotKit 上下文。
+- [`useCopilotChatConfiguration`](/reference/vue/hooks/useCopilotChatConfiguration) - 本地化工具栏标签的提供方。

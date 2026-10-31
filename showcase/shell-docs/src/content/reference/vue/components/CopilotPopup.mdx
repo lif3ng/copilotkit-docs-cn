@@ -1,17 +1,17 @@
 ---
 title: "CopilotPopup"
-description: "Vue 3 popup variant of CopilotChat that renders in a floating panel with a toggle button."
+description: "CopilotChat 的 Vue 3 弹窗变体，渲染在带切换按钮的浮动面板中。"
 ---
 
 <Callout type="info">
-  This is the Vue 3 popup component. Import it from `@copilotkit/vue/v2`.
+  这是 Vue 3 弹窗组件，请从 `@copilotkit/vue/v2` 导入。
 </Callout>
 
-`CopilotPopup` renders a floating chat popup with a toggle button. It wraps [`CopilotChat`](/reference/vue/components/CopilotChat) and provides popup-specific layout, sizing, and open/close behavior. The popup includes a header with a title and close button, and can optionally be dismissed by clicking outside.
+`CopilotPopup` 渲染一个带切换按钮的浮动聊天弹窗。它包装了 [`CopilotChat`](/reference/vue/components/CopilotChat)，并提供弹窗专属的布局、尺寸与打开/关闭行为。弹窗包含一个带标题和关闭按钮的页眉，还可选择支持点击外部关闭。
 
-The `"popup"` feature requires a license. When it is not licensed, the component renders an inline warning and logs a console warning; see [copilotkit.ai/pricing](https://copilotkit.ai/pricing).
+`"popup"` 特性需要许可。未获得许可时，组件会渲染内联警告并输出控制台警告；参见 [copilotkit.ai/pricing](https://copilotkit.ai/pricing)。
 
-## Example
+## 示例
 
 ```vue
 <script setup lang="ts">
@@ -26,120 +26,125 @@ import { CopilotPopup } from "@copilotkit/vue/v2";
 </template>
 ```
 
-## Props
+## 属性（Props）
 
-### Own props
+### 自身 props
 
 <PropertyReference name="defaultOpen" type="boolean" default="true">
-  Whether the popup is open when the component first mounts. After mount, the open/close state is driven by user interaction (toggle button, close button, clicking outside).
+  组件首次挂载时弹窗是否打开。挂载后，打开/关闭状态由用户交互驱动
+  （切换按钮、关闭按钮、点击外部）。
 </PropertyReference>
 
 <PropertyReference name="width" type="number | string">
-  Width of the popup panel. Accepts a number (pixels) or a CSS string (for example `"400px"` or `"30vw"`).
+  弹窗面板的宽度。接受数字（像素）或 CSS 字符串（例如 `"400px"` 或 `"30vw"`）。
 </PropertyReference>
 
 <PropertyReference name="height" type="number | string">
-  Height of the popup panel. Accepts a number (pixels) or a CSS string (for example `"600px"` or `"80vh"`).
+  弹窗面板的高度。接受数字（像素）或 CSS 字符串（例如 `"600px"` 或 `"80vh"`）。
 </PropertyReference>
 
 <PropertyReference name="clickOutsideToClose" type="boolean" default="false">
-  Whether clicking outside the popup panel closes it.
+  点击弹窗面板外部时是否关闭弹窗。
 </PropertyReference>
 
-### Inherited CopilotChat props
+### 继承自 CopilotChat 的 props
 
-`CopilotPopup` extends [`CopilotChatProps`](/reference/vue/components/CopilotChat), so it accepts the same agent-wiring and chat-view props. The most common ones:
+`CopilotPopup` 继承自 [`CopilotChatProps`](/reference/vue/components/CopilotChat)，因此接受相同的智能体接线与聊天视图 props。最常用的有：
 
 <PropertyReference name="agentId" type="string">
-  ID of the agent to use. Must match an agent configured in `CopilotKitProvider`.
+  要使用的智能体 ID。必须与 `CopilotKitProvider` 中配置的某个智能体匹配。
 </PropertyReference>
 
 <PropertyReference name="threadId" type="string">
-  ID of the conversation thread.
+  会话线程的 ID。
 </PropertyReference>
 
 <PropertyReference name="labels" type="Partial<CopilotChatLabels>">
-  Partial label overrides for the text strings rendered inside the chat (including `modalHeaderTitle` for the popup header).
+  对聊天内所渲染文本字符串的部分标签覆盖（包括弹窗页眉用的 `modalHeaderTitle`）。
 </PropertyReference>
 
 <PropertyReference name="autoScroll" type="AutoScrollMode | boolean" default="true">
-  Controls how the chat view scrolls as new messages stream in. Accepts `"pin-to-bottom"` / `true`, `"pin-to-send"`, or `"none"` / `false`.
+  控制新消息流入时聊天视图的滚动方式。接受 `"pin-to-bottom"` / `true`、
+  `"pin-to-send"` 或 `"none"` / `false`。
 </PropertyReference>
 
 <PropertyReference name="welcomeScreen" type="boolean" default="true">
-  Whether to show the welcome screen when no messages exist.
+  没有消息时是否显示欢迎屏。
 </PropertyReference>
 
 <PropertyReference name="inputValue" type="string">
-  Controlled value of the chat input.
+  聊天输入区的受控值。
 </PropertyReference>
 
 <PropertyReference name="inputMode" type="CopilotChatInputMode" default='"input"'>
-  The chat input mode.
+  聊天输入模式。
 </PropertyReference>
 
 <PropertyReference name="inputToolsMenu" type='(ToolsMenuItem | "-")[]' default="[]">
-  Items shown in the input tools menu. Use `"-"` to insert a separator.
+  输入区工具菜单中显示的菜单项。使用 `"-"` 插入分隔线。
 </PropertyReference>
 
 <PropertyReference name="onError" type="(event: { error: Error; code: CopilotKitCoreErrorCode; context: Record<string, any> }) => void | Promise<void>">
-  Optional error handler invoked for chat errors.
+  可选的错误处理器，在发生聊天错误时调用。
 </PropertyReference>
 
-## Slots
+## 插槽（Slots）
 
-All slots are forwarded down to the internal `CopilotPopupView`. Each slot receives scoped props you can bind to.
+所有插槽都会向下转发给内部的 `CopilotPopupView`。每个插槽都接收可供绑定的作用域属性。
 
 <PropertyReference name="header" type="(props: CopilotPopupViewHeaderSlotProps) => unknown">
-  Overrides the popup header. Slot props: `title`, `onClose`, `isOpen`.
+  覆盖弹窗页眉。插槽属性：`title`、`onClose`、`isOpen`。
 </PropertyReference>
 
 <PropertyReference name="toggle-button" type="(props: CopilotPopupViewToggleButtonSlotProps) => unknown">
-  Overrides the floating toggle button. Slot props: `isOpen`, `toggle`, `open`, `close`.
+  覆盖浮动切换按钮。插槽属性：`isOpen`、`toggle`、`open`、`close`。
 </PropertyReference>
 
 <PropertyReference name="chat-view" type="(props: CopilotChatViewOverrideSlotProps) => unknown">
-  Replaces the entire popup chat view. Receives the full chat-view props plus event handlers (`onSubmitMessage`, `onStop`, `onInputChange`, `onSelectSuggestion`, and the transcribe/file handlers).
+  替换整个弹窗聊天视图。接收完整的聊天视图 props 以及事件处理器
+  （`onSubmitMessage`、`onStop`、`onInputChange`、`onSelectSuggestion`，
+  以及转写/文件处理器）。
 </PropertyReference>
 
 <PropertyReference name="message-view" type="(props: CopilotChatMessageViewSlotProps) => unknown">
-  Overrides the message list. Slot props: `messages`, `isRunning`.
+  覆盖消息列表。插槽属性：`messages`、`isRunning`。
 </PropertyReference>
 
 <PropertyReference name="input" type="(props: CopilotSidebarWelcomeScreenInputSlotProps) => unknown">
-  Overrides the chat input. Slot props include `modelValue`, `isRunning`, `inputMode`, `inputToolsMenu`, and the input event handlers.
+  覆盖聊天输入区。插槽属性包括 `modelValue`、`isRunning`、`inputMode`、
+  `inputToolsMenu` 以及输入事件处理器。
 </PropertyReference>
 
 <PropertyReference name="suggestion-view" type="(props: CopilotSidebarWelcomeScreenSuggestionViewSlotProps) => unknown">
-  Overrides the suggestion list. Slot props: `suggestions`, `loadingIndexes`, `onSelectSuggestion`.
+  覆盖建议列表。插槽属性：`suggestions`、`loadingIndexes`、`onSelectSuggestion`。
 </PropertyReference>
 
 <PropertyReference name="welcome-screen" type="(props: CopilotChatWelcomeScreenSlotProps) => unknown">
-  Overrides the welcome screen shown when no messages exist.
+  覆盖没有消息时显示的欢迎屏。
 </PropertyReference>
 
 <PropertyReference name="welcome-message" type="() => unknown">
-  Overrides only the welcome message content inside the default welcome screen.
+  仅覆盖默认欢迎屏内的欢迎消息内容。
 </PropertyReference>
 
-## Events
+## 事件（Events）
 
-`CopilotPopup` emits the following events (use kebab-case in templates):
+`CopilotPopup` 发出以下事件（模板中使用 kebab-case）：
 
-| Event | Payload |
+| 事件 | 负载 |
 | --- | --- |
 | `submit-message` | `value: string` |
-| `stop` | (none) |
+| `stop` | （无） |
 | `input-change` | `value: string` |
 | `select-suggestion` | `suggestion: Suggestion, index: number` |
-| `add-file` | (none) |
-| `start-transcribe` | (none) |
-| `cancel-transcribe` | (none) |
-| `finish-transcribe` | (none) |
+| `add-file` | （无） |
+| `start-transcribe` | （无） |
+| `cancel-transcribe` | （无） |
+| `finish-transcribe` | （无） |
 
-## Usage
+## 用法
 
-### Basic usage
+### 基本用法
 
 ```vue
 <script setup lang="ts">
@@ -154,7 +159,7 @@ import { CopilotPopup } from "@copilotkit/vue/v2";
 </template>
 ```
 
-### Custom size and click-outside-to-close
+### 自定义尺寸与点击外部关闭
 
 ```vue
 <script setup lang="ts">
@@ -172,7 +177,7 @@ import { CopilotPopup } from "@copilotkit/vue/v2";
 </template>
 ```
 
-### Custom header slot
+### 自定义页眉插槽
 
 ```vue
 <script setup lang="ts">
@@ -191,7 +196,7 @@ import { CopilotPopup } from "@copilotkit/vue/v2";
 </template>
 ```
 
-### Handling events
+### 处理事件
 
 ```vue
 <script setup lang="ts">
@@ -207,16 +212,16 @@ function onSubmit(value: string) {
 </template>
 ```
 
-## Behavior
+## 行为
 
-- **Toggle button**: Renders a floating toggle button that opens and closes the popup. Override it with the `toggle-button` slot.
-- **Modal state**: The initial state is set by `defaultOpen`; after mount, state changes come from user interaction (toggle button, close button, clicking outside).
-- **Click outside**: When `clickOutsideToClose` is `true`, clicking outside the popup panel closes it. The default is `false`.
-- **Layout**: Internally uses `CopilotPopupView`, which provides a popup-specific welcome screen layout.
-- **Agent connection**: All agent wiring (messages, running state, suggestions) is handled by the inner `CopilotChat`.
+- **切换按钮**：渲染一个打开和关闭弹窗的浮动切换按钮。可用 `toggle-button` 插槽覆盖。
+- **开关状态**：初始状态由 `defaultOpen` 设置；挂载后，状态变化来自用户交互（切换按钮、关闭按钮、点击外部）。
+- **点击外部**：当 `clickOutsideToClose` 为 `true` 时，点击弹窗面板外部会关闭弹窗。默认为 `false`。
+- **布局**：内部使用 `CopilotPopupView`，它提供弹窗专属的欢迎屏布局。
+- **智能体连接**：所有智能体接线（消息、运行状态、建议）均由内部的 `CopilotChat` 处理。
 
-## Related
+## 相关内容
 
-- [`CopilotChat`](/reference/vue/components/CopilotChat) -- the base chat component used internally
-- [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider) -- supplies the copilot context
-- [`useAgent`](/reference/vue/hooks/useAgent) -- composable for accessing the agent instance
+- [`CopilotChat`](/reference/vue/components/CopilotChat) - 内部使用的基础聊天组件
+- [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider) - 提供 copilot 上下文
+- [`useAgent`](/reference/vue/hooks/useAgent) - 用于访问智能体实例的组合式函数

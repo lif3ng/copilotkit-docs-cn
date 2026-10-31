@@ -1,21 +1,19 @@
 ---
 title: "useComponent"
-description: "Register a Vue component as a frontend tool renderer in chat"
+description: "将 Vue 组件注册为聊天中的前端工具渲染器"
 ---
 
-## Overview
+## 概览
 
-`useComponent` is a convenience composable built on top of [`useFrontendTool`](/reference/vue/hooks/useFrontendTool). It registers a tool and renders a Vue component in chat using the tool call parameters as the component's props.
+`useComponent` 是构建在 [`useFrontendTool`](/reference/vue/hooks/useFrontendTool) 之上的便捷组合式函数。它注册一个工具，并在聊天中渲染一个 Vue 组件，把工具调用参数作为组件的 props。
 
-Use this when you want a visual component renderer without writing a full frontend tool config manually. For lower-level control over render status (in progress, executing, complete) or to render any tool with a wildcard, reach for [`useRenderTool`](/reference/vue/hooks/useRenderTool) instead.
+当你想要一个可视化的组件渲染器、又不想手动编写完整的前端工具配置时，用它即可。若需要更底层地控制渲染状态（进行中、执行中、已完成），或想用通配符渲染任意工具，请改用 [`useRenderTool`](/reference/vue/hooks/useRenderTool)。
 
 <Callout type="info">
-  Import from the `/v2` subpath: `@copilotkit/vue/v2`. Like all CopilotKit
-  composables, `useComponent` must be called from within a component that is a
-  descendant of [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider).
+  从 `/v2` 子路径导入：`@copilotkit/vue/v2`。与所有 CopilotKit 组合式函数一样，`useComponent` 必须在 [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider) 后代组件内调用。
 </Callout>
 
-## Signature
+## 签名
 
 ```ts
 import type { Component, WatchSource } from "vue";
@@ -36,46 +34,46 @@ function useComponent<TSchema extends StandardSchemaV1 | undefined = undefined>(
 ): void;
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="config" type="object" required>
-  Configuration for the component tool.
+  组件工具的配置。
 
   <PropertyReference name="name" type="string" required>
-    Tool name used by the agent to invoke this component tool.
+    智能体调用此组件工具时使用的工具名称。
   </PropertyReference>
 
   <PropertyReference name="description" type="string">
-    Optional extra description for model guidance. It is appended to a default instruction (see [Behavior](#behavior)).
+    可选的额外描述，用于指导模型。它会被追加到一条默认指令之后（参见[行为](#行为)）。
   </PropertyReference>
 
   <PropertyReference name="parameters" type="StandardSchemaV1">
-    Optional [Standard Schema](https://standardschema.dev) (for example a Zod schema) for the advertised tool schema and typed parameters. When provided, the `render` component's props are inferred from the schema output; the runtime parameters are JSON-parsed but are not validated against that schema. When omitted, the component accepts any props.
+    可选的 [Standard Schema](https://standardschema.dev)（例如 Zod schema），用于对外声明的工具模式和带类型的参数。提供时，`render` 组件的 props 会从模式输出推断；运行时参数会经 JSON 解析，但不会按该模式校验。省略时，组件接受任意 props。
   </PropertyReference>
 
   <PropertyReference name="render" type="Component<NoInfer<InferRenderProps<TSchema>>>" required>
-    A Vue component rendered with the parsed tool parameters passed as props. The parameters are spread onto the component as its props.
+    一个 Vue 组件，以解析后的工具参数作为 props 进行渲染。这些参数会被展开为组件的 props。
   </PropertyReference>
 
   <PropertyReference name="agentId" type="string">
-    Optional agent scope for the registration.
+    可选的注册作用域，限定到某个智能体。
   </PropertyReference>
 </PropertyReference>
 
 <PropertyReference name="deps" type="WatchSource<unknown>[]">
-  Optional list of reactive watch sources. The registration re-runs when any of these change. Include any reactive values captured by `render` that should refresh the registration (for example a `ref` or a getter).
+  可选的响应式侦听源列表。其中任何一项变化时，注册会重新执行。`render` 捕获到的、需要刷新注册的响应式值都应列入其中（例如 `ref` 或 getter）。
 </PropertyReference>
 
-## Behavior
+## 行为
 
-- **Default instruction.** The composable prepends a default instruction to the description: _"Use this tool to display the \"&lt;name&gt;\" component in the chat. This tool renders a visual UI component for the user."_. Your `description`, if provided, is appended after it.
-- **Built on `useFrontendTool`.** It calls [`useFrontendTool`](/reference/vue/hooks/useFrontendTool) internally with a render function that mounts your component (via Vue's `h`) and spreads the tool's `args` as the component's props.
-- **Inherited lifecycle.** It inherits `useFrontendTool` behavior: a duplicate-name registration logs an override warning and replaces the previous tool, and the tool is removed automatically when the owning scope is disposed.
-- **Reactivity.** The registration is reactive to `config.name` and the `deps` watch sources. Pass any changing reactive values you depend on through `deps`.
+- **默认指令**。组合式函数会在描述前附加一条默认指令：_"Use this tool to display the \"&lt;name&gt;\" component in the chat. This tool renders a visual UI component for the user."_。如果你提供了 `description`，它会被追加在其后。
+- **构建于 `useFrontendTool` 之上**。它内部调用 [`useFrontendTool`](/reference/vue/hooks/useFrontendTool)，用一个渲染函数挂载你的组件（通过 Vue 的 `h`），并把工具的 `args` 展开为组件的 props。
+- **继承的生命周期**。它继承 `useFrontendTool` 的行为：重名注册会记录覆盖警告并替换先前的工具；所属作用域销毁时，工具会被自动移除。
+- **响应性**。注册对 `config.name` 和 `deps` 侦听源保持响应。你依赖的任何会变化的响应式值都应通过 `deps` 传入。
 
-## Usage
+## 用法
 
-Define a Zod schema for the parameters, a Vue component that receives them as props, and register both with `useComponent`.
+为参数定义一个 Zod schema，编写一个以它们为 props 的 Vue 组件，然后用 `useComponent` 把两者一起注册。
 
 ```vue
 <!-- WeatherCard.vue -->
@@ -115,9 +113,9 @@ useComponent({
 </script>
 ```
 
-### Without parameters
+### 无参数
 
-When you omit `parameters`, the component accepts any props and the agent can invoke the tool with no arguments.
+省略 `parameters` 时，组件接受任意 props，智能体可以不带任何参数调用该工具。
 
 ```vue
 <script setup lang="ts">
@@ -131,9 +129,9 @@ useComponent({
 </script>
 ```
 
-### Refreshing on reactive changes
+### 响应式变化时刷新
 
-Pass reactive watch sources through `deps` so the registration re-runs when captured values change.
+通过 `deps` 传入响应式侦听源，捕获的值变化时注册便会重新执行。
 
 ```vue
 <script setup lang="ts">
@@ -158,22 +156,20 @@ useComponent(
 ```
 
 <Callout type="info">
-  `agentId` is read once when the composable runs, so it cannot be made reactive
-  through `deps`. To scope a component to a different agent at runtime,
-  conditionally render the component that calls `useComponent`.
+  `agentId` 在组合式函数运行时只读取一次，因此无法通过 `deps` 使其变为响应式。若要在运行时把组件限定到另一个智能体，请条件渲染调用 `useComponent` 的那个组件。
 </Callout>
 
-## Related
+## 相关内容
 
 <Cards>
   <Card
     title="useFrontendTool"
-    description="Register a frontend tool with an optional renderer. useComponent is built on top of this."
+    description="注册带可选渲染器的前端工具。useComponent 构建于其上。"
     href="/reference/vue/hooks/useFrontendTool"
   />
   <Card
     title="useRenderTool"
-    description="Render a tool call with full access to status (in progress, executing, complete) and results."
+    description="渲染工具调用，可完整访问状态（进行中、执行中、已完成）与结果。"
     href="/reference/vue/hooks/useRenderTool"
   />
 </Cards>

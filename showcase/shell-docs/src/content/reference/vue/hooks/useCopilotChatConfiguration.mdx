@@ -1,28 +1,23 @@
 ---
 title: "useCopilotChatConfiguration"
-description: "Vue 3 composable for reading reactive chat UI configuration and labels"
+description: "用于读取响应式聊天 UI 配置与标签的 Vue 3 组合式函数"
 ---
 
-## Overview
+## 概览
 
-`useCopilotChatConfiguration` is a Vue 3 composable that reads the chat configuration context injected by the nearest `CopilotChatConfigurationProvider`. That provider is mounted automatically by the CopilotKit chat components (`CopilotChat`, `CopilotPopup`, and `CopilotSidebar`) — `CopilotKitProvider` does **not** mount it — or you can mount it directly. It returns a `ComputedRef` that resolves to the current `CopilotChatConfigurationValue`, or `null` when no provider is present in the component tree.
+`useCopilotChatConfiguration` 是一个 Vue 3 组合式函数，读取由最近的 `CopilotChatConfigurationProvider` 注入的聊天配置上下文。该提供方组件由 CopilotKit 聊天组件（`CopilotChat`、`CopilotPopup` 和 `CopilotSidebar`）自动挂载——`CopilotKitProvider` **不会**挂载它——你也可以直接挂载。它返回一个 `ComputedRef`，解析为当前的 `CopilotChatConfigurationValue`；组件树中不存在提供方时为 `null`。
 
-Because the composable returns a `ComputedRef`, the value stays reactive: when labels, the active agent or thread, the modal state, or the drawer state change, the resolved value updates automatically. This provides a lightweight, reactive context for localized labels, agent/thread binding, modal state, and the shared drawer controls used by the chat UI components.
+由于该组合式函数返回 `ComputedRef`，值始终保持响应式：标签、活跃智能体或线程、弹窗状态或抽屉状态变化时，解析出的值会自动更新。它为本地化标签、智能体/线程绑定、弹窗状态以及聊天 UI 组件共用的抽屉控件提供了一个轻量的响应式上下文。
 
 <Callout type="info">
-  Like all Vue composables, call `useCopilotChatConfiguration` synchronously
-  inside `<script setup>` or a `setup()` function so the injection resolves
-  against the surrounding component tree. The returned ref resolves to `null`
-  when no `CopilotChatConfigurationProvider` (or a CopilotKit chat component that
-  mounts one) is an ancestor, so guard against that case rather than assuming a
-  value.
+  与所有 Vue 组合式函数一样，应在 `<script setup>` 或 `setup()` 函数内同步调用 `useCopilotChatConfiguration`，使注入能针对外围组件树正确解析。当祖先链上没有 `CopilotChatConfigurationProvider`（或会挂载它的 CopilotKit 聊天组件）时，返回的 ref 解析为 `null`，因此要对该情况做防护，而不要默认一定有值。
 </Callout>
 
 ## CopilotChatConfigurationProvider
 
-A provider component that injects localized labels, agent and thread IDs, and optional modal state for all descendant chat components. The CopilotKit chat components (`CopilotChat`, `CopilotPopup`, `CopilotSidebar`) mount one automatically, so you only need to mount it directly when you want to read configuration outside a chat component, or scope or override configuration for a subtree.
+一个提供方组件，向所有后代聊天组件注入本地化标签、智能体与线程 ID 以及可选的弹窗状态。CopilotKit 聊天组件（`CopilotChat`、`CopilotPopup`、`CopilotSidebar`）会自动挂载一个，因此只有在聊天组件之外读取配置，或想为某个子树限定/覆盖配置时，才需要直接挂载它。
 
-### Usage
+### 用法
 
 ```vue
 <script setup lang="ts">
@@ -41,46 +36,35 @@ import { CopilotChatConfigurationProvider } from "@copilotkit/vue/v2";
 </template>
 ```
 
-### Props
+### 属性（Props）
 
 <PropertyReference name="labels" type="Partial<CopilotChatLabels>">
-  Partial set of label overrides. Any labels not provided fall back to the
-  built-in defaults, then to any parent provider's labels. See
-  [CopilotChatLabels](#copilotchatlabels) below for all available keys.
+  标签覆盖项的子集。未提供的标签会回退到内置默认值，再回退到父级提供方的标签。所有可用键见下文 [CopilotChatLabels](#copilotchatlabels)。
 </PropertyReference>
 
 <PropertyReference name="agentId" type="string" default='"default"'>
-  The agent ID to associate with this chat context. Falls back to the parent
-  provider's `agentId`, then to the default agent ID (`"default"`).
+  与此聊天上下文关联的智能体 ID。回退到父级提供方的 `agentId`，再回退到默认智能体 ID（`"default"`）。
 </PropertyReference>
 
 <PropertyReference name="threadId" type="string">
-  The thread ID for conversation continuity. If omitted, falls back to the
-  parent provider's `threadId`, otherwise a random UUID is generated and remains
-  stable for the lifetime of the provider.
+  用于保持会话连续性的线程 ID。省略时回退到父级提供方的 `threadId`，否则会生成一个随机 UUID，并在提供方生命周期内保持不变。
 </PropertyReference>
 
 <PropertyReference name="hasExplicitThreadId" type="boolean">
-  Marks whether the supplied `threadId` is a real caller choice rather than an
-  internally minted UUID. When omitted, the provider infers explicitness from
-  whether `threadId` itself was supplied. This is primarily for internal
-  wrappers; most applications can leave it unset.
+  标记所提供的 `threadId` 是调用方的真实选择，而非内部生成的 UUID。省略时，提供方根据 `threadId` 本身是否被提供来推断。这主要供内部包装器使用；大多数应用可以不设置。
 </PropertyReference>
 
 <PropertyReference name="isModalDefaultOpen" type="boolean">
-  When provided, this provider owns modal open/close state and uses this value
-  as the initial state. If omitted, modal state is inherited from the parent
-  provider (if any).
+  提供时，该提供方将拥有弹窗开/关状态，并以此值作为初始状态。省略时，弹窗状态继承自父级提供方（如有）。
 </PropertyReference>
 
-The injected configuration value also carries shared drawer state and thread
-control helpers, which are documented in the composable return value below.
+注入的配置值还携带共享的抽屉状态与线程控制辅助函数，详见下文组合式函数的返回值说明。
 
-The provider renders its default `<slot />`, so descendant components placed inside it receive the injected configuration.
+提供方渲染其默认 `<slot />`，放在其内部的后代组件因此能收到注入的配置。
 
 ## useCopilotChatConfiguration
 
-### Signature
+### 签名
 
 ```ts
 import { useCopilotChatConfiguration } from "@copilotkit/vue/v2";
@@ -90,77 +74,67 @@ import type { CopilotChatConfigurationValue } from "@copilotkit/vue/v2";
 function useCopilotChatConfiguration(): ComputedRef<CopilotChatConfigurationValue | null>;
 ```
 
-### Parameters
+### 参数
 
-This composable takes no parameters.
+该组合式函数不接受任何参数。
 
-### Return Value
+### 返回值
 
-Returns a `ComputedRef`. Its `.value` is `null` when the composable is used outside any `CopilotChatConfigurationProvider`, and otherwise a `CopilotChatConfigurationValue` object:
+返回一个 `ComputedRef`。在任何 `CopilotChatConfigurationProvider` 之外使用时，其 `.value` 为 `null`，否则为一个 `CopilotChatConfigurationValue` 对象：
 
 <PropertyReference name="labels" type="CopilotChatLabels">
-  The fully resolved labels object, merged from built-in defaults, parent
-  providers, and the nearest provider's overrides. See
-  [CopilotChatLabels](#copilotchatlabels) for all keys.
+  完整解析后的标签对象，由内置默认值、父级提供方和最近提供方的覆盖项合并而成。所有键见 [CopilotChatLabels](#copilotchatlabels)。
 </PropertyReference>
 
 <PropertyReference name="agentId" type="string">
-  The resolved agent ID for this chat context.
+  此聊天上下文解析出的智能体 ID。
 </PropertyReference>
 
 <PropertyReference name="threadId" type="string">
-  The resolved thread ID for this chat context.
+  此聊天上下文解析出的线程 ID。
 </PropertyReference>
 
 <PropertyReference name="hasExplicitThreadId" type="boolean">
-  `true` when the resolved `threadId` was chosen by the caller (or a parent
-  provider) rather than silently minted inside the provider chain. Consumers
-  that only make sense against a real backend thread should gate on this instead
-  of `!!threadId`.
+  当解析出的 `threadId` 由调用方（或父级提供方）选择、而非在提供方链内部悄悄生成时为 `true`。只在真实后端线程上才有意义的消费方应以它而非 `!!threadId` 作为判断条件。
 </PropertyReference>
 
 <PropertyReference name="isModalOpen" type="boolean | undefined">
-  The current modal open state. `undefined` if no provider in the tree owns
-  modal state via `isModalDefaultOpen`.
+  当前弹窗打开状态。树中没有提供方通过 `isModalDefaultOpen` 拥有弹窗状态时为 `undefined`。
 </PropertyReference>
 
 <PropertyReference name="setModalOpen" type="((open: boolean) => void) | undefined">
-  Function to control the modal open state. `undefined` if no provider in the
-  tree owns modal state.
+  控制弹窗打开状态的函数。树中没有提供方拥有弹窗状态时为 `undefined`。
 </PropertyReference>
 
 <PropertyReference name="drawerOpen" type="boolean">
-  The current threads drawer state. This is always available when a provider is
-  present.
+  当前线程抽屉状态。只要存在提供方就始终可用。
 </PropertyReference>
 
 <PropertyReference name="setDrawerOpen" type="(open: boolean) => void">
-  Function to control the threads drawer state.
+  控制线程抽屉状态的函数。
 </PropertyReference>
 
 <PropertyReference name="drawerRegistered" type="boolean">
-  `true` when a threads drawer is mounted in the current provider chain.
+  当前提供方链中挂载了线程抽屉时为 `true`。
 </PropertyReference>
 
 <PropertyReference name="registerDrawer" type="() => () => void">
-  Registers a threads drawer and returns a cleanup function that unregisters
-  it.
+  注册一个线程抽屉，返回用于注销它的清理函数。
 </PropertyReference>
 
 <PropertyReference name="setActiveThreadId" type="(threadId: string, options?: { explicit?: boolean }) => void">
-  Switches the active thread from code. When `options.explicit` is `true`, the
-  new thread is treated as an explicit caller choice.
+  从代码切换活跃线程。`options.explicit` 为 `true` 时，新线程被视为调用方的显式选择。
 </PropertyReference>
 
 <PropertyReference name="startNewThread" type="() => void">
-  Resets the current chat to a fresh, non-explicit thread.
+  将当前聊天重置为一个全新的、非显式的线程。
 </PropertyReference>
 
 ## CopilotChatLabels
 
-The `CopilotChatLabels` type defines all customizable text strings used by the chat UI. The type is derived from `CopilotChatDefaultLabels`. The following keys are available with their default values:
+`CopilotChatLabels` 类型定义了聊天 UI 使用的所有可自定义文本。该类型派生自 `CopilotChatDefaultLabels`。以下为可用键及其默认值：
 
-| Key                                           | Default Value                                                  |
+| 键                                            | 默认值                                                         |
 | --------------------------------------------- | -------------------------------------------------------------- |
 | `chatInputPlaceholder`                        | `"Type a message..."`                                          |
 | `chatInputToolbarStartTranscribeButtonLabel`  | `"Transcribe"`                                                 |
@@ -197,11 +171,11 @@ The `CopilotChatLabels` type defines all customizable text strings used by the c
 | `modalHeaderThreadsButtonLabel`               | `"Open threads"`                                               |
 | `sidebarLabel`                                | `"Copilot chat sidebar"`                                       |
 
-## Usage
+## 用法
 
-### Reading Configuration in a Component
+### 在组件中读取配置
 
-Call the composable once, then read from the returned ref. Guard against `null` for the case where no provider is present.
+调用一次组合式函数，然后从返回的 ref 读取。对不存在提供方的情况要对 `null` 做防护。
 
 ```vue
 <script setup lang="ts">
@@ -216,9 +190,9 @@ const config = useCopilotChatConfiguration();
 </template>
 ```
 
-### Basic Label Customization
+### 基本标签自定义
 
-Scope label overrides by mounting a provider around the chat UI.
+在聊天 UI 外围挂载一个提供方来限定标签覆盖的作用范围。
 
 ```vue
 <script setup lang="ts">
@@ -240,7 +214,7 @@ const labels = {
 </template>
 ```
 
-### Binding to a Specific Agent and Thread
+### 绑定到特定智能体与线程
 
 ```vue
 <script setup lang="ts">
@@ -262,9 +236,9 @@ import ChatWindow from "./ChatWindow.vue";
 </template>
 ```
 
-### Modal State Management
+### 弹窗状态管理
 
-When a provider sets `is-modal-default-open`, descendants can read `isModalOpen` and call `setModalOpen`. Because the composable returns a `ComputedRef`, the toggle stays in sync automatically.
+提供方设置 `is-modal-default-open` 后，后代组件可以读取 `isModalOpen` 并调用 `setModalOpen`。由于组合式函数返回 `ComputedRef`，切换状态会自动保持同步。
 
 ```vue
 <!-- App.vue -->
@@ -282,10 +256,9 @@ import ChatModal from "./ChatModal.vue";
 </template>
 ```
 
-### Drawer State Management
+### 抽屉状态管理
 
-Use the shared drawer state when you need to open or close the threads drawer
-from another component.
+需要从另一个组件打开或关闭线程抽屉时，使用共享的抽屉状态。
 
 ```vue
 <!-- ToggleDrawer.vue -->
@@ -333,9 +306,9 @@ function toggle() {
 </template>
 ```
 
-### Nested Providers
+### 嵌套提供方
 
-Providers can be nested. Child providers inherit and merge labels from their parent, with child overrides taking precedence.
+提供方可以嵌套。子级提供方继承并合并父级的标签，子级覆盖优先。
 
 ```vue
 <script setup lang="ts">
@@ -358,18 +331,18 @@ import SalesChat from "./SalesChat.vue";
 </template>
 ```
 
-## Behavior
+## 行为
 
-- **Reactive ref**: The composable returns a `ComputedRef<CopilotChatConfigurationValue | null>`. Read it via `config.value` in script and `config` (auto-unwrapped) in templates. The value recomputes whenever the injected configuration changes.
-- **Label merging**: Labels are merged in order: built-in defaults (`CopilotChatDefaultLabels`), then parent provider labels, then the current provider's labels. This allows partial overrides at any level.
-- **Agent ID resolution**: `agentId` resolves from the nearest provider, falling back to parent providers, then to the default agent ID (`"default"`).
-- **Thread ID generation**: If no `threadId` is provided at any level, a random UUID is generated and remains stable for the lifetime of the provider. `hasExplicitThreadId` reports whether the resolved thread ID was a caller choice rather than an internally minted UUID.
-- **Modal state ownership**: Modal state (`isModalOpen` / `setModalOpen`) is only created when a provider sets `isModalDefaultOpen`. Providers without this prop pass through the parent's modal state, and both fields are `undefined` when no provider owns modal state.
-- **Drawer state ownership**: Drawer state (`drawerOpen` / `setDrawerOpen`) is shared through the provider chain, and `drawerRegistered` / `registerDrawer` track whether a drawer is mounted so mobile launchers can appear.
-- **Thread overrides**: `setActiveThreadId` and `startNewThread` are imperative helpers used by the threads drawer and other host UI. `hasExplicitThreadId` still determines whether the resolved thread is treated as caller-controlled.
-- **Null resolution**: The returned ref resolves to `null` when used outside any `CopilotChatConfigurationProvider`, rather than throwing. Components should handle this case gracefully.
+- **响应式 ref**：该组合式函数返回 `ComputedRef<CopilotChatConfigurationValue | null>`。在脚本中通过 `config.value` 读取，在模板中通过 `config`（自动解包）读取。注入的配置变化时值会重新计算。
+- **标签合并**：标签按顺序合并：内置默认值（`CopilotChatDefaultLabels`），然后是父级提供方的标签，最后是当前提供方的标签。因此任意层级都可以做部分覆盖。
+- **智能体 ID 解析**：`agentId` 从最近的提供方解析，回退到父级提供方，再回退到默认智能体 ID（`"default"`）。
+- **线程 ID 生成**：任何层级都未提供 `threadId` 时，会生成一个随机 UUID，并在提供方生命周期内保持不变。`hasExplicitThreadId` 报告解析出的线程 ID 是调用方的选择还是内部生成的 UUID。
+- **弹窗状态归属**：只有提供方设置了 `isModalDefaultOpen` 时才会创建弹窗状态（`isModalOpen` / `setModalOpen`）。未设置该 prop 的提供方透传父级的弹窗状态；没有任何提供方拥有弹窗状态时，这两个字段均为 `undefined`。
+- **抽屉状态归属**：抽屉状态（`drawerOpen` / `setDrawerOpen`）通过提供方链共享，`drawerRegistered` / `registerDrawer` 追踪是否挂载了抽屉，以便移动端入口得以显示。
+- **线程覆盖**：`setActiveThreadId` 和 `startNewThread` 是命令式辅助函数，供线程抽屉和其他宿主 UI 使用。解析出的线程是否被视为调用方控制，仍由 `hasExplicitThreadId` 决定。
+- **空值解析**：在任何 `CopilotChatConfigurationProvider` 之外使用时，返回的 ref 解析为 `null` 而不是抛错。组件应优雅处理这种情况。
 
-## Related
+## 相关内容
 
-- [`useCopilotKit`](/reference/vue/hooks/useCopilotKit) - access the underlying CopilotKit instance
-- [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider) - provides the CopilotKit instance to descendant composables (the chat configuration context is mounted by the chat components, not by `CopilotKitProvider`)
+- [`useCopilotKit`](/reference/vue/hooks/useCopilotKit)——访问底层 CopilotKit 实例
+- [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider)——向后代组合式函数提供 CopilotKit 实例（聊天配置上下文由聊天组件挂载，而非 `CopilotKitProvider`）

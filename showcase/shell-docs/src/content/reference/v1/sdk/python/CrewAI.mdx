@@ -1,6 +1,6 @@
 ---
 title: "CrewAI SDK"
-description: "The CopilotKit CrewAI SDK for Python allows you to build and run CrewAI agents with CopilotKit."
+description: "CopilotKit 的 Python 版 CrewAI SDK 让你能够构建并运行与 CopilotKit 协同的 CrewAI 智能体。"
 ---
 
 {
@@ -12,11 +12,10 @@ description: "The CopilotKit CrewAI SDK for Python allows you to build and run C
 }
 ## copilotkit_predict_state
 
-Stream tool calls as state to CopilotKit.
+将工具调用作为状态流式传输至 CopilotKit。
 
-    To emit a tool call as streaming CrewAI state, pass the destination key in state,
-    the tool name and optionally the tool argument. (If you don't pass the argument name,
-    all arguments are emitted under the state key.)
+    要将工具调用作为 CrewAI 流式状态发出，请传入状态中的目标键、工具名称，以及可选的工具参数。
+    （如果不传参数名，则所有参数都会在该状态键下发出。）
 
     ```python
     from copilotkit.crewai import copilotkit_predict_state
@@ -31,24 +30,24 @@ Stream tool calls as state to CopilotKit.
     )
     ```
 
-### Parameters
+### 参数
 
 <PropertyReference name="config" type="Dict[str, CopilotKitPredictStateConfig]" required> 
-The configuration to predict the state.
+用于预测状态的配置。
 </PropertyReference>
 
-### Returns
+### 返回值
 
 <PropertyReference name="returns" type="Awaitable[bool]">
-Always return True.
+始终返回 True。
 </PropertyReference>
 
 ## copilotkit_emit_message
 
-Manually emits a message to CopilotKit. Useful in longer running nodes to update the user.
-    Important: You still need to return the messages from the node.
+手动向 CopilotKit 发出一条消息。在运行时间较长的节点中，可用于向用户更新进度。
+    重要提示：你仍需要从节点返回这些消息。
 
-    ### Examples
+    ### 示例
 
     ```python
     from copilotkit.crewai import copilotkit_emit_message
@@ -62,21 +61,21 @@ Manually emits a message to CopilotKit. Useful in longer running nodes to update
     }
     ```
 
-### Parameters
+### 参数
 
 <PropertyReference name="message" type="str" required> 
-The message to emit.
+要发出的消息。
 </PropertyReference>
 
-### Returns
+### 返回值
 
 <PropertyReference name="returns" type="Awaitable[bool]">
-Always return True.
+始终返回 True。
 </PropertyReference>
 
 ## copilotkit_emit_tool_call
 
-Manually emits a tool call to CopilotKit.
+手动向 CopilotKit 发出一个工具调用。
 
     ```python
     from copilotkit.crewai import copilotkit_emit_tool_call
@@ -87,23 +86,22 @@ Manually emits a tool call to CopilotKit.
     custom_id = await copilotkit_emit_tool_call(name="SearchTool", args={"steps": 10}, tool_call_id="my-custom-id")
     ```
 
-### Parameters
+### 参数
 
 <PropertyReference name="name" type="str" required> 
-The name of the tool to emit.
+要发出的工具的名称。
 </PropertyReference>
 
 <PropertyReference name="args" type="Dict[str, Any]" required> 
-The arguments to emit.
+要发出的参数。
 </PropertyReference>
 
 <PropertyReference name="tool_call_id" type="Optional[str]" > 
-Optional tool call ID. If not provided, a random UUID is generated. When provided, this ID is used as both the toolCallId and parentMessageId in AG-UI protocol events. The caller is responsible for ensuring uniqueness.
+可选的工具调用 ID。若未提供，将生成一个随机 UUID。若提供，该 ID 会同时用作 AG-UI 协议事件中的 toolCallId 和 parentMessageId。调用方需自行确保其唯一性。
 </PropertyReference>
 
-### Returns
+### 返回值
 
 <PropertyReference name="returns" type="str">
-The tool call ID used for the emitted tool call.
+所发出工具调用使用的工具调用 ID。
 </PropertyReference>
-

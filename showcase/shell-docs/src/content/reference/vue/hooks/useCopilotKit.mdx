@@ -1,20 +1,19 @@
 ---
 title: "useCopilotKit"
-description: "Low-level Vue 3 composable for accessing the CopilotKit context"
+description: "用于访问 CopilotKit 上下文的底层 Vue 3 组合式函数"
 ---
 
-## Overview
+## 概览
 
-`useCopilotKit` is a low-level Vue 3 composable that injects the CopilotKit provider context, giving direct access to the core instance and provider-level reactive state. Because the values it returns are Vue refs, reading them inside a `computed`, `watch`, or template keeps your code reactive to runtime changes such as connection status or in-flight tool calls.
+`useCopilotKit` 是一个底层 Vue 3 组合式函数，注入 CopilotKit 提供方上下文，可直接访问核心实例与提供方级别的响应式状态。由于它返回的是 Vue ref，在 `computed`、`watch` 或模板中读取它们能让代码对连接状态、执行中的工具调用等运行时变化保持响应。
 
 <Callout type="info">
-  `useCopilotKit` is a low-level composable. Most applications should use
-  higher-level composables like `useAgent` or `useFrontendTool` instead.
+  `useCopilotKit` 是一个底层组合式函数。大多数应用应改用 `useAgent` 或 `useFrontendTool` 等更高层的组合式函数。
 </Callout>
 
-**Throws an error** if called outside of a `CopilotKitProvider`. The composable injects the provider context, so it must run within a component tree that has `CopilotKitProvider` as an ancestor.
+在 `CopilotKitProvider` 之外调用时**会抛出错误**。该组合式函数注入的是提供方上下文，因此必须运行在以 `CopilotKitProvider` 为祖先的组件树中。
 
-## Signature
+## 签名
 
 ```ts
 import { useCopilotKit } from "@copilotkit/vue/v2";
@@ -22,48 +21,48 @@ import { useCopilotKit } from "@copilotkit/vue/v2";
 function useCopilotKit(): CopilotKitContextValue;
 ```
 
-## Parameters
+## 参数
 
-This composable takes no parameters.
+该组合式函数不接受任何参数。
 
-## Return Value
+## 返回值
 
-The composable returns the `CopilotKitContextValue` object. Every member is a Vue ref (or computed ref), so access the underlying value with `.value` (or let the template unwrap it for you).
+该组合式函数返回 `CopilotKitContextValue` 对象。每个成员都是 Vue ref（或计算属性 ref），因此要通过 `.value` 访问底层值（或让模板自动解包）。
 
 <PropertyReference name="copilotkit" type="ShallowRef<CopilotKitCoreVue>">
-  A `shallowRef` holding the live CopilotKit core instance. `CopilotKitCoreVue` extends the framework-agnostic `CopilotKitCore`, so `copilotkit.value` is the central coordinator that manages agents, tools, suggestions, and runtime communication. It exposes:
-  - Agent management (`agents`, `getAgent`)
-  - Tool registration and execution (`runTool`)
-  - Suggestion configuration and retrieval
-  - Runtime connection management
-  - Event subscription via `subscribe()`
+  一个持有活跃 CopilotKit 核心实例的 `shallowRef`。`CopilotKitCoreVue` 扩展自框架无关的 `CopilotKitCore`，因此 `copilotkit.value` 是管理智能体、工具、建议与运行时通信的中央协调器。它提供：
+  - 智能体管理（`agents`、`getAgent`）
+  - 工具注册与执行（`runTool`）
+  - 建议配置与获取
+  - 运行时连接管理
+  - 通过 `subscribe()` 订阅事件
 
-  The core instance is created once per `CopilotKitProvider` and is stable for the lifetime of the provider.
+  核心实例在每个 `CopilotKitProvider` 中只创建一次，并在提供方生命周期内保持稳定。
 </PropertyReference>
 
 <PropertyReference name="executingToolCallIds" type="Ref<ReadonlySet<string>>">
-  A ref to the set of tool call IDs currently being executed. This is tracked at the provider level so that tool execution events are captured even before child components mount, which matters for scenarios like human-in-the-loop reconnection where pending tool calls may already exist when the component tree mounts.
+  一个 ref，指向当前正在执行的工具调用 ID 集合。它在提供方级别追踪，因此即使子组件尚未挂载，工具执行事件也能被捕获——这对人机协同（human-in-the-loop）重连等场景很重要：组件树挂载时可能已有待处理的工具调用存在。
 </PropertyReference>
 
 <PropertyReference name="a2uiTheme" type="ComputedRef<A2UITheme | undefined>">
-  A computed ref to the A2UI theme configured on the provider, or `undefined` if no theme was supplied.
+  一个计算属性 ref，指向提供方上配置的 A2UI 主题；未提供主题时为 `undefined`。
 </PropertyReference>
 
 <PropertyReference name="a2uiCatalog" type="ComputedRef<unknown>">
-  A computed ref to the A2UI component catalog configured on the provider.
+  一个计算属性 ref，指向提供方上配置的 A2UI 组件目录。
 </PropertyReference>
 
 <PropertyReference name="a2uiLoadingComponent" type="ComputedRef<unknown>">
-  A computed ref to the component rendered while an A2UI surface is loading.
+  一个计算属性 ref，指向 A2UI 界面加载期间渲染的组件。
 </PropertyReference>
 
 <PropertyReference name="a2uiIncludeSchema" type="ComputedRef<boolean>">
-  A computed ref indicating whether the A2UI schema is included.
+  一个计算属性 ref，指示是否包含 A2UI schema。
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Accessing the Core Instance
+### 访问核心实例
 
 ```vue
 <script setup lang="ts">
@@ -85,9 +84,9 @@ const agentIds = computed(() => Object.keys(copilotkit.value.agents ?? {}));
 </template>
 ```
 
-### Subscribing to Core Events
+### 订阅核心事件
 
-Subscribe in `onMounted` and tear the subscription down in `onUnmounted`.
+在 `onMounted` 中订阅，并在 `onUnmounted` 中清理订阅。
 
 ```vue
 <script setup lang="ts">
@@ -112,9 +111,9 @@ onUnmounted(() => {
 </script>
 ```
 
-### Running a Tool Programmatically
+### 以编程方式运行工具
 
-`copilotkit.value.runTool()` lets you execute a registered frontend tool directly from code, with no LLM turn required. The tool's handler runs, render components appear in the UI, and both the tool call and its result are added to the agent's message history.
+`copilotkit.value.runTool()` 让你可以直接从代码执行已注册的前端工具，无需 LLM 轮次。工具的处理器会运行，渲染组件会出现在 UI 中，工具调用及其结果都会加入智能体的消息历史。
 
 ```vue
 <script setup lang="ts">
@@ -156,15 +155,15 @@ async function handleExport() {
 </template>
 ```
 
-#### `runTool` Parameters
+#### `runTool` 参数
 
 <PropertyReference name="params" type="CopilotKitCoreRunToolParams">
   <PropertyReference name="name" type="string" required>
-    Name of the registered frontend tool to execute.
+    要执行的已注册前端工具名称。
   </PropertyReference>
 
 <PropertyReference name="agentId" type="string">
-  Agent ID for tool and message scoping. Defaults to `"default"`.
+  用于工具与消息作用域限定的智能体 ID。默认为 `"default"`。
 </PropertyReference>
 
 <PropertyReference
@@ -172,37 +171,36 @@ async function handleExport() {
   type="Record<string, unknown>"
   default="{}"
 >
-  Arguments passed to the tool handler.
+  传给工具处理器的参数。
 </PropertyReference>
 
   <PropertyReference name="followUp" type="string | false" default="false">
-    Controls whether an LLM follow-up is triggered after execution:
-    - `false`, execute tool and stop (default)
-    - `"generate"`, trigger an agent run so the LLM responds to the tool result
-    - Any other string, add a user message with this text, then trigger an agent run
+    控制执行后是否触发 LLM 后续处理：
+    - `false`，执行工具后停止（默认）
+    - `"generate"`，触发一次智能体运行，让 LLM 响应工具结果
+    - 其他任意字符串，以此文本添加一条用户消息，然后触发智能体运行
   </PropertyReference>
 </PropertyReference>
 
-#### `runTool` Return Value
+#### `runTool` 返回值
 
 <PropertyReference name="result" type="CopilotKitCoreRunToolResult">
   <PropertyReference name="toolCallId" type="string">
-    Unique ID of the tool call, matching the message added to history.
+    工具调用的唯一 ID，与加入历史的消息一致。
   </PropertyReference>
 
 <PropertyReference name="result" type="string">
-  Stringified return value from the tool handler (empty string for render-only
-  tools).
+  工具处理器返回值的字符串化结果（纯渲染工具为空字符串）。
 </PropertyReference>
 
   <PropertyReference name="error" type="string | undefined">
-    Error message if the handler threw. The tool result message will contain `"Error: ..."`. Note that `runTool` itself **rejects** (throws) when the tool or its agent cannot be found — those lookup failures surface as a rejected promise, not via this field — so wrap the call in `try`/`catch` as well as checking `error`.
+    处理器抛错时的错误消息。工具结果消息会包含 `"Error: ..."`。注意，找不到工具或其智能体时 `runTool` 本身会 **reject**（抛出）——这类查找失败以 rejected promise 的形式出现，而不是通过该字段——因此除了检查 `error`，还要把调用包在 `try`/`catch` 中。
   </PropertyReference>
 </PropertyReference>
 
-### Checking Tool Execution State
+### 检查工具执行状态
 
-Because `executingToolCallIds` is a ref, drive UI off it with a `computed` or read it directly in the template.
+由于 `executingToolCallIds` 是 ref，可以用 `computed` 基于它驱动 UI，或在模板中直接读取。
 
 ```vue
 <script setup lang="ts">
@@ -221,15 +219,15 @@ const executingCount = computed(() => executingToolCallIds.value.size);
 </template>
 ```
 
-## Behavior
+## 行为
 
-- **Error on missing provider**: Throws `useCopilotKit must be used within CopilotKitProvider` if the composable is called outside of a `CopilotKitProvider`.
-- **Refs, not plain values**: Every returned member is a Vue ref or computed ref. Read `copilotkit.value` to reach the core instance and `executingToolCallIds.value` to reach the live set. Keep usage reactive with `computed`, `watch`, or template bindings.
-- **Stable core reference**: The `copilotkit` ref is a `shallowRef` created once per provider and remains stable for the provider's lifetime. Only `executingToolCallIds` changes as tool calls begin and complete.
-- **Provider-level tool tracking**: `executingToolCallIds` is tracked at the provider level rather than in individual components, so tool execution start events fired before child components mount are not lost.
+- **缺少提供方时报错**：在 `CopilotKitProvider` 之外调用时抛出 `useCopilotKit must be used within CopilotKitProvider`。
+- **是 ref 而非普通值**：每个返回成员都是 Vue ref 或计算属性 ref。通过 `copilotkit.value` 访问核心实例，通过 `executingToolCallIds.value` 访问实时集合。用 `computed`、`watch` 或模板绑定保持响应式用法。
+- **核心引用稳定**：`copilotkit` ref 是每个提供方创建一次的 `shallowRef`，在提供方生命周期内保持稳定。只有 `executingToolCallIds` 会随工具调用的开始与结束而变化。
+- **提供方级别的工具追踪**：`executingToolCallIds` 在提供方级别而非单个组件中追踪，因此子组件挂载前发出的工具执行开始事件不会丢失。
 
-## Related
+## 相关内容
 
-- [`useAgent`](/reference/vue/hooks/useAgent) -- High-level composable for accessing agent instances
-- [`useFrontendTool`](/reference/vue/hooks/useFrontendTool) -- Register frontend tools that `runTool()` can execute
-- [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider) -- The provider component that creates the context
+- [`useAgent`](/reference/vue/hooks/useAgent)——访问智能体实例的高层组合式函数
+- [`useFrontendTool`](/reference/vue/hooks/useFrontendTool)——注册可由 `runTool()` 执行的前端工具
+- [`CopilotKitProvider`](/reference/vue/components/CopilotKitProvider)——创建该上下文的提供方组件

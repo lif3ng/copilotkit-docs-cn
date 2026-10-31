@@ -1,14 +1,14 @@
-<Callout type="warn" title="Configure session storage">
-  Agno must store the paused run before a frontend tool can return its result.
-  Configure a database on the `Agent` that owns the external tool.
+<Callout type="warn" title="配置会话存储">
+  在前端工具返回结果之前，Agno 必须先存储已暂停的运行。
+  请在拥有该外部工具的 `Agent` 上配置一个数据库。
 
-  Install the SQLite dependency:
+  安装 SQLite 依赖：
 
   ```bash
   pip install sqlalchemy
   ```
 
-  Use a project-relative SQLite file for local development:
+  本地开发时，使用相对于项目目录的 SQLite 文件：
 
   ```python
   from agno.agent import Agent
@@ -22,9 +22,7 @@
   )
   ```
 
-  The deployed showcase uses `/tmp/agno.db` because its application directory
-  is read-only to the runtime user.
+  已部署的 showcase 使用 `/tmp/agno.db`，因为其应用目录对运行时用户而言是只读的。
 
-  For production, use durable shared storage such as `PgDb`. An ephemeral
-  container file cannot resume a run on another instance.
+  生产环境请使用 `PgDb` 这类可持久化的共享存储。临时性的容器文件无法在另一个实例上恢复运行。
 </Callout>

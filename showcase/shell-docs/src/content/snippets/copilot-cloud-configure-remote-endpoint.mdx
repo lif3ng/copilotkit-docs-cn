@@ -2,13 +2,12 @@ import { Callout } from "fumadocs-ui/components/callout";
 import { LinkToCopilotCloud } from "@/components/react/link-to-copilot-cloud";
 import { Accordions, Accordion } from "fumadocs-ui/components/accordion";
 
-To connect a FastAPI server to Copilot Cloud, we leverage a concept called "Remote Endpoints"
-which allow CopilotKit runtime to connect to various backends.
+要将 FastAPI 服务器连接到 Copilot Cloud，我们借助了一个名为“远程端点（Remote Endpoints）”的概念，它允许 CopilotKit 运行时连接到各种后端。
 
-To get started, <LinkToCopilotCloud asButton={false}>navigate to Copilot Cloud</LinkToCopilotCloud>.
+首先，<LinkToCopilotCloud asButton={false}>前往 Copilot Cloud</LinkToCopilotCloud>。
 
-<Callout title="Don't want to use a tunnel?">
-  Just skip the tunnel setup and use your hosted FastAPI server address instead.
+<Callout title="不想使用隧道？">
+  可以直接跳过隧道配置，改用你托管的 FastAPI 服务器地址。
 </Callout>
 
 ```sh
@@ -22,4 +21,4 @@ npx copilotkit@latest dev --port <port_number>
   />
 </Frame>
 
-You should now see your CopilotKit runtime in the list of available agents in CopilotKit!
+现在，你应该能在 CopilotKit 的可用智能体列表中看到你的 CopilotKit 运行时了！

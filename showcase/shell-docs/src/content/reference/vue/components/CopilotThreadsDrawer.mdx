@@ -1,23 +1,22 @@
 ---
 title: "CopilotThreadsDrawer"
-description: "Vue 3 threads drawer that lists and manages conversations next to CopilotChat"
+description: "在 CopilotChat 旁列出并管理会话的 Vue 3 线程抽屉"
 ---
 
-## Overview
+## 概览
 
-`CopilotThreadsDrawer` renders the prebuilt conversation drawer beside [`CopilotChat`](/reference/vue/components/CopilotChat). It is a thin Vue wrapper around the framework-agnostic `<copilotkit-threads-drawer>` custom element and stays SSR-safe by loading that element only on mount. The drawer reads from [`useThreads`](/reference/vue/hooks/useThreads), follows the surrounding chat configuration when one is present, and lets the user switch, start, archive, unarchive, delete, and filter threads.
+`CopilotThreadsDrawer` 在 [`CopilotChat`](/reference/vue/components/CopilotChat) 旁边渲染预构建的会话抽屉。它是对框架无关的 `<copilotkit-threads-drawer>` 自定义元素的轻量 Vue 包装，只在挂载时加载该元素，从而保持 SSR 安全。抽屉从 [`useThreads`](/reference/vue/hooks/useThreads) 读取数据，在存在周围聊天配置时遵循它，并允许用户切换、新建、归档、取消归档、删除和筛选线程。
 
-When `onThreadSelect` and `onNewThread` are omitted, the wrapper drives the surrounding chat configuration directly: selecting a row calls `setActiveThreadId(threadId, { explicit: true })`, and the "New Conversation" action resets the chat with `startNewThread()`. Provide those callbacks only if you want to control the active thread yourself.
+省略 `onThreadSelect` 和 `onNewThread` 时，包装器会直接驱动周围的聊天配置：选中一行会调用 `setActiveThreadId(threadId, { explicit: true })`，“新建会话”操作则用 `startNewThread()` 重置聊天。只有当你想自行控制活动线程时才提供这些回调。
 
-Thread rename is not exposed in the drawer row menu. Use [`useThreads`](/reference/vue/hooks/useThreads) for headless rename support.
+抽屉的行菜单不提供线程重命名。需要无头（headless）重命名支持请使用 [`useThreads`](/reference/vue/hooks/useThreads)。
 
 <Callout type="info">
-  The threads drawer requires a license. When it is not licensed, the component
-  renders the locked state and keeps the thread store disabled. Visit
-  [copilotkit.ai/pricing](https://copilotkit.ai/pricing) for details.
+  线程抽屉需要许可。未获得许可时，组件会渲染锁定状态并保持线程存储禁用。
+  详情请访问 [copilotkit.ai/pricing](https://copilotkit.ai/pricing)。
 </Callout>
 
-## Import
+## 导入
 
 ```vue
 <script setup lang="ts">
@@ -26,92 +25,88 @@ import "@copilotkit/vue/styles.css";
 </script>
 ```
 
-## Props
+## 属性（Props）
 
 <PropertyReference name="agentId" type="string">
-  The agent whose threads to list and manage. Defaults to the agent from the
-  surrounding chat configuration, or the platform default when none is set.
+  要列出和管理其线程的智能体。默认为周围聊天配置中的智能体，
+  未设置时用平台默认值。
 </PropertyReference>
 
 <PropertyReference name="onThreadSelect" type="(threadId: string) => void">
-  Optional escape hatch called when the user picks a thread row. When omitted,
-  the drawer drives the surrounding chat configuration directly.
+  可选的逃生通道，在用户选择某个线程行时调用。省略时，
+  抽屉直接驱动周围的聊天配置。
 </PropertyReference>
 
 <PropertyReference name="onNewThread" type="() => void">
-  Optional escape hatch called when the user starts a new thread. When omitted,
-  the drawer resets the surrounding chat configuration to a fresh thread.
+  可选的逃生通道，在用户新建线程时调用。省略时，
+  抽屉会将周围的聊天配置重置为新线程。
 </PropertyReference>
 
 <PropertyReference name="onLicensed" type="() => void">
-  Called when the user clicks the Upgrade button in the locked drawer state.
-  This is not a notification that the license check has completed.
+  用户在抽屉锁定状态下点击 Upgrade 按钮时调用。
+  这并不是许可检查完成的通知。
 </PropertyReference>
 
 <PropertyReference name="licenseUrl" type="string">
-  URL shown in the licensed upsell state. When omitted, the underlying element's
-  default license URL is used.
+  许可追加销售状态下显示的 URL。省略时使用底层元素的默认许可 URL。
 </PropertyReference>
 
 <PropertyReference name="label" type="string" default="Threads">
-  Accessible label for the drawer region and thread listbox.
+  抽屉区域与线程列表框的无障碍标签。
 </PropertyReference>
 
 <PropertyReference name="recentLabel" type="string" default="Recent Conversations">
-  Text of the section heading shown above the thread list.
+  线程列表上方分区标题的文本。
 </PropertyReference>
 
 <PropertyReference name="limit" type="number">
-  Page size for thread pagination. When set, the drawer shows a load-more
-  control while additional pages remain.
+  线程分页的每页数量。设置后，只要还有后续页，抽屉就会显示“加载更多”控件。
 </PropertyReference>
 
 <PropertyReference name="collapsible" type="boolean" default="true">
-  Whether the drawer offers a collapse toggle on desktop. When `false`, the
-  drawer stays expanded.
+  抽屉在桌面上是否提供折叠开关。为 `false` 时，抽屉保持展开。
 </PropertyReference>
 
 <PropertyReference name="dataTestId" type="string" default="copilot-threads-drawer">
-  `data-testid` applied to the underlying custom element.
+  应用于底层自定义元素的 `data-testid`。
 </PropertyReference>
 
-## Events
+## 事件（Events）
 
-The Vue wrapper emits the following events.
+Vue 包装器发出以下事件。
 
-| Event | Payload | Fired when |
+| 事件 | 负载 | 触发时机 |
 | --- | --- | --- |
-| `collapse-change` | `collapsed: boolean` | The desktop collapse state changes |
+| `collapse-change` | `collapsed: boolean` | 桌面端折叠状态变化 |
 
-## Slots
+## 插槽（Slots）
 
-Vue uses named slots in place of React render props. `CopilotThreadsDrawer` only defines one scoped Vue slot; everything else is projected into the underlying custom element with a `slot` attribute.
+Vue 使用具名插槽替代 React 的 render props。`CopilotThreadsDrawer` 只定义了一个作用域 Vue 插槽；其余内容都通过 `slot` 属性投影到底层自定义元素。
 
 <PropertyReference name="row" type="{ thread: Thread }">
-  Replaces the default row content for every thread. The wrapper renders the
-  slot as light-DOM children with `slot="row:{id}"`, so the custom element
-  keeps the row chrome around your content. This is all-or-nothing: once the
-  slot is defined, there is no per-row fallback to the built-in row.
+  替换所有线程的默认行内容。包装器将此插槽渲染为带 `slot="row:{id}"`
+  的 light-DOM 子元素，因此自定义元素会在你的内容周围保留行外观。
+  这是全有或全无的：一旦定义了此插槽，就没有逐行回退到内置行的机制。
 </PropertyReference>
 
-Light-DOM children with these `slot` names are projected into the drawer:
+带这些 `slot` 名称的 light-DOM 子元素会投影进抽屉：
 
-| Slot | Replaces |
+| 插槽 | 替换的内容 |
 | --- | --- |
-| `header` | The drawer header region |
-| `empty` | The empty-state body |
-| `footer` | A footer region |
-| `memories` | The reserved memories surface |
-| `launcher-icon` | The icon inside the mobile launcher |
-| `licensed` | The licensed upsell content |
+| `header` | 抽屉页眉区域 |
+| `empty` | 空状态主体 |
+| `footer` | 页脚区域 |
+| `memories` | 预留的 memories 界面 |
+| `launcher-icon` | 移动端启动器内的图标 |
+| `licensed` | 许可追加销售内容 |
 
-Style the shadow DOM with `::part()`. The drawer exposes the usual structural and action parts, including the root, header, list, row, menu, new-thread button, section heading, filter controls, collapse controls, launcher, load-more, fetch-more-error, and licensed surfaces.
+使用 `::part()` 为 shadow DOM 设置样式。抽屉暴露了常规的结构与操作部件，包括根元素、页眉、列表、行、菜单、新建线程按钮、分区标题、筛选控件、折叠控件、启动器、加载更多、获取更多出错提示以及许可界面。
 
-## Usage
+## 用法
 
-### Basic usage
+### 基本用法
 
-Wrap the drawer and `CopilotChat` in a shared `CopilotChatConfigurationProvider` so they operate on the same active thread. This example includes the surrounding `CopilotKitProvider`, so it is runnable as shown.
+把抽屉和 `CopilotChat` 包在共享的 `CopilotChatConfigurationProvider` 中，使它们作用于同一个活动线程。本示例包含了外层的 `CopilotKitProvider`，因此可按原样运行。
 
 ```vue
 <script setup lang="ts">
@@ -136,7 +131,7 @@ import "@copilotkit/vue/styles.css";
 </template>
 ```
 
-### Custom row and projected chrome
+### 自定义行与投影外观
 
 ```vue
 <script setup lang="ts">
@@ -155,7 +150,7 @@ import { CopilotThreadsDrawer } from "@copilotkit/vue/v2";
 </template>
 ```
 
-### Observing collapse state
+### 观察折叠状态
 
 ```vue
 <script setup lang="ts">
@@ -171,17 +166,17 @@ function onCollapseChange(collapsed: boolean) {
 </template>
 ```
 
-## Behavior
+## 行为
 
-- The drawer registers itself with the surrounding chat configuration so the mobile launcher can appear.
-- When callbacks are omitted, selecting a row calls `setActiveThreadId` and "New Conversation" calls `startNewThread`.
-- Archive, unarchive, delete, and pagination all flow through `useThreads`.
-- The drawer stays inert while unlicensed, which keeps the thread store from fetching until licensing resolves.
-- Rename is headless only; use `useThreads().renameThread()` if you need that action.
-- The wrapper is SSR-safe because the custom element is imported lazily on the client.
+- 抽屉会向周围的聊天配置注册自身，以便显示移动端启动器。
+- 省略回调时，选中一行会调用 `setActiveThreadId`，“新建会话”会调用 `startNewThread`。
+- 归档、取消归档、删除和分页都经由 `useThreads` 完成。
+- 未获得许可时抽屉保持惰性，在线程存储上阻止抓取，直至许可问题解决。
+- 重命名只支持无头方式；需要该操作请使用 `useThreads().renameThread()`。
+- 包装器是 SSR 安全的，因为自定义元素是在客户端懒加载导入的。
 
-## Related
+## 相关内容
 
-- [`CopilotChat`](/reference/vue/components/CopilotChat) - the chat surface this drawer usually drives
-- [`CopilotChatConfigurationProvider`](/reference/vue/hooks/useCopilotChatConfiguration) - shared configuration context
-- [`useThreads`](/reference/vue/hooks/useThreads) - the headless thread data and mutation layer
+- [`CopilotChat`](/reference/vue/components/CopilotChat) - 此抽屉通常驱动的聊天界面
+- [`CopilotChatConfigurationProvider`](/reference/vue/hooks/useCopilotChatConfiguration) - 共享的配置上下文
+- [`useThreads`](/reference/vue/hooks/useThreads) - 无头线程数据与变更层

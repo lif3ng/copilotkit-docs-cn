@@ -1,22 +1,19 @@
 ---
 title: "useCapabilities"
-description: "Vue composable for reading an agent's declared capabilities"
+description: "用于读取智能体所声明能力的 Vue 组合式函数"
 ---
 
-## Overview
+## 概览
 
-`useCapabilities` returns the [AG-UI `AgentCapabilities`](https://docs.ag-ui.com/concepts/capabilities) declared by an agent. Capabilities describe what an agent supports: tool calling, streaming, multi-agent coordination, human-in-the-loop, and more.
+`useCapabilities` 返回某个智能体声明的 [AG-UI `AgentCapabilities`](https://docs.ag-ui.com/concepts/capabilities)。能力描述了智能体支持什么：工具调用、流式传输、多智能体协作、人机协同（human-in-the-loop）等等。
 
-Capabilities are populated from the runtime `/info` response at connection time. The value is `undefined` until the runtime handshake completes or if the agent doesn't declare capabilities.
+能力来自连接时运行时的 `/info` 响应。在运行时握手完成之前，或智能体未声明能力时，该值为 `undefined`。
 
 <Callout type="info">
-  This composable returns a Vue `ComputedRef`. Read it with `.value` in
-  `<script setup>`, or unwrapped directly in a `<template>`. The ref stays
-  reactive, so it updates automatically once the runtime handshake populates
-  capabilities.
+  该组合式函数返回一个 Vue `ComputedRef`。在 `<script setup>` 中通过 `.value` 读取，或在 `<template>` 中直接自动解包。ref 保持响应式，因此一旦运行时握手填充了能力，它就会自动更新。
 </Callout>
 
-## Signature
+## 签名
 
 ```ts
 import { useCapabilities } from "@copilotkit/vue/v2";
@@ -24,67 +21,67 @@ import { useCapabilities } from "@copilotkit/vue/v2";
 function useCapabilities(agentId?: string): ComputedRef<AgentCapabilities | undefined>
 ```
 
-## Parameters
+## 参数
 
 <PropertyReference name="agentId" type="string" default='"default"'>
-  ID of the agent whose capabilities to read. If omitted, uses the default agent. Unlike `useAgent` / `useThreads` / `useSuggestions`, this argument is a plain `string` captured once when the composable runs — it is not a `MaybeRefOrGetter` and does not react to changes. To read a different agent's capabilities at runtime, re-mount the component (for example with a changing `:key`).
+  要读取其能力的智能体 ID。省略时使用默认智能体。与 `useAgent` / `useThreads` / `useSuggestions` 不同，这个参数是组合式函数运行时一次性捕获的普通 `string`——它不是 `MaybeRefOrGetter`，也不会响应变化。若要在运行时读取另一个智能体的能力，请重新挂载组件（例如使用会变化的 `:key`）。
 </PropertyReference>
 
-## Return Value
+## 返回值
 
 <PropertyReference name="capabilities" type="ComputedRef<AgentCapabilities | undefined>">
-  A computed ref holding the agent's capability declaration, or `undefined` if the agent hasn't reported capabilities yet (for example, the runtime handshake is still in progress) or declares none. The composable reads the agent's `capabilities` property directly; it does not call `getCapabilities()`.
+  一个计算属性 ref，持有该智能体的能力声明；如果智能体尚未上报能力（例如运行时握手仍在进行中）或未声明任何能力，则为 `undefined`。该组合式函数直接读取智能体的 `capabilities` 属性，不会调用 `getCapabilities()`。
 
-  When defined, the unwrapped object contains these optional categories:
+  有值时，解包后的对象包含以下可选类别：
 
   <PropertyReference name="identity" type="IdentityCapabilities">
-    Agent metadata: `name`, `type` (framework), `description`, `version`, `provider`, `documentationUrl`, `metadata`.
+    智能体元数据：`name`、`type`（框架）、`description`、`version`、`provider`、`documentationUrl`、`metadata`。
   </PropertyReference>
 
   <PropertyReference name="transport" type="TransportCapabilities">
-    Supported transports: `streaming`, `websocket`, `httpBinary`, `pushNotifications`, `resumable`.
+    支持的传输方式：`streaming`、`websocket`、`httpBinary`、`pushNotifications`、`resumable`。
   </PropertyReference>
 
   <PropertyReference name="tools" type="ToolsCapabilities">
-    Tool support: `supported`, `items`, `parallelCalls`, `clientProvided`.
+    工具支持：`supported`、`items`、`parallelCalls`、`clientProvided`。
   </PropertyReference>
 
   <PropertyReference name="output" type="OutputCapabilities">
-    Output formats: `structuredOutput`, `supportedMimeTypes`.
+    输出格式：`structuredOutput`、`supportedMimeTypes`。
   </PropertyReference>
 
   <PropertyReference name="state" type="StateCapabilities">
-    State management: `snapshots`, `deltas`, `memory`, `persistentState`.
+    状态管理：`snapshots`、`deltas`、`memory`、`persistentState`。
   </PropertyReference>
 
   <PropertyReference name="multiAgent" type="MultiAgentCapabilities">
-    Multi-agent coordination: `supported`, `delegation`, `handoffs`, `subAgents`.
+    多智能体协作：`supported`、`delegation`、`handoffs`、`subAgents`。
   </PropertyReference>
 
   <PropertyReference name="reasoning" type="ReasoningCapabilities">
-    Reasoning/thinking visibility: `supported`, `streaming`, `encrypted`.
+    推理/思考过程可见性：`supported`、`streaming`、`encrypted`。
   </PropertyReference>
 
   <PropertyReference name="multimodal" type="MultimodalCapabilities">
-    Multimodal input/output: `input` and `output` sub-objects for images, audio, video, PDF, and file support.
+    多模态输入/输出：`input` 与 `output` 子对象，涵盖图像、音频、视频、PDF 与文件支持。
   </PropertyReference>
 
   <PropertyReference name="execution" type="ExecutionCapabilities">
-    Code execution: `codeExecution`, `sandboxed`, `maxIterations`, `maxExecutionTime`.
+    代码执行：`codeExecution`、`sandboxed`、`maxIterations`、`maxExecutionTime`。
   </PropertyReference>
 
   <PropertyReference name="humanInTheLoop" type="HumanInTheLoopCapabilities">
-    Human-in-the-loop: `supported`, `approvals`, `interventions`, `feedback`.
+    人机协同：`supported`、`approvals`、`interventions`、`feedback`。
   </PropertyReference>
 
   <PropertyReference name="custom" type="Record<string, unknown>">
-    Arbitrary key-value pairs for integration-specific capabilities.
+    任意键值对，用于集成特有的能力。
   </PropertyReference>
 </PropertyReference>
 
-## Usage
+## 用法
 
-### Conditionally render UI based on capabilities
+### 基于能力条件渲染 UI
 
 ```vue title="ToolPanel.vue"
 <script setup lang="ts">
@@ -104,7 +101,7 @@ const capabilities = useCapabilities();
 </template>
 ```
 
-### Read capabilities for a specific agent
+### 读取指定智能体的能力
 
 ```vue title="AgentInfo.vue"
 <script setup lang="ts">
@@ -125,9 +122,9 @@ const capabilities = useCapabilities(props.agentId);
 </template>
 ```
 
-### Read the value in script
+### 在脚本中读取值
 
-Because the composable returns a `ComputedRef`, access the value with `.value` outside the template (for example inside a `watch` or computed):
+由于该组合式函数返回 `ComputedRef`，在模板之外（例如 `watch` 或计算属性内部）需通过 `.value` 访问值：
 
 ```ts
 import { watch } from "vue";
@@ -142,12 +139,12 @@ watch(capabilities, (caps) => {
 });
 ```
 
-## Behavior
+## 行为
 
-- **Synchronous read.** The composable reads `capabilities` directly from the agent instance via [`useAgent`](/reference/vue/hooks/useAgent). There is no separate loading state or async fetch: the value is `undefined` until the runtime `/info` handshake populates it, then becomes defined.
-- **Reactive computed.** The returned `ComputedRef` recomputes when the underlying agent ref changes, so your component (or watcher) updates once capabilities arrive.
+- **同步读取**。该组合式函数通过 [`useAgent`](/reference/vue/hooks/useAgent) 直接从智能体实例读取 `capabilities`。没有单独的加载状态或异步请求：在运行时 `/info` 握手填充之前，值为 `undefined`，之后变为有值。
+- **响应式计算属性**。底层的智能体 ref 变化时，返回的 `ComputedRef` 会重新计算，因此能力一到，组件（或侦听器）就会更新。
 
-## Related
+## 相关内容
 
-- [`useAgent`](/reference/vue/hooks/useAgent) - access the full agent instance (capabilities are derived from the agent)
-- [AG-UI Protocol](https://docs.ag-ui.com/concepts/capabilities) - the protocol that defines the capabilities schema
+- [`useAgent`](/reference/vue/hooks/useAgent)——访问完整的智能体实例（能力由智能体派生）
+- [AG-UI Protocol](https://docs.ag-ui.com/concepts/capabilities)——定义能力模式的协议
