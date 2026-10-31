@@ -1,8 +1,8 @@
 <Steps>
   <Step>
-    ### Import the hook
+    ### 导入钩子
 
-    First, import `useAgent` from the v2 package:
+    首先，从 v2 包导入 `useAgent`：
 
     ```tsx title="page.tsx"
     import { useAgent } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -11,9 +11,9 @@
   </Step>
 
   <Step>
-    ### Access your agent
+    ### 访问你的智能体
 
-    Call the hook to get a reference to your agent:
+    调用该钩子以获取智能体的引用：
 
     ```tsx title="page.tsx"
     export function AgentInfo() {
@@ -32,20 +32,20 @@
     ```
 
     <Callout type="info">
-      If you are not using CopilotKit Cloud's public access/license key, pass your agentId to the `useAgent()` hook:
+      如果你没有使用 CopilotKit Cloud 的公共访问/许可密钥，请将你的 agentId 传给 `useAgent()` 钩子：
       ```ts
       const { agent } = useAgent({ agentId: "myAgent" });
       ```
     </Callout>
 
-    The hook will throw an error if no agent is configured, so you can safely use `agent` without null checks.
+    如果没有配置智能体，该钩子会抛出错误，因此你可以放心使用 `agent` 而无需空值检查。
 
   </Step>
 
   <Step>
-    ### Display messages
+    ### 显示消息
 
-    Access the agent's conversation history:
+    访问智能体的会话历史：
 
     ```tsx title="page.tsx"
     export function MessageList() {
@@ -68,9 +68,9 @@
   </Step>
 
   <Step>
-    ### Show running status
+    ### 显示运行状态
 
-    Add a loading indicator when the agent is processing:
+    在智能体处理时添加加载指示器：
 
     ```tsx title="page.tsx"
     export function AgentStatus() {
@@ -95,9 +95,9 @@
   </Step>
 
   <Step>
-    ### Run the agent
+    ### 运行智能体
 
-    Use `copilotkit.runAgent()` to trigger your agent programmatically:
+    使用 `copilotkit.runAgent()` 以编程方式触发你的智能体：
 
     ```tsx title="page.tsx"
     import { useAgent } from "@copilotkit/react-core/v2";
@@ -124,18 +124,18 @@
     }
     ```
 
-    `copilotkit.runAgent()` orchestrates the full agent lifecycle — executing frontend tools, handling follow-up runs, and streaming results. This is the same method `<CopilotChat />` uses internally.
+    `copilotkit.runAgent()` 会编排完整的智能体生命周期——执行前端工具、处理后续运行并流式返回结果。这正是 `<CopilotChat />` 内部所使用的方法。
 
   </Step>
 </Steps>
 
-## Working with State
+## 使用状态
 
-Agents expose their state through the `agent.state` property. This state is shared between your application and the agent - both can read and modify it.
+智能体通过 `agent.state` 属性暴露其状态。该状态在你的应用与智能体之间共享——双方都可以读取和修改它。
 
-### Reading State
+### 读取状态
 
-Access your agent's current state:
+访问智能体的当前状态：
 
 ```tsx title="page.tsx"
 export function StateDisplay() {
@@ -158,11 +158,11 @@ export function StateDisplay() {
 }
 ```
 
-Your component automatically re-renders when the agent's state changes.
+当智能体状态变化时，你的组件会自动重新渲染。
 
-### Updating State
+### 更新状态
 
-Update state that your agent can access:
+更新你的智能体可以访问的状态：
 
 ```tsx title="page.tsx"
 export function ThemeSelector() {
@@ -187,13 +187,13 @@ export function ThemeSelector() {
 }
 ```
 
-State updates are immediately available to your agent in its next execution.
+状态更新会在智能体的下一次执行中立即可用。
 
-## Subscribing to Agent Events
+## 订阅智能体事件
 
-You can subscribe to agent events using the `subscribe()` method. This is useful for logging, monitoring, or responding to specific agent behaviors.
+你可以使用 `subscribe()` 方法订阅智能体事件。这对于日志记录、监控或响应特定的智能体行为非常有用。
 
-### Basic Event Subscription
+### 基本事件订阅
 
 ```tsx title="page.tsx"
 import { useEffect } from "react";
@@ -229,19 +229,19 @@ export function EventLogger() {
 }
 ```
 
-### Available Events
+### 可用事件
 
-The `AgentSubscriber` interface provides:
+`AgentSubscriber` 接口提供以下回调：
 
-- **`onCustomEvent`** - Custom events emitted by the agent
-- **`onRunStartedEvent`** - Agent starts executing
-- **`onRunFinalized`** - Agent completes execution
-- **`onStateChanged`** - Agent's state changes
-- **`onMessagesChanged`** - Messages are added or modified
+- **`onCustomEvent`**——智能体发出的自定义事件
+- **`onRunStartedEvent`**——智能体开始执行
+- **`onRunFinalized`**——智能体完成执行
+- **`onStateChanged`**——智能体状态发生变化
+- **`onMessagesChanged`**——消息被添加或修改
 
-## Rendering Tool Calls
+## 渲染工具调用
 
-You can customize how agent tool calls are displayed in your UI. First, define your tool renderers:
+你可以自定义智能体工具调用在 UI 中的展示方式。首先，定义你的工具渲染器：
 
 ```tsx title="components/weather-tool.tsx"
 import { defineToolCallRenderer } from "@copilotkit/react-core/v2";
@@ -273,7 +273,7 @@ function WeatherCard({
 }
 ```
 
-Register your tool renderers with CopilotKit:
+向 CopilotKit 注册你的工具渲染器：
 
 ```tsx title="layout.tsx"
 import { CopilotKit } from "@copilotkit/react-core/v2";
@@ -292,7 +292,7 @@ export default function RootLayout({ children }) {
 }
 ```
 
-Then use `useRenderToolCall` to render tool calls from agent messages:
+然后使用 `useRenderToolCall` 渲染来自智能体消息的工具调用：
 
 ```tsx title="components/message-list.tsx"
 import { useAgent, useRenderToolCall } from "@copilotkit/react-core/v2";
@@ -328,9 +328,9 @@ export function MessageList() {
 }
 ```
 
-## Building a Complete Dashboard
+## 构建完整的仪表盘
 
-Here's a full example combining all concepts into an interactive agent dashboard:
+下面是一个完整示例，将所有概念整合为一个可交互的智能体仪表盘：
 
 ```tsx title="page.tsx"
 "use client";

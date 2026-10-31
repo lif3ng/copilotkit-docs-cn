@@ -2,18 +2,17 @@ import { Accordions, Accordion } from "fumadocs-ui/components/accordion";
 import { CopilotKit } from "@copilotkit/react-core";
 import { NewLookAndFeelPreview } from "@/components/react/component-previews/new-look-and-feel";
 
-## What's changed?
+## 有哪些变更？
 
-### New Look and Feel
+### 全新的外观与体验
 
-CopilotKit 1.8.2 introduces a new default look and feel. This includes new use of theming variables, new components, and generally a fresh look.
+CopilotKit 1.8.2 引入了全新的默认外观与体验，包括主题化变量的新用法、新组件，以及整体焕然一新的视觉效果。
 
-**Click the button in the bottom right to see the new look and feel in action!**
+**点击右下角的按钮，即可查看全新外观与体验的实际效果！**
 
-### Thumbs Up/Down Handlers
+### 点赞/点踩处理函数
 
-The chat components now have `onThumbsUp` and `onThumbsDown` handlers. Specifying these will add icons to each message
-on hover allowing the user to provide feedback.
+聊天组件现在支持 `onThumbsUp` 和 `onThumbsDown` 处理函数。指定这两个函数后，鼠标悬停在每条消息上时会出现图标，允许用户提供反馈。
 
 ```tsx
 <CopilotChat
@@ -22,28 +21,25 @@ on hover allowing the user to provide feedback.
 />
 ```
 
-This was previously achievable in our framework, but we're making it first class now! You can use this to help fine-tune your model through CopilotKit
-or just generally track user feedback.
+此前在我们的框架中也能实现这一功能，但现在我们将其提升为一等公民！你可以借此通过 CopilotKit 微调模型，或者一般性地跟踪用户反馈。
 
-### ResponseButton prop removed
+### 移除 ResponseButton 属性
 
-The `ResponseButton` prop has been removed. This was a prop that was used to customize the button that appears after a response was generated
-in the chat.
+`ResponseButton` 属性已被移除。该属性曾用于自定义聊天中生成响应后出现的按钮。
 
-In its place, we now place buttons below each message for:
+取而代之的是，我们现在在每条消息下方放置以下按钮：
 
-- Thumbs up
-- Thumbs down
-- Copy
-- Regenerate
+- 点赞
+- 点踩
+- 复制
+- 重新生成
 
-The behvior, icons and styling for each of these buttons can be customized. Checkout our [look and feel guides](/custom-look-and-feel) for more details.
+每个按钮的行为、图标和样式都可以自定义。详情请参阅我们的[外观与体验指南](/custom-look-and-feel)。
 
-### Out-of-the-box dark mode support
+### 开箱即用的深色模式支持
 
-CopilotKit now has out-of-the-box dark mode support. This is controlled by the `.dark` class (Tailwind) as well as the
-`color-scheme` CSS selector.
+CopilotKit 现已支持开箱即用的深色模式。它由 `.dark` 类（Tailwind）和 `color-scheme` CSS 选择器控制。
 
-If you would like to make a custom theme, you can do so by checking out the [custom look and feel](/custom-look-and-feel) guides.
+如果你想制作自定义主题，请参阅[自定义外观与体验](/custom-look-and-feel)指南。
 
 <NewLookAndFeelPreview />

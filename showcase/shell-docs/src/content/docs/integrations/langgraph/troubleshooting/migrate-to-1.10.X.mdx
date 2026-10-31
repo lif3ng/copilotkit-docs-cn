@@ -1,6 +1,72 @@
 ---
-title: Migrate to 1.10.X
-description: Migration guide for CopilotKit 1.10.X
-icon: "lucide/RefreshCw"
+title: 概览
+description: "专注、可直接复制使用的示例，把 CopilotKit 接入你已经在用的工具与平台。"
+icon: "lucide/BookOpen"
+showIcon: true
+doc_type: explanation
+hideTOC: true
 ---
-<MigrateTo1100 />
+
+## 示例集
+
+简短、可落地的示例，把 CopilotKit 连接到某个特定工具或平台。每个示例都从一个能运行的 CopilotKit 应用出发，
+只增加一项能力——恰好够把它跑起来，绝无多余。
+
+<Cards>
+  <Card
+    title="用 Google Antigravity 修复失败的 CI"
+    href="/cookbook/antigravity-repo-doctor"
+    logo="/logos/antigravity.svg"
+    description="通过 AG-UI 在 Google Antigravity 上构建一个修复失败 CI 并证明修复有效的智能体，由 CopilotKit 的聊天展示审批、diff 和实时测试结果，支持线程保存，并可部署到 Cloud Run。"
+  />
+  <Card
+    title="用 Manufact 发布 MCP App"
+    href="/cookbook/manufact"
+    logo="/logos/manufact.svg"
+    logoClassName="dark:invert"
+    description="用开源的 mcp-use SDK 构建一个 MCP App，在 CopilotKit 的聊天中内联渲染，并部署到 Manufact Cloud。"
+  />
+  <Card
+    title="用 Jev 快速构建生成式 UI"
+    href="/cookbook/jev-generative-ui"
+    logo="/logos/typesafe.svg"
+    description="批量处理结构化决策，基于 AG-UI 渲染可交互控件，并可通过 Automatic Learning（可选）持续改进选择。"
+  />
+  <Card
+    title="在 Daytona 沙箱中运行智能体代码"
+    href="/cookbook/daytona"
+    logo="/logos/daytona.png"
+    logoClassName="rounded-[4px] object-cover"
+    description="为内置智能体提供一个在隔离 Daytona 沙箱中执行代码的工具。"
+  />
+  <Card
+    title="将 CopilotKit 连接到 Claude Managed Agents"
+    href="/cookbook/claude-managed-agents"
+    logo="/logos/claude.svg"
+    description="通过 AG-UI 流式对接一个托管的 Claude Managed Agent，并把它的工具调用渲染为可交互的增长预测图表。"
+  />
+  <Card
+    title="用 Oracle Agent Spec 构建带记忆的可移植智能体"
+    href="/cookbook/oracle-agent-spec-memory"
+    logo="/logos/oracle-agent-spec.png"
+    description="在 Oracle Agent Spec 中一次性定义智能体，基于 AG-UI 运行在 LangGraph 上，并借助 Oracle AI Database 获得长期记忆。"
+  />
+  <Card
+    title="用 Arcade 执行经过身份验证的操作"
+    href="/cookbook/arcade"
+    logo="/logos/arcade.png"
+    description="通过 Arcade 为内置智能体提供 OAuth 支撑的工具（Gmail、Google News），并把授权步骤作为生成式 UI 渲染。"
+  />
+  <Card
+    title="在 Angular + Google ADK 上构建智能体化应用"
+    href="/cookbook/angular-adk-agentic-app"
+    logo="/logos/google-adk.png"
+    description="通过 AG-UI 将 Angular 前端连接到 Google ADK 智能体，支持可选的线程与记忆。生产环境的踩坑实录：症状、原因与修复。"
+  />
+  <Card
+    title="用 OpenBox 治理智能体操作"
+    href="/cookbook/openbox-governed-copilotkit"
+    logo="/logos/openbox.png"
+    description="为 CopilotKit + LangGraph 智能体添加 OpenBox 运行时治理——护栏、策略与人机协同审批——并将决策渲染为生成式 UI。"
+  />
+</Cards>

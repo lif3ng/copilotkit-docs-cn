@@ -1,73 +1,72 @@
-## Overview
+## 概览
 
-CopilotKit V2 consolidates the frontend into a single package. Both hooks and UI components are now exported from `@copilotkit/react-core/v2`. Your backend does not need any changes.
+CopilotKit V2 将前端整合为单一包。钩子和 UI 组件现在都从 `@copilotkit/react-core/v2` 导出。你的后端无需任何更改。
 
-**What's changing:**
+**变更内容**：
 
-| Before                            | After                                  |
+| 之前                              | 之后                                   |
 | --------------------------------- | -------------------------------------- |
 | v1 hooks from `@copilotkit/react-core` | v2 hooks from `@copilotkit/react-core/v2` |
 | `@copilotkit/react-ui`            | `@copilotkit/react-core/v2`            |
 | `@copilotkit/react-ui/styles.css` | `@copilotkit/react-core/v2/styles.css` |
 
-**What's not changing:**
+**保持不变的内容**：
 
-- Backend packages (`@copilotkit/runtime`, etc.) do not need changes.
-- Your `CopilotRuntime` configuration stays the same.
-- Agent definitions and backend setup stay the same.
-- Keep the `<CopilotKit>` provider name, but import it from `@copilotkit/react-core/v2`.
+- 后端包（`@copilotkit/runtime` 等）无需更改。
+- 你的 `CopilotRuntime` 配置保持不变。
+- 智能体定义与后端设置保持不变。
+- `<CopilotKit>` Provider 名称不变，但需从 `@copilotkit/react-core/v2` 导入。
 
-## Migration Steps
+## 迁移步骤
 
 <Steps>
 <Step>
-### Update v1 hook imports
+### 更新 v1 钩子导入
 
-Replace v1 hooks from `@copilotkit/react-core` with their v2 equivalents from `@copilotkit/react-core/v2`.
-Keep the `<CopilotKit>` provider name, but import it from `@copilotkit/react-core/v2`.
+将来自 `@copilotkit/react-core` 的 v1 钩子替换为 `@copilotkit/react-core/v2` 中对应的 v2 版本。
+`<CopilotKit>` Provider 名称不变，但需从 `@copilotkit/react-core/v2` 导入。
 
-#### Before
+#### 之前
 
 ```tsx
 import { CopilotKit } from "@copilotkit/react-core";
 import { useCopilotReadable, useCopilotAction } from "@copilotkit/react-core";
 ```
 
-#### After
+#### 之后
 
 ```tsx
 import { CopilotKit, useAgent } from "@copilotkit/react-core/v2";
 ```
 
-#### Hook mapping from v1 to v2
+#### v1 到 v2 的钩子映射
 
-Use this table to find the v2 replacement for each v1 hook:
+使用下表查找每个 v1 钩子对应的 v2 替代：
 
-| v1 hook | v2 hook |
+| v1 钩子 | v2 钩子 |
 | --- | --- |
 | `useCopilotAction` | `useFrontendTool` |
 | `useCopilotReadable` | `useAgentContext` |
 | `useCopilotAdditionalInstructions` | `useAgentContext` |
 | `useCoAgent` | `useAgent` |
-| `useCopilotChat` | `useAgent` (low-level headless chat: `useCopilotChatHeadless_c`) |
+| `useCopilotChat` | `useAgent`（低层无头聊天：`useCopilotChatHeadless_c`） |
 
-Chat-UI customization props were also renamed in v2:
+聊天 UI 自定义属性在 v2 中也做了重命名：
 
-| v1 (component prop) | v2 (slot / prop) |
+| v1（组件属性） | v2（插槽/属性） |
 | --- | --- |
-| `AssistantMessage` | `assistantMessage` slot (under `messageView`) |
-| `markdownTagRenderers` | `markdownRenderer` slot (under `assistantMessage`) |
+| `AssistantMessage` | `assistantMessage` 插槽（位于 `messageView` 下） |
+| `markdownTagRenderers` | `markdownRenderer` 插槽（位于 `assistantMessage` 下） |
 
-See [Slots](/custom-look-and-feel/slots) for how the v2 slot system replaces the
-v1 component-override props.
+v2 的插槽系统如何取代 v1 的组件覆盖属性，参见[插槽](/custom-look-and-feel/slots)。
 
 </Step>
 <Step>
-### Replace React UI imports
+### 替换 React UI 导入
 
-UI components like `CopilotChat`, `CopilotSidebar`, and `CopilotPopup` are now exported from `@copilotkit/react-core/v2`.
+`CopilotChat`、`CopilotSidebar` 和 `CopilotPopup` 等 UI 组件现在从 `@copilotkit/react-core/v2` 导出。
 
-#### Before
+#### 之前
 
 ```tsx
 import { CopilotPopup } from "@copilotkit/react-ui";
@@ -75,7 +74,7 @@ import { CopilotSidebar } from "@copilotkit/react-ui";
 import { CopilotChat } from "@copilotkit/react-ui";
 ```
 
-#### After
+#### 之后
 
 ```tsx
 import { CopilotPopup } from "@copilotkit/react-core/v2";
@@ -85,15 +84,15 @@ import { CopilotChat } from "@copilotkit/react-core/v2";
 
 </Step>
 <Step>
-### Update your styles import
+### 更新样式导入
 
-#### Before
+#### 之前
 
 ```tsx
 import "@copilotkit/react-ui/styles.css";
 ```
 
-#### After
+#### 之后
 
 ```tsx
 import "@copilotkit/react-core/v2/styles.css";
@@ -101,24 +100,24 @@ import "@copilotkit/react-core/v2/styles.css";
 
 </Step>
 <Step>
-### Upgrade AG-UI client if using it directly
+### 如果直接使用 AG-UI client，请将其升级
 
-If you import from `@ag-ui/client` directly, install the version that `@copilotkit/runtime` depends on:
+如果你直接从 `@ag-ui/client` 导入，请安装 `@copilotkit/runtime` 所依赖的版本：
 
 ```bash
 npm install @ag-ui/client@1.0.2
 ```
 
-A different version installs a second copy of the package, with its own `HttpAgent` class. Run `npm ls @ag-ui/client` to make sure that only one version is installed.
+安装不同的版本会导致该包出现第二份副本，并带有自己的 `HttpAgent` 类。运行 `npm ls @ag-ui/client` 确保只安装了一个版本。
 
-Note: If you only use CopilotKit's React packages, `@ag-ui/client` types are already re-exported from `@copilotkit/react-core/v2` and you don't need a separate install.
+注意：如果你只使用 CopilotKit 的 React 包，`@ag-ui/client` 的类型已经从 `@copilotkit/react-core/v2` 重新导出，无需单独安装。
 
 </Step>
 </Steps>
 
-## Full Example
+## 完整示例
 
-### Before
+### 之前
 
 ```tsx
 import { CopilotKit } from "@copilotkit/react-core";
@@ -135,7 +134,7 @@ export function App() {
 }
 ```
 
-### After
+### 之后
 
 ```tsx
 import { CopilotKit, CopilotPopup } from "@copilotkit/react-core/v2";

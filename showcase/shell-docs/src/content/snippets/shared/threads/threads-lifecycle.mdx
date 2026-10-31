@@ -1,29 +1,29 @@
-## What is this?
+## 这是什么？
 
-Every CopilotKit conversation is scoped to a **thread**, identified by a `threadId`. This page explains the full lifecycle of that thread on the client: how the id is created, how prior history is restored when a conversation loads, how to switch between threads or start a new one, and where CopilotKit's threads end and your agent framework's own persistence (e.g. a LangGraph checkpointer) begins.
+每个 CopilotKit 会话都归属于一个**线程**，由 `threadId` 标识。本页讲解该线程在客户端的完整生命周期：id 如何创建、会话加载时如何恢复历史、如何在线程之间切换或开始新线程，以及 CopilotKit 线程的边界在哪里、你的智能体框架自己的持久化（例如 LangGraph checkpointer）从哪里开始。
 
 <Callout type="info">
-  This page describes the **v2** hooks and components imported from `@copilotkit/react-core/v2`. The v1 API (`useCopilotChat`, `initialMessages`, the v1 `useThreads`) behaves differently; see the [v1 vs v2 notes](#v1-vs-v2) at the end.
+  本页介绍从 `@copilotkit/react-core/v2` 导入的 **v2** 钩子与组件。v1 API（`useCopilotChat`、`initialMessages`、v1 的 `useThreads`）行为不同；参见文末的 [v1 与 v2 说明](#v1-与-v2)。
 </Callout>
 
-## The lifecycle at a glance
+## 生命周期一览
 
-1. **Mint.** When a chat mounts without an explicit `threadId`, the client generates one (a UUID v4).
-2. **Run.** Messages and tool calls stream under that `threadId`. If a server-side store is configured (CopilotKit Intelligence, or a persisting `AgentRunner`), they are persisted as they happen so the thread can be replayed later. A runtime with no persistence layer keeps nothing server-side. See [AG-UI Streams & Framework Threads](/intelligence/threads-explained) for the full server-side model.
-3. **Hydrate.** When a chat mounts *with* a known `threadId`, the client connects and replays the persisted history into the UI.
-4. **Switch / start.** You change the active thread (restoring its history) or start a fresh one (clearing the view).
+1. **生成**：聊天挂载时若没有显式 `threadId`，客户端会生成一个（UUID v4）。
+2. **运行**：消息与工具调用在该 `threadId` 下流式传输。如果配置了服务端存储（CopilotKit Intelligence，或可持久化的 `AgentRunner`），它们会在发生时即被持久化，以便之后回放该线程。没有持久化层的 runtime 不会在服务端保存任何内容。完整的服务端模型参见 [AG-UI 流与框架线程](/intelligence/threads-explained)。
+3. **恢复**：聊天挂载时*带有*已知 `threadId`，客户端会连接并把持久化的历史回放进 UI。
+4. **切换 / 开始**：你切换活动线程（恢复其历史），或开始一个全新线程（清空视图）。
 
-## How the threadId is created
+## threadId 是如何创建的
 
-When you don't supply one, CopilotKit mints a `threadId` **on the client, at mount**, using a UUID v4. The value is resolved by this precedence (highest first):
+如果你不提供 `threadId`，CopilotKit 会在**客户端、挂载时**生成一个 `threadId`（UUID v4）。取值按以下优先级解析（从高到低）：
 
-1. An explicit `threadId` prop on `<CopilotChat>` / `<CopilotChatConfigurationProvider>` (this is *authoritative*: it also drives history replay and disables the welcome screen).
-2. An active-thread override set via `setActiveThreadId(...)` / a picked thread row / `startNewThread()`.
-3. A `threadId` inherited from a parent configuration provider.
-4. A non-authoritative `threadId` seed.
-5. Otherwise, a freshly minted `randomUUID()`.
+1. `<CopilotChat>` / `<CopilotChatConfigurationProvider>` 上显式的 `threadId` prop（这是*权威*来源：它同时驱动历史回放并关闭欢迎屏）。
+2. 通过 `setActiveThreadId(...)` / 选中某个线程行 / `startNewThread()` 设置的活动线程覆盖值。
+3. 从父级配置提供方继承的 `threadId`。
+4. 非权威的 `threadId` 种子值。
+5. 否则，现场生成一个新的 `randomUUID()`。
 
-```tsx title="Explicit threadId (recommended when you own persistence)"
+```tsx title="显式 threadId（自己管持久化时推荐）"
 import { CopilotChat } from "@copilotkit/react-core/v2";
 
 // You control the id: history replays for it, and it's stable across remounts.
@@ -31,28 +31,28 @@ import { CopilotChat } from "@copilotkit/react-core/v2";
 ```
 
 <Callout type="warn">
-  **Auto-minted ids are stable across re-renders, but re-mint on remount.** The fallback id is computed with `useMemo`, so a component *remount* (a changed React `key`, a parent unmount/remount, or React StrictMode's double-mount in dev) produces a **new** id and silently starts a new conversation. If you need an id that survives remounts, mint it yourself and pass it as the `threadId` prop (or persist it and restore it via `setActiveThreadId`). Don't rely on the auto-mint for continuity.
+  **自动生成的 id 在重新渲染间保持稳定，但重新挂载时会重新生成。**回退 id 由 `useMemo` 计算，因此组件*重新挂载*（React `key` 变化、父组件卸载再挂载，或开发模式下 React StrictMode 的双重挂载）会产生一个**新的** id，并静默地开启新会话。如果需要一个在重新挂载后仍然有效的 id，请自己生成并通过 `threadId` prop 传入（或持久化后用 `setActiveThreadId` 恢复）。不要依赖自动生成来保证连续性。
 </Callout>
 
-## How history is restored (hydration)
+## 历史如何恢复（hydration）
 
-CopilotKit v2 does **not** use an `initialMessages` prop to seed a conversation. History is restored one of two ways:
+CopilotKit v2 **不**使用 `initialMessages` prop 来填充会话。历史恢复有以下两种方式：
 
-**1. Server-side replay.** When a chat mounts with an *explicit* `threadId`, the client sets `agent.threadId` and calls `connectAgent()`, which replays that thread's persisted event history back into the UI, with no manual message wiring:
+**1. 服务端回放**：聊天以*显式* `threadId` 挂载时，客户端会设置 `agent.threadId` 并调用 `connectAgent()`，把该线程持久化的事件历史回放进 UI，无需手工接线消息：
 
-```tsx title="History replays for a known threadId (given a server-side store)"
+```tsx title="已知 threadId 的历史回放（需要有服务端存储）"
 <CopilotChat agentId="my-agent" threadId={someExistingThreadId} />
 ```
 
 <Callout type="warn">
-  Replay requires a **server-side store to replay from**: CopilotKit Intelligence, or a persisting `AgentRunner` (e.g. the SQLite runner). A self-hosted runtime with no persistence layer has nothing to replay, so `connectAgent()` returns an empty stream and the conversation starts blank. If history isn't restoring, check that a store is configured, not the client code. The [Persistence Architecture](/intelligence/threads-explained) page covers how replay works server-side.
+  回放需要有**可供回放的服务端存储**：CopilotKit Intelligence，或可持久化的 `AgentRunner`（例如 SQLite runner）。没有持久化层的自托管 runtime 没有任何可回放的内容，`connectAgent()` 会返回空流，会话从空白开始。如果历史没有恢复，请检查是否配置了存储，而不是去改客户端代码。[持久化架构](/intelligence/threads-explained)页面介绍了回放在服务端的工作方式。
 </Callout>
 
-For a *fresh* (non-explicit) thread, e.g. after `startNewThread()`, there's nothing to replay, so `connect` is skipped and the message view is cleared.
+对于*全新*（非显式）线程，例如调用 `startNewThread()` 之后，没有可回放的内容，因此会跳过 `connect` 并清空消息视图。
 
-**2. Manual hydration.** If you're managing messages yourself (for non-platform or custom cases), read them from the agent and set them directly:
+**2. 手动恢复**：如果你自己管理消息（非平台或自定义场景），可以从 agent 读取消息并直接设置：
 
-```tsx title="Read and set messages via the agent"
+```tsx title="通过 agent 读取和设置消息"
 import { useAgent } from "@copilotkit/react-core/v2";
 
 function MyComponent() {
@@ -69,16 +69,14 @@ function MyComponent() {
 ```
 
 <Callout type="info">
-  There is no v2 `useCopilotChat` hook and no v2 `initialMessages` prop. Read messages from `useAgent().agent.messages` and mutate with `agent.setMessages(...)` / `agent.addMessage(...)`. (`initialMessages` still exists on the **v1** `useCopilotChat` hook; see [below](#v1-vs-v2).)
+  v2 没有 `useCopilotChat` 钩子，也没有 `initialMessages` prop。从 `useAgent().agent.messages` 读取消息，并用 `agent.setMessages(...)` / `agent.addMessage(...)` 修改。（`initialMessages` 仍存在于 **v1** 的 `useCopilotChat` 钩子上；见[下文](#v1-与-v2)。）
 </Callout>
 
 <span id="scope-rich-threads-to-the-signed-in-user" />
 
-## Scope AG-UI Streams to the signed-in user
+## 将 AG-UI 流限定到已登录用户
 
-Your application owns end-user authentication. For an Intelligence-enabled
-Runtime, implement `identifyUser(request)` with the server-verified session or
-token from your auth provider and return a stable user `id` and `name`:
+终端用户的身份验证由你的应用负责。对于启用了智能中枢的 Runtime，用来自你身份验证提供方、经服务端验证的会话或令牌实现 `identifyUser(request)`，并返回稳定的用户 `id` 和 `name`：
 
 ```ts title="app/api/copilotkit/[[...slug]]/route.ts"
 import { CopilotKitIntelligence, CopilotRuntime } from "@copilotkit/runtime/v2";
@@ -104,32 +102,21 @@ const runtime = new CopilotRuntime({
 });
 ```
 
-CopilotKit Intelligence combines that application user identity with the
-selected project when it scopes thread lists, subscriptions, history, rename,
-archive, unarchive, and delete operations. The project Runtime API key is a
-separate credential: keep it on the server and do not use the developer who
-created that key as the application user.
+CopilotKit Intelligence 在限定线程列表、订阅、历史、重命名、归档、取消归档和删除操作时，会把应用用户身份与所选项目结合在一起。项目 Runtime API 密钥是单独的凭据：请保存在服务端，不要把创建该密钥的开发者当作应用用户。
 
-[Connect your runtime to Intelligence](/intelligence/quickstart) covers the
-`CopilotKitIntelligence` constructor in full — where the project API key comes
-from, the self-hosted `apiUrl` / `wsUrl` override rule, and how to confirm the
-credential is actually being read rather than silently ignored.
+[将运行时连接到智能中枢](/intelligence/quickstart)完整讲解了 `CopilotKitIntelligence` 构造函数——项目 API 密钥从哪里来、自托管时 `apiUrl` / `wsUrl` 的覆盖规则，以及如何确认凭据确实被读取而不是被静默忽略。
 
 <Callout type="warn">
-  A static `identifyUser` value is suitable only for a single-user demo. In a
-  multi-user application, every request must resolve the authenticated
-  application user or those users will share the same thread scope.
+  静态的 `identifyUser` 返回值只适合单用户演示。在多用户应用中，每个请求都必须解析出经过身份验证的应用用户，否则这些用户会共享同一个线程作用域。
 </Callout>
 
-See [Authentication](/auth) for forwarding and verifying your provider's auth
-context. `identifyUser` is the additional Runtime contract that assigns the
-verified application user to threads.
+转发与验证你的提供方身份验证上下文请参见[身份验证](/auth)。`identifyUser` 是额外的 Runtime 契约，负责把已验证的应用用户归属到线程。
 
-## Switching threads and starting new ones
+## 切换线程与开始新线程
 
-Set the active thread to restore its history, or start a fresh conversation:
+设置活动线程以恢复其历史，或开始一个全新会话：
 
-```tsx title="Switch or start a thread"
+```tsx title="切换或开始一个线程"
 import { useCopilotChatConfiguration } from "@copilotkit/react-core/v2";
 
 function ThreadControls() {
@@ -149,22 +136,22 @@ function ThreadControls() {
 }
 ```
 
-- `setActiveThreadId(threadId, { explicit })`: `explicit: true` (the default) treats it as a known thread and replays its history, while `explicit: false` shows the welcome screen.
-- `startNewThread()`: resets to a freshly minted, non-explicit id. Also available from `useThreads()` for thread-sidebar UIs.
+- `setActiveThreadId(threadId, { explicit })`：`explicit: true`（默认值）把它当作已知线程并回放其历史；`explicit: false` 则显示欢迎屏。
+- `startNewThread()`：重置为现场生成的新非显式 id。`useThreads()` 也提供该方法，供线程侧边栏 UI 使用。
 
 <Callout type="warn">
-  Both setters **no-op and log a warning when the `threadId` is prop-controlled** (i.e. you passed an authoritative `threadId` prop). If you drive threads imperatively with these setters, don't also pass a `threadId` prop. Pick one source of truth.
+  当 `threadId` 由 prop 控制时（即你传入了权威的 `threadId` prop），这两个设置方法都会**空操作并记录警告**。如果你用这些 setter 以命令式方式驱动线程，就不要再传 `threadId` prop。二者只选其一作为唯一事实来源。
 </Callout>
 
-## Creating a thread with your own API on the first message
+## 首条消息时用自己的 API 创建线程
 
-A common ask: intercept the user's first message to mint a thread via your own backend (e.g. create a DB row and get its id) before the conversation starts.
+一个常见需求：在会话开始前拦截用户的首条消息，通过你自己的后端创建线程（例如在数据库里建一行并拿到它的 id）。
 
-**On the built-in `<CopilotChat>` this cannot be done through `onSubmitMessage`**: the component sets its own submit handler internally and discards any you pass. Instead, use one of these approaches.
+**在内置 `<CopilotChat>` 上无法通过 `onSubmitMessage` 做到**：该组件内部设置了自己的提交处理器，并丢弃你传入的任何处理器。请改用以下方式之一。
 
-**Recommended: mint up front and drive the id.** Create your thread when the user starts a new conversation (e.g. on a "New chat" action, or lazily just before you render the chat), then hand the id to CopilotKit:
+**推荐：提前创建并驱动 id**：在用户开始新会话时创建线程（例如在“New chat”操作里，或恰好在渲染聊天组件前惰性创建），然后把 id 交给 CopilotKit：
 
-```tsx title="Mint your thread, then drive it"
+```tsx title="先创建线程，再驱动它"
 async function startConversation() {
   const { id } = await myApi.createThread(); // your backend
   config?.setActiveThreadId(id, { explicit: true });
@@ -172,9 +159,9 @@ async function startConversation() {
 }
 ```
 
-**At submit-time (headless only).** If you must intercept exactly when the user hits send, compose the UI yourself with `CopilotChatInput` / `CopilotChatView` and pass your own `onSubmitMessage` (the built-in `<CopilotChat>` ignores it). Because the handler is yours, you set the thread on the agent and drive the send:
+**提交时拦截（仅限无头）**：如果你必须恰好在用户点击发送时拦截，请用 `CopilotChatInput` / `CopilotChatView` 自行组装 UI，并传入你自己的 `onSubmitMessage`（内置 `<CopilotChat>` 会忽略它）。由于处理器是你自己的，你可以把线程设置到 agent 上并驱动发送：
 
-```tsx title="Headless: set the thread on the agent before sending"
+```tsx title="无头：发送前把线程设置到 agent 上"
 import { CopilotChatInput, useAgent } from "@copilotkit/react-core/v2";
 
 function MyInput() {
@@ -194,64 +181,54 @@ function MyInput() {
 ```
 
 <Callout type="warn">
-  For a send you fire in the same handler, set the id on the **agent** (`agent.threadId = id`); don't rely on `setActiveThreadId(id)`. `setActiveThreadId` updates React state and only reaches the agent on the next render (and only when a `<CopilotChat>` is mounted to sync it), so a run kicked off immediately would still use the previous thread. Use `setActiveThreadId` / `startNewThread` for switching threads in the UI, and set `agent.threadId` directly when it must take effect before an imperative send.
+  如果在同一个处理器里立即发起发送，请把 id 设置到 **agent** 上（`agent.threadId = id`）；不要依赖 `setActiveThreadId(id)`。`setActiveThreadId` 更新的是 React 状态，要到下一次渲染才传递到 agent（而且前提是有一个 `<CopilotChat>` 挂载着来同步它），所以立即发起的运行仍会使用上一个线程。`setActiveThreadId` / `startNewThread` 适合在 UI 中切换线程；必须在命令式发送之前生效时，请直接设置 `agent.threadId`。
 </Callout>
 
 <Callout type="info">
-  `onSubmitMessage` is only a real interception seam in the **headless** path. On the built-in `<CopilotChat>` it's overridden, so reach for the "mint up front" approach there.
+  `onSubmitMessage` 只有在**无头**路径上才是真正的拦截点。在内置 `<CopilotChat>` 上它会被覆盖，因此那里请采用“提前创建”的方案。
 </Callout>
 
-## CopilotKit threads vs. your framework's checkpointer
+## CopilotKit 线程与框架的 checkpointer 对比
 
-These are **two different layers**, correlated only by the shared `threadId`:
+这是**两个不同的层**，仅通过共享的 `threadId` 关联：
 
-| Layer | What it stores | Managed by |
+| 层 | 存储内容 | 由谁管理 |
 | --- | --- | --- |
-| **CopilotKit threads** | Conversation list + full AG-UI event history (messages, tool calls, state), with realtime sync | CopilotKit Intelligence, via `useThreads` |
-| **Framework-native persistence** | Framework-internal state/checkpoints | Your agent, e.g. a LangGraph `AsyncPostgresSaver` |
+| **CopilotKit 线程** | 会话列表 + 完整 AG-UI 事件历史（消息、工具调用、状态），带实时同步 | CopilotKit Intelligence，通过 `useThreads` |
+| **框架原生持久化** | 框架内部的状态/checkpoint | 你的智能体，例如 LangGraph 的 `AsyncPostgresSaver` |
 
-A LangGraph checkpointer (an `AsyncPostgresSaver` + `compile(checkpointer=...)`) creates LangGraph's own **checkpoint tables**. It does *not* create a CopilotKit "threads" table, and you won't see a threads table appear just from configuring a checkpointer. Conversely, `useThreads` rename/archive/delete operate on platform threads and do **not** reach into LangGraph (or ADK, etc.) stores unless your backend explicitly bridges them.
+LangGraph checkpointer（`AsyncPostgresSaver` + `compile(checkpointer=...)`）创建的是 LangGraph 自己的 **checkpoint 表**。它*不会*创建 CopilotKit 的“threads”表，仅配置 checkpointer 也不会凭空出现线程表。反过来，`useThreads` 的重命名/归档/删除操作作用于平台线程，除非你的后端显式桥接，否则**不会**触及 LangGraph（或 ADK 等）的存储。
 
-The bridge between the two is the `threadId`: when you pass an explicit CopilotKit `threadId`, it's forwarded to the backend as the AG-UI `threadId`, which your framework can use directly as (or map to) its own checkpoint/thread id.
+连接两者的是 `threadId`：当你传入显式的 CopilotKit `threadId` 时，它会作为 AG-UI `threadId` 转发给后端，你的框架可以直接把它用作（或映射为）自己的 checkpoint/线程 id。
 
-### Future runs can remain durable in both places
+### 后续运行可以在两侧都保持持久化
 
-Once Intelligence is connected, conversations that run through that runtime are
-recorded automatically in Intelligence. Historical import is optional. If your LangGraph agent
-continues using a durable checkpointer or LangGraph Platform, those same runs
-also continue through LangGraph's native persistence. The same applies to an ADK
-agent that remains connected to a durable session service with retained
-sessions. This lets you keep native framework storage and analytics while users
-get replay, generative UI, multimodal history, and realtime continuity through
-CopilotKit.
+接入智能中枢后，经由该 runtime 运行的会话会自动记录到智能中枢。历史导入是可选的。如果你的 LangGraph 智能体继续使用持久化 checkpointer 或 LangGraph Platform，这些运行也会同时经由 LangGraph 的原生持久化继续。仍连接到保留会话的持久化 session service 的 ADK 智能体同理。这样你可以保留原生框架存储与分析能力，同时用户通过 CopilotKit 获得回放、生成式 UI、多模态历史与实时连续性。
 
-This is coordinated persistence during future CopilotKit-mediated runs, not
-general database replication. CopilotKit lifecycle actions such as rename,
-archive, and delete apply to the CopilotKit Intelligence thread; they do not
-rename, archive, or delete records in the native framework store.
+这是未来经由 CopilotKit 的运行中的协调式持久化，不是通用的数据库复制。CopilotKit 的重命名、归档、删除等生命周期操作作用于 CopilotKit Intelligence 线程；它们不会重命名、归档或删除原生框架存储中的记录。
 
 <Callout type="info">
-  See [LangGraph persistence](/integrations/langgraph/advanced/persistence/message-persistence) for the framework-native (checkpointer) side, and [Importing and synchronizing thread history](/threads-import) for bringing existing framework conversations into the platform store. (LangGraph *Platform* requires thread ids to be UUIDs, which CopilotKit's auto-minted ids already are.)
+  框架原生（checkpointer）一侧请参见 [LangGraph 持久化](/integrations/langgraph/advanced/persistence/message-persistence)；把现有框架会话导入平台存储请参见[导入并同步线程历史](/threads-import)。（LangGraph *Platform* 要求线程 id 为 UUID，CopilotKit 自动生成的 id 本身就是 UUID。）
 </Callout>
 
-## Example: keep an existing LangGraph conversation
+## 示例：保留现有 LangGraph 会话
 
-Follow [Bring your own thread system](/intelligence/bring-your-own-thread-system#example-keep-an-existing-langgraph-conversation) for an example that keeps native persistence and continues the same conversation.
+保留原生持久化并延续同一会话的示例，请参见[自带线程系统](/intelligence/bring-your-own-thread-system#example-keep-an-existing-langgraph-conversation)。
 
-## MCP Apps activity and history
+## MCP Apps 的活动与历史
 
-MCP Apps render through **activity messages** (`activityType: "mcp-apps"`), and that rendering is a **client-side** concern: the registered renderer resolves the referenced UI resource and runs any follow-up in the browser. So the visible MCP App UI is *re-derived on the client from the conversation* when it loads. It isn't a separately-stored artifact you persist on its own.
+MCP Apps 通过**活动消息**（`activityType: "mcp-apps"`）渲染，而该渲染是**客户端**的事：注册的渲染器会解析引用的 UI 资源，并在浏览器中执行后续逻辑。因此加载时，可见的 MCP App UI 是*在客户端从会话重新推导出来的*。它不是你需要单独持久化的独立存储产物。
 
-Practically, MCP App UI restores the same way the rest of the conversation does: if your server-side store replays the thread's history (see [server-side replay](#how-history-is-restored-hydration) above), the tool-call/activity messages come back and the renderers run again on hydration. There's no separate MCP-Apps store to configure.
+实际上，MCP App UI 的恢复方式与会话其余部分相同：如果你的服务端存储回放该线程的历史（见上文[服务端回放](#历史如何恢复hydration)），工具调用/活动消息会回来，渲染器会在恢复时再次运行。不需要配置单独的 MCP Apps 存储。
 
-## v1 vs v2
+## v1 与 v2
 
-- **v2** (`@copilotkit/react-core/v2`): `useThreads` returns the platform thread list; `threadId` lives per-chat (on `<CopilotChat>` / `<CopilotChatConfigurationProvider>`), not on the provider; read messages via `useAgent().agent.messages` and mutate via `agent.setMessages(...)`. No `initialMessages`.
-- **v1** (`@copilotkit/react-core`): `useThreads` returns `{ threadId, setThreadId, isThreadIdExplicit }` (a single-conversation id manager, not the platform list). Its `setThreadId` silently no-ops when a `threadId` prop is present, because the prop shadows internal state. `<CopilotKit threadId>` sets the id at the provider, and `useCopilotChat()` exposes `setMessages(...)` and an `initialMessages` option. (Separately, the `setThreadId` on the main `<CopilotKit>` hooks *throws* if you call it while `threadId` is prop-supplied.)
+- **v2**（`@copilotkit/react-core/v2`）：`useThreads` 返回平台线程列表；`threadId` 按聊天实例存在（在 `<CopilotChat>` / `<CopilotChatConfigurationProvider>` 上），不在 provider 上；通过 `useAgent().agent.messages` 读取消息，通过 `agent.setMessages(...)` 修改。没有 `initialMessages`。
+- **v1**（`@copilotkit/react-core`）：`useThreads` 返回 `{ threadId, setThreadId, isThreadIdExplicit }`（单会话 id 管理器，不是平台列表）。当存在 `threadId` prop 时，它的 `setThreadId` 会静默空操作，因为 prop 覆盖了内部状态。`<CopilotKit threadId>` 在 provider 层设置 id，`useCopilotChat()` 暴露 `setMessages(...)` 和 `initialMessages` 选项。（另外，主 `<CopilotKit>` 钩子上的 `setThreadId` 在 `threadId` 由 prop 提供时调用会*抛出异常*。）
 
-## See also
+## 另请参阅
 
-- [Headless Threads](/headless-threads) — the full `useThreads` API
-- [AG-UI Streams & Framework Threads](/intelligence/threads-explained) — server-side replay, resume, realtime sync
-- [Multi-conversation chat](/tutorials/multi-conversation-chat) — build a chat-history sidebar
-- [Importing and synchronizing thread history](/threads-import) — bring existing framework conversations into the platform and keep future runs continuous
+- [无头线程](/headless-threads)——完整的 `useThreads` API
+- [AG-UI 流与框架线程](/intelligence/threads-explained)——服务端回放、续接与实时同步
+- [多会话聊天](/tutorials/multi-conversation-chat)——构建聊天历史侧边栏
+- [导入并同步线程历史](/threads-import)——把现有框架会话接入平台，并保持后续运行连续

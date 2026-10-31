@@ -1,11 +1,188 @@
 ---
-title: Add AG-UI Streams to Existing Threads
-nav_title: Add to Existing Threads
-description: "Add Intelligence’s AG-UI streams to your existing agent conversations, with optional historical import for supported stores."
-icon: "lucide/Repeat"
-doc_type: how-to
+title: "useAgentContext"
+description: "用于向智能体提供动态上下文的 React hook"
 ---
 
-import ImportThreadHistory from "@/snippets/shared/threads/threads-import.mdx";
+## 概览
 
-<ImportThreadHistory components={props.components} />
+`useAgentContext` 会在组件存续期间向当前生效的 Copilot runtime 注册一个动态上下文对象。该 hook 在挂载时添加上下文、卸载时移除上下文，因此智能体始终能看到应用状态的最新快照，无需手动清理。
+
+更新传入的上下文对象即可刷新智能体所见的内容。它是 `useCopilotReadable` 的 v2 等价物——让你能把任意可序列化的应用状态（用户偏好、选中项、计算值等）作为上下文暴露出来，供智能体在生成响应或做决策时引用。
+
+## 签名
+
+```tsx
+import { useAgentContext } from "@copilotkit/react-core/v2";
+
+function useAgentContext(context: AgentContextInput): void;
+```
+
+## 参数
+
+<PropertyReference name="context" type="AgentContextInput" required>
+  描述要暴露给智能体的上下文的对象。
+
+<PropertyReference name="description" type="string" required>
+  上下文的人类可读描述。智能体借助它来理解该值代表什么、何时引用它。
+</PropertyReference>
+
+  <PropertyReference name="value" type="JsonSerializable" required>
+    要提供的上下文值。必须是 JSON 可序列化的：`string`、`number`、`boolean`、`null`、数组，或由字符串键与可序列化值组成的普通对象。凡不是字符串的值都会先用 `JSON.stringify` 字符串化再发送，因此智能体收到的是 JSON 字符串而非你传入的值——参见[智能体收到的内容](#智能体收到的内容)。
+  </PropertyReference>
+</PropertyReference>
+
+## 用法
+
+### 基本用法
+
+把简单的应用状态作为上下文提供给智能体。
+
+```tsx
+function UserGreeting({ user }: { user: { name: string; role: string } }) {
+  useAgentContext({
+    description: "The currently logged-in user",
+    value: { name: user.name, role: user.role },
+  });
+
+  return <div>Welcome, {user.name}</div>;
+}
+```
+
+### 来自组件状态的动态上下文
+
+当值在两次渲染之间发生变化时，上下文会自动更新。
+
+```tsx
+function ProductCatalog() {
+  const [selectedCategory, setSelectedCategory] = useState("electronics");
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 500 });
+
+  useAgentContext({
+    description: "The user's current product filter settings",
+    value: {
+      category: selectedCategory,
+      priceRange,
+    },
+  });
+
+  return (
+    <div>
+      <select
+        value={selectedCategory}
+        onChange={(e) => setSelectedCategory(e.target.value)}
+      >
+        <option value="electronics">Electronics</option>
+        <option value="books">Books</option>
+        <option value="clothing">Clothing</option>
+      </select>
+      {/* ... price range controls ... */}
+    </div>
+  );
+}
+```
+
+### 嵌套组件中的多个上下文
+
+每个组件都可以注册自己的上下文。所有已注册的上下文会同时对智能体可见。
+
+```tsx
+function Dashboard() {
+  useAgentContext({
+    description: "Current dashboard view and layout",
+    value: { view: "analytics", columns: 3 },
+  });
+
+  return (
+    <div>
+      <Sidebar />
+      <MainPanel />
+    </div>
+  );
+}
+
+function Sidebar() {
+  const [collapsed, setCollapsed] = useState(false);
+
+  useAgentContext({
+    description: "Sidebar navigation state",
+    value: { collapsed, activeSection: "reports" },
+  });
+
+  return <nav>{/* ... */}</nav>;
+}
+```
+
+## 智能体收到的内容
+
+每个已注册的条目都会以 `{ description, value }` 的形式到达智能体，且 `value` 是一个 **JSON 字符串**——不是你传入的对象或数组。AG-UI 协议将其类型定义为字符串，因此编写智能体时这是一个无法忽视的细节。
+
+注册以下内容：
+
+```tsx
+useAgentContext({
+  description: "Incident dashboard records",
+  value: [{ id: "INC-1041", severity: "sev1" }],
+});
+```
+
+智能体实际收到的是：
+
+```json
+{
+  "description": "Incident dashboard records",
+  "value": "[{\"id\":\"INC-1041\",\"severity\":\"sev1\"}]"
+}
+```
+
+读取任何字段之前先解析。在 Python 智能体中：
+
+```python
+import json
+
+def dashboard_records(context):
+    entry = next(
+        (item for item in context if item["description"] == "Incident dashboard records"),
+        None,
+    )
+    return None if entry is None else json.loads(entry["value"])
+```
+
+在 TypeScript 智能体中：
+
+```ts
+const entry = context.find(
+  (item) => item.description === "Incident dashboard records",
+);
+const records = entry ? JSON.parse(entry.value) : undefined;
+```
+
+这份上下文列表在智能体中的呈现位置取决于所用框架的 AG-UI 适配器。
+
+### Google ADK
+
+`ag-ui-adk` 会把请求的上下文列表存入 ADK 会话状态的 `CONTEXT_STATE_KEY` 键下，这是一个公开导出，其值为 `"_ag_ui_context"`：
+
+```python
+from ag_ui_adk import CONTEXT_STATE_KEY
+
+def dashboard_records_for_adk(ctx):
+    return dashboard_records(ctx.state.get(CONTEXT_STATE_KEY, []))
+```
+
+使用传给 ADK instruction provider 的 `ctx`、回调中的 `callback_context`，或工具中的 `tool_context`。这些条目是带有字符串类型 `description` 与 `value` 字段的字典。要让模型看到这些值，请将它们包含在 instruction provider 或模型调用前的回调中；仅靠 `AGUIToolset()` 不会把它们注入提示。完整的智能体示例参见 [Google ADK 只读上下文配置](/google-adk/shared-state/agent-readonly)。
+
+<Callout type="warn">
+  不要按你注册时的形态对 `value` 做类型检查。Python 中的 `isinstance(entry["value"], list)` 或 TypeScript 中的 `Array.isArray(entry.value)` 永远不会为真，因为 `value` 在传输时始终是字符串。如果智能体把这种检查失败解读为“没有发送任何上下文”，就会拒绝所有请求，而此时浏览器其实正在正确注册上下文，且这两种情况从 UI 上无法区分。
+</Callout>
+
+## 行为
+
+- **挂载/卸载生命周期**：上下文在组件挂载时注册，卸载时自动移除。无需手动清理。
+- **响应式更新**：当 `context` 对象在两次渲染之间变化时，智能体立即看到更新后的值。
+- **序列化**：`value` 必须符合 `JsonSerializable`（`string | number | boolean | null | JsonSerializable[] | { [key: string]: JsonSerializable }`）。函数、类实例或符号等不可序列化的值会导致错误。字符串原样发送；其他所有值都会被字符串化，因此智能体读到的始终是字符串——参见[智能体收到的内容](#智能体收到的内容)。
+- **多个上下文**：组件树中多处调用 `useAgentContext` 注册的上下文会同时对智能体可见。每个上下文由其 description 和 value 标识。
+- **无返回值**：该 hook 返回 `void`。与 `useCopilotReadable` 不同，它不会返回用于父子层级的 ID。
+
+## 相关内容
+
+- [`useCopilotReadable`](/reference/v1/hooks/useCopilotReadable)——提供上下文的 v1 等价物

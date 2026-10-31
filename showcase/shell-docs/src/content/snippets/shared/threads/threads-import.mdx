@@ -2,82 +2,82 @@ import { Tabs, Tab } from "fumadocs-ui/components/tabs";
 
 <span id="what-is-this" />
 
-## Add Intelligence to your existing app
+## 为现有应用添加智能中枢
 
-Add reconnection, catch-up, and delivery across devices to the conversations your agent already manages. Follow the [Intelligence quickstart](/intelligence/quickstart) to connect your existing CopilotKit app and Runtime, then verify that a new conversation is saved. That setup enables AG-UI streams for runs through CopilotKit; importing old conversations is not required.
+为你智能体已在管理的会话添加重连、补齐进度与跨设备投递能力。按照[智能中枢快速开始](/intelligence/quickstart)接入你现有的 CopilotKit 应用与 Runtime，然后验证新会话能否保存。这套配置会为经由 CopilotKit 的运行启用 AG-UI 流；无需导入旧会话。
 
-Your framework continues managing agent context and execution state. Keep your durable LangGraph checkpointer or durable ADK session service configured and keep the mapping between CopilotKit `threadId` values and native framework conversation identifiers stable. See [AG-UI Streams & Framework Threads](/intelligence/threads-explained#how-threads-work-with-framework-storage) for the responsibilities of each layer.
+你的框架继续管理智能体上下文与执行状态。保持已配置的持久化 LangGraph checkpointer 或持久化 ADK session service，并让 CopilotKit `threadId` 值与原生框架会话标识符之间的映射保持稳定。各层的职责分工参见 [AG-UI 流与框架线程](/intelligence/threads-explained#how-threads-work-with-framework-storage)。
 
-For a concrete example without historical import, see [keep an existing LangGraph conversation](/intelligence/bring-your-own-thread-system#example-keep-an-existing-langgraph-conversation).
+不导入历史的完整示例参见[保留现有 LangGraph 会话](/intelligence/bring-your-own-thread-system#example-keep-an-existing-langgraph-conversation)。
 
-## Include earlier conversations (optional)
+## 纳入更早的会话（可选）
 
-If you also want users to reopen history recorded before Intelligence was connected, copy supported history into Intelligence using the steps below. This guide covers Google ADK, LangGraph, Mastra, and AWS Strands stores. It copies historical content; it does not enable live delivery, recover past execution, or establish ongoing database replication.
+如果你还想让用户重新打开接入智能中枢之前记录的历史，请使用下面的步骤把受支持的历史复制到智能中枢。本指南覆盖 Google ADK、LangGraph、Mastra 和 AWS Strands 存储。它只复制历史内容；不会启用实时投递、无法恢复过去的执行，也不会建立持续的数据库复制。
 
-Use Threads Drawer or `useThreads` to select a conversation, and pass its `threadId` to your chat. Imported and new conversations then use the same UI. Importing cannot recover content the source no longer exposes.
+使用 Threads Drawer 或 `useThreads` 选择会话，并把它的 `threadId` 传给你的聊天组件。导入的会话和新会话随后共用同一套 UI。导入无法恢复来源已不再暴露的内容。
 
-## Supported sources
+## 支持的来源
 
-| Source | Import guide | Supported history |
+| 来源 | 导入指南 | 支持的历史 |
 |---|---|---|
-| Google ADK | [Add AG-UI streams to ADK sessions](/google-adk/threads-import) | Persisted ADK sessions from a database session service or Vertex/Agent Engine session service. |
-| LangGraph | [Add AG-UI streams to LangGraph threads](/langgraph-python/threads-import) | Saved conversations from LangGraph Server / LangSmith deployments or Python FastAPI apps with durable persistence. |
-| Mastra | [Add AG-UI streams to Mastra conversations](/mastra/threads-import) | Saved conversations from a local LibSQL database or a Mastra server. |
-| AWS Strands | [Python](/strands/threads-import) · [TypeScript](/strands-typescript/threads-import) | Saved single-agent conversations from local session files or S3; Python also supports AgentCore Memory native sessions. |
+| Google ADK | [为 ADK 会话添加 AG-UI 流](/google-adk/threads-import) | 来自数据库 session service 或 Vertex/Agent Engine session service 的持久化 ADK 会话。 |
+| LangGraph | [为 LangGraph 线程添加 AG-UI 流](/langgraph-python/threads-import) | 来自 LangGraph Server / LangSmith 部署或具备持久化存储的 Python FastAPI 应用的已保存会话。 |
+| Mastra | [为 Mastra 会话添加 AG-UI 流](/mastra/threads-import) | 来自本地 LibSQL 数据库或 Mastra 服务器的已保存会话。 |
+| AWS Strands | [Python](/strands/threads-import) · [TypeScript](/strands-typescript/threads-import) | 来自本地会话文件或 S3 的已保存单智能体会话；Python 还支持 AgentCore Memory 原生会话。 |
 
-## What gets imported?
+## 会导入哪些内容？
 
-The importer preserves conversation content that can render in the CopilotKit chat UI or help downstream learning systems:
+导入器会保留能在 CopilotKit 聊天 UI 中渲染、或对下游学习系统有帮助的会话内容：
 
-- user, assistant, tool, system, and developer messages
-- tool calls and tool results
-- reasoning traces when the source exposes them
-- media that can be resolved during extraction
-- saved agent state when supported by the source
-- original timestamps
-- import provenance and per-conversation import outcomes
+- 用户、助手、工具、系统与开发者消息
+- 工具调用与工具结果
+- 来源有暴露时的推理轨迹
+- 抽取期间可解析的媒体
+- 来源支持时的已保存智能体状态
+- 原始时间戳
+- 导入来源信息与每个会话的导入结果
 
-It does not import framework transport noise, LangSmith traces, or unsupported source stores. What is available depends on what your source saved; see your framework’s import guide for details.
+它不会导入框架的传输噪音、LangSmith 追踪或不受支持的来源存储。可导入的内容取决于你的来源保存了什么；细节请参见你框架的导入指南。
 
-## Import flow
+## 导入流程
 
 <Steps>
   <Step>
-    ### Confirm the target project
+    ### 确认目标项目
 
-    Choose the Intelligence project that will receive the history. Its app-api URL and project-scoped runtime key select the destination. You will export those values before importing.
+    选择接收历史记录的智能中枢项目。由它的 app-api URL 和项目级 runtime 密钥指定目的地。导入前你需要先导出这些值。
 
-    For a CLI-created app, you can select a cloud-hosted project:
+    对于 CLI 创建的应用，可以选择一个云托管项目：
 
     ```bash title="Terminal"
     npx copilotkit@latest project select
     ```
 
-    The command updates the project selected for the current directory and writes its project-scoped runtime key to the app's generated `.env`.
+    该命令会更新当前目录所选的项目，并把其项目级 runtime 密钥写入应用生成的 `.env`。
   </Step>
 
   <Step>
-    ### Run a dry run
+    ### 先做一次试运行
 
-    A dry run reads the source, discovers source agent keys, counts conversations, reports skips, and estimates upload size without opening an import batch. It does not need a CopilotKit Intelligence URL or API key.
+    试运行（dry run）会读取来源、发现来源智能体键、统计会话数量、报告将跳过的条目，并估算上传体积，且不会开启导入批次。它不需要 CopilotKit Intelligence URL 或 API 密钥。
 
     <Tabs groupId="thread_import_source" items={['ADK', 'LangGraph', 'Mastra']}>
       <Tab value="ADK">
-        [Configure the ADK source](/google-adk/threads-import#configure-the-source), then run:
+        [配置 ADK 来源](/google-adk/threads-import#configure-the-source)，然后运行：
 
         ```bash
         npx copilotkit@latest import --source adk --dry-run
         ```
       </Tab>
       <Tab value="LangGraph">
-        [Configure the LangGraph source](/langgraph-python/threads-import#configure-the-source) and its user IDs, then run:
+        [配置 LangGraph 来源](/langgraph-python/threads-import#configure-the-source)及其用户 ID，然后运行：
 
         ```bash
         npx copilotkit@latest import --source langgraph --user-source metadata.user_id --dry-run
         ```
       </Tab>
       <Tab value="Mastra">
-        Configure your source using the [Mastra import guide](/mastra/threads-import#configure-the-source), then run:
+        使用 [Mastra 导入指南](/mastra/threads-import#configure-the-source)配置你的来源，然后运行：
 
         ```bash
         npx copilotkit@latest import --source mastra --dry-run
@@ -87,11 +87,11 @@ It does not import framework transport noise, LangSmith traces, or unsupported s
   </Step>
 
   <Step>
-    ### Map source agents
+    ### 映射来源智能体
 
-    The importer maps each source agent key to the `agentId` your live CopilotKit runtime uses. Use the same agent ID for import and later runs. The imported application user ID must also match the ID returned by your runtime's `identifyUser`.
+    导入器会把每个来源智能体键映射到你的线上 CopilotKit runtime 所使用的 `agentId`。导入与后续运行要使用同一个智能体 ID。导入的应用用户 ID 也必须与 runtime 的 `identifyUser` 返回的 ID 一致。
 
-    For scripted imports, put the mapping in a JSON file:
+    对于脚本化导入，把映射放进一个 JSON 文件：
 
     ```json title="agent-map.json"
     {
@@ -102,55 +102,55 @@ It does not import framework transport noise, LangSmith traces, or unsupported s
   </Step>
 
   <Step>
-    ### Prepare the CopilotKit Intelligence destination
+    ### 准备 CopilotKit Intelligence 目的地
 
-    A real import needs the destination app-api URL and project-scoped runtime key. A CLI-created starter writes them to `.env`, but the importer reads the current process environment and does not load `.env` or `.copilotkit/project.json` automatically.
+    正式导入需要目的地的 app-api URL 和项目级 runtime 密钥。CLI 创建的起步模板会把它们写入 `.env`，但导入器读取的是当前进程环境，不会自动加载 `.env` 或 `.copilotkit/project.json`。
 
-    Copy the generated values into your shell before importing:
+    导入前，把生成的值复制到你的 shell 中：
 
     ```bash title="Terminal"
     export INTELLIGENCE_API_URL="https://..."
     export CPK_INTELLIGENCE_API_KEY="cpk-..."
     ```
 
-    `COPILOTKIT_API_KEY` is also accepted for the key. You can pass the same values directly with `--api-url` and `--api-key` instead.
+    密钥也接受 `COPILOTKIT_API_KEY`。你也可以改用 `--api-url` 和 `--api-key` 直接传入相同的值。
   </Step>
 
   <Step>
-    ### Run the import
+    ### 执行导入
 
-    Run the source-specific import after the dry run looks right:
+    试运行结果无误后，按来源执行对应导入：
 
-    - [Add AG-UI streams to ADK sessions](/google-adk/threads-import)
-    - [Add AG-UI streams to LangGraph threads](/langgraph-python/threads-import)
-    - [Add AG-UI streams to Mastra conversations](/mastra/threads-import)
+    - [为 ADK 会话添加 AG-UI 流](/google-adk/threads-import)
+    - [为 LangGraph 线程添加 AG-UI 流](/langgraph-python/threads-import)
+    - [为 Mastra 会话添加 AG-UI 流](/mastra/threads-import)
 
-    Already-imported threads are skipped by default. Use `--replace` to refresh them; running or continued threads are left unchanged.
+    已导入的线程默认会被跳过。使用 `--replace` 刷新它们；正在运行或已续跑的线程保持不变。
   </Step>
 
   <Step>
-    ### Verify the imported conversations
+    ### 验证导入的会话
 
-    Sign in as the application user assigned to the imported conversation. Open it from the Threads Drawer and make sure that its history appears. Send a message and make sure that your native framework continues the same conversation.
+    以分配了该导入会话的应用用户身份登录。在 Threads Drawer 中打开它，确认历史记录正常显示。发送一条消息，确认原生框架延续了同一会话。
   </Step>
 
   <Step>
-    ### Continue using your framework's persistence
+    ### 继续使用框架的持久化
 
-    Your app sends future conversations that run through CopilotKit to CopilotKit Intelligence. Keep your durable LangGraph or ADK persistence configured so those runs continue using both persistence layers. Reopen a conversation with the same CopilotKit `threadId` and a stable mapping to its native thread or session so its history stays continuous.
+    应用会把后续经由 CopilotKit 运行的会话发送到 CopilotKit Intelligence。保持已配置的持久化 LangGraph 或 ADK 存储，让这些运行继续同时使用两层持久化。重新打开会话时使用相同的 CopilotKit `threadId` 以及到其原生线程或会话的稳定映射，历史就能保持连续。
 
-    Importing copies supported history; it does not establish ongoing database replication. Intelligence rename, archive, and delete operations affect only Intelligence records.
+    导入只复制受支持的历史，不会建立持续的数据库复制。智能中枢的重命名、归档和删除操作只影响智能中枢自己的记录。
 
-    - **Threads Drawer:** already included in CLI-created starters. Use the [Threads Drawer guide](/prebuilt-components/copilot-threads-drawer) to customize its ready-made thread UI.
-    - **Headless Threads:** use the [Headless Threads guide](/headless-threads) only when you need a custom UI. Select a thread with `useThreads`, store its `thread.id`, and pass that value to your chat component as `threadId`.
+    - **Threads Drawer**：CLI 创建的起步模板已经内置。使用 [Threads Drawer 指南](/prebuilt-components/copilot-threads-drawer)自定义这套现成的线程 UI。
+    - **无头线程（Headless Threads）**：仅当需要自定义 UI 时使用[无头线程指南](/headless-threads)。用 `useThreads` 选择线程，保存其 `thread.id`，并把该值作为 `threadId` 传给你的聊天组件。
 
-    Use the imported `thread.id` returned by the Drawer or `useThreads` when you reopen the conversation. Keep any mapping to the native ID unchanged.
+    重新打开会话时，使用 Drawer 或 `useThreads` 返回的导入 `thread.id`。与原生 ID 的任何映射保持不变。
 
-    For the underlying persistence and replay model, see [AG-UI Streams & Framework Threads](/intelligence/threads-explained).
+    底层持久化与回放模型参见 [AG-UI 流与框架线程](/intelligence/threads-explained)。
   </Step>
 </Steps>
 
-## Deployment notes
+## 部署注意事项
 
-- **Cloud-hosted CopilotKit Intelligence:** export the destination values generated in the CLI-created app's `.env`, or pass them with `--api-url` and `--api-key`. `project select` can rewrite the app's generated values, but the importer still reads only flags or the current process environment. See [Cloud-hosted CopilotKit Intelligence](/intelligence/managed-intelligence-platform).
-- **Self-hosted CopilotKit Intelligence:** pass the deployment's app-api URL with `--api-url` and a project-scoped `cpk` runtime key with `--api-key`. See [Self-host CopilotKit Intelligence](/intelligence/self-hosting).
+- **云托管的 CopilotKit Intelligence**：导出 CLI 创建的应用在 `.env` 中生成的目的地值，或用 `--api-url` 和 `--api-key` 传入。`project select` 可以改写应用生成的值，但导入器仍只读取命令行参数或当前进程环境。参见[云托管的 CopilotKit Intelligence](/intelligence/managed-intelligence-platform)。
+- **自托管的 CopilotKit Intelligence**：用 `--api-url` 传入部署的 app-api URL，用 `--api-key` 传入项目级 `cpk` runtime 密钥。参见[自托管 CopilotKit Intelligence](/intelligence/self-hosting)。

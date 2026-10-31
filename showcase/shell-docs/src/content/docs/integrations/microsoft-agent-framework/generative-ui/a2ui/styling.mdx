@@ -1,12 +1,12 @@
 ---
-title: "Styling"
-description: "Customize the appearance of A2UI surfaces with CSS custom properties, fonts, and component-level overrides."
+title: "样式定制"
+description: "使用 CSS 自定义属性、字体和组件级覆盖来自定义 A2UI surface 的外观。"
 ---
-A2UI surfaces support theming through CSS custom properties scoped to the `.a2ui-surface` class.
+A2UI surface 支持通过限定在 `.a2ui-surface` 类作用域内的 CSS 自定义属性进行主题定制。
 
-## Theme CSS
+## 主题 CSS
 
-Create a theme file and import it in your layout:
+创建一个主题文件，并在布局中导入：
 
 ```css title="src/a2ui/theme.css"
 .a2ui-surface {
@@ -25,26 +25,26 @@ Create a theme file and import it in your layout:
 import "@/a2ui/theme.css";
 ```
 
-## CSS custom properties reference
+## CSS 自定义属性参考
 
-| Variable | Default | Description |
+| 变量 | 默认值 | 说明 |
 |---|---|---|
-| `--primary` | — | Primary accent color (buttons, links) |
-| `--primary-foreground` | — | Text color on primary backgrounds |
-| `--card` | — | Card background color |
-| `--border` | — | Border color for cards, dividers, inputs |
-| `--radius` | — | Border radius for cards and buttons |
-| `--foreground` | — | Default text color |
-| `--input` | — | Input field border color |
-| `--background` | — | Surface background color |
+| `--primary` | — | 主强调色（按钮、链接） |
+| `--primary-foreground` | — | 主色背景上的文字颜色 |
+| `--card` | — | 卡片背景色 |
+| `--border` | — | 卡片、分隔线、输入框的边框颜色 |
+| `--radius` | — | 卡片和按钮的圆角 |
+| `--foreground` | — | 默认文字颜色 |
+| `--input` | — | 输入框边框颜色 |
+| `--background` | — | surface 背景色 |
 
 <Callout type="info">
-These variables are scoped to `.a2ui-surface` — they won't affect the rest of your app. You can also set them on `:root` if you want global defaults.
+这些变量的作用域限定在 `.a2ui-surface`——不会影响应用的其他部分。如果想要全局默认值，也可以在 `:root` 上设置它们。
 </Callout>
 
-## Custom fonts
+## 自定义字体
 
-Override the font family on the surface container:
+在 surface 容器上覆盖字体系列：
 
 ```css title="src/a2ui/theme.css"
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -55,9 +55,9 @@ Override the font family on the surface container:
 }
 ```
 
-## Image sizing
+## 图片尺寸
 
-A2UI surfaces render Image components at their natural size. For consistent layouts (e.g., airline logos, avatars), constrain images with CSS:
+A2UI surface 会按 Image 组件的自然尺寸渲染。为了让布局保持一致（例如航空公司徽标、头像），可以用 CSS 约束图片尺寸：
 
 ```css title="src/a2ui/theme.css"
 /* Constrain logos and avatars */
@@ -76,9 +76,9 @@ A2UI surfaces render Image components at their natural size. For consistent layo
 }
 ```
 
-## Card width
+## 卡片宽度
 
-When streaming cards one-by-one, a single card can collapse to a narrow width. Set a minimum:
+逐张流式渲染卡片时，单张卡片可能会收缩到很窄的宽度。请设置一个最小宽度：
 
 ```css title="src/a2ui/theme.css"
 .a2ui-surface .a2ui-card {
@@ -86,9 +86,9 @@ When streaming cards one-by-one, a single card can collapse to a narrow width. S
 }
 ```
 
-## Dark mode
+## 深色模式
 
-Target dark mode with a class or media query:
+通过类名或媒体查询适配深色模式：
 
 ```css title="src/a2ui/theme.css"
 .dark .a2ui-surface,
@@ -105,9 +105,9 @@ Target dark mode with a class or media query:
 }
 ```
 
-## Full example
+## 完整示例
 
-Here's a complete theme file combining all the patterns above:
+下面是一个整合了上述所有模式的完整主题文件：
 
 ```css title="src/a2ui/theme.css"
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');

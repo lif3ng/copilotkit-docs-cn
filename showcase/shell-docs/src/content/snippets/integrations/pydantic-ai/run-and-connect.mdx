@@ -1,19 +1,196 @@
-import { Accordions, Accordion } from "fumadocs-ui/components/accordion";
+---
+title: "CSS 自定义"
+icon: "lucide/Palette"
+description: "通过 CSS 变量与类名覆盖为 CopilotKit 组件定制主题。"
+snippet_cell: chat-customization-css
+snippet_framework: langgraph-python
+---
 
-You'll need to run your agent and connect it to CopilotKit before proceeding.
+<InlineDemo demo="chat-customization-css" />
 
-If you don't already have CopilotKit and your agent connected, choose one of the following options:
+## 这是什么？
 
-<Accordions>
-  <Accordion title="I already have an agent">
-    You can follow the instructions in the [quickstart](/pydantic-ai/quickstart) guide.
-  </Accordion>
-  <Accordion title="I want to start from scratch">
-    Run the following command to create a brand new project with a pre-configured agent:
+CopilotKit 提供了多种方式，让你通过纯 CSS 自定义 Copilot UI 组件的颜色与结构。你可以：
 
-    ```bash
-    npx copilotkit@latest create -f pydantic-ai
-    ```
+- 覆盖 CopilotKit CSS 变量，为整个 UI 重新调色
+- 针对内置类名（`.copilotKit...`）做结构性微调
+- 按界面区域（消息、输入框、气泡）更换字体
+- 通过组件 props 替换图标与标签
 
-  </Accordion>
-</Accordions>
+如果你需要改变的是行为而不只是外观，请参阅[插槽（slots）](/custom-look-and-feel/slots)或[完全无头（headless）UI](/custom-look-and-feel/headless-ui)。
+
+## 限定主题的作用域
+
+该示例把全部样式放在同级的 `theme.css` 文件中，并且只作用于承载 `<CopilotChat>` 的 wrapper div。从页面模块导入该样式表即可；Next.js 会把它随路由一起打包：
+
+<Snippet region="theme-css-import" title="frontend/src/app/page.tsx：导入主题" />
+
+把每个选择器都限定在 wrapper 类之下，可以防止覆盖样式泄漏到应用的其他部分。
+
+## CSS 变量（最简单）
+
+要更改 Copilot UI 组件使用的颜色，最简单的方法是覆盖 CopilotKit CSS 变量。示例把它们设置在作用域 wrapper 上，从而级联到每个嵌套的聊天组件：
+
+<Snippet region="design-tokens" title="frontend/src/app/theme.css：设计令牌覆盖" />
+
+找到合适的变量后，你也可以通过 `CopilotKitCSSProperties` 辅助类型以内联方式应用覆盖：
+
+```tsx
+import { CopilotKitCSSProperties } from "@copilotkit/react-ui";
+
+<div
+  style={
+    {
+      "--copilot-kit-primary-color": "#222222",
+    } as CopilotKitCSSProperties
+  }
+>
+  <CopilotSidebar />
+</div>
+```
+
+### 参考
+
+| CSS 变量 | 说明 |
+|-------------|-------------|
+| `--copilot-kit-primary-color` | 按钮和交互元素使用的主品牌色/操作色 |
+| `--copilot-kit-contrast-color` | 与主色形成对比的颜色，用于主色元素上的文字 |
+| `--copilot-kit-background-color` | 页面/容器的主背景色 |
+| `--copilot-kit-secondary-color` | 卡片、面板和浮起表面使用的次级背景色 |
+| `--copilot-kit-secondary-contrast-color` | 主内容使用的主要文字颜色 |
+| `--copilot-kit-separator-color` | 分隔线和容器的边框颜色 |
+| `--copilot-kit-muted-color` | 禁用/非激活状态的弱化色 |
+| `--copilot-kit-shadow-sm` / `-md` / `-lg` | 用于细微表面、卡片和模态框的投影 |
+
+<Callout type="info" title="两套令牌体系">
+  上文的 `--copilot-kit-*` 变量为 **v1** 组件 CSS（`@copilotkit/react-ui`）设置样式。较新的 **v2** 组件（`@copilotkit/react-core/v2`）基于 Tailwind 与 shadcn 构建，使用另一套设计令牌。参见下文 [v2 设计令牌](#v2-设计令牌shadcn)。
+</Callout>
+
+## v2 设计令牌（shadcn）
+
+v2 组件（`@copilotkit/react-core/v2`）内置了一个基于标准 shadcn/ui 令牌集构建的 Tailwind v4 主题。它们不再读取 `--copilot-kit-*` 变量，而是读取 [oklch](https://oklch.com) 颜色令牌——这些令牌的作用域限定在 `[data-copilotkit]` 根节点上，并通过 `@theme inline` 代码块接入 Tailwind 工具类。这意味着只需覆盖少量 CSS 自定义属性，就能为整个 v2 UI 换肤，且所有组件都会自动生效。
+
+在 `[data-copilotkit]` 元素（或任意祖先元素）上覆盖它们，方式与 shadcn 项目中一样：
+
+```css title="globals.css"
+[data-copilotkit] {
+  --primary: oklch(0.55 0.22 264); /* accent / action color */
+  --primary-foreground: oklch(0.99 0 0); /* text on primary */
+  --background: oklch(1 0 0); /* surface background */
+  --foreground: oklch(0.145 0 0); /* primary text */
+  --muted: oklch(0.97 0 0); /* subtle backgrounds */
+  --border: oklch(0.922 0 0); /* dividers, outlines */
+  --radius: 0.625rem; /* global corner radius */
+}
+
+/* Dark mode is keyed off a `.dark` ancestor */
+.dark [data-copilotkit] {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --border: oklch(0.269 0 0);
+}
+```
+
+### 参考
+
+这些是最常被覆盖的 v2 令牌。每个浅色值在 `.dark [data-copilotkit]` 下都有对应的深色模式值。完整集合（popover、accent、destructive、chart 以及 sidebar 变体）位于 `@copilotkit/react-core/v2/styles.css`。
+
+| 令牌 | 说明 |
+|-------|-------------|
+| `--background` / `--foreground` | 基础表面背景色与主要文字颜色 |
+| `--primary` / `--primary-foreground` | 强调色/操作色及其上层渲染的文字颜色 |
+| `--secondary` / `--secondary-foreground` | 次级表面（卡片、面板）及其文字颜色 |
+| `--muted` / `--muted-foreground` | 弱化背景与弱化文字颜色 |
+| `--accent` / `--accent-foreground` | 悬停/激活状态及其文字颜色 |
+| `--border` / `--input` / `--ring` | 分隔线/轮廓颜色、输入框边框、聚焦光环 |
+| `--destructive` / `--destructive-foreground` | 错误/危险颜色及其文字颜色 |
+| `--card` / `--popover`（及 `-foreground`） | 浮起表面背景色及其文字颜色 |
+| `--sidebar-*` | 侧边栏专属的 background/foreground/border/ring 令牌组 |
+| `--radius` | 基础圆角半径；`--radius-sm/md/lg/xl` 由它派生 |
+
+<Callout type="info" title="oklch 取值">
+  v2 令牌使用 `oklch()` 颜色空间，可在不同色相之间保持感知亮度一致。你仍然可以传入 `hsl()`、`rgb()` 或十六进制值；任何有效的 CSS 颜色都可以。
+</Callout>
+
+## 自定义 CSS
+
+CopilotKit 的 CSS 在结构上支持通过 CSS 类进行自定义。你可以在自己的样式表中针对 UI 的特定部分设置样式：
+
+```css title="globals.css"
+.copilotKitButton {
+  border-radius: 0;
+}
+
+.copilotKitMessages {
+  padding: 2rem;
+}
+
+.copilotKitUserMessage {
+  background: #007AFF;
+}
+```
+
+示例的 `theme.css` 把每个选择器都包裹在 `.chat-css-demo-scope` 之下，以免覆盖样式泄漏出去。下面是该文件中用户消息气泡的部分：
+
+<Snippet
+  region="user-message"
+  title="frontend/src/app/theme.css：用户消息气泡"
+/>
+
+### 参考
+
+| CSS 类 | 说明 |
+|-----------|-------------|
+| `.copilotKitMessages` | 所有聊天消息的主容器 |
+| `.copilotKitMessage` | 应用于每条消息气泡（用户与助手）的基础类 |
+| `.copilotKitInput` | 包含输入区和发送按钮的文本输入容器 |
+| `.copilotKitUserMessage` | 用户消息的样式 |
+| `.copilotKitAssistantMessage` | AI 回复的样式 |
+| `.copilotKitHeader` | 聊天窗口顶栏，包含标题与控件 |
+| `.copilotKitButton` | 主聊天开关按钮 |
+| `.copilotKitWindow` | 定义聊天窗口整体尺寸的根容器 |
+| `.copilotKitMarkdown` | 渲染后的 markdown 内容的样式 |
+| `.copilotKitCodeBlock` | 带语法高亮的代码块容器 |
+| `.copilotKitSidebar` | 侧边栏聊天模式的样式 |
+| `.copilotKitPopup` | 弹窗聊天模式的样式 |
+
+## 自定义字体
+
+你可以通过更新相关 CopilotKit 类的 `fontFamily` 属性来自定义字体：
+
+```css title="globals.css"
+.copilotKitMessages {
+  font-family: "Arial, sans-serif";
+}
+
+.copilotKitInput {
+  font-family: "Arial, sans-serif";
+}
+```
+
+## 自定义图标
+
+通过向 `CopilotSidebar`、`CopilotPopup` 或 `CopilotChat` 传入 `icons` prop 来自定义图标：
+
+```tsx
+<CopilotChat
+  icons={{
+    openIcon: <YourOpenIconComponent />,
+    closeIcon: <YourCloseIconComponent />,
+  }}
+/>
+```
+
+## 自定义标签
+
+通过 `labels` prop 自定义所有面向用户的文案：
+
+```tsx
+<CopilotChat
+  labels={{
+    welcomeMessageText: "Hello! How can I help you today?",
+    modalHeaderTitle: "My Copilot",
+    chatInputPlaceholder: "Ask me anything!",
+  }}
+/>
+```

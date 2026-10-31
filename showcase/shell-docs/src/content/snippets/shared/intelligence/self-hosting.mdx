@@ -1,123 +1,123 @@
 import { Tabs, Tab } from "fumadocs-ui/components/tabs";
 
-<Callout type="info" title="Deploying on AWS ECS/Fargate?">
-  Follow [Self-host Intelligence on AWS ECS/Fargate](/intelligence/self-hosting-ecs) for the versioned CloudFormation bundle, configuration, deployment, and verification steps. This page covers Kubernetes and Helm.
+<Callout type="info" title="部署到 AWS ECS/Fargate？">
+  如需版本化的 CloudFormation bundle 以及配置、部署和验证步骤，请参阅[在 AWS ECS/Fargate 上自托管智能中枢](/intelligence/self-hosting-ecs)。本页涵盖 Kubernetes 与 Helm。
 </Callout>
 
-<Callout type="info" title="Just evaluating?">
-  To try Intelligence on your own Mac first, [evaluate it locally](/intelligence/self-hosting-local) (preview). The CLI runs it in Docker Desktop; you do not need a cluster.
+<Callout type="info" title="只是先评估一下？">
+  想先在自己的 Mac 上试用智能中枢？可以[在本地评估](/intelligence/self-hosting-local)（预览版）。CLI 会在 Docker Desktop 中运行它，你不需要集群。
 </Callout>
 
-## Overview
+## 概览
 
-CopilotKit Intelligence — the platform that powers threads, shared state, and the inspector — can be self-hosted on your own Kubernetes cluster using the `copilot-intelligence` Helm chart. You run the control plane and data plane inside your own network boundary; the chart leaves you in charge of identity, storage, and secrets.
+CopilotKit Intelligence——为线程、共享状态和 inspector 提供支撑的平台——可以使用 `copilot-intelligence` Helm chart 自托管在你自己的 Kubernetes 集群上。控制平面与数据平面都运行在你自己的网络边界之内；身份、存储与密钥则由你全权掌管。
 
-**What you bring:**
+**你需要自备：**
 
-- Postgres and Redis — your own, or the bundled Bitnami subcharts
-- An OIDC provider for identity
-- Secrets via External Secrets Operator, direct Kubernetes Secrets, or chart-managed credentials
+- Postgres 与 Redis——用你自己的，或使用内置的 Bitnami 子 chart
+- 一个用于身份验证的 OIDC 提供方
+- 密钥来源：External Secrets Operator、直接创建 Kubernetes Secrets，或由 chart 托管的凭据
 
 <OpsPlatformCTA
   variant="inline"
-  title="Planning a self-hosted CopilotKit Intelligence deployment?"
-  body="Self-hosting is available on the Team self-hosted plan or a custom Enterprise plan for VPC, on-prem, and data-residency deployments."
-  ctaLabel="Talk to an engineer"
+  title="正在规划 CopilotKit Intelligence 的自托管部署？"
+  body="自托管适用于 Team 自托管套餐或自定义 Enterprise 套餐，可用于 VPC、本地部署与数据驻留场景。"
+  ctaLabel="与工程师交流"
   surface="docs_intelligence_self_hosting_intro"
   href="https://copilotkit.ai/talk-to-an-engineer"
   analyticsEvent="talk_to_us_clicked"
 />
 
-**What the chart deploys:**
+**chart 会部署：**
 
-| Component                       | Role                                | Port |
+| 组件                            | 作用                                | 端口 |
 | ------------------------------- | ----------------------------------- | ---- |
-| `app-api`                       | Backend service                     | 4201 |
+| `app-api`                       | 后端服务                            | 4201 |
 | `app-frontend`                  | Web UI                              | 8080 |
-| `realtime-gateway` _(optional)_ | WebSocket service for realtime sync | 4401 |
+| `realtime-gateway` _（可选）_   | 用于实时同步的 WebSocket 服务       | 4401 |
 
-Plus a `database-migrations` Job, a `thread-culler` CronJob, and the usual supporting resources (Services, Ingress, HPAs, PodDisruptionBudgets, ConfigMaps, and — when ESO is enabled — ExternalSecret resources).
+此外还包括一个 `database-migrations` Job、一个 `thread-culler` CronJob，以及常见的配套资源（Services、Ingress、HPA、PodDisruptionBudgets、ConfigMaps，以及启用 ESO 时的 ExternalSecret 资源）。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-- Your organization requires CopilotKit Intelligence to run inside your own VPC or data center for compliance, data residency, or security reasons
-- You want to connect CopilotKit Intelligence to internal databases, identity providers, or secret stores that are not reachable from the cloud-hosted version
-- You need to operate the platform under your existing Kubernetes tooling, CI/CD, and monitoring stack
-- You have a CopilotKit Intelligence license and the platform-engineering capacity to run a production Kubernetes workload
+- 出于合规、数据驻留或安全原因，你的组织要求 CopilotKit Intelligence 运行在自己的 VPC 或数据中心内
+- 你想把 CopilotKit Intelligence 连接到云托管版本无法访问的内部数据库、身份提供方或密钥存储
+- 你需要在你现有的 Kubernetes 工具链、CI/CD 和监控体系下运维该平台
+- 你拥有 CopilotKit Intelligence 许可证，并具备运行生产级 Kubernetes 工作负载的平台工程能力
 
-<Callout type="info" title="Validate locally before committing to a real cluster">
-The chart installs the same way against a local Docker Desktop or k3d cluster as against a production one, so walk this guide end-to-end on your laptop first. Two local paths are supported:
+<Callout type="info" title="在正式集群之前先在本地验证">
+这套 chart 在本地 Docker Desktop 或 k3d 集群上的安装方式与在生产集群上完全相同，所以请先在笔记本上完整走一遍本指南。本地有两条路径可选：
 
-- **Bundled overlay** — install with the `values-quickstart-local.yaml` overlay shipped in the chart. It enables in-cluster Postgres, Redis, and (optionally) Keycloak; you drive the install yourself, following this guide.
-- **One-shot script** — `scripts/local-demo.sh` spins up a disposable k3d cluster, installs the released chart from GHCR, and brings up bundled Keycloak in one command:
+- **内置 overlay**——使用 chart 自带的 `values-quickstart-local.yaml` overlay 安装。它会启用集群内 Postgres、Redis 以及（可选的）Keycloak；安装过程由你自己按照本指南操作。
+- **一键脚本**——`scripts/local-demo.sh` 用一条命令拉起一个一次性的 k3d 集群、从 GHCR 安装已发布的 chart，并启动内置 Keycloak：
 
 ```bash title="Terminal"
 ./scripts/local-demo.sh --version <chart-version>
 ```
 
-Both paths use the same install commands described below — pick whichever fits.
+两条路径都使用下文描述的同一套安装命令——选适合你的即可。
 
 </Callout>
 
-## Prerequisites
+## 前置条件
 
-Before starting, make sure the following are in place. [CopilotKit Intelligence architecture](/intelligence/intelligence-platform) explains the application/runtime/platform layers in more depth.
+开始之前，请确认以下事项已就绪。[CopilotKit Intelligence 架构](/intelligence/intelligence-platform)更深入地解释了应用/运行时/平台各分层。
 
-**License and registry access:**
+**许可证与 registry 访问：**
 
-- A valid CopilotKit Intelligence license key (contact your CopilotKit account team if you do not have one)
-- Read access to the chart OCI registry at `oci://ghcr.io/copilotkit/charts/intelligence` (anonymous pulls are allowed for the released chart)
-- The latest released chart version. Check the [chart releases](https://github.com/CopilotKit/Intelligence/pkgs/container/charts%2Fintelligence) on GHCR; substitute the value into the `<chart-version>` placeholder used throughout this guide (e.g. `0.1.0-rc.16`).
+- 有效的 CopilotKit Intelligence 许可证密钥（如尚未拥有，请联系你的 CopilotKit 客户团队）
+- 对 chart OCI registry `oci://ghcr.io/copilotkit/charts/intelligence` 的读取权限（已发布的 chart 允许匿名拉取）
+- 最新发布的 chart 版本。请在 GHCR 上查看 [chart releases](https://github.com/CopilotKit/Intelligence/pkgs/container/charts%2Fintelligence)，并把版本值代入本指南通篇使用的 `<chart-version>` 占位符（例如 `0.1.0-rc.16`）。
 
-**Cluster and tooling:**
+**集群与工具：**
 
 - Kubernetes ≥ 1.28
 - Helm ≥ 3.12
-- `kubectl` configured against the target cluster with an admin-equivalent context
+- `kubectl` 已配置指向目标集群、使用管理员等效的 context
 
-**Platform prerequisites (cluster-wide, installed once):**
+**平台前置组件（集群范围，只需安装一次）：**
 
-- An ingress controller — either `nginx-ingress` or the AWS Load Balancer Controller
-- `cert-manager` (or a cloud-managed certificate alternative such as AWS ACM) for TLS on the public hostnames
-- `External Secrets Operator` if you plan to sync secrets from AWS Secrets Manager, HashiCorp Vault, or GCP Secret Manager (recommended for production, but not required — see [Secrets](#create-secrets))
+- 一个 ingress controller——`nginx-ingress` 或 AWS Load Balancer Controller 均可
+- `cert-manager`（或 AWS ACM 等云端托管证书替代方案），用于公共主机名的 TLS
+- `External Secrets Operator`：如果你打算从 AWS Secrets Manager、HashiCorp Vault 或 GCP Secret Manager 同步密钥（生产环境推荐，但非必需——参见 [Secrets](#create-secrets)）
 
-**External dependencies (reachable from the cluster):**
+**外部依赖（集群可访问）：**
 
-- PostgreSQL ≥ 14 — managed (Amazon RDS, Aurora, Cloud SQL) or operator-deployed in-cluster
-- Redis ≥ 7 (or a Valkey-compatible service such as Amazon ElastiCache)
-- An OIDC identity provider — Keycloak, Okta, Azure AD, Auth0, Google Workspace, or equivalent
+- PostgreSQL ≥ 14——托管服务（Amazon RDS、Aurora、Cloud SQL）或通过 operator 部署在集群内
+- Redis ≥ 7（或 Valkey 兼容服务，例如 Amazon ElastiCache）
+- 一个 OIDC 身份提供方——Keycloak、Okta、Azure AD、Auth0、Google Workspace 或同类产品
 
-**Optional:**
+**可选：**
 
-- Amazon OpenSearch (only when analytics features are in use)
-- An S3-compatible object store (only when the realtime gateway is configured to persist AG-UI events)
+- Amazon OpenSearch（仅在使用分析功能时需要）
+- S3 兼容的对象存储（仅在 realtime gateway 配置为持久化 AG-UI 事件时需要）
 
-## Implementation
+## 实施步骤
 
 <Steps>
   <Step>
-    ### Prepare your Kubernetes cluster
+    ### 准备 Kubernetes 集群
 
-    Ensure `kubectl` points to the cluster that will run CopilotKit Intelligence.
+    确保 `kubectl` 指向将要运行 CopilotKit Intelligence 的集群。
 
     ```bash title="Terminal"
     kubectl config current-context
     kubectl auth can-i create namespace --all-namespaces
     ```
 
-    Confirm the context names your target cluster and that the permission check returns `yes`. If not, fix your kubeconfig before proceeding.
+    确认 context 对应你的目标集群，且权限检查返回 `yes`。如果不是，请先修正 kubeconfig 再继续。
 
   </Step>
 
   <Step>
-    ### Install platform prerequisites
+    ### 安装平台前置组件
 
-    These components are cluster-wide and installed once per cluster, independently of the application chart.
+    这些组件作用于整个集群，每个集群只需安装一次，与应用 chart 相互独立。
 
-    <Tabs items={["AWS (EKS)", "On-prem / generic", "Local (Docker Desktop / k3d)"]}>
-      <Tab value="AWS (EKS)">
+    <Tabs items={["AWS（EKS）", "本地部署 / 通用", "本地（Docker Desktop / k3d）"]}>
+      <Tab value="AWS（EKS）">
         ```bash title="Terminal"
-        # AWS Load Balancer Controller (kube-system)
+        # AWS Load Balancer Controller（kube-system）
         helm repo add eks https://aws.github.io/eks-charts
         helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
           -n kube-system \
@@ -129,13 +129,13 @@ Before starting, make sure the following are in place. [CopilotKit Intelligence 
           -n cert-manager --create-namespace \
           --set installCRDs=true
 
-        # External Secrets Operator (optional — see Secrets step)
+        # External Secrets Operator（可选——见 Secrets 步骤）
         helm repo add external-secrets https://charts.external-secrets.io
         helm install external-secrets external-secrets/external-secrets \
           -n external-secrets --create-namespace
         ```
       </Tab>
-      <Tab value="On-prem / generic">
+      <Tab value="本地部署 / 通用">
         ```bash title="Terminal"
         # NGINX Ingress Controller
         helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
@@ -149,10 +149,10 @@ Before starting, make sure the following are in place. [CopilotKit Intelligence 
           --set installCRDs=true
         ```
       </Tab>
-      <Tab value="Local (Docker Desktop / k3d)">
+      <Tab value="本地（Docker Desktop / k3d）">
         ```bash title="Terminal"
-        # NGINX Ingress Controller as ClusterIP — you will reach it via
-        # `kubectl port-forward` later, so no LoadBalancer service is needed.
+        # NGINX Ingress Controller 使用 ClusterIP——稍后你会通过
+        # `kubectl port-forward` 访问它，因此不需要 LoadBalancer 服务。
         helm upgrade --install ingress-nginx ingress-nginx \
           --repo https://kubernetes.github.io/ingress-nginx \
           --namespace ingress-nginx --create-namespace \
@@ -160,86 +160,86 @@ Before starting, make sure the following are in place. [CopilotKit Intelligence 
           --wait
         ```
 
-        cert-manager and External Secrets Operator are not required for a local validation pass — TLS is terminated outside the cluster and secrets are managed by the chart (Path C below) or pre-created by hand (Path B).
+        本地验证时无需 cert-manager 与 External Secrets Operator——TLS 在集群外终止，密钥由 chart 托管（即下文路径 C）或手动预先创建（路径 B）。
       </Tab>
     </Tabs>
 
-    After each controller is running, its pods should be `Ready` in their respective namespaces.
+    各 controller 运行起来之后，其 Pod 应在各自的命名空间中处于 `Ready` 状态。
 
   </Step>
 
   <Step>
-    ### Provision external dependencies
+    ### 预置外部依赖
 
-    Intelligence needs Postgres, Redis, and an OIDC issuer. You can either point the chart at managed services you already run, or enable the bundled Bitnami subcharts for in-cluster Postgres and Redis (appropriate for evaluation and small self-hosted installs).
+    智能中枢需要 Postgres、Redis 和一个 OIDC issuer。你既可以让 chart 指向你已经在用的托管服务，也可以启用内置的 Bitnami 子 chart 在集群内运行 Postgres 和 Redis（适合评估和小型自托管安装）。
 
-    **Using managed services (recommended for production):**
+    **使用托管服务（生产环境推荐）：**
 
-    - Create a Postgres database and user. Record the host, port (default `5432`), database name, username, and password.
-    - Create a Redis instance with TLS enabled. Record the host, port (default `6379`), and password.
-    - Configure an OIDC client in your identity provider. Record the issuer URL, client ID, and client secret.
+    - 创建 Postgres 数据库和用户。记录主机、端口（默认 `5432`）、数据库名、用户名和密码。
+    - 创建启用 TLS 的 Redis 实例。记录主机、端口（默认 `6379`）和密码。
+    - 在你的身份提供方中配置一个 OIDC client。记录 issuer URL、client ID 和 client secret。
 
-    **Using the bundled in-cluster subcharts:**
+    **使用内置的集群内子 chart：**
 
-    Set `postgresql.enabled: true` and `redis-subchart.enabled: true` in your values file (covered in the next step). A matching `StorageClass` must exist in the cluster. The bundled Keycloak subchart is available via `keycloak.enabled: true` if you also need a quick OIDC provider for evaluation; do not use the bundled Keycloak for production workloads. See [Bundled Keycloak (eval only)](#bundled-keycloak-eval-only) for the realm and credentials it creates.
+    在 values 文件中设置 `postgresql.enabled: true` 和 `redis-subchart.enabled: true`（下一步会讲到）。集群中必须存在匹配的 `StorageClass`。如果你在评估时还需要一个快速可用的 OIDC 提供方，可以通过 `keycloak.enabled: true` 启用内置 Keycloak 子 chart；生产工作负载不要使用内置 Keycloak。它创建的 realm 和凭据参见[内置 Keycloak（仅用于评估）](#内置-keycloak仅用于评估)。
 
-    The chart already ships a tested overlay for this shape — `values-quickstart-local.yaml` — which enables bundled Postgres + Redis, sets `migrations.enabled: true`, sizes resources for a laptop, and creates disposable secrets so the install runs end-to-end with no manual prep. Layer your own overlay on top of it (see the next step) to plug in your IdP and ingress.
+    chart 自带了一个针对这种形态经过测试的 overlay——`values-quickstart-local.yaml`——它会启用内置 Postgres + Redis、设置 `migrations.enabled: true`、按笔记本规格分配资源，并创建一次性密钥，让安装无需任何手工准备即可端到端跑通。在它之上叠加你自己的 overlay（见下一步），接入你的 IdP 和 ingress。
 
   </Step>
 
   <Step>
-    ### Create a values file
+    ### 创建 values 文件
 
-    The released chart ships several example values files for the common deployment shapes. Pick the one closest to your environment and copy it into a working overlay you can edit. Pull and untar the chart so you have local copies to diff against:
+    已发布的 chart 附带了多个针对常见部署形态的示例 values 文件。选择与你环境最接近的一个，复制成一份可编辑的工作 overlay。先拉取并解包 chart，以便在本地留有可对比的副本：
 
     ```bash title="Terminal"
     helm pull oci://ghcr.io/copilotkit/charts/intelligence --version <chart-version> --untar
 
-    # AWS-flavored (ALB, IRSA, External Secrets from AWS Secrets Manager)
+    # AWS 风味（ALB、IRSA、来自 AWS Secrets Manager 的 External Secrets）
     cp intelligence/values-aws-example.yaml my-values.yaml
 
-    # Or on-prem-flavored (nginx, manual Kubernetes Secrets)
+    # 或者本地部署风味（nginx、手动管理 Kubernetes Secrets）
     cp intelligence/values-onprem-example.yaml my-values.yaml
 
-    # Or self-hosted eval (bundled Keycloak + in-cluster Postgres/Redis)
+    # 或者自托管评估（内置 Keycloak + 集群内 Postgres/Redis）
     cp intelligence/values-self-hosted-eval.yaml.example my-values.yaml
     ```
 
-    The chart untars into a directory named `intelligence/` (the published chart name on GHCR; the chart's `nameOverride` keeps release-prefixed resources named `cpki-*`).
+    chart 解包后得到名为 `intelligence/` 的目录（即 GHCR 上发布的 chart 名称；chart 的 `nameOverride` 会让带 release 前缀的资源保持 `cpki-*` 命名）。
 
-    Edit `my-values.yaml` to set at minimum:
+    编辑 `my-values.yaml`，至少设置：
 
-    - `database.host`, `database.port`, `database.name` — your Postgres connection (`name` defaults to `intelligence`)
-    - `redis.host`, `redis.port`, `redis.tls` — your Redis connection (TLS is on by default; managed Redis requires it)
-    - `auth.issuer` — your OIDC provider's issuer URL
-    - `auth.existingSecret` — name of the Kubernetes Secret containing `auth-secret`, `auth-client-id`, `auth-client-secret` (or use one of the alternate paths in [Secrets](#create-secrets))
-    - `ingress.ui.host` — the hostname users will load the Intelligence UI on (for example `intelligence.example.com`)
-    - `ingress.api.host` — optional dedicated API hostname. When omitted, the `ui.host` rule routes `/api` and `/auth` paths to `app-api`, so a single hostname is fine for most installs.
-    - `ingress.tls` — TLS configuration for the hosts above
-    - `migrations.enabled: true` — **required for first install**; defaults to `false`. Without it the database schema is never applied and `app-api` will crashloop. (The eval overlay `values-quickstart-local.yaml` sets this for you when you layer on top of it.)
+    - `database.host`、`database.port`、`database.name`——你的 Postgres 连接信息（`name` 默认为 `intelligence`）
+    - `redis.host`、`redis.port`、`redis.tls`——你的 Redis 连接（TLS 默认开启；托管 Redis 要求开启）
+    - `auth.issuer`——你的 OIDC 提供方的 issuer URL
+    - `auth.existingSecret`——包含 `auth-secret`、`auth-client-id`、`auth-client-secret` 的 Kubernetes Secret 名称（或使用 [Secrets](#create-secrets) 中的其他路径之一）
+    - `ingress.ui.host`——用户加载智能中枢 UI 所用的主机名（例如 `intelligence.example.com`）
+    - `ingress.api.host`——可选的独立 API 主机名。省略时，`ui.host` 规则会把 `/api` 和 `/auth` 路径路由到 `app-api`，因此对多数安装来说单一主机名即可。
+    - `ingress.tls`——上述主机名的 TLS 配置
+    - `migrations.enabled: true`——**首次安装时必需**；默认为 `false`。不设置它，数据库 schema 永远不会被应用，`app-api` 会不断崩溃重启。（如果你在评估 overlay `values-quickstart-local.yaml` 之上叠加配置，它会替你设置好。）
 
-    <Callout type="warn" title="OIDC issuer URL — trailing slash matters">
-      Some providers (Auth0 in particular) only accept the issuer URL with a trailing slash (e.g. `https://your-tenant.auth0.com/`). A missing or extra slash produces an opaque "issuer mismatch" failure at login time. Match the value exactly to what your provider's discovery endpoint advertises.
+    <Callout type="warn" title="OIDC issuer URL——末尾斜杠很重要">
+      部分提供方（尤其是 Auth0）只接受带末尾斜杠的 issuer URL（例如 `https://your-tenant.auth0.com/`）。少写或多写一个斜杠，登录时就会出现一个含义模糊的 “issuer mismatch” 失败。该值必须与你的提供方 discovery 端点公布的值完全一致。
     </Callout>
 
-    See the [Configuration reference](#configuration-reference) section for the full set of values.
+    完整的取值参见[配置参考](#配置参考)一节。
 
   </Step>
 
   <Step id="create-secrets">
-    ### Create secrets
+    ### 创建 Secrets
 
-    The chart supports three paths for secrets management. Pick exactly one.
+    chart 支持三条密钥管理路径。只能选择其中一条。
 
-    **Path A — External Secrets Operator (recommended for production):**
+    **路径 A——External Secrets Operator（生产环境推荐）：**
 
-    1. Ensure your secret backend (AWS Secrets Manager, Vault, etc.) has entries for the database URL, Redis URL, and auth credentials.
-    2. Create a `ClusterSecretStore` (or `SecretStore`) that references that backend.
-    3. In `my-values.yaml`, set `externalSecrets.enabled: true`, `externalSecrets.store.kind`, and `externalSecrets.store.name` to match. The chart then generates `ExternalSecret` resources that sync those entries into Kubernetes Secrets at the names `app-api` expects.
+    1. 确保你的密钥后端（AWS Secrets Manager、Vault 等）中已有数据库 URL、Redis URL 和身份验证凭据对应的条目。
+    2. 创建引用该后端的 `ClusterSecretStore`（或 `SecretStore`）。
+    3. 在 `my-values.yaml` 中相应设置 `externalSecrets.enabled: true`、`externalSecrets.store.kind` 和 `externalSecrets.store.name`。chart 随后会生成 `ExternalSecret` 资源，把这些条目同步成 Kubernetes Secrets，命名与 `app-api` 的预期一致。
 
-    **Path B — Direct Kubernetes Secrets (you manage the rotations):**
+    **路径 B——直接使用 Kubernetes Secrets（轮换由你自行管理）：**
 
-    Leave `externalSecrets.enabled: false` (the default) and create the Secrets manually before installing:
+    保持 `externalSecrets.enabled: false`（默认值），在安装前手动创建 Secrets：
 
     ```bash title="Terminal"
     kubectl create namespace copilot-intelligence
@@ -259,11 +259,11 @@ Before starting, make sure the following are in place. [CopilotKit Intelligence 
       -n copilot-intelligence
     ```
 
-    Reference these names in your values file via `database.existingSecret`, `redis.existingSecret`, and `auth.existingSecret`. The Secret keys are lowercase-hyphenated (`auth-secret`, `database-url`, `runner-auth-secret`); the workloads consume them as the corresponding uppercase env vars (`AUTH_SECRET`, `DATABASE_URL`, `RUNNER_AUTH_SECRET`).
+    在 values 文件中通过 `database.existingSecret`、`redis.existingSecret` 和 `auth.existingSecret` 引用这些名称。Secret 的键为小写连字符格式（`auth-secret`、`database-url`、`runner-auth-secret`）；工作负载则以对应的大写环境变量（`AUTH_SECRET`、`DATABASE_URL`、`RUNNER_AUTH_SECRET`）消费它们。
 
-    **Path C — Chart-managed self-hosted secrets (simplest BYOC):**
+    **路径 C——由 chart 托管密钥（最简单的 BYOC 方式）：**
 
-    Useful when you do not run a secret manager and prefer Helm to create the Kubernetes Secrets directly from values you provide at install time. Set `selfHostedSecrets.enabled: true` and supply the credentials inline:
+    适用于你没有运行密钥管理服务、希望 Helm 直接根据安装时提供的值创建 Kubernetes Secrets 的场景。设置 `selfHostedSecrets.enabled: true` 并内联提供凭据：
 
     ```yaml title="my-values.yaml"
     selfHostedSecrets:
@@ -286,14 +286,14 @@ Before starting, make sure the following are in place. [CopilotKit Intelligence 
         releaseCookie: ""
     ```
 
-    The chart auto-generates `auth.secret`, the realtime-gateway runner/key-base, and the BEAM cookie when those fields are empty, so you only need to provide what you actually have.
+    这些字段留空时，chart 会自动生成 `auth.secret`、realtime-gateway 的 runner/key-base 以及 BEAM cookie，因此你只需提供手头实际拥有的值。
 
   </Step>
 
   <Step>
-    ### Install the chart
+    ### 安装 chart
 
-    The release can be installed directly from the GHCR OCI registry — no local untar is required for the install itself. Use `helm upgrade --install` so the same command works for first-time installs and upgrades.
+    release 可以直接从 GHCR OCI registry 安装——安装本身不需要先在本地解包。使用 `helm upgrade --install`，同一命令既可用于首次安装，也可用于升级。
 
     ```bash title="Terminal"
     helm upgrade --install copilot-intelligence \
@@ -306,7 +306,7 @@ Before starting, make sure the following are in place. [CopilotKit Intelligence 
       --timeout 10m
     ```
 
-    Layering multiple values files is supported and is the recommended pattern for evaluation: combine the chart's bundled `values-quickstart-local.yaml` (in-cluster Postgres/Redis, eval-sized resources, `migrations.enabled: true`, disposable secrets) with your own overlay (IdP, ingress, anything cluster-specific). Pull the chart first so you have a local copy of `values-quickstart-local.yaml` to reference:
+    支持叠加多个 values 文件，这也是评估时的推荐模式：把 chart 自带的 `values-quickstart-local.yaml`（集群内 Postgres/Redis、评估规格资源、`migrations.enabled: true`、一次性密钥）与你自己的 overlay（IdP、ingress 等集群特定配置）组合起来。先拉取 chart，以便在本地留有 `values-quickstart-local.yaml` 副本可供引用：
 
     ```bash title="Terminal"
     helm upgrade --install copilot-intelligence \
@@ -318,60 +318,60 @@ Before starting, make sure the following are in place. [CopilotKit Intelligence 
       --wait --timeout 10m
     ```
 
-    `--wait` blocks until the `Deployments` report healthy replicas; `--timeout 10m` allows enough time for image pulls and the initial database migration job. Right-most `-f` files win on conflicts, so put your overlay last.
+    `--wait` 会阻塞到所有 `Deployments` 副本报告健康为止；`--timeout 10m` 为镜像拉取和首次数据库迁移 Job 留出足够时间。冲突时以最右侧的 `-f` 文件为准，所以请把你的 overlay 放在最后。
 
-    <Callout type="info" title="When the migrations Job runs">
-    The migrations Job runs as a **pre-install/pre-upgrade** hook (weight `-5`) when secrets are pre-created (Path A or Path B above), so the schema is ready before app pods start. It runs as a **post-install/post-upgrade** hook (weight `5`) when secrets are managed by Helm (Path C, or when using `postgresql.enabled: true`), because the Secret resources don't exist until Helm has created them.
+    <Callout type="info" title="migrations Job 何时运行">
+    密钥预先创建时（上文路径 A 或路径 B），migrations Job 会作为 **pre-install/pre-upgrade** 钩子（weight `-5`）运行，从而在应用 Pod 启动前 schema 就已就绪。密钥由 Helm 托管时（路径 C，或使用 `postgresql.enabled: true` 时），它会作为 **post-install/post-upgrade** 钩子（weight `5`）运行，因为在 Helm 创建这些 Secret 资源之前它们并不存在。
     </Callout>
 
   </Step>
 
   <Step>
-    ### Verify the install
+    ### 验证安装
 
-    Check that every pod is `Running` and the ingress is ready:
+    检查所有 Pod 是否处于 `Running` 状态、ingress 是否就绪：
 
     ```bash title="Terminal"
     kubectl get pods -n copilot-intelligence
     kubectl get ingress -n copilot-intelligence
     ```
 
-    You should see `app-api`, `app-frontend`, and — if enabled — `realtime-gateway` pods running. The migrations `Job` will appear as `Completed`.
+    你应该能看到 `app-api`、`app-frontend`，以及（如已启用）`realtime-gateway` 的 Pod 在运行。migrations `Job` 会显示为 `Completed`。
 
-    Confirm the API health check reports `ok`:
+    确认 API 健康检查返回 `ok`：
 
     ```bash title="Terminal"
     curl https://<ingress.api.host>/api/health
     ```
 
-    The endpoint returns `200 OK` only when the database is reachable — a failed health check is almost always a database connectivity problem.
+    只有数据库可达时，该端点才会返回 `200 OK`——健康检查失败几乎总是数据库连接问题。
 
-    Service-specific health endpoints, useful when port-forwarding to an individual pod:
+    各服务专属的健康端点，向单个 Pod 做端口转发时很有用：
 
-    | Service | Path |
-    |---|---|
-    | `app-api` | `/api/health` |
-    | `app-frontend` | `/healthz` |
-    | `realtime-gateway` | `/health` |
+    | 服务              | 路径          |
+    |-------------------|---------------|
+    | `app-api`         | `/api/health` |
+    | `app-frontend`    | `/healthz`    |
+    | `realtime-gateway`| `/health`     |
 
-    Finally, browse to `https://<ingress.ui.host>` and log in via your OIDC provider. A successful login confirms end-to-end wiring.
+    最后，在浏览器打开 `https://<ingress.ui.host>`，通过你的 OIDC 提供方登录。登录成功即证明端到端链路已打通。
 
-    <Callout type="info" title="Local validation — port-forward the ingress controller">
-    On a local cluster (Docker Desktop, k3d) without a public DNS name, port-forward the **ingress controller** rather than the frontend service so the UI host rule still routes `/api` and `/auth` to `app-api`. Set `ingress.ui.host: "localhost"` in your overlay, then leave this terminal open for as long as you're using the app:
+    <Callout type="info" title="本地验证——对 ingress controller 做端口转发">
+    在没有公共 DNS 名称的本地集群（Docker Desktop、k3d）上，应针对 **ingress controller** 而非前端服务做端口转发，这样 UI 主机规则仍能把 `/api` 和 `/auth` 路由到 `app-api`。在 overlay 中设置 `ingress.ui.host: "localhost"`，然后在使用应用期间保持该终端开启：
 
     ```bash title="Terminal"
     kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller 8080:80
     ```
 
-    Browse to `http://localhost:8080`. Port-forwarding the `app-frontend` service directly bypasses the ingress and breaks `/api` and `/auth` routing.
+    在浏览器打开 `http://localhost:8080`。直接对 `app-frontend` 服务做端口转发会绕过 ingress，破坏 `/api` 和 `/auth` 路由。
     </Callout>
 
   </Step>
 
   <Step>
-    ### Upgrade and uninstall
+    ### 升级与卸载
 
-    **Upgrade** — bump the version in your install command and re-run it. Because the install command already uses `helm upgrade --install`, the same invocation works for both fresh installs and upgrades:
+    **升级**——把安装命令中的版本号提高后重新执行。由于安装命令本就使用 `helm upgrade --install`，同一调用既适用于全新安装，也适用于升级：
 
     ```bash title="Terminal"
     helm upgrade --install copilot-intelligence \
@@ -382,9 +382,9 @@ Before starting, make sure the following are in place. [CopilotKit Intelligence 
       --wait
     ```
 
-    Before upgrading, regenerate the example values for the target version (`helm pull ... --version <new-chart-version> --untar`) and diff against your overlay to catch new keys.
+    升级前，先为目标版本重新生成示例 values（`helm pull ... --version <new-chart-version> --untar`），与你的 overlay 做对比，以便发现新增的键。
 
-    **Uninstall** — releases leave PersistentVolumes in place by default if you enabled bundled subcharts; delete them manually if you intend to tear down state.
+    **卸载**——如果启用了内置子 chart，release 卸载后默认会保留 PersistentVolume；如果你打算彻底清除数据，请手动删除它们。
 
     ```bash title="Terminal"
     helm uninstall copilot-intelligence -n copilot-intelligence
@@ -393,195 +393,195 @@ Before starting, make sure the following are in place. [CopilotKit Intelligence 
   </Step>
 </Steps>
 
-## Bundled Keycloak (eval only)
+## 内置 Keycloak（仅用于评估）
 
-When `keycloak.enabled: true`, the chart deploys the Bitnami Keycloak subchart with a pre-seeded realm and demo user. This is for evaluation and demos — not production. The realm import creates:
+设置 `keycloak.enabled: true` 后，chart 会部署 Bitnami Keycloak 子 chart，其中预置了一个 realm 和演示用户。这仅用于评估和演示——不适合生产环境。realm 导入会创建：
 
-- **Realm:** `cpk-dev`
-- **OIDC client:** `cpk-self-hosted` with secret `cpk-self-hosted-secret` (override via `auth.keycloakClient.clientId` / `auth.keycloakClient.clientSecret`)
-- **Demo user:** `engineer` / `engineer` (override via `auth.keycloakDemoUser`)
-- **Redirect URIs / web origins:** default `["*"]` for eval flexibility (override via `auth.keycloakClient.redirectUris` / `webOrigins`)
+- **Realm**：`cpk-dev`
+- **OIDC client**：`cpk-self-hosted`，secret 为 `cpk-self-hosted-secret`（可通过 `auth.keycloakClient.clientId` / `auth.keycloakClient.clientSecret` 覆盖）
+- **演示用户**：`engineer` / `engineer`（可通过 `auth.keycloakDemoUser` 覆盖）
+- **Redirect URI / web origins**：默认 `["*"]` 以便评估灵活使用（可通过 `auth.keycloakClient.redirectUris` / `webOrigins` 覆盖）
 
-The chart auto-wires `auth.issuer` to the in-cluster Keycloak service, so leaving `auth.issuer` empty when `keycloak.enabled: true` is intentional.
+chart 会自动把 `auth.issuer` 接到集群内的 Keycloak 服务上，因此在 `keycloak.enabled: true` 时把 `auth.issuer` 留空是有意为之。
 
-For production self-hosted deployments, leave `keycloak.enabled: false` and point `auth.issuer` at your own IdP.
+生产级自托管部署请保持 `keycloak.enabled: false`，并把 `auth.issuer` 指向你自己的 IdP。
 
-## Configuration reference
+## 配置参考
 
-The tables below summarize the most common values. For every option, see `values.yaml` in the pulled chart.
+下表汇总了最常用的 values。全部选项请查看拉取下来的 chart 中的 `values.yaml`。
 
-### Global
+### 全局
 
-| Key                                | Description                                                           | Default |
-| ---------------------------------- | --------------------------------------------------------------------- | ------- |
-| `global.imageRegistry`             | Registry prefix for unqualified image names                           | `""`    |
-| `global.intelligenceImageRegistry` | Registry prefix specifically for the five Intelligence service images | `""`    |
-| `global.imagePullSecrets`          | Image pull secrets for private registries                             | `[]`    |
-| `global.storageClass`              | StorageClass override for bundled subcharts                           | `""`    |
+| 键                                 | 说明                                  | 默认值  |
+| ---------------------------------- | ------------------------------------- | ------- |
+| `global.imageRegistry`             | 为不带 registry 限定的镜像名添加的 registry 前缀 | `""`    |
+| `global.intelligenceImageRegistry` | 专用于五个智能中枢服务镜像的 registry 前缀 | `""`    |
+| `global.imagePullSecrets`          | 私有 registry 的镜像拉取密钥          | `[]`    |
+| `global.storageClass`              | 覆盖内置子 chart 所用的 StorageClass  | `""`    |
 
-### Database
+### 数据库
 
-| Key                       | Description                                         | Default         |
-| ------------------------- | --------------------------------------------------- | --------------- |
-| `database.host`           | Postgres host                                       | `""` (required) |
-| `database.port`           | Postgres port                                       | `5432`          |
-| `database.name`           | Database name                                       | `intelligence`  |
-| `database.existingSecret` | Pre-existing Secret with `database-url`             | `""`            |
-| `database.secretKeys.url` | Key inside the Secret holding the connection string | `database-url`  |
+| 键                        | 说明                                  | 默认值          |
+| ------------------------- | ------------------------------------- | --------------- |
+| `database.host`           | Postgres 主机                         | `""`（必需）    |
+| `database.port`           | Postgres 端口                         | `5432`          |
+| `database.name`           | 数据库名                              | `intelligence`  |
+| `database.existingSecret` | 已存在、包含 `database-url` 的 Secret | `""`            |
+| `database.secretKeys.url` | Secret 中存放连接字符串的键           | `database-url`  |
 
 ### Redis
 
-| Key                    | Description                                      | Default         |
-| ---------------------- | ------------------------------------------------ | --------------- |
-| `redis.host`           | Redis host                                       | `""` (required) |
-| `redis.port`           | Redis port                                       | `6379`          |
-| `redis.tls`            | Require TLS (ElastiCache defaults to on)         | `true`          |
-| `redis.existingSecret` | Pre-existing Secret with `redis-url`             | `""`            |
-| `redis.secretKeys.url` | Key inside the Secret holding the connection URL | `redis-url`     |
+| 键                     | 说明                                      | 默认值          |
+| ---------------------- | ----------------------------------------- | --------------- |
+| `redis.host`           | Redis 主机                                | `""`（必需）    |
+| `redis.port`           | Redis 端口                                | `6379`          |
+| `redis.tls`            | 是否要求 TLS（ElastiCache 默认开启）      | `true`          |
+| `redis.existingSecret` | 已存在、包含 `redis-url` 的 Secret        | `""`            |
+| `redis.secretKeys.url` | Secret 中存放连接 URL 的键                | `redis-url`     |
 
-### OpenSearch (optional)
+### OpenSearch（可选）
 
-| Key                         | Description                               | Default |
-| --------------------------- | ----------------------------------------- | ------- |
-| `openSearch.host`           | OpenSearch domain endpoint                | `""`    |
-| `openSearch.port`           | Port                                      | `443`   |
-| `openSearch.tls`            | Require TLS                               | `true`  |
-| `openSearch.existingSecret` | Pre-existing Secret with `opensearch-url` | `""`    |
+| 键                          | 说明                                    | 默认值  |
+| --------------------------- | --------------------------------------- | ------- |
+| `openSearch.host`           | OpenSearch 域端点                       | `""`    |
+| `openSearch.port`           | 端口                                    | `443`   |
+| `openSearch.tls`            | 是否要求 TLS                            | `true`  |
+| `openSearch.existingSecret` | 已存在、包含 `opensearch-url` 的 Secret | `""`    |
 
-### Authentication
+### 身份验证
 
-| Key                          | Description                                                       | Default          |
-| ---------------------------- | ----------------------------------------------------------------- | ---------------- |
-| `auth.deploymentMode`        | `self-hosted` (single org) or `hosted` (multi-org)                | `self-hosted`    |
-| `auth.issuer`                | OIDC issuer URL (auto-set when `keycloak.enabled: true`)          | `""`             |
-| `auth.existingSecret`        | Secret with `auth-secret`, `auth-client-id`, `auth-client-secret` | `""`             |
-| `auth.defaultOrganizationId` | Default organization ID in self-hosted mode                       | `default`        |
-| `auth.providerId`            | Stable identifier for the OIDC provider                           | `enterprise-sso` |
-| `auth.providerName`          | Display name shown in the UI                                      | `Enterprise SSO` |
-| `auth.trustHost`             | Trust the `X-Forwarded-Host` header (set behind a reverse proxy)  | `"true"`         |
+| 键                           | 说明                                                                | 默认值           |
+| ---------------------------- | ------------------------------------------------------------------- | ---------------- |
+| `auth.deploymentMode`        | `self-hosted`（单组织）或 `hosted`（多组织）                        | `self-hosted`    |
+| `auth.issuer`                | OIDC issuer URL（`keycloak.enabled: true` 时自动设置）              | `""`             |
+| `auth.existingSecret`        | 包含 `auth-secret`、`auth-client-id`、`auth-client-secret` 的 Secret | `""`             |
+| `auth.defaultOrganizationId` | 自托管模式下的默认组织 ID                                           | `default`        |
+| `auth.providerId`            | OIDC 提供方的稳定标识符                                             | `enterprise-sso` |
+| `auth.providerName`          | UI 中显示的名称                                                     | `Enterprise SSO` |
+| `auth.trustHost`             | 信任 `X-Forwarded-Host` 头（部署在反向代理之后时设置）              | `"true"`         |
 
 ### Ingress
 
-| Key                          | Description                                                                                                                                                         | Default         |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
-| `ingress.enabled`            | Create Ingress resources                                                                                                                                            | `true`          |
-| `ingress.className`          | `nginx` or `alb`                                                                                                                                                    | `nginx`         |
-| `ingress.ui.host`            | UI hostname; the rule for this host routes `/api` and `/auth` to `app-api` and `/` to `app-frontend`                                                                | `""` (required) |
-| `ingress.api.host`           | Optional dedicated API hostname. When set, this hostname routes `/` to `app-api`. When empty, no separate API rule is created — the UI host already serves the API. | `""`            |
-| `ingress.realtimePlane.host` | Optional dedicated realtime hostname (only used when `realtimeGateway.enabled: true`)                                                                               | `""`            |
-| `ingress.tls`                | TLS configuration                                                                                                                                                   | `[]`            |
-| `ingress.websocket.enabled`  | Add WebSocket-friendly annotations (auto-enabled when realtime-gateway is enabled with nginx)                                                                       | `false`         |
-| `ingress.annotations`        | Additional ingress annotations                                                                                                                                      | `{}`            |
+| 键                           | 说明                                                                                                                                                              | 默认值          |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| `ingress.enabled`            | 是否创建 Ingress 资源                                                                                                                                             | `true`          |
+| `ingress.className`          | `nginx` 或 `alb`                                                                                                                                                  | `nginx`         |
+| `ingress.ui.host`            | UI 主机名；该主机的规则会把 `/api` 和 `/auth` 路由到 `app-api`，把 `/` 路由到 `app-frontend`                                                                      | `""`（必需）    |
+| `ingress.api.host`           | 可选的独立 API 主机名。设置后，该主机名会把 `/` 路由到 `app-api`。留空时不创建单独的 API 规则——UI 主机已经提供 API。                                              | `""`            |
+| `ingress.realtimePlane.host` | 可选的独立实时主机名（仅在 `realtimeGateway.enabled: true` 时使用）                                                                                               | `""`            |
+| `ingress.tls`                | TLS 配置                                                                                                                                                          | `[]`            |
+| `ingress.websocket.enabled`  | 添加对 WebSocket 友好的注解（在 nginx 下启用 realtime-gateway 时自动启用）                                                                                        | `false`         |
+| `ingress.annotations`        | 额外的 ingress 注解                                                                                                                                               | `{}`            |
 
-### Services (`appApi`, `appFrontend`, `realtimeGateway`)
+### 服务（`appApi`、`appFrontend`、`realtimeGateway`）
 
-| Key                                | Description                                                                                         | Default (`appApi`)     | Default (`appFrontend`)     | Default (`realtimeGateway`)     |
+| 键                                 | 说明                                                                                                | 默认值（`appApi`）     | 默认值（`appFrontend`）     | 默认值（`realtimeGateway`）     |
 | ---------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------- | --------------------------- | ------------------------------- |
-| `<svc>.enabled`                    | Enable the service                                                                                  | `true`                 | `true`                      | `false`                         |
-| `<svc>.replicaCount`               | Replicas                                                                                            | `2`                    | `2`                         | `2`                             |
-| `<svc>.image.repository`           | Image repository (published chart fully-qualifies these to `ghcr.io/copilotkit/intelligence/<svc>`) | `intelligence/app-api` | `intelligence/app-frontend` | `intelligence/realtime-gateway` |
-| `<svc>.image.tag`                  | Image tag (defaults to chart `appVersion`)                                                          | `""`                   | `""`                        | `""`                            |
-| `<svc>.resources`                  | CPU/memory requests                                                                                 | `250m` / `512Mi`       | `100m` / `128Mi`            | `500m` / `512Mi`                |
-| `<svc>.autoscaling.enabled`        | Enable HPA                                                                                          | `true`                 | `false`                     | `true`                          |
-| `<svc>.autoscaling.minReplicas`    | HPA minimum                                                                                         | `2`                    | `2`                         | `2`                             |
-| `<svc>.autoscaling.maxReplicas`    | HPA maximum                                                                                         | `10`                   | `4`                         | `10`                            |
-| `<svc>.serviceAccount.annotations` | Annotations on the ServiceAccount (IRSA, workload identity)                                         | `{}`                   | `{}`                        | `{}`                            |
-| `<svc>.podAnnotations`             | Pod template annotations (e.g. for Stakater Reloader on ESO secret rotation)                        | `{}`                   | n/a                         | `{}`                            |
+| `<svc>.enabled`                    | 是否启用该服务                                                                                      | `true`                 | `true`                      | `false`                         |
+| `<svc>.replicaCount`               | 副本数                                                                                              | `2`                    | `2`                         | `2`                             |
+| `<svc>.image.repository`           | 镜像仓库（发布的 chart 会把它们补全为 `ghcr.io/copilotkit/intelligence/<svc>`）                     | `intelligence/app-api` | `intelligence/app-frontend` | `intelligence/realtime-gateway` |
+| `<svc>.image.tag`                  | 镜像标签（默认取 chart 的 `appVersion`）                                                            | `""`                   | `""`                        | `""`                            |
+| `<svc>.resources`                  | CPU/内存请求值                                                                                      | `250m` / `512Mi`       | `100m` / `128Mi`            | `500m` / `512Mi`                |
+| `<svc>.autoscaling.enabled`        | 是否启用 HPA                                                                                        | `true`                 | `false`                     | `true`                          |
+| `<svc>.autoscaling.minReplicas`    | HPA 最小副本数                                                                                      | `2`                    | `2`                         | `2`                             |
+| `<svc>.autoscaling.maxReplicas`    | HPA 最大副本数                                                                                      | `10`                   | `4`                         | `10`                            |
+| `<svc>.serviceAccount.annotations` | ServiceAccount 上的注解（IRSA、workload identity）                                                 | `{}`                   | `{}`                        | `{}`                            |
+| `<svc>.podAnnotations`             | Pod 模板注解（例如 ESO 密钥轮换时配合 Stakater Reloader 使用）                                      | `{}`                   | n/a                         | `{}`                            |
 
-### Realtime gateway (additional keys)
+### 实时网关（其他键）
 
-| Key                                       | Description                                                                                                                     | Default            |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| `realtimeGateway.enabled`                 | Enable the gateway                                                                                                              | `false`            |
-| `realtimeGateway.host`                    | `PHX_HOST` override                                                                                                             | `""`               |
-| `realtimeGateway.existingSecret`          | Secret containing keys `runner-auth-secret` and `secret-key-base` (mapped to env vars `RUNNER_AUTH_SECRET` / `SECRET_KEY_BASE`) | `""`               |
-| `realtimeGateway.beam.clustering.enabled` | BEAM clustering across replicas                                                                                                 | `true`             |
-| `realtimeGateway.beam.cookieSecret.name`  | Secret containing the BEAM cookie                                                                                               | `cpki-beam-cookie` |
+| 键                                        | 说明                                                                                                                            | 默认值             |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| `realtimeGateway.enabled`                 | 是否启用网关                                                                                                                    | `false`            |
+| `realtimeGateway.host`                    | 覆盖 `PHX_HOST`                                                                                                                 | `""`               |
+| `realtimeGateway.existingSecret`          | 包含 `runner-auth-secret` 和 `secret-key-base` 键的 Secret（映射到环境变量 `RUNNER_AUTH_SECRET` / `SECRET_KEY_BASE`）           | `""`               |
+| `realtimeGateway.beam.clustering.enabled` | 跨副本的 BEAM 集群                                                                                                              | `true`             |
+| `realtimeGateway.beam.cookieSecret.name`  | 包含 BEAM cookie 的 Secret                                                                                                      | `cpki-beam-cookie` |
 
-Enabling the realtime gateway requires that either `realtimeGateway.existingSecret` is set, or that `externalSecrets.secrets.realtimeGateway.enabled` or `selfHostedSecrets.enabled` is `true` — the chart fails validation otherwise.
+启用 realtime gateway 要求满足以下之一：设置了 `realtimeGateway.existingSecret`，或者 `externalSecrets.secrets.realtimeGateway.enabled` 或 `selfHostedSecrets.enabled` 为 `true`——否则 chart 校验会直接失败。
 
-### External Secrets Operator integration
+### External Secrets Operator 集成
 
-| Key                               | Description                             | Default                      |
+| 键                                | 说明                                    | 默认值                       |
 | --------------------------------- | --------------------------------------- | ---------------------------- |
-| `externalSecrets.enabled`         | Generate `ExternalSecret` resources     | `false`                      |
-| `externalSecrets.store.kind`      | `ClusterSecretStore` or `SecretStore`   | `ClusterSecretStore`         |
-| `externalSecrets.store.name`      | SecretStore name                        | `""` (required when enabled) |
-| `externalSecrets.refreshInterval` | How often ESO syncs                     | `1h`                         |
-| `externalSecrets.secrets.*`       | Per-secret mappings — see `values.yaml` | —                            |
+| `externalSecrets.enabled`         | 是否生成 `ExternalSecret` 资源          | `false`                      |
+| `externalSecrets.store.kind`      | `ClusterSecretStore` 或 `SecretStore`   | `ClusterSecretStore`         |
+| `externalSecrets.store.name`      | SecretStore 名称                        | `""`（启用时必需）           |
+| `externalSecrets.refreshInterval` | ESO 的同步频率                          | `1h`                         |
+| `externalSecrets.secrets.*`       | 各密钥的映射——参见 `values.yaml`       | —                            |
 
-### Self-hosted (chart-managed) secrets
+### 自托管（chart 托管）Secrets
 
-| Key                                                                    | Description                                                               | Default                      |
+| 键                                                                     | 说明                                                                      | 默认值                       |
 | ---------------------------------------------------------------------- | ------------------------------------------------------------------------- | ---------------------------- |
-| `selfHostedSecrets.enabled`                                            | Create Kubernetes Secrets from inline values; auto-generates blank fields | `false`                      |
-| `selfHostedSecrets.db.url`                                             | Postgres connection URL                                                   | `""` (required when enabled) |
-| `selfHostedSecrets.redis.url`                                          | Redis connection URL                                                      | `""` (required when enabled) |
-| `selfHostedSecrets.auth.clientId` / `clientSecret`                     | OIDC client credentials                                                   | `""` (required when enabled) |
-| `selfHostedSecrets.auth.secret`                                        | Internal auth signing secret                                              | auto-generated when empty    |
-| `selfHostedSecrets.realtimeGateway.runnerAuthSecret` / `secretKeyBase` | Runtime gateway secrets                                                   | auto-generated when empty    |
-| `selfHostedSecrets.beam.releaseCookie`                                 | BEAM clustering cookie                                                    | auto-generated when empty    |
+| `selfHostedSecrets.enabled`                                            | 根据内联值创建 Kubernetes Secrets；空白字段自动生成                       | `false`                      |
+| `selfHostedSecrets.db.url`                                             | Postgres 连接 URL                                                         | `""`（启用时必需）           |
+| `selfHostedSecrets.redis.url`                                          | Redis 连接 URL                                                            | `""`（启用时必需）           |
+| `selfHostedSecrets.auth.clientId` / `clientSecret`                     | OIDC client 凭据                                                          | `""`（启用时必需）           |
+| `selfHostedSecrets.auth.secret`                                        | 内部身份验证签名密钥                                                      | 留空时自动生成               |
+| `selfHostedSecrets.realtimeGateway.runnerAuthSecret` / `secretKeyBase` | 实时网关密钥                                                              | 留空时自动生成               |
+| `selfHostedSecrets.beam.releaseCookie`                                 | BEAM 集群 cookie                                                          | 留空时自动生成               |
 
-### Bundled subcharts (evaluation only)
+### 内置子 chart（仅用于评估）
 
-| Key                            | Description                                                         | Default |
+| 键                             | 说明                                                                | 默认值  |
 | ------------------------------ | ------------------------------------------------------------------- | ------- |
-| `postgresql.enabled`           | Deploy in-cluster Postgres                                          | `false` |
-| `postgresql.auth.password`     | Postgres password (set at deploy time)                              | `""`    |
-| `redis-subchart.enabled`       | Deploy in-cluster Redis (aliased to avoid collision with `redis.*`) | `false` |
-| `redis-subchart.auth.password` | Redis password                                                      | `""`    |
-| `keycloak.enabled`             | Deploy bundled Keycloak for quick eval                              | `false` |
+| `postgresql.enabled`           | 在集群内部署 Postgres                                               | `false` |
+| `postgresql.auth.password`     | Postgres 密码（部署时设置）                                         | `""`    |
+| `redis-subchart.enabled`       | 在集群内部署 Redis（使用别名以避免与 `redis.*` 冲突）               | `false` |
+| `redis-subchart.auth.password` | Redis 密码                                                          | `""`    |
+| `keycloak.enabled`             | 部署内置 Keycloak 以便快速评估                                      | `false` |
 
-### Object storage (realtime gateway event persistence)
+### 对象存储（实时网关事件持久化）
 
-| Key                            | Description                                                             | Default     |
+| 键                             | 说明                                                                    | 默认值      |
 | ------------------------------ | ----------------------------------------------------------------------- | ----------- |
-| `objectStorage.enabled`        | Persist AG-UI events from the realtime gateway to S3-compatible storage | `false`     |
-| `objectStorage.bucket`         | Bucket name                                                             | `""`        |
-| `objectStorage.region`         | Bucket region                                                           | `us-east-1` |
-| `objectStorage.endpoint`       | S3-compatible endpoint override (e.g. for MinIO)                        | `""`        |
-| `objectStorage.forcePathStyle` | Force path-style addressing (required for MinIO)                        | `false`     |
-| `objectStorage.existingSecret` | Secret with static access keys (optional if using IRSA)                 | `""`        |
+| `objectStorage.enabled`        | 将 realtime gateway 的 AG-UI 事件持久化到 S3 兼容存储                   | `false`     |
+| `objectStorage.bucket`         | 存储桶名称                                                              | `""`        |
+| `objectStorage.region`         | 存储桶区域                                                              | `us-east-1` |
+| `objectStorage.endpoint`       | 覆盖 S3 兼容端点（例如用于 MinIO）                                      | `""`        |
+| `objectStorage.forcePathStyle` | 强制 path-style 寻址（MinIO 必需）                                      | `false`     |
+| `objectStorage.existingSecret` | 包含静态访问密钥的 Secret（使用 IRSA 时可选）                           | `""`        |
 
-### Database migrations
+### 数据库迁移
 
-| Key                                | Description                                                                   | Default                      |
+| 键                                 | 说明                                                                          | 默认值                       |
 | ---------------------------------- | ----------------------------------------------------------------------------- | ---------------------------- |
-| `migrations.enabled`               | Run the migrations Job. **Required for first install** — defaults to `false`. | `false`                      |
-| `migrations.image.repository`      | Migrations image repository                                                   | `intelligence/db-migrations` |
-| `migrations.activeDeadlineSeconds` | Job deadline                                                                  | `1800`                       |
-| `migrations.backoffLimit`          | Retry count before failing                                                    | `3`                          |
+| `migrations.enabled`               | 运行 migrations Job。**首次安装必需**——默认为 `false`。                       | `false`                      |
+| `migrations.image.repository`      | migrations 镜像仓库                                                           | `intelligence/db-migrations` |
+| `migrations.activeDeadlineSeconds` | Job 截止时间                                                                  | `1800`                       |
+| `migrations.backoffLimit`          | 失败前的重试次数                                                              | `3`                          |
 
-The migrations Job runs as a **pre-install/pre-upgrade** Helm hook (weight `-5`) when secrets are pre-created (External Secrets path or manual `existingSecret`) and as a **post-install/post-upgrade** hook (weight `5`) when secrets are managed by Helm itself (`selfHostedSecrets.enabled` or `postgresql.enabled`).
+密钥预先创建时（External Secrets 路径或手动 `existingSecret`），migrations Job 会作为 **pre-install/pre-upgrade** Helm 钩子（weight `-5`）运行；密钥由 Helm 自身托管时（`selfHostedSecrets.enabled` 或 `postgresql.enabled`），则作为 **post-install/post-upgrade** 钩子（weight `5`）运行。
 
-### Thread culler (CronJob)
+### 线程清理器（CronJob）
 
-| Key                                   | Description                                                                                                                        | Default         |
+| 键                                    | 说明                                                                                                                               | 默认值          |
 | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | --------------- |
-| `threadCuller.enabled`                | Run the destructive cleanup CronJob. Keep this off unless your policy permits deletion for an explicitly expired verified license. | `false`         |
-| `threadCuller.schedule`               | Cron expression                                                                                                                    | `0 * * * *`     |
-| `threadCuller.staleHours`             | Threads older than this many hours (since last update) are culled                                                                  | `"3"`           |
-| `threadCuller.batchSize`              | Maximum threads to cull per run                                                                                                    | `"1000"`        |
-| `appApi.licenseSecret.existingSecret` | Existing Secret that supplies `COPILOTKIT_LICENSE_TOKEN` to App API and Thread Culler.                                             | `""`            |
-| `appApi.licenseSecret.key`            | Key that holds the token in the existing Secret.                                                                                   | `license-token` |
+| `threadCuller.enabled`                | 运行具有破坏性的清理 CronJob。除非你的策略允许在许可证明确过期且已验证的情况下执行删除，否则请保持关闭。                            | `false`         |
+| `threadCuller.schedule`               | Cron 表达式                                                                                                                        | `0 * * * *`     |
+| `threadCuller.staleHours`             | 超过该小时数（自上次更新起）的线程会被清理                                                                                         | `"3"`           |
+| `threadCuller.batchSize`              | 每次运行清理的线程数上限                                                                                                           | `"1000"`        |
+| `appApi.licenseSecret.existingSecret` | 向 App API 和线程清理器提供 `COPILOTKIT_LICENSE_TOKEN` 的已有 Secret。                                                             | `""`            |
+| `appApi.licenseSecret.key`            | 已有 Secret 中存放该 token 的键。                                                                                                  | `license-token` |
 
-### Shared config (CORS, logging)
+### 共享配置（CORS、日志）
 
-| Key                        | Description                                                                                                                           | Default      |
+| 键                         | 说明                                                                                                                                  | 默认值       |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| `config.logLevel`          | Log level for all services (`trace`/`debug`/`info`/`warn`/`error`/`fatal`)                                                            | `info`       |
-| `config.nodeEnv`           | Node environment; affects cookie security and runtime defaults                                                                        | `production` |
-| `config.appFrontendOrigin` | Browser origin allowed to perform authenticated bootstrap writes                                                                      | `""`         |
-| `config.publicAppOrigin`   | Public UI origin used by server-side callbacks when distinct from `appFrontendOrigin`                                                 | `""`         |
-| `config.allowedOrigins`    | Additional CORS allowlist (comma-separated). Entries are exact origins (`https://app.example.com`) or Phoenix-style `//host` patterns | `""`         |
+| `config.logLevel`          | 所有服务的日志级别（`trace`/`debug`/`info`/`warn`/`error`/`fatal`）                                                                   | `info`       |
+| `config.nodeEnv`           | Node 环境；影响 cookie 安全性与运行时默认值                                                                                           | `production` |
+| `config.appFrontendOrigin` | 允许执行经过身份验证的 bootstrap 写入的浏览器 origin                                                                                  | `""`         |
+| `config.publicAppOrigin`   | 与 `appFrontendOrigin` 不同时，服务端回调所使用的公共 UI origin                                                                       | `""`         |
+| `config.allowedOrigins`    | 额外的 CORS 允许列表（逗号分隔）。条目可以是精确 origin（`https://app.example.com`）或 Phoenix 风格的 `//host` 模式                   | `""`         |
 
-### Pod-level controls
+### Pod 级控制
 
-Per-service keys `podDisruptionBudget`, `podAntiAffinity`, and `networkPolicy` are available for high-availability and traffic-isolation requirements. See `values.yaml` for full shapes.
+针对每个服务，还提供 `podDisruptionBudget`、`podAntiAffinity` 和 `networkPolicy` 等键，用于满足高可用和流量隔离需求。完整结构请查看 `values.yaml`。
 
-## Next steps
+## 下一步
 
-- **Platform architecture:** [CopilotKit Intelligence architecture](/intelligence/intelligence-platform) — runtime/platform architecture, project boundaries, threads, and realtime sync
-- **CopilotKit Intelligence overview:** [CopilotKit Intelligence](/intelligence/overview) — features, hosting options, and where to go next
-- **Monitor the deployment:** [Monitor with OpenTelemetry](/intelligence/self-hosting-observability) — send traces, product events, and logs to your own collector
-- **Use threads in your app:** [Threads](/AG-UI-Streams) — the persistent-conversation surface powered by CopilotKit Intelligence you just deployed
+- **平台架构**：[CopilotKit Intelligence 架构](/intelligence/intelligence-platform)——运行时/平台架构、项目边界、线程与实时同步
+- **CopilotKit Intelligence 概览**：[CopilotKit Intelligence](/intelligence/overview)——特性、托管选项与后续去处
+- **监控部署**：[使用 OpenTelemetry 监控](/intelligence/self-hosting-observability)——把链路追踪、产品事件和日志发送到你自己的 collector
+- **在应用中使用线程**：[线程](/AG-UI-Streams)——由你刚部署的 CopilotKit Intelligence 驱动的持久化会话界面
