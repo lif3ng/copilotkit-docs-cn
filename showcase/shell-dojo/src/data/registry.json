@@ -4,154 +4,154 @@
     "categories": [
       {
         "id": "dev-ex",
-        "name": "Dev Ex"
+        "name": "开发者体验"
       },
       {
         "id": "chat-ui",
-        "name": "Chat & UI"
+        "name": "聊天与 UI"
       },
       {
         "id": "platform",
-        "name": "Platform"
+        "name": "平台"
       },
       {
         "id": "controlled-generative-ui",
-        "name": "Controlled Generative UI"
+        "name": "受控生成式 UI"
       },
       {
         "id": "declarative-generative-ui",
-        "name": "Declarative Generative UI"
+        "name": "声明式生成式 UI"
       },
       {
         "id": "open-generative-ui",
-        "name": "Open-Ended Generative UI"
+        "name": "开放式生成式 UI"
       },
       {
         "id": "operational-generative-ui",
-        "name": "Operational Generative UI"
+        "name": "操作型生成式 UI"
       },
       {
         "id": "interactivity",
-        "name": "Interactivity"
+        "name": "交互性"
       },
       {
         "id": "agent-state",
-        "name": "Agent State"
+        "name": "智能体状态"
       },
       {
         "id": "multi-agent",
-        "name": "Multi-Agent"
+        "name": "多智能体"
       },
       {
         "id": "byoc",
-        "name": "BYOC (Bring Your Own Components)"
+        "name": "BYOC（自带组件）"
       }
     ],
     "features": [
       {
         "id": "cli-start",
-        "name": "CLI Start Command",
+        "name": "CLI 启动命令",
         "category": "dev-ex",
-        "description": "One-liner to scaffold a new CopilotKit app via the official CLI",
+        "description": "通过官方 CLI 的一行命令快速生成全新 CopilotKit 应用的脚手架",
         "kind": "docs-only",
         "og_docs_url": "https://docs.copilotkit.ai/quickstart",
         "shell_docs_path": "/quickstart"
       },
       {
         "id": "beautiful-chat",
-        "name": "Beautiful Chat",
+        "name": "精美聊天",
         "category": "dev-ex",
-        "description": "Canonical polished starter chat (same as /examples/integrations/langgraph-python)",
+        "description": "官方标准版精美起步聊天模板（与 /examples/integrations/langgraph-python 相同）",
         "kind": "primary",
         "og_docs_url": "https://docs.copilotkit.ai/agentic-chat-ui",
         "shell_docs_path": "/agentic-chat-ui"
       },
       {
         "id": "agentic-chat",
-        "name": "Pre-Built: CopilotChat",
+        "name": "预构建：CopilotChat",
         "category": "chat-ui",
-        "description": "Pre-built <CopilotChat /> component for full-screen/embedded chat",
+        "description": "预构建的 <CopilotChat /> 组件，用于全屏/内嵌聊天",
         "kind": "primary",
         "og_docs_url": "https://docs.copilotkit.ai/agentic-chat-ui",
         "shell_docs_path": "/agentic-chat-ui"
       },
       {
         "id": "prebuilt-sidebar",
-        "name": "Pre-Built: Sidebar",
+        "name": "预构建：侧边栏",
         "category": "chat-ui",
-        "description": "Docked sidebar chat via <CopilotSidebar />",
+        "description": "通过 <CopilotSidebar /> 实现停靠式侧边栏聊天",
         "og_docs_url": "https://docs.copilotkit.ai/prebuilt-components",
         "shell_docs_path": "/prebuilt-components/sidebar"
       },
       {
         "id": "prebuilt-popup",
-        "name": "Pre-Built: Popup",
+        "name": "预构建：弹窗",
         "category": "chat-ui",
-        "description": "Floating popup chat via <CopilotPopup />",
+        "description": "通过 <CopilotPopup /> 实现悬浮弹窗聊天",
         "og_docs_url": "https://docs.copilotkit.ai/prebuilt-components",
         "shell_docs_path": "/prebuilt-components/popup"
       },
       {
         "id": "chat-slots",
-        "name": "Chat Customization: Slots",
+        "name": "聊天定制：插槽",
         "category": "chat-ui",
-        "description": "Customizing chat components via the slot system",
+        "description": "通过插槽系统定制聊天组件",
         "og_docs_url": "https://docs.copilotkit.ai/custom-look-and-feel/slots",
         "shell_docs_path": "/custom-look-and-feel/slots"
       },
       {
         "id": "chat-customization-css",
-        "name": "Chat Customization: CSS",
+        "name": "聊天定制：CSS",
         "category": "chat-ui",
-        "description": "Customizing chat components via CSS",
+        "description": "通过 CSS 定制聊天组件",
         "og_docs_url": "https://docs.copilotkit.ai/custom-look-and-feel",
         "shell_docs_path": "/custom-look-and-feel/css"
       },
       {
         "id": "headless-simple",
-        "name": "Headless UI: Simple",
+        "name": "无头 UI：简单版",
         "category": "chat-ui",
-        "description": "Simple headless UI getting started",
+        "description": "无头 UI 的简单入门示例",
         "og_docs_url": "https://docs.copilotkit.ai/headless",
         "shell_docs_path": "/headless"
       },
       {
         "id": "headless-complete",
-        "name": "Headless UI: Complete",
+        "name": "无头 UI：完整版",
         "category": "chat-ui",
-        "description": "Full headless UI with messages, tools, gen UI",
+        "description": "包含消息、工具与生成式 UI 的完整无头 UI",
         "og_docs_url": "https://docs.copilotkit.ai/headless",
         "shell_docs_path": "/headless"
       },
       {
         "id": "gen-ui-tool-based",
-        "name": "Generative UI: useComponent",
+        "name": "生成式 UI：useComponent",
         "category": "controlled-generative-ui",
-        "description": "Agent renders typed React components via the useComponent hook",
+        "description": "智能体通过 useComponent hook 渲染带类型的 React 组件",
         "og_docs_url": "https://docs.copilotkit.ai/generative-ui/your-components/display-only",
         "shell_docs_path": "/generative-ui/your-components/display-only"
       },
       {
         "id": "hitl-in-chat",
-        "name": "Human In the Loop: In-chat",
+        "name": "人机协同：聊天内",
         "category": "controlled-generative-ui",
-        "description": "Interactive approval/decision surface rendered inline in the chat. Uses the high-level `useHumanInTheLoop` hook — handles the interrupt lifecycle for you.",
+        "description": "在聊天中内联渲染的交互式审批/决策界面。使用高层的 `useHumanInTheLoop` hook——为你处理中断生命周期。",
         "og_docs_url": "https://docs.copilotkit.ai/generative-ui/your-components/interactive",
         "shell_docs_path": "/generative-ui/your-components/interactive"
       },
       {
         "id": "gen-ui-interrupt",
-        "name": "Human in the Loop: Interrupts",
+        "name": "人机协同：中断",
         "category": "controlled-generative-ui",
-        "description": "Interactive component rendered inline in the chat via the lower-level `useInterrupt` primitive — direct control over the LangGraph interrupt lifecycle.",
+        "description": "通过更底层的 `useInterrupt` 原语在聊天中内联渲染交互组件——直接掌控 LangGraph 中断生命周期。",
         "og_docs_url": "https://docs.copilotkit.ai/human-in-the-loop",
         "shell_docs_path": "/human-in-the-loop/useInterrupt"
       },
       {
         "id": "hitl-in-chat-booking",
-        "name": "In-Chat HITL (Booking)",
+        "name": "聊天内人机协同（预订）",
         "category": "controlled-generative-ui",
-        "description": "Time-picker card rendered inline via useHumanInTheLoop for a booking flow",
+        "description": "预订流程中通过 useHumanInTheLoop 内联渲染的时间选择卡片",
         "kind": "primary",
         "og_docs_url": "https://docs.copilotkit.ai/generative-ui/your-components/interactive",
         "shell_docs_path": "/generative-ui/your-components/interactive",
@@ -159,9 +159,9 @@
       },
       {
         "id": "hitl",
-        "name": "In-Chat Human in the Loop (Original)",
+        "name": "聊天内人机协同（原始版）",
         "category": "controlled-generative-ui",
-        "description": "Original HITL demo kept for backwards compatibility",
+        "description": "为向后兼容而保留的原始 HITL 演示",
         "kind": "primary",
         "og_docs_url": "https://docs.copilotkit.ai/generative-ui/your-components/interactive",
         "shell_docs_path": "/generative-ui/your-components/interactive",
@@ -169,110 +169,110 @@
       },
       {
         "id": "interrupt-headless",
-        "name": "Human in the Loop: Headless Interrupts",
+        "name": "人机协同：无头中断",
         "category": "controlled-generative-ui",
-        "description": "Resolve langgraph interrupts headlessly via agent.subscribe + copilotkit.runAgent — no chat, no useInterrupt render prop",
+        "description": "通过 agent.subscribe + copilotkit.runAgent 以无头方式处理 langgraph 中断——无需聊天、无需 useInterrupt render prop",
         "kind": "testing",
         "shell_docs_path": "/human-in-the-loop/headless",
         "og_docs_url": "https://docs.copilotkit.ai/headless"
       },
       {
         "id": "declarative-gen-ui",
-        "name": "Declarative UI: Dynamic A2UI",
+        "name": "声明式 UI：动态 A2UI",
         "category": "declarative-generative-ui",
-        "description": "Canonical A2UI BYOC — custom catalog wired via a2ui.catalog",
+        "description": "标准范例 A2UI BYOC——通过 a2ui.catalog 接入自定义组件目录",
         "og_docs_url": "https://docs.copilotkit.ai/generative-ui/a2ui",
         "shell_docs_path": "/generative-ui/a2ui/dynamic-schema"
       },
       {
         "id": "a2ui-fixed-schema",
-        "name": "Declarative UI: Fixed A2UI",
+        "name": "声明式 UI：固定 A2UI",
         "category": "declarative-generative-ui",
-        "description": "A2UI rendering against a known, fixed client-side schema",
+        "description": "针对已知且固定的客户端 schema 进行 A2UI 渲染",
         "og_docs_url": "https://docs.copilotkit.ai/generative-ui/a2ui",
         "shell_docs_path": "/generative-ui/a2ui/fixed-schema"
       },
       {
         "id": "a2ui-recovery",
-        "name": "A2UI Error Recovery",
+        "name": "A2UI 错误恢复",
         "category": "declarative-generative-ui",
-        "description": "Visible A2UI validate-retry recovery loop: an invalid render heals to a valid one, an always-invalid render shows a graceful recovery-exhausted fallback",
+        "description": "可视化的 A2UI 校验-重试恢复循环：无效渲染会自愈为有效渲染；始终无效的渲染则展示优雅的恢复耗尽兜底方案",
         "og_docs_url": "https://docs.copilotkit.ai/generative-ui/a2ui",
         "shell_docs_path": "/generative-ui/a2ui/dynamic-schema"
       },
       {
         "id": "mcp-apps",
-        "name": "MCP Apps",
+        "name": "MCP 应用",
         "category": "open-generative-ui",
-        "description": "MCP server integration with UI display",
+        "description": "集成 MCP server 并展示其 UI",
         "og_docs_url": "https://docs.copilotkit.ai/generative-ui/mcp-apps",
         "shell_docs_path": "/generative-ui/mcp-apps"
       },
       {
         "id": "open-gen-ui",
-        "name": "Open Generative UI: Default",
+        "name": "开放式生成式 UI：默认",
         "category": "open-generative-ui",
-        "description": "Agent-generated UI from arbitrary component libraries",
+        "description": "由智能体从任意组件库生成 UI",
         "og_docs_url": "https://docs.copilotkit.ai/generative-ui/open-generative-ui",
         "shell_docs_path": "/generative-ui/open-generative-ui"
       },
       {
         "id": "open-gen-ui-advanced",
-        "name": "Open Generative UI: Custom",
+        "name": "开放式生成式 UI：自定义",
         "category": "open-generative-ui",
-        "description": "Agent-authored UI that can invoke frontend sandbox functions from inside the iframe",
+        "description": "由智能体编写的 UI，可在 iframe 内部调用前端沙箱函数",
         "og_docs_url": "https://docs.copilotkit.ai/generative-ui/open-generative-ui",
         "shell_docs_path": "/generative-ui/open-generative-ui"
       },
       {
         "id": "tool-rendering-default-catchall",
-        "name": "Generative UI: Tool Rendering (Default)",
+        "name": "生成式 UI：工具渲染（默认）",
         "category": "operational-generative-ui",
-        "description": "Out-of-the-box rendering: backend tools surfaced via CopilotKit's built-in default catch-all renderer; no frontend customization",
+        "description": "开箱即用的渲染：后端工具经由 CopilotKit 内置的默认兜底渲染器呈现；无需任何前端定制",
         "kind": "primary",
         "og_docs_url": "https://docs.copilotkit.ai/generative-ui/tool-rendering",
         "shell_docs_path": "/generative-ui/tool-rendering"
       },
       {
         "id": "tool-rendering-custom-catchall",
-        "name": "Generative UI: Tool Rendering (Custom default)",
+        "name": "生成式 UI：工具渲染（自定义默认）",
         "category": "operational-generative-ui",
-        "description": "Single branded wildcard renderer that paints every tool call — one card handles them all",
+        "description": "用单一品牌化通配渲染器绘制每一次工具调用——一张卡片处理全部",
         "kind": "primary",
         "og_docs_url": "https://docs.copilotkit.ai/generative-ui/tool-rendering",
         "shell_docs_path": "/generative-ui/tool-rendering"
       },
       {
         "id": "tool-rendering",
-        "name": "Generative UI: Tool Rendering (Specific)",
+        "name": "生成式 UI：工具渲染（特定工具）",
         "category": "operational-generative-ui",
-        "description": "Custom per-tool renderers for the tools you care about, plus a wildcard catch-all for the rest",
+        "description": "为你关心的工具提供定制渲染器，其余工具则交给通配兜底渲染器",
         "og_docs_url": "https://docs.copilotkit.ai/generative-ui/tool-rendering",
         "shell_docs_path": "/generative-ui/tool-rendering"
       },
       {
         "id": "tool-rendering-reasoning-chain",
-        "name": "Generative UI: Rendering multiple tools",
+        "name": "生成式 UI：渲染多个工具",
         "category": "operational-generative-ui",
-        "description": "Sequential tool calls with reasoning tokens rendered side-by-side",
+        "description": "顺序工具调用连同推理 token 一起并排渲染",
         "kind": "testing",
         "og_docs_url": "https://docs.copilotkit.ai/generative-ui/tool-rendering",
         "shell_docs_path": "/generative-ui/tool-rendering"
       },
       {
         "id": "agentic-chat-reasoning",
-        "name": "Reasoning",
+        "name": "推理",
         "category": "operational-generative-ui",
-        "description": "Visible reasoning/thinking chain alongside the final answer",
+        "description": "在最终答案旁边展示可见的推理/思考链",
         "og_docs_url": "https://docs.copilotkit.ai/custom-look-and-feel/reasoning-messages",
         "shell_docs_path": "/custom-look-and-feel/reasoning-messages",
         "deprecated": true
       },
       {
         "id": "reasoning-default-render",
-        "name": "Reasoning (Default Render)",
+        "name": "推理（默认渲染）",
         "category": "operational-generative-ui",
-        "description": "Built-in CopilotChatReasoningMessage renders without a custom slot",
+        "description": "内置 CopilotChatReasoningMessage 无需自定义插槽即可渲染",
         "kind": "testing",
         "shell_docs_path": "/custom-look-and-feel/reasoning-messages",
         "og_docs_url": "https://docs.copilotkit.ai/custom-look-and-feel/reasoning-messages",
@@ -280,177 +280,177 @@
       },
       {
         "id": "reasoning-default",
-        "name": "Reasoning: Default",
+        "name": "推理：默认",
         "category": "operational-generative-ui",
-        "description": "Built-in CopilotChatReasoningMessage rendering with no slot override",
+        "description": "使用内置 CopilotChatReasoningMessage 渲染，不覆盖任何插槽",
         "shell_docs_path": "/custom-look-and-feel/reasoning-messages",
         "og_docs_url": "https://docs.copilotkit.ai/custom-look-and-feel/reasoning-messages"
       },
       {
         "id": "reasoning-custom",
-        "name": "Reasoning: Custom",
+        "name": "推理：自定义",
         "category": "operational-generative-ui",
-        "description": "Custom reasoning slot override via messageView.reasoningMessage",
+        "description": "通过 messageView.reasoningMessage 覆盖自定义推理插槽",
         "shell_docs_path": "/custom-look-and-feel/reasoning-messages",
         "og_docs_url": "https://docs.copilotkit.ai/custom-look-and-feel/reasoning-messages"
       },
       {
         "id": "gen-ui-agent",
-        "name": "Generative UI: Agent State",
+        "name": "生成式 UI：智能体状态",
         "category": "operational-generative-ui",
-        "description": "Agent-state-driven inline UI: the agent emits a live `steps` plan via copilotkit_emit_state and the frontend renders it with useCoAgentStateRender (v1 hook)",
+        "description": "由智能体状态驱动的内联 UI：智能体通过 copilotkit_emit_state 发出实时 `steps` 计划，前端再用 useCoAgentStateRender（v1 hook）渲染它",
         "og_docs_url": "https://docs.copilotkit.ai/generative-ui/state-rendering",
         "shell_docs_path": "/generative-ui/state-rendering"
       },
       {
         "id": "frontend-tools",
-        "name": "Frontend Tools: In-app Actions",
+        "name": "前端工具：应用内操作",
         "category": "interactivity",
-        "description": "Frontend tool execution triggered by the agent",
+        "description": "由智能体触发的前端工具执行",
         "og_docs_url": "https://docs.copilotkit.ai/frontend-tools",
         "shell_docs_path": "/frontend-tools"
       },
       {
         "id": "frontend-tools-async",
-        "name": "Frontend Tools: Async",
+        "name": "前端工具：异步",
         "category": "interactivity",
-        "description": "useFrontendTool with an async handler — agent awaits a client-side async operation (e.g. DB query) and uses the returned result",
+        "description": "使用带异步处理器的 useFrontendTool——智能体等待客户端异步操作（如数据库查询）完成并使用其返回结果",
         "og_docs_url": "https://docs.copilotkit.ai/frontend-tools",
         "shell_docs_path": "/frontend-tools"
       },
       {
         "id": "threadid-frontend-tool-roundtrip",
-        "name": "ThreadID: Frontend Tool Round-Trip",
+        "name": "ThreadID：前端工具往返",
         "category": "interactivity",
-        "description": "Regression demo for ENT-658 — verifies that an explicit threadId survives a useFrontendTool round-trip (agent invokes a frontend tool, awaits the async handler, and the same threadId is preserved across the resume).",
+        "description": "ENT-658 回归演示——验证显式传入的 threadId 能在 useFrontendTool 往返中保持不变（智能体调用前端工具、等待异步处理器执行完毕，恢复后仍保留同一个 threadId）。",
         "kind": "testing",
         "shell_docs_path": "/frontend-tools",
         "og_docs_url": "https://docs.copilotkit.ai/frontend-tools"
       },
       {
         "id": "hitl-in-app",
-        "name": "Human in the Loop: In-app",
+        "name": "人机协同：应用内",
         "category": "interactivity",
-        "description": "Agent calls useFrontendTool with an async handler; the approval UI pops up as an app-level modal OUTSIDE the chat, and a completion callback resolves the pending tool Promise with the user's decision",
+        "description": "智能体调用带异步处理器的 useFrontendTool；审批 UI 以应用级模态框的形式在聊天之外弹出，完成回调再以用户的决定 resolve 挂起的工具 Promise",
         "og_docs_url": "https://docs.copilotkit.ai/human-in-the-loop",
         "shell_docs_path": "/human-in-the-loop"
       },
       {
         "id": "shared-state-read-write",
-        "name": "Shared State: Read + Write",
+        "name": "共享状态：读 + 写",
         "category": "agent-state",
-        "description": "Bidirectional agent state — UI writes preferences, agent writes notes back",
+        "description": "双向的智能体状态——UI 写入偏好设置，智能体回写备注",
         "og_docs_url": "https://docs.copilotkit.ai/shared-state",
         "shell_docs_path": "/shared-state"
       },
       {
         "id": "shared-state-read",
-        "name": "Shared State: Read-only",
+        "name": "共享状态：只读",
         "category": "agent-state",
-        "description": "Frontend recipe form publishes shared state via agent.setState; agent reads but does not mutate the recipe (neutral default agent, no backend tool)",
+        "description": "前端菜谱表单通过 agent.setState 发布共享状态；智能体只读取菜谱而不做修改（中性默认智能体，无后端工具）",
         "kind": "testing",
         "og_docs_url": "https://docs.copilotkit.ai/shared-state",
         "shell_docs_path": "/shared-state"
       },
       {
         "id": "shared-state-streaming",
-        "name": "Shared State: Streaming",
+        "name": "共享状态：流式传输",
         "category": "agent-state",
-        "description": "Per-token state delta streaming from agent to UI",
+        "description": "从智能体到 UI 的逐 token 状态增量流式传输",
         "og_docs_url": "https://docs.copilotkit.ai/shared-state",
         "shell_docs_path": "/shared-state/streaming"
       },
       {
         "id": "readonly-state-agent-context",
-        "name": "Shared State: Frontend Context",
+        "name": "共享状态：前端上下文",
         "category": "agent-state",
-        "description": "Frontend provides read-only context to the agent via useAgentContext",
+        "description": "前端通过 useAgentContext 向智能体提供只读上下文",
         "og_docs_url": "https://docs.copilotkit.ai/shared-state",
         "shell_docs_path": "/shared-state/agent-readonly"
       },
       {
         "id": "subagents",
-        "name": "Sub-Agents",
+        "name": "子智能体",
         "category": "multi-agent",
-        "description": "Multiple agents with visible task delegation",
+        "description": "多个智能体协同工作，任务委派全程可见",
         "shell_docs_path": "/multi-agent/subagents",
         "og_docs_url": "https://docs.copilotkit.ai/coagents/multi-agent-flows"
       },
       {
         "id": "background-agents",
-        "name": "Background Agents",
+        "name": "后台智能体",
         "category": "multi-agent",
-        "description": "A long-running deep-research tool dispatched as a background task, surfaced inline as a live \"working\" activity card",
+        "description": "长时间运行的深度研究工具作为后台任务分派，并以实时“工作中”活动卡片的形式内联呈现",
         "shell_docs_path": "/background-tasks"
       },
       {
         "id": "observational-memory",
-        "name": "Observational Memory",
+        "name": "观察式记忆",
         "category": "agent-state",
-        "description": "Conversation context is compressed and activated out of band; the background work surfaces inline as activity cards",
+        "description": "会话上下文被压缩并在主流程之外激活；后台工作以内联活动卡片的形式呈现",
         "shell_docs_path": "/observational-memory"
       },
       {
         "id": "browser-use",
-        "name": "Browser Use",
+        "name": "浏览器操作",
         "category": "platform",
-        "description": "The agent drives a real local headless browser to fetch pages and renders the results inline in chat",
+        "description": "智能体驱动真实的本地无头浏览器抓取网页，并将结果内联渲染在聊天中",
         "shell_docs_path": "/browser-use"
       },
       {
         "id": "auth",
-        "name": "Authentication",
+        "name": "身份验证",
         "category": "platform",
-        "description": "Framework-native authentication",
+        "description": "框架原生的身份验证",
         "shell_docs_path": "/auth"
       },
       {
         "id": "agent-config",
-        "name": "Agent Config Object",
+        "name": "智能体配置对象",
         "category": "platform",
-        "description": "Forwarded props / config objects",
+        "description": "转发的 props / 配置对象",
         "shell_docs_path": "/agent-config"
       },
       {
         "id": "voice",
-        "name": "Voice",
+        "name": "语音",
         "category": "platform",
-        "description": "Real-time voice interaction",
+        "description": "实时语音交互",
         "shell_docs_path": "/voice"
       },
       {
         "id": "multimodal",
-        "name": "Attachments",
+        "name": "附件",
         "category": "platform",
-        "description": "File upload and agent processing",
+        "description": "文件上传与智能体处理",
         "shell_docs_path": "/multimodal-attachments",
         "og_docs_url": "https://docs.copilotkit.ai/multimodal-attachments"
       },
       {
         "id": "byoc-hashbrown",
-        "name": "Declarative UI: Hashbrown",
+        "name": "声明式 UI：Hashbrown",
         "category": "byoc",
-        "description": "Hashbrown-style generative UI (legacy slug — superseded by `declarative-hashbrown`; kept so the other 17 integrations whose manifests still declare this ID don't drop out of the catalog before their cross-codebase rename lands)",
+        "description": "Hashbrown 风格的生成式 UI（旧 slug——已被 `declarative-hashbrown` 取代；之所以保留，是为了让 manifest 仍声明此 ID 的其余 17 个集成在跨代码库重命名落地前不会从目录中消失）",
         "deprecated": true
       },
       {
         "id": "byoc-json-render",
-        "name": "Declarative UI: json-render",
+        "name": "声明式 UI：json-render",
         "category": "byoc",
-        "description": "Streaming structured-output generative UI via @json-render/react (legacy slug — superseded by `declarative-json-render`; kept for cross-integration parity until the rename completes elsewhere)",
+        "description": "通过 @json-render/react 实现的流式结构化输出生成式 UI（旧 slug——已被 `declarative-json-render` 取代；为保持跨集成一致而保留，直至其他代码库完成重命名）",
         "deprecated": true
       },
       {
         "id": "declarative-hashbrown",
-        "name": "Declarative UI: Hashbrown",
+        "name": "声明式 UI：Hashbrown",
         "category": "byoc",
-        "description": "Hashbrown-style generative UI"
+        "description": "Hashbrown 风格的生成式 UI"
       },
       {
         "id": "declarative-json-render",
-        "name": "Declarative UI: json-render",
+        "name": "声明式 UI：json-render",
         "category": "byoc",
-        "description": "Streaming structured-output generative UI via @json-render/react"
+        "description": "通过 @json-render/react 实现的流式结构化输出生成式 UI"
       }
     ]
   },
@@ -941,7 +941,7 @@
       "category": "popular",
       "language": "typescript",
       "logo": "/logos/built-in-agent.svg",
-      "description": "CopilotKit's Built-in Agent in factory mode. The agent runs in-process inside the Next.js route handler — no separate agent server.",
+      "description": "工厂模式下的 CopilotKit 内置智能体。该智能体在 Next.js 应用内以进程内方式运行，并与 CopilotKit 运行时及前端包协同工作。",
       "partner_docs": null,
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/built-in-agent",
       "copilotkit_version": "2.0.0",
@@ -1663,7 +1663,7 @@
       "category": "popular",
       "language": "python",
       "logo": "/logos/langgraph-python.svg",
-      "description": "The most feature-complete CopilotKit integration. LangGraph provides a flexible graph-based framework for building agents with Python. Supports the full range of CopilotKit features including generative UI, shared state, human-in-the-loop, sub-agents, and streaming.",
+      "description": "特性最完整的 CopilotKit 集成。LangGraph 提供灵活的基于图的 Python 智能体构建框架，支持 CopilotKit 的全部特性，包括生成式 UI、共享状态、人机协同、子智能体与流式传输。",
       "partner_docs": "https://docs.copilotkit.ai/integrations/langgraph",
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/langgraph-python",
       "copilotkit_version": "2.0.0",
@@ -2545,7 +2545,7 @@
       "category": "popular",
       "language": "typescript",
       "logo": "/logos/langgraph-typescript.svg",
-      "description": "TypeScript variant of the LangGraph integration. Uses @langchain/langgraph to define a graph-based agent with tool calling, shared state, and memory, connected to CopilotKit via the LangGraph AG-UI adapter.",
+      "description": "LangGraph 集成的 TypeScript 变体。使用 @langchain/langgraph 定义状态图，通过 LangGraph JS 运行时执行，并支持 CopilotKit 的全部特性。",
       "partner_docs": "https://docs.copilotkit.ai/integrations/langgraph",
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/langgraph-typescript",
       "copilotkit_version": "2.0.0",
@@ -3324,7 +3324,7 @@
       "category": "emerging",
       "language": "python",
       "logo": "/logos/langgraph-fastapi.svg",
-      "description": "CopilotKit integration with LangGraph (FastAPI)",
+      "description": "CopilotKit 与 LangGraph（FastAPI）的集成。",
       "partner_docs": null,
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/langgraph-fastapi",
       "copilotkit_version": "2.0.0",
@@ -4093,7 +4093,7 @@
       "category": "agent-framework",
       "language": "python",
       "logo": "/logos/google-adk.svg",
-      "description": "CopilotKit integration with Google ADK (Agent Development Kit). Each demo is a distinct ADK LlmAgent powered by Gemini, exposed via the ag-ui-adk middleware so the React-side CopilotKit components can drive real ADK agents end-to-end.",
+      "description": "CopilotKit 与 Google ADK（Agent Development Kit）的集成。每个演示都是一个独立的智能体后端，演示一个特定的 CopilotKit 特性。",
       "partner_docs": null,
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/google-adk",
       "copilotkit_version": "2.0.0",
@@ -4905,7 +4905,7 @@
       "category": "popular",
       "language": "typescript",
       "logo": "/logos/mastra.svg",
-      "description": "TypeScript-native agent framework with built-in tool management, agent memory, and workflow orchestration. Integrates with CopilotKit via the AG-UI protocol adapter.",
+      "description": "TypeScript 原生的智能体框架，内置工具管理、智能体记忆与工作流编排。支持 CopilotKit 的全部特性。",
       "partner_docs": "https://docs.copilotkit.ai/integrations/mastra",
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/mastra",
       "copilotkit_version": "2.0.0",
@@ -5688,7 +5688,7 @@
       "category": "popular",
       "language": "python",
       "logo": "/logos/crewai-crews.svg",
-      "description": "CopilotKit integration with regular CrewAI Flows",
+      "description": "CopilotKit 与常规 CrewAI Flows 的集成。",
       "partner_docs": null,
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/crewai-crews",
       "copilotkit_version": "2.0.0",
@@ -6420,7 +6420,7 @@
       "category": "popular",
       "language": "python",
       "logo": "/logos/crewai-crews.svg",
-      "description": "CopilotKit integration with CrewAI Conversational Flows",
+      "description": "CopilotKit 与 CrewAI Conversational Flows 的集成。",
       "partner_docs": null,
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/crewai-conversational-flows",
       "copilotkit_version": "2.0.0",
@@ -7151,7 +7151,7 @@
       "category": "agent-framework",
       "language": "python",
       "logo": "/logos/pydantic-ai.svg",
-      "description": "CopilotKit integration with PydanticAI",
+      "description": "CopilotKit 与 PydanticAI 的集成。",
       "partner_docs": null,
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/pydantic-ai",
       "copilotkit_version": "2.0.0",
@@ -7939,7 +7939,7 @@
       "category": "agent-framework",
       "language": "python",
       "logo": "/logos/google-antigravity.svg",
-      "description": "CopilotKit integration with Google Antigravity through the ag-ui-antigravity adapter. The SDK drives a Go harness subprocess with real file and shell access; hooks and client tools park across AG-UI runs without a proxy tool.",
+      "description": "CopilotKit 通过 ag-ui-antigravity 适配器与 Google Antigravity 的集成。该适配器负责将 Antigravity 的事件桥接为 AG-UI 协议消息。",
       "partner_docs": "https://antigravity.google/product/antigravity-sdk/",
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/google-antigravity",
       "copilotkit_version": "2.0.0",
@@ -8783,7 +8783,7 @@
       "category": "agent-framework",
       "language": "python",
       "logo": "/logos/claude-sdk-python.svg",
-      "description": "CopilotKit integration with Claude Agent SDK (Python). Supports the full range of CopilotKit features including generative UI, shared state, human-in-the-loop, sub-agents, and streaming.",
+      "description": "CopilotKit 与 Claude Agent SDK（Python）的集成。支持 CopilotKit 的全部特性，包括生成式 UI、共享状态、人机协同、子智能体与流式传输。",
       "partner_docs": null,
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/claude-sdk-python",
       "copilotkit_version": "2.0.0",
@@ -9533,7 +9533,7 @@
       "category": "agent-framework",
       "language": "typescript",
       "logo": "/logos/claude-sdk-typescript.svg",
-      "description": "CopilotKit integration with Anthropic's Claude via the Claude SDK for TypeScript",
+      "description": "CopilotKit 通过 TypeScript 版 Claude SDK 与 Anthropic Claude 的集成。",
       "partner_docs": null,
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/claude-sdk-typescript",
       "copilotkit_version": "2.0.0",
@@ -10299,7 +10299,7 @@
       "category": "emerging",
       "language": "python",
       "logo": "/logos/agno.svg",
-      "description": "CopilotKit integration with Agno. Supports the full range of CopilotKit features including generative UI, shared state, human-in-the-loop, sub-agents, and streaming.",
+      "description": "CopilotKit 与 Agno 的集成。支持 CopilotKit 的全部特性，包括生成式 UI、共享状态、人机协同、子智能体与流式传输。",
       "partner_docs": null,
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/agno",
       "copilotkit_version": "2.0.0",
@@ -11036,7 +11036,7 @@
       "category": "emerging",
       "language": "python",
       "logo": "/logos/ag2.svg",
-      "description": "CopilotKit integration with AG2. Supports the full range of CopilotKit features including generative UI, shared state, human-in-the-loop, sub-agents, and streaming.",
+      "description": "CopilotKit 与 AG2 的集成。支持 CopilotKit 的全部特性，包括生成式 UI、共享状态、人机协同、子智能体与流式传输。",
       "partner_docs": null,
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/ag2",
       "copilotkit_version": "2.0.0",
@@ -11741,7 +11741,7 @@
       "category": "emerging",
       "language": "python",
       "logo": "/logos/llamaindex.svg",
-      "description": "CopilotKit integration with LlamaIndex",
+      "description": "CopilotKit 与 LlamaIndex 的集成。",
       "partner_docs": null,
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/llamaindex",
       "copilotkit_version": "2.0.0",
@@ -12462,7 +12462,7 @@
       "category": "emerging",
       "language": "python",
       "logo": "/logos/strands.svg",
-      "description": "CopilotKit integration with AWS Strands",
+      "description": "CopilotKit 与 AWS Strands 的集成。",
       "managed_platform": {
         "name": "AWS Bedrock AgentCore",
         "url": "https://aws.amazon.com/bedrock/agents/"
@@ -13252,7 +13252,7 @@
       "category": "emerging",
       "language": "typescript",
       "logo": "/logos/strands-typescript.svg",
-      "description": "TypeScript variant of the AWS Strands integration. Uses @strands-agents/sdk to define an agent with tool calling, shared state, and human-in-the-loop, connected to CopilotKit via the @ag-ui/aws-strands adapter.",
+      "description": "AWS Strands 集成的 TypeScript 变体。使用 @strands-agents/sdk 定义智能体，并支持 CopilotKit 的核心特性。",
       "managed_platform": {
         "name": "AWS Bedrock AgentCore",
         "url": "https://aws.amazon.com/bedrock/agents/"
@@ -14039,7 +14039,7 @@
       "category": "emerging",
       "language": "python",
       "logo": "/logos/langroid.svg",
-      "description": "CopilotKit integration with Langroid",
+      "description": "CopilotKit 与 Langroid 的集成。",
       "partner_docs": null,
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/langroid",
       "copilotkit_version": "2.0.0",
@@ -14690,7 +14690,7 @@
       "category": "enterprise-platform",
       "language": "python",
       "logo": "/logos/ms-agent-python.svg",
-      "description": "CopilotKit integration with MS Agent Framework (Python)",
+      "description": "CopilotKit 与 MS Agent Framework（Python）的集成。",
       "partner_docs": null,
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/ms-agent-python",
       "copilotkit_version": "2.0.0",
@@ -15464,7 +15464,7 @@
       "category": "enterprise-platform",
       "language": "dotnet",
       "logo": "/logos/ms-agent-dotnet.svg",
-      "description": "CopilotKit integration with Microsoft Agent Framework for .NET via AG-UI protocol. Full feature parity including generative UI, shared state, human-in-the-loop, sub-agents, and streaming.",
+      "description": "CopilotKit 通过 AG-UI 协议与面向 .NET 的 Microsoft Agent Framework 的集成。完整支持工具、生成式 UI 与人机协同。",
       "partner_docs": "https://docs.copilotkit.ai/microsoft-agent-framework",
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/ms-agent-dotnet",
       "copilotkit_version": "2.0.0",
@@ -16218,7 +16218,7 @@
       "category": "enterprise-platform",
       "language": "dotnet",
       "logo": "/logos/ms-agent-dotnet.svg",
-      "description": "CopilotKit integration with Microsoft Agent Harness for .NET, running on top of Microsoft Agent Framework and exposed through the AG-UI protocol. Full feature parity including generative UI, shared state, human-in-the-loop, sub-agents, and streaming.",
+      "description": "CopilotKit 与面向 .NET 的 Microsoft Agent Harness 的集成，运行在 Microsoft Agent Framework 之上。",
       "partner_docs": "https://docs.copilotkit.ai/microsoft-agent-framework",
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/ms-agent-harness-dotnet",
       "copilotkit_version": "2.0.0",
@@ -16924,7 +16924,7 @@
       "category": "enterprise-platform",
       "language": "java",
       "logo": "/logos/spring-ai.svg",
-      "description": "CopilotKit integration with Spring AI. Java-based agent backend with full feature coverage including frontend tools, in-chat and in-app human-in-the- loop, generative UI, per-tool renderers, agent context, interrupt-adapted scheduling (Strategy B), per-token state streaming, and prebuilt chat surfaces (sidebar / popup / slots / headless). Demos that depend on LangGraph-specific primitives (interrupt, multi-agent orchestration, MCP-driven UI) are documented as skipped in PARITY_NOTES.md.",
+      "description": "CopilotKit 与 Spring AI 的集成。基于 Java 的智能体后端，具备完整特性覆盖。",
       "partner_docs": null,
       "repo": "https://github.com/CopilotKit/CopilotKit/tree/main/showcase/integrations/spring-ai",
       "copilotkit_version": "2.0.0",
