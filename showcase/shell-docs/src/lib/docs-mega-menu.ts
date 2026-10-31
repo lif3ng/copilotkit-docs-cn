@@ -37,73 +37,73 @@ export interface MegaMenuColumn {
 
 export const DOCS_MEGA_MENU_COLUMNS: readonly MegaMenuColumn[] = [
   {
-    title: "Start",
+    title: "开始",
     links: [
-      { href: "/", label: "Introduction", icon: "book" },
-      { href: "/quickstart", label: "Quickstart", icon: "rocket" },
+      { href: "/", label: "简介", icon: "book" },
+      { href: "/quickstart", label: "快速开始", icon: "rocket" },
       { href: "/cli", label: "CLI", icon: "terminal" },
     ],
   },
   {
-    title: "Build",
+    title: "构建",
     links: [
-      { href: "/prebuilt-components", label: "Chat UI", icon: "message" },
+      { href: "/prebuilt-components", label: "聊天 UI", icon: "message" },
       {
         href: "/generative-ui",
-        label: "Generative UI",
+        label: "生成式 UI",
         icon: "sparkles",
       },
-      { href: "/frontend-tools", label: "Agent behavior", icon: "bot" },
+      { href: "/frontend-tools", label: "智能体行为", icon: "bot" },
     ],
   },
   {
-    title: "Connect",
+    title: "连接",
     links: [
-      { href: "/backend/copilot-runtime", label: "Runtime", icon: "refresh" },
+      { href: "/backend/copilot-runtime", label: "运行时", icon: "refresh" },
       { href: "/agentic-protocols/ag-ui", label: "AG-UI", icon: "link" },
       {
         href: "/build-with-agents",
-        label: "Build with agents",
+        label: "与智能体协同构建",
         icon: "blocks",
       },
     ],
   },
   {
-    title: "Ship & Operate",
+    title: "发布与运维",
     links: [
       {
         href: INTELLIGENCE_DOCS_HREF,
-        label: "Intelligence",
+        label: "智能中枢",
         icon: "kite",
         featured: true,
       },
       { href: "/AG-UI-Streams", label: "AG-UI Streams", icon: "layers" },
       {
         href: "/learning",
-        label: "Automatic Learning",
+        label: "自动学习",
         icon: "lightbulb",
       },
       {
         href: "/intelligence/analytics",
-        label: "Product Analytics",
+        label: "产品分析",
         icon: "chart",
       },
-      { href: "/intelligence/memories", label: "User Memories", icon: "brain" },
+      { href: "/intelligence/memories", label: "用户记忆", icon: "brain" },
       { href: "/inspector", label: "Inspector", icon: "search" },
-      { href: "/deploy/agentcore", label: "Deploy", icon: "cloud" },
+      { href: "/deploy/agentcore", label: "部署", icon: "cloud" },
       {
         href: "/intelligence/self-hosting",
-        label: "Self-Hosting",
+        label: "自托管",
         icon: "server",
       },
     ],
   },
   {
-    title: "Reference",
+    title: "参考",
     links: [
-      { href: "/reference", label: "React API", icon: "atom" },
-      { href: "/reference/core", label: "Runtime API", icon: "box" },
-      { href: "/reference/channels", label: "Channels API", icon: "radio" },
+      { href: "/reference", label: "React API 参考", icon: "atom" },
+      { href: "/reference/core", label: "运行时 API 参考", icon: "box" },
+      { href: "/reference/channels", label: "渠道 API 参考", icon: "radio" },
     ],
   },
 ];
