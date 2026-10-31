@@ -5,6 +5,14 @@ on:
     branches: [master]
   workflow_dispatch:
 
+permissions:
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   export:
     runs-on: ubuntu-latest
@@ -36,7 +44,6 @@ jobs:
       - name: Export build (NEXT_STATIC_EXPORT=1)
         run: |
           cd showcase/shell-docs
-          SD="$PWD"
           mv src/middleware.ts src/middleware.ts.disabled
           mv src/app/llms.txt/route.ts src/app/llms.txt/route.ts.disabled
           mv src/app/llms-full.txt/route.ts src/app/llms-full.txt/route.ts.disabled
@@ -45,15 +52,24 @@ jobs:
           mv "src/app/frontends/[frontend]/[...slug]/page.tsx" "src/app/frontends/[frontend]/[...slug]/page.tsx.disabled"
           node ../scripts/patch-dynamic.cjs --apply
           NEXT_STATIC_EXPORT=1 \
-          NEXT_PUBLIC_BASE_URL="https://example.com" \
+          NEXT_PUBLIC_BASE_URL="https://lif3ng.github.io/copilotkit-docs-cn" \
           npm run build
           echo "--- out/ ---"
           du -sh out
           find out -name "*.html" | wc -l
 
-      - name: Upload out/
-        uses: actions/upload-artifact@v4
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: static-export
           path: showcase/shell-docs/out/
-          retention-days: 7
+
+  deploy:
+    needs: export
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
