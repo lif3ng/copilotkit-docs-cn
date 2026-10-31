@@ -9,27 +9,27 @@ import { IframeSwitcher } from "@/components/content";
   height="700px"
 />
 
-## What is this?
+## 这是什么？
 
-Frontend tools enable you to define client-side functions that your agent can invoke, with execution happening entirely in the user's browser. When your agent calls a frontend tool, the logic runs on the client side, giving you direct access to the frontend environment.
+前端工具让你可以定义智能体可调用的客户端函数，其执行完全发生在用户的浏览器中。当智能体调用前端工具时，逻辑在客户端运行，让你可以直接访问前端环境。
 
-This can be utilized for UI control, generative UI, or Human-in-the-loop interactions. In this guide, we cover the use of frontend tools for Human-in-the-loop.
+这可用于 UI 控制、生成式 UI 或人机协同（human-in-the-loop）交互。本指南介绍如何将前端工具用于人机协同。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Use frontend tools when you need your agent to interact with client-side primitives such as:
+当你需要智能体与客户端底层能力交互时，可以使用前端工具，例如：
 
-- Reading or modifying React component state
-- Accessing browser APIs like localStorage, sessionStorage, or cookies
-- Triggering UI updates or animations
-- Interacting with third-party frontend libraries
-- Performing actions that require the user's immediate browser context
+- 读取或修改 React 组件状态
+- 访问 localStorage、sessionStorage 或 cookie 等浏览器 API
+- 触发 UI 更新或动画
+- 与第三方前端库交互
+- 执行需要用户当前浏览器上下文的操作
 
-## Create a frontend human-in-the-loop tool
+## 创建前端人机协同工具
 
-Frontend tools can be leveraged in a variety of ways. One of those ways is to have a human-in-the-loop flow where the response of the tool is gated by a user's decision.
+前端工具的使用方式多种多样。其中一种是构建人机协同流程：工具的响应由用户的决定来把关。
 
-In this example we will simulate an "approval" flow for executing a command. Use the `useHumanInTheLoop` hook to create a tool that prompts the user for approval.
+在本例中，我们将模拟执行命令的“审批”流程。使用 `useHumanInTheLoop` hook 创建一个会请求用户批准的工具。
 
 ```tsx title="page.tsx"
 import { useHumanInTheLoop } from "@copilotkit/react-core/v2"; // [!code highlight]

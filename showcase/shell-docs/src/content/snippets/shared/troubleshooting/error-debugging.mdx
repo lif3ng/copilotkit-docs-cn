@@ -1,8 +1,8 @@
-# How to Debug Errors
+# 如何调试错误
 
-CopilotKit provides visual error display for local development and debugging. This feature is completely free and requires no API keys.
+CopilotKit 为本地开发与调试提供可视化的错误展示。该功能完全免费，且无需 API 密钥。
 
-## Quick Setup
+## 快速配置
 
 ```tsx
 import { CopilotKit } from "@copilotkit/react-core/v2";
@@ -20,22 +20,22 @@ export default function App() {
 ```
 
 <Callout type="warning">
-  Avoid showing the dev console in production as it exposes internal error details to end users.
+  避免在生产环境中显示开发者控制台，因为它会向最终用户暴露内部错误细节。
 </Callout>
 
-## When to Use Development Debugging
+## 何时使用开发调试
 
-- **Local development** - See errors immediately in your UI
-- **Quick debugging** - No setup required, works out of the box
-- **Testing** - Verify error handling during development
+- **本地开发**——在 UI 中立即看到错误
+- **快速调试**——无需任何配置，开箱即用
+- **测试**——在开发期间验证错误处理
 
-## Programmatic Error Handling (v2)
+## 编程式错误处理（v2）
 
-The v2 API provides an `onError` callback on both `CopilotKit` and `CopilotChat` for programmatic error handling. No `publicApiKey` is required.
+v2 API 在 `CopilotKit` 与 `CopilotChat` 上都提供了 `onError` 回调，用于编程式错误处理。无需 `publicApiKey`。
 
-### Provider-Level Error Handling
+### Provider 层的错误处理
 
-Catches all errors across the entire application:
+捕获整个应用中的所有错误：
 
 ```tsx
 import { CopilotKit } from "@copilotkit/react-core/v2";
@@ -54,9 +54,9 @@ import { CopilotKit } from "@copilotkit/react-core/v2";
 </CopilotKit>
 ```
 
-### Chat-Level Error Handling
+### Chat 层的错误处理
 
-Scoped to a specific chat's agent — fires in addition to the provider-level handler:
+仅作用于特定聊天的智能体——在 Provider 层处理函数之外额外触发：
 
 ```tsx
 import { CopilotChat } from "@copilotkit/react-core/v2";
@@ -69,31 +69,31 @@ import { CopilotChat } from "@copilotkit/react-core/v2";
 />
 ```
 
-### Error Codes
+### 错误码
 
-| Code | Description |
+| 错误码 | 说明 |
 |------|-------------|
-| `runtime_info_fetch_failed` | Could not reach the runtime `/info` endpoint |
-| `agent_connect_failed` | Agent connection (thread setup) failed |
-| `agent_run_failed` | Agent run rejected (e.g. network error) |
-| `agent_run_failed_event` | Agent's `onRunFailed` subscriber fired |
-| `agent_run_error_event` | Agent sent a `RUN_ERROR` event |
-| `tool_argument_parse_failed` | Tool call arguments were not valid JSON |
-| `tool_handler_failed` | A frontend tool handler threw an error |
+| `runtime_info_fetch_failed` | 无法访问运行时的 `/info` 端点 |
+| `agent_connect_failed` | 智能体连接（线程设置）失败 |
+| `agent_run_failed` | 智能体运行被拒绝（例如网络错误） |
+| `agent_run_failed_event` | 智能体的 `onRunFailed` 订阅者被触发 |
+| `agent_run_error_event` | 智能体发送了 `RUN_ERROR` 事件 |
+| `tool_argument_parse_failed` | 工具调用参数不是有效的 JSON |
+| `tool_handler_failed` | 前端工具处理函数抛出了错误 |
 
 <Callout type="info">
-  Need to see the raw AG-UI events flowing between runtime and client? Use the [AG-UI Event Inspector](/troubleshooting/event-inspector) in VS Code for a live, filterable event stream.
+  想查看运行时与客户端之间流动的原始 AG-UI 事件？使用 VS Code 中的 [AG-UI Event Inspector](/troubleshooting/event-inspector)，即可获得实时、可过滤的事件流。
 </Callout>
 
 <Callout type="info">
-  Need to see the full event pipeline — what events your agent emits, whether they reach the client, and where they're dropped? See [Debug Mode](/troubleshooting/debug-mode) for detailed AG-UI event logging.
+  想看到完整的事件管线——智能体发出了哪些事件、是否到达客户端、又在哪里被丢弃？参阅[调试模式](/troubleshooting/debug-mode)了解详细的 AG-UI 事件日志。
 </Callout>
 
-## Troubleshooting
+## 故障排查
 
-### Development Debugging Issues
+### 开发调试问题
 
-- **Dev console not showing:**
-  - Confirm `showDevConsole={true}`
-  - Check for JavaScript errors in the browser console
-  - Ensure no CSS is hiding the error banner
+- **开发者控制台未显示**：
+  - 确认 `showDevConsole={true}`
+  - 检查浏览器控制台中是否有 JavaScript 错误
+  - 确保没有 CSS 隐藏错误横幅

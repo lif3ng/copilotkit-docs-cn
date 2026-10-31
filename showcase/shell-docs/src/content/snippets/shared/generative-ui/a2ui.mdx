@@ -1,8 +1,8 @@
 import Image from "next/image";
 
-# A2UI - Google's Generative UI Spec
+# A2UI —— Google 的生成式 UI 规范
 
-**A2UI** is Google's declarative, LLM-friendly Generative UI specification that enables agents to generate dynamic user interfaces.
+**A2UI** 是 Google 推出的声明式、对 LLM 友好的生成式 UI 规范，让智能体能够生成动态用户界面。
 
 <Image
   src="/images/gen-ui-specs-light.webp"
@@ -19,34 +19,34 @@ import Image from "next/image";
   className="hidden dark:block mb-8"
 />
 
-## What is A2UI?
+## A2UI 是什么？
 
-A2UI is a declarative generative UI specification launched by Google. It's designed to be:
+A2UI 是 Google 推出的声明式生成式 UI 规范，其设计目标包括：
 
-- **JSONL-based** - Uses JSON Lines format for streaming
-- **LLM-friendly** - Easy for language models to generate
-- **Platform-agnostic** - Can be rendered on any platform
-- **Streaming-first** - Built for real-time, progressive rendering
+- **基于 JSONL** —— 使用 JSON Lines 格式进行流式传输
+- **对 LLM 友好** —— 语言模型易于生成
+- **平台无关** —— 可在任何平台上渲染
+- **流式优先** —— 为实时、渐进式渲染而生
 
-## Why A2UI?
+## 为什么选择 A2UI？
 
-### Declarative Approach
+### 声明式方法
 
-A2UI allows agents to describe UI components declaratively, making it easier for LLMs to generate dynamic interfaces without needing to understand implementation details.
+A2UI 允许智能体以声明式方式描述 UI 组件，让 LLM 无需了解实现细节，就能更轻松地生成动态界面。
 
-### Streaming Support
+### 流式支持
 
-Built with streaming in mind, A2UI enables progressive rendering as the agent generates responses, providing a better user experience.
+A2UI 从设计之初就面向流式传输，随着智能体生成响应即可渐进式渲染，带来更好的用户体验。
 
-### Platform Agnostic
+### 平台无关
 
-A2UI specifications can be rendered on web, mobile, or any other platform, making your agent's UI truly universal.
+A2UI 规范可以在 Web、移动端或任何其他平台上渲染，让你的智能体 UI 真正实现通用。
 
-## Setup with CopilotKit
+## 在 CopilotKit 中配置
 
-### Backend
+### 后端
 
-Enable A2UI in `CopilotRuntime` by passing `a2ui: {}`:
+在 `CopilotRuntime` 中传入 `a2ui: {}` 即可启用 A2UI：
 
 ```ts title="app/api/copilotkit/route.ts"
 import {
@@ -69,15 +69,15 @@ const handler = createCopilotRuntimeHandler({
 export { handler as POST };
 ```
 
-This automatically applies `A2UIMiddleware` to all registered agents. To scope it to specific agents, you can specify agents with the `agents` property: `a2ui: { agents: ["my-agent"] }`.
+这会自动为所有已注册的智能体应用 `A2UIMiddleware`。若想只作用于特定智能体，可以通过 `agents` 属性指定：`a2ui: { agents: ["my-agent"] }`。
 
-Both halves of this page are v2 entry points: `@copilotkit/runtime/v2` on the server, `@copilotkit/react-core/v2` in the browser. If you are on the legacy `@copilotkit/runtime` root import with `copilotRuntimeNextJSAppRouterEndpoint`, A2UI still works — that class forwards `a2ui` straight to the v2 runtime — but the v2 handler is the current API, and our own showcase integrations moved to it (#6618). See [Deploy to any runtime](/runtime-server-adapter) for the other hosts.
+本页的两部分都是 v2 入口：服务端使用 `@copilotkit/runtime/v2`，浏览器端使用 `@copilotkit/react-core/v2`。如果你仍在使用旧的 `@copilotkit/runtime` 根导入并配合 `copilotRuntimeNextJSAppRouterEndpoint`，A2UI 依然可用——该类会把 `a2ui` 直接转发给 v2 运行时——但 v2 handler 才是当前的 API，我们自己的 showcase 集成也已迁移过去（#6618）。其他宿主环境请参阅 [Deploy to any runtime](/runtime-server-adapter)。
 
-Once configured, any A2UI output returned from your agent will automatically be rendered in the chat interface — no additional frontend code required.
+配置完成后，智能体返回的任何 A2UI 输出都会自动渲染在聊天界面中——无需额外的前端代码。
 
-### Frontend
+### 前端
 
-The A2UI renderer activates automatically — no extra configuration needed on the frontend. Optionally, pass a custom theme:
+A2UI 渲染器会自动启用——前端无需额外配置。可选地，传入自定义主题：
 
 ```tsx
 import { CopilotKit, type A2UITheme } from "@copilotkit/react-core/v2";
@@ -93,18 +93,18 @@ const myCustomTheme: A2UITheme = {
 </CopilotKit>;
 ```
 
-The `a2ui` prop on `<CopilotKit>` is only needed if you want to override the default theme provided.
+只有当你想覆盖默认主题时，才需要在 `<CopilotKit>` 上设置 `a2ui` 属性。
 
-## Using A2UI with CopilotKit
+## 将 A2UI 与 CopilotKit 结合使用
 
-[Get started with A2UI](/docs/integrations/a2a/generative-ui/declarative-a2ui) and A2A with CopilotKit
+[开始使用 A2UI](/docs/integrations/a2a/generative-ui/declarative-a2ui)，以及将 A2A 与 CopilotKit 结合使用
 
-Check out the [A2UI Composer](https://a2ui-editor.ag-ui.com/gallery) to create and find widgets
+访问 [A2UI Composer](https://a2ui-editor.ag-ui.com/gallery) 来创建和查找组件
 
-## Learn More
+## 了解更多
 
-- [Generative UI Specs Overview](/concepts/generative-ui-overview) - Compare all supported specifications
-- [Generative UI Guide](/generative-ui/tool-based) - Build with Generative UI in CopilotKit
-- [A2UI Site](https://a2ui.org/) - Visit the A2UI site
-- [AG-UI Protocol](/agentic-protocols/ag-ui) - Learn about the protocol that supports A2UI
-- [MCP Apps](/generative-ui/mcp-apps) - Iframe-based Generative UI extending MCP
+- [生成式 UI 规范概览](/concepts/generative-ui-overview) —— 对比所有受支持的规范
+- [生成式 UI 指南](/generative-ui/tool-based) —— 在 CopilotKit 中使用生成式 UI 进行构建
+- [A2UI 网站](https://a2ui.org/) —— 访问 A2UI 官网
+- [AG-UI Protocol](/agentic-protocols/ag-ui) —— 了解支持 A2UI 的协议
+- [MCP Apps](/generative-ui/mcp-apps) —— 基于 iframe、扩展 MCP 的生成式 UI 规范

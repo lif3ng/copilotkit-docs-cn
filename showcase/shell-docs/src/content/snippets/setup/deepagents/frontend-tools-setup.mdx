@@ -1,11 +1,8 @@
 <Steps>
   <Step>
-    ### Wire CopilotKit middleware into your agent
+    ### 将 CopilotKit 中间件接入你的智能体
 
-    Deep Agents compile to LangGraph graphs, and `CopilotKitMiddleware` is the
-    bridge. It reads the forwarded tools off the request and merges them into
-    the tool list the model sees, so a component registered with `useComponent`
-    only reaches the model when the middleware is present.
+    Deep Agents 会编译为 LangGraph 图，而 `CopilotKitMiddleware` 正是其中的桥梁。它会从请求中读取转发来的工具，并将其合并进模型所见的工具列表，因此通过 `useComponent` 注册的组件只有在中间件存在时才会被模型感知到。
 
     ```python title="agent.py"
     from deepagents import create_deep_agent
@@ -19,16 +16,13 @@
     )
     ```
 
-    Without the middleware the run still completes, and the component never
-    renders, because the model was never told the tool exists.
+    没有中间件时，运行仍会照常完成，但组件永远不会渲染，因为模型从未被告知该工具的存在。
 
   </Step>
   <Step>
-    ### Tell the model when to call it
+    ### 告诉模型何时调用它
 
-    The forwarded tool arrives on every run, but a model with no instruction
-    about it will answer in prose and never call it. Name the tool in
-    `system_prompt` and say what it is for.
+    转发的工具会在每次运行时送达，但如果模型没有得到关于它的任何指示，就会用一段文字作答而从不调用它。请在 `system_prompt` 中写明该工具的名称及其用途。
 
     ```python title="agent.py"
     SYSTEM_PROMPT = """

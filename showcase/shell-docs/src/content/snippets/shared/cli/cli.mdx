@@ -1,73 +1,73 @@
 import { Tabs, Tab } from "fumadocs-ui/components/tabs";
 
-## What is this?
+## 这是什么？
 
-The CopilotKit CLI helps you create CopilotKit apps connected to CopilotKit Intelligence, whether cloud-hosted or self-hosted. It handles browser sign-in, project selection, project-scoped runtime API keys, historical thread import, and local project configuration so your app can use threads and conversation history.
+CopilotKit CLI 可帮助你创建连接到 CopilotKit Intelligence 的 CopilotKit 应用，无论是云托管还是自托管。它负责处理浏览器登录、项目选择、项目范围的运行时 API 密钥、历史线程导入以及本地项目配置，使你的应用能够使用线程与会话历史。
 
-Use the CLI when you want to start a new app, import historical ADK or LangGraph conversations, or install CopilotKit agent skills for your coding agent.
+当你想创建新应用、导入历史 ADK 或 LangGraph 会话，或为你的编码智能体安装 CopilotKit 智能体技能（agent skills）时，请使用该 CLI。
 
 <OpsPlatformCTA
   variant="inline"
-  title="Start cloud-hosted Intelligence onboarding"
-  body="Sign up or sign in, finish organization onboarding when required, then return to the CLI to select a project and connect your app."
-  ctaLabel="Start cloud-hosted setup"
+  title="开始云托管 Intelligence 引导流程"
+  body="注册或登录，按需完成组织引导，然后回到 CLI 选择项目并连接你的应用。"
+  ctaLabel="开始云托管配置"
   href="https://intelligence.copilotkit.ai/"
   surface="docs_cli_intro_signup"
 />
 
-## Prerequisites
+## 前置条件
 
 - Node.js 20+
-- A CopilotKit account for cloud-hosted CopilotKit Intelligence
-- An OpenAI API key or another model provider key for the starter app you choose
+- 一个用于云托管 CopilotKit Intelligence 的 CopilotKit 账户
+- 你选择的起步模板应用所需的 OpenAI API 密钥或其他模型提供方密钥
 
-<Callout type="info" title="Team Self-hosted is a plan">
-  Team Self-hosted is the plan for a self-hosted deployment. You choose it on the cloud-hosted account. The deployment uses your identity provider.
+<Callout type="info" title="Team Self-hosted 是一个套餐">
+  Team Self-hosted 是面向自托管部署的套餐。你在云托管账户上选择它。部署会使用你自己的身份提供方。
 </Callout>
 
-## Start a new app
+## 创建新应用
 
-<Callout type="info" title="Creating vs. adding to an existing app">
-  `init` (aliased as `create`) scaffolds a brand-new project in its own directory — it prompts for an app name and does not detect or bootstrap an app you already have. To add CopilotKit to an existing app, follow the manual installation in the [Quickstart](/quickstart) instead.
+<Callout type="info" title="新建应用与在现有应用中添加的区别">
+  `init`（别名为 `create`）会在独立目录中搭建一个全新的项目——它会提示输入应用名称，且不会检测或引导你已有的应用。若要向现有应用添加 CopilotKit，请改为遵循[快速开始](/quickstart)中的手动安装步骤。
 </Callout>
 
 <Steps>
   <Step>
-    ### Run create
+    ### 运行 create
 
     ```bash title="Terminal"
     npx copilotkit@latest create
     ```
 
-    The CLI prompts for the app name and framework, opens browser sign-in when needed, scaffolds the starter, and connects the app to a cloud-hosted CopilotKit Intelligence project.
+    CLI 会提示输入应用名称与框架，在需要时打开浏览器登录，搭建起步模板，并将应用连接到一个云托管的 CopilotKit Intelligence 项目。
   </Step>
 
   <Step>
-    ### Sign up or sign in
+    ### 注册或登录
 
-    If you are not already signed in, the CLI opens a browser login flow. A new account accepts the CopilotKit Self-Service Agreement. An account that already accepted it does not accept it again.
+    如果你尚未登录，CLI 会打开浏览器登录流程。新账户需要接受 CopilotKit 自助服务协议。已经接受过的账户不会再次接受。
 
-    If the browser does not open, the CLI prints a login URL and supports a manual paste fallback.
+    如果浏览器没有打开，CLI 会打印一个登录 URL，并支持手动粘贴作为后备方式。
   </Step>
 
   <Step>
-    ### Select or create an organization
+    ### 选择或创建组织
 
-    Select or create an organization in the browser. A new organization chooses the Developer plan or a paid plan. Developer is the no-cost plan. Read [Plans](/intelligence/plans) when you want to change that choice.
+    在浏览器中选择或创建一个组织。新组织会选择 Developer 套餐或付费套餐。Developer 是免费套餐。若想更改该选择，请阅读[套餐](/intelligence/plans)。
   </Step>
 
   <Step>
-    ### Return to the terminal
+    ### 回到终端
 
-    After organization onboarding, return to the terminal. The original CLI command resumes and prompts you to select or create a project.
+    完成组织引导后，回到终端。原来的 CLI 命令会继续执行，并提示你选择或创建项目。
   </Step>
 
   <Step>
-    ### Select or create a project
+    ### 选择或创建项目
 
-    Choose an existing cloud-hosted project or create a new one. A project is where your app's threads, messages, and platform metadata are stored.
+    选择一个现有的云托管项目，或创建一个新项目。项目是你的应用的线程、消息与平台元数据的存储位置。
 
-    The CLI writes the selected project to `.copilotkit/project.json`:
+    CLI 会将所选项目写入 `.copilotkit/project.json`：
 
     ```json title=".copilotkit/project.json"
     {
@@ -79,10 +79,9 @@ Use the CLI when you want to start a new app, import historical ADK or LangGraph
   </Step>
 
   <Step>
-    ### Use the generated environment
+    ### 使用生成的环境
 
-    `init` and its `create` alias write the cloud-hosted platform URLs, `SL_ENABLED`,
-    and project-scoped runtime API key to `.env`.
+    `init` 及其 `create` 别名会把云托管平台 URL、`SL_ENABLED` 以及项目范围的运行时 API 密钥写入 `.env`。
 
     ```bash title=".env"
     INTELLIGENCE_API_URL=https://...
@@ -92,51 +91,47 @@ Use the CLI when you want to start a new app, import historical ADK or LangGraph
     SL_ENABLED=true
     ```
 
-    Keep `CPK_INTELLIGENCE_API_KEY` on the server side. The project key connects
-    the Runtime to Intelligence. `CPK_TELEMETRY_ID` is an optional, non-secret
-    analytics identity.
+    请将 `CPK_INTELLIGENCE_API_KEY` 保留在服务端。项目密钥用于将 Runtime 连接到 Intelligence。`CPK_TELEMETRY_ID` 是可选的、非机密的分析标识。
 
-    Cloud-hosted setup does not issue `COPILOTKIT_LICENSE_TOKEN`. That token
-    is only for offline or self-hosted licensing and does not replace the
-    cloud-hosted project API key.
+    云托管配置不会签发 `COPILOTKIT_LICENSE_TOKEN`。该令牌仅用于离线或自托管许可，不能替代云托管项目 API 密钥。
   </Step>
 
   <Step>
-    ### Start development
+    ### 开始开发
 
     ```bash title="Terminal"
     npm run dev
     ```
 
-    The starter runs your local app and runtime while storing threads in the cloud-hosted project selected by the CLI.
+    起步模板会运行你的本地应用与运行时，同时把线程存储在 CLI 所选的云托管项目中。
   </Step>
 </Steps>
 
-## Evaluate Intelligence locally
+## 在本地评估 Intelligence
 
-To try Intelligence without a cloud-hosted project, run it in Docker on your own machine. Local evaluation is a preview supported on macOS with Docker Desktop. Read [Evaluate Intelligence locally](/intelligence/self-hosting-local) for the supported preview scope. From your app's folder:
+想在没有云托管项目的情况下试用 Intelligence，可以在你自己的机器上用 Docker 运行它。本地评估是一项预览特性，支持在 macOS 上配合 Docker Desktop 使用。受支持的预览范围请阅读[在本地评估 Intelligence](/intelligence/self-hosting-local)。在你的应用文件夹中运行：
 
 ```bash title="Terminal"
 npx copilotkit@latest local setup
 npx copilotkit@latest local connect --approve-connection
 ```
 
-The CLI checks Docker, gets an evaluation license for your organization, installs the latest release, and connects the app to it. Read [Evaluate Intelligence locally](/intelligence/self-hosting-local) for requirements, dashboard sign-in, and model setup.
+CLI 会检查 Docker、为你的组织获取评估许可、安装最新版本，并将应用连接到它。相关要求、仪表盘登录与模型配置请阅读[在本地评估 Intelligence](/intelligence/self-hosting-local)。
 
-| Command | What it does |
+| 命令 | 作用 |
 |---|---|
-| `npx copilotkit@latest local status` | Shows service health, URLs, and any failed setup step. |
-| `npx copilotkit@latest local start` | Starts the app's local stack. |
-| `npx copilotkit@latest local stop` | Stops the stack and keeps its data. |
-| `npx copilotkit@latest local login` | Opens the local dashboard and signs you in. |
-| `npx copilotkit@latest local setup` | Installs the stack, configures the Automatic Learning model, or resumes setup. |
-| `npx copilotkit@latest local update` | Updates the stack to the latest release and keeps its data. |
-| `npx copilotkit@latest local renew` | Renews the evaluation license. |
-| `npx copilotkit@latest local delete` | Asks, then deletes the stack and its data. |
+| `npx copilotkit@latest local status` | 显示服务健康状况、URL 以及任何失败的配置步骤。 |
+| `npx copilotkit@latest local start` | 启动应用的本地技术栈。 |
+| `npx copilotkit@latest local stop` | 停止技术栈并保留其数据。 |
+| `npx copilotkit@latest local login` | 打开本地仪表盘并登录。 |
+| `npx copilotkit@latest local setup` | 安装技术栈、配置 Automatic Learning 模型，或继续未完成的配置。 |
+| `npx copilotkit@latest local update` | 将技术栈更新到最新版本并保留其数据。 |
+| `npx copilotkit@latest local renew` | 续订评估许可。 |
+| `npx copilotkit@latest local delete` | 先确认，然后删除技术栈及其数据。 |
 
-## Import and synchronize historical conversations
+## 导入并同步历史会话
 
-Use `import` from a CopilotKit app created with the CLI and CopilotKit Intelligence enabled. The importer targets the CopilotKit Intelligence project already selected for the current directory.
+在通过 CLI 创建且启用了 CopilotKit Intelligence 的 CopilotKit 应用中使用 `import`。导入器面向当前目录已选定的 CopilotKit Intelligence 项目。
 
 <Tabs groupId="cli-import-source" items={["ADK", "LangGraph"]}>
   <Tab value="ADK">
@@ -155,115 +150,100 @@ Use `import` from a CopilotKit app created with the CLI and CopilotKit Intellige
   </Tab>
 </Tabs>
 
-The command runs interactively by default. Start with `--dry-run` to discover source agent keys, conversation counts, skips, and the estimated upload size without opening an import batch.
+该命令默认以交互方式运行。先用 `--dry-run` 可以在不开启导入批次的情况下，探明源智能体键、会话数量、跳过项以及预计的上传大小。
 
-If you need to import into a different project, select it before continuing with the real import:
+如果需要导入到另一个项目，请先选择它，再继续真正的导入：
 
 ```bash title="Terminal"
 npx copilotkit@latest project select
 ```
 
-This changes the project selected for the current directory and writes its project-scoped runtime key to the starter's generated `.env`.
+这会更改当前目录所选择的项目，并将其项目范围的运行时密钥写入起步模板生成的 `.env`。
 
-Before the real import, export the destination values from that `.env`:
+在真正导入之前，先从该 `.env` 导出目标值：
 
 ```bash title="Terminal"
 export INTELLIGENCE_API_URL="https://..."
 export CPK_INTELLIGENCE_API_KEY="cpk-..."
 ```
 
-The importer reads `--api-url` and `--api-key` or the current process environment. It does not load `.env` or `.copilotkit/project.json` automatically. `COPILOTKIT_API_KEY` is also accepted for the key.
+导入器读取 `--api-url` 与 `--api-key`，或当前进程的环境变量。它不会自动加载 `.env` 或 `.copilotkit/project.json`。密钥也接受 `COPILOTKIT_API_KEY`。
 
-Project selection updates the app configuration; the importer still receives its destination through flags or exported environment variables.
+项目选择会更新应用配置；导入器仍然通过命令行标志或导出的环境变量获取其目标。
 
-For the full adoption flow, see [Add AG-UI Streams to Existing Threads](/threads-import). Source-specific setup lives in [Add AG-UI streams to ADK sessions](/google-adk/threads-import) and [Add AG-UI streams to LangGraph threads](/langgraph-python/threads-import).
+完整的接入流程请参见[为现有线程添加 AG-UI 流](/threads-import)。各数据源的具体配置见[为 ADK 会话添加 AG-UI 流](/google-adk/threads-import)与[为 LangGraph 线程添加 AG-UI 流](/langgraph-python/threads-import)。
 
-## Verify your setup
+## 验证你的配置
 
-`verify` answers the question every integration reaches: *is this actually
-working?* It checks the wiring from outside the browser, so it is the proof to
-reach for on a surface that has no browser at all — React Native, or a runtime
-on a remote host.
+`verify` 回答每个集成最终都会遇到的问题：*它真的在正常工作吗？* 它从浏览器之外检查接线情况，因此在完全没有浏览器的场景——React Native，或远程主机上的运行时——它是应当求助的证明手段。
 
 ```bash
 npx copilotkit@latest verify
 ```
 
-It checks that a cloud-hosted project is selected, that a project API key
-authenticates, that the runtime responds, and that the runtime declares at least
-one agent — then reports the runtime version, the agent framework, gateway
-wiring, and license state.
+它会检查是否已选定云托管项目、项目 API 密钥能否通过身份验证、运行时是否有响应，以及运行时是否声明了至少一个智能体——然后报告运行时版本、智能体框架、网关接线情况与许可状态。
 
-<Callout type="warn" title="Read the individual checks, not the summary">
-  Every check reports **PASS**, **FAIL**, or **UNKNOWN**. `UNKNOWN` means the
-  check could not run. It never means the check passed.
+<Callout type="warn" title="逐项阅读检查结果，而非只看汇总">
+  每项检查都会报告 **PASS**、**FAIL** 或 **UNKNOWN**。`UNKNOWN` 表示该项检查无法运行，绝不表示检查已通过。
 </Callout>
 
-To prove the agent actually *runs* rather than that it is *configured*, add
-`--round-trip`. It sends one real request through the runtime and reads the
-answer back off the thread:
+要证明智能体真的在*运行*而不仅是*已配置*，可以加上 `--round-trip`。它会通过运行时发送一个真实请求，并从线程中读回答案：
 
 ```bash
 npx copilotkit@latest verify --round-trip
 ```
 
-<Callout type="warn" title="What --round-trip does not prove">
-  It sends a **fixed** prompt and records the answer's character count and any
-  tool-call names — **never the answer's text**. It proves an answer came back;
-  it can never tell you what the answer said, so it is no substitute for
-  checking a response against the data your project actually holds.
+<Callout type="warn" title="--round-trip 不能证明什么">
+  它发送的是一个**固定**的提示，并记录答案的字符数以及出现的工具调用名称——**绝不记录答案文本**。它能证明确实有答案返回，却永远无法告诉你答案说了什么，因此不能替代对照项目实际持有的数据来核查响应。
 
-  It also proves an agent answered under the *declared id*, not **which
-  deployment** answered — a runtime pointed at another project's agent responds
-  identically.
+  它也只能证明智能体以*声明的 id* 作了答，而不能证明回答的是**哪个部署**——指向其他项目智能体的运行时会给出完全相同的响应。
 
-  Because it runs the agent, it costs a model call and records a thread. That is
-  why it is opt-in rather than the default.
+  由于它会运行智能体，因此会消耗一次模型调用并记录一个线程。这正是它被设计为可选开启而非默认启用的原因。
 </Callout>
 
-| Option | What it does |
+| 选项 | 作用 |
 |---|---|
-| `--runtime-url <url>` | The runtime endpoint to probe. Default `http://localhost:3000/api/copilotkit` — pass this whenever your runtime is elsewhere. |
-| `--round-trip` | Also run the agent and read its answer back. |
-| `--agent <id>` | Which declared agent to run, when the runtime declares several. |
-| `--expect-runtime <mode>` | `intelligence` (default) or `oss`. With `oss`, cloud-hosted project and credential checks do not apply. |
-| `--timeout <seconds>` | How long to wait for the answer. Default `90`. |
-| `--header "<name>: <value>"` | Extra request header, repeatable. Use it when your `identifyUser` reads a session the CLI does not carry. |
-| `--json` | Emit a machine-readable payload alone on stdout. |
+| `--runtime-url <url>` | 要探测的运行时端点。默认 `http://localhost:3000/api/copilotkit`——只要运行时不在默认位置，就应传入该选项。 |
+| `--round-trip` | 同时运行智能体并读回其答案。 |
+| `--agent <id>` | 当运行时声明了多个智能体时，指定要运行哪一个。 |
+| `--expect-runtime <mode>` | `intelligence`（默认）或 `oss`。使用 `oss` 时，云托管项目与凭据检查不适用。 |
+| `--timeout <seconds>` | 等待答案的时长。默认 `90`。 |
+| `--header "<name>: <value>"` | 额外的请求头，可重复使用。当你的 `identifyUser` 读取 CLI 不携带的会话时使用它。 |
+| `--json` | 仅在 stdout 上输出机器可读的负载。 |
 
-`verify` exits non-zero unless every check passed, so it works as a CI gate.
+除非所有检查都通过，否则 `verify` 会以非零状态码退出，因此可以用作 CI 门禁。
 
-## Auth commands
+## 身份验证命令
 
-| Command | What it does |
+| 命令 | 作用 |
 |---|---|
-| `npx copilotkit@latest login` | Opens the browser sign-in flow and stores a local CLI session. |
-| `npx copilotkit@latest whoami` | Shows the signed-in user and active organization. |
-| `npx copilotkit@latest logout` | Clears the local CLI session. |
+| `npx copilotkit@latest login` | 打开浏览器登录流程，并存储本地 CLI 会话。 |
+| `npx copilotkit@latest whoami` | 显示当前登录的用户与活动组织。 |
+| `npx copilotkit@latest logout` | 清除本地 CLI 会话。 |
 
-## Project commands
+## 项目命令
 
-| Command | What it does |
+| 命令 | 作用 |
 |---|---|
-| `npx copilotkit@latest project select` | Selects or creates a cloud-hosted CopilotKit Intelligence project for the current directory. |
-| `npx copilotkit@latest import --source adk --dry-run` | Previews historical Google ADK conversation threads before import. |
-| `npx copilotkit@latest import --source langgraph --dry-run` | Previews historical LangGraph conversation threads before import. |
-| `npx copilotkit@latest license create` | Issues a CopilotKit license token for flows that still require one. |
-| `npx copilotkit@latest license list` | Lists license metadata for the current user or organization. |
+| `npx copilotkit@latest project select` | 为当前目录选择或创建一个云托管 CopilotKit Intelligence 项目。 |
+| `npx copilotkit@latest import --source adk --dry-run` | 导入前预览历史 Google ADK 会话线程。 |
+| `npx copilotkit@latest import --source langgraph --dry-run` | 导入前预览历史 LangGraph 会话线程。 |
+| `npx copilotkit@latest license create` | 为仍需要许可证的流程签发 CopilotKit 许可证令牌。 |
+| `npx copilotkit@latest license list` | 列出当前用户或组织的许可证元数据。 |
 
-Re-running `project select` is safe when you need to move a CLI-created app to a different cloud-hosted project. The command updates `.copilotkit/project.json` and provisions a project-scoped API key for the selected project.
+当你需要把 CLI 创建的应用迁移到另一个云托管项目时，重新运行 `project select` 是安全的。该命令会更新 `.copilotkit/project.json`，并为所选项目预配一个项目范围的 API 密钥。
 
-## Skills commands
+## Skills 命令
 
-| Command | What it does |
+| 命令 | 作用 |
 |---|---|
-| `npx copilotkit@latest skills install` | Installs CopilotKit agent skills for supported coding agents. |
-| `npx copilotkit@latest skills onboard` | Installs skills, then starts agent-assisted onboarding for an existing app. |
+| `npx copilotkit@latest skills install` | 为受支持的编码智能体安装 CopilotKit 智能体技能。 |
+| `npx copilotkit@latest skills onboard` | 安装技能，然后为现有应用启动智能体辅助的引导流程。 |
 
-## Next steps
+## 后续步骤
 
-- **Cloud-hosted platform:** [Cloud-hosted CopilotKit Intelligence](/intelligence/managed-intelligence-platform) — login, projects, API keys, threads, and plans in the cloud-hosted web app
-- **Add threads:** use the [Threads Drawer](/prebuilt-components/copilot-threads-drawer) for a drop-in thread switcher, or [Headless Threads](/headless-threads) to build your own thread UI
-- **Add AG-UI streams to existing threads:** [Add AG-UI Streams to Existing Threads](/threads-import) — connect Intelligence for ongoing delivery, then optionally import supported ADK or LangGraph history
-- **Self-hosting:** [Self-host CopilotKit Intelligence](/intelligence/self-hosting) — run CopilotKit Intelligence in your own Kubernetes cluster
-- **Local evaluation (preview, macOS):** [Evaluate Intelligence locally](/intelligence/self-hosting-local) — run Intelligence in Docker on your own machine to try it with your app
+- **云托管平台**：[云托管 CopilotKit Intelligence](/intelligence/managed-intelligence-platform)——云托管 Web 应用中的登录、项目、API 密钥、线程与套餐
+- **添加线程**：使用[线程抽屉（Threads Drawer）](/prebuilt-components/copilot-threads-drawer)获得开箱即用的线程切换器，或使用[无头线程（Headless Threads）](/headless-threads)构建你自己的线程 UI
+- **为现有线程添加 AG-UI 流**：[为现有线程添加 AG-UI 流](/threads-import)——接入 Intelligence 实现持续投递，然后按需导入受支持的 ADK 或 LangGraph 历史
+- **自托管**：[自托管 CopilotKit Intelligence](/intelligence/self-hosting)——在你自己的 Kubernetes 集群中运行 CopilotKit Intelligence
+- **本地评估（预览，macOS）**：[在本地评估 Intelligence](/intelligence/self-hosting-local)——在你自己的机器上用 Docker 运行 Intelligence，配合你的应用试用

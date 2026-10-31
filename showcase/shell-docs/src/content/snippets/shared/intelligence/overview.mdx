@@ -1,36 +1,36 @@
 <IntelligenceOverview />
 
-## What is CopilotKit Intelligence?
+## 什么是 CopilotKit Intelligence？
 
-You want AG-UI Streams, User Memory, Automatic Learning, Channels, and Product Analytics without operating that storage yourself. CopilotKit Intelligence adds that layer to the CopilotKit app you already have. Your frontend, your agent, and your model stay where they are.
+你希望获得 AG-UI 流、用户记忆（User Memory）、自动学习（Automatic Learning）、渠道与产品分析（Product Analytics），又不想自己运维这些存储。CopilotKit Intelligence 会为你已有的 CopilotKit 应用补上这一层。你的前端、智能体和模型都保持原样。
 
-Keep your existing thread system. You do not need to replace your thread storage when you connect Intelligence. [Bring your own thread system](/intelligence/bring-your-own-thread-system) explains how Intelligence records its own copy while your framework keeps managing the original conversation and agent state.
+保留你现有的线程系统。接入智能中枢时，无需替换已有的线程存储。[自带线程系统](/intelligence/bring-your-own-thread-system)一文解释了智能中枢如何记录自己的一份副本，同时由你的框架继续管理原始会话与智能体状态。
 
-Open the page for the one thing you want to add. Each page below owns that topic.
+想添加哪项能力，就打开对应的页面。下面每个页面各自负责一个主题。
 
-Connect an existing app in the [quickstart](/intelligence/quickstart), with setup tabs for TypeScript, Python, Go, Ruby, and C#/.NET. TypeScript also works without Intelligence; the other runtime implementations require it.
+通过[快速开始](/intelligence/quickstart)接入现有应用，配置页提供 TypeScript、Python、Go、Ruby 和 C#/.NET 等选项卡。TypeScript 不启用智能中枢也能工作；其他运行时实现则必须启用。
 
 <IntelligenceFeatureCards />
 
-Managed Slack and Teams Channels can [post JSX snapshots as images](/channels/posting-jsx-as-images) or combine them with native actions using [Render and Carousel](/channels/render-and-carousel).
+托管的 Slack 和 Teams 渠道可以[以图片形式发布 JSX 快照](/channels/posting-jsx-as-images)，也可以通过[渲染与轮播（Render and Carousel）](/channels/render-and-carousel)将快照与原生操作结合使用。
 
-## Already have agent conversations?
+## 已有智能体对话？
 
-Connect your existing app to Intelligence and add AG-UI streams around your current agent. If you need earlier history, import it once:
+将现有应用接入智能中枢，在你当前的智能体之外加上 AG-UI 流。如果需要更早的历史记录，一次性导入即可：
 
-- [Import LangGraph threads](/langgraph-python/threads-import) from LangGraph Server / LangSmith deployments or Python FastAPI apps with durable persistence.
-- [Import Google ADK sessions](/google-adk/threads-import) from supported ADK database session stores or Vertex/Agent Engine session history.
-- Import AWS Strands conversations for [Python](/strands/threads-import) or [TypeScript](/strands-typescript/threads-import) from local session files or S3, plus native AgentCore Memory sessions for Python.
+- [导入 LangGraph 线程](/langgraph-python/threads-import)：可从 LangGraph Server / LangSmith 部署，或具备持久化存储的 Python FastAPI 应用导入。
+- [导入 Google ADK 会话](/google-adk/threads-import)：可从受支持的 ADK 数据库会话存储，或 Vertex/Agent Engine 会话历史导入。
+- 导入 AWS Strands 对话记录：支持 [Python](/strands/threads-import) 与 [TypeScript](/strands-typescript/threads-import)，可从本地会话文件或 S3 导入，Python 还支持原生 AgentCore Memory 会话。
 
-Import copies history; it does not establish ongoing database replication. Future CopilotKit-mediated runs persist to Intelligence and continue through native persistence when your agent remains connected to its durable framework storage. Keep that native persistence in place.
+导入只是复制历史，不会建立持续的数据库复制。此后由 CopilotKit 介入的运行会持久化到智能中枢；只要你的智能体仍连接着框架的持久化存储，原有持久化会继续生效。请保留这套原生持久化。
 
-[Skill delivery](/intelligence/learned-skills) combines published Skills from several Learning containers in one agent, with one request for each refresh.
+[技能分发](/intelligence/learned-skills)可将来自多个学习容器的已发布 Skills 组合到一个智能体中，每次刷新只需发起一次请求。
 
-Trajectories record browser activity alongside agent conversations. The [Trajectories quickstart](/intelligence/trajectories-quickstart) connects your app to a local Intelligence project and saves your first Trajectory. These guides are in early access.
+轨迹（Trajectories）会在智能体对话的同时记录浏览器活动。[轨迹快速开始](/intelligence/trajectories-quickstart)会把你的应用连接到本地智能中枢项目，并保存你的第一条轨迹。这些指南目前处于早期访问阶段。
 
-## Choose where Intelligence runs
+## 选择智能中枢的运行位置
 
-Cloud-hosted and self-hosted use the same app APIs, so you can start on one and move later.
+云托管与自托管使用相同的应用 API，因此你可以先从其中一种开始，之后再迁移。
 
 <div className="intelligence-accent-cards">
 <CTACards
@@ -38,20 +38,20 @@ Cloud-hosted and self-hosted use the same app APIs, so you can start on one and 
   cards={[
     {
       iconKey: "cloud",
-      title: "Cloud-hosted",
+      title: "云托管",
       description:
-        "CopilotKit runs Intelligence for you. Create a project, get a key, and manage your plan in the web app.",
+        "由 CopilotKit 为你运行智能中枢。创建项目、获取密钥，并在 Web 应用中管理你的套餐。",
       href: "/intelligence/managed-intelligence-platform",
     },
     {
       iconKey: "server",
-      title: "Self-hosted",
+      title: "自托管",
       description:
-        "Run Intelligence in your own Kubernetes cluster or AWS account with the Helm chart or the ECS bundle.",
+        "使用 Helm chart 或 ECS bundle，在你自己的 Kubernetes 集群或 AWS 账户中运行智能中枢。",
       href: "/intelligence/self-hosting",
     },
   ]}
 />
 </div>
 
-Want to try Intelligence before you choose? [Evaluate Intelligence locally](/intelligence/self-hosting-local) in Docker on your Mac with the CLI (preview).
+想在做出选择之前先试用智能中枢？可以[在本地评估智能中枢](/intelligence/self-hosting-local)：使用 CLI 在你 Mac 上的 Docker 中运行（预览版）。

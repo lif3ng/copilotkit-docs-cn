@@ -1,18 +1,18 @@
-## What is this?
+## 这是什么？
 
-A headless UI gives you full control over the chat experience — you bring your own components, layout, and styling while CopilotKit handles agent communication, message management, and streaming. This is built on top of the same primitives (`useAgent` and `useCopilotKit`) covered in Programmatic Control.
+无头 UI（headless UI）让你完全掌控聊天体验——你自带组件、布局与样式，CopilotKit 则负责智能体通信、消息管理与流式传输。它构建在“程序化控制”中介绍的相同原语（`useAgent` 与 `useCopilotKit`）之上。
 
-## When should I use this?
+## 何时应该使用？
 
-Use headless UI when the slot system isn't enough — for example, when you need a completely different layout, want to embed the chat into an existing UI, or are building a non-chat interface that still communicates with an agent.
+当插槽系统不够用时，就使用无头 UI——例如，当你需要完全不同的布局、想把聊天嵌入现有 UI，或者要构建一个仍与智能体通信的非聊天界面时。
 
-## Implementation
+## 实现步骤
 
 <Steps>
 <Step>
-### Access the agent and CopilotKit
+### 访问智能体与 CopilotKit
 
-Use `useAgent` to get the agent instance (messages, state, execution status) and `useCopilotKit` to run the agent.
+使用 `useAgent` 获取智能体实例（消息、状态、执行状态），使用 `useCopilotKit` 运行智能体。
 
 ```tsx title="components/custom-chat.tsx"
 import { useAgent } from "@copilotkit/react-core/v2";
@@ -31,9 +31,9 @@ export function CustomChat() {
 </Step>
 
 <Step>
-### Display messages
+### 显示消息
 
-The agent's messages are available via `agent.messages`. Each message has an `id`, `role` (`"user"` or `"assistant"`), and `content`.
+智能体的消息可通过 `agent.messages` 获取。每条消息都有 `id`、`role`（`"user"` 或 `"assistant"`）和 `content`。
 
 ```tsx title="components/custom-chat.tsx"
 export function CustomChat() {
@@ -67,9 +67,9 @@ export function CustomChat() {
 </Step>
 
 <Step>
-### Send messages and run the agent
+### 发送消息并运行智能体
 
-Add a message to the agent's conversation, then call `copilotkit.runAgent()` to trigger execution. This is the same method CopilotKit's built-in `<CopilotChat />` uses internally.
+向智能体的会话添加一条消息，然后调用 `copilotkit.runAgent()` 触发执行。这与 CopilotKit 内置 `<CopilotChat />` 内部使用的方法相同。
 
 ```tsx title="components/custom-chat.tsx"
 import { useState, useCallback } from "react";
@@ -138,9 +138,9 @@ export function CustomChat() {
 </Step>
 
 <Step>
-### Stop the agent
+### 停止智能体
 
-Use `copilotkit.stopAgent()` to cancel a running agent:
+使用 `copilotkit.stopAgent()` 取消正在运行的智能体：
 
 ```tsx title="components/custom-chat.tsx"
 const stopAgent = useCallback(() => {

@@ -174,9 +174,7 @@ export function ToolRenderers() {
 }
 ```
 
-Mount the renderers anywhere beneath the same `CopilotKit` provider as your
-chat. The renderer component returns no layout of its own; it registers the
-two named renderers for tool calls in the chat:
+将渲染器组件挂载到与聊天同一个 `CopilotKit` provider 之下的任意位置。该组件本身不返回任何布局；它为聊天中的工具调用注册这两个具名渲染器：
 
 ```tsx title="app/page.tsx"
 "use client";

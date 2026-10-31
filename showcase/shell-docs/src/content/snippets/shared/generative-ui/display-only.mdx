@@ -1,23 +1,23 @@
-## What is this?
+## 这是什么？
 
-`useComponent` lets you register a React component as a tool your agent can invoke. When the agent calls the tool, CopilotKit renders your component directly in the chat with the tool's arguments as props.
+`useComponent` 允许你把一个 React 组件注册为智能体可调用的工具。当智能体调用该工具时，CopilotKit 会把工具参数作为 props，将该组件直接渲染在聊天中。
 
-This is the simplest form of Generative UI — your agent decides when to show a component, and CopilotKit renders it. No handler logic, no user interaction required.
+这是生成式 UI 最简单的形式——由智能体决定何时展示组件，CopilotKit 负责渲染。不需要 handler 逻辑，也不需要用户交互。
 
-## When should I use this?
+## 什么时候应该使用它？
 
-Use `useComponent` when you want to:
+当你想要以下效果时，可以使用 `useComponent`：
 
-- Display rich UI (cards, charts, tables) inline in the chat
-- Show structured data from agent responses
-- Render previews, status indicators, or visual feedback
-- Let the agent present information beyond plain text
+- 在聊天中内联展示富 UI（卡片、图表、表格）
+- 展示智能体响应中的结构化数据
+- 渲染预览、状态指示器或可视化反馈
+- 让智能体呈现纯文本之外的信息
 
-For components that need user interaction, see the Interactive or Interrupt-based guides.
+对于需要用户交互的组件，请参阅交互式或基于中断的指南。
 
-## Register a component
+## 注册组件
 
-Use the `useComponent` hook to register a React component. The agent will be able to call it by name, and CopilotKit will render it with the tool arguments as props.
+使用 `useComponent` hook 注册一个 React 组件。智能体将能够按名称调用它，CopilotKit 会把工具参数作为 props 来渲染该组件。
 
 ```tsx title="app/page.tsx"
 import { useComponent } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -56,9 +56,9 @@ function YourMainContent() {
 }
 ```
 
-## Without parameters
+## 无需参数
 
-For simple components that don't need typed parameters:
+对于不需要类型化参数的简单组件：
 
 ```tsx
 useComponent({
@@ -71,9 +71,9 @@ useComponent({
 });
 ```
 
-## Scoping to an agent
+## 限定作用于某个智能体
 
-In multi-agent setups, scope a component to a specific agent:
+在多智能体场景中，可以把组件限定为只对特定智能体生效：
 
 ```tsx
 useComponent({

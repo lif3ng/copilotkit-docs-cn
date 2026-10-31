@@ -1,15 +1,7 @@
-<Callout type="warn" title="Context values arrive as JSON strings">
-  The AG-UI protocol defines a context value as a string. Therefore
-  `useAgentContext` calls `JSON.stringify` on any `value` that is not already a
-  string, and your agent receives the JSON text instead of the object or the
-  array.
+<Callout type="warn" title="上下文值以 JSON 字符串的形式到达">
+  AG-UI 协议将上下文值定义为字符串。因此，`useAgentContext` 会对任何还不是字符串的 `value` 调用 `JSON.stringify`，你的智能体收到的是 JSON 文本，而不是对象或数组。
 
-  Parse the value before you read a field from it. Use `json.loads(item["value"])`
-  in Python, or `JSON.parse(item.value)` in TypeScript. If you skip the parse
-  step, an index such as `colleagues[0]` returns a single character, and a shape
-  check such as `isinstance(value, list)` can never pass.
+  在读取字段之前，先解析该值。在 Python 中使用 `json.loads(item["value"])`，在 TypeScript 中使用 `JSON.parse(item.value)`。如果跳过解析步骤，诸如 `colleagues[0]` 这样的索引只会返回单个字符，而 `isinstance(value, list)` 这样的类型检查也永远无法通过。
 
-  Do not stringify the value again, because that produces double encoding. A
-  `value` that is already a string is sent unchanged, so no parse step is needed
-  for it.
+  不要对该值再次字符串化，否则会产生双重编码。本身已是字符串的 `value` 会原样发送，无需再做解析。
 </Callout>

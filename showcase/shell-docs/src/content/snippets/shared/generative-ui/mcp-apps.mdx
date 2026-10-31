@@ -1,45 +1,45 @@
 import { Tabs, Tab } from "fumadocs-ui/components/tabs";
 
-## Prerequisites
+## 前置条件
 
-Before you begin, you'll need the following:
+开始之前，你需要准备以下内容：
 
-- An OpenAI API key (or API key for your preferred LLM provider)
+- OpenAI API 密钥（或你偏好的 LLM 提供方的 API 密钥）
 - Node.js 20+
-- Your favorite package manager
-- An MCP server running (see [Example MCP Servers](#example-mcp-servers) below)
+- 你常用的包管理器
+- 一个正在运行的 MCP 服务器（参见下文[示例 MCP 服务器](#示例-mcp-服务器)）
 
-## What are MCP Apps?
+## MCP Apps 是什么？
 
-MCP Apps are MCP servers that expose tools with associated UI resources. When the agent calls one of these tools, CopilotKit automatically fetches and renders the UI component in the chat - no additional frontend code required.
+MCP Apps 是一类 MCP 服务器，它们对外暴露的工具带有与之关联的 UI 资源。当智能体调用其中某个工具时，CopilotKit 会自动获取并在聊天中渲染对应的 UI 组件——无需额外的前端代码。
 
-Key benefits:
+主要优势：
 
-- **Zero frontend code** - UI components are served by the MCP server
-- **Full interactivity** - Components can use HTML, CSS, and JavaScript
-- **Secure sandboxing** - Content runs in isolated iframes
-- **Direct server communication** - The middleware securely proxies communication between the rendered UI and the MCP server, enabling real-time interactions
-- **Thread persistence** - MCP Apps are stored in conversation history and restored on reconnect
+- **零前端代码** —— UI 组件由 MCP 服务器提供
+- **完全可交互** —— 组件可以使用 HTML、CSS 和 JavaScript
+- **安全沙箱** —— 内容运行在隔离的 iframe 中
+- **直接的服务器通信** —— 中间件在渲染出的 UI 与 MCP 服务器之间安全地代理通信，实现实时交互
+- **线程持久化** —— MCP Apps 会存入会话历史，并在重新连接时恢复
 
-## Quickstart
+## 快速开始
 
-Want to try MCP Apps out with a new application? We have a pre-built example app you can use via our CLI.
+想在一个新应用中体验 MCP Apps？我们提供了一个预构建的示例应用，可通过我们的 CLI 使用。
 
 ```bash
 npx copilotkit create -f mcp-apps
 ```
 
-## Getting started
+## 开始使用
 
-If you're looking to add an MCP App into an existing application, let's walk through the process.
+如果你想将 MCP App 添加到现有应用中，我们来逐步走一遍流程。
 
 <Steps>
   <Step>
-    ### (Optional) Create a new application
+    ### （可选）创建新应用
 
-    We'll be starting from scratch for this example, but feel free to skip this step if you already have an application.
+    本示例将从零开始，如果你已有应用，可以跳过这一步。
 
-    For the sake of this example, we'll be using Next.js but the process will slot into any frontend React framework.
+    为便于示例，我们使用 Next.js，但该流程同样适用于任何前端 React 框架。
 
     ```bash
     npx create-next-app@latest
@@ -47,26 +47,22 @@ If you're looking to add an MCP App into an existing application, let's walk thr
 
   </Step>
   <Step>
-    ### Add the dependencies
+    ### 安装依赖
 
     ```npm
     npm install @copilotkit/react-core @copilotkit/runtime
     ```
 
-    Use `@copilotkit/runtime` 1.76.0 or later. The runtime includes the MCP Apps
-    middleware, so the `mcpApps` option below needs no other package. Install
-    `@ag-ui/mcp-apps-middleware` only if you attach the middleware to an agent
-    yourself with `.use()`. Its current release needs `@ag-ui/client` 1.x, which
-    runtime 1.76.0 and later use.
+    请使用 `@copilotkit/runtime` 1.76.0 或更高版本。运行时已内置 MCP Apps 中间件，因此下方的 `mcpApps` 选项无需其他包。只有当你自己通过 `.use()` 把中间件挂到某个智能体上时，才需要安装 `@ag-ui/mcp-apps-middleware`。其当前版本需要 `@ag-ui/client` 1.x，运行时 1.76.0 及以上版本使用的也是该版本。
 
   </Step>
   <Step>
-    ### Configure your agent
+    ### 配置智能体
 
-    Add your agent configuration to CopilotRuntime with your MCP server configurations:
+    将你的智能体配置连同 MCP 服务器配置一起添加到 CopilotRuntime：
 
     <Callout>
-      This same process will work with any agent configuration.
+      同样的流程适用于任何智能体配置。
     </Callout>
 
     ```bash
@@ -116,11 +112,11 @@ If you're looking to add an MCP App into an existing application, let's walk thr
     export const POST = handler;
     ```
 
-    <Callout type="info" title="Server ID">
-      Always provide a `serverId` for production deployments. Without it, CopilotKit generates a hash from the server URL. If your URL changes (e.g., different environments), previously stored MCP Apps in conversation history won't load correctly.
+    <Callout type="info" title="服务器 ID">
+      生产环境部署时务必提供 `serverId`。否则，CopilotKit 会基于服务器 URL 生成一个哈希值。如果你的 URL 发生变化（例如在不同环境之间），会话历史中先前存储的 MCP Apps 将无法正确加载。
     </Callout>
 
-    Alternatively, if you want to scope MCP Apps to specific agents, you can use `MCPAppsMiddleware` directly on the agent via `.use()`:
+    或者，如果你想将 MCP Apps 限定于特定智能体，可以通过 `.use()` 直接在智能体上使用 `MCPAppsMiddleware`：
 
     ```typescript title="app/api/copilotkit/route.ts"
     import { MCPAppsMiddleware } from "@ag-ui/mcp-apps-middleware";
@@ -141,31 +137,29 @@ If you're looking to add an MCP App into an existing application, let's walk thr
     );
     ```
 
-    <Callout type="info" title="Using Intelligence?">
-      On a runtime connected to Intelligence, keep `mcpApps` and replace
-      `runner: new InMemoryAgentRunner()` with `intelligence` and `identifyUser`.
-      See [MCP Apps with Intelligence](/generative-ui/mcp-apps#mcp-apps-with-intelligence).
+    <Callout type="info" title="使用 Intelligence？">
+      在连接到 Intelligence 的运行时上，保留 `mcpApps`，并将 `runner: new InMemoryAgentRunner()` 替换为 `intelligence` 和 `identifyUser`。参见 [MCP Apps with Intelligence](/generative-ui/mcp-apps#mcp-apps-with-intelligence)。
     </Callout>
 
   </Step>
   <Step>
-    ### Configure environment
+    ### 配置环境
 
-    Create a `.env.local` file in your frontend directory and add your API key:
+    在前端目录下创建 `.env.local` 文件，并添加你的 API 密钥：
 
     ```plaintext title=".env.local"
     OPENAI_API_KEY=your_openai_api_key
     ```
 
-    <Callout type="info" title="What about other models?">
-    The example is configured to use OpenAI's GPT-4o by default, but you can modify the BuiltInAgent to use any language model supported by CopilotKit.
+    <Callout type="info" title="其他模型怎么办？">
+    示例默认配置为使用 OpenAI 的 GPT-4o，但你可以修改 BuiltInAgent，改用 CopilotKit 支持的任何语言模型。
     </Callout>
 
   </Step>
   <Step>
-    ### Configure CopilotKit Provider
+    ### 配置 CopilotKit Provider
 
-    Wrap your application with the CopilotKit provider:
+    用 CopilotKit provider 包裹你的应用：
 
     ```tsx title="app/providers.tsx"
     "use client";
@@ -181,8 +175,7 @@ If you're looking to add an MCP App into an existing application, let's walk thr
     }
     ```
 
-    `app/layout.tsx` is a server component and cannot import the provider
-    directly, so it renders your client file instead:
+    `app/layout.tsx` 是服务端组件，无法直接导入 provider，因此它改为渲染你的客户端文件：
 
     ```tsx title="app/layout.tsx"
     // [!code highlight:2]
@@ -207,9 +200,9 @@ If you're looking to add an MCP App into an existing application, let's walk thr
 
   </Step>
   <Step>
-    ### Add the chat interface
+    ### 添加聊天界面
 
-    Add the CopilotSidebar component to your page:
+    将 CopilotSidebar 组件添加到你的页面：
 
     ```tsx title="app/page.tsx"
     "use client";
@@ -228,9 +221,9 @@ If you're looking to add an MCP App into an existing application, let's walk thr
 
   </Step>
   <Step>
-    ### Start your UI
+    ### 启动你的 UI
 
-    Start the development server:
+    启动开发服务器：
 
     <Tabs groupId="package-manager" items={['npm', 'pnpm', 'yarn', 'bun']}>
         <Tab value="npm">
@@ -255,20 +248,20 @@ If you're looking to add an MCP App into an existing application, let's walk thr
         </Tab>
     </Tabs>
 
-    Your application will be available at `http://localhost:3000`.
+    你的应用将在 `http://localhost:3000` 上可用。
 
   </Step>
 </Steps>
 
-That's it! MCP Apps will now render automatically when the agent uses tools that have associated UI resources.
+大功告成！现在，当智能体使用了带有关联 UI 资源的工具时，MCP Apps 就会自动渲染。
 
-## Transport Types
+## 传输类型
 
-The middleware supports two transport types:
+中间件支持两种传输类型：
 
-### HTTP Transport
+### HTTP 传输
 
-For MCP servers using HTTP-based communication:
+适用于基于 HTTP 通信的 MCP 服务器：
 
 ```typescript
 {
@@ -278,9 +271,9 @@ For MCP servers using HTTP-based communication:
 }
 ```
 
-### SSE Transport
+### SSE 传输
 
-For MCP servers using Server-Sent Events:
+适用于使用 Server-Sent Events 的 MCP 服务器：
 
 ```typescript
 {
@@ -293,18 +286,18 @@ For MCP servers using Server-Sent Events:
 }
 ```
 
-## Threading Support
+## 线程支持
 
-MCP Apps integrate fully with CopilotKit's threading system:
+MCP Apps 与 CopilotKit 的线程系统完全集成：
 
-- **Persistence** - When you save a thread, MCP Apps are stored as part of the conversation history
-- **Restoration** - Loading a thread restores all MCP Apps with their original state
-- **Server ID stability** - Using consistent `serverId` values ensures MCP Apps load correctly across sessions
+- **持久化** —— 保存线程时，MCP Apps 会作为会话历史的一部分存储
+- **恢复** —— 加载线程时，所有 MCP Apps 都会连同其原始状态一起恢复
+- **服务器 ID 稳定性** —— 使用一致的 `serverId` 可确保 MCP Apps 在各会话间正确加载
 
-## Example MCP Servers
+## 示例 MCP 服务器
 
-Try these open-source MCP Apps servers to get started:
+试试这些开源的 MCP Apps 服务器来快速上手：
 
 https://github.com/modelcontextprotocol/ext-apps
 
-This repo contains multiple demo servers with tools like budget allocators, data visualizations, and interactive dashboards.
+该仓库包含多个演示服务器，带有预算分配器、数据可视化和交互式仪表盘等工具。

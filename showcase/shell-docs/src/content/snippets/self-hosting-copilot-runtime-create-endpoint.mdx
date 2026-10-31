@@ -9,28 +9,28 @@ import { RiNextjsLine } from "react-icons/ri";
 
 <MultiProviderContent providersConfig={quickStartProviders}>
 <Callout type="info">
-  If you are planning to use a single LangGraph agent in agent-lock mode as your agentic backend, your LLM adapter will only be used for peripherals such as suggestions, etc.
+  如果你计划将单个处于 agent-lock 模式的 LangGraph 智能体作为智能体化后端，那么你的 LLM 适配器将仅用于建议（suggestions）等外围功能。
 
-If you are not sure yet, simply ignore this note.
+如果你还不确定，直接忽略本提示即可。
 
 </Callout>
 
     <If conditions={[{ key: 'id', value: 'langchain' }]}>
         <Callout type="info">
-            The LangChain adapter shown here is using OpenAI, but can be used with any LLM!
+            此处展示的 LangChain 适配器使用的是 OpenAI，但也可以搭配任何 LLM 使用！
         </Callout>
     </If>
 
     <If conditions={[{ key: 'id', value: 'empty' }]}>
         <Callout type="error">
-            Be aware that the empty adapter only works in combination with CoAgents in agent lock mode!
+            请注意，空适配器（empty adapter）只能与处于 agent lock 模式的 CoAgents 搭配使用！
 
-            In addition, bare in mind that `useCopilotChatSuggestions`, `CopilotTextarea` and `CopilotTask` will not work, as these require an LLM.
+            此外，请记住 `useCopilotChatSuggestions`、`CopilotTextarea` 和 `CopilotTask` 将无法工作，因为它们需要 LLM。
         </Callout>
     </If>
 
     <If conditions={[{ key: 'packageName', value: true }]}>
-        ### Install provider package
+        ### 安装提供方包
 
         ```npm
         npm install {{packageName}}
@@ -38,9 +38,9 @@ If you are not sure yet, simply ignore this note.
     </If>
 
     <If conditions={[{ key: 'envVarName', value: true }]}>
-        ### Add your API key
+        ### 添加你的 API 密钥
 
-        Next, add your API key to your `.env` file in the root of your project (unless you prefer to provide it directly to the client):
+        接下来，将你的 API 密钥添加到项目根目录的 `.env` 文件中（除非你更愿意将其直接提供给客户端）：
 
         ```plaintext title=".env"
         {{envVarName}}=your_api_key_here
@@ -48,9 +48,9 @@ If you are not sure yet, simply ignore this note.
     </If>
 
      <If conditions={[{ key: 'id', value: "bedrock" }]}>
-        ### Add your API key
+        ### 添加你的 API 密钥
 
-        Next, add your API key to your `.env` file in the root of your project (unless you prefer to provide it directly to the client):
+        接下来，将你的 API 密钥添加到项目根目录的 `.env` 文件中（除非你更愿意将其直接提供给客户端）：
 
         ```plaintext title=".env"
         {{envVarSecret}}=your_secret_key_here
@@ -61,22 +61,22 @@ If you are not sure yet, simply ignore this note.
 
     <If conditions={[{ key: 'id', value: 'openai' }, { key: 'id', value: 'openai-assistants' }]}>
         <Callout type="warn">
-            Please note that the code below uses GPT-4o, which requires a paid OpenAI API key. **If you are using a free OpenAI API key**, change the model to a different option such as `gpt-3.5-turbo`.
+            请注意，下方代码使用的是 GPT-4o，它需要付费的 OpenAI API 密钥。**如果你使用的是免费的 OpenAI API 密钥**，请将模型改为其他选项，例如 `gpt-3.5-turbo`。
         </Callout>
     </If>
 
-    ### Setup the Runtime Endpoint
+    ### 配置运行时端点
 
     <Callout type="warn">
-        ### Serverless Function Timeouts
+        ### Serverless 函数超时
 
-        When deploying to serverless platforms (Vercel, AWS Lambda, etc.), be aware that default function timeouts may be too short for CopilotKit's streaming responses:
+        部署到 serverless 平台（Vercel、AWS Lambda 等）时，请注意默认的函数超时时间对于 CopilotKit 的流式响应而言可能过短：
 
-        - Vercel defaults: 10s (Hobby), 15s (Pro)
-        - AWS Lambda default: 3s
+        - Vercel 默认值：10 秒（Hobby）、15 秒（Pro）
+        - AWS Lambda 默认值：3 秒
 
-        **Solution options:**
-        1. Increase function timeout:
+        **可选解决方案：**
+        1. 增加函数超时时间：
             ```json
             // vercel.json
             {
@@ -87,7 +87,7 @@ If you are not sure yet, simply ignore this note.
               }
             }
             ```
-        2. Use [Copilot Cloud](https://dashboard.operations.copilotkit.ai/) to avoid timeout issues entirely
+        2. 使用 [Copilot Cloud](https://dashboard.operations.copilotkit.ai/) 彻底避免超时问题
     </Callout>
 
     <Tabs groupId="endpoint-type" items={[
@@ -100,7 +100,7 @@ If you are not sure yet, simply ignore this note.
 
         {/* Next.js App Router */}
         <Tab value="Next.js App Router">
-            Create a new route to handle the `/api/copilotkit` endpoint.
+            新建一个路由来处理 `/api/copilotkit` 端点。
 
             ```ts title="app/api/copilotkit/route.ts"
             import {
@@ -126,12 +126,12 @@ If you are not sure yet, simply ignore this note.
             };
             ```
 
-            Your Copilot Runtime endpoint should be available at `http://localhost:3000/api/copilotkit`.
+            你的 Copilot Runtime 端点应当可以在 `http://localhost:3000/api/copilotkit` 访问。
         </Tab>
 
         {/* Next.js Pages Router */}
         <Tab value="Next.js Pages Router">
-            Create a new route to handle the `/api/copilotkit` endpoint:
+            新建一个路由来处理 `/api/copilotkit` 端点：
 
             ```ts title="pages/api/copilotkit.ts"
             import { NextApiRequest, NextApiResponse } from 'next';
@@ -160,12 +160,12 @@ If you are not sure yet, simply ignore this note.
             export default handler;
             ```
 
-            Your Copilot Runtime endpoint should be available at `http://localhost:3000/api/copilotkit`.
+            你的 Copilot Runtime 端点应当可以在 `http://localhost:3000/api/copilotkit` 访问。
         </Tab>
 
         {/* Node.js Express */}
         <Tab value="Node.js Express">
-            Create a new Express.js app and set up the Copilot Runtime handler:
+            创建一个新的 Express.js 应用，并设置 Copilot Runtime 处理器：
 
             ```ts title="server.ts"
             import express from 'express';
@@ -198,16 +198,16 @@ If you are not sure yet, simply ignore this note.
             });
             ```
 
-            Your Copilot Runtime endpoint should be available at `http://localhost:4000/copilotkit`.
+            你的 Copilot Runtime 端点应当可以在 `http://localhost:4000/copilotkit` 访问。
 
             <Callout type="warn">
-                Remember to point your `runtimeUrl` to the correct endpoint in your client-side code, e.g. `http://localhost:PORT/copilotkit`.
+                请记住在客户端代码中将 `runtimeUrl` 指向正确的端点，例如 `http://localhost:PORT/copilotkit`。
             </Callout>
         </Tab>
 
         {/* Node.js HTTP */}
         <Tab value="Node.js HTTP">
-            Set up a simple Node.js HTTP server and use the Copilot Runtime to handle requests:
+            搭建一个简单的 Node.js HTTP 服务器，并使用 Copilot Runtime 处理请求：
 
             ```ts title="server.ts"
             import { createServer } from 'node:http';
@@ -237,16 +237,16 @@ If you are not sure yet, simply ignore this note.
             });
             ```
 
-            Your Copilot Runtime endpoint should be available at `http://localhost:4000/copilotkit`.
+            你的 Copilot Runtime 端点应当可以在 `http://localhost:4000/copilotkit` 访问。
 
             <Callout type="warn">
-                Remember to point your `runtimeUrl` to the correct endpoint in your client-side code, e.g. `http://localhost:PORT/copilotkit`.
+                请记住在客户端代码中将 `runtimeUrl` 指向正确的端点，例如 `http://localhost:PORT/copilotkit`。
             </Callout>
         </Tab>
 
         {/* NestJS */}
         <Tab value="NestJS">
-            Set up a controller in NestJS to handle the Copilot Runtime endpoint:
+            在 NestJS 中设置一个控制器来处理 Copilot Runtime 端点：
 
             ```ts title="copilotkit.controller.ts"
             import { All, Controller, Req, Res } from '@nestjs/common';
@@ -270,10 +270,10 @@ If you are not sure yet, simply ignore this note.
             }
             ```
 
-            Your Copilot Runtime endpoint should be available at `http://localhost:3000/copilotkit`.
+            你的 Copilot Runtime 端点应当可以在 `http://localhost:3000/copilotkit` 访问。
 
             <Callout type="warn">
-                Remember to point your `runtimeUrl` to the correct endpoint in your client-side code, e.g. `http://localhost:PORT/copilotkit`.
+                请记住在客户端代码中将 `runtimeUrl` 指向正确的端点，例如 `http://localhost:PORT/copilotkit`。
             </Callout>
         </Tab>
     </Tabs>

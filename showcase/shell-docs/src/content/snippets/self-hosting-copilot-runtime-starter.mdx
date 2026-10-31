@@ -16,7 +16,7 @@ import { RiNextjsLine } from "react-icons/ri";
 ]}>
   {/* Next.js App Router */}
   <Tab value="Next.js App Router">
-    Create a new route to handle the `/api/copilotkit` endpoint.
+    新建一个路由来处理 `/api/copilotkit` 端点。
 
     ```ts title="app/api/copilotkit/[[...slug]]/route.ts" doctest="component"
     import {
@@ -49,7 +49,7 @@ import { RiNextjsLine } from "react-icons/ri";
 
     {/* Next.js Pages Router */}
     <Tab value="Next.js Pages Router">
-        Create a new route to handle the `/api/copilotkit` endpoint:
+        新建一个路由来处理 `/api/copilotkit` 端点：
 
         ```ts title="pages/api/copilotkit.ts"
         import {
@@ -80,12 +80,12 @@ import { RiNextjsLine } from "react-icons/ri";
         export default handler;
         ```
 
-        Your Copilot Runtime endpoint should be available at `http://localhost:3000/api/copilotkit`.
+        你的 Copilot Runtime 端点应当可以在 `http://localhost:3000/api/copilotkit` 访问。
     </Tab>
 
     {/* Node.js Express */}
     <Tab value="Node.js Express">
-        Create a new Express.js app and set up the Copilot Runtime handler:
+        创建一个新的 Express.js 应用，并设置 Copilot Runtime 处理器：
 
         ```ts title="server.ts"
         import express from 'express';
@@ -119,16 +119,16 @@ import { RiNextjsLine } from "react-icons/ri";
         });
         ```
 
-        Your Copilot Runtime endpoint should be available at `http://localhost:4000/copilotkit`.
+        你的 Copilot Runtime 端点应当可以在 `http://localhost:4000/copilotkit` 访问。
 
         <Callout type="warn">
-            Remember to point your `runtimeUrl` to the correct endpoint in your client-side code, e.g. `http://localhost:PORT/copilotkit`.
+            请记住在客户端代码中将 `runtimeUrl` 指向正确的端点，例如 `http://localhost:PORT/copilotkit`。
         </Callout>
     </Tab>
 
     {/* Node.js HTTP */}
     <Tab value="Node.js HTTP">
-        Set up a simple Node.js HTTP server and use the Copilot Runtime to handle requests:
+        搭建一个简单的 Node.js HTTP 服务器，并使用 Copilot Runtime 处理请求：
 
         ```ts title="server.ts"
         import { createServer } from 'node:http';
@@ -161,16 +161,16 @@ import { RiNextjsLine } from "react-icons/ri";
         });
         ```
 
-        Your Copilot Runtime endpoint should be available at `http://localhost:4000/copilotkit`.
+        你的 Copilot Runtime 端点应当可以在 `http://localhost:4000/copilotkit` 访问。
 
         <Callout type="warn">
-            Remember to point your `runtimeUrl` to the correct endpoint in your client-side code, e.g. `http://localhost:PORT/copilotkit`.
+            请记住在客户端代码中将 `runtimeUrl` 指向正确的端点，例如 `http://localhost:PORT/copilotkit`。
         </Callout>
     </Tab>
 
     {/* NestJS */}
     <Tab value="NestJS">
-        Set up a controller in NestJS to handle the Copilot Runtime endpoint:
+        在 NestJS 中设置一个控制器来处理 Copilot Runtime 端点：
 
         ```ts title="copilotkit.controller.ts"
         import { All, Controller, Req, Res } from '@nestjs/common';
@@ -204,10 +204,10 @@ import { RiNextjsLine } from "react-icons/ri";
         }
         ```
 
-        Your Copilot Runtime endpoint should be available at `http://localhost:3000/copilotkit`.
+        你的 Copilot Runtime 端点应当可以在 `http://localhost:3000/copilotkit` 访问。
 
         <Callout type="warn">
-            Remember to point your `runtimeUrl` to the correct endpoint in your client-side code, e.g. `http://localhost:PORT/copilotkit`.
+            请记住在客户端代码中将 `runtimeUrl` 指向正确的端点，例如 `http://localhost:PORT/copilotkit`。
         </Callout>
     </Tab>
 

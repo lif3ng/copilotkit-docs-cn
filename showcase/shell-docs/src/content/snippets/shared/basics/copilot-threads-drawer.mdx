@@ -1,72 +1,47 @@
-## What is this?
+## 这是什么？
 
-`<CopilotThreadsDrawer>` gives your app a ready-made conversation sidebar. Users can
-list, switch, start, archive, and delete their threads, and you wire up
-**no active-thread state** to make it work. Drop it next to your chat and it
-connects automatically.
+`<CopilotThreadsDrawer>` 为你的应用提供一个现成的会话侧边栏。用户可以列出、切换、新建、归档和删除自己的线程，而你无需接线任何**活动线程状态**即可让它工作。把它放在聊天旁边，它就会自动连接。
 
-If your project was created from a CopilotKit CLI starter, the Drawer and its
-shared chat configuration are already included. Otherwise, use the setup below
-to add it to an existing CopilotKit application. This guide also covers Drawer
-customization and component options.
+如果你的项目由 CopilotKit CLI 起步模板创建，抽屉及其共享聊天配置已经内置。否则，请使用下面的设置步骤把它加入现有的 CopilotKit 应用。本指南还会介绍抽屉的自定义与组件选项。
 
-<Frame description="CopilotThreadsDrawer beside a CopilotChat. Selecting a thread replays its conversation with no active-thread wiring.">
+<Frame description="CopilotThreadsDrawer 位于 CopilotChat 旁边。选择一个线程即可重放其会话，无需任何活动线程接线。">
   <img
     src="/images/threads/support-desk-threads.png"
-    alt="A support desk application with a Threads Drawer listing customer conversations beside CopilotChat case details for Northstar Analytics"
+    alt="一个客服台应用，Threads Drawer 列出客户会话，旁边是 CopilotChat 中 Northstar Analytics 的工单详情"
     className="w-full rounded-lg"
   />
 </Frame>
 
-Under the hood it's a thin React wrapper around the self-contained
-`copilotkit-threads-drawer` web component, fed by [`useThreads`](/reference/hooks/useThreads)
-and your chat configuration.
+在底层，它是自包含的 `copilotkit-threads-drawer` web component 的一层薄 React 包装器，数据来自 [`useThreads`](/reference/hooks/useThreads) 与你的聊天配置。
 
-Prefer to build your own thread UI? The same data and actions are available
-headlessly through the `useThreads` hook (see
-[Headless Threads](/headless-threads)). Thread **rename** is one of those headless
-actions: the prebuilt drawer's row menu covers archive/unarchive and delete, so
-wire up rename with `useThreads` and your own UI if you need it.
+想构建自己的线程 UI？同样的数据与操作也可通过 `useThreads` hook 以无头（headless）方式使用（参见[无头线程（Headless Threads）](/headless-threads)）。线程**重命名**就是其中一种无头操作：预构建抽屉的行菜单只涵盖归档/取消归档与删除，如需重命名，请用 `useThreads` 配合你自己的 UI 来接线。
 
-## When should I use this?
+## 何时应该使用？
 
-Use the drawer when you want:
+当你想要以下能力时，可以使用抽屉：
 
-- A persistent thread switcher beside your chat (chat-history sidebar)
-- Thread switching, new conversations, archive, and delete with zero wiring
-- A self-contained, themeable UI that follows your app's light/dark theme
-- A mobile-ready off-canvas drawer with its own launcher
+- 聊天旁一个常驻的线程切换器（会话历史侧边栏）
+- 零接线的线程切换、新对话、归档与删除
+- 一个自包含、可主题化、跟随应用明暗主题的 UI
+- 一个移动端就绪、自带启动按钮的离屏（off-canvas）抽屉
 
-It requires CopilotKit Intelligence (threads are stored and synced
-server-side). <SignupLink surface="docs_drawer">Start cloud-hosted setup</SignupLink> to create or select a project.
+它需要 CopilotKit Intelligence（线程在服务端存储和同步）。<SignupLink surface="docs_drawer">开始云端托管配置</SignupLink>以创建或选择一个项目。
 
-For multi-user applications, configure the Runtime to
-[scope AG-UI Streams to the signed-in user](/threads-lifecycle#scope-rich-threads-to-the-signed-in-user).
+对于多用户应用，请将 Runtime 配置为[将 AG-UI Streams 限定到已登录用户](/threads-lifecycle#scope-rich-threads-to-the-signed-in-user)。
 
 <OpsPlatformCTA
   variant="inline"
-  title="Threads run in CopilotKit Intelligence"
-  body="Connect a cloud-hosted project to get persistent threads and realtime sync."
+  title="线程由 CopilotKit Intelligence 运行"
+  body="连接一个云端托管项目，即可获得持久化线程与实时同步。"
   surface="docs_drawer"
 />
 
-## Set up the Threads Drawer
+## 设置线程抽屉
 
-Place `<CopilotThreadsDrawer>` next to `<CopilotChat>` and wrap **both** in a
-shared `<CopilotChatConfigurationProvider>`. If you are using a CLI-created
-starter, this structure is already in place. That shared
-configuration is what lets the Drawer drive the chat: with no callbacks,
-selecting a row connects the chat to that thread and replays its history; the
-"New Conversation" row resets the chat to a fresh welcome screen. The following
-example shows the essential structure to add to an existing app or preserve
-while customizing a starter.
+将 `<CopilotThreadsDrawer>` 放在 `<CopilotChat>` 旁边，并用一个共享的 `<CopilotChatConfigurationProvider>` 把**两者**包裹起来。如果你使用的是 CLI 创建的起步模板，这个结构已经就位。正是这份共享配置让抽屉能够驱动聊天：无需任何回调，选中一行就会把聊天连接到该线程并重放其历史；“New Conversation”行会把聊天重置为全新的欢迎界面。下面的示例展示了要加入现有应用、或在自定义起步模板时需要保留的核心结构。
 
 <Callout type="warn">
-  **The Drawer ships only in `@copilotkit/react-core/v2`.** There is no v1
-  Drawer, so take the Drawer, the chat and the provider from that one package.
-  Watch the import path: `@copilotkit/react-ui` is the [deprecated v1
-  package](/migrate/v2) and it exports its own `CopilotChat` and
-  `CopilotSidebar` under those same names.
+  **抽屉仅随 `@copilotkit/react-core/v2` 提供**。v1 没有抽屉，所以请从这一个包中引入抽屉、聊天与 provider。注意 import 路径：`@copilotkit/react-ui` 是[已弃用的 v1 包](/migrate/v2)，它以同样的名字导出自己的 `CopilotChat` 与 `CopilotSidebar`。
 </Callout>
 
 ```tsx title="app/page.tsx"
@@ -92,18 +67,11 @@ export default function Page() {
 }
 ```
 
-That's the whole integration. A hand-rolled sidebar would have you track the
-active `threadId` in your own state and pass selection/new-thread handlers
-between the list and the chat; here the drawer and the
-`CopilotChatConfigurationProvider` share that state, so there is none of that
-wiring to write.
+这就是全部集成工作。如果手写侧边栏，你需要在自己的状态里跟踪活动的 `threadId`，并在列表与聊天之间传递选择/新建线程的处理器；而在这里，抽屉与 `CopilotChatConfigurationProvider` 共享该状态，因此完全无需编写这些接线。
 
-## Use the Drawer with a sidebar chat
+## 在侧边栏聊天中使用抽屉
 
-`<CopilotChat>` is not the only host. `<CopilotSidebar>` works the same way,
-because it renders a `<CopilotChat>` inside itself and therefore shares the same
-chat configuration. Keep the Drawer as a sibling of your content and put the
-sidebar alongside it:
+`<CopilotChat>` 并不是唯一的宿主。`<CopilotSidebar>` 的工作方式相同，因为它内部渲染的就是一个 `<CopilotChat>`，因此共享同一份聊天配置。让抽屉作为你内容的兄弟元素，并把侧边栏放在旁边：
 
 ```tsx title="app/page.tsx"
 import {
@@ -131,22 +99,15 @@ export default function Page() {
 }
 ```
 
-`<CopilotPopup>` hosts the Drawer on the same terms, for the same reason.
+`<CopilotPopup>` 基于同样的原因、以同样的方式承载抽屉。
 
 <Callout type="info">
-  The launcher button that opens the Drawer from the chat header appears on
-  mobile viewports only. On desktop the Drawer is a persistent in-flow panel
-  that is always visible, so a launcher there would do nothing. A missing
-  desktop launcher is the design, not a broken wiring.
+  从聊天头部打开抽屉的启动按钮只在移动端视口出现。在桌面端，抽屉是一个常驻的、始终可见的内联面板，因此那里的启动按钮不会有任何作用。桌面端没有启动按钮是设计使然，不是接线出了问题。
 </Callout>
 
-## Add your own "New conversation" button
+## 添加你自己的“新建对话”按钮
 
-The Drawer has its own "New Conversation" row. Your app can also keep its own
-button, for example in a toolbar or a page header. To start a new conversation
-from that button, call `startNewThread()` from
-[`useCopilotChatConfiguration`](/reference/hooks/useCopilotChatConfiguration).
-This is the same function the Drawer calls for its own row.
+抽屉有自己的“New Conversation”行。你的应用也可以保留自己的按钮，例如放在工具栏或页面头部。要让该按钮启动新对话，请调用 [`useCopilotChatConfiguration`](/reference/hooks/useCopilotChatConfiguration) 中的 `startNewThread()`。这与抽屉自己那行调用的函数相同。
 
 ```tsx title="app/page.tsx"
 import {
@@ -190,22 +151,12 @@ export default function Page() {
 }
 ```
 
-How it works:
+工作方式如下：
 
-- Put the button inside the same `<CopilotChatConfigurationProvider>` as the
-  Drawer and the chat. Outside a provider, `useCopilotChatConfiguration()`
-  returns `null` and the button does nothing.
-- `startNewThread()` gives the chat a new thread id and shows the welcome
-  screen. The Drawer reads the active thread from the same configuration, so
-  no row stays selected.
-- The new thread appears in the Drawer list after its first run. An empty
-  thread does not get a row.
-- If you set the `threadId` prop on `<CopilotChatConfigurationProvider>`, your
-  app controls the thread. Then `startNewThread()` and the Drawer's own row
-  selection do nothing and log a warning. Keep the thread id in your own state,
-  and pass the Drawer two callbacks that update that state: `onThreadSelect`
-  for a selected row, and `onNewThread` for its "New Conversation" row. Your
-  button runs the same code as `onNewThread`:
+- 把按钮放进与抽屉和聊天相同的 `<CopilotChatConfigurationProvider>` 内。在 provider 之外，`useCopilotChatConfiguration()` 返回 `null`，按钮将不起作用。
+- `startNewThread()` 为聊天分配新的线程 id 并显示欢迎界面。抽屉从同一份配置读取活动线程，因此不会有任何行保持选中。
+- 新线程会在首次运行后出现在抽屉列表中。空线程不会获得行。
+- 如果你设置了 `<CopilotChatConfigurationProvider>` 的 `threadId` 属性，线程就由你的应用控制。此时 `startNewThread()` 与抽屉自身的行选择都不会起作用，并会记录一条警告。请把线程 id 保存在你自己的状态中，并向抽屉传入两个更新该状态的回调：选中行时用 `onThreadSelect`，其“New Conversation”行用 `onNewThread`。你的按钮执行的代码与 `onNewThread` 相同：
 
   ```tsx
   function ControlledChat() {
@@ -227,9 +178,7 @@ How it works:
   }
   ```
 
-To show only your button, hide the Drawer's own new-conversation controls with
-their CSS parts. `new-thread-button` is the row in the open Drawer.
-`launcher-new-thread` is the (+) button in the closed or collapsed launcher.
+若只想显示你自己的按钮，可以用对应的 CSS part 隐藏抽屉自带的新建对话控件。`new-thread-button` 是展开抽屉中的那一行；`launcher-new-thread` 是收起或折叠启动器中的（+）按钮。
 
 ```css
 copilotkit-threads-drawer::part(new-thread-button),
@@ -238,57 +187,46 @@ copilotkit-threads-drawer::part(launcher-new-thread) {
 }
 ```
 
-## Which agent's threads the drawer shows
+## 抽屉显示哪个智能体的线程
 
-The drawer lists the threads of **one** agent. It takes the first agent ID it
-finds, in this order:
+抽屉只列出**一个**智能体的线程。它按以下顺序取找到的第一个智能体 ID：
 
-1. The drawer's own `agentId` prop.
-2. The `agentId` of the nearest `<CopilotChatConfigurationProvider>`.
-   `<CopilotKit>` renders one of these around your app with its `agent` prop,
-   so under `<CopilotKit agent="...">` the drawer stops here. Without `agent`,
-   it resolves to `"default"`.
-3. The `agentId` on `<CopilotKitProvider>`.
-4. `"default"`.
+1. 抽屉自身的 `agentId` 属性。
+2. 最近的 `<CopilotChatConfigurationProvider>` 的 `agentId`。`<CopilotKit>` 会用它的 `agent` 属性在应用外层渲染一个这样的 provider，因此在 `<CopilotKit agent="...">` 之下抽屉会到此为止。若没有 `agent`，它会解析为 `"default"`。
+3. `<CopilotKitProvider>` 上的 `agentId`。
+4. `"default"`。
 
-Most framework quickstarts use `<CopilotKit agent="...">`. The built-in agent
-and LangGraph quickstarts use `<CopilotKitProvider agentId="...">`. The drawer
-finds the agent under either one.
+大多数框架快速开始使用 `<CopilotKit agent="...">`。内置智能体与 LangGraph 快速开始使用 `<CopilotKitProvider agentId="...">`。无论哪种，抽屉都能找到智能体。
 
-If your runtime registers several agents, the drawer shows only the threads of
-the agent it resolved. To list another agent's threads, pass that agent's ID:
+如果你的运行时注册了多个智能体，抽屉只显示它解析到的那个智能体的线程。要列出另一个智能体的线程，请传入该智能体的 ID：
 
 ```tsx
 <CopilotThreadsDrawer agentId="research_agent" />
 ```
 
-`<CopilotChat>` resolves its agent in the same order. To move the drawer and
-the chat to another agent together, set `agentId` once on the shared
-`<CopilotChatConfigurationProvider>` instead.
+`<CopilotChat>` 按相同顺序解析其智能体。要把抽屉和聊天一起切换到另一个智能体，改为在共享的 `<CopilotChatConfigurationProvider>` 上设置一次 `agentId`。
 
-## Configuring the drawer
+## 配置抽屉
 
-`<CopilotThreadsDrawer>` works with zero props. The optional ones:
+`<CopilotThreadsDrawer>` 无需任何属性即可工作。可选属性如下：
 
-| Prop | Description |
+| 属性 | 描述 |
 |------|-------------|
-| `agentId` | Agent whose threads to list. Defaults to the chat configuration's agent, then `agentId` on `<CopilotKitProvider>`, then `"default"`. See [Which agent's threads the drawer shows](#which-agents-threads-the-drawer-shows). |
-| `label` | Accessible name for the drawer region and thread listbox. Defaults to `"Threads"`. The redesigned header has no visible title. |
-| `recentLabel` | Section heading shown above the thread list. Defaults to `"Recent Conversations"`. |
-| `onThreadSelect` | Escape hatch to take over thread selection yourself. |
-| `onNewThread` | Escape hatch to handle the "New Conversation" row yourself. |
-| `renderRow` | Render custom content per row (keeps the row chrome around it). |
-| `limit` | Page size for pagination. Shows a "Load more" control while more threads remain. Omit to load all at once. |
+| `agentId` | 要列出其线程的智能体。默认取聊天配置中的智能体，其次是 `<CopilotKitProvider>` 上的 `agentId`，最后是 `"default"`。参见[抽屉显示哪个智能体的线程](#抽屉显示哪个智能体的线程)。 |
+| `label` | 抽屉区域与线程列表框的无障碍名称。默认为 `"Threads"`。重新设计的头部没有可见标题。 |
+| `recentLabel` | 显示在线程列表上方的小节标题。默认为 `"Recent Conversations"`。 |
+| `onThreadSelect` | 用于自行接管线程选择的逃生出口。 |
+| `onNewThread` | 用于自行处理“New Conversation”行的逃生出口。 |
+| `renderRow` | 为每行渲染自定义内容（保留行本身的样式框架）。 |
+| `limit` | 分页的每页数量。还有更多线程时显示“Load more”控件。省略则一次性加载全部。 |
 
-See the [Threads Drawer reference](/reference/components/CopilotThreadsDrawer) for the full prop and type list.
+完整的属性与类型列表参见 [Threads Drawer 参考](/reference/components/CopilotThreadsDrawer)。
 
-## Customization
+## 自定义
 
-The drawer renders in a shadow root with self-contained, theme-inheriting
-styles, so it looks correct in any app (including dark mode) with no config.
-Three bounded escape hatches pierce the boundary:
+抽屉渲染在 shadow root 中，样式自包含并继承主题，因此无需任何配置就能在任意应用（包括深色模式）中正确显示。有三个受限的定制出口可以穿越这层边界：
 
-- **Slots**: project children with a `slot` attribute (`header`, `empty`, `footer`, `memories`, `launcher-icon`):
+- **插槽（slots）**：用 `slot` 属性投影子元素（`header`、`empty`、`footer`、`memories`、`launcher-icon`）：
 
   ```tsx
   <CopilotThreadsDrawer>
@@ -296,35 +234,22 @@ Three bounded escape hatches pierce the boundary:
   </CopilotThreadsDrawer>
   ```
 
-- **Per-row content**: the `renderRow` prop projects custom content into each row while the element keeps selection, archived styling, and the per-row kebab menu (Archive/Delete).
-- **CSS parts + variable tokens**: restyle structural `::part()`s or override `--cpk-drawer-*` tokens. The full list is in the [reference](/reference/components/CopilotThreadsDrawer#customization).
+- **每行内容**：`renderRow` 属性把自定义内容投影进每一行，同时元素保留选中态、归档样式以及每行的 kebab 菜单（Archive/Delete）。
+- **CSS parts + 变量 token**：重构结构性 `::part()` 的样式，或覆盖 `--cpk-drawer-*` token。完整列表见[参考](/reference/components/CopilotThreadsDrawer#customization)。
 
-## Intelligence access
+## 访问 Intelligence
 
-Threads require CopilotKit Intelligence. The drawer resolves its entitlement
-through the Runtime, so the credential is server-side configuration rather than a
-prop on the provider. Which credential you set depends on how you deploy.
+线程需要 CopilotKit Intelligence。抽屉通过 Runtime 解析其许可（entitlement），因此凭据是服务端配置，而不是 provider 上的属性。设置哪种凭据取决于你的部署方式。
 
-**Cloud-hosted Intelligence.** The project-scoped `CPK_INTELLIGENCE_API_KEY` is the
-credential, and the Runtime resolves the drawer's entitlement from your
-organization's subscription. Cloud-hosted setup does not issue
-`COPILOTKIT_LICENSE_TOKEN`. That token is only for offline or self-hosted
-licensing and does not replace the cloud-hosted project API key. If the CLI created
-your project, the key is already in `.env` and the drawer needs nothing further.
+**云端托管 Intelligence**：凭据是项目级的 `CPK_INTELLIGENCE_API_KEY`，Runtime 会从你组织的订阅中解析抽屉的许可。云端托管配置不会签发 `COPILOTKIT_LICENSE_TOKEN`；该 token 只用于离线或自托管授权，不能替代云端托管项目的 API 密钥。如果项目由 CLI 创建，密钥已在 `.env` 中，抽屉无需其他配置。
 
-**Self-hosted and open source.** Give the Runtime a license token, either as the
-`licenseToken` option or as the `COPILOTKIT_LICENSE_TOKEN` environment variable.
-The option wins when you set both. Without a token the drawer shows a locked
-view with an Upgrade link in place of the list, and it issues no thread
-requests.
+**自托管与开源**：为 Runtime 提供一个 license token，要么作为 `licenseToken` 选项，要么作为 `COPILOTKIT_LICENSE_TOKEN` 环境变量。两者都设置时选项优先。没有 token 时，抽屉会显示一个带 Upgrade 链接的锁定视图来替代列表，并且不会发起任何线程请求。
 
-The locked view appears whenever the Runtime reports no active entitlement: a
-self-hosted deployment whose license token is missing or expired, or a cloud-hosted
-project whose subscription is inactive.
+只要 Runtime 报告没有有效许可，就会出现锁定视图：可能是 license token 缺失或过期的自托管部署，也可能是订阅处于非活动状态的云端托管项目。
 
-## Related
+## 相关内容
 
-- [AG-UI Streams overview](/AG-UI-Streams): compare thread UI and deployment paths
-- [Headless Threads](/headless-threads): build a custom UI with the `useThreads` data layer
-- [Threads Drawer reference (React)](/reference/components/CopilotThreadsDrawer)
-- [CopilotChat](/prebuilt-components/chat): the chat the drawer connects to
+- [AG-UI Streams 概览](/AG-UI-Streams)：比较线程 UI 与部署路径
+- [无头线程（Headless Threads）](/headless-threads)：用 `useThreads` 数据层构建自定义 UI
+- [Threads Drawer 参考（React）](/reference/components/CopilotThreadsDrawer)
+- [CopilotChat](/prebuilt-components/chat)：抽屉连接的聊天组件

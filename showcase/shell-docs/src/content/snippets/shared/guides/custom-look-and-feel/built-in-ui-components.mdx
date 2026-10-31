@@ -1,10 +1,10 @@
-## Getting started
+## 快速开始
 
 <Steps>
   <Step>
-    ### Import the default styles
+    ### 导入默认样式
 
-    Import the default styles in your root component (typically `layout.tsx`) :
+    在根组件（通常是 `layout.tsx`）中导入默认样式：
 
     ```tsx filename="layout.tsx"
     import "@copilotkit/react-core/v2/styles.css";
@@ -12,9 +12,9 @@
 
   </Step>
   <Step>
-    ### Choose your component
-    CopilotKit ships with a number of highly flexible components that will scale to your needs. Choose whichever one you like,
-    they functionally are they same but have different layouts.
+    ### 选择组件
+    CopilotKit 提供了多个高灵活性组件，可以随你的需求扩展。任选其一即可，
+    它们在功能上完全相同，只是布局不同。
 
     <Tabs items={["CopilotChat", "CopilotSidebar", "CopilotPopup"]}>
       <Tab value="CopilotChat">
@@ -30,9 +30,9 @@
 
   </Step>
   <Step>
-    ### Use the components
+    ### 使用组件
 
-    Now that you've chosen your component, just import it and use it in your page!
+    选好组件后，只需将其导入并在页面中使用即可！
 
     ```tsx filename="page.tsx"
     import { CopilotChat, CopilotSidebar, CopilotPopup } from "@copilotkit/react-core/v2";

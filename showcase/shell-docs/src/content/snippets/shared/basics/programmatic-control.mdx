@@ -7,25 +7,25 @@ import {
   Settings,
 } from "lucide-react";
 
-## Overview
+## 概览
 
-The `useAgent` hook provides direct access to your agent from any React component. It gives you real-time access to the agent's state, messages, execution status, and allows you to subscribe to custom events.
+`useAgent` Hook 让你可以从任意 React 组件直接访问智能体。它提供对智能体状态、消息与执行状态的实时访问，并允许你订阅自定义事件。
 
-This enables you to build custom agent dashboards, monitoring tools, and interactive features that respond to your agent's behavior.
+借助它，你可以构建自定义智能体仪表盘、监控工具，以及能够响应智能体行为的交互特性。
 
 <Cards className="gap-6 mt-6 mb-8">
   <Card
     icon={<Play className="text-primary" />}
     className="p-6 rounded-xl text-base"
-    title="Running the Agent"
-    description="Trigger your agent programmatically with copilotkit.runAgent()."
-    href="#running-the-agent-programmatically"
+    title="运行智能体"
+    description="使用 copilotkit.runAgent() 以编程方式触发智能体。"
+    href="#以编程方式运行智能体"
   />
   <Card
     icon={<Settings className="text-primary" />}
     className="p-6 rounded-xl text-base"
-    title="Headless UI"
-    description="Build a completely custom chat interface from the ground up using CopilotKit's headless hooks."
+    title="无头 UI"
+    description="使用 CopilotKit 的无头 Hook 从零构建完全自定义的聊天界面。"
     href="custom-look-and-feel/headless-ui"
   />
 </Cards>
@@ -34,9 +34,9 @@ import UseAgentSnippet from "@/snippets/use-agent.mdx";
 
 <UseAgentSnippet components={props.components} />
 
-## Running the Agent Programmatically
+## 以编程方式运行智能体
 
-Use `copilotkit.runAgent()` to trigger your agent from any component — no chat UI required. This is the same method CopilotKit's built-in `<CopilotChat />` uses internally.
+使用 `copilotkit.runAgent()` 即可从任意组件触发智能体——无需聊天 UI。这正是 CopilotKit 内置的 `<CopilotChat />` 内部所使用的方法。
 
 ```tsx title="page.tsx"
 import { useAgent } from "@copilotkit/react-core/v2";
@@ -65,16 +65,16 @@ export function AgentTrigger() {
 }
 ```
 
-### `copilotkit.runAgent()` vs `agent.runAgent()`
+### `copilotkit.runAgent()` 与 `agent.runAgent()` 的区别
 
-Both methods trigger the agent, but they operate at different levels:
+两种方法都能触发智能体，但它们作用于不同的层级：
 
-- **`copilotkit.runAgent({ agent })`** — The recommended approach. Orchestrates the full agent lifecycle: executes frontend tools, handles follow-up runs when tools request them, and manages errors through the subscriber system.
-- **`agent.runAgent()`** — Low-level method on the agent instance. Sends the request to the runtime but does **not** execute frontend tools or handle follow-ups. Use this only when you need direct control over the agent execution. To resume from an interrupt, use `copilotkit.runAgent({ agent, resume })` for standard AG-UI interrupts, or `copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })` for legacy `on_interrupt` custom events, so that the subscriber lifecycle still wraps the resumed run.
+- **`copilotkit.runAgent({ agent })`**——推荐方式。它会编排智能体的完整生命周期：执行前端工具、在工具请求时处理后续运行，并通过订阅者系统管理错误。
+- **`agent.runAgent()`**——智能体实例上的底层方法。它会把请求发送到运行时，但**不会**执行前端工具，也不会处理后续运行。仅当你需要对智能体的执行过程进行直接控制时才使用它。若要从一次中断中恢复，标准 AG-UI 中断请使用 `copilotkit.runAgent({ agent, resume })`，旧版 `on_interrupt` 自定义事件请使用 `copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })`，这样订阅者生命周期仍会包裹恢复后的这次运行。
 
-### Stopping a Run
+### 停止运行
 
-You can stop a running agent using `copilotkit.stopAgent()`:
+你可以使用 `copilotkit.stopAgent()` 停止正在运行的智能体：
 
 ```tsx title="page.tsx"
 const handleStop = () => {

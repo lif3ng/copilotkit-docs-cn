@@ -1,8 +1,8 @@
-`useDefaultRenderTool` provides a catch-all renderer for **any tool** that doesn't have a specific `useRenderToolCall` defined. This is useful for:
+`useDefaultRenderTool` 为**任何**未定义特定 `useRenderToolCall` 的工具提供了一个兜底渲染器。它适用于以下场景：
 
-- Displaying all tool calls during development
-- Rendering MCP (Model Context Protocol) tools
-- Providing a generic fallback UI for unexpected tools
+- 在开发过程中展示所有工具调用
+- 渲染 MCP（Model Context Protocol）工具
+- 为意外出现的工具提供通用的后备 UI
 
 ```tsx title="app/page.tsx"
 import { useDefaultRenderTool } from "@copilotkit/react-core/v2"; // [!code highlight]
@@ -31,14 +31,13 @@ const YourMainContent = () => {
 ```
 
 <Callout type="info">
-  Unlike `useRenderToolCall`, which targets a specific tool by name,
-  `useDefaultRenderTool` catches **all** tools that don't have a dedicated
-  renderer.
+  与按名称针对特定工具的 `useRenderToolCall` 不同，
+  `useDefaultRenderTool` 会捕获**所有**没有专用渲染器的工具。
 </Callout>
 
 <Callout type="info">
-  In v2, use [`useDefaultRenderTool`](/reference/v2/hooks/useDefaultRenderTool)
-  for wildcard fallback rendering, and
-  [`useRenderTool`](/reference/v2/hooks/useRenderTool) for named or wildcard
-  renderer registration.
+  在 v2 中，请使用 [`useDefaultRenderTool`](/reference/v2/hooks/useDefaultRenderTool)
+  进行通配兜底渲染，使用
+  [`useRenderTool`](/reference/v2/hooks/useRenderTool)
+  注册具名或通配渲染器。
 </Callout>

@@ -8,67 +8,66 @@ import {
 
 <OpsPlatformCTA
   variant="card"
-  title="Headless UI requires a CopilotKit Intelligence license key"
-  body="Sign up for a free account to get a public license key and unlock the headless hooks."
-  ctaLabel="Create a free account"
+  title="无头 UI 需要 CopilotKit Intelligence 许可证密钥"
+  body="注册一个免费账户，即可获取公开许可证密钥并解锁无头 hooks。"
+  ctaLabel="创建免费账户"
   surface="docs_intelligence_headless_ui"
 />
 
-## Overview
+## 概览
 
-Headless UI uses the `useCopilotChatHeadless_c` hook. You build the chat UI. CopilotKit still runs threads, generative UI, suggestions, and interrupts.
+无头 UI 使用 `useCopilotChatHeadless_c` hook。聊天 UI 由你自己构建，而 CopilotKit 仍负责运行线程、生成式 UI、建议与中断。
 
 <Callout type="warn">
-  **This hook needs a public license key.**
-  Self-hosted and open-source projects use that key. A cloud-hosted project uses
-  `CPK_INTELLIGENCE_API_KEY` and does not include this hook. If the CopilotKit CLI
-  created your project, build the UI with the v2 primitives in
-  [Headless UI](/built-in-agent/custom-look-and-feel/headless-ui).
+  **该 hook 需要公开许可证密钥**。自托管与开源项目使用该密钥。云端托管项目使用
+  `CPK_INTELLIGENCE_API_KEY`，且不包含此 hook。如果你的项目由 CopilotKit CLI
+  创建，请改用[无头 UI](/built-in-agent/custom-look-and-feel/headless-ui)
+  中的 v2 基础组件构建 UI。
 </Callout>
 
-## Navigation
+## 导航
 
-This page has all the information you need to get started with CopilotKit's headless UI. Select where you'd like to get started below.
+本页包含开始使用 CopilotKit 无头 UI 所需的全部信息。请从下方选择你想开始的部分。
 
 <Cards className="gap-6">
   <Card
     icon={<MessageCircleDashed className="text-primary" />}
     className="p-6 rounded-xl text-base md:col-span-2"
-    title="Getting started"
-    description="Build a Headless UI chat from the ground up to get started."
-    href="#getting-started"
+    title="快速开始"
+    description="从零开始构建一个无头 UI 聊天界面。"
+    href="#快速开始"
   />
   <Card
     icon={<Blocks className="text-primary" />}
     className="p-6 rounded-xl text-base"
-    title="Generative UI"
-    description="Learn how to work with generative UI to render tools and other UI elements."
-    href="#working-with-generative-ui"
+    title="生成式 UI"
+    description="了解如何使用生成式 UI 渲染工具及其他 UI 元素。"
+    href="#使用生成式-ui"
   />
   <Card
     icon={<LayoutList className="text-primary" />}
     className="p-6 rounded-xl text-base"
-    title="Suggestions"
-    description="Learn how to work with suggestions to provide your users with a list of generated or static options to operate the chat with."
-    href="#working-with-suggestions"
+    title="建议"
+    description="了解如何使用建议，为用户提供一组生成或静态的选项来操作聊天。"
+    href="#使用建议"
   />
   <Card
     icon={<UserPen className="text-primary" />}
     className="p-6 rounded-xl text-base"
-    title="Human-in-the-loop"
-    description="Learn how to work with human-in-the-loop to pause the chat and wait for a human to respond."
-    href="#working-with-human-in-the-loop"
+    title="人机协同"
+    description="了解如何使用人机协同暂停聊天并等待人工响应。"
+    href="#使用人机协同"
   />
   <Card
     icon={<BookOpen className="text-primary" />}
     className="p-6 rounded-xl text-base"
-    title="Reference"
-    description="Reference documentation for the `useCopilotChatHeadless_c` hook."
+    title="参考"
+    description="`useCopilotChatHeadless_c` hook 的参考文档。"
     href="/reference/v1/hooks/useCopilotChatHeadless_c"
   />
 </Cards>
 
-## Getting started
+## 快速开始
 
 <video
   src="https://cdn.copilotkit.ai/docs/copilotkit/videos/full-headless-chat.mp4"
@@ -79,29 +78,25 @@ This page has all the information you need to get started with CopilotKit's head
   muted
 />
 
-These steps need a `publicLicenseKey`. `npx copilotkit@latest create` creates a
-**cloud-hosted** project, which receives `CPK_INTELLIGENCE_API_KEY` and no license
-key, so do not follow this section for a CLI-scaffolded project. Use
-[Headless UI](/built-in-agent/custom-look-and-feel/headless-ui) instead.
+这些步骤需要一个 `publicLicenseKey`。`npx copilotkit@latest create` 创建的是**云端托管**项目，它拿到的是 `CPK_INTELLIGENCE_API_KEY` 而非许可证密钥，因此由 CLI 脚手架生成的项目不要按本节操作。请改用[无头 UI](/built-in-agent/custom-look-and-feel/headless-ui)。
 
 <Steps>
 <Step>
-### Create a new application
+### 创建新应用
 
-Scaffold a self-hosted or open-source CopilotKit project:
+脚手架生成一个自托管或开源的 CopilotKit 项目：
 
 ```bash
 npx copilotkit@latest create
 ```
 
-Then [self-host the Runtime](/intelligence/self-hosting) and get a free public
-license key for the provider.
+然后[自托管 Runtime](/intelligence/self-hosting)，并为提供方获取免费的公开许可证密钥。
 </Step>
 
 <Step>
-### Wire your CopilotKit provider with a license key
+### 为 CopilotKit 提供方配置许可证密钥
 
-Wrap your root layout with `CopilotKit` and pass in your public license key:
+用 `CopilotKit` 包裹你的根布局，并传入公开许可证密钥：
 
 ```tsx title="src/app/layout.tsx"
 <CopilotKit publicLicenseKey="your-free-public-license-key">
@@ -111,9 +106,9 @@ Wrap your root layout with `CopilotKit` and pass in your public license key:
 </Step>
 
 <Step>
-### Build a headless chat component
+### 构建无头聊天组件
 
-Use `useCopilotChatHeadless_c` to access messages, a send function, and loading state, then wire them to your own UI:
+使用 `useCopilotChatHeadless_c` 获取消息、发送函数与加载状态，再把它们接入你自己的 UI：
 
 ```tsx title="src/app/page.tsx"
 "use client";
@@ -167,9 +162,9 @@ export default function Home() {
 </Step>
 </Steps>
 
-## Working with generative UI
+## 使用生成式 UI
 
-You can render generative UI either via `useFrontendTool` / `useComponent`, or by reading tools and rendering them directly.
+你可以通过 `useFrontendTool` / `useComponent` 渲染生成式 UI，也可以读取工具并直接渲染。
 
 <video
   src="https://cdn.copilotkit.ai/docs/copilotkit/videos/gen-ui.mp4"
@@ -180,9 +175,9 @@ You can render generative UI either via `useFrontendTool` / `useComponent`, or b
   muted
 />
 
-### With `useFrontendTool`
+### 通过 `useFrontendTool`
 
-Register a frontend tool and attach a render function. CopilotKit inserts your component wherever that tool call appears in the message stream:
+注册一个前端工具并附加渲染函数。只要该工具调用出现在消息流中，CopilotKit 就会插入你的组件：
 
 ```tsx title="src/app/components/chat.tsx"
 import { useCopilotChatHeadless_c } from "@copilotkit/react-core";
@@ -224,9 +219,9 @@ export const Chat = () => {
 };
 ```
 
-### With raw tool-call data
+### 直接使用原始工具调用数据
 
-If you don't want to use `useFrontendTool`, render the raw data directly:
+如果不想使用 `useFrontendTool`，可以直接渲染原始数据：
 
 ```tsx title="src/app/components/chat.tsx"
 import { useCopilotChatHeadless_c } from "@copilotkit/react-core";
@@ -251,9 +246,9 @@ export const Chat = () => {
 };
 ```
 
-## Working with suggestions
+## 使用建议
 
-CopilotKit's suggestions give users a list of generated or static prompts. The headless hook exposes full control over the lifecycle.
+CopilotKit 的建议为用户提供一组生成式或静态的提示。无头 hook 对其完整生命周期提供了完全控制。
 
 <video
   src="https://cdn.copilotkit.ai/docs/copilotkit/videos/suggestions.mp4"
@@ -264,9 +259,9 @@ CopilotKit's suggestions give users a list of generated or static prompts. The h
   muted
 />
 
-### Generating suggestions
+### 生成建议
 
-Use `useCopilotChatSuggestions` to generate and display prompt suggestions in your headless UI:
+使用 `useCopilotChatSuggestions` 在无头 UI 中生成并展示提示建议：
 
 ```tsx title="src/app/components/chat.tsx"
 import {
@@ -310,9 +305,9 @@ export const Chat = () => {
 };
 ```
 
-### Programmatic suggestions
+### 以编程方式设置建议
 
-If you want deterministic control, set suggestions manually:
+如果需要确定性的控制，可以手动设置建议：
 
 ```tsx
 const { suggestions, setSuggestions } = useCopilotChatHeadless_c();
@@ -325,9 +320,9 @@ useEffect(() => {
 }, []);
 ```
 
-## Working with human-in-the-loop
+## 使用人机协同
 
-Human-in-the-loop (HITL) pauses the chat and waits for the user's input. It comes in two flavors: **tool-based** and **interrupt-based** (certain frameworks only).
+人机协同（human-in-the-loop，HITL）会暂停聊天并等待用户输入。它有两种形式：**基于工具**与**基于中断**（仅部分框架支持）。
 
 <video
   src="https://cdn.copilotkit.ai/docs/copilotkit/videos/hitl.mp4"
@@ -338,9 +333,9 @@ Human-in-the-loop (HITL) pauses the chat and waits for the user's input. It come
   muted
 />
 
-### Tool-based
+### 基于工具
 
-Tool-based HITL pauses tool execution until the user responds. The response becomes the tool's result.
+基于工具的 HITL 会暂停工具执行，直到用户做出响应。该响应会成为工具的结果。
 
 ```tsx title="src/app/components/chat.tsx"
 import { useState } from "react";

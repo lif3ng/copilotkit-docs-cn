@@ -15,41 +15,41 @@ import Image from "next/image";
   className="hidden dark:block mb-8"
 />
 
-## **Generative UI Specifications**
+## **生成式 UI 规范**
 
-Several recently released specifications enable agents to return generative UI, increasing the power and flexibility of the Agent-to-User conversation.
+近期发布的多个规范使智能体能够返回生成式 UI，大大增强了智能体与用户对话的表现力和灵活性。
 
-**A2UI**, **MCP Apps**, and **Open-JSON-UI** are all generative UI specifications that allow agents to respond to users not only with text but also with dynamic UI components.
-CopilotKit now provides universal support for all major Generative UI specifications.
+**A2UI**、**MCP Apps** 和 **Open-JSON-UI** 都是生成式 UI 规范，它们让智能体在回应用户时不再局限于文本，还能返回动态 UI 组件。
+CopilotKit 现已全面支持所有主流生成式 UI 规范。
 
-| **Specification** | **Origin / Maintainer** | **Purpose**                                                                                                          |
+| **规范**          | **来源/维护方**         | **用途**                                                                                                             |
 | ----------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **A2UI**          | Google                  | A declarative, LLM-friendly Generative UI spec. JSONL-based and streaming, designed for platform-agnostic rendering. |
-| **Open-JSON-UI**  | OpenAI                  | An open standardization of OpenAI's internal declarative Generative UI schema.                                       |
-| **MCP Apps**      | MCP Ecosystem           | Iframe-based Generative UI extending MCP, enabling servers to return interactive UI components.                      |
+| **A2UI**          | Google                  | 一种声明式、对 LLM 友好的生成式 UI 规范。基于 JSONL 且支持流式传输，为跨平台渲染而设计。                              |
+| **Open-JSON-UI**  | OpenAI                  | 对 OpenAI 内部声明式生成式 UI schema 的开放标准化。                                                                   |
+| **MCP Apps**      | MCP 生态                | 基于 iframe 的生成式 UI 规范，扩展了 MCP，使服务器能够返回交互式 UI 组件。                                            |
 
-## **AG-UI vs Generative UI Specs**
+## **AG-UI 与生成式 UI 规范**
 
-Despite the naming similarities, **AG-UI is not a generative UI specification** — it's a **User Interaction protocol** that provides the **bi-directional runtime connection** between the agent and the application.
+尽管名字相似，**AG-UI 并不是生成式 UI 规范**——它是一个**用户交互协议**，在智能体与应用之间提供**双向运行时连接**。
 
-AG-UI natively supports all of the above generative UI specs and allows developers to define **their own custom generative UI standards** as well.
+AG-UI 原生支持上述所有生成式 UI 规范，同时也允许开发者定义**自定义的生成式 UI 标准**。
 
-## **Learn More**
+## **了解更多**
 
-Explore each specification in detail:
+深入了解各个规范：
 
-- [A2UI](/generative-ui/a2ui) - Google's declarative Generative UI spec
-- [MCP Apps](/generative-ui/mcp-apps) - Iframe-based Generative UI extending MCP
+- [A2UI](/generative-ui/a2ui) —— Google 的声明式生成式 UI 规范
+- [MCP Apps](/generative-ui/mcp-apps) —— 基于 iframe、扩展 MCP 的生成式 UI 规范
 
-Or learn about related Generative UI capabilities:
+也可以了解相关的生成式 UI 能力：
 
-- [Open Generative UI](/generative-ui/open-generative-ui) - Let agents generate fully interactive HTML/CSS/JS UIs that stream live into the chat
-- [AG-UI Protocol](/ag-ui-protocol) - The user interaction protocol that supports all these specs
-- [Generative UI Guide](/generative-ui) - Build with Generative UI in CopilotKit
+- [Open Generative UI](/generative-ui/open-generative-ui) —— 让智能体生成完全交互式的 HTML/CSS/JS UI，并实时流式呈现到聊天中
+- [AG-UI Protocol](/ag-ui-protocol) —— 支持上述所有规范的用户交互协议
+- [Generative UI Guide](/generative-ui) —— 在 CopilotKit 中使用生成式 UI 进行构建
 
-## **Supported Frameworks**
+## **支持的框架**
 
-Generative UI works with every agent framework CopilotKit integrates with — pick yours to get started:
+生成式 UI 可与 CopilotKit 集成的所有智能体框架配合使用——选择你的框架开始上手：
 
 - [LangGraph (Python)](/langgraph-python/quickstart) · [LangGraph (TypeScript)](/langgraph-typescript/quickstart)
 - [Google ADK](/google-adk/quickstart)

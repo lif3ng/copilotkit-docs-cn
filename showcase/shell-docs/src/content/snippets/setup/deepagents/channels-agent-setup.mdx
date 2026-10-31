@@ -1,22 +1,18 @@
-Follow the [Deep Agents quickstart](/deepagents/quickstart) and choose its
-**Deep Agent** deployment path. Both the Python and TypeScript examples export
-a `sample_agent` graph through LangGraph Server:
+按照 [Deep Agents 快速开始](/deepagents/quickstart)操作，并选择其 **Deep Agent** 部署路径。Python 与 TypeScript 两个示例都会通过 LangGraph Server 导出一个 `sample_agent` 图：
 
-```bash title="Agent application"
+```bash title="智能体应用"
 npx @langchain/langgraph-cli dev --port 8123 --no-browser
 ```
 
-Point the native LangGraph adapter at that deployment:
+将原生 LangGraph 适配器指向该部署：
 
 ```dotenv title=".env"
 LANGGRAPH_DEPLOYMENT_URL=http://localhost:8123
 ```
 
-The Runtime package installed by the Channels quickstart includes the native
-LangGraph adapter.
+Channels 快速开始所安装的 Runtime 包已包含原生 LangGraph 适配器。
 
-Deep Agents compile to LangGraph graphs, so use `LangGraphAgent` rather than
-`HttpAgent`. Return a fresh adapter for every channel thread:
+Deep Agents 会编译为 LangGraph 图，因此请使用 `LangGraphAgent` 而不是 `HttpAgent`。为每个渠道线程返回一个全新的适配器：
 
 ```ts title="agent.ts"
 import { LangGraphAgent } from "@copilotkit/runtime/langgraph";

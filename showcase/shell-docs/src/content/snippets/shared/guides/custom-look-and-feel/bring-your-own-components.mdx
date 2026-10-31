@@ -1,26 +1,26 @@
-You can swap out any of the sub-components of any Copilot UI to build up a completely custom look and feel. All components are fully typed with TypeScript for better development experience.
+你可以替换任意 Copilot UI 的任何子组件，打造完全自定义的外观。所有组件均使用 TypeScript 进行完整的类型定义，带来更好的开发体验。
 
-| Component                               | Description                                         |
-| --------------------------------------- | --------------------------------------------------- |
-| [UserMessage](#usermessage)             | Message component for user messages                 |
-| [AssistantMessage](#assistantmessage)   | Message component for assistant messages            |
-| [Window](#window)                       | Contains the chat                                   |
-| [Button](#button)                       | Button that opens/closes the chat                   |
-| [Header](#header)                       | The header of the chat                              |
-| [Messages](#messages)                   | The chat messages area                              |
-| [Suggestions](#suggestions)             | Customize how suggestions are displayed             |
-| [Input](#input)                         | The chat input                                      |
-| [Actions](#actions)                     | Customize how actions (tools) are displayed         |
-| [Agent State](#agent-state)             | Customize how agent state messages are displayed    |
-| [Reasoning Message](#reasoning-message) | Customize how model reasoning/thinking is displayed |
+| 组件                                    | 描述                              |
+| --------------------------------------- | --------------------------------- |
+| [UserMessage](#usermessage)             | 用于用户消息的消息组件            |
+| [AssistantMessage](#assistantmessage)   | 用于助手消息的消息组件            |
+| [Window](#window)                       | 承载聊天的容器                    |
+| [Button](#button)                       | 打开/关闭聊天的按钮               |
+| [Header](#header)                       | 聊天的头部                        |
+| [Messages](#messages)                   | 聊天消息区域                      |
+| [Suggestions](#suggestions)             | 自定义建议的展示方式              |
+| [Input](#input)                         | 聊天输入框                        |
+| [Actions](#actions)                     | 自定义操作（工具）的展示方式      |
+| [智能体状态](#智能体状态)               | 自定义智能体状态消息的展示方式    |
+| [推理消息](#推理消息)                   | 自定义模型推理/思考过程的展示方式 |
 
 ## UserMessage
 
-The user message is what displays when the user sends a message to the chat. In this example, we change the color and add an avatar.
+用户消息是在用户向聊天发送消息时展示的内容。在本例中，我们更改了颜色并添加了一个头像。
 
 ![Custom user message](https://cdn.copilotkit.ai/docs/copilotkit/images/custom-user-message.png)
 
-The main thing to be aware of here is the `message` prop, which is the message text from the user.
+这里需要留意的主要是 `message` 属性，即来自用户的消息文本。
 
 ```tsx
 import { type UserMessageProps } from "@copilotkit/react-ui";
@@ -50,7 +50,7 @@ const CustomUserMessage = (props: UserMessageProps) => {
 
 ## AssistantMessage
 
-The assistant message is what displays when the LLM responds to a user message. In this example, we remove the background color and add an avatar.
+助手消息是在 LLM 回应用户消息时展示的内容。在本例中，我们移除了背景色并添加了一个头像。
 
 ![Custom assistant message](https://cdn.copilotkit.ai/docs/copilotkit/images/custom-assistant-message.png)
 
@@ -98,15 +98,15 @@ const CustomAssistantMessage = (props: AssistantMessageProps) => {
 </CopilotKit>;
 ```
 
-**Key concepts**
+**核心概念**
 
-- `subComponent` - This is where any generative UI will be rendered.
-- `message` - This is the message text from the LLM, typically in markdown format.
-- `isLoading` - This is a boolean that indicates if the message is still loading.
+- `subComponent` —— 任何生成式 UI 都会渲染在这里。
+- `message` —— 来自 LLM 的消息文本，通常为 markdown 格式。
+- `isLoading` —— 一个布尔值，表示消息是否仍在加载中。
 
 ## Window
 
-The window is the main container for the chat. In this example, we turn it into a more traditional modal.
+Window 是聊天的主要容器。在本例中，我们把它改造成更传统的弹窗形式。
 
 ![Custom window](https://cdn.copilotkit.ai/docs/copilotkit/images/custom-window.png)
 
@@ -142,7 +142,7 @@ function Window({ children }: WindowProps) {
 
 ## Button
 
-The `CopilotSidebar` and `CopilotPopup` components allow you to customize their trigger button by passing in a custom Button component.
+`CopilotSidebar` 和 `CopilotPopup` 组件支持传入自定义的 Button 组件来自定义其触发按钮。
 
 ![Custom button](https://cdn.copilotkit.ai/docs/copilotkit/images/custom-button.png)
 
@@ -176,8 +176,7 @@ function Button({}: ButtonProps) {
 
 ## Header
 
-The header component is the top of the chat window. In this example, we add a button to the left of the title
-with a custom icon.
+Header 组件位于聊天窗口的顶部。在本例中，我们在标题左侧添加了一个带自定义图标的按钮。
 
 ![Custom header](https://cdn.copilotkit.ai/docs/copilotkit/images/custom-header.png)
 
@@ -214,7 +213,7 @@ function Header({}: HeaderProps) {
 
 ## Messages
 
-The Messages component handles the display and organization of different message types in the chat interface. Its complexity comes from managing various message types (text, actions, results, and agent states) and maintaining proper scroll behavior.
+Messages 组件负责聊天界面中各类消息的展示与组织。它的复杂性来自需要管理多种消息类型（文本、操作、结果和智能体状态），并维护正确的滚动行为。
 
 ![Custom messages](https://cdn.copilotkit.ai/docs/copilotkit/images/custom-messages.png)
 
@@ -257,11 +256,11 @@ export default function CustomMessages({
 
 ## Suggestions
 
-The suggestions component allows you to customize how suggestions are displayed. In this example, we add a label to the list and change the suggestion chip look
+Suggestions 组件允许你自定义建议的展示方式。在本例中，我们为列表添加了一个标题，并更改了建议卡片的外观。
 
 ![Custom suggestions list](https://cdn.copilotkit.ai/docs/copilotkit/images/custom-suggestions-list.png)
 
-The main props to be aware of are the `suggestions` array and `onSuggestionClick` function.
+需要留意的主要是 `suggestions` 数组和 `onSuggestionClick` 函数。
 
 ```tsx
 import { CopilotKit } from "@copilotkit/react-core";
@@ -303,8 +302,7 @@ const CustomSuggestionsList = ({
 
 ## Input
 
-The input component that the user interacts with to send messages to the chat. In this example, we customize it
-to have a custom "Ask" button and placeholder text.
+Input 组件是用户与聊天交互、发送消息的入口。在本例中，我们为它自定义了“询问”按钮和占位文本。
 
 ![Custom input](https://cdn.copilotkit.ai/docs/copilotkit/images/custom-input.png)
 
@@ -361,7 +359,7 @@ function CustomInput({ inProgress, onSend, isVisible }: InputProps) {
 
 ## Actions
 
-Actions allow the LLM to interact with your application's functionality. When an action is called by the LLM, you can provide custom components to visualize its execution and results. This example demonstrates a calendar meeting card implementation.
+操作（Actions）让 LLM 能够与你的应用功能交互。当 LLM 调用某个操作时，你可以提供自定义组件来展示它的执行过程和结果。本示例演示了一个日历会议卡片的实现。
 
 ![Render-only example](https://cdn.copilotkit.ai/docs/copilotkit/images/render-only-example.png)
 
@@ -420,13 +418,12 @@ export function YourComponent() {
 }
 ```
 
-## Agent State
+## 智能体状态
 
-The Agent State component allows you to visualize the internal state and progress of your CoAgents. When working with CoAgents, you can provide a custom component to render the agent's state. This example demonstrates a progress bar that updates as the agent runs.
+智能体状态组件让你可以可视化 CoAgents 的内部状态与执行进度。在使用 CoAgents 时，你可以提供自定义组件来渲染智能体的状态。本示例演示了一个随智能体运行而更新的进度条。
 
-<Callout title="Not started with CoAgents yet?">
-  If you haven't gotten started with CoAgents yet, you can get started in 10
-  minutes with the [quickstart guide](/langgraph-python/quickstart).
+<Callout title="还没有开始使用 CoAgents？">
+  如果你还没有上手 CoAgents，可以借助[快速开始指南](/langgraph-python/quickstart)在 10 分钟内入门。
 </Callout>
 
 ![Agentic generative UI](https://cdn.copilotkit.ai/docs/copilotkit/images/coagents/AgenticGenerativeUI.gif)
@@ -454,11 +451,11 @@ useCoAgentStateRender<AgentState>({
 });
 ```
 
-## Reasoning Message
+## 推理消息
 
-Models like OpenAI o1, o3, and o4-mini emit **reasoning tokens** (chain-of-thought traces). CopilotKit renders them automatically in a collapsible card. You can fully replace it or swap individual sub-components (header, content, toggle) via slot props.
+OpenAI o1、o3 和 o4-mini 等模型会输出**推理 token**（思维链轨迹）。CopilotKit 会自动将它们渲染在一个可折叠的卡片中。你可以整体替换它，也可以通过插槽属性替换其中的单个子组件（头部、内容、切换按钮）。
 
-For a complete guide, see [Reasoning Messages](/custom-look-and-feel/reasoning-messages).
+完整指南请参阅[推理消息](/custom-look-and-feel/reasoning-messages)。
 
 ```tsx
 import { type CopilotChatReasoningMessageProps } from "@copilotkit/react-core/v2";
@@ -498,9 +495,9 @@ function CustomReasoningMessage({
 </CopilotKit>;
 ```
 
-**Key concepts**
+**核心概念**
 
-- `message`: The reasoning message object. `message.content` holds the thinking text.
-- `messages`: All messages in the conversation, used to determine if this is the latest message.
-- `isRunning`: Whether the agent is currently running.
-- **Slot props:** Instead of replacing the whole component, you can override just the `header`, `contentView`, or `toggle` sub-components. See the [full guide](/custom-look-and-feel/reasoning-messages).
+- `message`：推理消息对象。`message.content` 保存思考文本。
+- `messages`：对话中的全部消息，用于判断当前是否为最新消息。
+- `isRunning`：智能体当前是否正在运行。
+- **插槽属性**：无需整体替换组件，你可以只覆盖 `header`、`contentView` 或 `toggle` 子组件。请参阅[完整指南](/custom-look-and-feel/reasoning-messages)。

@@ -1,16 +1,16 @@
-## What is this?
+## 这是什么？
 
-Every CopilotKit chat component is built from composable **slots** — named sub-components that you can override individually. The slot system gives you three levels of customization without needing to rebuild the entire UI:
+每个 CopilotKit 聊天组件都由可组合的**插槽（slot）**构成——即可以逐个覆盖的具名子组件。插槽系统提供三个层级的自定义能力，而无需重建整个 UI：
 
-1. **Tailwind classes** — pass a string to add/override CSS classes
-2. **Props override** — pass an object to override specific props on the default component
-3. **Custom component** — pass your own React component to fully replace a slot
+1. **Tailwind 类**——传入字符串以添加/覆盖 CSS 类
+2. **Props 覆盖**——传入对象以覆盖默认组件上的特定 props
+3. **自定义组件**——传入你自己的 React 组件以完全替换某个插槽
 
-Slots are recursive — you can drill into nested sub-components at any depth.
+插槽是递归的——你可以在任意深度逐层深入嵌套的子组件。
 
-## Tailwind Classes
+## Tailwind 类
 
-The simplest way to customize a slot. Pass a Tailwind class string and it will be merged with the default component's classes.
+这是自定义插槽最简单的方式。传入一个 Tailwind 类字符串，它将与默认组件的类合并。
 
 ```tsx title="page.tsx"
 import { CopilotChat } from "@copilotkit/react-core/v2";
@@ -26,9 +26,9 @@ export function Chat() {
 }
 ```
 
-## Props Override
+## Props 覆盖
 
-Pass an object to override specific props on the default component. This is useful for adding `className`, event handlers, data attributes, or any other prop the default component accepts.
+传入一个对象来覆盖默认组件上的特定 props。这适用于添加 `className`、事件处理器、data 属性，或默认组件接受的任何其他 prop。
 
 ```tsx title="page.tsx"
 <CopilotChat
@@ -41,9 +41,9 @@ Pass an object to override specific props on the default component. This is usef
 />
 ```
 
-## Custom Components
+## 自定义组件
 
-For full control, pass your own React component. It receives all the same props as the default component.
+若要完全掌控，可以传入你自己的 React 组件。它会接收与默认组件相同的所有 props。
 
 ```tsx title="page.tsx"
 import { CopilotChat } from "@copilotkit/react-core/v2";
@@ -71,13 +71,13 @@ export function Chat() {
 }
 ```
 
-## Nested Slots (Drill-Down)
+## 嵌套插槽（逐层深入）
 
-Slots are recursive. You can customize sub-components at any depth by nesting objects.
+插槽是递归的。通过嵌套对象，你可以在任意深度自定义子组件。
 
-### Two levels deep
+### 深入两层
 
-Override the assistant message's toolbar within the message view:
+在消息视图内覆盖助手消息的工具栏：
 
 ```tsx title="page.tsx"
 <CopilotChat
@@ -92,9 +92,9 @@ Override the assistant message's toolbar within the message view:
 />
 ```
 
-### Three levels deep
+### 深入三层
 
-Override a specific button inside the assistant message toolbar:
+覆盖助手消息工具栏内的某个具体按钮：
 
 ```tsx title="page.tsx"
 <CopilotChat
@@ -107,7 +107,7 @@ Override a specific button inside the assistant message toolbar:
 />
 ```
 
-### Input sub-slots
+### input 子插槽
 
 ```tsx title="page.tsx"
 <CopilotChat
@@ -119,7 +119,7 @@ Override a specific button inside the assistant message toolbar:
 />
 ```
 
-### Scroll view sub-slots
+### scrollView 子插槽
 
 ```tsx title="page.tsx"
 <CopilotChat
@@ -131,7 +131,7 @@ Override a specific button inside the assistant message toolbar:
 />
 ```
 
-### Suggestion view sub-slots
+### suggestionView 子插槽
 
 ```tsx title="page.tsx"
 <CopilotChat
@@ -143,9 +143,9 @@ Override a specific button inside the assistant message toolbar:
 />
 ```
 
-## Children Render Function
+## children 渲染函数
 
-For complete layout control, use the `children` render function pattern. This gives you pre-built slot elements that you can arrange however you want.
+若要完全掌控布局，可以使用 `children` 渲染函数模式。它会为你提供预构建的插槽元素，你可以随意编排它们。
 
 ```tsx title="page.tsx"
 import { CopilotChat } from "@copilotkit/react-core/v2";
@@ -166,9 +166,9 @@ export function Chat() {
 }
 ```
 
-## Reshaping the Message List
+## 重塑消息列表
 
-Slots change how each message renders. To change _which_ messages render — hide some, replace them, reorder them — pass `transformMessages` to the message view. It receives the whole list and returns the list to render.
+插槽改变的是每条消息**如何**渲染。要改变渲染的_哪些_消息——隐藏某些消息、替换它们或重新排序——可以向消息视图传入 `transformMessages`。它接收整个列表，并返回要渲染的列表。
 
 ```tsx title="page.tsx"
 import { useCallback } from "react";
@@ -185,16 +185,16 @@ export function Chat() {
 }
 ```
 
-A few things to know:
+需要了解的几点：
 
-- **Long threads stay virtualized.** Once a thread passes 50 messages the chat only mounts the rows on screen. It counts the messages `transformMessages` returns, so hidden messages take no row.
-- **Tool cards keep their results.** Tool-call renderers look up results in the full list, so hiding tool-result messages, as above, does not empty the cards that display them.
-- **Keep ids unique and stable.** Return each message id at most once. A message you build yourself, such as one that stands in for several, needs its own id, and that id must stay the same while the thread streams. Derive it from something fixed, like the id of the first message it replaces. The chat uses the last message you return to decide which one is still streaming.
-- **Pass a stable function.** The transform reruns whenever the messages or the function change. An inline function works, but reruns on every render.
+- **长线程保持虚拟化**。一旦线程超过 50 条消息，聊天组件就只会挂载出现在屏幕上的行。它按 `transformMessages` 返回的消息计数，因此被隐藏的消息不占用任何行。
+- **工具卡片保留其结果**。工具调用的渲染器会在完整列表中查找结果，因此如上例那样隐藏工具结果消息，并不会使展示它们的卡片变空。
+- **保持 id 唯一且稳定**。每条消息的 id 至多返回一次。你自己构建的消息（例如替代表若干条消息的那条）需要有自己的 id，且在线程流式传输期间该 id 必须保持不变。可以从某个固定来源派生它，比如它所替换的第一条消息的 id。聊天组件会用你返回的最后一条消息来判断哪条消息仍在流式输出。
+- **传入稳定的函数**。只要消息或函数发生变化，转换就会重新执行。内联函数也能工作，但会在每次渲染时重新执行。
 
-### Grouping messages into one row
+### 将多条消息归组为一行
 
-To render several messages together — a run of tool calls collapsed into one block, say — pass `groupMessages`. It receives the list (after `transformMessages`, if you use both) and returns rows: `messageRow(message)` for a message on its own, `messageGroup({ key, messages, wrapper })` for messages rendered together inside your `wrapper`.
+要将多条消息一起渲染——比如把一连串工具调用折叠为一个块——传入 `groupMessages`。它接收消息列表（若两者都用，则在 `transformMessages` 之后）并返回若干行：`messageRow(message)` 表示一条消息独占一行，`messageGroup({ key, messages, wrapper })` 表示多条消息一起渲染在你的 `wrapper` 内。
 
 ```tsx title="page.tsx"
 import { useCallback } from "react";
@@ -260,16 +260,16 @@ export function Chat() {
 }
 ```
 
-- **A group is one row.** Virtualization windows and measures it as a whole, and expanding it is just that row growing. The 50-message threshold still counts messages, so a long thread folded into a few groups stays virtualized.
-- **The wrapper's state outlives the row.** `state` and `setState` are kept by the chat under the group's `key`, so a block someone expanded is still expanded when they scroll back to it. They are dropped once the key no longer appears, and cleared when the thread changes. Key a group by the id of its first message: if the backend renames that message mid-stream (some LangChain providers swap a temporary `lc_run--…` id for the final one), the chat carries the group over the same way it does a single message, so it neither remounts nor loses its state. Any other key must stay the same while the thread streams.
-- **`children` is the default rendering** of the group's messages. Wrap it, hide it, or render the messages yourself from `messages`.
-- **Each message goes in at most one row.** In development the chat warns when a message renders twice or two groups share a key.
+- **一组即一行**。虚拟化会把它作为整体进行窗口化与测量，展开它也只是该行变高而已。50 条消息的阈值仍按消息计数，因此折叠成少数几组的长线程依然保持虚拟化。
+- **包装器的状态比行更持久**。聊天组件会以组的 `key` 为键保存 `state` 与 `setState`，因此用户展开过的块在滚回来时仍是展开状态。当 key 不再出现时这些状态会被丢弃，线程变化时会被清空。请用组内第一条消息的 id 作为组的 key：如果后端在流式传输中途重命名该消息（一些 LangChain 提供方会把临时的 `lc_run--…` id 换成最终 id），聊天组件会像处理单条消息一样沿用该组，使其既不重新挂载也不丢失状态。任何其他 key 在线程流式传输期间也必须保持不变。
+- **`children` 是组内消息的默认渲染结果**。你可以包裹它、隐藏它，或自行用 `messages` 渲染这些消息。
+- **每条消息至多归入一行**。在开发环境下，若某条消息被渲染两次或两个组共用同一个 key，聊天组件会发出警告。
 
-If you pass the message view a `children` render function to lay out the rendered messages yourself, virtualization turns off and every message is mounted. Prefer `transformMessages` and `groupMessages` for list-level changes; in development the chat warns when `children` is what turned virtualization off.
+如果你向消息视图传入 `children` 渲染函数来亲自排布渲染后的消息，虚拟化将关闭，且每条消息都会被挂载。列表层面的改动请优先使用 `transformMessages` 与 `groupMessages`；在开发环境下，若正是 `children` 导致虚拟化关闭，聊天组件会发出警告。
 
-## Labels
+## 标签文本
 
-Customize any text string in the UI via the `labels` prop. This does not use the slot system — it's a separate convenience prop on `CopilotChat`, `CopilotSidebar`, and `CopilotPopup`.
+通过 `labels` prop 自定义 UI 中的任意文本字符串。它不使用插槽系统——而是 `CopilotChat`、`CopilotSidebar` 与 `CopilotPopup` 上一个独立的便利 prop。
 
 ```tsx title="page.tsx"
 <CopilotChat
@@ -282,139 +282,139 @@ Customize any text string in the UI via the `labels` prop. This does not use the
 />
 ```
 
-## Available Slots
+## 可用插槽
 
 ### `CopilotChat` / `CopilotSidebar` / `CopilotPopup`
 
-These are the root-level slot props available on all chat components:
+这些是所有聊天组件上都可用的根级插槽 prop：
 
-| Slot             | Description                                               |
-| ---------------- | --------------------------------------------------------- |
-| `messageView`    | The message list container.                               |
-| `scrollView`     | The scroll container with auto-scroll behavior.           |
-| `input`          | The text input area with send/transcribe controls.        |
-| `suggestionView` | The suggestion pills shown below messages.                |
-| `welcomeScreen`  | The initial empty-state screen (pass `false` to disable). |
+| 插槽             | 说明                                   |
+| ---------------- | -------------------------------------- |
+| `messageView`    | 消息列表容器。                         |
+| `scrollView`     | 带自动滚动行为的滚动容器。             |
+| `input`          | 文本输入区，含发送/语音转写控件。      |
+| `suggestionView` | 消息下方显示的建议按钮。               |
+| `welcomeScreen`  | 初始空状态屏幕（传 `false` 可禁用）。  |
 
-`CopilotSidebar` and `CopilotPopup` also have:
+`CopilotSidebar` 与 `CopilotPopup` 还包括：
 
-| Slot           | Description                   |
-| -------------- | ----------------------------- |
-| `header`       | The modal header bar.         |
-| `toggleButton` | The open/close toggle button. |
+| 插槽           | 说明                 |
+| -------------- | -------------------- |
+| `header`       | 模态框顶栏。         |
+| `toggleButton` | 打开/关闭切换按钮。  |
 
-### `messageView` sub-slots
+### `messageView` 子插槽
 
-Available via `messageView={{ ... }}`:
+可通过 `messageView={{ ... }}` 使用：
 
-| Slot               | Description                                                                |
-| ------------------ | -------------------------------------------------------------------------- |
-| `assistantMessage` | Renders assistant responses. Has its own sub-slots (see below).            |
-| `userMessage`      | Renders user messages. Has its own sub-slots (see below).                  |
-| `reasoningMessage` | Renders model reasoning/thinking steps. Has its own sub-slots (see below). |
-| `cursor`           | The streaming cursor indicator shown while the agent is responding.        |
-| `workSummary`      | The "Working… / Worked for 9s" line when `toolCallDisplay` is `"turn"`.     |
+| 插槽               | 说明                                                    |
+| ------------------ | ------------------------------------------------------- |
+| `assistantMessage` | 渲染助手回复。拥有自己的子插槽（见下文）。              |
+| `userMessage`      | 渲染用户消息。拥有自己的子插槽（见下文）。              |
+| `reasoningMessage` | 渲染模型推理/思考步骤。拥有自己的子插槽（见下文）。     |
+| `cursor`           | 智能体响应期间显示的流式光标指示器。                    |
+| `workSummary`      | 当 `toolCallDisplay` 为 `"turn"` 时显示的“正在处理… / 用时 9 秒”文本行。 |
 
-### `assistantMessage` sub-slots
+### `assistantMessage` 子插槽
 
-Available via `messageView={{ assistantMessage: { ... } }}`:
+可通过 `messageView={{ assistantMessage: { ... } }}` 使用：
 
-| Slot               | Description                        |
-| ------------------ | ---------------------------------- |
-| `markdownRenderer` | The markdown rendering component. See [Markdown Rendering](/custom-look-and-feel/markdown). |
-| `toolbar`          | The action toolbar below messages. |
-| `copyButton`       | Copy message button.               |
-| `thumbsUpButton`   | Thumbs up feedback button.         |
-| `thumbsDownButton` | Thumbs down feedback button.       |
-| `readAloudButton`  | Read aloud button.                 |
-| `regenerateButton` | Regenerate response button.        |
-| `toolCallsView`    | Tool call visualization. Has its own sub-slot (see below). |
+| 插槽               | 说明                                                       |
+| ------------------ | ---------------------------------------------------------- |
+| `markdownRenderer` | Markdown 渲染组件。参见 [Markdown 渲染](/custom-look-and-feel/markdown)。 |
+| `toolbar`          | 消息下方的操作工具栏。                                     |
+| `copyButton`       | 复制消息按钮。                                             |
+| `thumbsUpButton`   | 点赞反馈按钮。                                             |
+| `thumbsDownButton` | 点踩反馈按钮。                                             |
+| `readAloudButton`  | 朗读按钮。                                                 |
+| `regenerateButton` | 重新生成回复按钮。                                         |
+| `toolCallsView`    | 工具调用可视化。拥有自己的子插槽（见下文）。               |
 
-### `toolCallsView` sub-slots
+### `toolCallsView` 子插槽
 
-Available via `messageView={{ assistantMessage: { toolCallsView: { ... } } }}`:
+可通过 `messageView={{ assistantMessage: { toolCallsView: { ... } } }}` 使用：
 
-| Slot    | Description                                                                                                                         |
+| 插槽    | 说明                                                                                                                                |
 | ------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `group` | Tool calls the agent makes in a row, collapsed into one summary (grouped, line and stacked displays). See [`CopilotChatToolCallGroup`](/reference/components/CopilotChatToolCallGroup). |
+| `group` | 智能体连续进行的工具调用，折叠为一条摘要（grouped、line 与 stacked 显示形态）。参见 [`CopilotChatToolCallGroup`](/reference/components/CopilotChatToolCallGroup)。 |
 
-### `userMessage` sub-slots
+### `userMessage` 子插槽
 
-Available via `messageView={{ userMessage: { ... } }}`:
+可通过 `messageView={{ userMessage: { ... } }}` 使用：
 
-| Slot               | Description                                          |
-| ------------------ | ---------------------------------------------------- |
-| `messageRenderer`  | The text rendering component for user messages.      |
-| `toolbar`          | The action toolbar on hover.                         |
-| `copyButton`       | Copy message button.                                 |
-| `editButton`       | Edit message button.                                 |
-| `branchNavigation` | Navigation between message branches (after editing). |
+| 插槽               | 说明                                             |
+| ------------------ | ------------------------------------------------ |
+| `messageRenderer`  | 用户消息的文本渲染组件。                         |
+| `toolbar`          | 悬停时显示的操作工具栏。                         |
+| `copyButton`       | 复制消息按钮。                                   |
+| `editButton`       | 编辑消息按钮。                                   |
+| `branchNavigation` | 消息分支之间的导航（编辑后出现）。               |
 
-### `reasoningMessage` sub-slots
+### `reasoningMessage` 子插槽
 
-Available via `messageView={{ reasoningMessage: { ... } }}`:
+可通过 `messageView={{ reasoningMessage: { ... } }}` 使用：
 
-| Slot          | Description                                        |
-| ------------- | -------------------------------------------------- |
-| `header`      | The collapsible header (click to expand/collapse). |
-| `contentView` | The reasoning content area.                        |
-| `toggle`      | The expand/collapse toggle wrapper.                |
+| 插槽          | 说明                               |
+| ------------- | ---------------------------------- |
+| `header`      | 可折叠的头部（点击展开/收起）。    |
+| `contentView` | 推理内容区域。                     |
+| `toggle`      | 展开/收起切换的包装器。            |
 
-### `input` sub-slots
+### `input` 子插槽
 
-Available via `input={{ ... }}`:
+可通过 `input={{ ... }}` 使用：
 
-| Slot                     | Description                          |
-| ------------------------ | ------------------------------------ |
-| `textArea`               | The text input element.              |
-| `sendButton`             | The send/submit button.              |
-| `addMenuButton`          | The attachment/tools menu button.    |
-| `startTranscribeButton`  | Button to start voice transcription. |
-| `cancelTranscribeButton` | Button to cancel transcription.      |
-| `finishTranscribeButton` | Button to finish transcription.      |
-| `audioRecorder`          | The audio recorder component.        |
-| `disclaimer`             | The disclaimer text below the input. |
+| 插槽                     | 说明                       |
+| ------------------------ | -------------------------- |
+| `textArea`               | 文本输入元素。             |
+| `sendButton`             | 发送/提交按钮。            |
+| `addMenuButton`          | 附件/工具菜单按钮。        |
+| `startTranscribeButton`  | 开始语音转写的按钮。       |
+| `cancelTranscribeButton` | 取消转写的按钮。           |
+| `finishTranscribeButton` | 结束转写的按钮。           |
+| `audioRecorder`          | 音频录制组件。             |
+| `disclaimer`             | 输入框下方的免责声明文本。 |
 
-### `scrollView` sub-slots
+### `scrollView` 子插槽
 
-Available via `scrollView={{ ... }}`:
+可通过 `scrollView={{ ... }}` 使用：
 
-| Slot                   | Description                                            |
-| ---------------------- | ------------------------------------------------------ |
-| `feather`              | The gradient overlay at the bottom of the scroll area. |
-| `scrollToBottomButton` | The button that appears when scrolled up.              |
+| 插槽                   | 说明                           |
+| ---------------------- | ------------------------------ |
+| `feather`              | 滚动区域底部的渐变遮罩。       |
+| `scrollToBottomButton` | 向上滚动时出现的按钮。         |
 
-### `suggestionView` sub-slots
+### `suggestionView` 子插槽
 
-Available via `suggestionView={{ ... }}`:
+可通过 `suggestionView={{ ... }}` 使用：
 
-| Slot         | Description                                  |
-| ------------ | -------------------------------------------- |
-| `suggestion` | Individual suggestion pill/button.           |
-| `container`  | The container wrapping all suggestion pills. |
+| 插槽         | 说明                       |
+| ------------ | -------------------------- |
+| `suggestion` | 单个建议按钮。             |
+| `container`  | 包裹所有建议按钮的容器。   |
 
-### `welcomeScreen` sub-slots
+### `welcomeScreen` 子插槽
 
-Available via `welcomeScreen={{ ... }}`:
+可通过 `welcomeScreen={{ ... }}` 使用：
 
-| Slot             | Description                                |
-| ---------------- | ------------------------------------------ |
-| `welcomeMessage` | The welcome text shown on the empty state. |
+| 插槽             | 说明                           |
+| ---------------- | ------------------------------ |
+| `welcomeMessage` | 空状态下显示的欢迎文本。       |
 
-### `header` sub-slots (Sidebar/Popup only)
+### `header` 子插槽（仅限 Sidebar/Popup）
 
-Available via `header={{ ... }}`:
+可通过 `header={{ ... }}` 使用：
 
-| Slot           | Description                   |
-| -------------- | ----------------------------- |
-| `titleContent` | The title text in the header. |
-| `closeButton`  | The close/minimize button.    |
+| 插槽           | 说明                   |
+| -------------- | ---------------------- |
+| `titleContent` | 头部中的标题文本。     |
+| `closeButton`  | 关闭/最小化按钮。      |
 
-### `toggleButton` sub-slots (Sidebar/Popup only)
+### `toggleButton` 子插槽（仅限 Sidebar/Popup）
 
-Available via `toggleButton={{ ... }}`:
+可通过 `toggleButton={{ ... }}` 使用：
 
-| Slot        | Description                         |
-| ----------- | ----------------------------------- |
-| `openIcon`  | Icon shown when the chat is closed. |
-| `closeIcon` | Icon shown when the chat is open.   |
+| 插槽        | 说明                     |
+| ----------- | ------------------------ |
+| `openIcon`  | 聊天关闭时显示的图标。   |
+| `closeIcon` | 聊天打开时显示的图标。   |

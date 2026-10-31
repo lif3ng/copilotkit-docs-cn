@@ -1,41 +1,31 @@
 import { ImageAndCode } from "@/components/react/image-and-code";
 import { Callout } from "fumadocs-ui/components/callout";
 
-Some models (like OpenAI's o1, o3, and o4-mini) emit **reasoning tokens** — internal
-"thinking" traces that show the model's chain-of-thought before it produces a final
-answer. CopilotKit surfaces these tokens automatically with a collapsible
-**Reasoning Message** card.
+一些模型（如 OpenAI 的 o1、o3 和 o4-mini）会输出**推理 token** —— 即模型在给出最终答案之前展示其思维链的内部“思考”轨迹。CopilotKit 会通过一个可折叠的**推理消息**卡片自动呈现这些 token。
 
-## Default Behavior
+## 默认行为
 
-When reasoning events arrive from the agent, CopilotKit renders them inside a
-built-in card that:
+当来自智能体的推理事件到达时，CopilotKit 会将它们渲染在一个内置卡片中，该卡片会：
 
-- Shows a **"Thinking…"** label with a pulsating indicator while the model is
-  reasoning.
-- Expands automatically so you can follow the model's thought process in
-  real-time.
-- Collapses and switches to **"Thought for X seconds"** once reasoning finishes.
-- Renders the reasoning content as **Markdown**.
-- Includes a chevron toggle so users can re-expand and review the reasoning
-  at any time.
+- 在模型推理时显示 **“Thinking…”** 标签，并附带脉动指示器。
+- 自动展开，让你可以实时跟进模型的思考过程。
+- 推理结束后收起，并切换为 **“Thought for X seconds”**。
+- 将推理内容渲染为 **Markdown**。
+- 提供一个箭头切换按钮，用户可随时重新展开并查看推理内容。
 
-No extra configuration is needed — if your model emits reasoning tokens,
-the card appears automatically.
+无需任何额外配置 —— 只要你的模型输出推理 token，卡片就会自动出现。
 
-## Customizing the Reasoning Message
+## 自定义推理消息
 
-The reasoning message is composed of three sub-components that can each be
-replaced independently via **slot props**:
+推理消息由三个子组件组成，每个子组件都可以通过**插槽属性**独立替换：
 
-| Sub-component | Slot prop     | Description                                               |
-| ------------- | ------------- | --------------------------------------------------------- |
-| `Header`      | `header`      | The clickable bar with the brain icon, label, and chevron |
-| `Content`     | `contentView` | The reasoning text area (Markdown)                        |
-| `Toggle`      | `toggle`      | The expand/collapse animation wrapper                     |
+| 子组件        | 插槽属性      | 描述                                      |
+| ------------- | ------------- | ----------------------------------------- |
+| `Header`      | `header`      | 带大脑图标、标签和箭头的可点击栏          |
+| `Content`     | `contentView` | 推理文本区域（Markdown）                  |
+| `Toggle`      | `toggle`      | 展开/收起动画包装器                       |
 
-You pass custom sub-components through the `messageView` prop on
-`CopilotChat`, `CopilotPopup`, or `CopilotSidebar`:
+你可以通过 `CopilotChat`、`CopilotPopup` 或 `CopilotSidebar` 的 `messageView` 属性传入自定义子组件：
 
 ```tsx
 <CopilotChat
@@ -48,19 +38,18 @@ You pass custom sub-components through the `messageView` prop on
 />
 ```
 
-### Custom Header
+### 自定义头部
 
-Replace the header to change the icon, label text, or styling. The header
-receives these props:
+替换头部即可更改图标、标签文本或样式。头部会接收以下属性：
 
-| Prop             | Type         | Description                                                                                             |
-| ---------------- | ------------ | ------------------------------------------------------------------------------------------------------- |
-| `isOpen`         | `boolean`    | Whether the content panel is currently expanded                                                         |
-| `label`          | `string`     | `labels.reasoningMessageThinkingLabel` (`"Thinking…"`) while streaming, `"Thought for X seconds"` after |
-| `hasContent`     | `boolean`    | Whether any reasoning text has been received                                                            |
-| `isStreaming`    | `boolean`    | Whether reasoning is actively streaming                                                                 |
-| `elapsedSeconds` | `number`     | Seconds spent reasoning, for building a localized label                                                 |
-| `onClick`        | `() => void` | Toggle handler (only present when `hasContent` is `true`)                                               |
+| 属性             | 类型         | 描述                                                                                                |
+| ---------------- | ------------ | ----------------------------------------------------------------------------------------------------- |
+| `isOpen`         | `boolean`    | 内容面板当前是否展开                                                                                  |
+| `label`          | `string`     | 流式传输时为 `labels.reasoningMessageThinkingLabel`（`"Thinking…"`），结束后为 `"Thought for X seconds"` |
+| `hasContent`     | `boolean`    | 是否已收到任何推理文本                                                                                |
+| `isStreaming`    | `boolean`    | 推理是否正在流式输出                                                                                  |
+| `elapsedSeconds` | `number`     | 推理耗时秒数，用于构建本地化标签                                                                      |
+| `onClick`        | `() => void` | 切换处理器（仅在 `hasContent` 为 `true` 时存在）                                                      |
 
 ```tsx
 import { CopilotChat } from "@copilotkit/react-core/v2";
@@ -100,15 +89,15 @@ function CustomHeader({
 />;
 ```
 
-### Custom Content
+### 自定义内容
 
-Replace the content area to change how reasoning text is displayed:
+替换内容区域即可更改推理文本的展示方式：
 
-| Prop          | Type      | Description                                  |
-| ------------- | --------- | -------------------------------------------- |
-| `isStreaming` | `boolean` | Whether reasoning tokens are still arriving  |
-| `hasContent`  | `boolean` | Whether any reasoning text has been received |
-| `children`    | `string`  | The raw reasoning text                       |
+| 属性          | 类型      | 描述                         |
+| ------------- | --------- | ---------------------------- |
+| `isStreaming` | `boolean` | 推理 token 是否仍在到达      |
+| `hasContent`  | `boolean` | 是否已收到任何推理文本       |
+| `children`    | `string`  | 原始推理文本                 |
 
 ```tsx
 function CustomContent({
@@ -138,16 +127,15 @@ function CustomContent({
 />;
 ```
 
-## Fully Custom Reasoning Message
+## 完全自定义推理消息
 
-For complete control over the entire reasoning card, pass a **component** instead of
-slot props. Your component receives the same top-level props as the built-in one:
+要完全控制整个推理卡片，请传入一个**组件**而不是插槽属性。你的组件将接收与内置组件相同的顶层属性：
 
-| Prop        | Type               | Description                                              |
-| ----------- | ------------------ | -------------------------------------------------------- |
-| `message`   | `ReasoningMessage` | The reasoning message object (`.content` holds the text) |
-| `messages`  | `Message[]`        | All messages in the conversation                         |
-| `isRunning` | `boolean`          | Whether the agent is currently running                   |
+| 属性        | 类型               | 描述                                      |
+| ----------- | ------------------ | ----------------------------------------- |
+| `message`   | `ReasoningMessage` | 推理消息对象（`.content` 保存文本）       |
+| `messages`  | `Message[]`        | 对话中的全部消息                          |
+| `isRunning` | `boolean`          | 智能体当前是否正在运行                    |
 
 ```tsx
 import { type CopilotChatReasoningMessageProps } from "@copilotkit/react-core/v2";
@@ -184,11 +172,9 @@ function MyReasoningMessage({
 />;
 ```
 
-## Render-Prop Children
+## Render Prop 子组件
 
-The built-in `CopilotChatReasoningMessage` also supports a **render-prop**
-pattern for cases where you want to rearrange the built-in sub-components
-without reimplementing them:
+内置的 `CopilotChatReasoningMessage` 还支持 **render prop** 模式，适用于你想重新排列内置子组件而又不想重新实现它们的场景：
 
 ```tsx
 import { CopilotChatReasoningMessage } from "@copilotkit/react-core/v2";
@@ -218,13 +204,13 @@ function MyReasoningLayout(
 />;
 ```
 
-The render-prop callback receives:
+render prop 回调会收到：
 
-| Property      | Description                                                   |
-| ------------- | ------------------------------------------------------------- |
-| `header`      | Pre-rendered header element                                   |
-| `contentView` | Pre-rendered content element                                  |
-| `toggle`      | Pre-rendered expand/collapse wrapper (contains `contentView`) |
-| `message`     | The reasoning message object                                  |
-| `messages`    | All messages                                                  |
-| `isRunning`   | Whether the agent is running                                  |
+| 属性          | 描述                                          |
+| ------------- | --------------------------------------------- |
+| `header`      | 预渲染的头部元素                              |
+| `contentView` | 预渲染的内容元素                              |
+| `toggle`      | 预渲染的展开/收起包装器（包含 `contentView`） |
+| `message`     | 推理消息对象                                  |
+| `messages`    | 全部消息                                      |
+| `isRunning`   | 智能体是否正在运行                            |

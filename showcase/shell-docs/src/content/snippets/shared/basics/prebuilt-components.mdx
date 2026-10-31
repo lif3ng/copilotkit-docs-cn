@@ -1,9 +1,9 @@
 import { IframeSwitcher } from "@/components/content";
 
-CopilotKit ships three prebuilt chat components that connect directly to your agent. Each is a wrapper around `CopilotChat` with a different layout — pick the one that fits your app and you're done.
+CopilotKit 提供三款可直接连接你的智能体的预构建聊天组件。每一款都是 `CopilotChat` 的包装器，只是布局不同——选一个适合你应用的即可。
 
 <Callout type="info">
-  If you've completed the quickstart, you already have one of these set up.
+  如果你已完成快速开始，那么其中一款你已经设置好了。
 </Callout>
 
 <IframeSwitcher
@@ -15,9 +15,9 @@ CopilotKit ships three prebuilt chat components that connect directly to your ag
   height="700px"
 />
 
-## Setup
+## 设置
 
-Import the default styles in your root layout:
+在根布局中导入默认样式：
 
 ```tsx title="layout.tsx"
 import "@copilotkit/react-core/v2/styles.css";
@@ -25,7 +25,7 @@ import "@copilotkit/react-core/v2/styles.css";
 
 ### CopilotChat
 
-A flexible chat component that can be placed anywhere in your app and sized as needed.
+一个灵活的聊天组件，可放置在应用的任意位置，并按需调整尺寸。
 
 ```tsx title="page.tsx"
 // [!code word:CopilotChat]
@@ -44,13 +44,13 @@ export function YourComponent() {
 
 <img
   src="https://cdn.copilotkit.ai/docs/copilotkit/images/copilotchat-example.gif"
-  alt="CopilotChat example"
+  alt="CopilotChat 示例"
   className="w-full rounded-lg my-4"
 />
 
 ### CopilotSidebar
 
-Wraps your main content and provides a collapsible sidebar chat.
+包裹你的主内容，提供一个可折叠的侧边栏聊天。
 
 ```tsx title="page.tsx"
 // [!code word:CopilotSidebar]
@@ -74,13 +74,13 @@ export default function YourApp() {
 
 <img
   src="https://cdn.copilotkit.ai/docs/copilotkit/images/sidebar-example.gif"
-  alt="CopilotSidebar example"
+  alt="CopilotSidebar 示例"
   className="w-full rounded-lg my-4"
 />
 
 ### CopilotPopup
 
-A floating chat bubble that sits alongside your content and toggles open/closed.
+一个悬浮聊天气泡，位于你的内容旁边，可切换展开/收起。
 
 ```tsx title="page.tsx"
 // [!code word:CopilotPopup]
@@ -103,13 +103,13 @@ export default function YourApp() {
 
 <img
   src="https://cdn.copilotkit.ai/docs/copilotkit/images/popup-example.gif"
-  alt="CopilotPopup example"
+  alt="CopilotPopup 示例"
   className="w-full rounded-lg my-4"
 />
 
-## Customization
+## 自定义
 
-All three components support the slot system for deep customization — from Tailwind classes to full component replacement:
+这三个组件都支持插槽系统以进行深度自定义——从 Tailwind 类到完整替换组件：
 
 ```tsx title="page.tsx"
 <CopilotChat
