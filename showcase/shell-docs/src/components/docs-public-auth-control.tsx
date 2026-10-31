@@ -8,7 +8,7 @@ import { buildIntelligenceAuthEntryHref } from "@/lib/docs-cta-href";
 import {
   usePublicClerkAvailable,
   usePublicOpsUrl,
-} from "./public-clerk-provider";
+} from "@/components/public-clerk-provider";
 
 export function buildDocsAuthEntryHref(
   opsPublicUrl = "https://dashboard.operations.copilotkit.ai",
