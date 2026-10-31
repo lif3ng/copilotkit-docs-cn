@@ -530,14 +530,7 @@ const AG_UI_MIRROR_REDIRECTS: MovedPermanentlyRedirect[] = [
 // `console.error` from `runtime-config.ts` instead.
 
 const nextConfig: NextConfig = {
-  ...(STATIC_EXPORT
-    ? {
-        output: "export" as const,
-        // Export prerendering of ~4k pages crashes silently at default
-        // worker counts on this build host; run it low-and-slow instead.
-        experimental: { cpus: 2, workerThreads: false },
-      }
-    : {}),
+  ...(STATIC_EXPORT ? { output: "export" as const } : {}),
   // The raw-MDX route intentionally traces runtime-readable content. Next
   // 16.2.10 also reports this config file as an "unexpected" NFT entry even
   // though the config has no application imports. Keep the filter exact so
@@ -545,15 +538,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     // The standalone Docker build has no monorepo lockfile. Include sibling
     // shared sources explicitly instead of relying on local root inference.
-    //
-    // Static export overrides this to shell-docs itself: the export build
-    // only compiles bundled data already generated into src/data, and
-    // rooting Turbopack at showcase/ drags 20k+ sibling files (integrations,
-    // harness, demo sources) into the compilation context, which crashed
-    // the build host with silently-exiting workers.
-    ...(STATIC_EXPORT
-      ? { root: __dirname }
-      : { root: path.resolve(__dirname, "..") }),
+    // Root MUST stay at showcase/: standard-catalog imports
+    // ../../../../shared/generative-ui-catalog, which only resolves when the
+    // compilation root contains showcase/shared.
+    root: path.resolve(__dirname, ".."),
     ignoreIssue: [
       {
         path: /showcase\/shell-docs\/next\.config\.ts$/,
