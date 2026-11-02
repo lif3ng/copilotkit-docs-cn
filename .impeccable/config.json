@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "C:/Users/lif3n/src/docs/copilotkit-docs-cn/showcase/shell-docs/src/lib/mdx-registry.tsx"
+        ],
+        "createdAt": "2026-11-02T00:59:53.803Z",
+        "reason": "MDX img basePath 映射：src={withBase(src)} 是运行时路径处理非占位符，静态扫描无法求值"
+      }
+    ]
+  }
+}

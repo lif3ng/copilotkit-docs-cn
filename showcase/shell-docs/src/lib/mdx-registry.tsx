@@ -27,6 +27,7 @@ import {
   Accordion,
 } from "@/components/mdx-components";
 import { Callout as DocsCallout } from "fumadocs-ui/components/callout";
+import { withBase } from "@/lib/export-mode";
 import { Steps as DocsSteps, Step as DocsStep } from "@/components/docs-steps";
 import { Tabs as DocsTabs, Tab as DocsTab } from "@/components/docs-tabs";
 import {
@@ -338,6 +339,13 @@ export const docsComponents = {
   // complete content.
   If: ({ children }: { children?: React.ReactNode; conditions?: unknown }) => (
     <>{children}</>
+  ),
+  // MDX <img> is a native element, so it bypasses next/link-style basePath
+  // rewriting. Route root-relative srcs through withBase() so images resolve
+  // under the deployed sub-path; next/image consumers already honor basePath.
+  img: ({ src, ...rest }: React.ImgHTMLAttributes<HTMLImageElement>) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={withBase(src)} {...rest} />
   ),
   // The same removed multi-provider module family also leaks provider-picker
   // icons into snippet JSX (self-hosting-copilot-runtime-create-endpoint's

@@ -530,7 +530,15 @@ const AG_UI_MIRROR_REDIRECTS: MovedPermanentlyRedirect[] = [
 // `console.error` from `runtime-config.ts` instead.
 
 const nextConfig: NextConfig = {
-  ...(STATIC_EXPORT ? { output: "export" as const } : {}),
+  ...(STATIC_EXPORT
+    ? {
+        output: "export" as const,
+        // Project Pages serves under /copilotkit-docs-cn/; without basePath
+        // every _next asset 404s. next/link and <Image> honor it; hand-written
+        // <img> in MDX goes through the docsComponents img mapping instead.
+        basePath: process.env.NEXT_PUBLIC_BASE_PATH || "/copilotkit-docs-cn",
+      }
+    : {}),
   // The raw-MDX route intentionally traces runtime-readable content. Next
   // 16.2.10 also reports this config file as an "unexpected" NFT entry even
   // though the config has no application imports. Keep the filter exact so
