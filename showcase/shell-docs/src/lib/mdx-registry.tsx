@@ -343,13 +343,6 @@ export const docsComponents = {
   // MDX <img> is a native element, so it bypasses next/link-style basePath
   // rewriting. Route root-relative srcs through withBase() so images resolve
   // under the deployed sub-path; next/image consumers already honor basePath.
-  img: ({ src, ...rest }: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={typeof src === "string" ? withBase(src) : src}
-      {...rest}
-    />
-  ),
   // The same removed multi-provider module family also leaks provider-picker
   // icons into snippet JSX (self-hosting-copilot-runtime-create-endpoint's
   // <Tabs items={[{ icon: <RiNextjsLine /> }]}>) and wraps whole sections in
@@ -607,18 +600,26 @@ export const docsComponents = {
       }}
     />
   ),
-  img: (props: Record<string, unknown>) => (
+  img: (props: Record<string, unknown>) => {
     // Accept user className from MDX (see note on `video` above).
+    // Root-relative srcs get the deployed sub-path prepended in export
+    // mode — native <img> bypasses Next's basePath rewriting.
     // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-    <img
-      {...props}
-      style={{
-        borderRadius: "var(--shell-docs-radius-surface)",
-        maxWidth: "100%",
-        marginBottom: "1rem",
-      }}
-    />
-  ),
+    const { src, ...rest } = props;
+    return (
+      <img
+        {...rest}
+        src={
+          typeof src === "string" ? withBase(src) : (src as string | undefined)
+        }
+        style={{
+          borderRadius: "var(--shell-docs-radius-surface)",
+          maxWidth: "100%",
+          marginBottom: "1rem",
+        }}
+      />
+    );
+  },
   CodeGroup: ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>
   ),
