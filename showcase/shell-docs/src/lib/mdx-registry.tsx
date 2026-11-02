@@ -697,7 +697,7 @@ export const docsComponents = {
   ImageZoom: ({ src, alt }: { src?: string; alt?: string }) => (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={src}
+      src={withBase(src)}
       alt={alt || ""}
       style={{
         borderRadius: "var(--shell-docs-radius-surface)",
@@ -1151,7 +1151,7 @@ export const docsComponents = {
   }) => (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={src ?? ""}
+      src={withBase(src) ?? ""}
       alt={alt ?? ""}
       width={width}
       height={height}
