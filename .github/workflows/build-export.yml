@@ -53,6 +53,7 @@ jobs:
           node ../scripts/patch-dynamic.cjs --apply
           NEXT_STATIC_EXPORT=1 \
           NEXT_PUBLIC_BASE_URL="https://lif3ng.github.io/copilotkit-docs-cn" \
+          NEXT_PUBLIC_BASE_PATH="/copilotkit-docs-cn" \
           npm run build
           echo "--- out/ ---"
           du -sh out
@@ -83,11 +84,21 @@ jobs:
           for (const f of htmls) {
             const html = fs.readFileSync(f, "utf8");
             for (const m of html.matchAll(/(?:src|href|poster)="(\/[^"#?]*)/g)) {
-              if (ASSET.test(m[1])) refs.add(m[1]);
+              if (/^\/(_next|images|logos|videos|fonts|img)\//.test(m[1])) {
+                refs.add(m[1]);
+              }
             }
           }
           let missing = 0;
           for (const ref of [...refs].sort()) {
+            // Under a basePath deployment an un-prefixed asset URL 404s on
+            // the live site (browser resolves it against the Pages root),
+            // even though the file exists in out/ — treat it as missing.
+            if (!ref.startsWith(BASE)) {
+              missing++;
+              if (missing <= 30) console.log("MISSING (no basePath)", ref);
+              continue;
+            }
             const target = path.join(out, decodeURIComponent(ref.slice(BASE.length).split("?")[0]));
             if (fs.existsSync(target)) continue;
             missing++;

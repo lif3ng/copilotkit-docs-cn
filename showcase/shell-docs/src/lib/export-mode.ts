@@ -17,11 +17,11 @@
 export const STATIC_EXPORT = process.env.NEXT_STATIC_EXPORT === "1";
 
 // Deployed base path (project Pages serves under /copilotkit-docs-cn/).
-// next/link, <Image>, and _next assets pick this up from the Next config
-// automatically; hand-written <img src="/images/..."> in MDX does not, so
-// the docsComponents `img` mapping routes through this helper.
+// MUST match next.config.ts's basePath fallback exactly — a mismatch here
+// silently emits un-prefixed asset URLs (withBase("") === src).
 export const BASE_PATH =
-  (STATIC_EXPORT && process.env.NEXT_PUBLIC_BASE_PATH) || "";
+  (STATIC_EXPORT && process.env.NEXT_PUBLIC_BASE_PATH) ||
+  "/copilotkit-docs-cn";
 
 export function withBase(src: string): string;
 export function withBase(src: string | undefined): string | undefined;
