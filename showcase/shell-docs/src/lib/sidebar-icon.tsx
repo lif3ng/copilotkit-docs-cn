@@ -9,6 +9,7 @@
 // client bundle doesn't pick up the entire lucide library. When a
 // new icon name appears in content frontmatter, add it to the map
 // below (and to the lucide imports above).
+import { withBase } from "@/lib/export-mode";
 
 import React from "react";
 import Image from "next/image";
@@ -159,7 +160,7 @@ const ICONS: Record<string, React.ReactNode> = {
   "custom/react": <FrontendLogo icon="react" size={16} />,
   "custom/daytona": (
     <Image
-      src="/logos/daytona.png"
+      src={withBase("/logos/daytona.png")}
       alt=""
       aria-hidden="true"
       width={16}
@@ -170,7 +171,7 @@ const ICONS: Record<string, React.ReactNode> = {
   ),
   "custom/claude-managed-agents": (
     <Image
-      src="/logos/claude.svg"
+      src={withBase("/logos/claude.svg")}
       alt=""
       aria-hidden="true"
       width={16}
@@ -181,7 +182,7 @@ const ICONS: Record<string, React.ReactNode> = {
   ),
   "custom/arcade": (
     <Image
-      src="/logos/arcade.png"
+      src={withBase("/logos/arcade.png")}
       alt=""
       aria-hidden="true"
       width={16}
@@ -192,7 +193,7 @@ const ICONS: Record<string, React.ReactNode> = {
   ),
   "custom/oracle-agent-spec": (
     <Image
-      src="/logos/oracle-agent-spec.png"
+      src={withBase("/logos/oracle-agent-spec.png")}
       alt=""
       aria-hidden="true"
       width={16}
@@ -203,7 +204,7 @@ const ICONS: Record<string, React.ReactNode> = {
   ),
   "custom/openbox": (
     <Image
-      src="/logos/openbox.png"
+      src={withBase("/logos/openbox.png")}
       alt=""
       aria-hidden="true"
       width={16}
@@ -214,7 +215,7 @@ const ICONS: Record<string, React.ReactNode> = {
   ),
   "custom/typesafe": (
     <Image
-      src="/logos/typesafe.svg"
+      src={withBase("/logos/typesafe.svg")}
       alt=""
       aria-hidden="true"
       width={16}
@@ -225,7 +226,7 @@ const ICONS: Record<string, React.ReactNode> = {
   ),
   "custom/antigravity": (
     <Image
-      src="/logos/antigravity.svg"
+      src={withBase("/logos/antigravity.svg")}
       alt=""
       aria-hidden="true"
       width={16}
@@ -236,7 +237,7 @@ const ICONS: Record<string, React.ReactNode> = {
   ),
   "custom/manufact": (
     <Image
-      src="/logos/manufact.svg"
+      src={withBase("/logos/manufact.svg")}
       alt=""
       aria-hidden="true"
       width={16}
@@ -247,7 +248,7 @@ const ICONS: Record<string, React.ReactNode> = {
   ),
   "custom/google-adk": (
     <Image
-      src="/logos/google-adk.png"
+      src={withBase("/logos/google-adk.png")}
       alt=""
       aria-hidden="true"
       width={16}

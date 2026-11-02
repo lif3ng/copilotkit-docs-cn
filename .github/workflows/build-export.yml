@@ -58,6 +58,41 @@ jobs:
           du -sh out
           find out -name "*.html" | wc -l
 
+      # 断链审计：全部 HTML 引用的站内资源（src/href 根路径）必须存在于 out/。
+      # 外链（http）、锚点、href="#"/mailto 跳过。发现缺失即失败，防止
+      # basePath 漏改的静态资源悄悄上线。
+      - name: Broken-asset audit
+        run: |
+          cd showcase/shell-docs
+          node -e '
+          const fs = require("fs"), path = require("path");
+          const out = path.resolve("out");
+          const htmls = [];
+          (function walk(d) {
+            for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+              const p = path.join(d, e.name);
+              if (e.isDirectory()) walk(p);
+              else if (p.endsWith(".html")) htmls.push(p);
+            }
+          })(out);
+          const refs = new Set();
+          for (const f of htmls) {
+            const html = fs.readFileSync(f, "utf8");
+            for (const m of html.matchAll(/(?:src|href|poster)="(\/[^"#?]*)/g)) {
+              refs.add(m[1]);
+            }
+          }
+          let missing = 0;
+          for (const ref of [...refs].sort()) {
+            const target = path.join(out, decodeURIComponent(ref.split("?")[0]));
+            if (fs.existsSync(target)) continue;
+            missing++;
+            if (missing <= 30) console.log("MISSING", ref);
+          }
+          console.log(`引用 ${refs.size} 个站内资源，缺失 ${missing}`);
+          if (missing > 0) process.exit(1);
+          '
+
       - name: Upload pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

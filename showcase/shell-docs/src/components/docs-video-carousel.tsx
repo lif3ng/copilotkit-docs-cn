@@ -2,6 +2,7 @@
 
 import { DocsVideoPreview } from "./docs-video-preview";
 import { ACCENT_BUTTON_CLASS } from "./wizard-stepper-parts";
+import { withBase } from "@/lib/export-mode";
 
 import { ArrowRight, Brain, MessagesSquare, Workflow } from "lucide-react";
 import { useRef, useState } from "react";
@@ -31,7 +32,7 @@ const RECORDINGS: readonly Recording[] = [
     href: "/quickstart",
     previewSrc: "/videos/product-tour/overview.mp4",
     loomId: "5a04db6a04584b79b98021737d012d53",
-    thumbnail: "/images/product-tour/overview.jpg",
+    thumbnail: withBase("/images/product-tour/overview.jpg"),
   },
   {
     id: "rich-threads",
@@ -42,7 +43,7 @@ const RECORDINGS: readonly Recording[] = [
     href: "/AG-UI-Streams",
     previewSrc: "/videos/product-tour/rich-threads.mp4",
     loomId: "79817778d29e490c97225127d2f17b3a",
-    thumbnail: "/images/product-tour/rich-threads.jpg",
+    thumbnail: withBase("/images/product-tour/rich-threads.jpg"),
   },
   {
     id: "user-memories",
@@ -53,7 +54,7 @@ const RECORDINGS: readonly Recording[] = [
     href: "/learning",
     previewSrc: "/videos/product-tour/automatic-learning.mp4",
     loomId: "2978fbfe42324e509057ac5fd46b7a70",
-    thumbnail: "/images/product-tour/automatic-learning.jpg",
+    thumbnail: withBase("/images/product-tour/automatic-learning.jpg"),
   },
 ] as const;
 

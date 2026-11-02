@@ -8,6 +8,7 @@ import {
   PROMPT_PHONE_HINT,
 } from "@/lib/prompt-guidance";
 import "./prompt-pill.css";
+import { withBase } from "@/lib/export-mode";
 
 export type PromptAction = "copy" | "view_prompt" | "copy_preview";
 
@@ -168,14 +169,14 @@ export function PromptPill({
             <span className="prompt-pill-divider" />
             <Image
               unoptimized
-              src="/images/prompt-claude.webp"
+              src={withBase("/images/prompt-claude.webp")}
               alt=""
               width={18}
               height={18}
             />
             <Image
               unoptimized
-              src="/images/prompt-codex.webp"
+              src={withBase("/images/prompt-codex.webp")}
               alt=""
               width={18}
               height={18}

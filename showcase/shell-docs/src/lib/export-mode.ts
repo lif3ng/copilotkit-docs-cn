@@ -23,6 +23,8 @@ export const STATIC_EXPORT = process.env.NEXT_STATIC_EXPORT === "1";
 export const BASE_PATH =
   (STATIC_EXPORT && process.env.NEXT_PUBLIC_BASE_PATH) || "";
 
+export function withBase(src: string): string;
+export function withBase(src: string | undefined): string | undefined;
 export function withBase(src: string | undefined): string | undefined {
   if (!src || !src.startsWith("/") || src.startsWith("//")) return src;
   return `${BASE_PATH}${src}`;
