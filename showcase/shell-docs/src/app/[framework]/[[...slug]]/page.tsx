@@ -502,11 +502,14 @@ export async function generateStaticParams() {
       ? entry.url.slice(base.length)
       : entry.url;
     const segments = pathName.split("/").filter(Boolean);
-    if (segments.length < 2) continue; // bare/root pages belong to [[...slug]]
+    if (segments.length < 1) continue;
     const [framework] = segments;
     if (reserved.has(framework)) continue;
     if (seen.has(pathName)) continue;
     seen.add(pathName);
+    // A single segment here is the framework landing page (/<framework>);
+    // it must NOT fall through to the root [[...slug]] surface, which has
+    // no page for it and would 404 the URL in the export.
     params.push({ framework, slug: segments.slice(1) });
   }
   return params;

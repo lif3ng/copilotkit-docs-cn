@@ -53,6 +53,7 @@ export async function generateStaticParams(): Promise<
   const { default: sitemap } = await import("@/app/sitemap");
   const { getBaseUrl } = await import("@/lib/sitemap-helpers");
   const { FRONTEND_PAGE_IDS } = await import("@/lib/frontend-page-content");
+  const { getIntegrations } = await import("@/lib/registry");
   const base = getBaseUrl();
   const ownedElsewhere = new Set<string>([
     ...RESERVED_ROUTE_SLUGS,
@@ -60,6 +61,10 @@ export async function generateStaticParams(): Promise<
     // Frontend landings (/vue, /angular, /slack, …) are served by
     // app/frontends/[frontend]; the framework-scoped deep pages stay here.
     ...FRONTEND_PAGE_IDS,
+    // Every framework landing (/langgraph-python, /mastra, …) belongs to
+    // the [framework] catch-all — this surface has no page for them and
+    // prerendering them here would 404 the URL in the export.
+    ...getIntegrations().map((i) => i.slug),
   ]);
   const params: { slug?: string[] }[] = [{ slug: [] }]; // home page
   const seen = new Set<string>([""]);
