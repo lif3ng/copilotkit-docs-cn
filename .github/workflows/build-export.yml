@@ -59,6 +59,40 @@ jobs:
           du -sh out
           find out -name "*.html" | wc -l
 
+      # 产物级统一重写：Next 的多个引用形态不吃 basePath（unoptimized Image
+      # 透传 src、MDX 手写 <img>、data 层常量等），逐组件打补丁不可枚举。
+      # 直接在部署产物上把无前缀的站内资源引用批量加前缀，物理保证零断链。
+      - name: Rewrite asset prefixes in out/
+        run: |
+          cd showcase/shell-docs
+          node -e '
+          const fs = require("fs"), path = require("path");
+          const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "/copilotkit-docs-cn";
+          const out = path.resolve("out");
+          let files = 0, rewritten = 0;
+          (function walk(d) {
+            for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+              const p = path.join(d, e.name);
+              if (e.isDirectory()) walk(p);
+              else if (p.endsWith(".html")) {
+                let html = fs.readFileSync(p, "utf8");
+                const before = html;
+                html = html.replace(
+                  /(\s(?:src|href|poster|content)=")\/((?:_next|images|logos|videos|fonts|img)\/)/g,
+                  `$1${BASE}/$2`,
+                );
+                if (html !== before) {
+                  fs.writeFileSync(p, html);
+                  files++;
+                  rewritten += (before.match(/\s(?:src|href|poster|content)="\/(?:_next|images|logos|videos|fonts|img)\//g) || []).length -
+                    (html.match(/\s(?:src|href|poster|content)="\/(?:_next|images|logos|videos|fonts|img)\//g) || []).length;
+                }
+              }
+            }
+          })(out);
+          console.log(`重写 ${files} 个 HTML，${rewritten} 处引用加前缀`);
+          '
+
       # 断链审计：全部 HTML 引用的站内资源（src/href 根路径）必须存在于 out/。
       # 外链（http）、锚点、href="#"/mailto 跳过。发现缺失即失败，防止
       # basePath 漏改的静态资源悄悄上线。
