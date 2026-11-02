@@ -345,7 +345,10 @@ export const docsComponents = {
   // under the deployed sub-path; next/image consumers already honor basePath.
   img: ({ src, ...rest }: React.ImgHTMLAttributes<HTMLImageElement>) => (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={withBase(src)} {...rest} />
+    <img
+      src={typeof src === "string" ? withBase(src) : src}
+      {...rest}
+    />
   ),
   // The same removed multi-provider module family also leaks provider-picker
   // icons into snippet JSX (self-hosting-copilot-runtime-create-endpoint's
